@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28803.352
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{7CF6DF6D-3B04-46F8-A40B-537D21BCA0B4}") = "ASCOM Standard Help", "ASCOM Standard Help.shfbproj", "{C067ED42-D85F-42D1-A481-23887FE2E23A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C067ED42-D85F-42D1-A481-23887FE2E23A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C067ED42-D85F-42D1-A481-23887FE2E23A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C067ED42-D85F-42D1-A481-23887FE2E23A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C067ED42-D85F-42D1-A481-23887FE2E23A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {9CD5C55E-B5C3-437B-BEFA-7C0536B10DAA}
+	EndGlobalSection
+EndGlobal

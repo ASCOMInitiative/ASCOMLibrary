@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Authors>ASCOM Initiative</Authors>
+    <Company>ASCOM Initiaitive</Company>
+    <Product>ASCOM .NET Standard Components</Product>
+    <Description>A suite of components to aid ASCOM Alpaca application and driver development</Description>
+    <Copyright>ASCOM Initiaitive (c) 2019</Copyright>
+    <RootNamespace>ASCOM.Alpaca</RootNamespace>
+    <PackageId>ASCOMStandardComponents</PackageId>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>AlpacaSigningKey.snk</AssemblyOriginatorKeyFile>
+    <DelaySign>false</DelaySign>
+    <AssemblyName>ASCOMStandard</AssemblyName>
+    <ApplicationIcon>favicon.ico</ApplicationIcon>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>J:\ASCOMStandardUtilities\ASCOMStandardUtilities\ASCOMStandard.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>J:\ASCOMStandardUtilities\ASCOMStandard\ASCOMStandard.xml</DocumentationFile>
+  </PropertyGroup>
+
+</Project>
