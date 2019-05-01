@@ -26,4 +26,9 @@
     <DocumentationFile>J:\ASCOMStandardUtilities\ASCOMStandard\ASCOMStandard.xml</DocumentationFile>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="NLog" Version="4.6.3" />
+    <PackageReference Include="Serilog" Version="2.8.0" />
+  </ItemGroup>
+
 </Project>
