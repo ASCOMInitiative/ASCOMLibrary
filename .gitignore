@@ -489,3 +489,4 @@ healthchecksdb
 MigrationBackup/
 
 # End of https://www.gitignore.io/api/rider,visualstudio,jetbrains+all,visualstudiocode
+Help/Help
