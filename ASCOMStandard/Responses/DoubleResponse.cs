@@ -2,6 +2,6 @@
 {
     public class DoubleResponse : Response, IValueResponse<double>
     {
-        public double Value { get; internal set; }
+        public double Value { get; set; }
     }
 }

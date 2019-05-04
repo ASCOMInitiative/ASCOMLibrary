@@ -1,7 +1,7 @@
 ﻿namespace ASCOM.Alpaca.Responses
 {
-    public interface IValueResponse<out T> : IResponse
+    public interface IValueResponse<T> : IResponse
     {
-        T Value { get; }
+        T Value { get; set; }
     }
 }
