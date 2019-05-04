@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace ASCOM.Alpaca
+﻿namespace ASCOM.Alpaca.Interfaces
 {
     /// <summary>
     /// ASCOM Alpaca Telescope Interface
