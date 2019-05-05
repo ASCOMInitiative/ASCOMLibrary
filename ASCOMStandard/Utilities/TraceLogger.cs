@@ -1,4 +1,10 @@
 ﻿using System;
+using System.Diagnostics;
+using System.IO;
+using ASCOM.Alpaca.Exceptions;
+using NLog;
+using NLog.Targets;
+//using NLog.Common;
 
 namespace ASCOM.Alpaca
 {
@@ -16,19 +22,112 @@ namespace ASCOM.Alpaca
     /// and fractional second at the time that the message was logged, Identifier is the supplied identifier (usually the subroutine, 
     /// function, property or method from which the message is sent) and Message is the message to be logged.</para>
     ///</remarks>
-    public class TraceLogger
+    public class TraceLogger : IDisposable
     {
+        private const string LOG_TIME_FORMAT = "HH:mm:ss.fff";
+        private const int IDENTIFIER_WIDTH_DEFAULT = 25;
+        private const string TRACE_LOGGER_PATH_BASE = @"\ASCOM"; // Path to TraceLogger directory from My Documents
+        private const string TRACE_LOGGER_DIRECTORY_NAME_BASE = @"\Logs "; // Fixed part of the TraceLogger directory name.  Note: The trailing space must be retained!;
+        private const string TRACE_LOGGER_DIRECTORY_NAME_DATE_FORMAT = "yyyy-MM-dd"; // Date format for variable part of the TraceLogger directory name
+        private const string TRACE_LOGGER_FILE_NAME_BASE = @"\ASCOM."; // Fixed part of the TraceLogger directory name.  Note: The trailing space must be retained!;
+        private const string TRACE_LOGGER_FILE_NAME_TIME_FORMAT = "HHmm.ssfff"; // Date format for variable part of the TraceLogger directory name
+        private const string TRACE_LOGGER_FILE_EXTENSION = ".txt"; // File extension to apply to log files
+
+        private StreamWriter logFileStream;
+        private readonly object writeLockObject = new object();
+        private string logFileType;
+
+        //private string g_LogFileActualName;
+
+        #region Initialiser and IDisposable Support
 
         /// <summary>
-        /// Logs an issue, closing any open line and opening a continuation line if necessary after the 
-        /// issue message.
+        /// Initialise the TraceLogger
         /// </summary>
-        /// <param name="Identifier">Identifies the meaning of the message e.g. name of module or method logging the message.</param>
-        /// <param name="Message">Message to log</param>
-        /// <remarks>Use this for reporting issues that you don't want to appear on a line already opened 
-        /// with StartLine</remarks>
-        public void LogIssue(string Identifier, string Message)
+        public TraceLogger(string LogFileType)
         {
+            IdentifierWidth = IDENTIFIER_WIDTH_DEFAULT;
+
+            LogFileName = ""; // Set a default value
+            logFileType = LogFileType; // Save the log fikle type
+            LogFilePath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + TRACE_LOGGER_PATH_BASE + TRACE_LOGGER_DIRECTORY_NAME_BASE + DateTime.Now.ToString(TRACE_LOGGER_DIRECTORY_NAME_DATE_FORMAT);
+        }
+
+        private bool traceLoggerHasBeenDisposed = false; // To detect redundant calls
+
+        /// <summary>
+        /// Disposes of the TraceLogger object
+        /// </summary>
+        /// <param name="disposing">True if being disposed by the application, False if being disposed by the finaliser.</param>
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!traceLoggerHasBeenDisposed)
+            {
+                Enabled = false; // Disable further writing to the log file, in case the trace logger is called after being disposed
+                if (disposing)
+                {
+                    if (!(logFileStream == null)) // If we have a streamwriter, flush, close and dispose of it 
+                    {
+                        try { logFileStream.Flush(); } catch { }
+                        try { logFileStream.Close(); } catch { }
+                        try { logFileStream.Dispose(); } catch { }
+                        logFileStream = null;
+                    }
+                }
+
+                traceLoggerHasBeenDisposed = true; // Flag that Dispose() has been run
+            }
+        }
+
+        /// <summary>
+        /// Disposes of the TraceLogger object
+        /// </summary>
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+            Dispose(true);
+        }
+        #endregion
+
+        /// <summary>
+        /// Logs a message as supplied
+        /// </summary>
+        /// <param name="Message">Message to be logged</param>
+        public void LogMessage(string Message)
+        {
+            if (Enabled & !traceLoggerHasBeenDisposed) // Only atempt to write the to the log file if the trace logger is enabled and has not been disposed
+            {
+                lock (writeLockObject) // Get a write lock so that this thread can write exclusively to the file
+                {
+                    if (logFileStream == null) CreateLogFile(); // Create the log file if it doesn't already exist
+                    logFileStream.WriteLine($"{DateTime.Now.ToString(LOG_TIME_FORMAT)} {Message}"); // Write the supplied message to the log file without any formatting
+
+                    logFileStream.Flush(); // Ensure that the log line is written to the file rather than just being in the buffer
+                }
+            }
+        }
+
+        /// <summary>
+        /// Logs a message identifier and the message itself in two columns
+        /// </summary>
+        /// <param name="Identifier">Identifies the source of the message e.g. name of module or method logging the message.</param>
+        /// <param name="Message">Message to log</param>
+        /// <remarks>
+        /// </remarks>
+        public void LogMessage(string Identifier, string Message)
+        {
+            LogMessage($"{Identifier.PadRight(IdentifierWidth)} {Message}"); // Interpolated string containing formatted log message
+        }
+
+        /// <summary>
+        /// Logs a message identifier  and the message with parameters substituted into placeholders within the message.
+        /// </summary>
+        /// <param name="Identifier">Identifies the source of the message e.g. name of module or method logging the message.</param>
+        /// <param name="Message">Message to log, including {0}, {1}... type placeholders for parameter values</param>
+        /// <param name="parameters">A comma separated list of parameter values to be merged into the message at places indicated by {0}, {1}... type placeholders.</param>
+        public void LogMessage(string Identifier, string Message, params string[] parameters)
+        {
+            LogMessage($"{Identifier.PadRight(IdentifierWidth)} {string.Format(Message, parameters)}"); // Interpolated string containing formatted log message
         }
 
         /// <summary>
@@ -37,78 +136,7 @@ namespace ASCOM.Alpaca
         /// <remarks></remarks>
         public void BlankLine()
         {
-        }
-
-        /// <summary>
-        /// Logs a complete message in one call, including a hex translation of the message
-        /// </summary>
-        /// <param name="Identifier">Identifies the meaning of the message e.g. name of module or method logging the message.</param>
-        /// <param name="Message">Message to log</param>
-        /// <param name="HexDump">True to append a hex translation of the message at the end of the message</param>
-        /// <remarks>
-        /// <para>Use this for straightforward logging requirements. Writes all information in one command.</para>
-        /// <para>Will create a LOGISSUE message in the log if called before a line started by LogStart has been closed with LogFinish. 
-        /// Possible reasons for this are exceptions causing the normal flow of code to be bypassed or logic errors.</para>
-        /// </remarks>
-        public void LogMessage(string Identifier, string Message, bool HexDump)
-        {
-        }
-
-        /// <summary>
-        /// Displays a message respecting carriage return and linefeed characters
-        /// </summary>
-        /// <param name="Identifier">Identifies the meaning of the message e.g. name of module or method logging the message.</param>
-        /// <param name="Message">The final message to terminate the line</param>
-        /// <remarks>
-        /// <para>Will create a LOGISSUE message in the log if called before a line has been started with LogStart.  
-        /// Possible reasons for this are exceptions causing the normal flow of code to be bypassed or logic errors.</para>
-        /// </remarks>
-        public void LogMessageCrLf(string Identifier, string Message)
-        {
-        }
-
-        /// <summary>
-        /// Writes the time and identifier to the log, leaving the line ready for further content through LogContinue and LogFinish
-        /// </summary>
-        /// <param name="Identifier">Identifies the meaning of the message e.g. name of module or method logging the message.</param>
-        /// <param name="Message">Message to log</param>
-        /// <remarks><para>Use this to start a log line where you want to write further information on the line at a later time.</para>
-        /// <para>E.g. You might want to use this to record that an action has started and then append the word OK if all went well.
-        ///  You would then end up with just one line to record the whole transaction even though you didn't know that it would be 
-        /// successful when you started. If you just used LogMsg you would have ended up with two log lines, one showing 
-        /// the start of the transaction and the next the outcome.</para>
-        /// <para>Will create a LOGISSUE message in the log if called before a line started by LogStart has been closed with LogFinish. 
-        /// Possible reasons for this are exceptions causing the normal flow of code to be bypassed or logic errors.</para>
-        /// </remarks>
-        public void LogStart(string Identifier, string Message)
-        {
-        }
-
-        /// <summary>
-        /// Appends further message to a line started by LogStart, appends a hex translation of the message to the line, does not terminate the line.
-        /// </summary>
-        /// <param name="Message">The additional message to appear in the line</param>
-        /// <param name="HexDump">True to append a hex translation of the message at the end of the message</param>
-        /// <remarks>
-        /// <para>This can be called multiple times to build up a complex log line if required.</para>
-        /// <para>Will create a LOGISSUE message in the log if called before a line has been started with LogStart. 
-        /// Possible reasons for this are exceptions causing the normal flow of code to be bypassed or logic errors.</para>
-        /// </remarks>
-        public void LogContinue(string Message, bool HexDump)
-        {
-        }
-
-        /// <summary>
-        /// Closes a line started by LogStart with the supplied message and a hex translation of the message
-        /// </summary>
-        /// <param name="Message">The final message to terminate the line</param>
-        /// <param name="HexDump">True to append a hex translation of the message at the end of the message</param>
-        /// <remarks>
-        /// <para>Will create a LOGISSUE message in the log if called before a line has been started with LogStart.  
-        /// Possible reasons for this are exceptions causing the normal flow of code to be bypassed or logic errors.</para>
-        /// </remarks>
-        public void LogFinish(string Message, bool HexDump)
-        {
+            LogMessage("");
         }
 
         /// <summary>
@@ -118,39 +146,7 @@ namespace ASCOM.Alpaca
         /// <returns>Boolean, current logging status (enabled/disabled).</returns>
         /// <remarks>If this property is false then calls to LogMsg, LogStart, LogContinue and LogFinish do nothing. If True, 
         /// supplied messages are written to the log file.</remarks>
-        public bool Enabled
-        {
-            get
-            {
-                return false;
-            }
-            set
-            {
-            }
-        }
-
-        /// <summary>
-        /// Sets the log filename and type if the constructor is called without parameters
-        /// </summary>
-        /// <param name="LogFileName">Fully qualified trace file name or null string to use automatic file naming (recommended)</param>
-        /// <param name="LogFileType">String identifying the type of log e,g, Focuser, LX200, GEMINI, MoonLite, G11</param>
-        /// <remarks>The LogFileType is used in the file name to allow you to quickly identify which of several logs contains the 
-        /// information of interest.
-        /// <para><b>Note </b>This command is only required if the trace logger constructor is called with no
-        /// parameters. It is provided for use in COM clients that can not call constructors with parameters.
-        /// If you are writing a COM client then create the trace logger as:</para>
-        /// <code>
-        /// TL = New TraceLogger()
-        /// TL.SetLogFile("","TraceName")
-        /// </code>
-        /// <para>If you are writing a .NET client then you can achieve the same end in one call:</para>
-        /// <code>
-        /// TL = New TraceLogger("",TraceName")
-        /// </code>
-        /// </remarks>
-        public void SetLogFile(string LogFileName, string LogFileType)
-        {
-        }
+        public bool Enabled { get; set; }
 
         /// <summary>
         /// Return the full filename of the log file being created
@@ -159,96 +155,69 @@ namespace ASCOM.Alpaca
         /// <returns>String filename</returns>
         /// <remarks>This call will return an empty string until the first line has been written to the log file
         /// as the file is not created until required.</remarks>
-        public string LogFileName
-        {
-            get
-            {
-                return "";
-            }
-        }
+        public string LogFileName { get; private set; }
 
         /// <summary>
         /// Set or return the path to a directory in which the log file will be created
         /// </summary>
         /// <returns>String path</returns>
-        /// <remarks>Introduced with Platform 6.4.<para>If set, this path will be used instead of the user's Documents directory default path. This must be Set before the first message Is logged.</para></remarks>
-        public string LogFilePath
-        {
-            get
-            {
-                return "";
-            }
-            set
-            {
-            }
-        }
+        /// <remarks>If set, this path will be used instead of the default path, which is the user's Documents directory. This must be Set before the first message Is logged, otherwise it will have no effect.</remarks>
+        public string LogFilePath { get; set; }
 
         /// <summary>
         /// Set or return the width of the identifier field in the log message
         /// </summary>
         /// <value>Width of the identifier field</value>
         /// <returns>Integer width</returns>
-        /// <remarks>Introduced with Platform 6.4.<para>If set, this width will be used instead of the default identifier field width.</para></remarks>
-        public int IdentifierWidth
+        /// <remarks>If set, this width will be used instead of the default identifier field width.</remarks>
+        public int IdentifierWidth { get; set; }
+
+        #region Private support code
+
+        private void CreateLogFile()
         {
-            get
+            int FileNameSuffix = 0;
+
+            Directory.CreateDirectory(LogFilePath); // Create the directory in case it doesn't exist
+
+            string FileNameBase = TRACE_LOGGER_FILE_NAME_BASE + logFileType + "." + DateTime.Now.ToString(TRACE_LOGGER_FILE_NAME_TIME_FORMAT); // Create a base for trace logger file names
+
+            // Created a unique log file name that doesn't clash with any others
+            do
             {
-                return 0;
+                LogFileName = LogFilePath + FileNameBase + FileNameSuffix.ToString() + TRACE_LOGGER_FILE_EXTENSION;
+                FileNameSuffix += 1;
             }
-            set
+            while (!(!File.Exists(LogFileName))); // Increment counter that ensures that no log file can have the same name as any other
+
+            // Try to create the log file
+            try
             {
+                logFileStream = new StreamWriter(LogFileName, false);
+                logFileStream.AutoFlush = true; // Creation was successful
+            }
+            catch (IOException ex) // Creation was not succcessful so keep incrementing the FileNameSuffix to find a unique file name. Give up and throw an exception if there is no success after trying 20 unique filenames
+            {
+                bool ok = false;
+                do
+                {
+                    try
+                    {
+                        LogFileName = FileNameBase + FileNameSuffix.ToString() + TRACE_LOGGER_FILE_EXTENSION;
+                        logFileStream = new StreamWriter(LogFileName, false);
+                        logFileStream.AutoFlush = true;
+                        ok = true;
+                    }
+                    catch { }
+
+                    FileNameSuffix += 1;
+                }
+                while (!(ok | (FileNameSuffix == 20)));
+
+                if (!ok) throw new Exception("TraceLogger:CreateLogFile - Unable to create log file", ex);
             }
         }
 
-
-        /// <summary>
-        /// Logs a complete message in one call
-        /// </summary>
-        /// <param name="Identifier">Identifies the meaning of the message e.g. name of module or method logging the message.</param>
-        /// <param name="Message">Message to log</param>
-        /// <remarks>
-        /// <para>Use this for straightforward logging requirements. Writes all information in one command.</para>
-        /// <para>Will create a LOGISSUE message in the log if called before a line started by LogStart has been closed with LogFinish. 
-        /// Possible reasons for this are exceptions causing the normal flow of code to be bypassed or logic errors.</para>
-        /// <para>This overload is not available through COM, please use 
-        /// "LogMessage(ByVal Identifier As String, ByVal Message As String, ByVal HexDump As Boolean)"
-        /// with HexDump set False to achieve this effect.</para>
-        /// </remarks>
-        public void LogMessage(string Identifier, string Message)
-        {
-        }
-
-        /// <summary>
-        /// Appends further message to a line started by LogStart, does not terminate the line.
-        /// </summary>
-        /// <param name="Message">The additional message to appear in the line</param>
-        /// <remarks>
-        /// <para>This can be called multiple times to build up a complex log line if required.</para>
-        /// <para>Will create a LOGISSUE message in the log if called before a line has been started with LogStart. 
-        /// Possible reasons for this are exceptions causing the normal flow of code to be bypassed or logic errors.</para>
-        /// <para>This overload is not available through COM, please use 
-        /// "LogContinue(ByVal Message As String, ByVal HexDump As Boolean)"
-        /// with HexDump set False to achieve this effect.</para>
-        /// </remarks>
-        public void LogContinue(string Message)
-        {
-        }
-
-        /// <summary>
-        /// Closes a line started by LogStart with the supplied message
-        /// </summary>
-        /// <param name="Message">The final message to terminate the line</param>
-        /// <remarks>
-        /// <para>Can only be called once for each line started by LogStart.</para>
-        /// <para>Will create a LOGISSUE message in the log if called before a line has been started with LogStart.  
-        /// Possible reasons for this are exceptions causing the normal flow of code to be bypassed or logic errors.</para>
-        /// <para>This overload is not available through COM, please use 
-        /// "LogFinish(ByVal Message As String, ByVal HexDump As Boolean)"
-        /// with HexDump set False to achieve this effect.</para>
-        /// </remarks>
-        public void LogFinish(string Message)
-        {
-        }
+        #endregion
     }
-
 }
