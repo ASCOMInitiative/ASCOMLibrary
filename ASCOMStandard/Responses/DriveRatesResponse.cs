@@ -3,8 +3,14 @@ using ASCOM.Alpaca.Devices.Telescope;
 
 namespace ASCOM.Alpaca.Responses
 {
+    /// <summary>
+    /// Response that return the value as a collection of <see cref="DriveRate"/>
+    /// </summary>
     public class DriveRatesResponse : Response, IValueResponse<List<DriveRate>>
     {
+        /// <summary>
+        /// Drive rate collection returned by the device
+        /// </summary>
         public List<DriveRate> Value { get; set; }
     }
 }

@@ -2,7 +2,6 @@ namespace ASCOM.Alpaca.Devices.Telescope
 {
     /// <summary>
     /// The telescope axes
-    /// Only used with if the telescope interface version is 2 or 3
     /// </summary>
     public enum TelescopeAxis
     {

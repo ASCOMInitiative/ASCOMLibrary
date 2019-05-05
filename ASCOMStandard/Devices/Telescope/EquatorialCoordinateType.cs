@@ -2,12 +2,7 @@ namespace ASCOM.Alpaca.Devices.Telescope
 {
     /// <summary>
     /// Equatorial coordinate systems used by telescopes.
-    /// Only used with telescope interface versions 2 and 3
     /// </summary>
-    /// <remarks>
-    /// In June 2018 the name equLocalTopocentric was deprecated in favour of equTopocentric, both names return the same value (1).
-    /// The rationale for this change is set out in the <conceptualLink target="72A95B28-BBE2-4C7D-BC03-2D6AB324B6F7">Astronomical Coordinates</conceptualLink> section.
-    /// </remarks>
     public enum EquatorialCoordinateType
     {
         /// <summary>

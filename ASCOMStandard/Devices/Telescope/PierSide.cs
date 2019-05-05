@@ -10,7 +10,6 @@ namespace ASCOM.Alpaca.Devices.Telescope
     /// <para>In order to support Dome slaving, where it is important to know on which side of the pier the mount is actually located, ASCOM has adopted the 
     /// convention that the Normal pointing state will be the state where the mount is on the East side of the pier, looking West with the counterweights below 
     /// the optical assembly.</para>
-    /// <para>Only used with telescope interface versions 2 and later.</para>
     /// </remarks>
     public enum PierSide
     {
