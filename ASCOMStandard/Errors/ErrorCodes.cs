@@ -1,4 +1,6 @@
-namespace ASCOM.Alpaca.Exceptions
+using ASCOM.Alpaca.Exceptions;
+
+namespace ASCOM.Alpaca.Errors
 {
     /// <summary>
     ///   Error numbers for use by drivers.
