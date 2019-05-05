@@ -1,7 +1,9 @@
 namespace ASCOM.Alpaca.Responses
 {
-    public class ImageArrayInt3DResponse : ImageArrayResponse<int[,,]>
+    public class ImageArrayInt3DResponse : Response, IImageResponse<int[,,]>
     {
-        public override int[,,] Value { get; set; }
+        public int[,,] Value { get; set; }
+        public ImageArrayType ArrayType { get; } = ImageArrayType.Int;
+        public int Rank { get; } = 3;
     }
 }
