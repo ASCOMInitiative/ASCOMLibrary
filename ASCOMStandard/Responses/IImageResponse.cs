@@ -1,5 +1,9 @@
 ﻿namespace ASCOM.Alpaca.Responses
 {
+    /// <summary>
+    /// ImageArrayResponse interface
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public interface IImageResponse<T> : IValueResponse<T>
     {
         /// <summary>
