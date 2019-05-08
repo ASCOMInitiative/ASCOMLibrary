@@ -14,6 +14,7 @@ namespace ASCOM.Alpaca.Logging
         /// <summary>
         /// Event exception
         /// </summary>
+        public string EventId { get; set; }
         public Exception Exception { get; }
         /// <summary>
         /// Event message
@@ -25,54 +26,19 @@ namespace ASCOM.Alpaca.Logging
         public object[] PropertyValues { get; }
 
         /// <summary>
-        /// Set the log level and message
+        /// Initialise an event to be logged
         /// </summary>
         /// <param name="logLevel"></param>
-        /// <param name="message"></param>
-        public LogEvent(LogLevel logLevel, string message)
-        {
-            LogLevel = logLevel;
-            Message = message ?? throw new ArgumentNullException(nameof(message));
-        }
-
-        /// <summary>
-        /// Set the lkog level, message and property values
-        /// </summary>
-        /// <param name="logLevel"></param>
+        /// <param name="eventId"></param>
+        /// <param name="exception"></param>
         /// <param name="message"></param>
         /// <param name="propertyValues"></param>
-        public LogEvent(LogLevel logLevel, string message, object[] propertyValues)
+        public LogEvent(LogLevel logLevel, string eventId = null, Exception exception = null, string message = null, object[] propertyValues = null)
         {
             LogLevel = logLevel;
-            Message = message ?? throw new ArgumentNullException(nameof(message));
-            PropertyValues = propertyValues;
-        }
-
-        /// <summary>
-        /// Set the log level, message and exception
-        /// </summary>
-        /// <param name="logLevel"></param>
-        /// <param name="message"></param>
-        /// <param name="exception"></param>
-        public LogEvent(LogLevel logLevel, string message, Exception exception)
-        {
-            LogLevel = logLevel;
-            Message = message ?? throw new ArgumentNullException(nameof(message));
-            Exception = exception ?? throw new ArgumentNullException(nameof(exception));
-        }
-
-        /// <summary>
-        /// set the log level, message, exception and property values
-        /// </summary>
-        /// <param name="logLevel"></param>
-        /// <param name="message"></param>
-        /// <param name="exception"></param>
-        /// <param name="propertyValues"></param>
-        public LogEvent(LogLevel logLevel, string message, Exception exception, object[] propertyValues)
-        {
-            LogLevel = logLevel;
-            Message = message ?? throw new ArgumentNullException(nameof(message));
-            Exception = exception ?? throw new ArgumentNullException(nameof(exception));
+            EventId = eventId;
+            Exception = exception;
+            Message = message;
             PropertyValues = propertyValues;
         }
     }
