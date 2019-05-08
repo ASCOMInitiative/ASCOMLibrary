@@ -12,9 +12,12 @@ namespace ASCOM.Alpaca.Logging
         /// </summary>
         public LogLevel LogLevel { get; }
         /// <summary>
-        /// Event exception
+        /// Identifier of the logged event
         /// </summary>
         public string EventId { get; set; }
+        /// <summary>
+        /// Event exception
+        /// </summary>
         public Exception Exception { get; }
         /// <summary>
         /// Event message
