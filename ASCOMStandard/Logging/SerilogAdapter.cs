@@ -30,7 +30,7 @@ namespace ASCOM.Alpaca.Logging
             
             if (!string.IsNullOrWhiteSpace(logEvent.EventId))
             {
-                logger = _logger.ForContext("Identifier", logEvent.EventId);
+                logger = _logger.ForContext("EventId", logEvent.EventId);
             }
             
             logger.Write(serilogLogLevel, logEvent.Exception, logEvent.Message, logEvent.PropertyValues);
