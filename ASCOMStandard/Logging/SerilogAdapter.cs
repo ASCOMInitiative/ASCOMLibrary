@@ -1,4 +1,5 @@
 using System;
+using Serilog.Events;
 
 namespace ASCOM.Alpaca.Logging
 {
@@ -24,31 +25,33 @@ namespace ASCOM.Alpaca.Logging
         /// <param name="logEvent"></param>
         public void Log(LogEvent logEvent)
         {
-            switch (logEvent.LogLevel)
+            LogEventLevel serilogLogLevel = ConvertLogLevel(logEvent.LogLevel);
+            var logger = _logger;
+            
+            if (!string.IsNullOrWhiteSpace(logEvent.EventId))
+            {
+                logger = _logger.ForContext("Identifier", logEvent.EventId);
+            }
+            
+            logger.Write(serilogLogLevel, logEvent.Exception, logEvent.Message, logEvent.PropertyValues);
+        }
+        
+        static LogEventLevel ConvertLogLevel(LogLevel logLevel)
+        {
+            switch (logLevel)
             {
                 case LogLevel.Fatal:
-                    _logger.Fatal(logEvent.Message, logEvent.Exception, logEvent.PropertyValues);
-                    break;
-                
+                    return LogEventLevel.Fatal;
                 case LogLevel.Error:
-                    _logger.Error(logEvent.Message, logEvent.Exception, logEvent.PropertyValues);
-                    break;
-                
+                    return LogEventLevel.Error;
                 case LogLevel.Warning:
-                    _logger.Warning(logEvent.Message, logEvent.Exception, logEvent.PropertyValues);
-                    break;
-                
+                    return LogEventLevel.Warning;
                 case LogLevel.Information:
-                    _logger.Information(logEvent.Exception, logEvent.Message, logEvent.PropertyValues);
-                    break;
-                
+                    return LogEventLevel.Information;
                 case LogLevel.Debug:
-                    _logger.Debug(logEvent.Exception, logEvent.Message, logEvent.PropertyValues);
-                    break;
-                
+                    return LogEventLevel.Debug;
                 default:
-                    _logger.Verbose(logEvent.Exception, logEvent.Message, logEvent.PropertyValues);
-                    break;
+                    return LogEventLevel.Verbose;
             }
         }
     }
