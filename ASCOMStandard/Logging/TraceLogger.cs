@@ -39,23 +39,37 @@ namespace ASCOM.Alpaca.Logging
         /// <param name="logEvent"></param>
         public void Log(LogEvent logEvent)
         {
+            string[] propertyValues = ConvertPropertyValuesToStringArray(logEvent.PropertyValues);
+
             if (string.IsNullOrWhiteSpace(logEvent.Message) && string.IsNullOrWhiteSpace(logEvent.Exception?.Message))
             {
                 BlankLine();
             }
             else if (!string.IsNullOrWhiteSpace(logEvent.Message) && !string.IsNullOrWhiteSpace(logEvent.Exception?.Message))
             {
-                LogMessage(logEvent.EventId, $"{logEvent.Message}, Exception : {logEvent.Exception.Message}", logEvent.PropertyValues.Select(o => o.ToString()).ToArray());
+                LogMessage(logEvent.EventId, $"{logEvent.Message}, Exception : {logEvent.Exception.Message}", propertyValues);
             }
             else if (!string.IsNullOrWhiteSpace(logEvent.Exception?.Message))
             {
-                LogMessage(logEvent.EventId, logEvent.Exception.Message, logEvent.PropertyValues.Select(o => o.ToString()).ToArray());
+                LogMessage(logEvent.EventId, logEvent.Exception.Message, propertyValues);
             }
             else if (!string.IsNullOrWhiteSpace(logEvent.Message))
             {
-                LogMessage(logEvent.EventId, logEvent.Message, logEvent.PropertyValues.Select(o => o.ToString()).ToArray());
+                LogMessage(logEvent.EventId, logEvent.Message, propertyValues);
             }
         }
+
+        private string[] ConvertPropertyValuesToStringArray(object[] propertyValues)
+        {
+            if (propertyValues == null)
+            {
+                return new string[0];
+            }
+
+            return propertyValues.Select(o => o.ToString()).ToArray();
+        }
+
+
         #region Initialiser and IDisposable Support
 
        
