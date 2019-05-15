@@ -12,12 +12,16 @@ namespace ASCOM.Alpaca.Errors
     /// </remarks>
     public static class ErrorCodes
     {
+        /// <summary>
+        /// Convert an Alpaca error number into its equivalent ASCOM COM exception hResult number
+        /// </summary>
+        /// <param name="alpacaErrorCode">The Alpaca error number to convert</param>
+        /// <returns>The equivalent ASCOM COM exception hResult number</returns>
         public static int ConvertToAscomComErrorCode(this int alpacaErrorCode)
         {
             return alpacaErrorCode + ASCOMErrorNumberOffset;
         }
-        
-        
+
         /// <summary>
         /// Offset value that relates the ASCOM Alpaca reserved error number range to the ASCOM COM HResult error number range
         /// </summary>
