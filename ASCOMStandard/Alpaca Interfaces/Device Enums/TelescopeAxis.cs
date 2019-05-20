@@ -1,4 +1,4 @@
-namespace ASCOM.Alpaca.Devices.Telescope
+namespace ASCOM.Alpaca.Interfaces
 {
     /// <summary>
     /// The telescope axes

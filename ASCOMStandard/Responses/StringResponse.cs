@@ -9,5 +9,14 @@
         /// String value returned by the device
         /// </summary>
         public string Value { get; set; }
+
+        /// <summary>
+        /// Return the value as a string
+        /// </summary>
+        /// <returns>String representation of the response value</returns>
+        public override string ToString()
+        {
+            return Value.ToString();
+        }
     }
 }

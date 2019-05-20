@@ -1,4 +1,4 @@
-namespace ASCOM.Alpaca.Devices
+namespace ASCOM.Alpaca.Interfaces
 {
     /// <summary>
     /// Device type enumeration

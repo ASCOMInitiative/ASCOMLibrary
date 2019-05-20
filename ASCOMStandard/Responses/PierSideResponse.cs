@@ -1,15 +1,15 @@
-using ASCOM.Alpaca.Devices.Telescope;
+using ASCOM.Alpaca.Interfaces;
 
 namespace ASCOM.Alpaca.Responses
 {
     /// <summary>
-    /// Response that return the value as a <see cref="PierSide"/>
+    /// Response that return the value as a <see cref="PointingState"/>
     /// </summary>
-    public class PierSideResponse : Response, IValueResponse<PierSide>
+    public class PierSideResponse : Response, IValueResponse<PointingState>
     {
         /// <summary>
         /// Pier side returned by the device
         /// </summary>
-        public PierSide Value { get; set; }
+        public PointingState Value { get; set; }
     }
 }

@@ -1,14 +1,13 @@
 using System;
 using System.Globalization;
 using System.Runtime.Serialization;
-using ASCOM.Alpaca.Errors;
 
-namespace ASCOM.Alpaca.Exceptions
+namespace ASCOM.Alpaca
 {
     /// <summary>
     /// All properties and methods defined by the relevant ASCOM standard interface must exist in each driver. However,
     /// those properties and methods do not all have to be <i>implemented</i>. This exception is a base class for
-    /// PropertyNotImplementedException and MethodNotImplementedException, which drivers should use for throwing
+    /// NotImplementedException and NotImplementedException, which drivers should use for throwing
     /// the relevant exception(s). This class is intended to be used by clients who wish to catch either of
     /// the two specific exceptions in a single catch() clause.
     /// </summary>
@@ -16,7 +15,7 @@ namespace ASCOM.Alpaca.Exceptions
     /// <para>If you need to throw this error as a COM exception use the error number: 0x80040400.</para>
     /// </remarks>
     [Serializable]
-    public class NotImplementedException : DriverException
+    public class NotImplementedException : AlpacaException
     {
         /// <summary>
         /// A format string used to create the exception's human-readable message.

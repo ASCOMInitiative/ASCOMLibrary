@@ -1,14 +1,12 @@
-using ASCOM.Alpaca.Exceptions;
+using ASCOM.Alpaca;
 
-namespace ASCOM.Alpaca.Errors
+namespace ASCOM.Alpaca
 {
     /// <summary>
-    ///   Error numbers for use by drivers.
+    ///   Error numbers for use by Alpaca applications and drivers in the range 0x400 to 0xFFF.
     /// </summary>
     /// <remarks>
-    ///   The range of permitted values falls within the class FACILTY_ITF as 
-    ///   defined by the operating system and COM. These values will never clash with 
-    ///   COM, RPC, or OS error codes.
+    ///   The range 0x400 to 0x4FF is reserved for ASCOM Alpaca defined exceptions and the range 0x500 to 0xFFF is available for user defined application or driver errors
     /// </remarks>
     public static class ErrorCodes
     {
@@ -82,11 +80,12 @@ namespace ASCOM.Alpaca.Errors
         /// </summary>
         public static readonly int InvalidOperationException = 0x40B;
 
+        /*
         /// <summary>
         /// Reserved error code (0x40C) to indicate that the requested action is not implemented in this driver.
         /// </summary>
-        public static readonly int ActionNotImplementedException = 0x40C;
-
+        public static read-only int ActionNotImplementedException = 0x40C; Rationalised to a single NotImplementedException - don't reuse this error number just in case!
+        */
         /// <summary>
         /// Reserved error code (0x40D) to indicate that the requested item is not present in the ASCOM cache.
         /// </summary>
@@ -96,12 +95,12 @@ namespace ASCOM.Alpaca.Errors
         public static readonly int NotInCacheException = 0x40D;
 
         /// <summary>
-        /// Reserved 'catch-all' error code (0x800404FF) used when nothing else was specified.
+        /// Reserved 'catch-all' error code (0x4FF) used when nothing else was specified.
         /// </summary>
         public static readonly int UnspecifiedError = 0x4FF;
 
         /// <summary>
-        /// The starting value (0x80040500) for driver-specific error numbers.
+        /// The starting value (0x500) for driver/application specific error numbers.
         /// </summary>
         /// <remarks>
         /// Drivers are free to choose their own numbers starting with DriverBase, up to and including DriverMax.
@@ -109,7 +108,7 @@ namespace ASCOM.Alpaca.Errors
         public static readonly int DriverBase = 0x500;
 
         /// <summary>
-        /// The maximum value (0x80040FFF) for driver-specific error numbers.
+        /// The maximum value (0xFFF) for driver/application specific error numbers.
         /// </summary>
         /// <remarks>
         /// Drivers are free to choose their own numbers starting with DriverBase, up to and including DriverMax.

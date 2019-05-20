@@ -1,4 +1,4 @@
-namespace ASCOM.Alpaca.Devices.Camera
+namespace ASCOM.Alpaca.Interfaces
 {
     /// <summary>
     /// ASCOM Camera status values.

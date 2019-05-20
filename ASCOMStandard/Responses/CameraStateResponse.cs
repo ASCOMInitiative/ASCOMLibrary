@@ -1,4 +1,4 @@
-using ASCOM.Alpaca.Devices.Camera;
+using ASCOM.Alpaca.Interfaces;
 
 namespace ASCOM.Alpaca.Responses
 {

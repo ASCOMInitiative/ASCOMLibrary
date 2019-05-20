@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
-using ASCOM.Alpaca.Errors;
 
-namespace ASCOM.Alpaca.Exceptions
+namespace ASCOM.Alpaca
 {
     /// <summary>
     /// This exception should be used to indicate that movement (or other invalid operation) was attempted while the device was in a parked state.
@@ -11,7 +10,7 @@ namespace ASCOM.Alpaca.Exceptions
     /// <para>If you need to throw this error as a COM exception use the error number: 0x80040408.</para>
     /// </remarks>
     [Serializable]
-    public class ParkedException : DriverException
+    public class ParkedException : AlpacaException
     {
         /// <summary>
         /// Initializes a new instance of the <see cref = "ParkedException" /> class

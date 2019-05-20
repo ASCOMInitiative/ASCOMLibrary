@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
-using ASCOM.Alpaca.Errors;
 
-namespace ASCOM.Alpaca.Exceptions
+namespace ASCOM.Alpaca
 {
     /// <summary>
     /// This exception should be raised when an operation is attempted that requires communication with the device, but the device is disconnected.
@@ -12,7 +11,7 @@ namespace ASCOM.Alpaca.Exceptions
     /// </remarks>
 
     [Serializable]
-    public class NotConnectedException : DriverException
+    public class NotConnectedException : AlpacaException
     {
         [NonSerialized] const string csDefaultMessage = "Device is not connected";
 

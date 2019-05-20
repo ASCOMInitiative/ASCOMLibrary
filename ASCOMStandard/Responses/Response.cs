@@ -1,4 +1,4 @@
-﻿using ASCOM.Alpaca.Errors;
+﻿using ASCOM.Alpaca;
 
 namespace ASCOM.Alpaca.Responses
 {

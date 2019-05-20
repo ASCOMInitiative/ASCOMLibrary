@@ -1,4 +1,4 @@
-namespace ASCOM.Alpaca.Devices.Telescope
+namespace ASCOM.Alpaca.Interfaces
 {
     /// <summary>
     /// Describe a rate at which the telescope may be moved about the specified axis by the MoveAxis(TelescopeAxes, Double) method.

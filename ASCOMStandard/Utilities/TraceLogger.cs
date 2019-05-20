@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
-using ASCOM.Alpaca.Exceptions;
 using NLog;
 using NLog.Targets;
 //using NLog.Common;

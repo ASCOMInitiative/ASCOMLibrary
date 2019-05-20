@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
-using ASCOM.Alpaca.Errors;
 
-namespace ASCOM.Alpaca.Exceptions
+namespace ASCOM.Alpaca
 {
     /// <summary>
     /// This exception should be raised by the driver to reject a command from the client.
@@ -17,7 +16,7 @@ namespace ASCOM.Alpaca.Exceptions
     /// <para>If you need to throw this error as a COM exception use the error number: 0x8004040B.</para>
     ///</remarks>
     [Serializable]
-    public class InvalidOperationException : DriverException
+    public class InvalidOperationException : AlpacaException
     {
         const string csDefaultMessage = "The requested operation is not permitted at this time";
 

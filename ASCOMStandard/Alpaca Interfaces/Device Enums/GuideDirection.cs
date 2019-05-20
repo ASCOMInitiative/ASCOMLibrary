@@ -1,4 +1,4 @@
-namespace ASCOM.Alpaca.Devices.Telescope
+namespace ASCOM.Alpaca.Interfaces
 {
     /// <summary>
     /// The direction in which the guide-rate motion is to be made.

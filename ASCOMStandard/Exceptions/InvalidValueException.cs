@@ -1,9 +1,8 @@
 using System;
 using System.Globalization;
 using System.Runtime.Serialization;
-using ASCOM.Alpaca.Errors;
 
-namespace ASCOM.Alpaca.Exceptions
+namespace ASCOM.Alpaca
 {
     /// <summary>
     /// Exception to report an invalid value supplied to a driver.
@@ -13,7 +12,7 @@ namespace ASCOM.Alpaca.Exceptions
     /// <para>If you need to throw this error as a COM exception use the error number: 0x80040401.</para>
     /// </remarks>
     [Serializable]
-    public class InvalidValueException : DriverException
+    public class InvalidValueException : AlpacaException
     {
         [NonSerialized] const string csMessage = "{0} set - '{1}' is an invalid value. The valid range is: {2}.";
         [NonSerialized] const string csMessage2 = "{0} - '{1}' is an invalid value. The valid range is: {2} to {3}.";

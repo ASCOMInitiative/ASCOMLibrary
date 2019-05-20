@@ -2,81 +2,18 @@
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 using System.Threading;
-using ASCOM.Alpaca.Exceptions;
 
 namespace ASCOM.Alpaca
 {
     /// <summary>
     /// ASCOM support utilities
     /// </summary>
-    public class AlpacaUtilities : IDisposable
+    public class Utilities : IDisposable
     {
 
         private const double ABSOLUTE_ZERO_CELSIUS = -273.15; // Absolute zero on the Celsius temperature scale
         private const double JULIAN_DAY_WHEN_GREGORIAN_CALENDAR_WAS_INTRODUCED = 2299161.0; // Julian day number of the day on which the Gregorian calendar was first used - 15th October 1582
         private static readonly DateTime GREGORIAN_CALENDAR_INTRODUCTION = new DateTime(1582, 10, 15, 0, 0, 0); // Date and time when the Gregorian calendar was first used 00:00:00 15th October 1582
-
-        /// <summary>
-        /// List of units that can be converted by the ConvertUnits method
-        /// </summary>
-        public enum Units : int
-        {
-            // Speed
-            /// <summary>
-            /// Metres per second
-            /// </summary>
-            metresPerSecond = 0,
-            /// <summary>
-            /// Miles per hour
-            /// </summary>
-            milesPerHour = 1,
-            /// <summary>
-            /// Knots
-            /// </summary>
-            knots = 2,
-
-            // Temperature
-            /// <summary>
-            /// Degrees Celsius
-            /// </summary>
-            degreesCelsius = 10,
-            /// <summary>
-            /// Degrees Fahrenheit
-            /// </summary>
-            degreesFarenheit = 11,
-            /// <summary>
-            /// Degrees kelvin
-            /// </summary>
-            degreesKelvin = 12,
-
-            // Pressure
-            /// <summary>
-            /// Hecto pascals
-            /// </summary>
-            hPa = 20,
-            /// <summary>
-            /// Millibar
-            /// </summary>
-            mBar = 21,
-            /// <summary>
-            /// Millimetres of mercury
-            /// </summary>
-            mmHg = 22,
-            /// <summary>
-            /// Inches of mercury
-            /// </summary>
-            inHg = 23,
-
-            // RainRate
-            /// <summary>
-            /// Millimetres per hour
-            /// </summary>
-            mmPerHour = 30,
-            /// <summary>
-            /// Inches per hour
-            /// </summary>
-            inPerHour = 31
-        }
 
         #region Sexagesimal Conversions
 
@@ -95,7 +32,7 @@ namespace ASCOM.Alpaca
         /// <para>Examples of valid input values in a locale where point is used as the decimal separator: 60:27:45.846, 12:1.349, +345.1840746, -45:34:12.422</para>
         /// <para>Examples of valid input values in a locale where comma is used as the decimal separator: 60:27:45,846, 12:1,349, +345,1840746, -45:34:12,422</para>
         /// </remarks>
-        public static double DMSToDegrees(string DMSString)
+        public double DMSToDegrees(string DMSString)
         {
             double returnValue = 0.0; // Return value
             double sign; // Sign of the supplied value
@@ -158,7 +95,7 @@ namespace ASCOM.Alpaca
         /// <para>Examples of valid input values in a locale where point is used as the decimal separator: 60:27:45.846, 12:1.349, +345.1840746, -45:34:12.422</para>
         /// <para>Examples of valid input values in a locale where comma is used as the decimal separator: 60:27:45,846, 12:1,349, +345,1840746, -45:34:12,422</para>
         /// </remarks>
-        public static double DMSToHours(string DMSString)
+        public double DMSToHours(string DMSString)
         {
             return DMSToDegrees(DMSString) / 15.0;
         }
@@ -178,7 +115,7 @@ namespace ASCOM.Alpaca
         /// <para>Examples of valid input values in a locale where point is used as the decimal separator: 6:27:45.846, 7:1.349, +8.1840746, -5:34:12.422</para>
         /// <para>Examples of valid input values in a locale where comma is used as the decimal separator: 6:27:45,846, 7:1,349, +8,1840746, -5:34:12,422</para>
         /// </remarks>
-        public static double HMSToHours(string HMSString)
+        public double HMSToHours(string HMSString)
         {
             double returnValue = 0.0; // Return value
             double sign; // Sign of the supplied value
@@ -241,7 +178,7 @@ namespace ASCOM.Alpaca
         /// <para>Examples of valid input values in a locale where point is used as the decimal separator: 6:27:45.846, 7:1.349, +8.1840746, -5:34:12.422</para>
         /// <para>Examples of valid input values in a locale where comma is used as the decimal separator: 6:27:45,846, 7:1,349, +8,1840746, -5:34:12,422</para>
         /// </remarks>
-        public static double HMSToDegrees(string HMS)
+        public double HMSToDegrees(string HMS)
         {
             return HMSToHours(HMS) * 15.0;
         }
@@ -267,7 +204,7 @@ namespace ASCOM.Alpaca
         /// "DegreesToDMS(ByVal Degrees As Double, ByVal DegDelim As String, ByVal MinDelim As String, ByVal SecDelim As String)"
         /// with suitable parameters to achieve this effect.</para>
         /// </remarks>
-        public static string DegreesToDMS(double Degrees)
+        public string DegreesToDMS(double Degrees)
         {
             return DoubleToSexagesimalSeconds(Degrees, @":", @":", @"", 0);
         }
@@ -285,7 +222,7 @@ namespace ASCOM.Alpaca
         /// <para>If you need a leading plus sign, you must prepend it yourself. The delimiters are not restricted to single 
         /// characters.</para>
         /// </remarks>
-        public static string DegreesToDMS(double Degrees, string DegDelim, string MinDelim, string SecDelim, int SecDecimalDigits)
+        public string DegreesToDMS(double Degrees, string DegDelim, string MinDelim, string SecDelim, int SecDecimalDigits)
         {
 
             return DoubleToSexagesimalSeconds(Degrees, DegDelim, MinDelim, SecDelim, SecDecimalDigits);
@@ -306,7 +243,7 @@ namespace ASCOM.Alpaca
         /// "DegreesToDM(ByVal Degrees As Double, ByVal DegDelim As String, ByVal MinDelim As String, ByVal MinDecimalDigits As Integer)"
         /// with suitable parameters to achieve this effect.</para>
         /// </remarks>
-        public static string DegreesToDM(double Degrees)
+        public string DegreesToDM(double Degrees)
         {
             return DoubleToSexagesimalMinutes(Degrees, @":", @"", 0);
         }
@@ -322,7 +259,7 @@ namespace ASCOM.Alpaca
         /// <remarks>
         /// <para>If you need a leading plus sign, you must prepend it yourself. The delimiters are not restricted to single characters.</para>
         /// </remarks>
-        public static string DegreesToDM(double Degrees, string DegDelim, string MinDelim, int MinDecimalDigits)
+        public string DegreesToDM(double Degrees, string DegDelim, string MinDelim, int MinDecimalDigits)
         {
             return DoubleToSexagesimalMinutes(Degrees, DegDelim, MinDelim, MinDecimalDigits);
         }
@@ -342,7 +279,7 @@ namespace ASCOM.Alpaca
         /// "DegreesToHMS(ByVal Degrees As Double, ByVal HrsDelim As String, ByVal MinDelim As String, ByVal SecDelim As String, ByVal SecDecimalDigits As Integer)"
         /// with suitable parameters to achieve this effect.</para>
         /// </remarks>
-        public static string DegreesToHMS(double Degrees)
+        public string DegreesToHMS(double Degrees)
         {
             return DoubleToSexagesimalSeconds(Degrees / 15.0, @":", @":", @"", 0);
         }
@@ -359,7 +296,7 @@ namespace ASCOM.Alpaca
         /// <remarks>
         /// <para>If you need a leading plus sign, you must prepend it yourself. The delimiters are not restricted to single characters. </para>
         /// </remarks>
-        public static string DegreesToHMS(double Degrees, string HrsDelim, string MinDelim, string SecDelim, int SecDecimalDigits)
+        public string DegreesToHMS(double Degrees, string HrsDelim, string MinDelim, string SecDelim, int SecDecimalDigits)
         {
             return DoubleToSexagesimalSeconds(Degrees / 15.0, HrsDelim, MinDelim, SecDelim, SecDecimalDigits);
         }
@@ -379,7 +316,7 @@ namespace ASCOM.Alpaca
         /// "DegreesToHM(ByVal Degrees As Double, ByVal HrsDelim As String, ByVal MinDelim As String, ByVal MinDecimalDigits As Integer)"
         /// with suitable parameters to achieve this effect.</para>
         /// </remarks>
-        public static string DegreesToHM(double Degrees)
+        public string DegreesToHM(double Degrees)
         {
             return DoubleToSexagesimalMinutes(Degrees / 15.0, @":", @"", 0);
         }
@@ -395,7 +332,7 @@ namespace ASCOM.Alpaca
         /// <remarks>
         /// <para>If you need a leading plus sign, you must prepend it yourself. The delimiters are not restricted to single characters</para>
         /// </remarks>
-        public static string DegreesToHM(double Degrees, string HrsDelim, string MinDelim, int MinDecimalDigits)
+        public string DegreesToHM(double Degrees, string HrsDelim, string MinDelim, int MinDecimalDigits)
         {
             return DoubleToSexagesimalMinutes(Degrees / 15.0, HrsDelim, MinDelim, MinDecimalDigits);
         }
@@ -415,7 +352,7 @@ namespace ASCOM.Alpaca
         /// "HoursToHMS(ByVal Hours As Double, ByVal HrsDelim As String, ByVal MinDelim As String, ByVal SecDelim As String, ByVal SecDecimalDigits As Integer)"
         /// with suitable parameters to achieve this effect.</para>
         /// </remarks>
-        public static string HoursToHMS(double Hours)
+        public string HoursToHMS(double Hours)
         {
             return DoubleToSexagesimalSeconds(Hours, @":", @":", @"", 0);
         }
@@ -432,7 +369,7 @@ namespace ASCOM.Alpaca
         /// <remarks>
         /// <para>If you need a leading plus sign, you must prepend it yourself. The delimiters are not restricted to single characters.</para>
         /// </remarks>
-        public static string HoursToHMS(double Hours, string HrsDelim, string MinDelim, string SecDelim, int SecDecimalDigits)
+        public string HoursToHMS(double Hours, string HrsDelim, string MinDelim, string SecDelim, int SecDecimalDigits)
         {
             return DoubleToSexagesimalSeconds(Hours, HrsDelim, MinDelim, SecDelim, SecDecimalDigits);
         }
@@ -452,7 +389,7 @@ namespace ASCOM.Alpaca
         /// "HoursToHM(ByVal Hours As Double, ByVal HrsDelim As String, ByVal MinDelim As String, ByVal MinDecimalDigits As Integer)"
         /// with an suitable parameters to achieve this effect.</para>
         /// </remarks>
-        public static string HoursToHM(double Hours)
+        public string HoursToHM(double Hours)
         {
             return DoubleToSexagesimalMinutes(Hours, @":", @"", 0);
         }
@@ -468,7 +405,7 @@ namespace ASCOM.Alpaca
         /// <remarks>
         /// <para>If you need a leading plus sign, you must prepend it yourself. The delimiters are not restricted to single characters.</para>
         /// </remarks>
-        public static string HoursToHM(double Hours, string HrsDelim, string MinDelim, int MinDecimalDigits)
+        public string HoursToHM(double Hours, string HrsDelim, string MinDelim, int MinDecimalDigits)
         {
             return DoubleToSexagesimalMinutes(Hours, HrsDelim, MinDelim, MinDecimalDigits);
         }
@@ -488,7 +425,7 @@ namespace ASCOM.Alpaca
         /// <para>The algorithm is from the Explanatory Supplement to the Astronomical Almanac 3rd Edition 2013 edited by Urban and Seidelmann pages 617-619 and has been validated against
         /// the USNO Julian date calculator at https://aa.usno.navy.mil/data/docs/JulianDate.php </para>
         /// </remarks>
-        public static DateTime JulianDateToDateTime(double JD)
+        public DateTime JulianDateToDateTime(double JD)
         {
             // The algorithm employed here is taken from the Explanatory Supplement to the USNO/HMNAO Astronomical Almanac 3rd Edition 2013 edited by Urban and Seidelmann, pages 617 - 619.
             // This implementation has been validated against the USNO Julian date calculator at https://aa.usno.navy.mil/data/docs/JulianDate.php 
@@ -554,7 +491,7 @@ namespace ASCOM.Alpaca
         /// <param name="ObservationDateTime">DateTime in UTC</param>
         /// <returns>Julian date</returns>
         /// <remarks>Julian dates should always be in UTC </remarks>
-        public static double JulianDateFromDateTime(DateTime ObservationDateTime)
+        public double JulianDateFromDateTime(DateTime ObservationDateTime)
         {
             // The algorithm employed here is taken from the Explanatory Supplement to the USNO/HMNAO Astronomical Almanac 3rd Edition 2013 edited by Urban and Seidelmann, pages 617 - 619.
             // This implementation has been validated against the USNO Julian date calculator at : https://aa.usno.navy.mil/data/docs/JulianDate.php 
@@ -611,7 +548,7 @@ namespace ASCOM.Alpaca
         /// </summary>
         /// <returns>Current Julian date on the UTC time scale</returns>
         /// <remarks></remarks>
-        public static double JulianDateUtc
+        public double JulianDateUtc
         {
             get
             {
@@ -642,7 +579,7 @@ namespace ASCOM.Alpaca
         /// <para>Knots conversions use the international nautical mile definition (1 nautical mile = 1852m) rather than the original UK or US Admiralty definitions.</para>
         /// <para>For convenience, milli bar and hecto Pascals are shown as separate units even though they have numerically identical values and there is a 1:1 conversion between them.</para>
         /// </remarks>
-        public static double ConvertUnits(double InputValue, Units FromUnits, Units ToUnits)
+        public double ConvertUnits(double InputValue, Units FromUnits, Units ToUnits)
         {
             double intermediateValue, finalValue;
 
@@ -880,7 +817,7 @@ namespace ASCOM.Alpaca
                 return finalValue;
             }
             else
-                throw new ASCOM.Alpaca.Exceptions.InvalidOperationException("From and to units are not of the same type. From: " + FromUnits.ToString() + ", To: " + ToUnits.ToString());
+                throw new ASCOM.Alpaca.InvalidOperationException("From and to units are not of the same type. From: " + FromUnits.ToString() + ", To: " + ToUnits.ToString());
         }
 
         /// <summary>
@@ -894,7 +831,7 @@ namespace ASCOM.Alpaca
         ///  <remarks>'Calculation uses Vaisala formula for water vapour saturation pressure and is accurate to 0.083% over -20C - +50°C
         /// <para>http://www.vaisala.com/Vaisala%20Documents/Application%20notes/Humidity_Conversion_Formulas_B210973EN-F.pdf </para>
         /// </remarks>
-        public static double Humidity2DewPoint(double RelativeHumidity, double AmbientTemperature)
+        public double Humidity2DewPoint(double RelativeHumidity, double AmbientTemperature)
         {
             // Formulae taken from Vaisala: http://www.vaisala.com/Vaisala%20Documents/Application%20notes/Humidity_Conversion_Formulas_B210973EN-F.pdf 
             double Pws, Pw, Td;
@@ -928,7 +865,7 @@ namespace ASCOM.Alpaca
         /// <remarks>'Calculation uses the Vaisala formula for water vapour saturation pressure and is accurate to 0.083% over -20C - +50°C
         /// <para>http://www.vaisala.com/Vaisala%20Documents/Application%20notes/Humidity_Conversion_Formulas_B210973EN-F.pdf </para>
         /// </remarks>
-        public static double DewPoint2Humidity(double DewPoint, double AmbientTemperature)
+        public double DewPoint2Humidity(double DewPoint, double AmbientTemperature)
         {
             // Formulae taken from Vaisala: http://www.vaisala.com/Vaisala%20Documents/Application%20notes/Humidity_Conversion_Formulas_B210973EN-F.pdf 
             double RH;
@@ -956,7 +893,7 @@ namespace ASCOM.Alpaca
         /// <param name="ToAltitudeAboveMeanSeaLevel">Altitude to which the pressure is to be converted (metres)</param>
         /// <returns>Pressure in hPa at the "To" altitude</returns>
         /// <remarks>Uses the equation: p = p0 * (1.0 - 2.25577E-05 h)^5.25588</remarks>
-        public static double ConvertPressure(double Pressure, double FromAltitudeAboveMeanSeaLevel, double ToAltitudeAboveMeanSeaLevel)
+        public double ConvertPressure(double Pressure, double FromAltitudeAboveMeanSeaLevel, double ToAltitudeAboveMeanSeaLevel)
         {
             // Convert supplied pressure to sea level then convert again to the required altitude using this equation: p = p0 (1 - 2.25577 10-5 h)5.25588
 
@@ -992,11 +929,11 @@ namespace ASCOM.Alpaca
         /// <para>It is not permissible for both LowerEqual and UpperEqual to be false because it will not be possible to return a value that is exactly equal 
         /// to either lower or upper bounds. An exception is thrown if this scenario is requested.</para>
         /// </remarks>
-        public static double Range(double Value, double LowerBound, bool LowerEqual, double UpperBound, bool UpperEqual)
+        public double Range(double Value, double LowerBound, bool LowerEqual, double UpperBound, bool UpperEqual)
         {
             double ModuloValue;
             if (LowerBound >= UpperBound)
-                throw new ASCOM.Alpaca.Exceptions.InvalidValueException("Range", "LowerBound is >= UpperBound", "LowerBound must be less than UpperBound");
+                throw new ASCOM.Alpaca.InvalidValueException("Range", "LowerBound is >= UpperBound", "LowerBound must be less than UpperBound");
 
             ModuloValue = UpperBound - LowerBound;
 
@@ -1058,7 +995,7 @@ namespace ASCOM.Alpaca
         /// <param name="HA">Hour angle to condition</param>
         /// <returns>Hour angle in the range -12.0 to +12.0</returns>
         /// <remarks></remarks>
-        public static double ConditionHA(double HA)
+        public double ConditionHA(double HA)
         {
             double ReturnValue;
 
@@ -1074,7 +1011,7 @@ namespace ASCOM.Alpaca
         /// <param name="RA">Right ascension to be conditioned</param>
         /// <returns>Right ascension in the range 0 to 23.999999...</returns>
         /// <remarks></remarks>
-        public static double ConditionRA(double RA)
+        public double ConditionRA(double RA)
         {
             double ReturnValue;
 

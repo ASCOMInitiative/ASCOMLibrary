@@ -1,4 +1,4 @@
-namespace ASCOM.Alpaca.Devices.Telescope
+namespace ASCOM.Alpaca.Interfaces
 {
     /// <summary>
     /// The pointing state of the mount
@@ -11,12 +11,12 @@ namespace ASCOM.Alpaca.Devices.Telescope
     /// convention that the Normal pointing state will be the state where the mount is on the East side of the pier, looking West with the counterweights below 
     /// the optical assembly.</para>
     /// </remarks>
-    public enum PierSide
+    public enum PointingState
     {
         /// <summary>
-        /// Normal pointing state - Mount on the East side of pier (looking West)
+        /// Normal pointing state - For GEMs, OTA above the counterweights, on the West side of pier looking East
         /// </summary>
-        East = 0,
+        Normal = 0,
 
         /// <summary>
         /// Unknown or indeterminate.
@@ -24,8 +24,8 @@ namespace ASCOM.Alpaca.Devices.Telescope
         Unknown = -1,
 
         /// <summary>
-        /// Through the pole pointing state - Mount on the West side of pier (looking East)
+        /// Through the pole pointing state - For GEMs, OTA above the counterweights, Mount on the East side of pier looking West
         /// </summary>
-        West = 1
+        ThroughThePole = 1
     }
 }

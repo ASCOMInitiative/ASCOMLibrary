@@ -1,4 +1,4 @@
-namespace ASCOM.Alpaca.Devices.Dome
+namespace ASCOM.Alpaca.Interfaces
 {
     /// <summary>
     /// ASCOM Dome ShutterState status values.

@@ -1,9 +1,8 @@
 using System;
 using System.Globalization;
 using System.Runtime.Serialization;
-using ASCOM.Alpaca.Errors;
 
-namespace ASCOM.Alpaca.Exceptions
+namespace ASCOM.Alpaca
 {
     /// <summary>
     /// Exception to report that no value has yet been set for this property.
@@ -12,7 +11,7 @@ namespace ASCOM.Alpaca.Exceptions
     /// <para>If you need to throw this error as a COM exception use the error number: 0x80040402.</para>
     /// </remarks>
     [Serializable]
-    public class ValueNotSetException : DriverException
+    public class ValueNotSetException : AlpacaException
     {
         [NonSerialized] const string csMessage = "{0} get - no value has been set.";
         [NonSerialized] readonly string propertyOrMethod = "Unknown";

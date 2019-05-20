@@ -1,4 +1,4 @@
-namespace ASCOM.Alpaca.Devices.Camera
+namespace ASCOM.Alpaca.Interfaces
 {
     /// <summary>
     /// Sensor type, identifies the type of colour sensor
