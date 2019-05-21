@@ -43,12 +43,13 @@ namespace ASCOM.Alpaca
         /// <summary>
         /// Initialise the TraceLogger
         /// </summary>
+        /// <param name="LogFileType">The user defined name of the log file.</param>
         public TraceLogger(string LogFileType)
         {
             IdentifierWidth = IDENTIFIER_WIDTH_DEFAULT;
 
             LogFileName = ""; // Set a default value
-            logFileType = LogFileType; // Save the log fikle type
+            logFileType = LogFileType; // Save the log file type
             LogFilePath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + TRACE_LOGGER_PATH_BASE + TRACE_LOGGER_DIRECTORY_NAME_BASE + DateTime.Now.ToString(TRACE_LOGGER_DIRECTORY_NAME_DATE_FORMAT);
         }
 
@@ -94,7 +95,7 @@ namespace ASCOM.Alpaca
         /// <param name="Message">Message to be logged</param>
         public void LogMessage(string Message)
         {
-            if (Enabled & !traceLoggerHasBeenDisposed) // Only atempt to write the to the log file if the trace logger is enabled and has not been disposed
+            if (Enabled & !traceLoggerHasBeenDisposed) // Only attempt to write the to the log file if the trace logger is enabled and has not been disposed
             {
                 lock (writeLockObject) // Get a write lock so that this thread can write exclusively to the file
                 {

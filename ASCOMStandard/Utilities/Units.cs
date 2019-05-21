@@ -4,7 +4,7 @@
     /// <summary>
     /// List of units that can be converted by the ConvertUnits method
     /// </summary>
-    public enum Units : int
+    public enum Unit : int
     {
         // Speed
         /// <summary>

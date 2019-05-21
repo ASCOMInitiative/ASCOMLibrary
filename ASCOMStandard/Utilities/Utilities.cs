@@ -579,28 +579,28 @@ namespace ASCOM.Alpaca
         /// <para>Knots conversions use the international nautical mile definition (1 nautical mile = 1852m) rather than the original UK or US Admiralty definitions.</para>
         /// <para>For convenience, milli bar and hecto Pascals are shown as separate units even though they have numerically identical values and there is a 1:1 conversion between them.</para>
         /// </remarks>
-        public double ConvertUnits(double InputValue, Units FromUnits, Units ToUnits)
+        public double ConvertUnits(double InputValue, Unit FromUnits, Unit ToUnits)
         {
             double intermediateValue, finalValue;
 
-            if ((FromUnits >= Units.metresPerSecond) & (FromUnits <= Units.knots) & (ToUnits >= Units.metresPerSecond) & (ToUnits <= Units.knots))
+            if ((FromUnits >= Unit.metresPerSecond) & (FromUnits <= Unit.knots) & (ToUnits >= Unit.metresPerSecond) & (ToUnits <= Unit.knots))
             {
                 // First convert the input to metres per second
                 switch (FromUnits)
                 {
-                    case Units.metresPerSecond:
+                    case Unit.metresPerSecond:
                         {
                             intermediateValue = InputValue;
                             break;
                         }
 
-                    case Units.milesPerHour:
+                    case Unit.milesPerHour:
                         {
                             intermediateValue = InputValue * 0.44704;
                             break;
                         }
 
-                    case Units.knots:
+                    case Unit.knots:
                         {
                             intermediateValue = InputValue * 0.514444444;
                             break;
@@ -615,19 +615,19 @@ namespace ASCOM.Alpaca
                 // Now convert metres per second to the output value
                 switch (ToUnits)
                 {
-                    case Units.metresPerSecond:
+                    case Unit.metresPerSecond:
                         {
                             finalValue = intermediateValue;
                             break;
                         }
 
-                    case Units.milesPerHour:
+                    case Unit.milesPerHour:
                         {
                             finalValue = intermediateValue / 0.44704;
                             break;
                         }
 
-                    case Units.knots:
+                    case Unit.knots:
                         {
                             finalValue = intermediateValue / 0.514444444;
                             break;
@@ -641,25 +641,25 @@ namespace ASCOM.Alpaca
 
                 return finalValue;
             }
-            else if ((FromUnits >= Units.degreesCelsius) & (FromUnits <= Units.degreesKelvin) & (ToUnits >= Units.degreesCelsius) & (ToUnits <= Units.degreesKelvin))
+            else if ((FromUnits >= Unit.degreesCelsius) & (FromUnits <= Unit.degreesKelvin) & (ToUnits >= Unit.degreesCelsius) & (ToUnits <= Unit.degreesKelvin))
             {
 
                 // First convert the input to degrees K
                 switch (FromUnits)
                 {
-                    case Units.degreesCelsius:
+                    case Unit.degreesCelsius:
                         {
                             intermediateValue = InputValue - ABSOLUTE_ZERO_CELSIUS;
                             break;
                         }
 
-                    case Units.degreesFarenheit:
+                    case Unit.degreesFarenheit:
                         {
                             intermediateValue = ((InputValue + 459.67) * 5.0) / 9.0;
                             break;
                         }
 
-                    case Units.degreesKelvin:
+                    case Unit.degreesKelvin:
                         {
                             intermediateValue = InputValue;
                             break;
@@ -674,19 +674,19 @@ namespace ASCOM.Alpaca
                 // Now convert degrees K to the output value
                 switch (ToUnits)
                 {
-                    case Units.degreesCelsius:
+                    case Unit.degreesCelsius:
                         {
                             finalValue = intermediateValue + ABSOLUTE_ZERO_CELSIUS;
                             break;
                         }
 
-                    case Units.degreesFarenheit:
+                    case Unit.degreesFarenheit:
                         {
                             finalValue = ((intermediateValue * 9.0) / 5.0) - 459.67;
                             break;
                         }
 
-                    case Units.degreesKelvin:
+                    case Unit.degreesKelvin:
                         {
                             finalValue = intermediateValue;
                             break;
@@ -700,30 +700,30 @@ namespace ASCOM.Alpaca
 
                 return finalValue;
             }
-            else if ((FromUnits >= Units.hPa) & (FromUnits <= Units.inHg) & (ToUnits >= Units.hPa) & (ToUnits <= Units.inHg))
+            else if ((FromUnits >= Unit.hPa) & (FromUnits <= Unit.inHg) & (ToUnits >= Unit.hPa) & (ToUnits <= Unit.inHg))
             {
                 // First convert the input to hPa
                 switch (FromUnits)
                 {
-                    case Units.hPa:
+                    case Unit.hPa:
                         {
                             intermediateValue = InputValue;
                             break;
                         }
 
-                    case Units.mBar:
+                    case Unit.mBar:
                         {
                             intermediateValue = InputValue;
                             break;
                         }
 
-                    case Units.mmHg:
+                    case Unit.mmHg:
                         {
                             intermediateValue = InputValue * 1.33322368;
                             break;
                         }
 
-                    case Units.inHg:
+                    case Unit.inHg:
                         {
                             intermediateValue = InputValue * 33.8638816;
                             break;
@@ -738,25 +738,25 @@ namespace ASCOM.Alpaca
                 // Now convert hPa to the output value
                 switch (ToUnits)
                 {
-                    case Units.hPa:
+                    case Unit.hPa:
                         {
                             finalValue = intermediateValue;
                             break;
                         }
 
-                    case Units.mBar:
+                    case Unit.mBar:
                         {
                             finalValue = intermediateValue;
                             break;
                         }
 
-                    case Units.mmHg:
+                    case Unit.mmHg:
                         {
                             finalValue = intermediateValue / 1.33322368;
                             break;
                         }
 
-                    case Units.inHg:
+                    case Unit.inHg:
                         {
                             finalValue = intermediateValue / 33.8638816;
                             break;
@@ -770,18 +770,18 @@ namespace ASCOM.Alpaca
 
                 return finalValue;
             }
-            else if ((FromUnits >= Units.mmPerHour) & (FromUnits <= Units.inPerHour) & (ToUnits >= Units.mmPerHour) & (ToUnits <= Units.inPerHour))
+            else if ((FromUnits >= Unit.mmPerHour) & (FromUnits <= Unit.inPerHour) & (ToUnits >= Unit.mmPerHour) & (ToUnits <= Unit.inPerHour))
             {
                 // First convert the input to mm
                 switch (FromUnits)
                 {
-                    case Units.mmPerHour:
+                    case Unit.mmPerHour:
                         {
                             intermediateValue = InputValue;
                             break;
                         }
 
-                    case Units.inPerHour:
+                    case Unit.inPerHour:
                         {
                             intermediateValue = InputValue * 25.4;
                             break;
@@ -796,13 +796,13 @@ namespace ASCOM.Alpaca
                 // Now convert mm to the output value
                 switch (ToUnits)
                 {
-                    case Units.mmPerHour:
+                    case Unit.mmPerHour:
                         {
                             finalValue = intermediateValue;
                             break;
                         }
 
-                    case Units.inPerHour:
+                    case Unit.inPerHour:
                         {
                             finalValue = intermediateValue / 25.4;
                             break;
@@ -933,7 +933,7 @@ namespace ASCOM.Alpaca
         {
             double ModuloValue;
             if (LowerBound >= UpperBound)
-                throw new ASCOM.Alpaca.InvalidValueException("Range", "LowerBound is >= UpperBound", "LowerBound must be less than UpperBound");
+                throw new ASCOM.Alpaca.InvalidValueException("Range - LowerBound is >= UpperBound LowerBound must be less than UpperBound");
 
             ModuloValue = UpperBound - LowerBound;
 
@@ -974,9 +974,9 @@ namespace ASCOM.Alpaca
             else
             {
                 if ((Value == LowerBound))
-                    throw new InvalidValueException("Range", "The supplied value equals the LowerBound. This can not be ranged when LowerEqual and UpperEqual are both false ", "LowerBound > Value < UpperBound");
+                    throw new InvalidValueException("Range - The supplied value equals the LowerBound. This can not be ranged when LowerEqual and UpperEqual are both false.");
                 if ((Value == UpperBound))
-                    throw new InvalidValueException("Range", "The supplied value equals the UpperBound. This can not be ranged when LowerEqual and UpperEqual are both false ", "LowerBound > Value < UpperBound");
+                    throw new InvalidValueException("Range - The supplied value equals the UpperBound. This can not be ranged when LowerEqual and UpperEqual are both false.");
                 do
                 {
                     if (Value <= LowerBound)
