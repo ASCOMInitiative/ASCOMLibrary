@@ -1,71 +1,37 @@
 using System;
-using System.Globalization;
-using System.Runtime.Serialization;
 
 namespace ASCOM.Alpaca
 {
     /// <summary>
-    /// All properties and methods defined by the relevant ASCOM standard interface must exist in each driver. However,
-    /// those properties and methods do not all have to be <i>implemented</i>. This exception is a base class for
-    /// NotImplementedException and NotImplementedException, which drivers should use for throwing
-    /// the relevant exception(s). This class is intended to be used by clients who wish to catch either of
-    /// the two specific exceptions in a single catch() clause.
+    /// All properties and methods defined by the relevant ASCOM standard interface must exist in each driver. However, those properties and methods do not all have to be <i>implemented</i>.
     /// </summary>
     /// <remarks>
-    /// <para>If you need to throw this error as a COM exception use the error number: 0x80040400.</para>
     /// </remarks>
     [Serializable]
     public class NotImplementedException : AlpacaException
     {
         /// <summary>
-        /// A format string used to create the exception's human-readable message.
+        /// Create a new exception using a default error message.
         /// </summary>
-        [NonSerialized] const string csMessage = "{0} is not implemented in this driver.";
-        [NonSerialized] string propertyOrMethod;
-
-        /// <summary>
-        /// Create a new exception object and identify the specified driver property or method as the source.
-        /// </summary>
-        /// <param name = "propertyOrMethod">The name of the driver property/accessor or method that caused the exception</param>
-        public NotImplementedException(string propertyOrMethod) : base(String.Format(CultureInfo.InvariantCulture, csMessage, propertyOrMethod), ErrorCodes.NotImplemented)
-        {
-            PropertyOrMethod = propertyOrMethod;
-        }
-
-        /// <summary>
-        /// Create a new exception object and identify the specified driver property as the source,
-        /// and include an inner exception object containing a caught exception.
-        /// </summary>
-        /// <param name = "propertyOrMethod">The name of the driver property/accessor or method that caused the exception</param>
-        /// <param name = "inner">The caught exception</param>
-        public NotImplementedException(string propertyOrMethod, Exception inner) : base(String.Format(CultureInfo.InvariantCulture, csMessage, propertyOrMethod), ErrorCodes.NotImplemented, inner)
-        {
-            PropertyOrMethod = propertyOrMethod;
-        }
-
-        /// <summary>
-        /// Added to keep Code analysis happy, please don't use it.
-        /// </summary>
-        public NotImplementedException() : base("Unspecified", ErrorCodes.NotImplemented)
+        public NotImplementedException() : base("This capability is not implemented.", ErrorCodes.NotImplemented)
         {
         }
 
         /// <summary>
-        /// Added to keep Code Analysis happy
+        ///  Create a new exception using the specified message
         /// </summary>
-        /// <param name = "info"></param>
-        /// <param name = "context"></param>
-        protected NotImplementedException(SerializationInfo info, StreamingContext context) : base(info, context)
+        /// <param name = "message">Exception description</param>
+        public NotImplementedException(string message) : base(message, ErrorCodes.NotImplemented)
         {
         }
 
         /// <summary>
-        /// The property/accessor or method that is not implemented
+        ///  Create a new exception using the specified message and exception
         /// </summary>
-        public string PropertyOrMethod
+        /// <param name = "message">Exception description</param>
+        /// <param name = "inner">Underlying exception that caused this exception to be thrown.</param>
+        public NotImplementedException(string message, Exception inner) : base(message, ErrorCodes.NotImplemented, inner)
         {
-            get { return propertyOrMethod; }
-            private set { propertyOrMethod = value; }
         }
     }
 }

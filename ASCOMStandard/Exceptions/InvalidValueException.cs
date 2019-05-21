@@ -1,73 +1,41 @@
 using System;
 using System.Globalization;
 using System.Runtime.Serialization;
+using System.Security.Permissions;
 
 namespace ASCOM.Alpaca
 {
     /// <summary>
-    /// Exception to report an invalid value supplied to a driver.
+    /// Exception to report an invalid value.
     /// </summary>
     /// <remarks>
     /// <para>The most useful way to use this exception is to inform the user which property/method/parameter received the invalid value and also the range of allowed values.</para>
-    /// <para>If you need to throw this error as a COM exception use the error number: 0x80040401.</para>
     /// </remarks>
     [Serializable]
     public class InvalidValueException : AlpacaException
     {
-        [NonSerialized] const string csMessage = "{0} set - '{1}' is an invalid value. The valid range is: {2}.";
-        [NonSerialized] const string csMessage2 = "{0} - '{1}' is an invalid value. The valid range is: {2} to {3}.";
-        [NonSerialized] const string csUnspecified = "unspecified";
-        [NonSerialized] string invalidValue;
-        [NonSerialized] string propertyOrMethod;
-        [NonSerialized] string range;
-        [NonSerialized] string fromValue;
-        [NonSerialized] string toValue;
+        /// <summary>The name of the property or method that has an invalid value.</summary>
+        public string PropertyOrMethod { get; private set; }
+
+        /// <summary>The invalid value.</summary>
+        public string InvalidValue { get; private set; }
+
+
+        /// <summary>The lowest value in the valid range.</summary>
+        public string LowestValidValue { get; private set; }
+
+        /// <summary>The highest value in the valid range.</summary>
+        public string HighestValidValue { get; private set; }
 
         /// <summary>
-        /// Create a new exception object and identify the specified driver property or method as the source.
+        /// Create a new exception using a default error message.
         /// </summary>
-        /// <param name = "propertyOrMethod">The name of the driver property/accessor or method that caused the exception</param>
-        /// <param name = "value">The invalid value that was supplied</param>
-        /// <param name="fromValue"></param>
-        /// <param name="toValue"></param>
-        public InvalidValueException(string propertyOrMethod, string value, string fromValue, string toValue) : base(String.Format(CultureInfo.InvariantCulture, csMessage2, propertyOrMethod, value, fromValue, toValue), ErrorCodes.InvalidValue)
+        public InvalidValueException() : base("The parameter value is invalid.", ErrorCodes.InvalidValue)
         {
-            PropertyOrMethod = propertyOrMethod;
-            Value = value;
-            FromValue = fromValue;
-            ToValue = toValue;
         }
 
         /// <summary>
-        /// Create a new exception object and identify the specified driver property or method as the source.
-        /// </summary>
-        /// <param name = "propertyOrMethod">The name of the driver property/accessor or method that caused the exception</param>
-        /// <param name = "value">The invalid value that was supplied</param>
-        /// <param name = "range">The valid value range</param>
-        public InvalidValueException(string propertyOrMethod, string value, string range) : base(String.Format(CultureInfo.InvariantCulture, csMessage, propertyOrMethod, value, range), ErrorCodes.InvalidValue)
-        {
-            PropertyOrMethod = propertyOrMethod;
-            Value = value;
-            Range = range;
-        }
-
-        /// <summary>
-        /// Create a new exception object and identify the specified driver property as the source,
-        /// and include an inner exception object containing a caught exception.
-        /// </summary>
-        /// <param name = "propertyOrMethod">The name of the driver property/accessor or method that caused the exception</param>
-        /// <param name = "value">The invalid value that was supplied</param>
-        /// <param name = "inner">The caught exception</param>
-        /// <param name = "range">The valid value range</param>
-        public InvalidValueException(string propertyOrMethod, string value, string range, Exception inner) : base(String.Format(CultureInfo.InvariantCulture, csMessage, propertyOrMethod, value, range), ErrorCodes.InvalidValue, inner)
-        {
-            PropertyOrMethod = propertyOrMethod;
-            Value = value;
-            Range = range;
-        }
-
-        /// <summary>
-        /// Create a new exception
+        ///  Create a new exception using the specified message
         /// </summary>
         /// <param name = "message">Exception description</param>
         public InvalidValueException(string message) : base(message, ErrorCodes.InvalidValue)
@@ -75,74 +43,62 @@ namespace ASCOM.Alpaca
         }
 
         /// <summary>
-        /// Create a new exception
+        ///  Create a new exception using the specified message and exception
         /// </summary>
         /// <param name = "message">Exception description</param>
-        /// <param name = "inner">The underlying exception that caused this exception to be thrown.</param>
+        /// <param name = "inner">Underlying exception that caused this exception to be thrown.</param>
         public InvalidValueException(string message, Exception inner) : base(message, ErrorCodes.InvalidValue, inner)
         {
         }
 
         /// <summary>
-        /// Create a new exception object
+        /// Create a new exception object and identify the specified driver property or method as the source.
         /// </summary>
-        public InvalidValueException() : base(csUnspecified, ErrorCodes.InvalidValue)
+        /// <param name = "propertyOrMethod">The name of the driver property/accessor or method that caused the exception</param>
+        /// <param name = "invalidValue">The invalid value that was supplied</param>
+        /// <param name="fromValue"></param>
+        /// <param name="toValue"></param>
+        public InvalidValueException(string propertyOrMethod, string invalidValue, string fromValue, string toValue) 
+            : base(String.Format(CultureInfo.InvariantCulture, "{0} - '{1}' is an invalid value. The valid range is: {2} to {3}.", propertyOrMethod, invalidValue, fromValue, toValue), ErrorCodes.InvalidValue)
         {
+            PropertyOrMethod = propertyOrMethod;
+            InvalidValue = invalidValue;
+            LowestValidValue = fromValue;
+            HighestValidValue = toValue;
         }
 
         /// <summary>
-        /// Added to keep Code Analysis happy
+        /// De-serialise and create a new instance of the exception.
         /// </summary>
-        /// <param name = "info"></param>
-        /// <param name = "context"></param>
-        protected InvalidValueException(SerializationInfo info, StreamingContext context) : base(info, context)
+        /// <param name = "info">The <see cref = "SerializationInfo" /> that holds the serialized object data about the exception being thrown.</param>
+        /// <param name = "context">The <see cref = "StreamingContext" /> that contains contextual information about the source or destination.</param>
+        /// <exception cref = "ArgumentNullException">The <paramref name = "info" /> parameter is null.</exception>
+        /// <exception cref = "SerializationException">The class name is null or <see cref = "Exception.HResult" /> is zero (0).</exception>
+        [SecurityPermission(SecurityAction.Demand, SerializationFormatter = true)]
+        protected InvalidValueException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
         {
+            PropertyOrMethod = info.GetString("PropertyOrMethod");
+            InvalidValue = info.GetString("InvalidValue");
+            LowestValidValue = info.GetString("LowestValidValue");
+            HighestValidValue = info.GetString("HighestValidValue");
         }
 
         /// <summary>
-        /// The property/accessor or method that has an invalid value.
+        /// Serialise the exception
         /// </summary>
-        public string PropertyOrMethod
+        /// <param name="info"></param>
+        /// <param name="context"></param>
+        [SecurityPermission(SecurityAction.Demand, SerializationFormatter = true)]
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            get { return propertyOrMethod; }
-            private set { propertyOrMethod = value; }
-        }
+            if (info == null) throw new ArgumentNullException("info"); // Make sure that we have an info object
 
-        /// <summary>
-        /// The invalid value.
-        /// </summary>
-        public string Value
-        {
-            get { return invalidValue; }
-            private set { invalidValue = value; }
+            info.AddValue("PropertyOrMethod", PropertyOrMethod); // Add the PropertyOrMethod field, which is unique to this class
+            info.AddValue("InvalidValue", InvalidValue); // Add the InvalidValue field, which is unique to this class
+            info.AddValue("LowestValidValue", LowestValidValue); // Add the LowestValidValue field, which is unique to this class
+            info.AddValue("HighestValidValue", HighestValidValue); // Add the HighestValidValue field, which is unique to this class
+            base.GetObjectData(info, context); // Call the base class to serialise the rest of the exception
         }
-
-        /// <summary>
-        /// The valid range for this property.
-        /// </summary>
-        public string Range
-        {
-            get { return range; }
-            private set { range = value; }
-        }
-
-        /// <summary>
-        /// The lower value of the valid range.
-        /// </summary>
-        public string FromValue
-        {
-            get { return fromValue; }
-            private set { fromValue = value; }
-        }
-
-        /// <summary>
-        /// The higher end of the valid range.
-        /// </summary>
-        public string ToValue
-        {
-            get { return toValue; }
-            private set { toValue = value; }
-        }
-
     }
 }

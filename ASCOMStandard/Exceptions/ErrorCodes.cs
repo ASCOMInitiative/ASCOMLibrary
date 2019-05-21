@@ -84,8 +84,9 @@ namespace ASCOM.Alpaca
         /// <summary>
         /// Reserved error code (0x40C) to indicate that the requested action is not implemented in this driver.
         /// </summary>
-        public static read-only int ActionNotImplementedException = 0x40C; Rationalised to a single NotImplementedException - don't reuse this error number just in case!
+        public static read-only int ActionNotImplementedException = 0x40C; Rationalised to a single NotImplementedException - to avoid confusion don't reuse this error number for new exceptions!
         */
+
         /// <summary>
         /// Reserved error code (0x40D) to indicate that the requested item is not present in the ASCOM cache.
         /// </summary>

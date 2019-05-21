@@ -5,38 +5,30 @@ using System.Security.Permissions;
 namespace ASCOM.Alpaca
 {
     /// <summary>
-    ///   This is the generic driver exception. Drivers are permitted to directly throw this
-    ///   exception as well as any derived exceptions. Note that the Message property is 
-    ///   a member of <see cref = "Exception" />, the base class of AlpacaException. The <see cref = "Exception.HResult" />
-    ///   property of <see cref = "Exception" /> is simply renamed to Number.
-    ///   <para>This exception should only be thrown if there is no other more appropriate exception already defined, e.g. NotImplementedException,
-    ///     InvalidOperationException, InvalidValueException, NotConnectedException etc. These specific exceptions should be thrown where appropriate
-    ///     rather than using the more generic AlpacaException. Conform will not accept AlpacaException where more appropriate exceptions 
-    ///     are already defined.</para>
-    ///   <para>As good programming practice, the Message property should not be empty, so that users understand why the exception was thrown.</para>
+    /// This is the generic ASCOM Alpaca exception for use when none of the more specific exceptions applies.
     /// </summary>
+    /// <remarks>
+    /// <para>This exception should only be thrown if there is no other more appropriate ASCOM exception already defined, e.g. NotImplementedException,
+    /// InvalidOperationException, InvalidValueException, NotConnectedException etc. Conform will not accept AlpacaException if a more appropriate exception is applicable.</para>
+    /// </remarks>
     [Serializable]
     public class AlpacaException : Exception
     {
-        /// <summary>
-        /// The Alpaca error code for this exception (0x400 - 0x4FF)
-        /// </summary>
+        /// <summary>The Alpaca error number for this exception (0x400 - 0x4FF)</summary>
         public int Number { get; set; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref = "AlpacaException" /> class that will return the 'unspecified error' number: 0x800404FF.
-        /// Sets the COM HResult to <see cref = "ErrorCodes.UnspecifiedError" />.
+        /// Create a new <see cref = "AlpacaException" /> containing the <see cref="ErrorCodes.UnspecifiedError"/> number and a default message.
         /// </summary>
         public AlpacaException()
-            : base()
+            : base("Exception cause unknown - the application or driver did not set an exception message.")
         {
             HResult = ErrorCodes.UnspecifiedError;
             Number = ErrorCodes.UnspecifiedError;
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref = "AlpacaException" /> class
-        /// with a human-readable descriptive message.
+        /// Create a new <see cref = "AlpacaException" /> containing the <see cref="ErrorCodes.UnspecifiedError"/> number and a provided message.
         /// </summary>
         /// <param name = "message">The human-readable description of the problem.</param>
         public AlpacaException(string message)
@@ -47,36 +39,7 @@ namespace ASCOM.Alpaca
         }
 
         /// <summary>
-        /// Create a new ASCOM exception using the specified text message and error code.
-        /// </summary>
-        /// <param name = "message">Descriptive text describing the cause of the exception</param>
-        /// <param name = "number">Error code for the exception (80040400 - 80040FFF).</param>
-        public AlpacaException(string message, int number)
-            : base(message)
-        {
-            HResult = number;
-            Number = number;
-        }
-
-        /// <summary>
-        /// Create a new ASCOM exception based on another exception plus additional descriptive text and error code. This member is 
-        /// required for a well-behaved exception class. For example, if a driver receives an exception
-        /// (perhaps a COMException) from some other component yet it wants to report some meaningful
-        /// error that <i>resulted</i> from the other error, it can package the original error in the
-        /// InnerException member of the exception <i>it</i> generates.
-        /// </summary>
-        /// <param name = "message">Descriptive text describing the cause of the exception</param>
-        /// <param name = "number">Error code for the exception (80040400 - 80040FFF).</param>
-        /// <param name = "innerException">The inner exception that led to throwing this exception</param>
-        public AlpacaException(string message, int number, Exception innerException)
-            : base(message, innerException)
-        {
-            HResult = number;
-            Number = number;
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref = "AlpacaException" /> class from another caught exception and a human-readable descriptive message.
+        /// Create a new <see cref = "AlpacaException" /> containing the <see cref="ErrorCodes.UnspecifiedError"/> number, a provided message and an originating exception.
         /// </summary>
         /// <param name = "message">The human-readable description of the problem.</param>
         /// <param name = "innerException">The caught (inner) exception.</param>
@@ -88,12 +51,37 @@ namespace ASCOM.Alpaca
         }
 
         /// <summary>
+        /// Create a new <see cref = "AlpacaException" /> containing the provided error number and message.
+        /// </summary>
+        /// <param name = "message">Descriptive text describing the cause of the exception</param>
+        /// <param name = "number">Error code for the exception (0x400 - 0xFFF).</param>
+        public AlpacaException(string message, int number)
+            : base(message)
+        {
+            HResult = number;
+            Number = number;
+        }
+
+        /// <summary>
+        /// Create a new <see cref = "AlpacaException" /> containing the provided error number, message and originating exception.
+        /// </summary>
+        /// <param name = "message">Descriptive text describing the cause of the exception</param>
+        /// <param name = "number">Alpaca error number for the exception (0x400 - 0xFFF).</param>
+        /// <param name = "innerException">The inner exception that led to throwing this exception</param>
+        public AlpacaException(string message, int number, Exception innerException)
+            : base(message, innerException)
+        {
+            HResult = number;
+            Number = number;
+        }
+
+        /// <summary>
         /// De-serialise and create a new instance of the <see cref = "AlpacaException" /> class.
         /// </summary>
         /// <param name = "info">The <see cref = "T:System.Runtime.Serialization.SerializationInfo" /> that holds the serialized object data about the exception being thrown.</param>
         /// <param name = "context">The <see cref = "T:System.Runtime.Serialization.StreamingContext" /> that contains contextual information about the source or destination.</param>
-        /// <exception cref = "T:System.ArgumentNullException">The <paramref name = "info" /> parameter is null.</exception>
-        /// <exception cref = "T:System.Runtime.Serialization.SerializationException">The class name is null or <see cref = "P:System.Exception.HResult" /> is zero (0).</exception>
+        /// <exception cref = "ArgumentNullException">The <paramref name = "info" /> parameter is null.</exception>
+        /// <exception cref = "SerializationException">The class name is null or <see cref = "Exception.HResult" /> is zero (0).</exception>
         [SecurityPermission(SecurityAction.Demand, SerializationFormatter = true)]
         protected AlpacaException(SerializationInfo info, StreamingContext context)
             : base(info, context)

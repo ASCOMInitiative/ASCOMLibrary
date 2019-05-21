@@ -1,6 +1,4 @@
 using System;
-using System.Globalization;
-using System.Runtime.Serialization;
 
 namespace ASCOM.Alpaca
 {
@@ -8,56 +6,32 @@ namespace ASCOM.Alpaca
     /// Exception to report that no value has yet been set for this property.
     /// </summary>
     /// <remarks>
-    /// <para>If you need to throw this error as a COM exception use the error number: 0x80040402.</para>
     /// </remarks>
     [Serializable]
     public class ValueNotSetException : AlpacaException
     {
-        [NonSerialized] const string csMessage = "{0} get - no value has been set.";
-        [NonSerialized] readonly string propertyOrMethod = "Unknown";
-
         /// <summary>
-        /// Create a new exception object and identify the specified driver property or method as the source.
+        /// Create a new exception using a default error message.
         /// </summary>
-        /// <param name = "propertyOrMethod">The name of the driver property/accessor or method that caused the exception</param>
-        public ValueNotSetException(string propertyOrMethod) : base(String.Format(CultureInfo.InvariantCulture, csMessage, propertyOrMethod), ErrorCodes.ValueNotSet)
-        {
-            this.propertyOrMethod = propertyOrMethod;
-        }
-
-        /// <summary>
-        /// Create a new exception object and identify the specified driver property as the source,
-        /// and include an inner exception object containing a caught exception.
-        /// </summary>
-        /// <param name = "propertyOrMethod">The name of the driver property/accessor or method that caused the exception</param>
-        /// <param name = "inner">The caught exception</param>
-        public ValueNotSetException(string propertyOrMethod, Exception inner) : base(String.Format(CultureInfo.InvariantCulture, csMessage, propertyOrMethod), ErrorCodes.ValueNotSet, inner)
-        {
-            this.propertyOrMethod = propertyOrMethod;
-        }
-
-        /// <summary>
-        /// Added to keep Code Analysis happy
-        /// </summary>
-        public ValueNotSetException() : this("unspecified value")
+        public ValueNotSetException() : base("No value has been set", ErrorCodes.ValueNotSet)
         {
         }
 
         /// <summary>
-        /// Added to keep Code Analysis happy
+        ///  Create a new exception using the specified message
         /// </summary>
-        /// <param name = "info"></param>
-        /// <param name = "context"></param>
-        protected ValueNotSetException(SerializationInfo info, StreamingContext context) : base(info, context)
+        /// <param name = "message">Exception description</param>
+        public ValueNotSetException(string message) : base(message, ErrorCodes.ValueNotSet)
         {
         }
 
         /// <summary>
-        /// The property/accessor or method that has no value
+        ///  Create a new exception using the specified message and exception
         /// </summary>
-        public string PropertyOrMethod
+        /// <param name = "message">Exception description</param>
+        /// <param name = "inner">Underlying exception that caused this exception to be thrown.</param>
+        public ValueNotSetException(string message, Exception inner) : base(message, ErrorCodes.ValueNotSet, inner)
         {
-            get { return propertyOrMethod; }
         }
     }
 }

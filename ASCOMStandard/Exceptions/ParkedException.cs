@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.Serialization;
 
 namespace ASCOM.Alpaca
 {
@@ -7,30 +6,19 @@ namespace ASCOM.Alpaca
     /// This exception should be used to indicate that movement (or other invalid operation) was attempted while the device was in a parked state.
     /// </summary>
     /// <remarks>
-    /// <para>If you need to throw this error as a COM exception use the error number: 0x80040408.</para>
     /// </remarks>
     [Serializable]
     public class ParkedException : AlpacaException
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref = "ParkedException" /> class
-        /// using default error text and error codes.
+        /// Create a new exception using a default error message.
         /// </summary>
         public ParkedException() : base("Operation not valid while the device is parked", ErrorCodes.InvalidWhileParked)
         {
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref = "ParkedException" /> class
-        /// with a caught (inner) exception.
-        /// </summary>
-        /// <param name = "inner">The inner.</param>
-        public ParkedException(Exception inner) : base("Operation not valid while the device is parked", ErrorCodes.InvalidWhileParked, inner)
-        {
-        }
-
-        /// <summary>
-        /// Create a new exception
+        ///  Create a new exception using the specified message
         /// </summary>
         /// <param name = "message">Exception description</param>
         public ParkedException(string message) : base(message, ErrorCodes.InvalidWhileParked)
@@ -38,20 +26,11 @@ namespace ASCOM.Alpaca
         }
 
         /// <summary>
-        /// Create a new exception
+        ///  Create a new exception using the specified message and exception
         /// </summary>
         /// <param name = "message">Exception description</param>
         /// <param name = "inner">Underlying exception that caused this exception to be thrown.</param>
         public ParkedException(string message, Exception inner) : base(message, ErrorCodes.InvalidWhileParked, inner)
-        {
-        }
-
-        /// <summary>
-        /// Added to keep Code Analysis happy
-        /// </summary>
-        /// <param name = "info"></param>
-        /// <param name = "context"></param>
-        protected ParkedException(SerializationInfo info, StreamingContext context) : base(info, context)
         {
         }
     }
