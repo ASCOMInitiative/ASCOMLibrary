@@ -92,8 +92,8 @@ namespace ASCOM.Alpaca
         /// <summary>
         /// Serialise the exception
         /// </summary>
-        /// <param name="info"></param>
-        /// <param name="context"></param>
+        /// <param name="info">Serialised information</param>
+        /// <param name="context">Formatting context</param>
         [SecurityPermission(SecurityAction.Demand, SerializationFormatter = true)]
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {

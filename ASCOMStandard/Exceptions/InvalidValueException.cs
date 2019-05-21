@@ -54,10 +54,10 @@ namespace ASCOM.Alpaca
         /// <summary>
         /// Create a new exception object and identify the specified driver property or method as the source.
         /// </summary>
-        /// <param name = "propertyOrMethod">The name of the driver property/accessor or method that caused the exception</param>
-        /// <param name = "invalidValue">The invalid value that was supplied</param>
-        /// <param name="fromValue"></param>
-        /// <param name="toValue"></param>
+        /// <param name = "propertyOrMethod">The name of the driver property/accessor or method that caused the exception.</param>
+        /// <param name = "invalidValue">The invalid value that was supplied.</param>
+        /// <param name="fromValue">The lowest valid value.</param>
+        /// <param name="toValue">The highest valid value.</param>
         public InvalidValueException(string propertyOrMethod, string invalidValue, string fromValue, string toValue) 
             : base(String.Format(CultureInfo.InvariantCulture, "{0} - '{1}' is an invalid value. The valid range is: {2} to {3}.", propertyOrMethod, invalidValue, fromValue, toValue), ErrorCodes.InvalidValue)
         {
@@ -87,8 +87,8 @@ namespace ASCOM.Alpaca
         /// <summary>
         /// Serialise the exception
         /// </summary>
-        /// <param name="info"></param>
-        /// <param name="context"></param>
+        /// <param name="info">Serialised information</param>
+        /// <param name="context">Formatting context</param>
         [SecurityPermission(SecurityAction.Demand, SerializationFormatter = true)]
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
