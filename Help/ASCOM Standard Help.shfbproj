@@ -18,7 +18,7 @@
     <HtmlHelpName>ASCOMAlpaca</HtmlHelpName>
     <Language>en-US</Language>
     <DocumentationSources>
-      <DocumentationSource sourceFile="..\ASCOMStandard\ASCOM Standard.csproj" />
+      <DocumentationSource sourceFile="..\ASCOMStandard\ASCOMStandard.csproj" />
     </DocumentationSources>
     <HelpFileFormat>HtmlHelp1</HelpFileFormat>
     <SyntaxFilters>C#</SyntaxFilters>
@@ -43,10 +43,11 @@
     <SdkLinkTarget>Blank</SdkLinkTarget>
     <NamespaceSummaries>
       <NamespaceSummaryItem name="(global)" isDocumented="False">ASCOM Standard Root</NamespaceSummaryItem>
-      <NamespaceSummaryItem name="ASCOMStandard" isDocumented="True">ASCOM Standard root name space summary</NamespaceSummaryItem>
-      <NamespaceSummaryItem name="ASCOM.Alpaca" isDocumented="True">ASCOM Alpaca Components</NamespaceSummaryItem>
-      <NamespaceSummaryItem name="ASCOM.AlpacaDifficult" isDocumented="True">These components are difficult because they rely on regularly updated data, leap seconds or DeltaUT1 or make use of the ASCOM SOFA component that is implemented using compiled C DLLs.</NamespaceSummaryItem>
-    </NamespaceSummaries>
+<NamespaceSummaryItem name="ASCOMStandard" isDocumented="True">ASCOM Standard root name space summary</NamespaceSummaryItem>
+<NamespaceSummaryItem name="ASCOM.Alpaca" isDocumented="True">ASCOM Alpaca Components</NamespaceSummaryItem>
+<NamespaceSummaryItem name="ASCOM.AlpacaDifficult" isDocumented="True">These components are difficult because they rely on regularly updated data, leap seconds or DeltaUT1 or make use of the ASCOM SOFA component that is implemented using compiled C DLLs.</NamespaceSummaryItem>
+<NamespaceSummaryItem name="ASCOM.Alpaca.Interfaces" isDocumented="True">ASCOM Alpaca interface definitions</NamespaceSummaryItem>
+<NamespaceSummaryItem name="ASCOM.Alpaca.Responses" isDocumented="True">ASCOM Alpaca response classes</NamespaceSummaryItem></NamespaceSummaries>
     <ComponentConfigurations>
     </ComponentConfigurations>
     <PlugInConfigurations>

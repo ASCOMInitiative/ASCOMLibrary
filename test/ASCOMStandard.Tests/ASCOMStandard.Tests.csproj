@@ -15,7 +15,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\ASCOMStandard\ASCOM Standard.csproj" />
+      <ProjectReference Include="..\..\ASCOMStandard\ASCOMStandard.csproj" />
     </ItemGroup>
 
 </Project>

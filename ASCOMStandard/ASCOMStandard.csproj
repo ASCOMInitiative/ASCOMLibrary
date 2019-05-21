@@ -3,10 +3,10 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <Authors>ASCOM Initiative</Authors>
-    <Company>ASCOM Initiaitive</Company>
+    <Company>ASCOM Initiative</Company>
     <Product>ASCOM .NET Standard Components</Product>
     <Description>A suite of components to aid ASCOM Alpaca application and driver development</Description>
-    <Copyright>ASCOM Initiaitive (c) 2019</Copyright>
+    <Copyright>ASCOM Initiative (c) 2019</Copyright>
     <RootNamespace>ASCOM.Alpaca</RootNamespace>
     <PackageId>ASCOMStandardComponents</PackageId>
     <SignAssembly>true</SignAssembly>
@@ -25,6 +25,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DocumentationFile>bin/Debug/ASCOMStandard.xml</DocumentationFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Logging\**" />
+    <EmbeddedResource Remove="Logging\**" />
+    <None Remove="Logging\**" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="NLog" Version="4.6.3" />

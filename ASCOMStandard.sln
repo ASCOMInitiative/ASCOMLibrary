@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.572
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASCOM Standard", "ASCOMStandard\ASCOM Standard.csproj", "{8A021DCB-E007-400D-8D4A-2C046F8FF3FD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASCOMStandard", "ASCOMStandard\ASCOMStandard.csproj", "{8A021DCB-E007-400D-8D4A-2C046F8FF3FD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ASCOMStandard.Tests", "test\ASCOMStandard.Tests\ASCOMStandard.Tests.csproj", "{EC97A23E-7CB2-43A8-A351-CC4FDDA9CE2C}"
 EndProject
