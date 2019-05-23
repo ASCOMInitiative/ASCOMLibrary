@@ -22,7 +22,7 @@
     /// <item><description>Altitude and Azimuth throw the <see cref="NotImplementedException"/>.</description></item>
     /// </list></para>
     /// </remarks>
-    public interface IDomeV2 : IAscomDriver
+    public interface IDomeV2 : IAscomDevice
     {
 
         /// <summary>

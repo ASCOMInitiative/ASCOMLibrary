@@ -31,7 +31,7 @@
     /// <para>For convenience devices are referred to as boolean if the device can only have two states, and multi-state if it can have more than two values.
     /// <b>These are treated the same in the interface definition</b>.</para>
     /// </remarks>
-    public interface ISwitchV2 : IAscomDriver
+    public interface ISwitchV2 : IAscomDevice
     {
 
         /// <summary>

@@ -9,7 +9,7 @@ namespace ASCOM.Alpaca.Interfaces
     /// Defines the ICamera Interface
     /// </summary>
     /// <remarks>The camera state diagram is shown here: <img src="../media/Camerav2 State Diagram.png"/></remarks>
-    public interface ICameraV2 : IAscomDriver
+    public interface ICameraV2 : IAscomDevice
     {
 
         /// <summary>
@@ -491,14 +491,14 @@ namespace ASCOM.Alpaca.Interfaces
         /// <returns>The Bayer colour matrix X offset, as defined in <see cref="SensorType" />.</returns>
         /// <exception cref="NotImplementedException">Monochrome cameras must throw this exception, colour cameras must not.</exception>
         /// <exception cref="NotConnectedException">Must throw an exception if the information is not available. (Some drivers may require an 
-        /// active <see cref="IAscomDriver.Connected">connection</see> in order to retrieve necessary information from the camera.)</exception>
+        /// active <see cref="IAscomDevice.Connected">connection</see> in order to retrieve necessary information from the camera.)</exception>
         /// <exception cref="InvalidValueException">Must throw an exception if not valid.</exception>
         /// <remarks><p style="color:red"><b>Must be implemented by colour cameras, monochrome cameras must throw a NotImplementedException</b></p>
         /// <para>Since monochrome cameras don't have a bayer colour matrix by definition, such cameras shold throw a <see cref="NotImplementedException" />.
         /// Colour cameras should always return a value and must not throw a <see cref="NotImplementedException" /></para>
         /// <para>The value returned must be in the range 0 to M-1 where M is the width of the Bayer matrix. The offset is relative to the 0,0 pixel in 
         /// the sensor array, and does not change to reflect subframe settings.</para>
-        /// <para>It is recommended that this function be called only after a <see cref="IAscomDriver.Connected">connection</see> is established with 
+        /// <para>It is recommended that this function be called only after a <see cref="IAscomDevice.Connected">connection</see> is established with 
         /// the camera hardware, to ensure that the driver is aware of the capabilities of the specific camera model.</para>
         /// <para>This is only available for the Camera Interface Version 2</para>
         /// </remarks>
@@ -510,14 +510,14 @@ namespace ASCOM.Alpaca.Interfaces
         /// <returns>The Bayer colour matrix Y offset, as defined in <see cref="SensorType" />.</returns>
         /// <exception cref="NotImplementedException">Monochrome cameras must throw this exception, colour cameras must not.</exception>
         /// <exception cref="NotConnectedException">Must throw an exception if the information is not available. (Some drivers may require an 
-        /// active <see cref="IAscomDriver.Connected">connection</see> in order to retrieve necessary information from the camera.)</exception>
+        /// active <see cref="IAscomDevice.Connected">connection</see> in order to retrieve necessary information from the camera.)</exception>
         /// <exception cref="InvalidValueException">Must throw an exception if not valid.</exception>
         /// <remarks><p style="color:red"><b>Must be implemented by colour cameras, monochrome cameras must throw a NotImplementedException</b></p>
         /// <para>Since monochrome cameras don't have a bayer colour matrix by definition, such cameras shold throw a <see cref="NotImplementedException" />.
         /// Colour cameras should always return a value and must not throw a <see cref="NotImplementedException" /></para>
         /// <para>The value returned must be in the range 0 to M-1 where M is the width of the Bayer matrix. The offset is relative to the 0,0 pixel in 
         /// the sensor array, and does not change to reflect subframe settings.</para>
-        /// <para>It is recommended that this function be called only after a <see cref="IAscomDriver.Connected">connection</see> is established with 
+        /// <para>It is recommended that this function be called only after a <see cref="IAscomDevice.Connected">connection</see> is established with 
         /// the camera hardware, to ensure that the driver is aware of the capabilities of the specific camera model.</para>
         /// <para>This is only available for the Camera Interface Version 2</para>
         /// </remarks>
@@ -527,10 +527,10 @@ namespace ASCOM.Alpaca.Interfaces
         /// Camera has a fast readout mode
         /// </summary>
         /// <exception cref="NotConnectedException">Must throw an exception if the information is not available. (Some drivers may require an 
-        /// active <see cref="IAscomDriver.Connected">connection</see> in order to retrieve necessary information from the camera.)</exception>
+        /// active <see cref="IAscomDevice.Connected">connection</see> in order to retrieve necessary information from the camera.)</exception>
         /// <returns><c>true</c> when the camera supports a fast readout mode</returns>
         /// <remarks><p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
-        /// It is recommended that this function be called only after a <see cref="IAscomDriver.Connected">connection</see> is established with the camera hardware, to 
+        /// It is recommended that this function be called only after a <see cref="IAscomDevice.Connected">connection</see> is established with the camera hardware, to 
         /// ensure that the driver is aware of the capabilities of the specific camera model.
         /// <para>This is only available for the Camera Interface Version 2</para>
         /// </remarks>
@@ -541,11 +541,11 @@ namespace ASCOM.Alpaca.Interfaces
         /// </summary>
         /// <returns>The maximum exposure time, in seconds, that the camera supports</returns>
         /// <exception cref="NotConnectedException">Must throw an exception if the information is not available. (Some drivers may require an 
-        /// active <see cref="IAscomDriver.Connected">connection</see> in order to retrieve necessary information from the camera.)</exception>
+        /// active <see cref="IAscomDevice.Connected">connection</see> in order to retrieve necessary information from the camera.)</exception>
         /// <exception cref="InvalidValueException">Must throw an exception if not valid.</exception>
         /// <remarks><p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
         /// It is recommended that this function be called only after 
-        /// a <see cref="IAscomDriver.Connected">connection</see> is established with the camera hardware, to ensure that the driver is aware of the capabilities of the 
+        /// a <see cref="IAscomDevice.Connected">connection</see> is established with the camera hardware, to ensure that the driver is aware of the capabilities of the 
         /// specific camera model.
         /// <para>This is only available for the Camera Interface Version 2</para>
         /// </remarks>
@@ -556,13 +556,13 @@ namespace ASCOM.Alpaca.Interfaces
         /// </summary>
         /// <returns>The minimum exposure time, in seconds, that the camera supports through <see cref="StartExposure">StartExposure</see></returns>
         /// <exception cref="NotConnectedException">Must throw an exception if the information is not available. (Some drivers may require an 
-        /// active <see cref="IAscomDriver.Connected">connection</see> in order to retrieve necessary information from the camera.)</exception>
+        /// active <see cref="IAscomDevice.Connected">connection</see> in order to retrieve necessary information from the camera.)</exception>
         /// <exception cref="InvalidValueException">Must throw an exception if not valid.</exception>
         /// <remarks><p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
         /// This must be a non-zero number representing the shortest possible exposure time supported by the camera model.
         /// <para>Please note that for bias frame acquisition an even shorter exposure may be possible; please see <see cref="StartExposure">StartExposure</see> 
         /// for more information.</para>
-        /// <para>It is recommended that this function be called only after a <see cref="IAscomDriver.Connected">connection</see> is established with the camera hardware, to ensure 
+        /// <para>It is recommended that this function be called only after a <see cref="IAscomDevice.Connected">connection</see> is established with the camera hardware, to ensure 
         /// that the driver is aware of the capabilities of the specific camera model.</para>
         /// <para>This is only available for the Camera Interface Version 2</para>
         /// </remarks>
@@ -573,7 +573,7 @@ namespace ASCOM.Alpaca.Interfaces
         /// </summary>
         /// <returns>The smallest increment in exposure time supported by <see cref="StartExposure">StartExposure</see>.</returns>
         /// <exception cref="NotConnectedException">Must throw an exception if the information is not available. (Some drivers may require an 
-        /// active <see cref="IAscomDriver.Connected">connection</see> in order to retrieve necessary information from the camera.)</exception>
+        /// active <see cref="IAscomDevice.Connected">connection</see> in order to retrieve necessary information from the camera.)</exception>
         /// <exception cref="InvalidValueException">Must throw an exception if not valid.</exception>
         /// <remarks><p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
         /// This can be used, for example, to specify the resolution of a user interface "spin control" used to dial in the exposure time.
@@ -581,7 +581,7 @@ namespace ASCOM.Alpaca.Interfaces
         /// the driver should choose the closest available value. Also in some cases the resolution may not be constant over the full range 
         /// of exposure times; in this case the smallest increment would be appropriate. A value of 0.0 shall indicate that there is no minimum resulution
         /// except that imposed by the resolution of the double value itself.</para>
-        /// <para>It is recommended that this function be called only after a <see cref="IAscomDriver.Connected">connection</see> is established with the camera hardware, to ensure 
+        /// <para>It is recommended that this function be called only after a <see cref="IAscomDevice.Connected">connection</see> is established with the camera hardware, to ensure 
         /// that the driver is aware of the capabilities of the specific camera model.</para>
         /// <para>This is only available for the Camera Interface Version 2</para>
         /// </remarks>
@@ -595,7 +595,7 @@ namespace ASCOM.Alpaca.Interfaces
         /// <exception cref="NotConnectedException">Thrown if the driver is not connected and a connection is required to obtain this information.</exception>
         /// <remarks><p style="color:red"><b>Must throw a NotImplementedException if CanFastReadout is false or 
         /// return a boolean value if CanFastReadout is true.</b></p>
-        /// Must thrown an exception if no <see cref="IAscomDriver.Connected">connection</see> is established to the camera. Must throw 
+        /// Must thrown an exception if no <see cref="IAscomDevice.Connected">connection</see> is established to the camera. Must throw 
         /// a <see cref="NotImplementedException" /> if <see cref="CanFastReadout" /> returns <c>false</c>.
         /// <para>Many cameras have a "fast mode" intended for use in focusing. When set to <c>true</c>, the camera will operate in Fast mode; when 
         /// set <c>false</c>, the camera will operate normally. This property, if implemented, should default to <c>False</c>.</para>
@@ -614,7 +614,7 @@ namespace ASCOM.Alpaca.Interfaces
         /// <returns>Index into the Gains array for the selected camera gain</returns>
         /// <exception cref="NotImplementedException">Must throw an exception if gain is not supported</exception>
         /// <exception cref="NotConnectedException">Must throw an exception if the information is not available. (Some drivers may require an 
-        /// active <see cref="IAscomDriver.Connected">connection</see> in order to retrieve necessary information from the camera.)</exception>
+        /// active <see cref="IAscomDevice.Connected">connection</see> in order to retrieve necessary information from the camera.)</exception>
         /// <exception cref="InvalidValueException">Must throw an exception if not valid.</exception>
         /// <remarks><p style="color:red"><b>May throw a NotImplementedException if Gain is not supported by the camera.</b></p>
         /// <see cref="Gain" /> can be used to adjust the gain setting of the camera, if supported. There are two typical usage scenarios:
@@ -638,13 +638,13 @@ namespace ASCOM.Alpaca.Interfaces
         /// <returns>The maximum gain value that this camera supports</returns>
         /// <exception cref="NotImplementedException">Must throw an exception if GainMax is not supported</exception>
         /// <exception cref="NotConnectedException">Must throw an exception if the information is not available. (Some drivers may require an 
-        /// active <see cref="IAscomDriver.Connected">connection</see> in order to retrieve necessary information from the camera.)</exception>
+        /// active <see cref="IAscomDevice.Connected">connection</see> in order to retrieve necessary information from the camera.)</exception>
         /// <remarks><p style="color:red"><b>May throw a NotImplementedException if GainMax is not supported by the camera..</b></p>
         /// When specifying the gain setting with an integer value, <see cref="GainMax" /> is used in conjunction with <see cref="GainMin" /> to 
         /// specify the range of valid settings.
         /// <para><see cref="GainMax" /> shall be greater than <see cref="GainMin" />. If either is available, then both must be available.</para>
         /// <para>Please see <see cref="Gain" /> for more information.</para>
-        /// <para>It is recommended that this function be called only after a <see cref="IAscomDriver.Connected">connection</see> is established with the camera hardware, to ensure 
+        /// <para>It is recommended that this function be called only after a <see cref="IAscomDevice.Connected">connection</see> is established with the camera hardware, to ensure 
         /// that the driver is aware of the capabilities of the specific camera model.</para>
         /// <para>This is only available for the Camera Interface Version 2</para>
         /// </remarks>
@@ -656,13 +656,13 @@ namespace ASCOM.Alpaca.Interfaces
         /// <returns>The minimum gain value that this camera supports</returns>
         /// <exception cref="NotImplementedException">Must throw an exception if GainMin is not supported</exception>
         /// <exception cref="NotConnectedException">Must throw an exception if the information is not available. (Some drivers may require an 
-        /// active <see cref="IAscomDriver.Connected">connection</see> in order to retrieve necessary information from the camera.)</exception>
+        /// active <see cref="IAscomDevice.Connected">connection</see> in order to retrieve necessary information from the camera.)</exception>
         /// <remarks><p style="color:red"><b>May throw a NotImplementedException if GainMin is not supported by the camera.</b></p>
         /// When specifying the gain setting with an integer value, <see cref="GainMin" /> is used in conjunction with <see cref="GainMax" /> to 
         /// specify the range of valid settings.
         /// <para><see cref="GainMax" /> shall be greater than <see cref="GainMin" />. If either is available, then both must be available.</para>
         /// <para>Please see <see cref="Gain" /> for more information.</para>
-        /// <para>It is recommended that this function be called only after a <see cref="IAscomDriver.Connected">connection</see> is established with the camera hardware, to ensure 
+        /// <para>It is recommended that this function be called only after a <see cref="IAscomDevice.Connected">connection</see> is established with the camera hardware, to ensure 
         /// that the driver is aware of the capabilities of the specific camera model.</para>
         /// <para>This is only available for the Camera Interface Version 2</para>
         /// </remarks>
@@ -674,14 +674,14 @@ namespace ASCOM.Alpaca.Interfaces
         /// <returns>An ArrayList of gain names </returns>
         /// <exception cref="NotImplementedException">Must throw an exception if Gains is not supported</exception>
         /// <exception cref="NotConnectedException">Must throw an exception if the information is not available. (Some drivers may require an 
-        /// active <see cref="IAscomDriver.Connected">connection</see> in order to retrieve necessary information from the camera.)</exception>
+        /// active <see cref="IAscomDevice.Connected">connection</see> in order to retrieve necessary information from the camera.)</exception>
         /// <remarks><p style="color:red"><b>May throw a NotImplementedException if Gains is not supported by the camera.</b></p>
         /// <see cref="Gains" /> provides a 0-based array of available gain settings.  This is often used to specify ISO settings for DSLR cameras.  
         /// Typically the application software will display the available gain settings in a drop list. The application will then supply 
         /// the selected index to the driver via the <see cref="Gain" /> property. 
         /// <para>The <see cref="Gain" /> setting may alternatively be specified using integer values; if this mode is used then <see cref="Gains" /> is invalid 
         /// and must throw an exception. Please see <see cref="GainMax" /> and <see cref="GainMin" /> for more information.</para>
-        /// <para>It is recommended that this function be called only after a <see cref="IAscomDriver.Connected">connection</see> is established with the camera hardware, 
+        /// <para>It is recommended that this function be called only after a <see cref="IAscomDevice.Connected">connection</see> is established with the camera hardware, 
         /// to ensure that the driver is aware of the capabilities of the specific camera model.</para>
         /// <para>This is only available for the Camera Interface Version 2</para>
         /// </remarks>
@@ -716,7 +716,7 @@ namespace ASCOM.Alpaca.Interfaces
         /// the camera's current readout mode.</returns>
         /// <exception cref="InvalidValueException">Must throw an exception if set to an illegal or unavailable mode.</exception>
         /// <exception cref="NotConnectedException">Must throw an exception if the information is not available. (Some drivers may require an 
-        /// active <see cref="IAscomDriver.Connected">connection</see> in order to retrieve necessary information from the camera.)</exception>
+        /// active <see cref="IAscomDevice.Connected">connection</see> in order to retrieve necessary information from the camera.)</exception>
         /// <remarks><p style="color:red"><b>Must be implemented if CanFastReadout is false, must throw a NotImplementedException if 
         /// CanFastReadout is true.</b></p>
         /// <see cref="ReadoutMode" /> is an index into the array <see cref="ReadoutModes" />, and selects the desired readout mode for the camera.  
@@ -733,7 +733,7 @@ namespace ASCOM.Alpaca.Interfaces
         /// </summary>
         /// <returns>An ArrayList of readout mode names</returns>
         /// <exception cref="NotConnectedException">Must throw an exception if the information is not available. (Some drivers may require an 
-        /// active <see cref="IAscomDriver.Connected">connection</see> in order to retrieve necessary information from the camera.)</exception>
+        /// active <see cref="IAscomDevice.Connected">connection</see> in order to retrieve necessary information from the camera.)</exception>
         /// <remarks><p style="color:red"><b>Must be implemented if CanFastReadout is false, must throw a NotImplementedException if 
         /// CanFastReadout is true.</b></p>
         /// This property provides an array of strings, each of which describes an available readout mode of the camera.  
@@ -742,15 +742,15 @@ namespace ASCOM.Alpaca.Interfaces
         /// Please note that if the camera has many different modes of operation, then the most commonly adjusted settings should be in 
         /// <see cref="ReadoutModes" />; additional settings may be provided using the configuration dialogue.
         /// <para>To select a mode, the application will set <see cref="ReadoutMode" /> to the index of the desired mode.  The index is zero-based.</para>
-        /// <para>This property should only be read while a <see cref="IAscomDriver.Connected">connection</see> to the camera is actually established.  Drivers often support 
-        /// multiple cameras with different capabilities, which are not known until the <see cref="IAscomDriver.Connected">connection</see> is made.  If the available readout modes 
-        /// are not known because no <see cref="IAscomDriver.Connected">connection</see> has been established, this property shall throw an exception.</para>
+        /// <para>This property should only be read while a <see cref="IAscomDevice.Connected">connection</see> to the camera is actually established.  Drivers often support 
+        /// multiple cameras with different capabilities, which are not known until the <see cref="IAscomDevice.Connected">connection</see> is made.  If the available readout modes 
+        /// are not known because no <see cref="IAscomDevice.Connected">connection</see> has been established, this property shall throw an exception.</para>
         /// <para>Please note that the default <see cref="ReadoutMode" /> setting is 0. It is strongly recommended, but not required, that 
         /// driver authors use the 0-index mode for standard imaging operations, since it is the default.</para>
         /// <para>This feature may be used in parallel with <see cref="FastReadout" />; however, care should be taken to ensure that the two 
         /// features work together consistently. If there are modes that are inconsistent having a separate fast/normal switch, then it 
         /// may be better to simply list Fast as one of the <see cref="ReadoutModes" />.</para>
-        /// <para>It is recommended that this function be called only after a <see cref="IAscomDriver.Connected">connection</see> is established with 
+        /// <para>It is recommended that this function be called only after a <see cref="IAscomDevice.Connected">connection</see> is established with 
         /// the camera hardware, to ensure that the driver is aware of the capabilities of the specific camera model.</para>
         /// <para>This is only available for the Camera Interface Version 2</para>
         /// </remarks>
@@ -762,7 +762,7 @@ namespace ASCOM.Alpaca.Interfaces
         /// </summary>
         /// <returns>The name of the sensor used within the camera.</returns>
         /// <exception cref="NotConnectedException">Must throw an exception if the information is not available. (Some drivers may require an 
-        /// active <see cref="IAscomDriver.Connected">connection</see> in order to retrieve necessary information from the camera.)</exception>
+        /// active <see cref="IAscomDevice.Connected">connection</see> in order to retrieve necessary information from the camera.)</exception>
         /// <remarks><p style="color:red"><b>May throw a NotImplementedException if the sensor's name is not known.</b></p>
         /// <para>Returns the name (datasheet part number) of the sensor, e.g. ICX285AL.  The format is to be exactly as shown on 
         /// manufacturer data sheet, subject to the following rules:
@@ -783,7 +783,7 @@ namespace ASCOM.Alpaca.Interfaces
         /// <para>The most common usage of this property is to select approximate color balance parameters to be applied to 
         /// the Bayer matrix of one-shot color sensors.  Application authors should assume that an appropriate IR cutoff filter is 
         /// in place for color sensors.</para>
-        /// <para>It is recommended that this function be called only after a <see cref="IAscomDriver.Connected">connection</see> is established with 
+        /// <para>It is recommended that this function be called only after a <see cref="IAscomDevice.Connected">connection</see> is established with 
         /// the camera hardware, to ensure that the driver is aware of the capabilities of the specific camera model.</para>
         /// <para>This is only available for the Camera Interface Version 2</para>
         /// </remarks>
@@ -795,7 +795,7 @@ namespace ASCOM.Alpaca.Interfaces
         /// <value></value>
         /// <returns>The <see cref="SensorType" /> enum value of the camera sensor</returns>
         /// <exception cref="NotConnectedException">Must throw an exception if the information is not available. (Some drivers may require an 
-        /// active <see cref="IAscomDriver.Connected">connection</see> in order to retrieve necessary information from the camera.)</exception>
+        /// active <see cref="IAscomDevice.Connected">connection</see> in order to retrieve necessary information from the camera.)</exception>
         /// <remarks><p style="color:red"><b>May throw a NotImplementedException if the sensor type is not known.</b></p>
         /// <para>This is only available for the Camera Interface Version 2</para>
         /// <para><see cref="SensorType" /> returns a value indicating whether the sensor is monochrome, or what Bayer matrix it encodes. If this value 
@@ -1463,7 +1463,7 @@ namespace ASCOM.Alpaca.Interfaces
         /// </tr>
         /// </table>
         /// </para>
-        /// <para>It is recommended that this function be called only after a <see cref="IAscomDriver.Connected">connection</see> is established with the camera hardware, to ensure that 
+        /// <para>It is recommended that this function be called only after a <see cref="IAscomDevice.Connected">connection</see> is established with the camera hardware, to ensure that 
         /// the driver is aware of the capabilities of the specific camera model.</para>
         /// </remarks>
         SensorType SensorType { get; }

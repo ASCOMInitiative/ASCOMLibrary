@@ -21,7 +21,7 @@
       <DocumentationSource sourceFile="..\ASCOMStandard\ASCOMStandard.csproj" />
     </DocumentationSources>
     <HelpFileFormat>HtmlHelp1</HelpFileFormat>
-    <SyntaxFilters>C#</SyntaxFilters>
+    <SyntaxFilters>C#, Visual Basic, F#</SyntaxFilters>
     <PresentationStyle>VS2013</PresentationStyle>
     <CleanIntermediates>True</CleanIntermediates>
     <KeepLogFile>True</KeepLogFile>
@@ -33,13 +33,13 @@
     <HelpFileVersion>1.0.0.0</HelpFileVersion>
     <NamingMethod>MemberName</NamingMethod>
     <ContentPlacement>AboveNamespaces</ContentPlacement>
-    <RootNamespaceContainer>True</RootNamespaceContainer>
+    <RootNamespaceContainer>False</RootNamespaceContainer>
     <RootNamespaceTitle>ASCOM</RootNamespaceTitle>
-    <NamespaceGrouping>True</NamespaceGrouping>
+    <NamespaceGrouping>False</NamespaceGrouping>
     <MaximumGroupParts>2</MaximumGroupParts>
     <Preliminary>False</Preliminary>
     <CopyrightHref>www.ascom-standards.org</CopyrightHref>
-    <CopyrightText>ASCOM Standards %28c%29 2019</CopyrightText>
+    <CopyrightText>ASCOM Initiative %28c%29 2019</CopyrightText>
     <SdkLinkTarget>Blank</SdkLinkTarget>
     <NamespaceSummaries>
       <NamespaceSummaryItem name="(global)" isDocumented="False">ASCOM Standard Root</NamespaceSummaryItem>
@@ -47,12 +47,32 @@
 <NamespaceSummaryItem name="ASCOM.Alpaca" isDocumented="True">ASCOM Alpaca Components</NamespaceSummaryItem>
 <NamespaceSummaryItem name="ASCOM.AlpacaDifficult" isDocumented="True">These components are difficult because they rely on regularly updated data, leap seconds or DeltaUT1 or make use of the ASCOM SOFA component that is implemented using compiled C DLLs.</NamespaceSummaryItem>
 <NamespaceSummaryItem name="ASCOM.Alpaca.Interfaces" isDocumented="True">ASCOM Alpaca interface definitions</NamespaceSummaryItem>
-<NamespaceSummaryItem name="ASCOM.Alpaca.Responses" isDocumented="True">ASCOM Alpaca response classes</NamespaceSummaryItem></NamespaceSummaries>
+<NamespaceSummaryItem name="ASCOM.Alpaca.Responses" isDocumented="True">ASCOM Alpaca response classes</NamespaceSummaryItem>
+<NamespaceSummaryItem name="ASCOM.Alpaca.Utilities" isDocumented="True">Alpaca utility support components.</NamespaceSummaryItem></NamespaceSummaries>
     <ComponentConfigurations>
+      <ComponentConfig id="Code Block Component" enabled="True">
+        <component id="Code Block Component">
+          <basePath value="{@HtmlEncProjectFolder}" />
+          <outputPaths>{@HelpFormatOutputPaths}</outputPaths>
+          <allowMissingSource value="false" />
+          <removeRegionMarkers value="false" />
+          <colorizer syntaxFile="{@SHFBFolder}PresentationStyles\Colorizer\highlight.xml" styleFile="{@SHFBFolder}PresentationStyles\Colorizer\highlight.xsl" stylesheet="{@SHFBFolder}PresentationStyles\Colorizer\highlight.css" scriptFile="{@SHFBFolder}PresentationStyles\Colorizer\highlight.js" disabled="{@DisableCodeBlockComponent}" language="cs" tabSize="0" numberLines="false" outlining="false" keepSeeTags="false" defaultTitle="true" />
+        </component>
+      </ComponentConfig>
     </ComponentConfigurations>
     <PlugInConfigurations>
     </PlugInConfigurations>
-    <VisibleItems>Protected, ProtectedInternalAsProtected, NonBrowsable</VisibleItems>
+    <VisibleItems>ExplicitInterfaceImplementations, InheritedMembers, Protected, ProtectedInternalAsProtected, NonBrowsable</VisibleItems>
+    <ApiFilter>
+      <Filter entryType="Namespace" fullName="ASCOM.Alpaca" isExposed="True">
+  <Filter entryType="Class" fullName="ASCOM.Alpaca.InvalidValueException" filterName="InvalidValueException" isExposed="True">
+    <Filter entryType="Method" fullName="ASCOM.Alpaca.InvalidValueException.GetObjectData" filterName="GetObjectData" isExposed="False" />
+  </Filter>
+</Filter>
+<Filter entryType="Namespace" fullName="ASCOM.Alpaca.Logging" isExposed="False" />
+<Filter entryType="Namespace" fullName="ASCOM.Alpaca.Responses" isExposed="True">
+  <Filter entryType="Interface" fullName="ASCOM.Alpaca.Responses.IValueResponse`1" filterName="IValueResponse`1" isExposed="False" />
+</Filter></ApiFilter>
   </PropertyGroup>
   <!-- There are no properties for these groups.  AnyCPU needs to appear in order for Visual Studio to perform
 			 the build.  The others are optional common platform types that may appear. -->

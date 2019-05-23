@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Text.RegularExpressions;
 using System.Threading;
 
-namespace ASCOM.Alpaca
+namespace ASCOM.Alpaca.Utilities
 {
     /// <summary>
     /// ASCOM support utilities

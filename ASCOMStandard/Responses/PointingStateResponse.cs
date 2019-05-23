@@ -1,27 +1,26 @@
-﻿using System.Collections.Generic;
+using ASCOM.Alpaca.Interfaces;
 
 namespace ASCOM.Alpaca.Responses
 {
     /// <summary>
-    /// Response that returns a collection of strings
+    /// Response that returns a <see cref="PointingState"/> value.
     /// </summary>
-    public class StringListResponse : Response, IValueResponse<IList<string>>
+    public class PointingStateResponse : Response, IValueResponse<PointingState>
     {
         /// <summary>
-        /// Create a new StringListResponse with default values
+        /// Create a new PointingStateResponse with default values
         /// </summary>
-        public StringListResponse()
+        public PointingStateResponse()
         {
-            Value = new List<string>(); // Make sure that Value contains at least an empty collection 
         }
 
         /// <summary>
-        /// Create a new StringListResponse with the supplied parameter values
+        /// Create a new PointingStateResponse with the supplied parameter values
         /// </summary>
         /// <param name="clientTransactionID">Client transaction ID</param>
         /// <param name="serverTransactionID">Server transaction ID</param>
         /// <param name="value">Value to return</param>
-        public StringListResponse(uint clientTransactionID, uint serverTransactionID, IList<string> value)
+        public PointingStateResponse(uint clientTransactionID, uint serverTransactionID, PointingState value)
         {
             base.ServerTransactionID = serverTransactionID;
             base.ClientTransactionID = clientTransactionID;
@@ -29,13 +28,13 @@ namespace ASCOM.Alpaca.Responses
         }
 
         /// <summary>
-        /// Create a new StringListResponse with the supplied parameter values
+        /// Create a new PointingStateResponse with the supplied parameter values
         /// </summary>
         /// <param name="clientTransactionID">Client transaction ID</param>
         /// <param name="serverTransactionID">Server transaction ID</param>
         /// <param name="errorMessage">Value to return</param>
         /// <param name="errorCode">Server transaction ID</param>
-        public StringListResponse(uint clientTransactionID, uint serverTransactionID, string errorMessage, ErrorCodes errorCode)
+        public PointingStateResponse(uint clientTransactionID, uint serverTransactionID, string errorMessage, ErrorCodes errorCode)
         {
             base.ServerTransactionID = serverTransactionID;
             base.ClientTransactionID = clientTransactionID;
@@ -44,9 +43,9 @@ namespace ASCOM.Alpaca.Responses
         }
 
         /// <summary>
-        /// String collection returned by the device
+        /// PointingState value returned by the device
         /// </summary>
-        public IList<string> Value { get; set; }
+        public PointingState Value { get; set; }
 
         /// <summary>
         /// Return the value as a string
@@ -54,8 +53,7 @@ namespace ASCOM.Alpaca.Responses
         /// <returns>String representation of the response value</returns>
         public override string ToString()
         {
-            if (Value == null) return string.Empty;
-            return string.Join(", ", Value);
+            return Value.ToString();
         }
     }
 }

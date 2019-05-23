@@ -5,7 +5,7 @@ namespace ASCOM.Alpaca.Interfaces
     /// <summary>
     ///  Defines the ITelescope Interface
     ///  </summary>
-    public interface ITelescopeV3 : IAscomDriver
+    public interface ITelescopeV3 : IAscomDevice
     {
 
         /// <summary>

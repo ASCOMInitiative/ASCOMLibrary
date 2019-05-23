@@ -5,7 +5,7 @@ using NLog;
 using NLog.Targets;
 //using NLog.Common;
 
-namespace ASCOM.Alpaca
+namespace ASCOM.Alpaca.Utilities
 {
     /// <summary>
     ///Creates a log file for a driver or application. Uses a similar file name and internal format to the serial logger. Multiple logs can be created simultaneously if needed.

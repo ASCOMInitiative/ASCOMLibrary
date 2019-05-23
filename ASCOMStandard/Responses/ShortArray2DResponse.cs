@@ -1,27 +1,25 @@
-﻿using System.Collections.Generic;
-
 namespace ASCOM.Alpaca.Responses
 {
     /// <summary>
-    /// Response that returns a collection of strings
+    /// 2 dimension image array response
     /// </summary>
-    public class StringListResponse : Response, IValueResponse<IList<string>>
+    public class ShortArray2DResponse : Response, IArrayResponse<short[,]>
     {
         /// <summary>
-        /// Create a new StringListResponse with default values
+        /// Create a new ShortArray2DResponse with default values
         /// </summary>
-        public StringListResponse()
+        public ShortArray2DResponse()
         {
-            Value = new List<string>(); // Make sure that Value contains at least an empty collection 
+            Value = new short[0, 0]; // Make sure that Value contains at least an empty array 
         }
 
         /// <summary>
-        /// Create a new StringListResponse with the supplied parameter values
+        /// Create a new ShortArray2DResponse with the supplied parameter values
         /// </summary>
         /// <param name="clientTransactionID">Client transaction ID</param>
         /// <param name="serverTransactionID">Server transaction ID</param>
         /// <param name="value">Value to return</param>
-        public StringListResponse(uint clientTransactionID, uint serverTransactionID, IList<string> value)
+        public ShortArray2DResponse(uint clientTransactionID, uint serverTransactionID, short[,] value)
         {
             base.ServerTransactionID = serverTransactionID;
             base.ClientTransactionID = clientTransactionID;
@@ -29,13 +27,13 @@ namespace ASCOM.Alpaca.Responses
         }
 
         /// <summary>
-        /// Create a new StringListResponse with the supplied parameter values
+        /// Create a new ShortArray2DResponse with the supplied parameter values
         /// </summary>
         /// <param name="clientTransactionID">Client transaction ID</param>
         /// <param name="serverTransactionID">Server transaction ID</param>
         /// <param name="errorMessage">Value to return</param>
         /// <param name="errorCode">Server transaction ID</param>
-        public StringListResponse(uint clientTransactionID, uint serverTransactionID, string errorMessage, ErrorCodes errorCode)
+        public ShortArray2DResponse(uint clientTransactionID, uint serverTransactionID, string errorMessage, ErrorCodes errorCode)
         {
             base.ServerTransactionID = serverTransactionID;
             base.ClientTransactionID = clientTransactionID;
@@ -44,9 +42,19 @@ namespace ASCOM.Alpaca.Responses
         }
 
         /// <summary>
-        /// String collection returned by the device
+        /// Short 2d array returned by the device
         /// </summary>
-        public IList<string> Value { get; set; }
+        public short[,] Value { get; set; }
+
+        /// <summary>
+        /// Image array type (int16)
+        /// </summary>
+        public ArrayType Type { get; } = ArrayType.Short;
+
+        /// <summary>
+        /// The array's rank, will be 2 (single plane image (monochrome)).
+        /// </summary>
+        public int Rank { get; } = 2;
 
         /// <summary>
         /// Return the value as a string
@@ -54,8 +62,8 @@ namespace ASCOM.Alpaca.Responses
         /// <returns>String representation of the response value</returns>
         public override string ToString()
         {
-            if (Value == null) return string.Empty;
-            return string.Join(", ", Value);
+            if (Value == null) return "Int16 2D array is null";
+            return $"Int16 array ({Value.GetLength(0)} x {Value.GetLength(1)})";
         }
     }
 }

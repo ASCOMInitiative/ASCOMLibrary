@@ -15,7 +15,7 @@ namespace ASCOM.Alpaca
     public class AlpacaException : Exception
     {
         /// <summary>The Alpaca error number for this exception (0x400 - 0x4FF)</summary>
-        public int Number { get; set; }
+        public ErrorCodes Number { get; set; }
 
         /// <summary>
         /// Create a new <see cref = "AlpacaException" /> containing the <see cref="ErrorCodes.UnspecifiedError"/> number and a default message.
@@ -23,7 +23,7 @@ namespace ASCOM.Alpaca
         public AlpacaException()
             : base("Exception cause unknown - the application or driver did not set an exception message.")
         {
-            HResult = ErrorCodes.UnspecifiedError;
+            HResult = (int)ErrorCodes.UnspecifiedError;
             Number = ErrorCodes.UnspecifiedError;
         }
 
@@ -34,7 +34,7 @@ namespace ASCOM.Alpaca
         public AlpacaException(string message)
             : base(message)
         {
-            HResult = ErrorCodes.UnspecifiedError;
+            HResult = (int)ErrorCodes.UnspecifiedError;
             Number = ErrorCodes.UnspecifiedError;
         }
 
@@ -46,7 +46,7 @@ namespace ASCOM.Alpaca
         public AlpacaException(string message, Exception innerException)
             : base(message, innerException)
         {
-            HResult = ErrorCodes.UnspecifiedError;
+            HResult = (int)ErrorCodes.UnspecifiedError;
             Number = ErrorCodes.UnspecifiedError;
         }
 
@@ -55,10 +55,10 @@ namespace ASCOM.Alpaca
         /// </summary>
         /// <param name = "message">Descriptive text describing the cause of the exception</param>
         /// <param name = "number">Error code for the exception (0x400 - 0xFFF).</param>
-        public AlpacaException(string message, int number)
+        public AlpacaException(string message, ErrorCodes number)
             : base(message)
         {
-            HResult = number;
+            HResult = (int)number;
             Number = number;
         }
 
@@ -68,10 +68,10 @@ namespace ASCOM.Alpaca
         /// <param name = "message">Descriptive text describing the cause of the exception</param>
         /// <param name = "number">Alpaca error number for the exception (0x400 - 0xFFF).</param>
         /// <param name = "innerException">The inner exception that led to throwing this exception</param>
-        public AlpacaException(string message, int number, Exception innerException)
+        public AlpacaException(string message, ErrorCodes number, Exception innerException)
             : base(message, innerException)
         {
-            HResult = number;
+            HResult = (int)number;
             Number = number;
         }
 
@@ -86,7 +86,8 @@ namespace ASCOM.Alpaca
         protected AlpacaException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            Number = info.GetInt32("Number");
+            //Number = info.GetInt32("Number");
+            Number = (ErrorCodes)info.GetValue("Number", typeof(ErrorCodes));
         }
 
         /// <summary>

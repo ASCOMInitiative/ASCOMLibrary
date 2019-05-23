@@ -7,7 +7,7 @@
     /// <summary>
     /// Defines the IFilterWheel Interface
     /// </summary>
-    public interface IFilterWheelV2 : IAscomDriver
+    public interface IFilterWheelV2 : IAscomDevice
     {
 
         /// <summary>

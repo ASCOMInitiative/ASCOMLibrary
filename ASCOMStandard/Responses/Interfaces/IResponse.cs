@@ -22,7 +22,7 @@ namespace ASCOM.Alpaca.Responses
         /// numbers whenever appropriate so that clients can take informed actions. E.g.returning 0x401 (1025) to indicate that an invalid value was received.
         /// </summary>
         /// <seealso cref="ErrorCodes"/>
-        int ErrorNumber { get; set; }
+        ErrorCodes ErrorNumber { get; set; }
 
         /// <summary>
         /// Empty string for a successful transaction, or a message describing the issue that was encountered. If an error message is returned,

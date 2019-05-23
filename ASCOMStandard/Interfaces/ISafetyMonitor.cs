@@ -6,7 +6,7 @@ namespace ASCOM.Alpaca.Interfaces
     /// <summary>
     /// Defines the ISafetyMonitor Interface
     /// </summary>
-    public interface ISafetyMonitor : IAscomDriver
+    public interface ISafetyMonitor : IAscomDevice
     {
 
         /// <summary>

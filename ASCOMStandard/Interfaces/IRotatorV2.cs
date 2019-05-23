@@ -6,7 +6,7 @@
     /// <summary>
     /// Defines the IRotator Interface
     /// </summary>
-    public interface IRotatorV2 : IAscomDriver
+    public interface IRotatorV2 : IAscomDevice
     {
 
         /// <summary>

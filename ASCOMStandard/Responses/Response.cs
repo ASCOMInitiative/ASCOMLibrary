@@ -3,9 +3,11 @@
 namespace ASCOM.Alpaca.Responses
 {
     /// <summary>
-    /// Defines the base of an Alpaca response.
-    /// This type can be use for request that does not return any value
+    /// Defines the properties that are common to all Alpaca responses.
     /// </summary>
+    /// <remarks>
+    /// If a command does not return a value, use <see cref="CommandCompleteResponse"/> instead of this class.
+    /// </remarks>
     public class Response : IResponse
     {
         /// <summary>
@@ -23,7 +25,7 @@ namespace ASCOM.Alpaca.Responses
         /// numbers whenever appropriate so that clients can take informed actions. E.g.returning 0x401 (1025) to indicate that an invalid value was received.
         /// </summary>
         /// <seealso cref="ErrorCodes"/>
-        public int ErrorNumber { get; set; }
+        public ErrorCodes ErrorNumber { get; set; }
 
         /// <summary>
         /// Empty string for a successful transaction, or a message describing the issue that was encountered. If an error message is returned,

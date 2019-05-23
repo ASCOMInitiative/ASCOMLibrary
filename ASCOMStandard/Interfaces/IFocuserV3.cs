@@ -8,7 +8,7 @@
     /// <para>The method signatures in the revised interface specification are identical to the preceeding IFocuserV2, however, the IFocuserV3.Move command must
     /// no longer throw an InvalidOperationException exception if a Move is attempted when temperature compensation is enabled.</para>
     /// </remarks>
-    public interface IFocuserV3 : IAscomDriver
+    public interface IFocuserV3 : IAscomDevice
     {
 
         /// <summary>
@@ -50,7 +50,7 @@
         /// An exception will be raised if the link fails to change state for any reason. 
         /// <para><b>Note</b></para>
         /// <para>The FocuserV1 interface was the only interface to name its <i>"Connect"</i> method "Link" all others named 
-        /// their <i>"Connect"</i> method as "Connected". All interfaces including Focuser now have a <see cref="IAscomDriver.Connected"></see> method and this is 
+        /// their <i>"Connect"</i> method as "Connected". All interfaces including Focuser now have a <see cref="IAscomDevice.Connected"></see> method and this is 
         /// the recommended method to use to <i>"Connect"</i> to Focusers exposing the V2 and later interfaces.</para>
         /// <para>Do not use a NotConnectedException here, that exception is for use in other methods that require a connection in order to succeed.</para>
         /// </remarks>

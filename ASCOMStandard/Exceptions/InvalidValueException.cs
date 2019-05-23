@@ -58,7 +58,7 @@ namespace ASCOM.Alpaca
         /// <param name = "invalidValue">The invalid value that was supplied.</param>
         /// <param name="fromValue">The lowest valid value.</param>
         /// <param name="toValue">The highest valid value.</param>
-        public InvalidValueException(string propertyOrMethod, string invalidValue, string fromValue, string toValue) 
+        public InvalidValueException(string propertyOrMethod, string invalidValue, string fromValue, string toValue)
             : base(String.Format(CultureInfo.InvariantCulture, "{0} - '{1}' is an invalid value. The valid range is: {2} to {3}.", propertyOrMethod, invalidValue, fromValue, toValue), ErrorCodes.InvalidValue)
         {
             PropertyOrMethod = propertyOrMethod;

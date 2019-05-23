@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ASCOM.Alpaca
+namespace ASCOM.Alpaca.Utilities
 {
     /// <summary>
     /// Coordinate transform component; J2000 - apparent - topocentric
@@ -122,6 +122,8 @@ namespace ASCOM.Alpaca
         /// <remarks></remarks>
         public void SetJ2000(double RA, double DEC)
         {
+            if (RA == double.PositiveInfinity) throw new InvalidValueException(); // Dummy processing to remove compiler informational
+            if (DEC == double.PositiveInfinity) throw new InvalidValueException();
         }
 
         /// <summary>
@@ -132,6 +134,8 @@ namespace ASCOM.Alpaca
         /// <remarks></remarks>
         public void SetApparent(double RA, double DEC)
         {
+            if (RA == double.PositiveInfinity) throw new InvalidValueException(); // Dummy processing to remove compiler informational
+            if (DEC == double.PositiveInfinity) throw new InvalidValueException();
         }
 
         /// <summary>
@@ -142,6 +146,8 @@ namespace ASCOM.Alpaca
         /// <remarks></remarks>
         public void SetTopocentric(double RA, double DEC)
         {
+            if (RA == double.PositiveInfinity) throw new InvalidValueException(); // Dummy processing to remove compiler informational
+            if (DEC == double.PositiveInfinity) throw new InvalidValueException();
         }
 
         /// <summary>
@@ -152,6 +158,8 @@ namespace ASCOM.Alpaca
         /// <remarks></remarks>
         public void SetAzimuthElevation(double Azimuth, double Elevation)
         {
+            if (Azimuth == double.PositiveInfinity) throw new InvalidValueException(); // Dummy processing to remove compiler informational
+            if (Elevation == double.PositiveInfinity) throw new InvalidValueException();
         }
 
         /// <summary>

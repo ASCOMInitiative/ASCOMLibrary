@@ -1,26 +1,25 @@
-using ASCOM.Alpaca.Interfaces;
-
 namespace ASCOM.Alpaca.Responses
 {
     /// <summary>
-    /// Response that returns a <see cref="SensorType"/> value.
+    /// 3 dimension image array response
     /// </summary>
-    public class SensorTypeResponse : Response, IValueResponse<SensorType>
+    public class DoubleArray3DResponse : Response, IArrayResponse<double[,,]>
     {
         /// <summary>
-        /// Create a new SensorTypeResponse with default values
+        /// Create a new DoubleArray3DResponse with default values
         /// </summary>
-        public SensorTypeResponse()
+        public DoubleArray3DResponse()
         {
+            Value = new double[0, 0, 0]; // Make sure that Value contains at least an empty array 
         }
 
         /// <summary>
-        /// Create a new SensorTypeResponse with the supplied parameter values
+        /// Create a new DoubleArray3DResponse with the supplied parameter values
         /// </summary>
         /// <param name="clientTransactionID">Client transaction ID</param>
         /// <param name="serverTransactionID">Server transaction ID</param>
         /// <param name="value">Value to return</param>
-        public SensorTypeResponse(uint clientTransactionID, uint serverTransactionID, SensorType value)
+        public DoubleArray3DResponse(uint clientTransactionID, uint serverTransactionID, double[,,] value)
         {
             base.ServerTransactionID = serverTransactionID;
             base.ClientTransactionID = clientTransactionID;
@@ -28,16 +27,13 @@ namespace ASCOM.Alpaca.Responses
         }
 
         /// <summary>
-        /// Sensor type returned by the device
-        /// </summary>
-        /// <summary>
-        /// Create a new SensorTypeResponse with the supplied parameter values
+        /// Create a new DoubleArray3DResponse with the supplied parameter values
         /// </summary>
         /// <param name="clientTransactionID">Client transaction ID</param>
         /// <param name="serverTransactionID">Server transaction ID</param>
         /// <param name="errorMessage">Value to return</param>
         /// <param name="errorCode">Server transaction ID</param>
-        public SensorTypeResponse(uint clientTransactionID, uint serverTransactionID, string errorMessage, ErrorCodes errorCode)
+        public DoubleArray3DResponse(uint clientTransactionID, uint serverTransactionID, string errorMessage, ErrorCodes errorCode)
         {
             base.ServerTransactionID = serverTransactionID;
             base.ClientTransactionID = clientTransactionID;
@@ -46,9 +42,19 @@ namespace ASCOM.Alpaca.Responses
         }
 
         /// <summary>
-        /// SensorType value returned by the device
+        /// 3D image array of double values
         /// </summary>
-        public SensorType Value { get; set; }
+        public double[,,] Value { get; set; }
+
+        /// <summary>
+        /// Image array type (double)
+        /// </summary>
+        public ArrayType Type { get; } = ArrayType.Double;
+
+        /// <summary>
+        /// The array's rank, will be 3 (multi plane image (colour)).
+        /// </summary>
+        public int Rank { get; } = 3;
 
         /// <summary>
         /// Return the value as a string
@@ -56,7 +62,8 @@ namespace ASCOM.Alpaca.Responses
         /// <returns>String representation of the response value</returns>
         public override string ToString()
         {
-            return Value.ToString();
+            if (Value == null) return "Double 3D array is null";
+            return $"Double array ({Value.GetLength(0)} x {Value.GetLength(1)} x {Value.GetLength(2)})";
         }
     }
 }
