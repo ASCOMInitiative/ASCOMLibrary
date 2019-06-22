@@ -120,12 +120,12 @@ namespace ASCOM.Alpaca.Utilities
         }
 
         /// <summary>
-        /// Logs a message identifier  and the message with parameters substituted into placeholders within the message.
+        /// Logs a message identifier and the message with parameters substituted into placeholders within the message.
         /// </summary>
         /// <param name="Identifier">Identifies the source of the message e.g. name of module or method logging the message.</param>
         /// <param name="Message">Message to log, including {0}, {1}... type placeholders for parameter values</param>
         /// <param name="parameters">A comma separated list of parameter values to be merged into the message at places indicated by {0}, {1}... type placeholders.</param>
-        public void LogMessage(string Identifier, string Message, params string[] parameters)
+        public void LogMessage(string Identifier, string Message, params object[] parameters)
         {
             LogMessage($"{Identifier.PadRight(IdentifierWidth)} {string.Format(Message, parameters)}"); // Interpolated string containing formatted log message
         }
