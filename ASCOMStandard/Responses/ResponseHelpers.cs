@@ -17,14 +17,14 @@ namespace ASCOM.Alpaca.Responses
         /// <param name="clientTransactionID">The Client Transaction ID</param>
         /// <param name="serverTransactionID">The Server Transaction ID</param>
         /// <returns></returns>
-        public static T ExceptionResposeBuilder<T>(Exception ex, uint clientTransactionID = 0, uint serverTransactionID = 0) where T : Response, new()
+        public static T ExceptionResponseBuilder<T>(Exception ex, uint clientTransactionID = 0, uint serverTransactionID = 0) where T : Response, new()
         {
             if (ex == null)
             {
                 throw new ArgumentException("The exception must not be null");
             }
 
-            return ExceptionResposeBuilder<T>(ex, ex?.Message ?? string.Empty, clientTransactionID, serverTransactionID);
+            return ExceptionResponseBuilder<T>(ex, ex?.Message ?? string.Empty, clientTransactionID, serverTransactionID);
         }
 
         /// <summary>
@@ -36,7 +36,7 @@ namespace ASCOM.Alpaca.Responses
         /// <param name="clientTransactionID">The Client Transaction ID</param>
         /// <param name="serverTransactionID">The Server Transaction ID</param>
         /// <returns></returns>
-        public static T ExceptionResposeBuilder<T>(Exception ex, string message, uint clientTransactionID = 0, uint serverTransactionID = 0) where T : Response, new()
+        public static T ExceptionResponseBuilder<T>(Exception ex, string message, uint clientTransactionID = 0, uint serverTransactionID = 0) where T : Response, new()
         {
             if (ex == null)
             {
@@ -45,7 +45,7 @@ namespace ASCOM.Alpaca.Responses
 
             ErrorCodes errorCode = (ex as AlpacaException)?.Number ?? ErrorCodes.UnspecifiedError;
 
-            return ExceptionResposeBuilder<T>(errorCode, message ?? string.Empty, clientTransactionID, serverTransactionID);
+            return ExceptionResponseBuilder<T>(errorCode, message ?? string.Empty, clientTransactionID, serverTransactionID);
         }
 
         /// <summary>
@@ -57,7 +57,7 @@ namespace ASCOM.Alpaca.Responses
         /// <param name="clientTransactionID">The Client Transaction ID</param>
         /// <param name="serverTransactionID">The Server Transaction ID</param>
         /// <returns></returns>
-        public static T ExceptionResposeBuilder<T>(ErrorCodes code, string message, uint clientTransactionID = 0, uint serverTransactionID = 0) where T : Response, new()
+        public static T ExceptionResponseBuilder<T>(ErrorCodes code, string message, uint clientTransactionID = 0, uint serverTransactionID = 0) where T : Response, new()
         {
             return new T()
             {
