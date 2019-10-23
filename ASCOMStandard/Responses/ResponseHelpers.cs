@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -44,6 +44,49 @@ namespace ASCOM.Alpaca.Responses
             }
 
             ErrorCodes errorCode = (ex as AlpacaException)?.Number ?? ErrorCodes.UnspecifiedError;
+
+            //This will add the correct error codes if the driver is using the platform version of ASCOM.Exceptions
+            if (errorCode == ErrorCodes.UnspecifiedError)
+            {
+                var type = ex.GetType();
+
+                if (type.Name.ToString() == "InvalidValueException")
+                {
+                    errorCode = ErrorCodes.InvalidValue;
+                }
+                else if (type.Name.ToString() == "ValueNotSetException")
+                {
+                    errorCode = ErrorCodes.ValueNotSet;
+                }
+                else if (type.Name.ToString() == "NotImplementedException")
+                {
+                    errorCode = ErrorCodes.NotImplemented;
+                }
+                else if (type.Name.ToString() == "ParkedException")
+                {
+                    errorCode = ErrorCodes.InvalidWhileParked;
+                }
+                else if (type.Name.ToString() == "MethodNotImplementedException")
+                {
+                    errorCode = ErrorCodes.NotImplemented;
+                }
+                else if (type.Name.ToString() == "NotConnectedException")
+                {
+                    errorCode = ErrorCodes.NotConnected;
+                }
+                else if (type.Name.ToString() == "InvalidOperationException")
+                {
+                    errorCode = ErrorCodes.InvalidOperationException;
+                }
+                else if (type.Name.ToString() == "ActionNotImplementedException")
+                {
+                    errorCode = ErrorCodes.NotImplemented;
+                }
+                else if (type.Name.ToString() == "SlavedException")
+                {
+                    errorCode = ErrorCodes.InvalidWhileSlaved;
+                }
+            }
 
             return ExceptionResponseBuilder<T>(errorCode, message ?? string.Empty, clientTransactionID, serverTransactionID);
         }
