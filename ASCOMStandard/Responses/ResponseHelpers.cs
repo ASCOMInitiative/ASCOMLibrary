@@ -70,6 +70,10 @@ namespace ASCOM.Alpaca.Responses
                 {
                     errorCode = ErrorCodes.NotImplemented;
                 }
+                else if (type.Name.ToString() == "PropertyNotImplementedException")
+                {
+                    errorCode = ErrorCodes.NotImplemented;
+                }
                 else if (type.Name.ToString() == "NotConnectedException")
                 {
                     errorCode = ErrorCodes.NotConnected;
