@@ -5,7 +5,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ASCOM.Standard.Exceptions\ASCOM.Standard.Exceptions.csproj" />
     <ProjectReference Include="..\ASCOM.Standard.Types\ASCOM.Standard.Types.csproj" />
     <ProjectReference Include="..\ASCOMExceptions\ASCOM.Exceptions.csproj" />
   </ItemGroup>
