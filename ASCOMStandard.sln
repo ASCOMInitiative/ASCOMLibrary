@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ASCOM.Standard.Types", "ASC
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ASCOM.Standard.Exceptions", "ASCOM.Standard.Exceptions\ASCOM.Standard.Exceptions.csproj", "{9ACED528-138B-49FB-8907-6D269F465BBD}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASCOM.Exceptions", "ASCOMExceptions\ASCOM.Exceptions.csproj", "{05E5B312-5667-4A16-AC08-16F62FAF561A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -50,6 +52,14 @@ Global
 		{9ACED528-138B-49FB-8907-6D269F465BBD}.Release|Any CPU.Build.0 = Release|Any CPU
 		{9ACED528-138B-49FB-8907-6D269F465BBD}.Release|x86.ActiveCfg = Release|Any CPU
 		{9ACED528-138B-49FB-8907-6D269F465BBD}.Release|x86.Build.0 = Release|Any CPU
+		{05E5B312-5667-4A16-AC08-16F62FAF561A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{05E5B312-5667-4A16-AC08-16F62FAF561A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{05E5B312-5667-4A16-AC08-16F62FAF561A}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{05E5B312-5667-4A16-AC08-16F62FAF561A}.Debug|x86.Build.0 = Debug|Any CPU
+		{05E5B312-5667-4A16-AC08-16F62FAF561A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{05E5B312-5667-4A16-AC08-16F62FAF561A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{05E5B312-5667-4A16-AC08-16F62FAF561A}.Release|x86.ActiveCfg = Release|Any CPU
+		{05E5B312-5667-4A16-AC08-16F62FAF561A}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
