@@ -1,8 +1,10 @@
+using ASCOM.Alpaca;
+using ASCOM.Alpaca.Responses;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace ASCOM.Alpaca.Responses
+namespace ASCOM.Standard.Helpers
 {
     /// <summary>
     /// This class contains helper functions to make responding from the server easier.
@@ -44,86 +46,9 @@ namespace ASCOM.Alpaca.Responses
             }
 
             //This will add the correct error codes if the driver is using the platform version of ASCOM.Exceptions
-            ErrorCodes errorCode = (ex as AlpacaException)?.Number ?? TryGetErrorCodesForUnknownException(ex);
+            Alpaca.ErrorCodes errorCode = (ex as AlpacaException)?.Number ?? GetErrorCodesForUnknownException(ex);
 
             return ExceptionResponseBuilder<T>(errorCode, message ?? string.Empty, clientTransactionID, serverTransactionID);
-        }
-
-        private static ErrorCodes TryGetErrorCodesForUnknownException(Exception ex)
-        {
-            //Try with the HResult first, then type names
-            int HResult = ex.HResult;
-            if(HResult == ASCOM.ErrorCodes.ActionNotImplementedException) { 
-                    return ErrorCodes.NotImplemented;
-            } 
-            else if (HResult == ASCOM.ErrorCodes.InvalidOperationException)
-            {
-                return ErrorCodes.InvalidOperationException;
-            }
-            else if (HResult == ASCOM.ErrorCodes.InvalidValue)
-            {
-                return ErrorCodes.InvalidValue;
-            }
-            else if (HResult == ASCOM.ErrorCodes.InvalidWhileParked)
-            {
-                return ErrorCodes.InvalidWhileParked;
-            }
-            else if (HResult == ASCOM.ErrorCodes.InvalidWhileSlaved)
-            {
-                return ErrorCodes.InvalidWhileSlaved;
-            }
-            else if (HResult == ASCOM.ErrorCodes.NotConnected)
-            {
-                return ErrorCodes.NotConnected;
-            }
-            else if (HResult == ASCOM.ErrorCodes.NotImplemented)
-            {
-                return ErrorCodes.NotImplemented;
-            }
-            else if (HResult == ASCOM.ErrorCodes.NotInCacheException)
-            {
-                return ErrorCodes.UnspecifiedError;
-            }
-            else if (HResult == ASCOM.ErrorCodes.SettingsProviderError)
-            {
-                return ErrorCodes.UnspecifiedError;
-            }
-            else if (HResult == ASCOM.ErrorCodes.UnspecifiedError)
-            {
-                return ErrorCodes.UnspecifiedError;
-            }
-            else if (HResult == ASCOM.ErrorCodes.ValueNotSet)
-            {
-                return ErrorCodes.ValueNotSet;
-            }
-
-            var type = ex.GetType();
-
-            switch (type.Name.ToString())
-            {
-                case "InvalidValueException":
-                    return ErrorCodes.InvalidValue;
-                case "ValueNotSetException":
-                    return ErrorCodes.ValueNotSet;
-                case "NotImplementedException":
-                    return ErrorCodes.NotImplemented;
-                case "ParkedException":
-                    return ErrorCodes.InvalidWhileParked;
-                case "MethodNotImplementedException":
-                    return ErrorCodes.NotImplemented;
-                case "PropertyNotImplementedException":
-                    return ErrorCodes.NotImplemented;
-                case "NotConnectedException":
-                    return ErrorCodes.NotConnected;
-                case "InvalidOperationException":
-                    return ErrorCodes.InvalidOperationException;
-                case "ActionNotImplementedException":
-                    return ErrorCodes.NotImplemented;
-                case "SlavedException":
-                    return ErrorCodes.InvalidWhileSlaved;
-            }
-
-            return ErrorCodes.UnspecifiedError;
         }
 
         /// <summary>
@@ -135,7 +60,7 @@ namespace ASCOM.Alpaca.Responses
         /// <param name="clientTransactionID">The Client Transaction ID</param>
         /// <param name="serverTransactionID">The Server Transaction ID</param>
         /// <returns></returns>
-        public static T ExceptionResponseBuilder<T>(ErrorCodes code, string message, uint clientTransactionID = 0, uint serverTransactionID = 0) where T : Response, new()
+        public static T ExceptionResponseBuilder<T>(Alpaca.ErrorCodes code, string message, uint clientTransactionID = 0, uint serverTransactionID = 0) where T : Response, new()
         {
             return new T()
             {
@@ -144,6 +69,84 @@ namespace ASCOM.Alpaca.Responses
                 ErrorNumber = code,
                 ErrorMessage = message
             };
+        }
+
+        private static Alpaca.ErrorCodes GetErrorCodesForUnknownException(Exception ex)
+        {
+            //Try with the HResult first, then type names
+            int HResult = ex.HResult;
+            if (HResult == ASCOM.ErrorCodes.ActionNotImplementedException)
+            {
+                return Alpaca.ErrorCodes.NotImplemented;
+            }
+            else if (HResult == ASCOM.ErrorCodes.InvalidOperationException)
+            {
+                return Alpaca.ErrorCodes.InvalidOperationException;
+            }
+            else if (HResult == ASCOM.ErrorCodes.InvalidValue)
+            {
+                return Alpaca.ErrorCodes.InvalidValue;
+            }
+            else if (HResult == ASCOM.ErrorCodes.InvalidWhileParked)
+            {
+                return Alpaca.ErrorCodes.InvalidWhileParked;
+            }
+            else if (HResult == ASCOM.ErrorCodes.InvalidWhileSlaved)
+            {
+                return Alpaca.ErrorCodes.InvalidWhileSlaved;
+            }
+            else if (HResult == ASCOM.ErrorCodes.NotConnected)
+            {
+                return Alpaca.ErrorCodes.NotConnected;
+            }
+            else if (HResult == ASCOM.ErrorCodes.NotImplemented)
+            {
+                return Alpaca.ErrorCodes.NotImplemented;
+            }
+            else if (HResult == ASCOM.ErrorCodes.NotInCacheException)
+            {
+                return Alpaca.ErrorCodes.UnspecifiedError;
+            }
+            else if (HResult == ASCOM.ErrorCodes.SettingsProviderError)
+            {
+                return Alpaca.ErrorCodes.UnspecifiedError;
+            }
+            else if (HResult == ASCOM.ErrorCodes.UnspecifiedError)
+            {
+                return Alpaca.ErrorCodes.UnspecifiedError;
+            }
+            else if (HResult == ASCOM.ErrorCodes.ValueNotSet)
+            {
+                return Alpaca.ErrorCodes.ValueNotSet;
+            }
+
+            var type = ex.GetType();
+
+            switch (type.Name.ToString())
+            {
+                case "InvalidValueException":
+                    return Alpaca.ErrorCodes.InvalidValue;
+                case "ValueNotSetException":
+                    return Alpaca.ErrorCodes.ValueNotSet;
+                case "NotImplementedException":
+                    return Alpaca.ErrorCodes.NotImplemented;
+                case "ParkedException":
+                    return Alpaca.ErrorCodes.InvalidWhileParked;
+                case "MethodNotImplementedException":
+                    return Alpaca.ErrorCodes.NotImplemented;
+                case "PropertyNotImplementedException":
+                    return Alpaca.ErrorCodes.NotImplemented;
+                case "NotConnectedException":
+                    return Alpaca.ErrorCodes.NotConnected;
+                case "InvalidOperationException":
+                    return Alpaca.ErrorCodes.InvalidOperationException;
+                case "ActionNotImplementedException":
+                    return Alpaca.ErrorCodes.NotImplemented;
+                case "SlavedException":
+                    return Alpaca.ErrorCodes.InvalidWhileSlaved;
+            }
+
+            return Alpaca.ErrorCodes.UnspecifiedError;
         }
     }
 }
