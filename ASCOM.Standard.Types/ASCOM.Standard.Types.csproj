@@ -5,8 +5,4 @@
     <RootNamespace>ASCOM.Alpaca</RootNamespace>
   </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\ASCOM.Standard.Exceptions\ASCOM.Standard.Exceptions.csproj" />
-  </ItemGroup>
-
 </Project>
