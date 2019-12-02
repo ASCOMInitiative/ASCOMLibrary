@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <RootNamespace>ASCOM.Alpaca</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ASCOM.Standard.Exceptions\ASCOM.Standard.Exceptions.csproj" />
+  </ItemGroup>
+
+</Project>
