@@ -60,5 +60,98 @@ namespace ASCOM.Standard.Helpers
                     return null;
             }
         }
+
+        /// <summary>
+        /// Extension method to get the Alpaca Error Code for an Exception. Returns UnspecifiedError if it cannot find a better code
+        /// </summary>
+        /// <param name="ex">The exception to get the error code for</param>
+        /// <returns>The best matching ErrorCode for the exception, UnspecifiedError if a better one cannot be found</returns>
+        public static Alpaca.ErrorCodes ErrorCode(this Exception ex)
+        {
+            return ErrorCodeFromException(ex);
+        }
+
+        /// <summary>
+        /// A method to get the Alpaca Error Code for an Exception. Returns UnspecifiedError if it cannot find a better code
+        /// </summary>
+        /// <param name="ex">The exception to get the error code for</param>
+        /// <returns>The best matching ErrorCode for the exception, UnspecifiedError if a better one cannot be found</returns>
+        public static Alpaca.ErrorCodes ErrorCodeFromException(Exception ex)
+        {
+            //Try with the HResult first, then type names
+            int HResult = ex.HResult;
+            if (HResult == ASCOM.ErrorCodes.ActionNotImplementedException)
+            {
+                return Alpaca.ErrorCodes.NotImplemented;
+            }
+            else if (HResult == ASCOM.ErrorCodes.InvalidOperationException)
+            {
+                return Alpaca.ErrorCodes.InvalidOperationException;
+            }
+            else if (HResult == ASCOM.ErrorCodes.InvalidValue)
+            {
+                return Alpaca.ErrorCodes.InvalidValue;
+            }
+            else if (HResult == ASCOM.ErrorCodes.InvalidWhileParked)
+            {
+                return Alpaca.ErrorCodes.InvalidWhileParked;
+            }
+            else if (HResult == ASCOM.ErrorCodes.InvalidWhileSlaved)
+            {
+                return Alpaca.ErrorCodes.InvalidWhileSlaved;
+            }
+            else if (HResult == ASCOM.ErrorCodes.NotConnected)
+            {
+                return Alpaca.ErrorCodes.NotConnected;
+            }
+            else if (HResult == ASCOM.ErrorCodes.NotImplemented)
+            {
+                return Alpaca.ErrorCodes.NotImplemented;
+            }
+            else if (HResult == ASCOM.ErrorCodes.NotInCacheException)
+            {
+                return Alpaca.ErrorCodes.UnspecifiedError;
+            }
+            else if (HResult == ASCOM.ErrorCodes.SettingsProviderError)
+            {
+                return Alpaca.ErrorCodes.UnspecifiedError;
+            }
+            else if (HResult == ASCOM.ErrorCodes.UnspecifiedError)
+            {
+                return Alpaca.ErrorCodes.UnspecifiedError;
+            }
+            else if (HResult == ASCOM.ErrorCodes.ValueNotSet)
+            {
+                return Alpaca.ErrorCodes.ValueNotSet;
+            }
+
+            var type = ex.GetType();
+
+            switch (type.Name.ToString())
+            {
+                case "InvalidValueException":
+                    return Alpaca.ErrorCodes.InvalidValue;
+                case "ValueNotSetException":
+                    return Alpaca.ErrorCodes.ValueNotSet;
+                case "NotImplementedException":
+                    return Alpaca.ErrorCodes.NotImplemented;
+                case "ParkedException":
+                    return Alpaca.ErrorCodes.InvalidWhileParked;
+                case "MethodNotImplementedException":
+                    return Alpaca.ErrorCodes.NotImplemented;
+                case "PropertyNotImplementedException":
+                    return Alpaca.ErrorCodes.NotImplemented;
+                case "NotConnectedException":
+                    return Alpaca.ErrorCodes.NotConnected;
+                case "InvalidOperationException":
+                    return Alpaca.ErrorCodes.InvalidOperationException;
+                case "ActionNotImplementedException":
+                    return Alpaca.ErrorCodes.NotImplemented;
+                case "SlavedException":
+                    return Alpaca.ErrorCodes.InvalidWhileSlaved;
+            }
+
+            return Alpaca.ErrorCodes.UnspecifiedError;
+        }
     }
 }
