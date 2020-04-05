@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\AlpacaSigningKey.snk</AssemblyOriginatorKeyFile>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Copyright>ASCOM Initiative (c) 2019</Copyright>
+    <Authors>ASCOM Initiative</Authors>
+    <Product>Helper methods for ASCOM Alpaca</Product>
+    <Description>Helper methods for ASCOM Alpaca drivers and clients</Description>
+    <PackageProjectUrl>https://ascom-standards.org/</PackageProjectUrl>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ASCOM.Standard.Types\ASCOM.Standard.Types.csproj" />
+    <ProjectReference Include="..\ASCOMExceptions\ASCOM.Exceptions.csproj" />
+  </ItemGroup>
+
+</Project>

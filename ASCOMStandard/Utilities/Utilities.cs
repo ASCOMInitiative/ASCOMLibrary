@@ -817,7 +817,7 @@ namespace ASCOM.Alpaca.Utilities
                 return finalValue;
             }
             else
-                throw new ASCOM.Alpaca.InvalidOperationException("From and to units are not of the same type. From: " + FromUnits.ToString() + ", To: " + ToUnits.ToString());
+                throw new ASCOM.InvalidOperationException("From and to units are not of the same type. From: " + FromUnits.ToString() + ", To: " + ToUnits.ToString());
         }
 
         /// <summary>
@@ -933,7 +933,7 @@ namespace ASCOM.Alpaca.Utilities
         {
             double ModuloValue;
             if (LowerBound >= UpperBound)
-                throw new ASCOM.Alpaca.InvalidValueException("Range - LowerBound is >= UpperBound LowerBound must be less than UpperBound");
+                throw new ASCOM.InvalidValueException("Range - LowerBound is >= UpperBound LowerBound must be less than UpperBound");
 
             ModuloValue = UpperBound - LowerBound;
 
