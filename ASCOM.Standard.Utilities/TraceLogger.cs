@@ -33,7 +33,7 @@ namespace ASCOM.Standard.Utilities
             this.g_LogFileName = "";
             this.autoLogFilePath = true;
             this.g_LogFileType = "Default";
-            this.g_DefaultLogFilePath = !string.IsNullOrEmpty(Environment.GetFolderPath(Environment.SpecialFolder.Personal)) ? Environment.GetFolderPath(Environment.SpecialFolder.Personal) + "\\ASCOM\\Logs " + DateTime.Now.ToString("yyyy-MM-dd") : Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86) + "\\ASCOM\\SystemLogs\\Logs " + DateTime.Now.ToString("yyyy-MM-dd");
+            this.g_DefaultLogFilePath = !string.IsNullOrEmpty(Environment.GetFolderPath(Environment.SpecialFolder.Personal)) ? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal),"ASCOM", "Logs " + DateTime.Now.ToString("yyyy-MM-dd")) : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "ASCOM", "SystemLogs", "Logs " + DateTime.Now.ToString("yyyy-MM-dd"));
             this.g_LogFilePath = this.g_DefaultLogFilePath;
             this.mut = new Mutex(false, "TraceLoggerMutex");
         }
@@ -399,13 +399,13 @@ namespace ASCOM.Standard.Utilities
             if (this.autoLogFilePath)
             {
                 Directory.CreateDirectory(this.g_DefaultLogFilePath);
-                str = this.g_DefaultLogFilePath + "\\ASCOM." + this.g_LogFileType + "." + DateTime.Now.ToString("HHmm.ssfff");
+                str = Path.Combine(this.g_DefaultLogFilePath, "ASCOM." + this.g_LogFileType + "." + DateTime.Now.ToString("HHmm.ssfff"));
             }
             else
             {
-                string directory = this.g_LogFilePath + "\\Logs " + DateTime.Now.ToString("yyyy-MM-dd");
+                string directory = Path.Combine(this.g_LogFilePath, "Logs " + DateTime.Now.ToString("yyyy-MM-dd"));
                 Directory.CreateDirectory(directory);
-                str = directory + "\\ASCOM." + this.g_LogFileType + "." + DateTime.Now.ToString("HHmm.ssfff");
+                str = Path.Combine(directory, "ASCOM." + this.g_LogFileType + "." + DateTime.Now.ToString("HHmm.ssfff"));
             }
             do
             {
