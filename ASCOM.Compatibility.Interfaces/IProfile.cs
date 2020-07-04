@@ -7,34 +7,14 @@ namespace ASCOM.Compatibility.Interfaces
 {
     public interface IProfile
     {
-        string DeviceType { get; set; }
+        void WriteValue(string Name, string Value);
 
-        ArrayList RegisteredDeviceTypes { get; }
+        string GetValue(string Name);
 
-        ArrayList RegisteredDevices(string DeviceType);
+        string GetValue(string Name, string DefaultValue);
 
-        bool IsRegistered(string DriverID);
+        void DeleteValue(string Name);
 
-        void Register(string DriverID, string DescriptiveName);
-
-        void Unregister(string DriverID);
-
-        string GetValue(string DriverID, string Name, string SubKey, string DefaultValue);
-
-        void WriteValue(string DriverID, string Name, string Value, string SubKey);
-
-        ArrayList Values(string DriverID, string SubKey);
-
-        void DeleteValue(string DriverID, string Name, string SubKey);
-
-        void CreateSubKey(string DriverID, string SubKey);
-
-        ArrayList SubKeys(string DriverID, string SubKey);
-
-        void DeleteSubKey(string DriverID, string SubKey);
-
-        string GetProfileXML(string deviceId);
-
-        void SetProfileXML(string deviceId, string xml);
+        List<string> Values();
     }
 }
