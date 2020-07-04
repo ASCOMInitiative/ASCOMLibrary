@@ -22,7 +22,7 @@ namespace ASCOM.Standard.Utilities
     /// and fractional second at the time that the message was logged, Identifier is the supplied identifier (usually the subroutine,
     /// function, property or method from which the message is sent) and Message is the message to be logged.</para>
     ///</remarks>
-    public class TraceLogger : ITraceLogger, ITraceLoggerExtra, ITraceLoggerFull, IDisposable
+    public class TraceLogger : ITraceLogger, IDisposable
     {
         private const int IDENTIFIER_WIDTH_DEFAULT = 25;
         private string g_LogFileName;

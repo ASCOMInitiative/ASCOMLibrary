@@ -29,5 +29,13 @@ namespace ASCOM.Compatibility.Interfaces
         string LogFilePath { get; set; }
 
         int IdentifierWidth { get; set; }
+
+        #region ITraceLoggerExtra
+        void LogContinue(string Message);
+
+        void LogFinish(string Message);
+
+        void LogMessage(string Identifier, string Message);
+        #endregion
     }
 }
