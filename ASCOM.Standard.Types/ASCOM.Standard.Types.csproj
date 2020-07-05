@@ -9,7 +9,7 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Authors>ASCOM Initiative</Authors>
     <Product>ASCOM NetStandard types</Product>
-    <Description>The essential Inerfaces, Enums and Responses for the ASCOM Alpaca projects.</Description>
+    <Description>The essential Interfaces, Enums and Responses for the ASCOM Alpaca projects.</Description>
     <PackageProjectUrl>https://ascom-standards.org/</PackageProjectUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
