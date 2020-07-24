@@ -1,4 +1,4 @@
-﻿namespace ASCOM.Alpaca.Responses
+﻿namespace ASCOM.Standard.Responses
 {
     /// <summary>
     /// Alpaca boolean response class

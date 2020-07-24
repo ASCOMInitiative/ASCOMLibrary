@@ -1,4 +1,4 @@
-namespace ASCOM.Alpaca.Interfaces
+namespace ASCOM.Standard.Interfaces
 {
     /// <summary>
     /// The direction in which the guide-rate motion is to be made.

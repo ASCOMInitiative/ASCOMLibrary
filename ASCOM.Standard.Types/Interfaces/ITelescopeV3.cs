@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ASCOM.Alpaca.Interfaces
+namespace ASCOM.Standard.Interfaces
 {
     /// <summary>
     ///  Defines the ITelescope Interface

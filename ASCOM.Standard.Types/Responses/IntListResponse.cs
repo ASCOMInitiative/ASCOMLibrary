@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace ASCOM.Alpaca.Responses
+namespace ASCOM.Standard.Responses
 {
     /// <summary>
     /// Response that returns a collection of integer values.

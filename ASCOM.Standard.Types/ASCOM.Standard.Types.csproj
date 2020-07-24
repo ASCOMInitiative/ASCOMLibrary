@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <RootNamespace>ASCOM.Alpaca</RootNamespace>
+    <RootNamespace>ASCOM.Standard</RootNamespace>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\AlpacaSigningKey.snk</AssemblyOriginatorKeyFile>
     <Copyright>ASCOM Initiative (c) 2019</Copyright>

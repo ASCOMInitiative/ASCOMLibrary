@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using ASCOM.Alpaca.Interfaces;
+using ASCOM.Standard.Interfaces;
 
-namespace ASCOM.Alpaca.Responses
+namespace ASCOM.Standard.Responses
 {
     /// <summary>
     /// Response that returns a collection of <see cref="AxisRate"/> values.

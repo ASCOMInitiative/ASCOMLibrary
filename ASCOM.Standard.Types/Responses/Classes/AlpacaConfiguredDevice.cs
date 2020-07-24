@@ -1,4 +1,4 @@
-﻿namespace ASCOM.Alpaca.Responses
+﻿namespace ASCOM.Standard.Responses
 {
     /// <summary>
     /// Returns an array of device description objects, providing unique information for each served device, enabling them to be accessed through the Alpaca Device API.

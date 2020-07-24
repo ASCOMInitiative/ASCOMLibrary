@@ -1,4 +1,4 @@
-namespace ASCOM.Alpaca.Responses
+namespace ASCOM.Standard.Responses
 {
     /// <summary>
     /// 3 dimension image array response

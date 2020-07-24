@@ -1,6 +1,6 @@
-﻿using ASCOM.Alpaca;
+﻿using ASCOM.Standard;
 
-namespace ASCOM.Alpaca.Responses
+namespace ASCOM.Standard.Responses
 {
     /// <summary>
     /// Defines the base of an Alpaca response.
