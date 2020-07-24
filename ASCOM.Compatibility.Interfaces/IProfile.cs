@@ -6,20 +6,20 @@ namespace ASCOM.Compatibility.Interfaces
     {
         void Clear();
 
-        bool Contains(string key);
+        bool ContainsValue(string key);
 
-        string Get(string key);
+        string GetValue(string key);
 
-        string Get(string key, string defaultValue);
+        string GetValue(string key, string defaultValue);
 
         string GetProfile();
 
-        void Remove(string key);
+        void DeleteValue(string key);
 
         void SetProfile(string rawProfile);
 
         List<string> Values();
 
-        void Write(string key, string value);
+        void WriteValue(string key, string value);
     }
 }

@@ -95,14 +95,14 @@ namespace ASCOM.Standard.Utilities
             Settings.Clear();
         }
 
-        public bool Contains(string key)
+        public bool ContainsValue(string key)
         {
             return Settings.Any(s => s.Key == key);
         }
 
-        public string Get(string key)
+        public string GetValue(string key)
         {
-            if (Contains(key))
+            if (ContainsValue(key))
             {
                 return Settings.First(s => s.Key == key).Value;
             }
@@ -112,9 +112,9 @@ namespace ASCOM.Standard.Utilities
             }
         }
 
-        public string Get(string key, string defaultValue)
+        public string GetValue(string key, string defaultValue)
         {
-            if (Contains(key))
+            if (ContainsValue(key))
             {
                 return Settings.First(s => s.Key == key).Value;
             }
@@ -151,7 +151,7 @@ namespace ASCOM.Standard.Utilities
             }
         }
 
-        public void Remove(string key)
+        public void DeleteValue(string key)
         {
             try
             {
@@ -210,9 +210,9 @@ namespace ASCOM.Standard.Utilities
             return retList;
         }
 
-        public void Write(string key, string value)
+        public void WriteValue(string key, string value)
         {
-            if (Contains(key))
+            if (ContainsValue(key))
             {
                 Settings.RemoveAll(s => s.Key == value);
             }
