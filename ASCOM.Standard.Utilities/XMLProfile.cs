@@ -11,29 +11,63 @@ namespace ASCOM.Standard.Utilities
 {
     public class XMLProfile : IProfile
     {
-        public class SettingsPair
+        private const string SettingsVersion = "v1";
+
+        private string FilePath = string.Empty;
+
+        private List<SettingsPair> Settings = new List<SettingsPair>();
+
+        public XMLProfile(string driverID, string deviceType, int deviceID = 0) : this(Path.Combine(AlpacaDataPath, driverID, deviceType, SettingsVersion, string.Format("Instance-{0}.xml", deviceID)))
         {
-            public SettingsPair()
-            {
+        }
 
+        public XMLProfile(string pathAndFileName)
+        {
+            //ToDo
+            //Save last X versions of file
+            //Handle updates
+            //Handle multiple corrupt files
+            //Create file with correct permissions
+
+            FilePath = pathAndFileName;
+
+            if (File.Exists(pathAndFileName)) //Settings already exist, use them
+            {
+                try
+                {
+                    Settings = DeSerializeObjectFromFile<List<SettingsPair>>(FilePath);
+                }
+                catch (Exception ex)
+                {
+                    //File exists but is corrupt.
+                    //Todo Log this if appropriate.
+                    try
+                    {
+                        var newName = FilePath + ".old";
+                        if (File.Exists(newName))
+                        {
+                            File.Delete(newName);
+                        }
+                        File.Move(FilePath, newName);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e.Message);
+                        throw;
+                    }
+                }
             }
-
-            public SettingsPair(string key, string data)
+            else //Settings do not exist, create a new file
             {
-                Key = key;
-                Value = data;
+                SerializeObject(Settings.ToList(), FilePath);
             }
+        }
 
-            public string Key
+        public static string AlpacaDataPath
+        {
+            get
             {
-                get;
-                set;
-            }
-
-            public string Value
-            {
-                get;
-                set;
+                return Path.Combine(ApplicationDataPath, "ASCOM/Alpaca/");
             }
         }
 
@@ -52,105 +86,111 @@ namespace ASCOM.Standard.Utilities
             }
         }
 
-        public static string AlpacaDataPath
+        public void Clear()
         {
-            get
+            if (File.Exists(FilePath))
             {
-                return Path.Combine(ApplicationDataPath, "ASCOM/Alpaca/");
+                File.Delete(FilePath);
             }
+            Settings.Clear();
         }
 
-        private string FilePath = string.Empty;
-
-        private const string SettingsVersion = "v1";
-
-        private List<SettingsPair> Settings = new List<SettingsPair>();
-
-        public XMLProfile(string driverID, string deviceType, int deviceID = 0) : this(Path.Combine(AlpacaDataPath, driverID, deviceType, SettingsVersion, string.Format("Instance-{0}.xml", deviceID)))
+        public bool Contains(string key)
         {
+            return Settings.Any(s => s.Key == key);
         }
 
-        public XMLProfile(string pathAndFileName)
+        public string Get(string key)
         {
-            //ToDo
-            //Save last X versions of file
-            //Handle updates
-            //Handle multiple corrupt files
-
-            FilePath = pathAndFileName;
-
-            if (File.Exists(pathAndFileName)) //Settings already exist, use them
+            if (Contains(key))
             {
-                try
-                {
-                    Settings = DeSerializeObjectFromFile<List<SettingsPair>>(FilePath);
-                }
-                catch(Exception ex)
-                {
-                    //File exists but is corrupt. 
-                    //Todo Log this if appropriate.
-                    try
-                    {
-                        var newName = FilePath + ".old";
-                        if (File.Exists(newName))
-                        {
-                            File.Delete(newName);
-                        }
-                        File.Move(FilePath, newName);
-                    }
-                    catch(Exception e)
-                    {
-                        Console.WriteLine(e.Message);
-                        throw;
-                    }
-                }
-            }
-            else //Settings do not exist, create a new file
-            {
-                SerializeObject(Settings.ToList(), FilePath);
-            }
-        }
-
-        public void WriteValue(string Name, string Value)
-        {
-            if (Settings.Any(s=>s.Key == Name))
-            {
-                Settings.RemoveAll(s=>s.Key == Value);
-            }
-                Settings.Add(new SettingsPair(Name, Value));
-            
-            Save();
-        }
-
-        public string GetValue(string Name)
-        {
-            if (Settings.Any(s=>s.Key == Name))
-            {
-                return Settings.First(s=>s.Key == Name).Value;
+                return Settings.First(s => s.Key == key).Value;
             }
             else
             {
-                throw new KeyNotFoundException(string.Format("{0} was not found in the Settings file", Name));
+                throw new KeyNotFoundException(string.Format("{0} was not found in the Settings file", key));
             }
         }
 
-        public string GetValue(string Name, string DefaultValue)
+        public string Get(string key, string defaultValue)
         {
-            if (Settings.Any(s => s.Key == Name))
+            if (Contains(key))
             {
-                return Settings.First(s => s.Key == Name).Value;
+                return Settings.First(s => s.Key == key).Value;
             }
             else
             {
-                return DefaultValue;
+                return defaultValue;
             }
         }
 
-        public void DeleteValue(string Name)
+        public string GetProfile()
+        {
+            if (Settings == null)
+            {
+                throw new NullReferenceException("The Settings object must not be null.");
+            }
+
+            try
+            {
+                XmlDocument xmlDocument = new XmlDocument();
+                XmlSerializer serializer = new XmlSerializer(Settings.GetType());
+
+                using (MemoryStream stream = new MemoryStream())
+                {
+                    serializer.Serialize(stream, Settings);
+                    stream.Position = 0;
+                    xmlDocument.Load(stream);
+                    stream.Close();
+                    return xmlDocument.OuterXml;
+                }
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        public void Remove(string key)
         {
             try
             {
-                Settings.RemoveAll(r=>r.Key == Name);
+                Settings.RemoveAll(r => r.Key == key);
+                Save();
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        public void SetProfile(string rawProfile)
+        {
+            if (string.IsNullOrEmpty(rawProfile))
+            {
+                throw new ArgumentNullException("The rawProfile must not be null or empty.");
+            }
+
+            try
+            {
+                var settings = new List<SettingsPair>();
+
+                //We are going to deserialize this to make sure that it is valid xml
+                using (StringReader read = new StringReader(rawProfile))
+                {
+                    Type outType = Settings.GetType();
+
+                    XmlSerializer serializer = new XmlSerializer(outType);
+                    using (XmlReader reader = new XmlTextReader(read))
+                    {
+                        settings = (List<SettingsPair>)serializer.Deserialize(reader);
+                        reader.Close();
+                    }
+
+                    read.Close();
+                }
+
+                Settings = settings;
                 Save();
             }
             catch
@@ -163,41 +203,22 @@ namespace ASCOM.Standard.Utilities
         {
             var retList = new List<string>();
 
-            foreach(var value in Settings)
+            foreach (var value in Settings)
             {
                 retList.Add(value.Value);
             }
             return retList;
         }
 
-        private void Save()
+        public void Write(string key, string value)
         {
-            SerializeObject(Settings.ToList(), FilePath);
-        }
-
-        private static void SerializeObject<T>(T serializableObject, string filePathAndName)
-        {
-            if (serializableObject == null) { return; }
-
-            try
+            if (Contains(key))
             {
-                XmlDocument xmlDocument = new XmlDocument();
-                XmlSerializer serializer = new XmlSerializer(serializableObject.GetType());
-                System.IO.FileInfo file = new System.IO.FileInfo(filePathAndName);
-                file.Directory.Create();
-                using (MemoryStream stream = new MemoryStream())
-                {
-                    serializer.Serialize(stream, serializableObject);
-                    stream.Position = 0;
-                    xmlDocument.Load(stream);
-                    xmlDocument.Save(filePathAndName);
-                    stream.Close();
-                }
+                Settings.RemoveAll(s => s.Key == value);
             }
-            catch
-            {
-                throw;
-            }
+            Settings.Add(new SettingsPair(key, value));
+
+            Save();
         }
 
         /// <summary>
@@ -216,9 +237,8 @@ namespace ASCOM.Standard.Utilities
             {
                 XmlDocument xmlDocument = new XmlDocument();
                 xmlDocument.Load(fileName);
-                string xmlString = xmlDocument.OuterXml;
 
-                using (StringReader read = new StringReader(xmlString))
+                using (StringReader read = new StringReader(xmlDocument.OuterXml))
                 {
                     Type outType = typeof(T);
 
@@ -238,6 +258,64 @@ namespace ASCOM.Standard.Utilities
             }
 
             return objectOut;
+        }
+
+        private static void SerializeObject<T>(T serializableObject, string filePathAndName)
+        {
+            if (serializableObject == null) { return; }
+
+            try
+            {
+                //ToDo
+                //Create file with correct permissions
+
+                XmlDocument xmlDocument = new XmlDocument();
+                XmlSerializer serializer = new XmlSerializer(serializableObject.GetType());
+                System.IO.FileInfo file = new System.IO.FileInfo(filePathAndName);
+                file.Directory.Create();
+                using (MemoryStream stream = new MemoryStream())
+                {
+                    serializer.Serialize(stream, serializableObject);
+                    stream.Position = 0;
+                    xmlDocument.Load(stream);
+                    xmlDocument.Save(filePathAndName);
+                    stream.Close();
+                }
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        private void Save()
+        {
+            SerializeObject(Settings, FilePath);
+        }
+
+        public class SettingsPair
+        {
+            public SettingsPair()
+            {
+            }
+
+            public SettingsPair(string key, string value)
+            {
+                Key = key;
+                Value = value;
+            }
+
+            public string Key
+            {
+                get;
+                set;
+            }
+
+            public string Value
+            {
+                get;
+                set;
+            }
         }
     }
 }

@@ -1,20 +1,25 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace ASCOM.Compatibility.Interfaces
 {
     public interface IProfile
     {
-        void WriteValue(string Name, string Value);
+        void Clear();
 
-        string GetValue(string Name);
+        bool Contains(string key);
 
-        string GetValue(string Name, string DefaultValue);
+        string Get(string key);
 
-        void DeleteValue(string Name);
+        string Get(string key, string defaultValue);
+
+        string GetProfile();
+
+        void Remove(string key);
+
+        void SetProfile(string rawProfile);
 
         List<string> Values();
+
+        void Write(string key, string value);
     }
 }
