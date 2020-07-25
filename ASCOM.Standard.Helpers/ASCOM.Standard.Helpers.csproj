@@ -14,8 +14,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="ASCOM.Exceptions" Version="6.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\ASCOM.Standard.Types\ASCOM.Standard.Types.csproj" />
-    <ProjectReference Include="..\ASCOMExceptions\ASCOM.Exceptions.csproj" />
   </ItemGroup>
 
 </Project>
