@@ -1,6 +1,6 @@
 using ASCOM.Standard.Interfaces;
 
-namespace ASCOM.Standard.Responses
+namespace ASCOM.Alpaca.Responses
 {
     /// <summary>
     /// Response that returns a <see cref="SensorType"/> value.

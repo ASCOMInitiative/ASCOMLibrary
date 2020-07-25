@@ -1,4 +1,4 @@
-﻿using ASCOM.Compatibility.Interfaces;
+﻿using ASCOM.Standard.Interfaces;
 using Microsoft.VisualBasic;
 using Microsoft.VisualBasic.CompilerServices;
 using System;

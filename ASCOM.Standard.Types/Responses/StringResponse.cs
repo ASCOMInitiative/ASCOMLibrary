@@ -1,4 +1,4 @@
-﻿namespace ASCOM.Standard.Responses
+﻿namespace ASCOM.Alpaca.Responses
 {
     /// <summary>
     /// Response that returns a string value

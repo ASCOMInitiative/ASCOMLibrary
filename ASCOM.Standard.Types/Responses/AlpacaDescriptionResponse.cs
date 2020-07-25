@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace ASCOM.Standard.Responses
+namespace ASCOM.Alpaca.Responses
 {
     /// <summary>
     /// The response for the AlpacaDeviceDescription

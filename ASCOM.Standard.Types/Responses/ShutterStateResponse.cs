@@ -1,6 +1,6 @@
 using ASCOM.Standard.Interfaces;
 
-namespace ASCOM.Standard.Responses
+namespace ASCOM.Alpaca.Responses
 {
     /// <summary>
     /// Response that return the value as a <see cref="ShutterState"/>

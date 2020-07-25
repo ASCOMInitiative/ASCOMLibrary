@@ -1,4 +1,4 @@
-namespace ASCOM.Standard
+namespace ASCOM.Alpaca
 {
     /// <summary>
     ///   Error numbers for use by Alpaca applications and drivers in the range 0x400 to 0xFFF.

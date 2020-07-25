@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace ASCOM.Compatibility.Interfaces
+namespace ASCOM.Standard.Interfaces
 {
     public interface IProfile
     {

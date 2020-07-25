@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ASCOM.Standard.Responses
+namespace ASCOM.Alpaca.Responses
 {
     /// <summary>
     /// Alpaca boolean response class

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace ASCOM.Compatibility.Interfaces
+namespace ASCOM.Standard.Interfaces
 {
     public interface ITraceLogger
     {
