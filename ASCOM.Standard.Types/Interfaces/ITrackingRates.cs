@@ -1,7 +1,7 @@
 ﻿using System.Collections;
-using ASCOM.Alpaca.Interfaces;
+using ASCOM.Standard.Interfaces;
 
-namespace ASCOM.Alpaca.Interfaces
+namespace ASCOM.Standard.Interfaces
 {
     /// <summary>
     /// Returns a collection of supported DriveRate values that describe the permissible values of the TrackingRate property for this telescope type.

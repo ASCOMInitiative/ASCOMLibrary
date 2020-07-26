@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace ASCOM.Alpaca.Interfaces
+namespace ASCOM.Standard.Interfaces
 {
     /// <summary>
     /// Describes the state of a calibration device

@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using ASCOM.Alpaca;
+using ASCOM.Standard;
 
-namespace ASCOM.Alpaca.Interfaces
+namespace ASCOM.Standard.Interfaces
 {
     /// <summary>
     /// Defines the properties and methods that are common to all ASCOM devices.

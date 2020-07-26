@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace ASCOM.Alpaca.Interfaces
+namespace ASCOM.Standard.Interfaces
 {
     /// <summary>
     /// Interface for devices that support one or both of two independent capabilities: Telescope Covers and Flat Field Calibrators.

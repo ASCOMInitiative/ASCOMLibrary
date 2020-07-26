@@ -1,4 +1,4 @@
-﻿namespace ASCOM.Alpaca.Interfaces
+﻿namespace ASCOM.Standard.Interfaces
 {
     /// <summary>
     /// Provides universal access to Focuser drivers - Updated to IFocuserV3 - see remarks below

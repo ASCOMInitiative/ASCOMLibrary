@@ -1,4 +1,4 @@
-using ASCOM.Alpaca.Interfaces;
+using ASCOM.Standard.Interfaces;
 
 namespace ASCOM.Alpaca.Responses
 {

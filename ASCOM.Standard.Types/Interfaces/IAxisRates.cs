@@ -1,4 +1,4 @@
-﻿namespace ASCOM.Alpaca.Interfaces
+﻿namespace ASCOM.Standard.Interfaces
 {// -----------------------------------------------------------------------
  // <summary>Defines the IAxisRates Interface</summary>
  // -----------------------------------------------------------------------

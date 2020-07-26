@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using ASCOM.Alpaca.Interfaces;
+using ASCOM.Standard.Interfaces;
 
 namespace ASCOM.Alpaca.Responses
 {
