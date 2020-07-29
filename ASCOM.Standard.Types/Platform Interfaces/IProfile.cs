@@ -60,6 +60,12 @@ namespace ASCOM.Standard.Interfaces
         List<string> Values();
 
         /// <summary>
+        /// Returns all Keys used in the profile
+        /// </summary>
+        /// <returns></returns>
+        List<string> Keys();
+
+        /// <summary>
         /// Write a value to the profile
         /// </summary>
         /// <param name="key">The key of the value</param>

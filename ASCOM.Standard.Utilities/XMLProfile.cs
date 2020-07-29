@@ -211,6 +211,18 @@ namespace ASCOM.Standard.Utilities
             return retList;
         }
 
+        public List<string> Keys()
+        {
+            var retList = new List<string>();
+
+            foreach (var value in Settings)
+            {
+                retList.Add(value.Key);
+            }
+            return retList;
+        }
+
+
         public void WriteValue(string key, string value)
         {
             if (ContainsValue(key))
