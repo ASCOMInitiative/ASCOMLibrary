@@ -77,10 +77,11 @@ namespace ASCOM.Standard.Utilities
             {
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
-                    return Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
+                    return Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
                 }
                 else
                 {
+                    //Double check that this is the canonical path for Linux config. If not switch to HOME.
                     return Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
                 }
             }
