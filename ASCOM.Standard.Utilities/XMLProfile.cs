@@ -1,4 +1,4 @@
-﻿using ASCOM.Standard.Interfaces;
+using ASCOM.Standard.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -17,10 +17,22 @@ namespace ASCOM.Standard.Utilities
 
         private List<SettingsPair> Settings = new List<SettingsPair>();
 
-        public XMLProfile(string driverID, string deviceType, int deviceID = 0) : this(Path.Combine(AlpacaDataPath, driverID, deviceType, SettingsVersion, string.Format("Instance-{0}.xml", deviceID)))
+        /// <summary>
+        /// Creates an XML profile, loading what exists at the path. This is Home or Documents /ASCOM/Alpaca/{driverID}/{deviceType}/v1/Instance-{deviceID}.xml 
+        /// It is not recommended to access the same file from two different instances of this Profile at the same time 
+        /// </summary>
+        /// <param name="driverID">A unique name for your driver. Must be allowed to be in the path.</param>
+        /// <param name="deviceType">The ASCOM / Alpaca device type IE focuser, camera, telescope, etc.  Must be allowed to be in the path.</param>
+        /// <param name="deviceNumber">The Alpaca device number. Defaults to 0 for drivers with only one device.</param>
+        public XMLProfile(string driverID, string deviceType, uint deviceNumber = 0) : this(Path.Combine(AlpacaDataPath, driverID, deviceType, SettingsVersion, string.Format("Instance-{0}.xml", deviceNumber)))
         {
         }
 
+        /// <summary>
+        /// Creates an XML profile, loading what exists at the specified path. It will save any changes at the path
+        /// It is not recommended to access the same file from two different instances of this Profile at the same time
+        /// </summary>
+        /// <param name="pathAndFileName">The path and filename to store the profile at</param>
         public XMLProfile(string pathAndFileName)
         {
             //ToDo
@@ -96,14 +108,14 @@ namespace ASCOM.Standard.Utilities
             Settings.Clear();
         }
 
-        public bool ContainsValue(string key)
+        public bool ContainsKey(string key)
         {
             return Settings.Any(s => s.Key == key);
         }
 
         public string GetValue(string key)
         {
-            if (ContainsValue(key))
+            if (ContainsKey(key))
             {
                 return Settings.First(s => s.Key == key).Value;
             }
@@ -115,7 +127,7 @@ namespace ASCOM.Standard.Utilities
 
         public string GetValue(string key, string defaultValue)
         {
-            if (ContainsValue(key))
+            if (ContainsKey(key))
             {
                 return Settings.First(s => s.Key == key).Value;
             }
@@ -211,11 +223,23 @@ namespace ASCOM.Standard.Utilities
             return retList;
         }
 
+        public List<string> Keys()
+        {
+            var retList = new List<string>();
+
+            foreach (var value in Settings)
+            {
+                retList.Add(value.Key);
+            }
+            return retList;
+        }
+
+
         public void WriteValue(string key, string value)
         {
-            if (ContainsValue(key))
+            if (ContainsKey(key))
             {
-                Settings.RemoveAll(s => s.Key == value);
+                Settings.RemoveAll(s => s.Key == key);
             }
             Settings.Add(new SettingsPair(key, value));
 
