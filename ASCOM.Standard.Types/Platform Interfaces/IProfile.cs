@@ -18,7 +18,7 @@ namespace ASCOM.Standard.Interfaces
         /// </summary>
         /// <param name="key">The key to check for</param>
         /// <returns>true if the profile contains the key, other wise false</returns>
-        bool ContainsValue(string key);
+        bool ContainsKey(string key);
 
         /// <summary>
         /// Gets the value associated with a key. Throws an exception if that key does not exist.
