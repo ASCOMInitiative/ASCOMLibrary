@@ -79,7 +79,7 @@ namespace ASCOM.Standard.Utilities
         {
             get
             {
-                return Path.Combine(ApplicationDataPath, "ASCOM/Alpaca/");
+                return Path.Combine(ApplicationDataPath, "Alpaca/");
             }
         }
 
@@ -89,12 +89,13 @@ namespace ASCOM.Standard.Utilities
             {
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
-                    return Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                    // Store in USER/.ASCOM
+                    return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".ASCOM");
                 }
                 else
                 {
-                    //Double check that this is the canonical path for Linux config. If not switch to HOME.
-                    return Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+                    // Store in $HOME/.config/ASCOM
+                    return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "ASCOM");
                 }
             }
         }
