@@ -7,7 +7,7 @@ namespace ASCOM.Standard.Utilities
 {
     public class TraceLogProvider : ILogger
     {
-        private TraceLogger logger;
+        private readonly TraceLogger logger;
 
         public TraceLogProvider()
         {
