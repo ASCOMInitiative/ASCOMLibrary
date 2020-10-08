@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -38,7 +38,7 @@ namespace ASCOM.Standard.Interfaces
 
         public static bool IsLevelActive(this ILogger logger, LogLevel level)
         {
-            return (logger?.LoggingLevel ?? LogLevel.Fatal) >= level;
+            return level >= (logger?.LoggingLevel ?? LogLevel.Fatal);
         }
     }
 }
