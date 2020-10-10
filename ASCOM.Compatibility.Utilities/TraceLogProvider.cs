@@ -11,12 +11,18 @@ namespace ASCOM.Compatibility.Utilities
 
         public TraceLogProvider()
         {
-            logger = new ASCOM.Utilities.TraceLogger();
+            logger = new ASCOM.Utilities.TraceLogger()
+            {
+                Enabled = true
+            };
         }
 
         public TraceLogProvider(string LogFileType)
         {
-            logger = new ASCOM.Utilities.TraceLogger(null, LogFileType);
+            logger = new ASCOM.Utilities.TraceLogger(null, LogFileType)
+            {
+                Enabled = true
+            };
         }
         public LogLevel LoggingLevel
         {
