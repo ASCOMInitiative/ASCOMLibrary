@@ -1,7 +1,5 @@
 ﻿using ASCOM.Standard.Interfaces;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace ASCOM.Standard.Utilities
 {
@@ -12,7 +10,10 @@ namespace ASCOM.Standard.Utilities
         {
             get;
             private set;
-        } = new TraceLogger(null, AppDomain.CurrentDomain.FriendlyName);
+        } = new TraceLogger(null, AppDomain.CurrentDomain.FriendlyName)
+            {
+                Enabled = true
+             };
 
         public static void SetLogProvider(ILogger logger)
         {
