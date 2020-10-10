@@ -22,7 +22,7 @@ namespace ASCOM.Standard.Utilities
     /// and fractional second at the time that the message was logged, Identifier is the supplied identifier (usually the subroutine,
     /// function, property or method from which the message is sent) and Message is the message to be logged.</para>
     ///</remarks>
-    public class TraceLogger : ITraceLogger, IDisposable
+    public class TraceLogger : ITraceLogger, IDisposable, ILogger
     {
         private const int IDENTIFIER_WIDTH_DEFAULT = 25;
         private string g_LogFileName;
@@ -732,5 +732,26 @@ namespace ASCOM.Standard.Utilities
         {
             return str.Substring(0, length);
         }
+
+        #region ILogger implementation
+        public LogLevel LoggingLevel
+        {
+            get;
+            private set;
+        } = LogLevel.Information;
+
+        public void Log(LogLevel level, string message)
+        {
+            if (this.IsLevelActive(level))
+            {
+                this.LogMessage($"[{level}]", message);
+            }
+        }
+
+        public void SetMinimumLoggingLevel(LogLevel level)
+        {
+            LoggingLevel = level;
+        }
+        #endregion
     }
 }
