@@ -12,7 +12,7 @@ namespace ASCOM.Standard.Utilities
         {
             get;
             private set;
-        } = new TraceLogProvider(AppDomain.CurrentDomain.FriendlyName);
+        } = new TraceLogger(null, AppDomain.CurrentDomain.FriendlyName);
 
         public static void SetLogProvider(ILogger logger)
         {
