@@ -52,7 +52,7 @@ namespace ASCOM.Standard.Utilities
                 catch (Exception ex)
                 {
                     //File exists but is corrupt.
-                    //Todo Log this if appropriate.
+                    Logger.LogError(ex.Message);
                     try
                     {
                         var newName = FilePath + ".old";
@@ -64,7 +64,7 @@ namespace ASCOM.Standard.Utilities
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine(e.Message);
+                        Logger.LogError(e.Message);
                         throw;
                     }
                 }
