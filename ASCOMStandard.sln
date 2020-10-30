@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASCOM.Standard.Types", "ASC
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASCOM.Standard.Utilities", "ASCOM.Standard.Utilities\ASCOM.Standard.Utilities.csproj", "{E0DA83D6-2F10-4A2E-B34A-1113335E2375}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ASCOM.Compatibility.Utilities", "ASCOM.Compatibility.Utilities\ASCOM.Compatibility.Utilities.csproj", "{AB690357-091B-4D8F-B424-1720247140FC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASCOM.Compatibility.Utilities", "ASCOM.Compatibility.Utilities\ASCOM.Compatibility.Utilities.csproj", "{AB690357-091B-4D8F-B424-1720247140FC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ASCOM.Standard.Discovery", "ASCOM.Standard.Discovery\ASCOM.Standard.Discovery.csproj", "{CBF014EC-FED1-49E5-8599-60A902B2B928}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,6 +53,14 @@ Global
 		{AB690357-091B-4D8F-B424-1720247140FC}.Release|Any CPU.Build.0 = Release|Any CPU
 		{AB690357-091B-4D8F-B424-1720247140FC}.Release|x86.ActiveCfg = Release|Any CPU
 		{AB690357-091B-4D8F-B424-1720247140FC}.Release|x86.Build.0 = Release|Any CPU
+		{CBF014EC-FED1-49E5-8599-60A902B2B928}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CBF014EC-FED1-49E5-8599-60A902B2B928}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CBF014EC-FED1-49E5-8599-60A902B2B928}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{CBF014EC-FED1-49E5-8599-60A902B2B928}.Debug|x86.Build.0 = Debug|Any CPU
+		{CBF014EC-FED1-49E5-8599-60A902B2B928}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CBF014EC-FED1-49E5-8599-60A902B2B928}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CBF014EC-FED1-49E5-8599-60A902B2B928}.Release|x86.ActiveCfg = Release|Any CPU
+		{CBF014EC-FED1-49E5-8599-60A902B2B928}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
