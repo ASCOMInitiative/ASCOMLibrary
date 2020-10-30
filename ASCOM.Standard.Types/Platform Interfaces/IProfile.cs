@@ -17,7 +17,7 @@ namespace ASCOM.Standard.Interfaces
         /// Check if the profile provider has a given key
         /// </summary>
         /// <param name="key">The key to check for</param>
-        /// <returns>true if the profile contains the key, other wise false</returns>
+        /// <returns>true if the profile contains the key, otherwise false</returns>
         bool ContainsKey(string key);
 
         /// <summary>

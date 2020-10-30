@@ -4,6 +4,10 @@ using System.Text;
 
 namespace ASCOM.Standard.Interfaces
 {
+
+    /// <summary>
+    /// This is a standard set of extensions that add functionality to an ILogger. Because these can be implemented in a standard way they are not part of the interface
+    /// </summary>
     public static class LoggerExtensions
     {
         public static void LogVerbose(this ILogger logger, string message)
