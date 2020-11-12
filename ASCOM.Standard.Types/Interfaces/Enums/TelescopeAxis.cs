@@ -18,6 +18,6 @@ namespace ASCOM.Standard.Interfaces
         /// <summary>
         /// Tertiary axis (e.g. imager rotator/de-rotator).
         /// </summary>
-        Tertiary = 3
+        Tertiary = 2
     }
 }
