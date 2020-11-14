@@ -11,7 +11,7 @@ using System.Text;
 
 namespace ASCOM.Standard.Discovery
 {
-    public class Server : IDisposable
+    public class Responder : IDisposable
     {
         private readonly int port;
 
@@ -38,17 +38,17 @@ namespace ASCOM.Standard.Discovery
             private set;
         } = false;
 
-        public Server(int AlpacaPort) : this(AlpacaPort, Constants.DiscoveryPort, true, true)
+        public Responder(int AlpacaPort) : this(AlpacaPort, Constants.DiscoveryPort, true, true)
         {
 
         }
 
-        public Server(int AlpacaPort, bool IPv4, bool IPv6) : this(AlpacaPort, Constants.DiscoveryPort, IPv4, IPv6)
+        public Responder(int AlpacaPort, bool IPv4, bool IPv6) : this(AlpacaPort, Constants.DiscoveryPort, IPv4, IPv6)
         {
 
         }
 
-        public Server(int AlpacaPort, int DiscoveryPort, bool IPv4, bool IPv6)
+        public Responder(int AlpacaPort, int DiscoveryPort, bool IPv4, bool IPv6)
         {
             port = AlpacaPort;
             this.DiscoveryPort = DiscoveryPort;
