@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASCOM.Standard.Utilities", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASCOM.Compatibility.Utilities", "ASCOM.Compatibility.Utilities\ASCOM.Compatibility.Utilities.csproj", "{AB690357-091B-4D8F-B424-1720247140FC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ASCOM.Standard.Discovery", "ASCOM.Standard.Discovery\ASCOM.Standard.Discovery.csproj", "{CBF014EC-FED1-49E5-8599-60A902B2B928}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASCOM.Standard.Discovery", "ASCOM.Standard.Discovery\ASCOM.Standard.Discovery.csproj", "{CBF014EC-FED1-49E5-8599-60A902B2B928}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

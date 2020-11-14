@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace ASCOM.Standard.Discovery
@@ -11,5 +12,13 @@ namespace ASCOM.Standard.Discovery
         public const int DiscoveryPort = 32227;
         public const string ResponseString = "alpacaport";
         public const string MulticastGroup = "ff12::00a1:9aca";
+
+        public static byte[] DiscoveryMessageArray 
+        {
+            get
+            {
+                return Encoding.ASCII.GetBytes(DiscoveryMessage);
+            }
+        }
     }
 }
