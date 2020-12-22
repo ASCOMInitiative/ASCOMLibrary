@@ -38,16 +38,33 @@ namespace ASCOM.Standard.Discovery
             private set;
         } = false;
 
+        /// <summary>
+        /// Create an Alpaca Responder reporting the AlpacaPort. This will use default Discovery Port (32227) and will respond on IPv4 and IPv6.
+        /// </summary>
+        /// <param name="AlpacaPort">The port the Alpaca REST API is available on</param>
         public Responder(int AlpacaPort) : this(AlpacaPort, Constants.DiscoveryPort, true, true)
         {
 
         }
 
+        /// <summary>
+        /// Create an Alpaca Responder reporting the AlpacaPort. This will use default Discovery Port (32227).
+        /// </summary>
+        /// <param name="AlpacaPort">The port the Alpaca REST API is available on</param>
+        /// <param name="IPv4">Respond on IPv4</param>
+        /// <param name="IPv6">Respond on IPv6</param>
         public Responder(int AlpacaPort, bool IPv4, bool IPv6) : this(AlpacaPort, Constants.DiscoveryPort, IPv4, IPv6)
         {
 
         }
 
+        /// <summary>
+        /// Create an Alpaca Responder reporting the AlpacaPort using a custom discovery port.
+        /// </summary>
+        /// <param name="AlpacaPort">The port the Alpaca REST API is available on</param>
+        /// <param name="DiscoveryPort">The Discovery Port</param>
+        /// <param name="IPv4">Respond on IPv4</param>
+        /// <param name="IPv6">Respond on IPv6</param>
         public Responder(int AlpacaPort, int DiscoveryPort, bool IPv4, bool IPv6)
         {
             port = AlpacaPort;
