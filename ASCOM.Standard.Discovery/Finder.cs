@@ -11,7 +11,8 @@ namespace ASCOM.Standard.Discovery
 {
     public class Finder : IDisposable
     {
-        private readonly Action<IPEndPoint> callbackFunction;
+
+        public event EventHandler<IPEndPoint> ResponseReceivedEvent;
 
         private UdpClient IPv4Client = new UdpClient()
         {
@@ -33,24 +34,12 @@ namespace ASCOM.Standard.Discovery
 
         /// <summary>
         /// Creates a Alpaca Finder object that sends out a search request for Alpaca devices
-        /// The results will only be in the cache
-        /// This may require firewall access
-        /// </summary>
-        public Finder() : this(null)
-        {
-        }
-
-        /// <summary>
-        /// Creates a Alpaca Finder object that sends out a search request for Alpaca devices
         /// The results will be sent to the callback and stored in the cache
         /// Calling search and concatenating the results reduces the chance that a UDP packet is lost
         /// This may require firewall access
-        /// This dual targets NetStandard 2.0 and NetFX 3.5 so no Async Await
         /// </summary>
-        /// <param name="callback">A callback function to receive the endpoint result</param>
-        public Finder(Action<IPEndPoint> callback)
+        public Finder()
         {
-            callbackFunction = callback;
 
             //0 tells OS to give us a free ethereal port
             IPv4Client.Client.Bind(new IPEndPoint(IPAddress.Any, 0));
@@ -224,12 +213,12 @@ namespace ASCOM.Standard.Discovery
                         throw new Exception($"Failed to parse {ReceiveString} into an Alpaca Port");
                     }
 
-                    var ep = new IPEndPoint(endpoint.Address, port);
-                    if (!CachedEndpoints.Contains(ep))
+                    var alpacaEndpoint = new IPEndPoint(endpoint.Address, port);
+                    if (!CachedEndpoints.Contains(alpacaEndpoint))
                     {
-                        CachedEndpoints.Add(ep);
+                        CachedEndpoints.Add(alpacaEndpoint);
 
-                        callbackFunction?.Invoke(ep);
+                        ResponseReceivedEvent?.Invoke(this, alpacaEndpoint);
                     }
                 }
             }
