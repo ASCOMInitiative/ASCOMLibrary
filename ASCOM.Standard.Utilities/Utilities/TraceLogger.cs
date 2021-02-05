@@ -22,7 +22,7 @@ namespace ASCOM.Standard.Utilities
     /// and fractional second at the time that the message was logged, Identifier is the supplied identifier (usually the subroutine,
     /// function, property or method from which the message is sent) and Message is the message to be logged.</para>
     ///</remarks>
-    public class TraceLogger : ITraceLogger, IDisposable, ILogger
+    public class TraceLogger : IDisposable, ILogger
     {
         private const int IDENTIFIER_WIDTH_DEFAULT = 25;
         private string g_LogFileName;
@@ -54,7 +54,7 @@ namespace ASCOM.Standard.Utilities
             this.g_LogFileType = "Default";
             this.g_DefaultLogFilePath = !string.IsNullOrEmpty(Environment.GetFolderPath(Environment.SpecialFolder.Personal)) ? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "ASCOM", "Logs " + DateTime.Now.ToString("yyyy-MM-dd")) : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "ASCOM", "SystemLogs", "Logs " + DateTime.Now.ToString("yyyy-MM-dd"));
             this.g_LogFilePath = this.g_DefaultLogFilePath;
-            this.mut = new Mutex(false, "TraceLoggerMutex");
+            this.mut = new Mutex(false, "ASCOMStandardTraceLoggerMutex");
         }
 
         /// <summary>

@@ -1,5 +1,8 @@
 # Notes / Open issues / questions
 
+## Logging
+Given the change to non shared libraries should TraceLogger require a mutex?
+
 ## Conversions
 These should be pretty much the same as the upstream ASCOM.Standard project. I have made no changes. I don't know where they came from and they need to be checked for completeness and function.
 
