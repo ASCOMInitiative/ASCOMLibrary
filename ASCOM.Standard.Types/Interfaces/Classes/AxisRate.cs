@@ -3,7 +3,7 @@ namespace ASCOM.Standard.Interfaces
     /// <summary>
     /// Describe a rate at which the telescope may be moved about the specified axis by the MoveAxis(TelescopeAxes, Double) method.
     /// </summary>
-    public class AxisRate
+    public class AxisRate : IRate
     {
         /// <summary>
         /// Create a new AxisRate object with minimum and maximum rates set to 0.0
@@ -31,6 +31,10 @@ namespace ASCOM.Standard.Interfaces
         /// The maximum rate (degrees per second) This must always be a positive number. It indicates the maximum rate in either direction about the axis.
         /// </summary>
         public double Maximum { get; set; }
+
+        public void Dispose()
+        {
+        }
 
         /// <summary>
         /// Return the minimum and maximum values as a string
