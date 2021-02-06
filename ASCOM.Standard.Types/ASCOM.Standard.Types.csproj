@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <RootNamespace>ASCOM.Standard</RootNamespace>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\AlpacaSigningKey.snk</AssemblyOriginatorKeyFile>
+    <Copyright>ASCOM Initiative (c) 2019</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Authors>ASCOM Initiative</Authors>
+    <Product>ASCOM NetStandard types</Product>
+    <Description>The essential Interfaces, Enums and Responses for the ASCOM Alpaca projects.</Description>
+    <PackageProjectUrl>https://ascom-standards.org/</PackageProjectUrl>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+</Project>
