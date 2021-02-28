@@ -1,7 +1,6 @@
 ﻿using ASCOM.Standard.Interfaces;
-using Microsoft.VisualBasic;
-using Microsoft.VisualBasic.CompilerServices;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -24,62 +23,97 @@ namespace ASCOM.Standard.Utilities
     ///</remarks>
     public class TraceLogger : IDisposable, ILogger
     {
+        // Configuration constants
         private const int IDENTIFIER_WIDTH_DEFAULT = 25;
-        private string g_LogFileName;
-        private string g_LogFileType;
-        private StreamWriter g_LogFile;
-        private bool g_LineStarted;
-        private bool g_Enabled;
-        private string g_DefaultLogFilePath;
-        private string g_LogFileActualName;
-        private string g_LogFilePath;
-        private int g_IdentifierWidth;
-        private bool autoLogFilePath;
-        private Mutex mut;
-        private bool GotMutex;
+        private const int MUTEX_WAIT_TIME = 5000;
+        private const int MAXIMUM_UNIQUE_SUFFIX_ATTEMPTS = 20;
+
+        // Path and file name constants for auto generated paths and file names
+        private const string AUTO_FILE_NAME_TEMPLATE = "ASCOM.{0}.{1:HHmm.ssfff}{2}.txt"; // Auto generated file name template
+        private const string AUTO_PATH_BASE_DIRECTORY = "ASCOM"; // Primary logging directory off the users's Documents (Windows) or HOME directory (Linux)
+        private const string AUTO_PATH_WINDOWS_SYSTEM_USER_BASE_DIRECTORY = @"ASCOM\SystemLogs"; // Primary logging directory for the System account
+        private const string AUTO_PATH_WINDOWS_DIRECTORY_TEMPLATE = "Logs {0:yyyy-MM-dd}"; // Sub directory template on Windows 
+        private const string AUTO_PATH_LINUX_DIRECTORY_TEMPLATE = "Logs{0:yyyy-MM-dd}"; // Sub directory template on Linux
+
+        // Default value constants
+        private const bool USE_UTC_DEFAULT = false;
+        private const bool AUTO_GENERATE_FILENAME_DEFAULT = true;
+        private const bool AUTO_GENERATE_FILEPATH__DEFAULT = true;
+        private const bool RESPECT_CRLF_DEFAULT = true;
+
+        // Property backing variables
+        private string logFileType;
+        private int identifierWidthValue;
+
+        // Global fields
+        private StreamWriter logFileStream;
+        private Mutex loggerMutex;
+        private bool autoGenerateFileName;
+        private bool autoGenerateFilePath;
         private bool traceLoggerHasBeenDisposed;
+        private string mutexName;
+
+        #region Initialise and Dispose
 
         /// <summary>
-        /// Creates a new TraceLogger instance
+        /// Create a new TraceLogger instance with the given filename and path
         /// </summary>
-        /// <remarks>The LogFileType is used in the file name to allow you to quickly identify which of
-        /// several logs contains the information of interest.
-        /// <para>This call enables automatic logging and sets the file type to "Default".</para></remarks>
-        public TraceLogger()
+        /// <param name="logFileName">Name of the log file (without path) or null / empty string to use automatic file naming.</param>
+        /// <param name="logFilePath">Fully qualified path to the log file directory or null / empty string to use an automatically generated path.</param>
+        /// <param name="logFileType">A short name to identify the contents of the log (only used in automatic file names).</param>
+        /// <param name="enabled">Initial state of the trace logger - Enabled or Disabled.</param>
+        /// <remarks>Automatically generated directory names will be of the form: <c>"Documents\ASCOM\Logs {CurrentDate:yyyymmdd}"</c> on Windows and <c>"HOME/ASCOM/Logs{CurrentDate:yyyymmdd}"</c> on Linux
+        /// Automatically generated file names will be of the form: <c>"ASCOM.{LogFileType}.{CurrentTime:HHmm.ssfff}{1 or 2 Digits, usually 0}.txt"</c>.</remarks>
+        public TraceLogger(string logFileName, string logFilePath, string logFileType, bool enabled)
         {
-            this.traceLoggerHasBeenDisposed = false;
-            this.g_IdentifierWidth = 25;
-            this.g_LogFileName = "";
-            this.autoLogFilePath = true;
-            this.g_LogFileType = "Default";
-            this.g_DefaultLogFilePath = !string.IsNullOrEmpty(Environment.GetFolderPath(Environment.SpecialFolder.Personal)) ? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "ASCOM", "Logs " + DateTime.Now.ToString("yyyy-MM-dd")) : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "ASCOM", "SystemLogs", "Logs " + DateTime.Now.ToString("yyyy-MM-dd"));
-            this.g_LogFilePath = this.g_DefaultLogFilePath;
-            this.mut = new Mutex(false, "ASCOMStandardTraceLoggerMutex");
+            if (string.IsNullOrEmpty(logFileType)) throw new InvalidValueException("TraceLogger Initialisation - Supplied log file type is null or empty");
+
+            CommonInitialisation();
+
+            LogFileName = logFileName;
+            LogFilePath = logFilePath;
+            this.logFileType = logFileType;
+            Enabled = enabled;
+
+            autoGenerateFileName = string.IsNullOrEmpty(LogFileName); // Flag auto file name generation if no file name is supplied
+            autoGenerateFilePath = string.IsNullOrEmpty(LogFilePath); // Flag auto file path use if no path is supplied
         }
 
         /// <summary>
-        /// Creates a new TraceLogger instance and initialises filename and type
+        /// Create a new TraceLogger instance with automatic naming incorporating the supplied log file type
         /// </summary>
-        /// <param name="LogFileName">Fully qualified trace file name or null string to use automatic file naming (recommended)</param>
-        /// <param name="LogFileType">String identifying the type of log e,g, Focuser, LX200, GEMINI, MoonLite, G11</param>
-        /// <remarks>The LogFileType is used in the file name to allow you to quickly identify which of several logs contains the information of interest.</remarks>
-        public TraceLogger(string LogFileName, string LogFileType)
-          : this()
+        /// <param name="logFileType">A short name to identify the contents of the log.</param>
+        /// <param name="enabled">Initial state of the trace logger - Enabled or Disabled.</param>
+        /// <remarks>Automatically generated directory names will be of the form: <c>"Documents\ASCOM\Logs {CurrentDate:yyyymmdd}"</c> on Windows and <c>"HOME/ASCOM/Logs{CurrentDate:yyyymmdd}"</c> on Linux
+        /// Automatically generated file names will be of the form: <c>"ASCOM.{LogFileType}.{CurrentTime:HHmm.ssfff}{1 or 2 Digits, usually 0}.txt"</c>.</remarks>
+        public TraceLogger(string logFileType, bool enabled)
         {
-            this.g_LogFileName = LogFileName;
-            this.g_LogFileType = LogFileType;
+            if (string.IsNullOrEmpty(logFileType)) throw new InvalidValueException("TraceLogger Initialisation - Supplied log file type is null or empty");
+
+            CommonInitialisation();
+
+            LogFileName = "";
+            LogFilePath = "";
+            this.logFileType = logFileType;
+            Enabled = enabled;
+
+            autoGenerateFileName = AUTO_GENERATE_FILENAME_DEFAULT;
+            autoGenerateFilePath = AUTO_GENERATE_FILEPATH__DEFAULT;
         }
 
         /// <summary>
-        /// Create and enable a new TraceLogger instance with automatic naming based on the supplied log file type
+        /// Common code shared by all initialiser overloads
         /// </summary>
-        /// <param name="LogFileType">String identifying the type of log e,g, Focuser, LX200, GEMINI, MoonLite, G11</param>
-        /// <remarks>The LogFileType is used in the file name to allow you to quickly identify which of several logs contains the information of interest.</remarks>
-        public TraceLogger(string LogFileType)
-          : this()
+        private void CommonInitialisation()
         {
-            this.g_LogFileType = LogFileType;
-            this.g_Enabled = true;
+            traceLoggerHasBeenDisposed = false;
+            identifierWidthValue = IDENTIFIER_WIDTH_DEFAULT;
+
+            mutexName = Guid.NewGuid().ToString().ToUpper();
+            loggerMutex = new Mutex(false, mutexName);
+
+            UseUtcTime = USE_UTC_DEFAULT;
+            RespectCrLf = RESPECT_CRLF_DEFAULT;
         }
 
         /// IDisposable
@@ -90,55 +124,49 @@ namespace ASCOM.Standard.Utilities
         /// <remarks></remarks>
         protected virtual void Dispose(bool disposing)
         {
-            if (this.traceLoggerHasBeenDisposed)
-                return;
-            this.traceLoggerHasBeenDisposed = true;
+            if (traceLoggerHasBeenDisposed) return;
+
             if (disposing)
             {
-                if (this.g_LogFile != null)
+                if (logFileStream != null)
                 {
                     try
                     {
-                        this.g_LogFile.Flush();
+                        logFileStream.Flush();
                     }
-                    catch (Exception ex)
+                    catch
                     {
-                        ProjectData.SetProjectError(ex);
-                        ProjectData.ClearProjectError();
                     }
                     try
                     {
-                        this.g_LogFile.Close();
+                        logFileStream.Close();
                     }
-                    catch (Exception ex)
+                    catch
                     {
-                        ProjectData.SetProjectError(ex);
-                        ProjectData.ClearProjectError();
                     }
                     try
                     {
-                        this.g_LogFile.Dispose();
+                        logFileStream.Dispose();
                     }
-                    catch (Exception ex)
+                    catch
                     {
-                        ProjectData.SetProjectError(ex);
-                        ProjectData.ClearProjectError();
                     }
-                    this.g_LogFile = (StreamWriter)null;
+
+                    logFileStream = null;
                 }
-                if (this.mut != null)
+                if (loggerMutex != null)
                 {
                     try
                     {
-                        this.mut.Close();
+                        loggerMutex.Close();
                     }
-                    catch (Exception ex)
+                    catch
                     {
-                        ProjectData.SetProjectError(ex);
-                        ProjectData.ClearProjectError();
                     }
-                    this.mut = (Mutex)null;
+                    loggerMutex = null;
                 }
+
+                traceLoggerHasBeenDisposed = true;
             }
         }
 
@@ -148,48 +176,70 @@ namespace ASCOM.Standard.Utilities
         /// <remarks></remarks>
         public void Dispose()
         {
-            this.Dispose(true);
-            GC.SuppressFinalize((object)this);
+            Dispose(true);
         }
 
-        /// <summary>
-        /// Finalizes the TraceLogger object
-        /// </summary>
-        /// <remarks></remarks>
-        ~TraceLogger()
-        {
-            this.Dispose(false);
-        }
+        #endregion
+
+        #region Public members
 
         /// <summary>
-        /// Logs an issue, closing any open line and opening a continuation line if necessary after the
-        /// issue message.
+        /// Write a message to the trace log
         /// </summary>
-        /// <param name="Identifier">Identifies the meaning of the message e.g. name of module or method logging the message.</param>
-        /// <param name="Message">Message to log</param>
-        /// <remarks>Use this for reporting issues that you don't want to appear on a line already opened
-        /// with StartLine</remarks>
-        public void LogIssue(string Identifier, string Message)
+        /// <param name="identifier">Member name or function name.</param>
+        /// <param name="message">Message text</param>
+        /// <remarks>
+        /// </remarks>
+        public void LogMessage(string identifier, string message)
         {
-            if (this.traceLoggerHasBeenDisposed)
-                return;
+            bool gotMutex;
+
+            // Return immediately if the logger is not enabled
+            if (!Enabled) return;
+
+            // Ignore attempts to write to the logger after it is disposed
+            if (traceLoggerHasBeenDisposed) return;
+
+            // Get the trace logger mutex
             try
             {
-                this.GetTraceLoggerMutex(nameof(LogIssue), "\"" + Identifier + "\", \"" + Message + "\"");
-                if (this.g_Enabled)
-                {
-                    if (this.g_LogFile == null)
-                        this.CreateLogFile();
-                    if (this.g_LineStarted)
-                        this.g_LogFile.WriteLine();
-                    this.LogMsgFormatter(Identifier, Message, true, false);
-                    if (this.g_LineStarted)
-                        this.LogMsgFormatter("Continuation", "", false, false);
-                }
+                gotMutex = loggerMutex.WaitOne(MUTEX_WAIT_TIME, false);
+            }
+            catch (AbandonedMutexException ex)
+            {
+                throw new DriverException($"TraceLogger - Abandoned Mutex Exception for file {LogFileName}, in method {identifier}, when writing message: '{message}'. See inner exception for detail", ex);
+            }
+
+            if (!gotMutex)
+            {
+                throw new DriverException($"TraceLogger - Timed out waiting for TraceLogger mutex after {MUTEX_WAIT_TIME}ms in method {identifier}, when writing message: '{message}'");
+            }
+
+            // We have the mutex and can now persist the message
+            try
+            {
+                // Create the log file if it doesn't yet exist
+                if (logFileStream == null) CreateLogFile();
+
+                // Right pad the identifier string to the required column width
+                identifier = identifier.PadRight(identifierWidthValue);
+
+                // Get a DateTime object in either local or UTC time as determined by configuration
+                DateTime messageDateTime = DateTimeNow();
+
+                // Write the message to the log file
+                logFileStream.WriteLine($"{messageDateTime:HH:mm:ss.fff} {MakePrintable(identifier)} {MakePrintable(message)}");
+                logFileStream.Flush(); // Flush to make absolutely sure that the data is persisted to disk and can't be lost in an application crash
+
+                // Update the day on which the last message was written
+            }
+            catch (Exception ex)
+            {
+                throw new DriverException($"TraceLogger - Exception formatting message '{identifier}' - '{message}': {ex.Message}. See inner exception for details", ex);
             }
             finally
             {
-                this.mut.ReleaseMutex();
+                loggerMutex.ReleaseMutex();
             }
         }
 
@@ -199,541 +249,229 @@ namespace ASCOM.Standard.Utilities
         /// <remarks></remarks>
         public void BlankLine()
         {
-            if (this.traceLoggerHasBeenDisposed)
-                return;
-            this.LogMessage("", "", false);
+            if (traceLoggerHasBeenDisposed) return;
+            LogMessage("", "");
         }
 
         /// <summary>
-        /// Logs a complete message in one call, including a hex translation of the message
-        /// </summary>
-        /// <param name="Identifier">Identifies the meaning of the message e.g. name of module or method logging the message.</param>
-        /// <param name="Message">Message to log</param>
-        /// <param name="HexDump">True to append a hex translation of the message at the end of the message</param>
-        /// <remarks>
-        /// <para>Use this for straightforward logging requirements. Writes all information in one command.</para>
-        /// <para>Will create a LOGISSUE message in the log if called before a line started by LogStart has been closed with LogFinish.
-        /// Possible reasons for this are exceptions causing the normal flow of code to be bypassed or logic errors.</para>
-        /// </remarks>
-        public void LogMessage(string Identifier, string Message, bool HexDump)
-        {
-            string p_Msg = Message;
-            if (this.traceLoggerHasBeenDisposed)
-                return;
-            try
-            {
-                this.GetTraceLoggerMutex(nameof(LogMessage), "\"" + Identifier + "\", \"" + Message + "\", " + HexDump.ToString() + "\"");
-                if (this.g_LineStarted)
-                    this.LogFinish(" ");
-                if (this.g_Enabled)
-                {
-                    if (this.g_LogFile == null)
-                        this.CreateLogFile();
-                    if (HexDump)
-                        p_Msg = Message + "  (HEX" + this.MakeHex(Message) + ")";
-                    this.LogMsgFormatter(Identifier, p_Msg, true, false);
-                }
-            }
-            finally
-            {
-                this.mut.ReleaseMutex();
-            }
-        }
-
-        /// <summary>
-        /// Displays a message respecting carriage return and linefeed characters
-        /// </summary>
-        /// <param name="Identifier">Identifies the meaning of the message e.g. name of module or method logging the message.</param>
-        /// <param name="Message">The final message to terminate the line</param>
-        /// <remarks>
-        /// <para>Will create a LOGISSUE message in the log if called before a line has been started with LogStart.
-        /// Possible reasons for this are exceptions causing the normal flow of code to be bypassed or logic errors.</para>
-        /// </remarks>
-        public void LogMessageCrLf(string Identifier, string Message)
-        {
-            if (this.traceLoggerHasBeenDisposed)
-                return;
-            try
-            {
-                this.GetTraceLoggerMutex("LogMessage", "\"" + Identifier + "\", \"" + Message + "\"");
-                if (this.g_LineStarted)
-                    this.LogFinish(" ");
-                if (this.g_Enabled)
-                {
-                    if (this.g_LogFile == null)
-                        this.CreateLogFile();
-                    this.LogMsgFormatter(Identifier, Message, true, true);
-                }
-            }
-            finally
-            {
-                this.mut.ReleaseMutex();
-            }
-        }
-
-        /// <summary>
-        /// Writes the time and identifier to the log, leaving the line ready for further content through LogContinue and LogFinish
-        /// </summary>
-        /// <param name="Identifier">Identifies the meaning of the message e.g. name of module or method logging the message.</param>
-        /// <param name="Message">Message to log</param>
-        /// <remarks><para>Use this to start a log line where you want to write further information on the line at a later time.</para>
-        /// <para>E.g. You might want to use this to record that an action has started and then append the word OK if all went well.
-        ///  You would then end up with just one line to record the whole transaction even though you didn't know that it would be
-        /// successful when you started. If you just used LogMsg you would have ended up with two log lines, one showing
-        /// the start of the transaction and the next the outcome.</para>
-        /// <para>Will create a LOGISSUE message in the log if called before a line started by LogStart has been closed with LogFinish.
-        /// Possible reasons for this are exceptions causing the normal flow of code to be bypassed or logic errors.</para>
-        /// </remarks>
-        public void LogStart(string Identifier, string Message)
-        {
-            if (this.traceLoggerHasBeenDisposed)
-                return;
-            try
-            {
-                this.GetTraceLoggerMutex(nameof(LogStart), "\"" + Identifier + "\", \"" + Message + "\"");
-                if (this.g_LineStarted)
-                {
-                    this.LogFinish("LOGISSUE: LogStart has been called before LogFinish. Parameters: " + Identifier + " " + Message);
-                }
-                else
-                {
-                    this.g_LineStarted = true;
-                    if (this.g_Enabled)
-                    {
-                        if (this.g_LogFile == null)
-                            this.CreateLogFile();
-                        this.LogMsgFormatter(Identifier, Message, false, false);
-                    }
-                }
-            }
-            finally
-            {
-                this.mut.ReleaseMutex();
-            }
-        }
-
-        /// <summary>
-        /// Appends further message to a line started by LogStart, appends a hex translation of the message to the line, does not terminate the line.
-        /// </summary>
-        /// <param name="Message">The additional message to appear in the line</param>
-        /// <param name="HexDump">True to append a hex translation of the message at the end of the message</param>
-        /// <remarks>
-        /// <para>This can be called multiple times to build up a complex log line if required.</para>
-        /// <para>Will create a LOGISSUE message in the log if called before a line has been started with LogStart.
-        /// Possible reasons for this are exceptions causing the normal flow of code to be bypassed or logic errors.</para>
-        /// </remarks>
-        public void LogContinue(string Message, bool HexDump)
-        {
-            if (this.traceLoggerHasBeenDisposed)
-                return;
-            string Message1 = Message;
-            if (HexDump)
-                Message1 = Message + "  (HEX" + this.MakeHex(Message) + ")";
-            this.LogContinue(Message1);
-        }
-
-        /// <summary>
-        /// Closes a line started by LogStart with the supplied message and a hex translation of the message
-        /// </summary>
-        /// <param name="Message">The final message to terminate the line</param>
-        /// <param name="HexDump">True to append a hex translation of the message at the end of the message</param>
-        /// <remarks>
-        /// <para>Will create a LOGISSUE message in the log if called before a line has been started with LogStart.
-        /// Possible reasons for this are exceptions causing the normal flow of code to be bypassed or logic errors.</para>
-        /// </remarks>
-        public void LogFinish(string Message, bool HexDump)
-        {
-            if (this.traceLoggerHasBeenDisposed)
-                return;
-            string Message1 = Message;
-            if (HexDump)
-                Message1 = Message + "  (HEX" + this.MakeHex(Message) + ")";
-            this.LogFinish(Message1);
-        }
-
-        /// <summary>
-        /// Enables or disables logging to the file.
+        /// Enable or disable logging to the file.
         /// </summary>
         /// <value>True to enable logging</value>
         /// <returns>Boolean, current logging status (enabled/disabled).</returns>
-        /// <remarks>If this property is false then calls to LogMsg, LogStart, LogContinue and LogFinish do nothing. If True,
-        /// supplied messages are written to the log file.</remarks>
-        public bool Enabled
-        {
-            get
-            {
-                return this.g_Enabled;
-            }
-            set
-            {
-                this.g_Enabled = value;
-            }
-        }
+        /// <remarks>If this property is False, calls to LogMessage do nothing. If True, messages are written to the log file.</remarks>
+        public bool Enabled { get; set; }
 
         /// <summary>
-        /// Sets the log filename and type if the constructor is called without parameters
+        /// File name of the log file being created
         /// </summary>
-        /// <param name="LogFileName">Fully qualified trace file name or null string to use automatic file naming (recommended)</param>
-        /// <param name="LogFileType">String identifying the type of log e,g, Focuser, LX200, GEMINI, MoonLite, G11</param>
-        /// <remarks>The LogFileType is used in the file name to allow you to quickly identify which of several logs contains the
-        /// information of interest.
-        /// <para><b>Note </b>This command is only required if the trace logger constructor is called with no
-        /// parameters. It is provided for use in COM clients that can not call constructors with parameters.
-        /// If you are writing a COM client then create the trace logger as:</para>
-        /// <code>
-        /// TL = New TraceLogger()
-        /// TL.SetLogFile("","TraceName")
-        /// </code>
-        /// <para>If you are writing a .NET client then you can achieve the same end in one call:</para>
-        /// <code>
-        /// TL = New TraceLogger("",TraceName")
-        /// </code>
-        /// </remarks>
-        public void SetLogFile(string LogFileName, string LogFileType)
-        {
-            if (this.traceLoggerHasBeenDisposed)
-                return;
-            this.g_LogFileName = LogFileName;
-            this.g_LogFileType = LogFileType;
-        }
-
-        /// <summary>
-        /// Return the full filename of the log file being created
-        /// </summary>
-        /// <value>Full filename of the log file</value>
+        /// <value>Filename of the log file without the path.</value>
         /// <returns>String filename</returns>
-        /// <remarks>This call will return an empty string until the first line has been written to the log file
-        /// as the file is not created until required.</remarks>
-        public string LogFileName
-        {
-            get
-            {
-                return this.g_LogFileActualName;
-            }
-        }
+        /// <remarks>This call will return an empty string until the first line has been written to the log file because the file is not created until required.</remarks>
+        public string LogFileName { get; private set; }
 
         /// <summary>
-        /// Set or return the path to a directory in which the log file will be created
+        /// Path to the directory in which the log file will be created
         /// </summary>
         /// <returns>String path</returns>
-        /// <remarks>Introduced with Platform 6.4.<para>If set, this path will be used instead of the user's Documents directory default path.This must be Set before the first message Is logged.</para></remarks>
-        public string LogFilePath
-        {
-            get
-            {
-                return this.g_LogFilePath;
-            }
-            set
-            {
-                this.autoLogFilePath = Operators.CompareString(value, "", false) == 0;
-                this.g_LogFilePath = value.TrimEnd("\\".ToCharArray());
-            }
-        }
+        /// <remarks>This call will return an empty string until the first line has been written to the log file because the file is not created until required.</remarks>
+        public string LogFilePath { get; private set; }
 
         /// <summary>
         /// Set or return the width of the identifier field in the log message
         /// </summary>
         /// <value>Width of the identifier field</value>
-        /// <returns>Integer width</returns>
+        /// <returns>Integer identifier width</returns>
+        /// <exception cref="InvalidValueException">If the width is less than 0</exception>
         /// <remarks>Introduced with Platform 6.4.<para>If set, this width will be used instead of the default identifier field width.</para></remarks>
         public int IdentifierWidth
         {
             get
             {
-                return this.g_IdentifierWidth;
+                return identifierWidthValue;
             }
             set
             {
-                this.g_IdentifierWidth = value;
+                if (value < 0) throw new InvalidValueException("IdentifierWidth", value.ToString(), "0", int.MaxValue.ToString("N0"));
+                identifierWidthValue = value;
             }
         }
 
         /// <summary>
-        /// Logs a complete message in one call
+        /// Set True to use UTC time, set false to use Local time (default true)
         /// </summary>
-        /// <param name="Identifier">Identifies the meaning of the message e.g. name of module or method logging the message.</param>
-        /// <param name="Message">Message to log</param>
-        /// <remarks>
-        /// <para>Use this for straightforward logging requirements. Writes all information in one command.</para>
-        /// <para>Will create a LOGISSUE message in the log if called before a line started by LogStart has been closed with LogFinish.
-        /// Possible reasons for this are exceptions causing the normal flow of code to be bypassed or logic errors.</para>
-        /// <para>This overload is not available through COM, please use
-        /// "LogMessage(ByVal Identifier As String, ByVal Message As String, ByVal HexDump As Boolean)"
-        /// with HexDump set False to achieve this effect.</para>
-        /// </remarks>
-        [ComVisible(false)]
-        public void LogMessage(string Identifier, string Message)
-        {
-            if (this.traceLoggerHasBeenDisposed)
-                return;
-            try
-            {
-                this.GetTraceLoggerMutex(nameof(LogMessage), "\"" + Identifier + "\", \"" + Message + "\"");
-                if (this.g_LineStarted)
-                    this.LogFinish(" ");
-                if (this.g_Enabled)
-                {
-                    if (this.g_LogFile == null)
-                        this.CreateLogFile();
-                    this.LogMsgFormatter(Identifier, Message, true, false);
-                }
-            }
-            finally
-            {
-                this.mut.ReleaseMutex();
-            }
-        }
+        public bool UseUtcTime { get; set; }
 
         /// <summary>
-        /// Appends further message to a line started by LogStart, does not terminate the line.
+        /// Set True to retain carriage return and line feed as control characters. Set false to translate these to [XX] format (default true)
         /// </summary>
-        /// <param name="Message">The additional message to appear in the line</param>
-        /// <remarks>
-        /// <para>This can be called multiple times to build up a complex log line if required.</para>
-        /// <para>Will create a LOGISSUE message in the log if called before a line has been started with LogStart.
-        /// Possible reasons for this are exceptions causing the normal flow of code to be bypassed or logic errors.</para>
-        /// <para>This overload is not available through COM, please use
-        /// "LogContinue(ByVal Message As String, ByVal HexDump As Boolean)"
-        /// with HexDump set False to achieve this effect.</para>
-        /// </remarks>
-        [ComVisible(false)]
-        public void LogContinue(string Message)
-        {
-            if (this.traceLoggerHasBeenDisposed)
-                return;
-            try
-            {
-                this.GetTraceLoggerMutex(nameof(LogContinue), "\"" + Message + "\"");
-                if (!this.g_LineStarted)
-                    this.LogMessage("LOGISSUE", "LogContinue has been called before LogStart. Parameter: " + Message);
-                else if (this.g_Enabled)
-                {
-                    if (this.g_LogFile == null)
-                        this.CreateLogFile();
-                    this.g_LogFile.Write(this.MakePrintable(Message, false));
-                }
-            }
-            finally
-            {
-                this.mut.ReleaseMutex();
-            }
-        }
+        public bool RespectCrLf { get; set; }
+
+        #endregion
+
+        #region Support code
 
         /// <summary>
-        /// Closes a line started by LogStart with the supplied message
+        /// Create the stream writer that will write to the log file
         /// </summary>
-        /// <param name="Message">The final message to terminate the line</param>
-        /// <remarks>
-        /// <para>Can only be called once for each line started by LogStart.</para>
-        /// <para>Will create a LOGISSUE message in the log if called before a line has been started with LogStart.
-        /// Possible reasons for this are exceptions causing the normal flow of code to be bypassed or logic errors.</para>
-        /// <para>This overload is not available through COM, please use
-        /// "LogFinish(ByVal Message As String, ByVal HexDump As Boolean)"
-        /// with HexDump set False to achieve this effect.</para>
-        /// </remarks>
-        [ComVisible(false)]
-        public void LogFinish(string Message)
-        {
-            if (this.traceLoggerHasBeenDisposed)
-                return;
-            try
-            {
-                this.GetTraceLoggerMutex(nameof(LogFinish), "\"" + Message + "\"");
-                if (!this.g_LineStarted)
-                {
-                    this.LogMessage("LOGISSUE", "LogFinish has been called before LogStart. Parameter: " + Message);
-                }
-                else
-                {
-                    this.g_LineStarted = false;
-                    if (this.g_Enabled)
-                    {
-                        if (this.g_LogFile == null)
-                            this.CreateLogFile();
-                        this.g_LogFile.WriteLine(this.MakePrintable(Message, false));
-                    }
-                }
-            }
-            finally
-            {
-                this.mut.ReleaseMutex();
-            }
-        }
-
         private void CreateLogFile()
         {
-            int num1 = 0;
-            string gLogFileName = this.g_LogFileName;
-            if (Operators.CompareString(gLogFileName, "", false) != 0)
-            {
-                if (Operators.CompareString(gLogFileName, "C:\\SerialTraceAuto.txt", false) != 0)
-                {
-                    try
-                    {
-                        this.g_LogFile = new StreamWriter(this.g_LogFileName + ".txt", false);
-                        this.g_LogFile.AutoFlush = true;
-                        this.g_LogFileActualName = this.g_LogFileName + ".txt";
-                        return;
-                    }
-                    catch (Exception ex)
-                    {
-                        ProjectData.SetProjectError(ex);
-                        throw;
-                    }
-                }
-            }
-            if (Operators.CompareString(this.g_LogFileType, "", false) == 0)
-                throw new ArgumentNullException("TRACELOGGER.CREATELOGFILE - Call made but no log file type has been set");
-            string str;
-            if (this.autoLogFilePath)
-            {
-                Directory.CreateDirectory(this.g_DefaultLogFilePath);
-                str = Path.Combine(this.g_DefaultLogFilePath, "ASCOM." + this.g_LogFileType + "." + DateTime.Now.ToString("HHmm.ssfff"));
-            }
-            else
-            {
-                string directory = Path.Combine(this.g_LogFilePath, "Logs " + DateTime.Now.ToString("yyyy-MM-dd"));
-                Directory.CreateDirectory(directory);
-                str = Path.Combine(directory, "ASCOM." + this.g_LogFileType + "." + DateTime.Now.ToString("HHmm.ssfff"));
-            }
-            do
-            {
-                this.g_LogFileActualName = str + num1.ToString() + ".txt";
-                checked { ++num1; }
-            }
-            while (File.Exists(this.g_LogFileActualName));
+            int logFileSuffixInteger = 0; // Initialise suffix to 0
+
+            // Establish the path to the log file, auto generating this if required
             try
             {
-                this.g_LogFile = new StreamWriter(this.g_LogFileActualName, false);
-                this.g_LogFile.AutoFlush = true;
-            }
-            catch (IOException ex1)
-            {
-                ProjectData.SetProjectError((Exception)ex1);
-                IOException ioException = ex1;
-                bool flag = false;
-                do
+                if (autoGenerateFilePath) // We need to auto generate the file path
                 {
-                    try
+                    // Set the default log file path
+                    if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) // We are running on a Windows OS
                     {
-                        this.g_LogFileActualName = str + num1.ToString() + ".txt";
-                        this.g_LogFile = new StreamWriter(this.g_LogFileActualName, false);
-                        this.g_LogFile.AutoFlush = true;
-                        flag = true;
+                        if (!string.IsNullOrEmpty(Environment.GetFolderPath(Environment.SpecialFolder.Personal))) // This is a normaL "User" account
+                        {
+                            LogFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), AUTO_PATH_BASE_DIRECTORY, string.Format(AUTO_PATH_WINDOWS_DIRECTORY_TEMPLATE, DateTimeNow()));
+                        }
+                        else // This is the "System" account, which does not have a personal documents directory so put log files in the 
+                        {
+                            LogFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), AUTO_PATH_WINDOWS_SYSTEM_USER_BASE_DIRECTORY, string.Format(AUTO_PATH_WINDOWS_DIRECTORY_TEMPLATE, DateTimeNow()));
+                        }
                     }
-                    catch (IOException ex2)
+                    else // We are running on a non-Windows OS
                     {
-                        ProjectData.SetProjectError((Exception)ex2);
-                        ProjectData.ClearProjectError();
+                        LogFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), AUTO_PATH_BASE_DIRECTORY, string.Format(AUTO_PATH_LINUX_DIRECTORY_TEMPLATE, DateTimeNow())); ; // No space after Logs because UNIX systems don't like space characters in paths
                     }
-                    checked { ++num1; }
                 }
-                while (!(flag | num1 == 20));
-                if (!flag)
-                    throw new Exception("TraceLogger:CreateLogFile - Unable to create log file", (Exception)ioException);
-                ProjectData.ClearProjectError();
-            }
-        }
-
-        private string MakePrintable(string p_Msg, bool p_RespectCrLf)
-        {
-            string str = "";
-            int num1 = p_Msg.Length;
-            int Start = 1;
-            while (Start <= num1)
-            {
-                int Number = Strings.AscW(Mid(p_Msg, Start, 1));
-                int num2 = Number;
-                str = num2 != 10 && num2 != 13 ? (num2 != -9 && num2 != 11 && (num2 != 12 && num2 != -17) && num2 <= 126 ? str + Mid(p_Msg, Start, 1) : str + "[" + Right("00" + Number.ToString("X"), 2) + "]") : (!p_RespectCrLf ? str + "[" + Right("00" + Number.ToString("X"), 2) + "]" : str + Mid(p_Msg, Start, 1));
-                if (!(Number < 32 | Number > 126))
-                    ;
-                checked { ++Start; }
-            }
-            return str;
-        }
-
-        private string MakeHex(string p_Msg)
-        {
-            string str = "";
-            int num = p_Msg.Length;
-            int Start = 1;
-            while (Start <= num)
-            {
-                int Number = Strings.AscW(Mid(p_Msg, Start, 1));
-                str = str + "[" + Right("00" + Number.ToString("X"), 2) + "]";
-                checked { ++Start; }
-            }
-            return str;
-        }
-
-        private void LogMsgFormatter(string p_Test, string p_Msg, bool p_NewLine, bool p_RespectCrLf)
-        {
-            try
-            {
-                p_Test = Left(p_Test + new string(' ', this.g_IdentifierWidth), this.g_IdentifierWidth);
-                string str = DateTime.Now.ToString("HH:mm:ss.fff") + " " + this.MakePrintable(p_Test, p_RespectCrLf) + " " + this.MakePrintable(p_Msg, p_RespectCrLf);
-                if (this.g_LogFile == null)
-                    return;
-                if (p_NewLine)
-                    this.g_LogFile.WriteLine(str);
-                else
-                    this.g_LogFile.Write(str);
-                this.g_LogFile.Flush();
+                else // We need to use the supplied log file path, which is already in the LogFilePath property
+                {
+                    // No action required
+                }
             }
             catch (Exception ex)
             {
-                ProjectData.SetProjectError(ex);
-                //EventLogCode.LogEvent(nameof(LogMsgFormatter), "Exception", EventLogEntryType.Error, GlobalConstants.EventLogErrors.TraceLoggerException, ex.ToString());
-                ProjectData.ClearProjectError();
+                throw new DriverException($"TraceLogger - Unable to find determine the log file path, IsWindows: {RuntimeInformation.IsOSPlatform(OSPlatform.Windows)}. {ex.Message}. See inner exception for details", ex);
             }
-        }
 
-        private void GetTraceLoggerMutex(string Method, string Parameters)
-        {
+            // Create the directory if required
             try
             {
-                this.GotMutex = this.mut.WaitOne(5000, false);
+                Directory.CreateDirectory(LogFilePath);
             }
-            catch (AbandonedMutexException ex)
+            catch (Exception ex)
             {
-                ProjectData.SetProjectError((Exception)ex);
-                AbandonedMutexException abandonedMutexException = ex;
-                /*EventLogCode.LogEvent(nameof(TraceLogger), "AbandonedMutexException in " + Method + ", parameters: " + Parameters, EventLogEntryType.Error, GlobalConstants.EventLogErrors.TraceLoggerMutexAbandoned, abandonedMutexException.ToString());
-                if (RegistryCommonCode.GetBool("Trace Abandoned Mutexes", false))
+                throw new DriverException($"TraceLogger - Unable to create log file directory '{LogFilePath}': {ex.Message}. See inner exception for details", ex);
+            }
+
+            // Create the log file stream writer auto a file name if required
+            if (autoGenerateFileName) // We need to auto-generate a file name ourselves
+            {
+                try
                 {
-                    EventLogCode.LogEvent(nameof(TraceLogger), "AbandonedMutexException in " + Method + ": Throwing exception to application", EventLogEntryType.Warning, GlobalConstants.EventLogErrors.TraceLoggerMutexAbandoned, (string)null);
-                    throw;
+                    // Create a unique log file name based on date, time and required name by incrementing an arbitrary final suffixed count value
+                    do
+                    {
+                        LogFileName = string.Format(AUTO_FILE_NAME_TEMPLATE, logFileType, DateTimeNow(), logFileSuffixInteger);
+                        checked { ++logFileSuffixInteger; } // Increment the counter to ensure that no log file can have the same name as any other
+                    }
+                    while (File.Exists(Path.Combine(LogFilePath, LogFileName)) & (logFileSuffixInteger <= MAXIMUM_UNIQUE_SUFFIX_ATTEMPTS)); // Loop until the generated file name does not exist or we hit the maximum number of attempts
+
+                    // Close any current file stream before creating a new one
+                    if (!(logFileStream is null))
+                    {
+                        logFileStream.Close();
+                        logFileStream.Dispose();
+                    }
+
+                    // Create the stream writer used to write to disk
+                    logFileStream = new StreamWriter(Path.Combine(LogFilePath, LogFileName), false);
+                    logFileStream.AutoFlush = true;
                 }
-                else
+                catch (Exception ex)
                 {
-                    EventLogCode.LogEvent(nameof(TraceLogger), "AbandonedMutexException in " + Method + ": Absorbing exception, continuing normal execution", EventLogEntryType.Warning, GlobalConstants.EventLogErrors.TraceLoggerMutexAbandoned, (string)null);
-                    this.GotMutex = true;
-                    ProjectData.ClearProjectError();
-                }*/
+                    throw new DriverException($"TraceLogger - Unable to create auto-generated log file '{LogFileName}' in directory '{LogFilePath}': {ex.Message}. See inner exception for details", ex);
+                }
             }
-            if (!this.GotMutex)
+            else // We need to use the supplied file name
             {
-                /*EventLogCode.LogEvent(Method, "Timed out waiting for TraceLogger mutex in " + Method + ", parameters: " + Parameters, EventLogEntryType.Error, GlobalConstants.EventLogErrors.TraceLoggerMutexTimeOut, (string)null);
-                throw new Exception("Timed out waiting for TraceLogger mutex in " + Method + ", parameters: " + Parameters);*/
+                try
+                {
+                    // Close any current file stream before creating a new one
+                    if (!(logFileStream is null))
+                    {
+                        logFileStream.Close();
+                        logFileStream.Dispose();
+                    }
+
+                    // Create the stream writer used to write to disk
+                    logFileStream = new StreamWriter(Path.Combine(LogFilePath, LogFileName), false);
+                    logFileStream.AutoFlush = true;
+                }
+                catch (Exception ex)
+                {
+                    throw new DriverException($"TraceLogger - Unable to create log file '{LogFileName}' in directory '{LogFilePath}': {ex.Message}. See inner exception for details", ex);
+                }
             }
         }
 
-        public static string Mid(string str, int start, int length)
+        /// <summary>
+        /// Translate control characters into printable versions 
+        /// </summary>
+        /// <param name="message">Message to be cleansed</param>
+        /// <returns>Cleaned message string</returns>
+        /// <remarks>Non printable ASCII characters 0::31 and 127 are translated to [XX] format where XX is a two digit hex code. 
+        /// Characters 13 and 10 (carriage return and linefeed) are either translated or left as control characters according to the setting of the RespectCrLf property.
+        /// The default is for these to be left as control characters so that exception stack dumps print properly.</remarks>
+        private string MakePrintable(string message)
         {
-            return str.Substring(start - 1, length);
+            string printableMessage = "";
+            int charNo;
+
+            // Present any unprintable characters in [0xHH] format
+            foreach (char c in message)
+            {
+                charNo = (int)c;
+                switch (charNo)
+                {
+                    case int i when i == 10 && RespectCrLf: // Handle carriage return and line feed as "printable" characters if "Respect CrLf" is enabled
+                    case int j when j == 13 && RespectCrLf:
+                        {
+                            printableMessage += c.ToString();
+                            break;
+                        }
+
+                    case int i when (i >= 0 && i <= 31) || i == 127: // Represent "non-printable" characters as hex codes
+                        {
+                            printableMessage += "[" + charNo.ToString("X2") + "]";
+                            break;
+                        }
+
+                    default: // Handle everything else as "printable" characters 
+                        {
+                            printableMessage += c.ToString();
+                            break;
+                        }
+                }
+            }
+            return printableMessage; // Return the formatted printable message
         }
 
-        public static string Right(string str, int length)
+        /// <summary>
+        /// Return a dateTime object reflecting Local or UTC time depending on the setting of the UseUtcTime property.
+        /// </summary>
+        /// <returns>DateTime object in either local or UTC time.</returns>
+        private DateTime DateTimeNow()
         {
-            return str.Substring(str.Length - length, length);
+            if (UseUtcTime)
+            {
+                return DateTime.UtcNow;
+            }
+            else
+            {
+                return DateTime.Now;
+            }
         }
 
-        public static string Left(string str, int length)
-        {
-            return str.Substring(0, length);
-        }
+        #endregion
 
         #region ILogger implementation
+
         public LogLevel LoggingLevel
         {
             get;
@@ -744,7 +482,7 @@ namespace ASCOM.Standard.Utilities
         {
             if (this.IsLevelActive(level))
             {
-                this.LogMessage($"[{level}]", message);
+                LogMessage($"[{level}]", message);
             }
         }
 
@@ -752,6 +490,7 @@ namespace ASCOM.Standard.Utilities
         {
             LoggingLevel = level;
         }
+
         #endregion
     }
 }
