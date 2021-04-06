@@ -70,14 +70,11 @@ namespace ASCOM.Alpaca
         /// </summary>
         InvalidOperationException = 0x40B,
 
-        /*
         /// <summary>
         /// Reserved error code (0x40C) to indicate that the requested action is not implemented in this driver.
         /// </summary>
-        public static read-only int ActionNotImplementedException = 0x40C; Rationalised to a single NotImplementedException - to avoid confusion don't reuse this error number for new exceptions!
-        */
+        ActionNotImplementedException = 0x40C,
 
-        
         /*
         /// <summary>
         /// Reserved error code (0x40D) to indicate that the requested item is not present in the ASCOM cache.
