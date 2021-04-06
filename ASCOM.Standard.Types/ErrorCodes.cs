@@ -1,5 +1,12 @@
 namespace ASCOM.Alpaca
 {
+    public enum ErrorBase
+    {
+        /// <summary>
+        /// Offset value that relates the ASCOM Alpaca reserved error number range to the ASCOM COM HResult error number range
+        /// </summary>
+        ASCOMErrorNumberOffset = unchecked((int)0x80040000),
+    }
     /// <summary>
     ///   Error numbers for use by Alpaca applications and drivers in the range 0x400 to 0xFFF.
     /// </summary>
@@ -8,11 +15,6 @@ namespace ASCOM.Alpaca
     /// </remarks>
     public enum ErrorCodes
     {
-        /// <summary>
-        /// Offset value that relates the ASCOM Alpaca reserved error number range to the ASCOM COM HResult error number range
-        /// </summary>
-        ASCOMErrorNumberOffset = unchecked((int)0x80040000),
-
         /// <summary>
         /// Start of the Alpaca error code range 0x400 to 0xFFF
         /// </summary>
