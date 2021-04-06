@@ -1,4 +1,4 @@
-﻿using ASCOM.Alpaca.Responses;
+using ASCOM.Alpaca.Responses;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -56,6 +56,10 @@ namespace ASCOM.Standard.Helpers
                     return new DriverException(message);
                 case Alpaca.ErrorCodes.NotImplemented:
                     return new NotImplementedException(message);
+                case Alpaca.ErrorCodes.ActionNotImplementedException:
+                    return new ActionNotImplementedException(message);
+                case Alpaca.ErrorCodes.AlpacaNoError:
+                    //No Error
                 default:
                     return null;
             }

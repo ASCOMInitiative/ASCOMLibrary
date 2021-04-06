@@ -1,5 +1,8 @@
 namespace ASCOM.Alpaca
 {
+    /// <summary>
+    /// The offset value to convert an Alpaca Error Code to an ASCOM Error Code
+    /// </summary>
     public enum ErrorBase
     {
         /// <summary>
@@ -15,6 +18,11 @@ namespace ASCOM.Alpaca
     /// </remarks>
     public enum ErrorCodes
     {
+        /// <summary>
+        /// A value of 0 indicates that the message does not have an error 
+        /// </summary>
+        AlpacaNoError = 0x000,
+
         /// <summary>
         /// Start of the Alpaca error code range 0x400 to 0xFFF
         /// </summary>
