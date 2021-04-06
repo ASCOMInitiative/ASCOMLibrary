@@ -1,4 +1,4 @@
-using ASCOM.Alpaca.Responses;
+﻿using ASCOM.Alpaca.Responses;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -86,7 +86,7 @@ namespace ASCOM.Standard.Helpers
             int HResult = ex.HResult;
             if (HResult == ASCOM.ErrorCodes.ActionNotImplementedException)
             {
-                return Alpaca.ErrorCodes.NotImplemented;
+                return Alpaca.ErrorCodes.ActionNotImplementedException;
             }
             else if (HResult == ASCOM.ErrorCodes.InvalidOperationException)
             {
