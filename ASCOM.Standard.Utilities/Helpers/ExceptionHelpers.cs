@@ -56,6 +56,10 @@ namespace ASCOM.Standard.Helpers
                     return new DriverException(message);
                 case Alpaca.ErrorCodes.NotImplemented:
                     return new NotImplementedException(message);
+                case Alpaca.ErrorCodes.ActionNotImplementedException:
+                    return new ActionNotImplementedException(message);
+                case Alpaca.ErrorCodes.AlpacaNoError:
+                    //No Error
                 default:
                     return null;
             }
@@ -82,7 +86,7 @@ namespace ASCOM.Standard.Helpers
             int HResult = ex.HResult;
             if (HResult == ASCOM.ErrorCodes.ActionNotImplementedException)
             {
-                return Alpaca.ErrorCodes.NotImplemented;
+                return Alpaca.ErrorCodes.ActionNotImplementedException;
             }
             else if (HResult == ASCOM.ErrorCodes.InvalidOperationException)
             {

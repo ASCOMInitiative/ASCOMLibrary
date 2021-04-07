@@ -13,7 +13,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ASCOM.Exceptions" Version="6.5.0" />
+    <PackageReference Include="ASCOM.Exceptions" Version="6.5.1" />
     <PackageReference Include="System.Text.Json" Version="4.7.2" />
   </ItemGroup>
 
