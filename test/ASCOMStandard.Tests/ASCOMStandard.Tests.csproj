@@ -8,8 +8,14 @@
         <RootNamespace>ASCOM.Alpaca.Tests</RootNamespace>
     </PropertyGroup>
 
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+      <DebugType>portable</DebugType>
+      <DebugSymbols>true</DebugSymbols>
+    </PropertyGroup>
+
     <ItemGroup>
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.6.1" />
+        <PackageReference Include="System.Runtime.Extensions" Version="4.3.1" />
         <PackageReference Include="xunit" Version="2.4.1" />
         <PackageReference Include="xunit.runner.visualstudio" Version="2.4.2">
           <PrivateAssets>all</PrivateAssets>
@@ -19,6 +25,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\ASCOM.Standard.Types\ASCOM.Standard.Types.csproj" />
+      <ProjectReference Include="..\..\ASCOM.Standard.Utilities\ASCOM.Standard.Utilities.csproj" />
     </ItemGroup>
 
 </Project>

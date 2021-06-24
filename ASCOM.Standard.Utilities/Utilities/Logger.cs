@@ -10,10 +10,7 @@ namespace ASCOM.Standard.Utilities
         {
             get;
             private set;
-        } = new TraceLogger(null, AppDomain.CurrentDomain.FriendlyName)
-            {
-                Enabled = true
-             };
+        } = new TraceLogger(null, null, AppDomain.CurrentDomain.FriendlyName, true);
 
         public static void SetLogProvider(ILogger logger)
         {
