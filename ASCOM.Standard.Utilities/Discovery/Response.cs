@@ -9,7 +9,7 @@ namespace ASCOM.Standard.Discovery
         /// <summary>
         /// Lowercase for serializer
         /// </summary>
-        public int alpacaport
+        public int AlpacaPort
         { 
             get;
             set;

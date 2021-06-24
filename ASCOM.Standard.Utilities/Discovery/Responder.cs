@@ -208,7 +208,7 @@ namespace ASCOM.Standard.Discovery
                         //For testing only
                         Utilities.Logger.LogInformation(string.Format("Received a discovery packet from {0} at {1}", endpoint.Address, DateTime.Now));
 
-                        byte[] response = Encoding.ASCII.GetBytes(string.Format("{{\"alpacaport\": {0}}}", port));
+                        byte[] response = Encoding.ASCII.GetBytes(string.Format("{{\"AlpacaPort\": {0}}}", port));
 
                         udpClient.Send(response, response.Length, endpoint);
                     }

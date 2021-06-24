@@ -206,7 +206,7 @@ namespace ASCOM.Standard.Discovery
                 //Do not report your own transmissions
                 if (ReceiveString.Contains(Constants.ResponseString))
                 {
-                    var port = JsonSerializer.Deserialize<Response>(ReceiveString).alpacaport;
+                    var port = JsonSerializer.Deserialize<Response>(ReceiveString).AlpacaPort;
 
                     if(port == 0) //Failed to parse
                     {
