@@ -11,7 +11,6 @@ namespace ASCOM.Standard.Discovery
 {
     public class Finder : IDisposable
     {
-
         public event EventHandler<IPEndPoint> ResponseReceivedEvent;
 
         private UdpClient IPv4Client = new UdpClient()
@@ -40,7 +39,6 @@ namespace ASCOM.Standard.Discovery
         /// </summary>
         public Finder()
         {
-
             //0 tells OS to give us a free ethereal port
             IPv4Client.Client.Bind(new IPEndPoint(IPAddress.Any, 0));
 
@@ -50,34 +48,48 @@ namespace ASCOM.Standard.Discovery
         /// <summary>
         /// Send out discovery message on each IPv4 broadcast address
         /// This dual targets NetStandard 2.0 and NetFX 3.5 so no Async Await
-        /// Broadcasts on each adapters address as per Windows / Linux documentation 
+        /// Broadcasts on each adapters address as per Windows / Linux documentation
         /// </summary>
         private void SearchIPv4()
         {
             NetworkInterface[] adapters = NetworkInterface.GetAllNetworkInterfaces();
             foreach (NetworkInterface adapter in adapters)
             {
-                //Do not try and use non-operational adapters
-                if (adapter.OperationalStatus != OperationalStatus.Up)
-                    continue;
-
-                if (adapter.Supports(NetworkInterfaceComponent.IPv4))
+                try
                 {
-                    IPInterfaceProperties adapterProperties = adapter.GetIPProperties();
-                    if (adapterProperties == null)
+                    //Do not try and use non-operational adapters
+                    if (adapter.OperationalStatus != OperationalStatus.Up)
                         continue;
-                    UnicastIPAddressInformationCollection uniCast = adapterProperties.UnicastAddresses;
-                    if (uniCast.Count > 0)
-                    {
-                        foreach (UnicastIPAddressInformation uni in uniCast)
-                        {
-                            if (uni.Address.AddressFamily != AddressFamily.InterNetwork)
-                                continue;
 
-                            // Local host addresses (127.*.*.*) may have a null mask in Net Framework. We do want to search these. The correct mask is 255.0.0.0.
-                            IPv4Client.Send(Constants.DiscoveryMessageArray, Constants.DiscoveryMessageArray.Length, new IPEndPoint(GetBroadcastAddress(uni.Address, uni.IPv4Mask ?? IPAddress.Parse("255.0.0.0")), Constants.DiscoveryPort));
+                    if (adapter.Supports(NetworkInterfaceComponent.IPv4))
+                    {
+                        IPInterfaceProperties adapterProperties = adapter.GetIPProperties();
+                        if (adapterProperties == null)
+                            continue;
+                        UnicastIPAddressInformationCollection uniCast = adapterProperties.UnicastAddresses;
+                        if (uniCast.Count > 0)
+                        {
+                            foreach (UnicastIPAddressInformation uni in uniCast)
+                            {
+                                try
+                                {
+                                    if (uni.Address.AddressFamily != AddressFamily.InterNetwork)
+                                        continue;
+
+                                    // Local host addresses (127.*.*.*) may have a null mask in Net Framework. We do want to search these. The correct mask is 255.0.0.0.
+                                    IPv4Client.Send(Constants.DiscoveryMessageArray, Constants.DiscoveryMessageArray.Length, new IPEndPoint(GetBroadcastAddress(uni.Address, uni.IPv4Mask ?? IPAddress.Parse("255.0.0.0")), Constants.DiscoveryPort));
+                                }
+                                catch (Exception ex)
+                                {
+                                    ASCOM.Standard.Utilities.Logger.LogError(ex.Message);
+                                }
+                            }
                         }
                     }
+                }
+                catch (Exception ex)
+                {
+                    ASCOM.Standard.Utilities.Logger.LogError(ex.Message);
                 }
             }
         }
@@ -93,49 +105,62 @@ namespace ASCOM.Standard.Discovery
             {
                 foreach (var adapter in NetworkInterface.GetAllNetworkInterfaces())
                 {
-                    if (adapter.OperationalStatus != OperationalStatus.Up)
-                        continue;
-
-                    if (adapter.Supports(NetworkInterfaceComponent.IPv6) && adapter.SupportsMulticast)
+                    try
                     {
-                        IPInterfaceProperties adapterProperties = adapter.GetIPProperties();
-                        if (adapterProperties == null)
+                        if (adapter.OperationalStatus != OperationalStatus.Up)
                             continue;
 
-                        UnicastIPAddressInformationCollection uniCast = adapterProperties.UnicastAddresses;
-
-                        if (uniCast.Count > 0)
+                        if (adapter.Supports(NetworkInterfaceComponent.IPv6) && adapter.SupportsMulticast)
                         {
-                            foreach (UnicastIPAddressInformation uni in uniCast)
+                            IPInterfaceProperties adapterProperties = adapter.GetIPProperties();
+                            if (adapterProperties == null)
+                                continue;
+
+                            UnicastIPAddressInformationCollection uniCast = adapterProperties.UnicastAddresses;
+
+                            if (uniCast.Count > 0)
                             {
-                                if (uni.Address.AddressFamily != AddressFamily.InterNetworkV6)
-                                    continue;
-
-                                //Only use LinkLocal or LocalHost addresses
-                                if (!uni.Address.IsIPv6LinkLocal && uni.Address != IPAddress.Parse("::1"))
-                                    continue;
-
-                                try
+                                foreach (UnicastIPAddressInformation uni in uniCast)
                                 {
-                                    if (!IPv6Clients.ContainsKey(uni.Address))
+                                    try
                                     {
-                                        IPv6Clients.Add(uni.Address, NewClient(uni.Address, 0));
+                                        if (uni.Address.AddressFamily != AddressFamily.InterNetworkV6)
+                                            continue;
+
+                                        //Only use LinkLocal or LocalHost addresses
+                                        if (!uni.Address.IsIPv6LinkLocal && uni.Address != IPAddress.Parse("::1"))
+                                            continue;
+
+                                        try
+                                        {
+                                            if (!IPv6Clients.ContainsKey(uni.Address))
+                                            {
+                                                IPv6Clients.Add(uni.Address, NewClient(uni.Address, 0));
+                                            }
+
+                                            IPv6Clients[uni.Address].Send(Constants.DiscoveryMessageArray, Constants.DiscoveryMessageArray.Length, new IPEndPoint(IPAddress.Parse(Constants.MulticastGroup), Constants.DiscoveryPort));
+                                        }
+                                        catch (SocketException)
+                                        {
+                                        }
                                     }
-
-                                    IPv6Clients[uni.Address].Send(Constants.DiscoveryMessageArray, Constants.DiscoveryMessageArray.Length, new IPEndPoint(IPAddress.Parse(Constants.MulticastGroup), Constants.DiscoveryPort));
-                                }
-                                catch (SocketException)
-                                {
-
+                                    catch (Exception ex)
+                                    {
+                                        ASCOM.Standard.Utilities.Logger.LogError(ex.Message);
+                                    }
                                 }
                             }
                         }
+                    }
+                    catch (Exception ex)
+                    {
+                        ASCOM.Standard.Utilities.Logger.LogError(ex.Message);
                     }
                 }
             }
             else
             {
-                if(!IPv6Clients.ContainsKey(IPAddress.IPv6Any))
+                if (!IPv6Clients.ContainsKey(IPAddress.IPv6Any))
                 {
                     IPv6Clients.Add(IPAddress.IPv6Any, NewClient(IPAddress.IPv6Any, 0));
                 }
@@ -208,7 +233,7 @@ namespace ASCOM.Standard.Discovery
                 {
                     var port = JsonSerializer.Deserialize<Response>(ReceiveString).AlpacaPort;
 
-                    if(port == 0) //Failed to parse
+                    if (port == 0) //Failed to parse
                     {
                         throw new Exception($"Failed to parse {ReceiveString} into an Alpaca Port");
                     }
@@ -261,11 +286,10 @@ namespace ASCOM.Standard.Discovery
                     }
                     catch
                     {
-
                     }
 
                     //Dispose IPv6 clients
-                    foreach(var dev in IPv6Clients)
+                    foreach (var dev in IPv6Clients)
                     {
                         try
                         {
@@ -273,7 +297,6 @@ namespace ASCOM.Standard.Discovery
                         }
                         catch
                         {
-
                         }
                     }
 

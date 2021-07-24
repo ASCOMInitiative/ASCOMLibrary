@@ -119,31 +119,45 @@ namespace ASCOM.Standard.Discovery
 
                 foreach (var adapter in adapters)
                 {
-                    if (adapter.OperationalStatus != OperationalStatus.Up)
-                        continue;
-
-                    if (adapter.Supports(NetworkInterfaceComponent.IPv6) && adapter.SupportsMulticast)
+                    try
                     {
-                        IPInterfaceProperties adapterProperties = adapter.GetIPProperties();
-                        if (adapterProperties == null)
+                        if (adapter.OperationalStatus != OperationalStatus.Up)
                             continue;
 
-                        UnicastIPAddressInformationCollection uniCast = adapterProperties.UnicastAddresses;
-
-                        if (uniCast.Count > 0)
+                        if (adapter.Supports(NetworkInterfaceComponent.IPv6) && adapter.SupportsMulticast)
                         {
-                            foreach (UnicastIPAddressInformation uni in uniCast)
+                            IPInterfaceProperties adapterProperties = adapter.GetIPProperties();
+                            if (adapterProperties == null)
+                                continue;
+
+                            UnicastIPAddressInformationCollection uniCast = adapterProperties.UnicastAddresses;
+
+                            if (uniCast.Count > 0)
                             {
-                                if (uni.Address.AddressFamily != AddressFamily.InterNetworkV6)
-                                    continue;
+                                foreach (UnicastIPAddressInformation uni in uniCast)
+                                {
+                                    try
+                                    {
+                                        if (uni.Address.AddressFamily != AddressFamily.InterNetworkV6)
+                                            continue;
 
-                                //Only use LinkLocal or LocalHost addresses
-                                if (!uni.Address.IsIPv6LinkLocal && uni.Address != IPAddress.Parse("::1"))
-                                    continue;
+                                        //Only use LinkLocal or LocalHost addresses
+                                        if (!uni.Address.IsIPv6LinkLocal && uni.Address != IPAddress.Parse("::1"))
+                                            continue;
 
-                                Clients.Add(NewClient(uni.Address, adapterProperties.GetIPv6Properties().Index));
+                                        Clients.Add(NewClient(uni.Address, adapterProperties.GetIPv6Properties().Index));
+                                    }
+                                    catch
+                                    {
+                                        //May not have permission to access a specific socket or address
+                                    }
+                                }
                             }
                         }
+                    }
+                    catch
+                    {
+                        //May not have permission to access a specific socket or address
                     }
                 }
             }
