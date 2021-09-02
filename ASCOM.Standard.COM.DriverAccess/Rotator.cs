@@ -71,17 +71,14 @@ namespace ASCOM.Standard.COM.DriverAccess
 
         public float StepSize => base.Device.StepSize;
 
-        public float TargetPosition => base.Device.StepSize;
+        public float TargetPosition => base.Device.TargetPosition;
 
         public float MechanicalPosition
         {
             get
             {
-                if (InterfaceVersion > 2)
-                {
-                    return base.Device.MechanicalPosition;
-                }
-                return base.Device.Position;
+                AssertMethodImplemented(3, "MechanicalPosition is not implemented because the driver is IRotatorV2 or earlier.");
+                return base.Device.MechanicalPosition;
             }
         }
 
@@ -102,20 +99,14 @@ namespace ASCOM.Standard.COM.DriverAccess
 
         public void MoveMechanical(float Position)
         {
-            if (InterfaceVersion > 2)
-            {
-                base.Device.MoveMechanical(Position);
-            }
-            throw new MethodNotImplementedException("MoveMechanical", "MoveMechanical is not implemented because the driver is IRotatorV2 or earlier.");
+            AssertMethodImplemented(3, "MoveMechanical is not implemented because the driver is IRotatorV2 or earlier.");
+            base.Device.MoveMechanical(Position);
         }
 
         public void Sync(float Position)
         {
-            if (InterfaceVersion > 2)
-            {
-                base.Device.MoveMechanical(Position);
-            }
-            throw new MethodNotImplementedException("Sync", "Sync is not implemented because the driver is IRotatorV2 or earlier.");
+            AssertMethodImplemented(3, "Sync is not implemented because the driver is IRotatorV2 or earlier.");
+            base.Device.Sync(Position);
         }
     }
 }
