@@ -29,11 +29,13 @@ namespace ASCOM.Standard.Utilities
         private const int MAXIMUM_UNIQUE_SUFFIX_ATTEMPTS = 20;
 
         // Path and file name constants for auto generated paths and file names
-        private const string AUTO_FILE_NAME_TEMPLATE = "ASCOM.{0}.{1:HHmm.ssfff}{2}.txt"; // Auto generated file name template
-        private const string AUTO_PATH_BASE_DIRECTORY = "ASCOM"; // Primary logging directory off the users's Documents (Windows) or HOME directory (Linux)
+        private const string AUTO_FILE_NAME_TEMPLATE_WINDOWS = "ASCOM.{0}.{1:HHmm.ssfff}{2}.txt"; // Auto generated file name template
+        private const string AUTO_FILE_NAME_TEMPLATE_LINUX = "ascom.{0}.{1:HHmm.ssfff}{2}.txt"; // Auto generated file name template
+        private const string AUTO_PATH_BASE_DIRECTORY_WINDOWS = "ASCOM"; // Primary logging directory off the users's Documents (Windows) or HOME directory (Linux)
+        private const string AUTO_PATH_BASE_DIRECTORY_LINUX = "ascom"; // Primary logging directory off the users's Documents (Windows) or HOME directory (Linux)
         private const string AUTO_PATH_WINDOWS_SYSTEM_USER_BASE_DIRECTORY = @"ASCOM\SystemLogs"; // Primary logging directory for the System account
-        private const string AUTO_PATH_WINDOWS_DIRECTORY_TEMPLATE = "Logs {0:yyyy-MM-dd}"; // Sub directory template on Windows 
-        private const string AUTO_PATH_LINUX_DIRECTORY_TEMPLATE = "Logs{0:yyyy-MM-dd}"; // Sub directory template on Linux
+        private const string AUTO_PATH_DIRECTORY_TEMPLATE_WINDOWS = "Logs {0:yyyy-MM-dd}"; // Sub directory template on Windows 
+        private const string AUTO_PATH_DIRECTORY_TEMPLATE_LINUX = "logs{0:yyyy-MM-dd}"; // Sub directory template on Linux - lower case with no space between logs and date
 
         // Default value constants
         private const bool USE_UTC_DEFAULT = false;
@@ -327,16 +329,16 @@ namespace ASCOM.Standard.Utilities
                     {
                         if (!string.IsNullOrEmpty(Environment.GetFolderPath(Environment.SpecialFolder.Personal))) // This is a normaL "User" account
                         {
-                            LogFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), AUTO_PATH_BASE_DIRECTORY, string.Format(AUTO_PATH_WINDOWS_DIRECTORY_TEMPLATE, DateTimeNow()));
+                            LogFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), AUTO_PATH_BASE_DIRECTORY_WINDOWS, string.Format(AUTO_PATH_DIRECTORY_TEMPLATE_WINDOWS, DateTimeNow()));
                         }
                         else // This is the "System" account, which does not have a personal documents directory so put log files in the 
                         {
-                            LogFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), AUTO_PATH_WINDOWS_SYSTEM_USER_BASE_DIRECTORY, string.Format(AUTO_PATH_WINDOWS_DIRECTORY_TEMPLATE, DateTimeNow()));
+                            LogFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), AUTO_PATH_WINDOWS_SYSTEM_USER_BASE_DIRECTORY, string.Format(AUTO_PATH_DIRECTORY_TEMPLATE_WINDOWS, DateTimeNow()));
                         }
                     }
                     else // We are running on a non-Windows OS
                     {
-                        LogFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), AUTO_PATH_BASE_DIRECTORY, string.Format(AUTO_PATH_LINUX_DIRECTORY_TEMPLATE, DateTimeNow())); ; // No space after Logs because UNIX systems don't like space characters in paths
+                        LogFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), AUTO_PATH_BASE_DIRECTORY_LINUX, string.Format(AUTO_PATH_DIRECTORY_TEMPLATE_LINUX, DateTimeNow())); ; // No space after Logs because UNIX systems don't like space characters in paths
                     }
                 }
                 else // We need to use the supplied log file path, which is already in the LogFilePath property
@@ -367,7 +369,7 @@ namespace ASCOM.Standard.Utilities
                     // Create a unique log file name based on date, time and required name by incrementing an arbitrary final suffixed count value
                     do
                     {
-                        LogFileName = string.Format(AUTO_FILE_NAME_TEMPLATE, logFileType, DateTimeNow(), logFileSuffixInteger);
+                        LogFileName = string.Format(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? AUTO_FILE_NAME_TEMPLATE_WINDOWS : AUTO_FILE_NAME_TEMPLATE_LINUX, logFileType, DateTimeNow(), logFileSuffixInteger);
                         checked { ++logFileSuffixInteger; } // Increment the counter to ensure that no log file can have the same name as any other
                     }
                     while (File.Exists(Path.Combine(LogFilePath, LogFileName)) & (logFileSuffixInteger <= MAXIMUM_UNIQUE_SUFFIX_ATTEMPTS)); // Loop until the generated file name does not exist or we hit the maximum number of attempts
