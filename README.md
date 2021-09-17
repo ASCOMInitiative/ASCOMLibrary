@@ -5,9 +5,9 @@ See https://www.ascom-standards.org/Developer/Alpaca.htm for further information
 
 # Projects
 * ASCOM.Compatibility.Utilities - This project allows the current ASCOM Platform profile and TraceLogger to be used with the new ILogger and IProfile interfaces.
-* ASCOM.Standard.Discovery - An implementation of the Alpaca Discovery Protocol for .Net. Currently only discovery server, no client. This has enhancements including disposability and some enhancements to improve limiting responses.
+* ASCOM.Standard.COM.DriverAccess - Driver Access for ASCOM COM drivers. This converts the API for devices into the ASCOM Standard API.
 * ASCOM.Standard.Types - The types, interfaces and enums for the ASCOM Standard library.
-* ASCOM.Standard.Utilities - Cross-platform utility code to help create drivers and clients in the Alpaca world. This includes logging, settings storage and transforms.
+* ASCOM.Standard.Utilities - Cross-platform utility code to help create drivers and clients in the Alpaca world. This includes logging, settings storage, discovery and transforms.
 * ASCOMStandard.Tests - A test project.
 
 # ToDo
