@@ -17,14 +17,63 @@ namespace ASCOM.Standard.Utilities
 
         private List<SettingsPair> Settings = new List<SettingsPair>();
 
+        private static string FileName
+        {
+            get
+            {
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    return "Instance";
+                }
+                else
+                {
+                    //Lowercase on *nix
+                    return "instance";
+                }
+            }
+        }
+
+        public static string AlpacaDataPath
+        {
+            get
+            {
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    return Path.Combine(ApplicationDataPath, "Alpaca/");
+                }
+                else
+                {
+                    //Lowercase on *nix
+                    return Path.Combine(ApplicationDataPath, "alpaca/");
+                }
+            }
+        }
+
+        public static string ApplicationDataPath
+        {
+            get
+            {
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    // Store in USER/.ASCOM
+                    return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".ASCOM");
+                }
+                else
+                {
+                    // Store in $HOME/.config/ascom
+                    return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "ascom");
+                }
+            }
+        }
+
         /// <summary>
-        /// Creates an XML profile, loading what exists at the path. This is Home or Documents /ASCOM/Alpaca/{driverID}/{deviceType}/v1/Instance-{deviceID}.xml 
+        /// Creates an XML profile, loading what exists at the path. This is Home or Documents /ASCOM/Alpaca/{driverID}/{deviceType}/v1/Instance-{deviceID}.xml or /ascom/alpaca/{driverID}/{deviceType}/v1/instance-{deviceID}.xml
         /// It is not recommended to access the same file from two different instances of this Profile at the same time 
         /// </summary>
         /// <param name="driverID">A unique name for your driver. Must be allowed to be in the path.</param>
         /// <param name="deviceType">The ASCOM / Alpaca device type IE focuser, camera, telescope, etc.  Must be allowed to be in the path.</param>
         /// <param name="deviceNumber">The Alpaca device number. Defaults to 0 for drivers with only one device.</param>
-        public XMLProfile(string driverID, string deviceType, uint deviceNumber = 0) : this(Path.Combine(AlpacaDataPath, driverID, deviceType, SettingsVersion, string.Format("Instance-{0}.xml", deviceNumber)))
+        public XMLProfile(string driverID, string deviceType, uint deviceNumber = 0) : this(Path.Combine(AlpacaDataPath, driverID, deviceType, SettingsVersion, $"{FileName}-{deviceNumber}.xml" ))
         {
         }
 
@@ -72,31 +121,6 @@ namespace ASCOM.Standard.Utilities
             else //Settings do not exist, create a new file
             {
                 SerializeObject(Settings.ToList(), FilePath);
-            }
-        }
-
-        public static string AlpacaDataPath
-        {
-            get
-            {
-                return Path.Combine(ApplicationDataPath, "Alpaca/");
-            }
-        }
-
-        public static string ApplicationDataPath
-        {
-            get
-            {
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                {
-                    // Store in USER/.ASCOM
-                    return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".ASCOM");
-                }
-                else
-                {
-                    // Store in $HOME/.config/ASCOM
-                    return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "ASCOM");
-                }
             }
         }
 
