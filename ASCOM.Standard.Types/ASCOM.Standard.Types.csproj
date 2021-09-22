@@ -12,6 +12,7 @@
     <Description>The essential Interfaces, Enums and Responses for the ASCOM Alpaca projects.</Description>
     <PackageProjectUrl>https://ascom-standards.org/</PackageProjectUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>1.0.0-alpha18b</Version>
   </PropertyGroup>
 
 </Project>

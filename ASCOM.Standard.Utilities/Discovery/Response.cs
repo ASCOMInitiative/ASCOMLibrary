@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace ASCOM.Standard.Discovery
+﻿namespace ASCOM.Standard.Discovery
 {
     public class Response
     {
         /// <summary>
-        /// Lowercase for serializer
+        /// Lower-case for serialiser
         /// </summary>
         public int AlpacaPort
         { 
