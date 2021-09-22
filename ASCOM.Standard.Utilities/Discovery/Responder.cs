@@ -17,7 +17,7 @@ namespace ASCOM.Standard.Discovery
 
         private readonly int DiscoveryPort = Constants.DiscoveryPort;
 
-        private List<UdpClient> Clients = new List<UdpClient>();
+        private readonly List<UdpClient> Clients = new List<UdpClient>();
 
         public bool AllowRemoteAccess
         {
