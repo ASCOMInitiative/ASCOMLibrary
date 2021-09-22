@@ -9,6 +9,7 @@ using System.Text.Json;
 using System.Threading;
 using ASCOM.Standard.Utilities;
 using ASCOM.Alpaca.Responses;
+using ASCOM.Standard.Interfaces;
 
 namespace ASCOM.Standard.Discovery
 {
@@ -605,15 +606,7 @@ namespace ASCOM.Standard.Discovery
         /// <param name="message"></param>
         private void LogMessage(string methodName, string message)
         {
-            string indentSpaces;
-
-            // Create the required number of space characters for indented logging based on the managed thread number
-            indentSpaces = new string(' ', Thread.CurrentThread.ManagedThreadId * Constants.NUMBER_OF_THREAD_MESSAGE_INDENT_SPACES);
-
-            // Log the message so long as the trace logger is not null
-            // TL?.LogMessage($"AlpacaDiscovery - {methodName}", ,$"{indentSpaces}{Thread.CurrentThread.ManagedThreadId} {message}");
-            TL?.Log(ASCOM.Standard.Interfaces.LogLevel.Information, $"AlpacaDiscovery - {methodName} {indentSpaces}{Thread.CurrentThread.ManagedThreadId} {message}");
-
+            TL?.Log(LogLevel.Information, $"AlpacaDiscovery - {methodName} - {Thread.CurrentThread.ManagedThreadId,2} {message}");
         }
 
         /// <summary>
