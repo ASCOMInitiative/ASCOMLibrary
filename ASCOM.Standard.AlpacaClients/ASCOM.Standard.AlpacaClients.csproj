@@ -1,0 +1,50 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<OutputType>Library</OutputType>
+		<TargetFramework>netstandard2.0</TargetFramework>
+		<ApplicationIcon />
+		<StartupObject />
+		<RootNamespace>ASCOM.Standard.AlpacaClients</RootNamespace>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<Authors>Peter Simpson</Authors>
+		<Company>ASCOM Initiative</Company>
+		<Description>Present ASCOM Alpaca devices as ASCOM device interface objects.</Description>
+		<PackageLicenseExpression></PackageLicenseExpression>
+		<PackageIcon>ASCOM Alpaca.png</PackageIcon>
+		<PackageIconUrl />
+		<PackageReleaseNotes>Initial release supporting all device types except Video and targeting .NET Standard 2.0.</PackageReleaseNotes>
+		<AssemblyVersion>1.0.0.0</AssemblyVersion>
+		<PackageId>ASCOM.Standard.AlpacaClients</PackageId>
+		<RepositoryUrl>https://www.myget.org/F/ascom-initiative/api/v3/index.json</RepositoryUrl>
+		<SignAssembly>true</SignAssembly>
+		<AssemblyOriginatorKeyFile>AlpacaClients.snk</AssemblyOriginatorKeyFile>
+		<DelaySign>false</DelaySign>
+		<IncludeSymbols>true</IncludeSymbols>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<DebugType>portable</DebugType>
+		<DebugSymbols>true</DebugSymbols>
+
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="ASCOM.Exceptions" Version="6.5.1" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+		<PackageReference Include="RestSharp" Version="106.12.0" />
+		<PackageReference Include="System.Text.Json" Version="4.7.2" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\ASCOM.Standard.Types\ASCOM.Standard.Types.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Include="ASCOM Alpaca.png">
+	    <Pack>True</Pack>
+	    <PackagePath></PackagePath>
+	  </None>
+	</ItemGroup>
+
+</Project>
