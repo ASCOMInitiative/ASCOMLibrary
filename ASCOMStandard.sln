@@ -13,6 +13,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASCOM.Compatibility.Utiliti
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASCOM.Standard.COM.DriverAccess", "ASCOM.Standard.COM.DriverAccess\ASCOM.Standard.COM.DriverAccess.csproj", "{15505B99-58E8-4CA7-87B0-BEDF9F2FF990}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASCOM.Standard.AlpacaClients", "ASCOM.Standard.AlpacaClients\ASCOM.Standard.AlpacaClients.csproj", "{777AE5B4-4DF7-4382-9461-7A1A0D8C49D4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -61,6 +63,14 @@ Global
 		{15505B99-58E8-4CA7-87B0-BEDF9F2FF990}.Release|Any CPU.Build.0 = Release|Any CPU
 		{15505B99-58E8-4CA7-87B0-BEDF9F2FF990}.Release|x86.ActiveCfg = Release|Any CPU
 		{15505B99-58E8-4CA7-87B0-BEDF9F2FF990}.Release|x86.Build.0 = Release|Any CPU
+		{777AE5B4-4DF7-4382-9461-7A1A0D8C49D4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{777AE5B4-4DF7-4382-9461-7A1A0D8C49D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{777AE5B4-4DF7-4382-9461-7A1A0D8C49D4}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{777AE5B4-4DF7-4382-9461-7A1A0D8C49D4}.Debug|x86.Build.0 = Debug|Any CPU
+		{777AE5B4-4DF7-4382-9461-7A1A0D8C49D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{777AE5B4-4DF7-4382-9461-7A1A0D8C49D4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{777AE5B4-4DF7-4382-9461-7A1A0D8C49D4}.Release|x86.ActiveCfg = Release|Any CPU
+		{777AE5B4-4DF7-4382-9461-7A1A0D8C49D4}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
