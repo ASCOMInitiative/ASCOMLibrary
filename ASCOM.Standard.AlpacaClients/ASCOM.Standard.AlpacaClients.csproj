@@ -20,7 +20,6 @@
 		<SignAssembly>true</SignAssembly>
 		<AssemblyOriginatorKeyFile>AlpacaClients.snk</AssemblyOriginatorKeyFile>
 		<DelaySign>false</DelaySign>
-		<IncludeSymbols>true</IncludeSymbols>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

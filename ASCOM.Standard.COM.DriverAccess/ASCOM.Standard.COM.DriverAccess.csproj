@@ -6,7 +6,6 @@
 		<Description>A .Net Standard library for accessing ASCOM COM based drivers on Windows platforms.</Description>
 		<Copyright>Copyright 2021</Copyright>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-		<IncludeSymbols>true</IncludeSymbols>
 	</PropertyGroup>
 
 	<ItemGroup>

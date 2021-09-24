@@ -1,27 +1,27 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net472</TargetFramework>
-    <RootNamespace>ASCOM.Compatibility.Utilities</RootNamespace>
-    <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>..\AlpacaSigningKey.snk</AssemblyOriginatorKeyFile>
-    <Copyright>ASCOM Initiative (c) 2020</Copyright>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <Authors>ASCOM Initiative</Authors>
-    <Product>ASCOM Compatibility Utilities</Product>
-    <Description>This wraps the ASCOM Utilities so they expose the equivalent ASCOM Standard types.</Description>
-    <PackageProjectUrl>https://ascom-standards.org/</PackageProjectUrl>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net472</TargetFramework>
+		<RootNamespace>ASCOM.Compatibility.Utilities</RootNamespace>
+		<SignAssembly>true</SignAssembly>
+		<AssemblyOriginatorKeyFile>..\AlpacaSigningKey.snk</AssemblyOriginatorKeyFile>
+		<Copyright>ASCOM Initiative (c) 2020</Copyright>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<Authors>ASCOM Initiative</Authors>
+		<Product>ASCOM Compatibility Utilities</Product>
+		<Description>This wraps the ASCOM Utilities so they expose the equivalent ASCOM Standard types.</Description>
+		<PackageProjectUrl>https://ascom-standards.org/</PackageProjectUrl>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\ASCOM.Standard.Types\ASCOM.Standard.Types.csproj" />
-  </ItemGroup>
-  
-  <ItemGroup>
-	<Reference Include="ASCOM.Utilities, Version=6.0.0.0, Culture=neutral, PublicKeyToken=565de7938946fba7, processorArchitecture=MSIL">
-      <HintPath>C:\Program Files (x86)\ASCOM\Platform 6 Developer Components\Components\Platform6\ASCOM.Utilities.dll</HintPath>
-    </Reference>
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\ASCOM.Standard.Types\ASCOM.Standard.Types.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Reference Include="ASCOM.Utilities, Version=6.0.0.0, Culture=neutral, PublicKeyToken=565de7938946fba7, processorArchitecture=MSIL">
+			<HintPath>C:\Program Files (x86)\ASCOM\Platform 6 Developer Components\Components\Platform6\ASCOM.Utilities.dll</HintPath>
+		</Reference>
+	</ItemGroup>
 
 </Project>
