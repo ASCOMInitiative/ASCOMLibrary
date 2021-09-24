@@ -782,7 +782,7 @@ namespace ASCOM.Standard.AlpacaClients
                                 int i = 0;
                                 foreach (DriveRate rate in trackingRatesResponse.Value)
                                 {
-                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Rate: {rate.ToString()}");
+                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Rate: {rate}");
                                     ratesArray[i] = rate;
                                     i++;
                                 }
@@ -1136,20 +1136,20 @@ namespace ASCOM.Standard.AlpacaClients
                         // HANDLE COM EXCEPTIONS THROWN BY WINDOWS BASED DRIVERS RUNNING IN THE REMOTE DEVICE
                         if (restResponseBase.DriverException != null)
                         {
-                            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Exception Message: \"{restResponseBase.ErrorMessage}\", Exception Number: 0x{((int)restResponseBase.ErrorNumber).ToString("X8")}");
+                            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Exception Message: \"{restResponseBase.ErrorMessage}\", Exception Number: 0x{(int)restResponseBase.ErrorNumber:X8}");
                             throw restResponseBase.DriverException;
                         }
 
                         // HANDLE ERRORS REPORTED BY ALPACA DEVICES THAT USE THE ERROR NUMBER AND ERROR MESSAGE FIELDS
                         if ((restResponseBase.ErrorMessage != "") || (restResponseBase.ErrorNumber != 0))
                         {
-                            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Received an Alpaca error - ErrorMessage: \"{restResponseBase.ErrorMessage}\", ErrorNumber: 0x{((int)restResponseBase.ErrorNumber).ToString("X8")}");
+                            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Received an Alpaca error - ErrorMessage: \"{restResponseBase.ErrorMessage}\", ErrorNumber: 0x{(int)restResponseBase.ErrorNumber:X8}");
 
                             // Handle ASCOM Alpaca reserved error numbers between 0x400 and 0xFFF by translating these to the COM HResult error number range: 0x80040400 to 0x80040FFF and throwing the translated value as an exception
                             if ((restResponseBase.ErrorNumber >= Alpaca.ErrorCodes.AlpacaErrorCodeBase) & (restResponseBase.ErrorNumber <= Alpaca.ErrorCodes.AlpacaErrorCodeMax)) // This error is within the ASCOM Alpaca reserved error number range
                             {
                                 // Calculate the equivalent COM HResult error number from the supplied Alpaca error number so that comparison can be made with the original ASCOM COM exception HResult numbers that Windows clients expect in their exceptions
-                                int ascomCOMErrorNumber = (int)(restResponseBase.ErrorNumber + (int)Alpaca.ComErrorCodes.ComErrorNumberOffset);
+                                int ascomCOMErrorNumber = (int)(restResponseBase.ErrorNumber + (int)ComErrorCodes.ComErrorNumberOffset);
                                 AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Received Alpaca error code: {restResponseBase.ErrorNumber} (0x{(int)restResponseBase.ErrorNumber:X4}), the equivalent COM error HResult error code is {ascomCOMErrorNumber} (0x{ascomCOMErrorNumber:X8})");
 
                                 // Now check whether the COM HResult matches any of the built-in ASCOM exception types. If so, we throw that exception type otherwise we throw a generic DriverException
@@ -1227,7 +1227,7 @@ namespace ASCOM.Standard.AlpacaClients
                         }
                         else
                         {
-                            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method + " Error", $"RestRequest response status: {deviceJsonResponse.ResponseStatus.ToString()}, HTTP response code: {deviceJsonResponse.StatusCode}, HTTP response description: {deviceJsonResponse.StatusDescription}");
+                            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method + " Error", $"RestRequest response status: {deviceJsonResponse.ResponseStatus}, HTTP response code: {deviceJsonResponse.StatusCode}, HTTP response description: {deviceJsonResponse.StatusDescription}");
                             throw new DriverException($"Error calling method: {method}, HTTP Completion Status: {deviceJsonResponse.ResponseStatus}, Error Message:\r\n{deviceJsonResponse.Content}");
                         }
                     }
