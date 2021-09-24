@@ -5,10 +5,10 @@ namespace ASCOM.Standard.Discovery
 {
 
     /// <summary>
-/// Define the state object for the callback. 
-/// Use hostName to correlate calls with the proper result.
-/// </summary>
-    internal class DnsResponse
+    /// Define the state object for the callback. 
+    /// Use hostName to correlate calls with the proper result.
+    /// </summary>
+    public class DnsResponse
     {
         private IPHostEntry f_IpHostEntry;
 
