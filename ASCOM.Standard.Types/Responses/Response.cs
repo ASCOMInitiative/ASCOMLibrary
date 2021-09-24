@@ -1,4 +1,5 @@
 ﻿using ASCOM.Standard;
+using System;
 
 namespace ASCOM.Alpaca.Responses
 {
@@ -10,6 +11,8 @@ namespace ASCOM.Alpaca.Responses
     /// </remarks>
     public class Response : IResponse
     {
+        private Exception exception;
+
         /// <summary>
         /// Client's transaction ID (0 to 4294967295), as supplied by the client in the command request.
         /// </summary>
@@ -32,5 +35,35 @@ namespace ASCOM.Alpaca.Responses
         /// a non zero <see cref="ErrorNumber"/> must also be returned.
         /// </summary>
         public string ErrorMessage { get; set; } = "";
+
+        /// <summary>
+        /// Optional field for Windows drivers to return an exception to the client application.
+        /// </summary>
+        /// <remarks>Populating this automatically sets the ErrorMessage and ErrorNumber fields; COM errors in the range 0x80040400 to 0x8040FFF are translated to equivalent Alpaca error numbers in the range 0x400 to 0xFFF.</remarks>
+        public Exception DriverException
+        {
+            get
+            {
+                return exception;
+            }
+            set
+            {
+                exception = value;
+                if (exception != null)
+                {
+                    // Set the error number and message fields from the exception
+                    ErrorMessage = exception.Message;
+
+                    // Convert ASCOM exception error numbers (0x80040400 - 0x80040FFF) to equivalent Alpaca error numbers (0x400 to 0xFFF) so that they will be interpreted correctly by native Alpaca clients
+                    if ((exception.HResult >= (int)ComErrorCodes.ComErrorNumberBase) && (exception.HResult <= (int)ComErrorCodes.ComErrorNumberMax))
+                        ErrorNumber = (ErrorCodes)(exception.HResult - (int)ComErrorCodes.ComErrorNumberOffset);
+                    else // Return unspecified error
+                        ErrorNumber = ErrorCodes.UnspecifiedError;
+
+                }
+            }
+        }
+
+
     }
 }
