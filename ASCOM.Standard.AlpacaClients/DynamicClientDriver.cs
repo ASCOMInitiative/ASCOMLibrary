@@ -1136,7 +1136,7 @@ namespace ASCOM.Standard.AlpacaClients
                         // HANDLE COM EXCEPTIONS THROWN BY WINDOWS BASED DRIVERS RUNNING IN THE REMOTE DEVICE
                         if (restResponseBase.DriverException != null)
                         {
-                            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Exception Message: \"{restResponseBase.ErrorMessage}\", Exception Number: 0x{(int)restResponseBase.ErrorNumber:X8}");
+                            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Exception Message: \"{restResponseBase.ErrorMessage}\", Exception Number: 0x{restResponseBase.DriverException.HResult:X8}");
                             throw restResponseBase.DriverException;
                         }
 
