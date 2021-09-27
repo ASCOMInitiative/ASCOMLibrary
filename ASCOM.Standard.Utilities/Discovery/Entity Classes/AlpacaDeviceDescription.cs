@@ -1,4 +1,4 @@
-﻿namespace ASCOM.Alpaca.Responses
+﻿namespace ASCOM.Standard.Discovery
 {
     /// <summary>
     /// Returns cross-cutting information that applies to all devices available at this URL:Port.

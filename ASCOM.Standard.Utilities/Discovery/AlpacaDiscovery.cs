@@ -10,6 +10,7 @@ using System.Threading;
 using ASCOM.Standard.Utilities;
 using ASCOM.Alpaca.Responses;
 using ASCOM.Standard.Interfaces;
+using System.Threading.Tasks;
 
 namespace ASCOM.Standard.Discovery
 {
@@ -326,8 +327,10 @@ namespace ASCOM.Standard.Discovery
             {
                 httpClient.Dispose();
             }
-            httpClient = new HttpClient();
-            httpClient.Timeout = TimeSpan.FromSeconds(discoveryDuration);
+            httpClient = new HttpClient
+            {
+                Timeout = TimeSpan.FromSeconds(discoveryDuration)
+            };
 
             // Send the broadcast polls
             for (int i = 1, loopTo = numberOfPolls; i <= loopTo; i++)
@@ -502,6 +505,14 @@ namespace ASCOM.Standard.Discovery
 
                 LogMessage("GetAlpacaDeviceInformation", $"COMPLETED API tasks for {hostIpAndPort}");
             }
+            catch (TaskCanceledException)
+            {
+                LogMessage("GetAlpacaDeviceInformation", $"Task cancelled while getting information from {hostIpAndPort}");
+            }
+            catch (TimeoutException)
+            {
+                LogMessage("GetAlpacaDeviceInformation", $"Timed out getting information from {hostIpAndPort}");
+            }
             catch (Exception ex)
             {
                 // Something went wrong so log the issue and sent a message to the user
@@ -521,64 +532,77 @@ namespace ASCOM.Standard.Discovery
         /// If this returns an answer it is use. Otherwise the IP address is returned as the host name</remarks>
         private void ResolveIpAddressToHostName(object deviceIpEndPointObject)
         {
-            IPEndPoint deviceIpEndPoint = deviceIpEndPointObject as IPEndPoint; // Get the supplied device endpoint as an IPEndPoint
-
-            // test whether the cast was successful
-            if (deviceIpEndPoint is object) // The cast was successful so we can try to search for the host name
+            IPEndPoint deviceIpEndPoint = null;
+            try
             {
-                var dnsResponse = new DnsResponse(); // Create a new DnsResponse to hold and return the 
+                deviceIpEndPoint = deviceIpEndPointObject as IPEndPoint; // Get the supplied device endpoint as an IPEndPoint
 
-                // Calculate the remaining time before this discovery needs to finish and only undertake DNS resolution if sufficient time remains
-                var timeOutTime = TimeSpan.FromSeconds(discoveryTime).Subtract(DateTime.Now - discoveryStartTime).Subtract(TimeSpan.FromSeconds(0.2d));
-                if (timeOutTime.TotalSeconds > Constants.MINIMUM_TIME_REMAINING_TO_UNDERTAKE_DNS_RESOLUTION) // We have more than the configured time left so we will attempt a reverse DNS name resolution
+                // test whether the cast was successful
+                if (deviceIpEndPoint is object) // The cast was successful so we can try to search for the host name
                 {
-                    LogMessage("ResolveIpAddressToHostName", $"Resolving IP address: {deviceIpEndPoint.Address}, Timeout: {timeOutTime}");
-                    Dns.BeginGetHostEntry(deviceIpEndPoint.Address.ToString(), new AsyncCallback(GetHostEntryCallback), dnsResponse);
+                    var dnsResponse = new DnsResponse(); // Create a new DnsResponse to hold and return the 
 
-                    // Wait here until the resolve completes and the callback calls .Set()
-                    bool dnsWasResolved = dnsResponse.CallComplete.WaitOne(timeOutTime); // Wait for the remaining discovery time
-
-                    // Execution continues here after either a DNS response is found or the request times out
-                    if (dnsWasResolved) // A response was received rather than timing out
+                    // Calculate the remaining time before this discovery needs to finish and only undertake DNS resolution if sufficient time remains
+                    var timeOutTime = TimeSpan.FromSeconds(discoveryTime).Subtract(DateTime.Now - discoveryStartTime).Subtract(TimeSpan.FromSeconds(0.2d));
+                    if (timeOutTime.TotalSeconds > Constants.MINIMUM_TIME_REMAINING_TO_UNDERTAKE_DNS_RESOLUTION) // We have more than the configured time left so we will attempt a reverse DNS name resolution
                     {
-                        LogMessage("ResolveIpAddressToHostName", $"{deviceIpEndPoint} has host name: {dnsResponse.HostName} IP address count: {dnsResponse.AddressList.Length} Alias count: {dnsResponse.Aliases.Length}");
-                        foreach (IPAddress address in dnsResponse.AddressList)
-                            LogMessage("ResolveIpAddressToHostName", $"  Received {address.AddressFamily} address: {address}");
-                        foreach (string hostAlias in dnsResponse.Aliases)
-                            LogMessage("ResolveIpAddressToHostName", $"  Received alias: {hostAlias}");
-                        if (dnsResponse.AddressList.Length > 0) // We got a reply that contains host addresses so there may be a valid host name
+                        LogMessage("ResolveIpAddressToHostName", $"Resolving IP address: {deviceIpEndPoint.Address}, Timeout: {timeOutTime}");
+                        Dns.BeginGetHostEntry(deviceIpEndPoint.Address.ToString(), new AsyncCallback(GetHostEntryCallback), dnsResponse);
+
+                        // Wait here until the resolve completes and the callback calls .Set()
+                        bool dnsWasResolved = dnsResponse.CallComplete.WaitOne(timeOutTime); // Wait for the remaining discovery time
+
+                        // Execution continues here after either a DNS response is found or the request times out
+                        if (dnsWasResolved) // A response was received rather than timing out
                         {
-                            lock (deviceListLockObject)
+                            LogMessage("ResolveIpAddressToHostName", $"{deviceIpEndPoint} has host name: {dnsResponse.HostName} IP address count: {dnsResponse.AddressList.Length} Alias count: {dnsResponse.Aliases.Length}");
+                            foreach (IPAddress address in dnsResponse.AddressList)
+                                LogMessage("ResolveIpAddressToHostName", $"  Received {address.AddressFamily} address: {address}");
+                            foreach (string hostAlias in dnsResponse.Aliases)
+                                LogMessage("ResolveIpAddressToHostName", $"  Received alias: {hostAlias}");
+                            if (dnsResponse.AddressList.Length > 0) // We got a reply that contains host addresses so there may be a valid host name
                             {
-                                if (!string.IsNullOrEmpty(dnsResponse.HostName))
-                                    alpacaDeviceList[deviceIpEndPoint].HostName = dnsResponse.HostName;
+                                lock (deviceListLockObject)
+                                {
+                                    if (!string.IsNullOrEmpty(dnsResponse.HostName))
+                                        alpacaDeviceList[deviceIpEndPoint].HostName = dnsResponse.HostName;
+                                }
+
+                                RaiseAnAlpacaDevicesChangedEvent(); // Device list was changed so set the changed flag
+                            }
+                            else
+                            {
+                                LogMessage("ResolveIpAddressToHostName", $"***** DNS responded with a name ({dnsResponse.HostName}) but this has no associated IP addresses and is probably a NETBIOS name *****");
                             }
 
-                            RaiseAnAlpacaDevicesChangedEvent(); // Device list was changed so set the changed flag
+                            foreach (IPAddress address in dnsResponse.AddressList)
+                                LogMessage("ResolveIpAddressToHostName", $"Address: {address}");
+                            foreach (string alias in dnsResponse.Aliases)
+                                LogMessage("ResolveIpAddressToHostName", $"Alias: {alias}");
                         }
-                        else
+                        else // DNS did not respond in time
                         {
-                            LogMessage("ResolveIpAddressToHostName", $"***** DNS responded with a name ({dnsResponse.HostName}) but this has no associated IP addresses and is probably a NETBIOS name *****");
+                            LogMessage("ResolveIpAddressToHostName", $"***** DNS did not respond within timeout - unable to resolve IP address to host name *****");
                         }
-
-                        foreach (IPAddress address in dnsResponse.AddressList)
-                            LogMessage("ResolveIpAddressToHostName", $"Address: {address}");
-                        foreach (string alias in dnsResponse.Aliases)
-                            LogMessage("ResolveIpAddressToHostName", $"Alias: {alias}");
                     }
-                    else // DNS did not respond in time
+                    else // There was insufficient time to query DNS
                     {
-                        LogMessage("ResolveIpAddressToHostName", $"***** DNS did not respond within timeout - unable to resolve IP address to host name *****");
+                        LogMessage("ResolveIpAddressToHostName", $"***** Insufficient time remains ({timeOutTime.TotalSeconds} seconds) to conduct a DNS query, ignoring request *****");
                     }
                 }
-                else // There was insufficient time to query DNS
+                else // The IPEndPoint cast was not successful so we cannot carry out a DNS name search because we don't have the device's IP address
                 {
-                    LogMessage("ResolveIpAddressToHostName", $"***** Insufficient time remains ({timeOutTime.TotalSeconds} seconds) to conduct a DNS query, ignoring request *****");
+                    LogMessage("ResolveIpAddressToHostName", $"DNS resolution could not be undertaken - It was not possible to cast the supplied IPEndPoint object to an IPEndPoint type: {deviceIpEndPoint}.");
                 }
             }
-            else // The IPEndPoint cast was not successful so we cannot carry out a DNS name search because we don't have the device's IP address
+            catch (TimeoutException)
             {
-                LogMessage("ResolveIpAddressToHostName", $"DNS resolution could not be undertaken - It was not possible to cast the supplied IPEndPoint object to an IPEndPoint type: {deviceIpEndPoint}.");
+                LogMessage("ResolveIpAddressToHostName", $"Timed out trying to resolve the DNS name for {(deviceIpEndPoint is null ? "Unknown IP address" : deviceIpEndPoint.ToString()) }");
+            }
+            catch (Exception ex)
+            {
+                // Something went wrong, so log the issue and sent a message to the user
+                LogMessage("ResolveIpAddressToHostName", $"Exception: {ex}");
             }
         }
 
@@ -592,6 +616,19 @@ namespace ASCOM.Standard.Discovery
                 DnsResponse dnsResponse = (DnsResponse)ar.AsyncState; // Turn the state object into the DnsResponse type
                 dnsResponse.IpHostEntry = Dns.EndGetHostEntry(ar); // Save the returned IpHostEntry and populate other fields based on its parameters
                 dnsResponse.CallComplete.Set(); // Set the wait handle so that the caller knows that the asynchronous call has completed and that the response has been updated
+            }
+            catch (SocketException ex)
+            {
+                // Try to give a detailed error message, if not possible fall back to a generic message.
+                try
+                {
+                    DnsResponse dnsResponse = (DnsResponse)ar.AsyncState; // Turn the state object into the DnsResponse type
+                    LogMessage("GetHostEntryCallback", $"Socket Exception: {ex.Message} {dnsResponse.AddressList[0]}");
+                }
+                catch (Exception)
+                {
+                    LogMessage("GetHostEntryCallback", $"Socket Exception: {ex.Message}");
+                }
             }
             catch (Exception ex)
             {

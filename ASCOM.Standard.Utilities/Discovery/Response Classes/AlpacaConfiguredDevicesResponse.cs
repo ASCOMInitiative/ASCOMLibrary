@@ -1,8 +1,9 @@
-﻿using System;
+﻿using ASCOM.Alpaca.Responses;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace ASCOM.Alpaca.Responses
+namespace ASCOM.Standard.Discovery
 {
     public class AlpacaConfiguredDevicesResponse : Response, IValueResponse<List<AlpacaConfiguredDevice>>
     {
@@ -33,7 +34,7 @@ namespace ASCOM.Alpaca.Responses
         /// <param name="serverTransactionID">Server transaction ID</param>
         /// <param name="errorMessage">Value to return</param>
         /// <param name="errorCode">Server transaction ID</param>
-        public AlpacaConfiguredDevicesResponse(uint clientTransactionID, uint serverTransactionID, string errorMessage, ErrorCodes errorCode)
+        public AlpacaConfiguredDevicesResponse(uint clientTransactionID, uint serverTransactionID, string errorMessage, Alpaca.ErrorCodes errorCode)
         {
             base.ServerTransactionID = serverTransactionID;
             base.ClientTransactionID = clientTransactionID;

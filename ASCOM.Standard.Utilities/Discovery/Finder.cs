@@ -171,7 +171,7 @@ namespace ASCOM.Standard.Discovery
                 // Accept responses containing the discovery response string and don't respond to your own transmissions
                 if (ReceiveString.ToLowerInvariant().Contains(Constants.ResponseString.ToLowerInvariant())) // Accept responses in any casing so that bad casing can be reported
                 {
-                    int port = JsonSerializer.Deserialize<Response>(ReceiveString, new JsonSerializerOptions { PropertyNameCaseInsensitive = strictCasing }).AlpacaPort;
+                    int port = JsonSerializer.Deserialize<AlpacaDiscoveryResponse>(ReceiveString, new JsonSerializerOptions { PropertyNameCaseInsensitive = strictCasing }).AlpacaPort;
 
                     if (port == 0) //Failed to parse
                     {
@@ -189,10 +189,15 @@ namespace ASCOM.Standard.Discovery
                     }
                 }
             }
+            catch (ObjectDisposedException)
+            {
+                // Ignore these because they occur naturally when the current BeginReceiveAsync is terminated because the UdpClient is closed or disposed.
+            }
+
             catch (Exception ex)
             {
                 Utilities.Logger.LogError($"Failed to parse response from {endpoint} with exception: {ex.Message}");
-                LogMessage("ReceiveCallback", $"Exception: " + ex.ToString());
+                LogMessage("ReceiveCallback", $"Exception from {endpoint}: " + ex.ToString());
 
             }
         }

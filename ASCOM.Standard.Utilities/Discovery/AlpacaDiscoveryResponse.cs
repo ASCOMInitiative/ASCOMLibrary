@@ -1,6 +1,6 @@
 ﻿namespace ASCOM.Standard.Discovery
 {
-    public class Response
+    public class AlpacaDiscoveryResponse
     {
         /// <summary>
         /// Lower-case for serialiser
