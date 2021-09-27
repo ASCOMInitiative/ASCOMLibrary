@@ -619,16 +619,7 @@ namespace ASCOM.Standard.Discovery
             }
             catch (SocketException ex)
             {
-                // Try to give a detailed error message, if not possible fall back to a generic message.
-                try
-                {
-                    DnsResponse dnsResponse = (DnsResponse)ar.AsyncState; // Turn the state object into the DnsResponse type
-                    LogMessage("GetHostEntryCallback", $"Socket Exception: {ex.Message} {dnsResponse.AddressList[0]}");
-                }
-                catch (Exception)
-                {
-                    LogMessage("GetHostEntryCallback", $"Socket Exception: {ex.Message}");
-                }
+                LogMessage("GetHostEntryCallback", $"Socket Exception: {ex.Message}");
             }
             catch (Exception ex)
             {
