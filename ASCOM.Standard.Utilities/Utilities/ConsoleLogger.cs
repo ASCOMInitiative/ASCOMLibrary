@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace ASCOM.Standard.Utilities
+namespace ASCOM.Tools
 {
     public class ConsoleLogger : ILogger
     {

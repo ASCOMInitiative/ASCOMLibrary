@@ -220,7 +220,7 @@ namespace ASCOM.Alpaca.Discovery
                     if (ReceiveString.Contains(Constants.DiscoveryMessage))//Contains rather then equals because of invisible padding garbage
                     {
                         //For testing only
-                        Standard.Utilities.Logger.LogInformation(string.Format("Received a discovery packet from {0} at {1}", endpoint.Address, DateTime.Now));
+                        Tools.Logger.LogInformation(string.Format("Received a discovery packet from {0} at {1}", endpoint.Address, DateTime.Now));
 
                         byte[] response = Encoding.ASCII.GetBytes(string.Format("{{\"AlpacaPort\": {0}}}", port));
 
@@ -233,7 +233,7 @@ namespace ASCOM.Alpaca.Discovery
             }
             catch (Exception ex)
             {
-                Standard.Utilities.Logger.LogError(ex.Message);
+                Tools.Logger.LogError(ex.Message);
             }
             finally
             {
@@ -244,7 +244,7 @@ namespace ASCOM.Alpaca.Discovery
                 }
                 catch (Exception ex)
                 {
-                    Standard.Utilities.Logger.LogError(ex.Message);
+                    Tools.Logger.LogError(ex.Message);
                 }
             }
         }
@@ -270,7 +270,7 @@ namespace ASCOM.Alpaca.Discovery
             }
             catch (Exception ex)
             {
-                Standard.Utilities.Logger.LogError(ex.Message);
+                Tools.Logger.LogError(ex.Message);
             }
             return false;
         }

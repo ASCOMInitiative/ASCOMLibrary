@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASCOMStandard.Tests", "test
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASCOM.Standard.Types", "ASCOM.Standard.Types\ASCOM.Standard.Types.csproj", "{F0C9BFFD-C144-44AF-9318-847B19DF5C5B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASCOM.Standard.Utilities", "ASCOM.Standard.Utilities\ASCOM.Standard.Utilities.csproj", "{E0DA83D6-2F10-4A2E-B34A-1113335E2375}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASCOM.Tools", "ASCOM.Standard.Utilities\ASCOM.Tools.csproj", "{E0DA83D6-2F10-4A2E-B34A-1113335E2375}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASCOM.Compatibility.Utilities", "ASCOM.Compatibility.Utilities\ASCOM.Compatibility.Utilities.csproj", "{AB690357-091B-4D8F-B424-1720247140FC}"
 EndProject

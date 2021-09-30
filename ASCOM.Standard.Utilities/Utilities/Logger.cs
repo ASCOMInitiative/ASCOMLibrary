@@ -1,7 +1,7 @@
 ﻿using ASCOM.Standard.Interfaces;
 using System;
 
-namespace ASCOM.Standard.Utilities
+namespace ASCOM.Tools
 {
     public static class Logger
     {

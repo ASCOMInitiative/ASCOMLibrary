@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Text.RegularExpressions;
 using System.Threading;
 
-namespace ASCOM.Standard.Utilities
+namespace ASCOM.Tools
 {
     /// <summary>
     /// ASCOM support utilities

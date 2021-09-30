@@ -25,7 +25,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\ASCOM.Standard.Types\ASCOM.Standard.Types.csproj" />
-      <ProjectReference Include="..\..\ASCOM.Standard.Utilities\ASCOM.Standard.Utilities.csproj" />
+      <ProjectReference Include="..\..\ASCOM.Standard.Utilities\ASCOM.Tools.csproj" />
     </ItemGroup>
 
 </Project>

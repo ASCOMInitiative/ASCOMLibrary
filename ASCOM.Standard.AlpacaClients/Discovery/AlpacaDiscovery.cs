@@ -7,7 +7,7 @@ using System.Net.Http;
 using System.Net.Sockets;
 using System.Text.Json;
 using System.Threading;
-using ASCOM.Standard.Utilities;
+using ASCOM.Tools;
 using ASCOM.Alpaca.Responses;
 using ASCOM.Standard.Interfaces;
 using System.Threading.Tasks;

@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 using System.Xml;
 using System.Xml.Serialization;
 
-namespace ASCOM.Standard.Utilities
+namespace ASCOM.Tools
 {
     public class XMLProfile : IProfile
     {

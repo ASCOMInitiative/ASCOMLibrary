@@ -1,4 +1,4 @@
-﻿namespace ASCOM.Standard.Utilities
+﻿namespace ASCOM.Tools
 {
 
     /// <summary>

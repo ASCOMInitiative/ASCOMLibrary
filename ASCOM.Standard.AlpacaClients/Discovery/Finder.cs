@@ -196,7 +196,7 @@ namespace ASCOM.Alpaca.Discovery
 
             catch (Exception ex)
             {
-                Standard.Utilities.Logger.LogError($"Failed to parse response from {endpoint} with exception: {ex.Message}");
+                Tools.Logger.LogError($"Failed to parse response from {endpoint} with exception: {ex.Message}");
                 LogMessage("ReceiveCallback", $"Exception from {endpoint}: " + ex.ToString());
 
             }
@@ -242,7 +242,7 @@ namespace ASCOM.Alpaca.Discovery
                                 }
                                 catch (Exception ex)
                                 {
-                                    ASCOM.Standard.Utilities.Logger.LogError(ex.Message);
+                                    ASCOM.Tools.Logger.LogError(ex.Message);
                                 }
                             }
                         }
@@ -250,7 +250,7 @@ namespace ASCOM.Alpaca.Discovery
                 }
                 catch (Exception ex)
                 {
-                    ASCOM.Standard.Utilities.Logger.LogError(ex.Message);
+                    ASCOM.Tools.Logger.LogError(ex.Message);
                 }
             }
         }
@@ -319,7 +319,7 @@ namespace ASCOM.Alpaca.Discovery
                                     }
                                     catch (Exception ex)
                                     {
-                                        ASCOM.Standard.Utilities.Logger.LogError(ex.Message);
+                                        ASCOM.Tools.Logger.LogError(ex.Message);
                                     }
                                 }
                             }
@@ -327,7 +327,7 @@ namespace ASCOM.Alpaca.Discovery
                     }
                     catch (Exception ex)
                     {
-                        ASCOM.Standard.Utilities.Logger.LogError(ex.Message);
+                        ASCOM.Tools.Logger.LogError(ex.Message);
                     }
                 }
             }
