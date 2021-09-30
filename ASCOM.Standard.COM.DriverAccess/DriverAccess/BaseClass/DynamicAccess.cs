@@ -4,7 +4,7 @@ using System.Globalization;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-namespace ASCOM.Standard.COM.DriverAccess
+namespace ASCOM.Com.DriverAccess
 {
     public class DynamicAccess : DynamicObject
     {

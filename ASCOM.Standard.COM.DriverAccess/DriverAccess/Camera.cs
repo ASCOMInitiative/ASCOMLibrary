@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace ASCOM.Standard.COM.DriverAccess
+namespace ASCOM.Com.DriverAccess
 {
     public class Camera : ASCOMDevice, ASCOM.Standard.Interfaces.ICameraV3
     {

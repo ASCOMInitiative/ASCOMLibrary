@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASCOM.Standard.Utilities", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASCOM.Compatibility.Utilities", "ASCOM.Compatibility.Utilities\ASCOM.Compatibility.Utilities.csproj", "{AB690357-091B-4D8F-B424-1720247140FC}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASCOM.Standard.COM.DriverAccess", "ASCOM.Standard.COM.DriverAccess\ASCOM.Standard.COM.DriverAccess.csproj", "{15505B99-58E8-4CA7-87B0-BEDF9F2FF990}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASCOM.Com", "ASCOM.Standard.COM.DriverAccess\ASCOM.Com.csproj", "{15505B99-58E8-4CA7-87B0-BEDF9F2FF990}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASCOM.Alpaca", "ASCOM.Standard.AlpacaClients\ASCOM.Alpaca.csproj", "{777AE5B4-4DF7-4382-9461-7A1A0D8C49D4}"
 EndProject

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace ASCOM.Standard.COM.DriverAccess
+namespace ASCOM.Com.DriverAccess
 {
     public class Switch : ASCOMDevice, ASCOM.Standard.Interfaces.ISwitchV2
     {

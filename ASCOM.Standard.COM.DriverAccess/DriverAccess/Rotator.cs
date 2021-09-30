@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace ASCOM.Standard.COM.DriverAccess
+namespace ASCOM.Com.DriverAccess
 {
     public class Rotator : ASCOMDevice, ASCOM.Standard.Interfaces.IRotatorV3
     {

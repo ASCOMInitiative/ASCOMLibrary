@@ -5,10 +5,10 @@ using System.Globalization;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
-
-namespace ASCOM.Standard.COM.DriverAccess
+using ASCOM.Standard.Interfaces;
+namespace ASCOM.Com.DriverAccess
 {
-    public abstract class ASCOMDevice : Interfaces.IAscomDevice, IDisposable
+    public abstract class ASCOMDevice : IAscomDevice, IDisposable
     {
         private dynamic device;
         internal dynamic Device

@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace ASCOM.Standard.COM.DriverAccess
+namespace ASCOM.Com.DriverAccess
 {
     public class CoverCalibrator : ASCOMDevice, ASCOM.Standard.Interfaces.ICoverCalibratorV1
     {

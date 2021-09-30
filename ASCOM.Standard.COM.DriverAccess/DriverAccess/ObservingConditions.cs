@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace ASCOM.Standard.COM.DriverAccess
+namespace ASCOM.Com.DriverAccess
 {
     public class ObservingConditions : ASCOMDevice, ASCOM.Standard.Interfaces.IObservingConditions
     {

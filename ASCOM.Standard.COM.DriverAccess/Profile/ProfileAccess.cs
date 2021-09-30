@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace ASCOM.Standard.COM.DriverAccess
+namespace ASCOM.Com.DriverAccess
 {
     /// <summary>
     /// Functions used to find data in the ASCOM Profile which is stored in the Windows Registry.
