@@ -2,12 +2,12 @@
 using RestSharp;
 using System;
 
-namespace ASCOM.Standard.AlpacaClients
+namespace ASCOM.Alpaca.Clients
 {
     public abstract class AlpacaDeviceBaseClass : IDisposable
     {
         // Variables common to all instances
-        internal string serviceType = "http";
+        internal ServiceType serviceType = ServiceType.Http;
         internal string ipAddressString = "127.0.0.1";
         internal decimal portNumber = 11111;
         internal decimal remoteDeviceNumber = 0; // Device number in the URI on the remote Alpaca device

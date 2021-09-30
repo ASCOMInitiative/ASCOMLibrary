@@ -8,7 +8,7 @@ using ASCOM.Standard.Interfaces;
 using ASCOM.Standard.Responses;
 using RestSharp;
 
-namespace ASCOM.Standard.AlpacaClients
+namespace ASCOM.Alpaca.Clients
 {
     /// <summary>
     /// ASCOM DynamicRemoteClients Camera base class.
@@ -33,7 +33,7 @@ namespace ASCOM.Standard.AlpacaClients
             Initialise();
         }
 
-        public AlpacaCamera(string serviceType,
+        public AlpacaCamera(ServiceType serviceType,
                           string ipAddressString,
                           int portNumber,
                           int remoteDeviceNumber,
@@ -63,7 +63,7 @@ namespace ASCOM.Standard.AlpacaClients
             Initialise();
         }
 
-        public AlpacaCamera(string serviceType,
+        public AlpacaCamera(ServiceType serviceType,
                          string ipAddressString,
                          int portNumber,
                          int remoteDeviceNumber,

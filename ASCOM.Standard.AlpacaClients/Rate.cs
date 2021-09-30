@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 using ASCOM.Standard.Interfaces;
 
-namespace ASCOM.Standard.AlpacaClients
+namespace ASCOM.Alpaca.Clients
 {
     #region Rate class
     //

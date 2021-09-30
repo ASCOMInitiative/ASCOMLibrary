@@ -9,7 +9,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 
-namespace ASCOM.Standard.Discovery
+namespace ASCOM.Alpaca.Discovery
 {
     /// <summary>
     /// Initiates a discovery and raises events as devices respond
@@ -196,7 +196,7 @@ namespace ASCOM.Standard.Discovery
 
             catch (Exception ex)
             {
-                Utilities.Logger.LogError($"Failed to parse response from {endpoint} with exception: {ex.Message}");
+                Standard.Utilities.Logger.LogError($"Failed to parse response from {endpoint} with exception: {ex.Message}");
                 LogMessage("ReceiveCallback", $"Exception from {endpoint}: " + ex.ToString());
 
             }

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ASCOM.Standard.AlpacaClients
+namespace ASCOM.Alpaca.Clients
 {
     public class AlpacaClient
     {
@@ -20,9 +20,6 @@ namespace ASCOM.Standard.AlpacaClients
             return (T)Activator.CreateInstance(typeof(T), new object[] { serviceType, ipAddressString, portNumber, remoteDeviceNumber, establishConnectionTimeout,
                                         standardDeviceResponseTimeout, longDeviceResponseTimeout, clientNumber, userName, password, logger });
         }
-
-
-
     }
 }
 

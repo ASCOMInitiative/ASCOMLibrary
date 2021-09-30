@@ -1,4 +1,4 @@
-﻿namespace ASCOM.Standard.Discovery
+﻿namespace ASCOM.Alpaca.Discovery
 {
     public class AlpacaDiscoveryResponse
     {

@@ -2,7 +2,7 @@
 using System.Runtime.Serialization.Formatters;
 using ASCOM.Standard.Responses;
 
-namespace ASCOM.Standard.AlpacaClients
+namespace ASCOM.Alpaca.Clients
 {
     internal static class SharedConstants
     {

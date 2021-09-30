@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace ASCOM.Standard.Discovery
+namespace ASCOM.Alpaca.Discovery
 {
     /// <summary>
     /// The response for the AlpacaDeviceDescription

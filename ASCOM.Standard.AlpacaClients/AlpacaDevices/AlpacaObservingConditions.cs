@@ -7,7 +7,7 @@ using System.Reflection;
 using ASCOM.Standard.Interfaces;
 using RestSharp;
 
-namespace ASCOM.Standard.AlpacaClients
+namespace ASCOM.Alpaca.Clients
 {
     /// <summary>
     /// ASCOM DynamicRemoteClients ObservingConditions base class
@@ -28,7 +28,7 @@ namespace ASCOM.Standard.AlpacaClients
             Initialise();
         }
 
-        public AlpacaObservingConditions(string serviceType,
+        public AlpacaObservingConditions(ServiceType serviceType,
                           string ipAddressString,
                           int portNumber,
                           int remoteDeviceNumber,
@@ -58,7 +58,7 @@ namespace ASCOM.Standard.AlpacaClients
             Initialise();
         }
 
-        public AlpacaObservingConditions(string serviceType,
+        public AlpacaObservingConditions(ServiceType serviceType,
                          string ipAddressString,
                          int portNumber,
                          int remoteDeviceNumber,

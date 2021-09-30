@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace ASCOM.Standard.Discovery
+namespace ASCOM.Alpaca.Discovery
 {
     public static class Constants
     {

@@ -3,7 +3,7 @@ using System.Collections;
 using System.Runtime.InteropServices;
 using ASCOM.Standard.Interfaces;
 
-namespace ASCOM.Standard.AlpacaClients
+namespace ASCOM.Alpaca.Clients
 {
     //
     // AxisRates is a strongly-typed collection that must be enumerable by

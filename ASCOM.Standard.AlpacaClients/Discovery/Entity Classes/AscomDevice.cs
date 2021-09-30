@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using System.Net.Sockets;
 
-namespace ASCOM.Standard.Discovery
+namespace ASCOM.Alpaca.Discovery
 {
 
     /// <summary>

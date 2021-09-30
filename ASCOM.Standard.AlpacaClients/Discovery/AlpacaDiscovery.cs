@@ -11,8 +11,9 @@ using ASCOM.Standard.Utilities;
 using ASCOM.Alpaca.Responses;
 using ASCOM.Standard.Interfaces;
 using System.Threading.Tasks;
+using ASCOM.Alpaca.Clients;
 
-namespace ASCOM.Standard.Discovery
+namespace ASCOM.Alpaca.Discovery
 {
 
     /// <summary>
@@ -53,6 +54,8 @@ namespace ASCOM.Standard.Discovery
         private bool discoveryCompleteValue; // Discovery completion status
         private readonly object deviceListLockObject = new object(); // Lock object to synchronise access to the Alpaca device list collection, which is not a thread safe collection
         private readonly bool strictCasing; // Flag indicating whether case sensitive or case insensitive de-serialisation will be used.
+
+        private ServiceType serviceType; // Holds the service type for management API calls: HTTP or HTTPS
 
         #endregion
 
@@ -289,7 +292,7 @@ namespace ASCOM.Standard.Discovery
         /// <param name="resolveDnsName">Attempt to resolve host IP addresses to DNS names</param>
         /// <param name="useIpV4">Search for Alpaca devices that use IPv4 addresses. (One or both of useIpV4 and useIpV6 must be True.)</param>
         /// <param name="useIpV6">Search for Alpaca devices that use IPv6 addresses. (One or both of useIpV4 and useIpV6 must be True.)</param>
-        public void StartDiscovery(int numberOfPolls, int pollInterval, int discoveryPort, double discoveryDuration, bool resolveDnsName, bool useIpV4, bool useIpV6)
+        public void StartDiscovery(int numberOfPolls, int pollInterval, int discoveryPort, double discoveryDuration, bool resolveDnsName, bool useIpV4, bool useIpV6, ServiceType serviceType)
         {
 
             // Validate parameters
@@ -309,6 +312,7 @@ namespace ASCOM.Standard.Discovery
             // Save supplied parameters for use within the application 
             discoveryTime = discoveryDuration;
             tryDnsNameResolution = resolveDnsName;
+            this.serviceType = serviceType;
 
             // Prepare for a new search
             LogMessage("StartDiscovery", $"Starting search for Alpaca devices with timeout: {discoveryTime} Broadcast polls: {numberOfPolls} sent every {pollInterval} milliseconds");
@@ -444,16 +448,16 @@ namespace ASCOM.Standard.Discovery
             switch (deviceIpEndPoint.AddressFamily)
             {
                 case AddressFamily.InterNetwork:
-                    hostIpAndPort = deviceIpEndPoint.ToString();
+                    hostIpAndPort = $"{serviceType.ToString().ToLowerInvariant()}://{deviceIpEndPoint}";
                     break;
 
                 case AddressFamily.InterNetworkV6:
                     string scopeId = $"%{deviceIpEndPoint.Address.ScopeId}"; // Obtain the IPv6 scope ID in text form (if present)
-                    hostIpAndPort = deviceIpEndPoint.ToString().Replace(scopeId, ""); // Remove the ScopeID if present because it is only relevant on the local machine that created it
+                    hostIpAndPort = $"{serviceType.ToString().ToLowerInvariant()}://{deviceIpEndPoint.ToString().Replace(scopeId, string.Empty)}"; // Create the overall URI
                     break;
 
                 default:
-                    hostIpAndPort = deviceIpEndPoint.ToString();
+                    hostIpAndPort = $"{serviceType.ToString().ToLowerInvariant()}://{deviceIpEndPoint}";
                     break;
             }
 
@@ -462,8 +466,8 @@ namespace ASCOM.Standard.Discovery
                 LogMessage("GetAlpacaDeviceInformation", $"Host URL: {hostIpAndPort} DISCOVERY TIMEOUT: {discoveryTime} ({discoveryTime * 1000d})");
 
                 // Wait for API version result and process it
-                LogMessage("GetAlpacaDeviceInformation", $"About to get version information from http://{hostIpAndPort}/management/apiversions at IP endpoint {deviceIpEndPoint.Address} {deviceIpEndPoint.AddressFamily}");
-                string apiVersionsJsonResponse = await httpClient.GetStringAsync($"http://{hostIpAndPort}/management/apiversions");
+                LogMessage("GetAlpacaDeviceInformation", $"About to get version information from {hostIpAndPort}/management/apiversions at IP endpoint {deviceIpEndPoint.Address} {deviceIpEndPoint.AddressFamily}");
+                string apiVersionsJsonResponse = await httpClient.GetStringAsync($"{hostIpAndPort}/management/apiversions");
                 LogMessage("GetAlpacaDeviceInformation", $"Received JSON response from {hostIpAndPort}: {apiVersionsJsonResponse}");
                 IntArray1DResponse apiVersionsResponse = JsonSerializer.Deserialize<IntArray1DResponse>(apiVersionsJsonResponse, new JsonSerializerOptions { PropertyNameCaseInsensitive = strictCasing });
                 lock (deviceListLockObject) // Make sure that only one thread can update the device list dictionary at a time
@@ -475,7 +479,7 @@ namespace ASCOM.Standard.Discovery
                 RaiseAnAlpacaDevicesChangedEvent(); // Device list was changed so set the changed flag
 
                 // Wait for device description result and process it
-                string deviceDescriptionJsonResponse = await httpClient.GetStringAsync($"http://{hostIpAndPort}/management/v1/description");
+                string deviceDescriptionJsonResponse = await httpClient.GetStringAsync($"{hostIpAndPort}/management/v1/description");
                 LogMessage("GetAlpacaDeviceInformation", $"Received JSON response from {hostIpAndPort}: {deviceDescriptionJsonResponse}");
                 var deviceDescriptionResponse = JsonSerializer.Deserialize<AlpacaDescriptionResponse>(deviceDescriptionJsonResponse, new JsonSerializerOptions { PropertyNameCaseInsensitive = strictCasing });
                 lock (deviceListLockObject) // Make sure that only one thread can update the device list dictionary at a time
@@ -489,7 +493,7 @@ namespace ASCOM.Standard.Discovery
                 RaiseAnAlpacaDevicesChangedEvent(); // Device list was changed so set the changed flag
 
                 // Wait for configured devices result and process it
-                string configuredDevicesJsonResponse = await httpClient.GetStringAsync($"http://{hostIpAndPort}/management/v1/configureddevices");
+                string configuredDevicesJsonResponse = await httpClient.GetStringAsync($"{hostIpAndPort}/management/v1/configureddevices");
                 LogMessage("GetAlpacaDeviceInformation", $"Received JSON response from {hostIpAndPort}: {configuredDevicesJsonResponse}");
                 AlpacaConfiguredDevicesResponse configuredDevicesResponse = JsonSerializer.Deserialize<AlpacaConfiguredDevicesResponse>(configuredDevicesJsonResponse, new JsonSerializerOptions { PropertyNameCaseInsensitive = strictCasing });
                 lock (deviceListLockObject) // Make sure that only one thread can update the device list dictionary at a time

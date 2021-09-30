@@ -9,7 +9,7 @@ using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace ASCOM.Standard.Discovery
+namespace ASCOM.Alpaca.Discovery
 {
     public class Responder : IDisposable
     {
@@ -220,7 +220,7 @@ namespace ASCOM.Standard.Discovery
                     if (ReceiveString.Contains(Constants.DiscoveryMessage))//Contains rather then equals because of invisible padding garbage
                     {
                         //For testing only
-                        Utilities.Logger.LogInformation(string.Format("Received a discovery packet from {0} at {1}", endpoint.Address, DateTime.Now));
+                        Standard.Utilities.Logger.LogInformation(string.Format("Received a discovery packet from {0} at {1}", endpoint.Address, DateTime.Now));
 
                         byte[] response = Encoding.ASCII.GetBytes(string.Format("{{\"AlpacaPort\": {0}}}", port));
 
@@ -233,7 +233,7 @@ namespace ASCOM.Standard.Discovery
             }
             catch (Exception ex)
             {
-                Utilities.Logger.LogError(ex.Message);
+                Standard.Utilities.Logger.LogError(ex.Message);
             }
             finally
             {
@@ -244,7 +244,7 @@ namespace ASCOM.Standard.Discovery
                 }
                 catch (Exception ex)
                 {
-                    Utilities.Logger.LogError(ex.Message);
+                    Standard.Utilities.Logger.LogError(ex.Message);
                 }
             }
         }
@@ -270,7 +270,7 @@ namespace ASCOM.Standard.Discovery
             }
             catch (Exception ex)
             {
-                Utilities.Logger.LogError(ex.Message);
+                Standard.Utilities.Logger.LogError(ex.Message);
             }
             return false;
         }

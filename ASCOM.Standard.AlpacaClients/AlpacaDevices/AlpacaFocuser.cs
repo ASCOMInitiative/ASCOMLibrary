@@ -8,7 +8,7 @@ using System.Reflection;
 using ASCOM.Standard.Interfaces;
 using RestSharp;
 
-namespace ASCOM.Standard.AlpacaClients
+namespace ASCOM.Alpaca.Clients
 {
     /// <summary>
     /// ASCOM DynamicRemoteClients Focuser base class
@@ -29,7 +29,7 @@ namespace ASCOM.Standard.AlpacaClients
             Initialise();
         }
 
-        public AlpacaFocuser(string serviceType,
+        public AlpacaFocuser(ServiceType serviceType,
                           string ipAddressString,
                           int portNumber,
                           int remoteDeviceNumber,
@@ -59,7 +59,7 @@ namespace ASCOM.Standard.AlpacaClients
             Initialise();
         }
 
-        public AlpacaFocuser(string serviceType,
+        public AlpacaFocuser(ServiceType serviceType,
                          string ipAddressString,
                          int portNumber,
                          int remoteDeviceNumber,

@@ -6,7 +6,7 @@ using System.Reflection;
 using ASCOM.Standard.Interfaces;
 using RestSharp;
 
-namespace ASCOM.Standard.AlpacaClients
+namespace ASCOM.Alpaca.Clients
 {
     /// <summary>
     /// ASCOM DynamicRemoteClients SafetyMonitor base class
@@ -27,7 +27,7 @@ namespace ASCOM.Standard.AlpacaClients
             Initialise();
         }
 
-        public AlpacaSafetyMonitor(string serviceType,
+        public AlpacaSafetyMonitor(ServiceType serviceType,
                           string ipAddressString,
                           int portNumber,
                           int remoteDeviceNumber,
@@ -57,7 +57,7 @@ namespace ASCOM.Standard.AlpacaClients
             Initialise();
         }
 
-        public AlpacaSafetyMonitor(string serviceType,
+        public AlpacaSafetyMonitor(ServiceType serviceType,
                          string ipAddressString,
                          int portNumber,
                          int remoteDeviceNumber,

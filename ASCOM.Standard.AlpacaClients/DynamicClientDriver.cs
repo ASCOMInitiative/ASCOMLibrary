@@ -19,8 +19,9 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using ASCOM.Standard;
 
-namespace ASCOM.Standard.AlpacaClients
+namespace ASCOM.Alpaca.Clients
 {
     internal static class DynamicClientDriver
     {
@@ -152,10 +153,10 @@ namespace ASCOM.Standard.AlpacaClients
         /// <param name="password"></param>
         /// <param name="uniqueId"></param>
         /// <remarks>This method will attempt to re-discover the Alpaca device if it is not possible to establish a TCP connection with the device at the specified address and port.</remarks>
-        public static void ConnectToRemoteDevice(ref RestClient client, string serviceType, string ipAddressString, decimal portNumber,
+        public static void ConnectToRemoteDevice(ref RestClient client, ServiceType serviceType, string ipAddressString, decimal portNumber,
                                                  uint clientNumber, string deviceType, int deviceResponseTimeout, string userName, string password, ILogger TL)
         {
-            string clientHostAddress = $"{serviceType}://{ipAddressString}:{portNumber}";
+            string clientHostAddress = $"{serviceType.ToString().ToLowerInvariant()}://{ipAddressString}:{portNumber}";
             AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, deviceType, $"Connecting to device: {ipAddressString}:{portNumber} through URL: {clientHostAddress}");
 
             #region Commented automatic Alpaca device rediscovery code
@@ -1153,37 +1154,37 @@ namespace ASCOM.Standard.AlpacaClients
                                 AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Received Alpaca error code: {restResponseBase.ErrorNumber} (0x{(int)restResponseBase.ErrorNumber:X4}), the equivalent COM error HResult error code is {ascomCOMErrorNumber} (0x{ascomCOMErrorNumber:X8})");
 
                                 // Now check whether the COM HResult matches any of the built-in ASCOM exception types. If so, we throw that exception type otherwise we throw a generic DriverException
-                                if (ascomCOMErrorNumber == ErrorCodes.ActionNotImplementedException) // Handle ActionNotImplementedException
+                                if (ascomCOMErrorNumber == ASCOM.ErrorCodes.ActionNotImplementedException) // Handle ActionNotImplementedException
                                 {
                                     AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Alpaca action not implemented error, throwing ActionNotImplementedException - ErrorMessage: \"{restResponseBase.ErrorMessage}\", ErrorNumber: 0x{ascomCOMErrorNumber:X8}");
                                     throw new ActionNotImplementedException(restResponseBase.ErrorMessage);
                                 }
-                                else if (ascomCOMErrorNumber == ErrorCodes.InvalidOperationException) // Handle InvalidOperationException
+                                else if (ascomCOMErrorNumber == ASCOM.ErrorCodes.InvalidOperationException) // Handle InvalidOperationException
                                 {
                                     AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Alpaca invalid operation error, throwing InvalidOperationException - ErrorMessage: \"{restResponseBase.ErrorMessage}\", ErrorNumber: 0x{ascomCOMErrorNumber:X8}");
                                     throw new InvalidOperationException(restResponseBase.ErrorMessage);
                                 }
-                                else if (ascomCOMErrorNumber == ErrorCodes.InvalidValue) // Handle InvalidValueException
+                                else if (ascomCOMErrorNumber == ASCOM.ErrorCodes.InvalidValue) // Handle InvalidValueException
                                 {
                                     AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Alpaca invalid value error, throwing InvalidValueException - ErrorMessage: \"{restResponseBase.ErrorMessage}\", ErrorNumber: 0x{ascomCOMErrorNumber:X8}");
                                     throw new InvalidValueException(restResponseBase.ErrorMessage);
                                 }
-                                else if (ascomCOMErrorNumber == ErrorCodes.InvalidWhileParked) // Handle ParkedException
+                                else if (ascomCOMErrorNumber == ASCOM.ErrorCodes.InvalidWhileParked) // Handle ParkedException
                                 {
                                     AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Alpaca invalid while parked error, throwing ParkedException - ErrorMessage: \"{restResponseBase.ErrorMessage}\", ErrorNumber: 0x{ascomCOMErrorNumber:X8}");
                                     throw new ParkedException(restResponseBase.ErrorMessage);
                                 }
-                                else if (ascomCOMErrorNumber == ErrorCodes.InvalidWhileSlaved) // Handle SlavedException
+                                else if (ascomCOMErrorNumber == ASCOM.ErrorCodes.InvalidWhileSlaved) // Handle SlavedException
                                 {
                                     AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $" Alpaca invalid while slaved error, throwing SlavedException - ErrorMessage: \"{restResponseBase.ErrorMessage}\", ErrorNumber: 0x{ascomCOMErrorNumber:X8}");
                                     throw new SlavedException(restResponseBase.ErrorMessage);
                                 }
-                                else if (ascomCOMErrorNumber == ErrorCodes.NotConnected) // Handle NotConnectedException
+                                else if (ascomCOMErrorNumber == ASCOM.ErrorCodes.NotConnected) // Handle NotConnectedException
                                 {
                                     AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $" Alpaca not connected error, throwing NotConnectedException - ErrorMessage: \"{restResponseBase.ErrorMessage}\", ErrorNumber: 0x{ascomCOMErrorNumber:X8}");
                                     throw new NotConnectedException(restResponseBase.ErrorMessage);
                                 }
-                                else if (ascomCOMErrorNumber == ErrorCodes.NotImplemented) // Handle PropertyNotImplementedException and MethodNotImplementedException (both have the same error code)
+                                else if (ascomCOMErrorNumber == ASCOM.ErrorCodes.NotImplemented) // Handle PropertyNotImplementedException and MethodNotImplementedException (both have the same error code)
                                 {
                                     // Throw the relevant exception depending on whether this is a property or a method
                                     if (memberType == MemberTypes.Property) // Calling member is a property so throw a PropertyNotImplementedException
@@ -1197,7 +1198,7 @@ namespace ASCOM.Standard.AlpacaClients
                                         throw new MethodNotImplementedException(CultureInfo.CurrentCulture.TextInfo.ToTitleCase(method), restResponseBase.ErrorMessage);
                                     }
                                 }
-                                else if (ascomCOMErrorNumber == ErrorCodes.ValueNotSet) // Handle ValueNotSetException
+                                else if (ascomCOMErrorNumber == ASCOM.ErrorCodes.ValueNotSet) // Handle ValueNotSetException
                                 {
                                     AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $" Alpaca value not set error, throwing ValueNotSetException - ErrorMessage: \"{restResponseBase.ErrorMessage}\", ErrorNumber: 0x{ascomCOMErrorNumber:X8}");
                                     throw new ValueNotSetException(restResponseBase.ErrorMessage);

@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 using ASCOM.Standard.Interfaces;
 using System.Globalization;
 
-namespace ASCOM.Standard.AlpacaClients
+namespace ASCOM.Alpaca.Clients
 {
     //
     // TrackingRates is a strongly-typed collection that must be enumerable by
