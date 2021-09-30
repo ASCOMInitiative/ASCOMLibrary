@@ -1,9 +1,9 @@
-﻿using System;
+﻿using ASCOM.Common.DeviceInterfaces;
 using System.Collections.Generic;
 
 namespace ASCOM.Com.DriverAccess
 {
-    public class Switch : ASCOMDevice, ASCOM.Standard.Interfaces.ISwitchV2
+    public class Switch : ASCOMDevice, ISwitchV2
     {
         public static List<ASCOMRegistration> Switches => ProfileAccess.GetDrivers(DriverTypes.Switch);
 
@@ -50,8 +50,8 @@ namespace ASCOM.Com.DriverAccess
                 return base.Device.MaxSwitchValue(id);
             }
             catch (System.NotImplementedException)
-            { 
-                return 1.0; 
+            {
+                return 1.0;
             }
         }
 
@@ -99,7 +99,7 @@ namespace ASCOM.Com.DriverAccess
             }
             catch (System.NotImplementedException)
             {
-                bool bv = value >= 0.5 ? true : false;
+                bool bv = value >= 0.5;
                 this.SetSwitch(id, bv);
             }
         }

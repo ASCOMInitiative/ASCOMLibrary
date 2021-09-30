@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections;
+﻿using ASCOM.Common.Alpaca;
+using ASCOM.Common.DeviceInterfaces;
+using ASCOM.Common.Interfaces;
+using RestSharp;
+using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.Reflection;
-using ASCOM.Standard.Interfaces;
-using ASCOM.Standard.Responses;
-using RestSharp;
 
 namespace ASCOM.Alpaca.Clients
 {
@@ -21,8 +20,8 @@ namespace ASCOM.Alpaca.Clients
         private const string DEVICE_TYPE = "Camera";
 
         // Variables specific to this device type
-        private readonly ImageArrayTransferType imageArrayTransferType;
-        private readonly ImageArrayCompression imageArrayCompression;
+        private readonly ImageArrayTransferType imageArrayTransferType=ImageArrayTransferType.JSON;
+        private readonly ImageArrayCompression imageArrayCompression=ImageArrayCompression.None;
 
         #endregion
 
@@ -275,7 +274,7 @@ namespace ASCOM.Alpaca.Clients
             set
             {
                 DynamicClientDriver.SetClientTimeout(client, standardDeviceResponseTimeout);
-                DynamicClientDriver.SetShort(clientNumber, client, URIBase,strictCasing, TL, "BinY", value, MemberTypes.Property);
+                DynamicClientDriver.SetShort(clientNumber, client, URIBase, strictCasing, TL, "BinY", value, MemberTypes.Property);
             }
         }
 

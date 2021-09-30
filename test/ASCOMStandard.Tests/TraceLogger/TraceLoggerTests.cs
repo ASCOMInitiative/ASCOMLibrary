@@ -1,6 +1,6 @@
-﻿using Xunit;
+﻿using System;
 using System.IO;
-using System;
+using Xunit;
 
 namespace ASCOM.Alpaca.Tests.TraceLogger
 {
@@ -66,8 +66,10 @@ namespace ASCOM.Alpaca.Tests.TraceLogger
         [Fact]
         public void GoodIdentifierWidth()
         {
-            Tools.TraceLogger TL = new Tools.TraceLogger(nameof(GoodIdentifierWidth), true);
-            TL.IdentifierWidth = IDENTIFIER_WIDTH_TEST_VALUE;
+            Tools.TraceLogger TL = new Tools.TraceLogger(nameof(GoodIdentifierWidth), true)
+            {
+                IdentifierWidth = IDENTIFIER_WIDTH_TEST_VALUE
+            };
             Assert.Equal(IDENTIFIER_WIDTH_TEST_VALUE, TL.IdentifierWidth);
 
             TL.LogMessage("CreateLog", FIRST_LOG_LINE);
@@ -152,9 +154,10 @@ namespace ASCOM.Alpaca.Tests.TraceLogger
         [Fact]
         public void AutoPathAutoNameUtc()
         {
-            Tools.TraceLogger TL = new Tools.TraceLogger(nameof(AutoPathAutoNameUtc), true);
-
-            TL.UseUtcTime = true;
+            Tools.TraceLogger TL = new Tools.TraceLogger(nameof(AutoPathAutoNameUtc), true)
+            {
+                UseUtcTime = true
+            };
 
             string originalLogFileName = TL.LogFileName;
             string originalLogFilePath = TL.LogFilePath;
@@ -190,8 +193,10 @@ namespace ASCOM.Alpaca.Tests.TraceLogger
         {
             const string TEST_FILE_NAME = "AutoPathManualName.txt";
 
-            Tools.TraceLogger TL = new Tools.TraceLogger(TEST_FILE_NAME, "", nameof(AutoPathManualName), true);
-            TL.Enabled = true;
+            Tools.TraceLogger TL = new Tools.TraceLogger(TEST_FILE_NAME, "", nameof(AutoPathManualName), true)
+            {
+                Enabled = true
+            };
             string originalLogFileName = TL.LogFileName;
             string originalLogFilePath = TL.LogFilePath;
 
@@ -222,8 +227,10 @@ namespace ASCOM.Alpaca.Tests.TraceLogger
         [Fact]
         public void ManualPathAutolName()
         {
-            Tools.TraceLogger TL = new Tools.TraceLogger("", Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "ASCOM"), nameof(ManualPathAutolName), true);
-            TL.Enabled = true;
+            Tools.TraceLogger TL = new Tools.TraceLogger("", Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "ASCOM"), nameof(ManualPathAutolName), true)
+            {
+                Enabled = true
+            };
             string originalLogFileName = TL.LogFileName;
             string originalLogFilePath = TL.LogFilePath;
 
@@ -256,8 +263,10 @@ namespace ASCOM.Alpaca.Tests.TraceLogger
         {
             const string TEST_FILE_NAME = "ManualPathManualName.txt";
 
-            Tools.TraceLogger TL = new Tools.TraceLogger(TEST_FILE_NAME, Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "ASCOM"), nameof(ManualPathManuallName), true);
-            TL.Enabled = true;
+            Tools.TraceLogger TL = new Tools.TraceLogger(TEST_FILE_NAME, Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "ASCOM"), nameof(ManualPathManuallName), true)
+            {
+                Enabled = true
+            };
             string originalLogFileName = TL.LogFileName;
             string originalLogFilePath = TL.LogFilePath;
 

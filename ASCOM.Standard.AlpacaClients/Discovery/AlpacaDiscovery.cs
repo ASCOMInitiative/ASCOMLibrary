@@ -1,4 +1,7 @@
-﻿using System;
+﻿using ASCOM.Common.Alpaca;
+using ASCOM.Common.Interfaces;
+using ASCOM.Tools;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,11 +10,7 @@ using System.Net.Http;
 using System.Net.Sockets;
 using System.Text.Json;
 using System.Threading;
-using ASCOM.Tools;
-using ASCOM.Alpaca.Responses;
-using ASCOM.Standard.Interfaces;
 using System.Threading.Tasks;
-using ASCOM.Alpaca.Clients;
 
 namespace ASCOM.Alpaca.Discovery
 {

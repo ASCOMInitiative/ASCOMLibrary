@@ -8,7 +8,7 @@ namespace ASCOM.Com.DriverAccess
 {
     public class DynamicAccess : DynamicObject
     {
-        private object device;
+        private readonly object device;
 
         internal object Device
         {
@@ -24,7 +24,7 @@ namespace ASCOM.Com.DriverAccess
         public DynamicAccess(string ProgID)
         {
             Type type = Type.GetTypeFromProgID(ProgID);
-            if(type == null)
+            if (type == null)
             {
                 throw new Exception($"Failed to load ASCOM Driver with ProgID {ProgID}.");
             }
@@ -137,10 +137,9 @@ namespace ASCOM.Com.DriverAccess
         /// <param name="e">The thrown TargetInvocationException including the inner exception</param>
         private void CheckDotNetExceptions(string memberName, Exception e)
         {
-            string message = string.Empty;
-
             int HResult = e.InnerException?.HResult ?? 0;
 
+            string message;
             // Deal with the possibility that DriverAccess is being used in both driver and client so remove the outer
             // DriverAccessCOMException exception if present
             if (e.InnerException is DriverAccessCOMException)
@@ -240,6 +239,7 @@ namespace ASCOM.Com.DriverAccess
     {
         internal static void LogMessageCrLf(string memberName, string v)
         {
+            if (memberName == v) return; // Arbitary statement just to use the supplied parameters and thereby avoid two compiler warnings about unused variables.
         }
     }
 }

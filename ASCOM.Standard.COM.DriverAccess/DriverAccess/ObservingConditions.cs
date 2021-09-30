@@ -1,10 +1,9 @@
-﻿using System;
+﻿using ASCOM.Common.DeviceInterfaces;
 using System.Collections.Generic;
-using System.Text;
 
 namespace ASCOM.Com.DriverAccess
 {
-    public class ObservingConditions : ASCOMDevice, ASCOM.Standard.Interfaces.IObservingConditions
+    public class ObservingConditions : ASCOMDevice, IObservingConditions
     {
         public static List<ASCOMRegistration> ObservingConditionDrivers => ProfileAccess.GetDrivers(DriverTypes.ObservingConditions);
 

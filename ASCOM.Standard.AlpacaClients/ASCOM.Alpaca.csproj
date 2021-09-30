@@ -36,7 +36,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\ASCOM.Standard.Types\ASCOM.Standard.Types.csproj" />
+	  <ProjectReference Include="..\ASCOM.Standard.Types\ASCOM.Common.csproj" />
 	  <ProjectReference Include="..\ASCOM.Standard.Utilities\ASCOM.Tools.csproj" />
 	</ItemGroup>
 

@@ -13,7 +13,7 @@ namespace ASCOM.Alpaca.Discovery
         public const double MINIMUM_TIME_REMAINING_TO_UNDERTAKE_DNS_RESOLUTION = 0.1d; // Minimum discovery time (seconds) that must remain if a DNS IP to host name resolution is to be attempted
         public const int NUMBER_OF_THREAD_MESSAGE_INDENT_SPACES = 2;
 
-        public static byte[] DiscoveryMessageArray 
+        public static byte[] DiscoveryMessageArray
         {
             get
             {

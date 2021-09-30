@@ -1,4 +1,4 @@
-using ASCOM.Standard.Interfaces;
+using ASCOM.Common.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,7 +13,7 @@ namespace ASCOM.Tools
     {
         private const string SettingsVersion = "v1";
 
-        private string FilePath = string.Empty;
+        private readonly string FilePath = string.Empty;
 
         private List<SettingsPair> Settings = new List<SettingsPair>();
 
@@ -73,7 +73,7 @@ namespace ASCOM.Tools
         /// <param name="driverID">A unique name for your driver. Must be allowed to be in the path.</param>
         /// <param name="deviceType">The ASCOM / Alpaca device type IE focuser, camera, telescope, etc.  Must be allowed to be in the path.</param>
         /// <param name="deviceNumber">The Alpaca device number. Defaults to 0 for drivers with only one device.</param>
-        public XMLProfile(string driverID, string deviceType, uint deviceNumber = 0) : this(Path.Combine(AlpacaDataPath, driverID, deviceType, SettingsVersion, $"{FileName}-{deviceNumber}.xml" ))
+        public XMLProfile(string driverID, string deviceType, uint deviceNumber = 0) : this(Path.Combine(AlpacaDataPath, driverID, deviceType, SettingsVersion, $"{FileName}-{deviceNumber}.xml"))
         {
         }
 
@@ -279,9 +279,9 @@ namespace ASCOM.Tools
         /// <returns></returns>
         private static T DeSerializeObjectFromFile<T>(string fileName)
         {
-            if (string.IsNullOrEmpty(fileName)) { return default(T); }
+            if (string.IsNullOrEmpty(fileName)) { return default; }
 
-            T objectOut = default(T);
+            T objectOut = default;
 
             try
             {

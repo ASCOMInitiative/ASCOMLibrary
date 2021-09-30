@@ -1,7 +1,7 @@
-﻿using System;
+﻿using ASCOM.Common.DeviceInterfaces;
+using ASCOM.Common.Interfaces;
+using System;
 using System.Collections;
-using System.Runtime.InteropServices;
-using ASCOM.Standard.Interfaces;
 
 namespace ASCOM.Alpaca.Clients
 {
@@ -16,10 +16,10 @@ namespace ASCOM.Alpaca.Clients
     //
     internal class AxisRates : IAxisRates, IEnumerable, IEnumerator, IDisposable
     {
-        private TelescopeAxis m_axis;
+        private readonly TelescopeAxis m_axis;
         private Rate[] m_Rates;
         private int pos;
-        ILogger logger;
+        readonly ILogger logger;
 
         //
         // Constructor - Internal prevents public creation

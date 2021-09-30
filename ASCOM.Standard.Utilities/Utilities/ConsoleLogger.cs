@@ -1,7 +1,6 @@
-﻿using ASCOM.Standard.Interfaces;
+﻿using ASCOM.Common;
+using ASCOM.Common.Interfaces;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace ASCOM.Tools
 {

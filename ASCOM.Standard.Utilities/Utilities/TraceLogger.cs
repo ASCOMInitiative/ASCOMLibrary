@@ -1,6 +1,6 @@
-﻿using ASCOM.Standard.Interfaces;
+﻿using ASCOM.Common;
+using ASCOM.Common.Interfaces;
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -44,14 +44,14 @@ namespace ASCOM.Tools
         private const bool RESPECT_CRLF_DEFAULT = true;
 
         // Property backing variables
-        private string logFileType;
+        private readonly string logFileType;
         private int identifierWidthValue;
 
         // Global fields
         private StreamWriter logFileStream;
         private Mutex loggerMutex;
-        private bool autoGenerateFileName;
-        private bool autoGenerateFilePath;
+        private readonly bool autoGenerateFileName;
+        private readonly bool autoGenerateFilePath;
         private bool traceLoggerHasBeenDisposed;
         private string mutexName;
 
@@ -382,8 +382,10 @@ namespace ASCOM.Tools
                     }
 
                     // Create the stream writer used to write to disk
-                    logFileStream = new StreamWriter(Path.Combine(LogFilePath, LogFileName), false);
-                    logFileStream.AutoFlush = true;
+                    logFileStream = new StreamWriter(Path.Combine(LogFilePath, LogFileName), false)
+                    {
+                        AutoFlush = true
+                    };
                 }
                 catch (Exception ex)
                 {
@@ -402,8 +404,10 @@ namespace ASCOM.Tools
                     }
 
                     // Create the stream writer used to write to disk
-                    logFileStream = new StreamWriter(Path.Combine(LogFilePath, LogFileName), false);
-                    logFileStream.AutoFlush = true;
+                    logFileStream = new StreamWriter(Path.Combine(LogFilePath, LogFileName), false)
+                    {
+                        AutoFlush = true
+                    };
                 }
                 catch (Exception ex)
                 {

@@ -1,13 +1,9 @@
-﻿using ASCOM.Standard.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using ASCOM.Common;
+using ASCOM.Common.Interfaces;
 
 namespace ASCOM.Compatibility.Utilities
 {
-    public class TraceLoggerCompat : ASCOM.Utilities.TraceLogger, ASCOM.Standard.Interfaces.ILogger
+    public class TraceLoggerCompat : ASCOM.Utilities.TraceLogger, ILogger
     {
         public TraceLoggerCompat() : base()
         {

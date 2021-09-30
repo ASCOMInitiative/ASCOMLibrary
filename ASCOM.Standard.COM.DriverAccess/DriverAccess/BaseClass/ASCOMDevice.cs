@@ -1,16 +1,15 @@
-﻿using System;
+﻿using ASCOM.Common.DeviceInterfaces;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using ASCOM.Standard.Interfaces;
 namespace ASCOM.Com.DriverAccess
 {
     public abstract class ASCOMDevice : IAscomDevice, IDisposable
     {
-        private dynamic device;
+        private readonly dynamic device;
         internal dynamic Device
         {
             get => device;
@@ -52,7 +51,7 @@ namespace ASCOM.Com.DriverAccess
         {
             get
             {
-                if(InterfaceVersion == 1)
+                if (InterfaceVersion == 1)
                 {
                     return new List<string>();
                 }
@@ -127,7 +126,7 @@ namespace ASCOM.Com.DriverAccess
 
         internal void AssertMethodImplemented(int MinimumVersion, string Message)
         {
-            if(this.InterfaceVersion < MinimumVersion)
+            if (this.InterfaceVersion < MinimumVersion)
             {
                 throw new ASCOM.MethodNotImplementedException(Message);
             }

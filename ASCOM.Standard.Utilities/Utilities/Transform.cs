@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace ASCOM.Tools
+﻿namespace ASCOM.Tools
 {
     /// <summary>
     /// Coordinate transform component; J2000 - apparent - topocentric

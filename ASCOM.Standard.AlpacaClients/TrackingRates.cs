@@ -1,7 +1,6 @@
-﻿using System;
+﻿using ASCOM.Common.DeviceInterfaces;
+using System;
 using System.Collections;
-using System.Runtime.InteropServices;
-using ASCOM.Standard.Interfaces;
 using System.Globalization;
 
 namespace ASCOM.Alpaca.Clients

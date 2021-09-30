@@ -1,13 +1,11 @@
-﻿using ASCOM.Standard.Interfaces;
-using System;
+﻿using ASCOM.Common.DeviceInterfaces;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace ASCOM.Com.DriverAccess
 {
-    public class Camera : ASCOMDevice, ASCOM.Standard.Interfaces.ICameraV3
+    public class Camera : ASCOMDevice, ICameraV3
     {
         public static List<ASCOMRegistration> Cameras => ProfileAccess.GetDrivers(DriverTypes.Camera);
 
@@ -55,7 +53,7 @@ namespace ASCOM.Com.DriverAccess
         public short BinX { get => base.Device.BinX; set => base.Device.BinX = value; }
         public short BinY { get => base.Device.BinY; set => base.Device.BinY = value; }
 
-        public CameraState CameraState => (CameraState) base.Device.CameraState;
+        public CameraState CameraState => (CameraState)base.Device.CameraState;
 
         public int CameraXSize => base.Device.CameraXSize;
 
@@ -120,7 +118,7 @@ namespace ASCOM.Com.DriverAccess
         {
             get
             {
-                if(InterfaceVersion < 2)
+                if (InterfaceVersion < 2)
                 {
                     throw new PropertyNotImplementedException("BayerOffsetX is only supported by Interface Versions 2 and above.");
                 }
@@ -332,7 +330,7 @@ namespace ASCOM.Com.DriverAccess
                 {
                     throw new PropertyNotImplementedException("SensorType is only supported by Interface Versions 2 and above.");
                 }
-                return (SensorType) base.Device.SensorType;
+                return (SensorType)base.Device.SensorType;
             }
         }
 
@@ -393,7 +391,7 @@ namespace ASCOM.Com.DriverAccess
             }
         }
 
-        public double SubExposureDuration 
+        public double SubExposureDuration
         {
             get
             {

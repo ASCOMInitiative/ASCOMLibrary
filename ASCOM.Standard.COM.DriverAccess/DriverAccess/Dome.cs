@@ -1,11 +1,9 @@
-﻿using ASCOM.Standard.Interfaces;
-using System;
+﻿using ASCOM.Common.DeviceInterfaces;
 using System.Collections.Generic;
-using System.Text;
 
 namespace ASCOM.Com.DriverAccess
 {
-    public class Dome : ASCOMDevice, ASCOM.Standard.Interfaces.IDomeV2
+    public class Dome : ASCOMDevice, IDomeV2
     {
         public static List<ASCOMRegistration> Domes => ProfileAccess.GetDrivers(DriverTypes.Dome);
 
@@ -50,7 +48,7 @@ namespace ASCOM.Com.DriverAccess
 
         public bool CanSyncAzimuth => base.Device.CanSyncAzimuth;
 
-        public ShutterState ShutterStatus => (ShutterState) base.Device.ShutterStatus;
+        public ShutterState ShutterStatus => (ShutterState)base.Device.ShutterStatus;
 
         public bool Slaved { get => base.Device.Slaved; set => base.Device.Slaved = value; }
 

@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections;
+﻿using ASCOM.Common.DeviceInterfaces;
+using ASCOM.Common.Interfaces;
+using RestSharp;
+using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.Reflection;
-
-using ASCOM.Standard.Interfaces;
-using RestSharp;
 
 namespace ASCOM.Alpaca.Clients
 {
@@ -141,7 +139,7 @@ namespace ASCOM.Alpaca.Clients
                 clientIsConnected = value;
                 if (manageConnectLocally)
                 {
-                    AlpacaDeviceBaseClass.LogMessage(TL,clientNumber, DEVICE_TYPE, $"The Connected property is being managed locally so the new value '{value}' will not be sent to the remote device");
+                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, DEVICE_TYPE, $"The Connected property is being managed locally so the new value '{value}' will not be sent to the remote device");
                 }
                 else // Send the command to the remote device
                 {
@@ -193,7 +191,7 @@ namespace ASCOM.Alpaca.Clients
             get
             {
                 string response = DynamicClientDriver.GetValue<string>(clientNumber, client, URIBase, strictCasing, TL, "Name", MemberTypes.Property);
-                AlpacaDeviceBaseClass.LogMessage(TL,clientNumber, "Name", response);
+                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "Name", response);
                 return response;
             }
         }
@@ -275,7 +273,7 @@ namespace ASCOM.Alpaca.Clients
         {
             DynamicClientDriver.SetClientTimeout(client, longDeviceResponseTimeout);
             DynamicClientDriver.CallMethodWithNoParameters(clientNumber, client, URIBase, strictCasing, TL, "Halt", MemberTypes.Method);
-            AlpacaDeviceBaseClass.LogMessage(TL,clientNumber, "Halt", "Rotator halted OK");
+            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "Halt", "Rotator halted OK");
         }
 
         public void Move(float Position)
@@ -286,7 +284,7 @@ namespace ASCOM.Alpaca.Clients
             };
             DynamicClientDriver.SetClientTimeout(client, longDeviceResponseTimeout);
             DynamicClientDriver.SendToRemoteDevice<NoReturnValue>(clientNumber, client, URIBase, strictCasing, TL, "Move", Parameters, Method.PUT, MemberTypes.Method);
-            AlpacaDeviceBaseClass.LogMessage(TL,clientNumber, "Move", $"Rotator moved to relative position {Position} OK");
+            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "Move", $"Rotator moved to relative position {Position} OK");
         }
 
         public void MoveAbsolute(float Position)
@@ -297,7 +295,7 @@ namespace ASCOM.Alpaca.Clients
             };
             DynamicClientDriver.SetClientTimeout(client, longDeviceResponseTimeout);
             DynamicClientDriver.SendToRemoteDevice<NoReturnValue>(clientNumber, client, URIBase, strictCasing, TL, "MoveAbsolute", Parameters, Method.PUT, MemberTypes.Method);
-            AlpacaDeviceBaseClass.LogMessage(TL,clientNumber, "MoveAbsolute", $"Rotator moved to absolute position {Position} OK");
+            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "MoveAbsolute", $"Rotator moved to absolute position {Position} OK");
         }
 
         #endregion
@@ -321,7 +319,7 @@ namespace ASCOM.Alpaca.Clients
             };
             DynamicClientDriver.SetClientTimeout(client, longDeviceResponseTimeout);
             DynamicClientDriver.SendToRemoteDevice<NoReturnValue>(clientNumber, client, URIBase, strictCasing, TL, "Sync", Parameters, Method.PUT, MemberTypes.Method);
-            AlpacaDeviceBaseClass.LogMessage(TL,clientNumber, "Sync", $"Rotator synced to sky position {Position} OK");
+            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "Sync", $"Rotator synced to sky position {Position} OK");
         }
 
         public void MoveMechanical(float Position)
@@ -332,7 +330,7 @@ namespace ASCOM.Alpaca.Clients
             };
             DynamicClientDriver.SetClientTimeout(client, longDeviceResponseTimeout);
             DynamicClientDriver.SendToRemoteDevice<NoReturnValue>(clientNumber, client, URIBase, strictCasing, TL, "MoveMechanical", Parameters, Method.PUT, MemberTypes.Method);
-            AlpacaDeviceBaseClass.LogMessage(TL,clientNumber, "MoveMechanical", $"Rotator moved to mechanical position {Position} OK");
+            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "MoveMechanical", $"Rotator moved to mechanical position {Position} OK");
         }
 
         #endregion

@@ -1,8 +1,5 @@
-using ASCOM.Alpaca;
-using ASCOM.Alpaca.Responses;
+using ASCOM.Common.Alpaca;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace ASCOM.Standard.Helpers
 {
@@ -57,7 +54,7 @@ namespace ASCOM.Standard.Helpers
         /// <param name="clientTransactionID">The Client Transaction ID</param>
         /// <param name="serverTransactionID">The Server Transaction ID</param>
         /// <returns></returns>
-        public static T ExceptionResponseBuilder<T>(Alpaca.ErrorCodes code, string message, uint clientTransactionID = 0, uint serverTransactionID = 0) where T : Response, new()
+        public static T ExceptionResponseBuilder<T>(AlpacaErrors code, string message, uint clientTransactionID = 0, uint serverTransactionID = 0) where T : Response, new()
         {
             return new T()
             {
@@ -68,6 +65,6 @@ namespace ASCOM.Standard.Helpers
             };
         }
 
-        
+
     }
 }

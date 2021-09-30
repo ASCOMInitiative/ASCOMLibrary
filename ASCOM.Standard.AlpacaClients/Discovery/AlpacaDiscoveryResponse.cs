@@ -6,7 +6,7 @@
         /// Lower-case for serialiser
         /// </summary>
         public int AlpacaPort
-        { 
+        {
             get;
             set;
         }

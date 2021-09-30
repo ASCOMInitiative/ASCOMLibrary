@@ -1,10 +1,9 @@
-﻿using System;
+﻿using ASCOM.Common.DeviceInterfaces;
 using System.Collections.Generic;
-using System.Text;
 
 namespace ASCOM.Com.DriverAccess
 {
-    public class FilterWheel : ASCOMDevice, ASCOM.Standard.Interfaces.IFilterWheelV2
+    public class FilterWheel : ASCOMDevice, IFilterWheelV2
     {
         public static List<ASCOMRegistration> FilterWheels => ProfileAccess.GetDrivers(DriverTypes.FilterWheel);
 

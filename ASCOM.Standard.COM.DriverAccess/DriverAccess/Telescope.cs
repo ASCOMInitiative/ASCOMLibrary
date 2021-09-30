@@ -1,13 +1,12 @@
-﻿using ASCOM.Standard.Interfaces;
+﻿using ASCOM.Common.DeviceInterfaces;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Text;
 
 namespace ASCOM.Com.DriverAccess
 {
-    public class Telescope : ASCOMDevice, ASCOM.Standard.Interfaces.ITelescopeV3
+    public class Telescope : ASCOMDevice, ITelescopeV3
     {
         public static List<ASCOMRegistration> Telescopes => ProfileAccess.GetDrivers(DriverTypes.Telescope);
 
@@ -32,7 +31,7 @@ namespace ASCOM.Com.DriverAccess
         {
             get
             {
-                if(InterfaceVersion == 1)
+                if (InterfaceVersion == 1)
                 {
                     throw new ASCOM.PropertyNotImplementedException("AlignmentMode is only supported by Interface Versions 2 and above.");
                 }
@@ -192,7 +191,7 @@ namespace ASCOM.Com.DriverAccess
             }
         }
 
-        public double FocalLength 
+        public double FocalLength
         {
             get
             {
@@ -337,7 +336,7 @@ namespace ASCOM.Com.DriverAccess
             }
         }
 
-        public ITrackingRates TrackingRates 
+        public ITrackingRates TrackingRates
         {
             get
             {
@@ -390,7 +389,7 @@ namespace ASCOM.Com.DriverAccess
             {
                 throw new ASCOM.MethodNotImplementedException("AtPark is only supported by Interface Versions 2 and above.");
             }
-            return (PointingState) base.Device.DestinationSideOfPier(RightAscension, Declination);
+            return (PointingState)base.Device.DestinationSideOfPier(RightAscension, Declination);
         }
 
         public void FindHome()
@@ -487,7 +486,7 @@ namespace ASCOM.Com.DriverAccess
 
     public class TrackingRates : ITrackingRates, IEnumerable, IEnumerator, IDisposable
     {
-        private List<DriveRate> m_TrackingRates = new List<DriveRate>();
+        private readonly List<DriveRate> m_TrackingRates = new List<DriveRate>();
         private int _pos = -1;
         //
         // Default constructor - Internal prevents public creation

@@ -1,11 +1,10 @@
-﻿using System;
+﻿using ASCOM.Common.DeviceInterfaces;
+using ASCOM.Common.Interfaces;
+using RestSharp;
+using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.Reflection;
-
-using ASCOM.Standard.Interfaces;
-using RestSharp;
 
 namespace ASCOM.Alpaca.Clients
 {

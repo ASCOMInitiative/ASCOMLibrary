@@ -1,11 +1,9 @@
-﻿using ASCOM.Standard.Interfaces;
-using System;
+﻿using ASCOM.Common.DeviceInterfaces;
 using System.Collections.Generic;
-using System.Text;
 
 namespace ASCOM.Com.DriverAccess
 {
-    public class CoverCalibrator : ASCOMDevice, ASCOM.Standard.Interfaces.ICoverCalibratorV1
+    public class CoverCalibrator : ASCOMDevice, ICoverCalibratorV1
     {
         public static List<ASCOMRegistration> CoverCalibrators => ProfileAccess.GetDrivers(DriverTypes.CoverCalibrator);
 
@@ -14,9 +12,9 @@ namespace ASCOM.Com.DriverAccess
 
         }
 
-        public CoverStatus CoverState => (CoverStatus) base.Device.CoverState;
+        public CoverStatus CoverState => (CoverStatus)base.Device.CoverState;
 
-        public CalibratorStatus CalibratorState => (CalibratorStatus) base.Device.CalibratorState;
+        public CalibratorStatus CalibratorState => (CalibratorStatus)base.Device.CalibratorState;
 
         public int Brightness => base.Device.Brightness;
 

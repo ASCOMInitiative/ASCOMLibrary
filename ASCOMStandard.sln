@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29519.87
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31717.71
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASCOMStandard.Tests", "test\ASCOMStandard.Tests\ASCOMStandard.Tests.csproj", "{EC97A23E-7CB2-43A8-A351-CC4FDDA9CE2C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnitTests", "test\ASCOMStandard.Tests\UnitTests.csproj", "{EC97A23E-7CB2-43A8-A351-CC4FDDA9CE2C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASCOM.Standard.Types", "ASCOM.Standard.Types\ASCOM.Standard.Types.csproj", "{F0C9BFFD-C144-44AF-9318-847B19DF5C5B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASCOM.Common", "ASCOM.Standard.Types\ASCOM.Common.csproj", "{F0C9BFFD-C144-44AF-9318-847B19DF5C5B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASCOM.Tools", "ASCOM.Standard.Utilities\ASCOM.Tools.csproj", "{E0DA83D6-2F10-4A2E-B34A-1113335E2375}"
 EndProject

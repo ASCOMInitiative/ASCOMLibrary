@@ -1,6 +1,4 @@
-﻿using Microsoft.Win32;
-using System.Runtime.Serialization.Formatters;
-using ASCOM.Standard.Responses;
+﻿using ASCOM.Common.Alpaca;
 
 namespace ASCOM.Alpaca.Clients
 {

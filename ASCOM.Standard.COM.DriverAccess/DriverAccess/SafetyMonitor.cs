@@ -1,10 +1,9 @@
-﻿using System;
+﻿using ASCOM.Common.DeviceInterfaces;
 using System.Collections.Generic;
-using System.Text;
 
 namespace ASCOM.Com.DriverAccess
 {
-    public class SafetyMonitor : ASCOMDevice, ASCOM.Standard.Interfaces.ISafetyMonitor
+    public class SafetyMonitor : ASCOMDevice, ISafetyMonitor
     {
         public static List<ASCOMRegistration> SafetyMonitors => ProfileAccess.GetDrivers(DriverTypes.SafetyMonitor);
 

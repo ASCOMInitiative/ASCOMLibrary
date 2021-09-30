@@ -1,4 +1,4 @@
-﻿using ASCOM.Standard.Interfaces;
+﻿using ASCOM.Common.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Net;

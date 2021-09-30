@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections;
+﻿using ASCOM.Common.DeviceInterfaces;
+using ASCOM.Common.Interfaces;
+using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Reflection;
-
-using ASCOM.Standard.Interfaces;
-using RestSharp;
 
 namespace ASCOM.Alpaca.Clients
 {
@@ -166,7 +163,7 @@ namespace ASCOM.Alpaca.Clients
                 clientIsConnected = value;
                 if (manageConnectLocally)
                 {
-                    AlpacaDeviceBaseClass.LogMessage(TL,clientNumber, DEVICE_TYPE, $"The Connected property is being managed locally so the new value '{value}' will not be sent to the remote device");
+                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, DEVICE_TYPE, $"The Connected property is being managed locally so the new value '{value}' will not be sent to the remote device");
                 }
                 else // Send the command to the remote device
                 {
@@ -186,7 +183,7 @@ namespace ASCOM.Alpaca.Clients
             {
                 DynamicClientDriver.SetClientTimeout(client, standardDeviceResponseTimeout);
                 string response = DynamicClientDriver.Description(clientNumber, client, URIBase, strictCasing, TL);
-                AlpacaDeviceBaseClass.LogMessage(TL,clientNumber, "Description", response);
+                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "Description", response);
                 return response;
             }
         }
@@ -235,7 +232,7 @@ namespace ASCOM.Alpaca.Clients
             get
             {
                 string response = DynamicClientDriver.GetValue<string>(clientNumber, client, URIBase, strictCasing, TL, "Name", MemberTypes.Property);
-                AlpacaDeviceBaseClass.LogMessage(TL,clientNumber, "Name", response);
+                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "Name", response);
                 return response;
             }
         }

@@ -1,6 +1,7 @@
-﻿using ASCOM.Standard.Responses;
-using ASCOM.Standard.Interfaces;
-using ASCOM.Alpaca.Responses;
+﻿using ASCOM.Common.Alpaca;
+using ASCOM.Common.Com;
+using ASCOM.Common.DeviceInterfaces;
+using ASCOM.Common.Interfaces;
 using RestSharp;
 using RestSharp.Authenticators;
 using System;
@@ -19,7 +20,6 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using ASCOM.Standard;
 
 namespace ASCOM.Alpaca.Clients
 {
@@ -351,68 +351,68 @@ namespace ASCOM.Alpaca.Clients
         /// <param name="TL">Trace logger in which to report progress</param>
         /// <param name="clientNumber">The client's number</param>
         /// <returns></returns>
-        private static bool ClientIsUp(string ipAddressString, decimal portNumber, int connectionTimeout, ILogger TL, uint clientNumber)
-        {
-            TcpClient tcpClient = null;
+        //private static bool ClientIsUp(string ipAddressString, decimal portNumber, int connectionTimeout, ILogger TL, uint clientNumber)
+        //{
+        //    TcpClient tcpClient = null;
 
-            bool returnValue = false; // Assume a bad outcome in case there is an exception 
+        //    bool returnValue = false; // Assume a bad outcome in case there is an exception 
 
-            try
-            {
-                // Create a TcpClient 
-                if (IPAddress.TryParse(ipAddressString, out IPAddress ipAddress))
-                {
-                    // Create an IPv4 or IPv6 TCP client as required
-                    if (ipAddress.AddressFamily == AddressFamily.InterNetwork) tcpClient = new TcpClient(AddressFamily.InterNetwork); // Test IPv4 addresses
-                    else tcpClient = new TcpClient(AddressFamily.InterNetworkV6);
-                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "ClientIsUp", $"Created an {ipAddress.AddressFamily} TCP client");
-                }
-                else
-                {
-                    tcpClient = new TcpClient(); // Create a generic TcpClient that can work with host names
-                }
+        //    try
+        //    {
+        //        // Create a TcpClient 
+        //        if (IPAddress.TryParse(ipAddressString, out IPAddress ipAddress))
+        //        {
+        //            // Create an IPv4 or IPv6 TCP client as required
+        //            if (ipAddress.AddressFamily == AddressFamily.InterNetwork) tcpClient = new TcpClient(AddressFamily.InterNetwork); // Test IPv4 addresses
+        //            else tcpClient = new TcpClient(AddressFamily.InterNetworkV6);
+        //            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "ClientIsUp", $"Created an {ipAddress.AddressFamily} TCP client");
+        //        }
+        //        else
+        //        {
+        //            tcpClient = new TcpClient(); // Create a generic TcpClient that can work with host names
+        //        }
 
-                // Create a task that will return True if a connection to the device can be established or False if the connection is rejected or not possible
-                Task<bool> connectionTask = tcpClient.ConnectAsync(ipAddressString, (int)portNumber).ContinueWith(task => { return !task.IsFaulted; }, TaskContinuationOptions.ExecuteSynchronously);
-                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "ClientIsUp", $"Created connection task");
+        //        // Create a task that will return True if a connection to the device can be established or False if the connection is rejected or not possible
+        //        Task<bool> connectionTask = tcpClient.ConnectAsync(ipAddressString, (int)portNumber).ContinueWith(task => { return !task.IsFaulted; }, TaskContinuationOptions.ExecuteSynchronously);
+        //        AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "ClientIsUp", $"Created connection task");
 
-                // Create a task that will time out after the specified time and return a value of False
-                Task<bool> timeoutTask = Task.Delay(connectionTimeout * 1000).ContinueWith<bool>(task => false, TaskContinuationOptions.ExecuteSynchronously);
-                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "ClientIsUp", $"Created timeout task");
+        //        // Create a task that will time out after the specified time and return a value of False
+        //        Task<bool> timeoutTask = Task.Delay(connectionTimeout * 1000).ContinueWith<bool>(task => false, TaskContinuationOptions.ExecuteSynchronously);
+        //        AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "ClientIsUp", $"Created timeout task");
 
-                // Create a task that will wait until either of the two preceding tasks completes
-                Task<bool> resultTask = Task.WhenAny(connectionTask, timeoutTask).Unwrap();
-                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "ClientIsUp", $"Waiting for a task to complete");
+        //        // Create a task that will wait until either of the two preceding tasks completes
+        //        Task<bool> resultTask = Task.WhenAny(connectionTask, timeoutTask).Unwrap();
+        //        AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "ClientIsUp", $"Waiting for a task to complete");
 
-                // Wait for one of the tasks to complete
-                resultTask.Wait();
-                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "ClientIsUp", $"A task has completed");
+        //        // Wait for one of the tasks to complete
+        //        resultTask.Wait();
+        //        AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "ClientIsUp", $"A task has completed");
 
-                // Test whether or not we connected OK within the timeout period
-                if (resultTask.Result) // We did connect OK within the timeout period
-                {
-                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "ClientIsUp", $"Contacted client OK!");
-                    tcpClient.Close();
-                    returnValue = true;
-                }
-                else // We did not connect successfully within the timeout period
-                {
-                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "ClientIsUp", $"Unable to contact client....");
-                    returnValue = false;
-                }
-            }
+        //        // Test whether or not we connected OK within the timeout period
+        //        if (resultTask.Result) // We did connect OK within the timeout period
+        //        {
+        //            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "ClientIsUp", $"Contacted client OK!");
+        //            tcpClient.Close();
+        //            returnValue = true;
+        //        }
+        //        else // We did not connect successfully within the timeout period
+        //        {
+        //            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "ClientIsUp", $"Unable to contact client....");
+        //            returnValue = false;
+        //        }
+        //    }
 
-            catch (Exception ex)
-            {
-                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "ClientIsUp", $"Exception: {ex}");
+        //    catch (Exception ex)
+        //    {
+        //        AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "ClientIsUp", $"Exception: {ex}");
 
-            }
-            finally
-            {
-                tcpClient.Dispose();
-            }
-            return returnValue;
-        }
+        //    }
+        //    finally
+        //    {
+        //        tcpClient.Dispose();
+        //    }
+        //    return returnValue;
+        //}
 
         #endregion
 
@@ -801,7 +801,7 @@ namespace ASCOM.Alpaca.Clients
                                 AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, string.Format(LOG_FORMAT_STRING, trackingRatesResponse.ClientTransactionID, trackingRatesResponse.ServerTransactionID, "NO VALUE OR NULL VALUE RETURNED"));
 
                                 // Now force an error return
-                                if (trackingRatesResponse.ErrorNumber == 0) trackingRatesResponse.ErrorNumber = (Alpaca.ErrorCodes)DYNAMIC_DRIVER_ERROR_NUMBER;
+                                if (trackingRatesResponse.ErrorNumber == 0) trackingRatesResponse.ErrorNumber = (AlpacaErrors)DYNAMIC_DRIVER_ERROR_NUMBER;
                                 if (string.IsNullOrEmpty(trackingRatesResponse.ErrorMessage)) trackingRatesResponse.ErrorMessage = "Dynamic driver generated error: the Alpaca device returned no value or a null value for TrackingRates";
 
                             }
@@ -883,7 +883,7 @@ namespace ASCOM.Alpaca.Clients
                                 AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, string.Format(LOG_FORMAT_STRING, axisRatesResponse.ClientTransactionID, axisRatesResponse.ServerTransactionID, "NO VALUE OR NULL VALUE RETURNED"));
 
                                 // Now force an error return
-                                if (axisRatesResponse.ErrorNumber == 0) axisRatesResponse.ErrorNumber = (Alpaca.ErrorCodes)DYNAMIC_DRIVER_ERROR_NUMBER;
+                                if (axisRatesResponse.ErrorNumber == 0) axisRatesResponse.ErrorNumber = (AlpacaErrors)DYNAMIC_DRIVER_ERROR_NUMBER;
                                 if (string.IsNullOrEmpty(axisRatesResponse.ErrorMessage)) axisRatesResponse.ErrorMessage = "Dynamic driver generated error: the Alpaca device returned no value or a null value for AxisRates";
                             }
 
@@ -1147,7 +1147,7 @@ namespace ASCOM.Alpaca.Clients
                             AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Received an Alpaca error - ErrorMessage: \"{restResponseBase.ErrorMessage}\", ErrorNumber: 0x{(int)restResponseBase.ErrorNumber:X8}");
 
                             // Handle ASCOM Alpaca reserved error numbers between 0x400 and 0xFFF by translating these to the COM HResult error number range: 0x80040400 to 0x80040FFF and throwing the translated value as an exception
-                            if ((restResponseBase.ErrorNumber >= Alpaca.ErrorCodes.AlpacaErrorCodeBase) & (restResponseBase.ErrorNumber <= Alpaca.ErrorCodes.AlpacaErrorCodeMax)) // This error is within the ASCOM Alpaca reserved error number range
+                            if ((restResponseBase.ErrorNumber >= AlpacaErrors.AlpacaErrorCodeBase) & (restResponseBase.ErrorNumber <= AlpacaErrors.AlpacaErrorCodeMax)) // This error is within the ASCOM Alpaca reserved error number range
                             {
                                 // Calculate the equivalent COM HResult error number from the supplied Alpaca error number so that comparison can be made with the original ASCOM COM exception HResult numbers that Windows clients expect in their exceptions
                                 int ascomCOMErrorNumber = (int)(restResponseBase.ErrorNumber + (int)ComErrorCodes.ComErrorNumberOffset);
@@ -1289,7 +1289,7 @@ namespace ASCOM.Alpaca.Clients
         {
             AlpacaDeviceBaseClass.LogMessage(TL, 0, "CallWasSuccessful", $"DriverException == null: {response.DriverException == null}, ErrorMessage: {response.ErrorMessage}, ErrorNumber: 0x{(int)response.ErrorNumber:X8}");
             if (response.DriverException != null) AlpacaDeviceBaseClass.LogMessage(TL, 0, "CallWasSuccessfulEx", response.DriverException.ToString());
-            if ((response.DriverException == null) & (response.ErrorMessage == "") & (response.ErrorNumber == Alpaca.ErrorCodes.AlpacaNoError))
+            if ((response.DriverException == null) & (response.ErrorMessage == "") & (response.ErrorNumber == AlpacaErrors.AlpacaNoError))
             {
                 AlpacaDeviceBaseClass.LogMessage(TL, 0, "CallWasSuccessful", "Returning True");
                 AlpacaDeviceBaseClass.LogBlankLine(TL);
@@ -1443,24 +1443,6 @@ namespace ASCOM.Alpaca.Clients
         #endregion
 
         #region Complex Camera Properties
-
-        public static int GetIntParameter(string parameterName, string response, bool strictCasing, ILogger TL)
-        {
-            const string COMMA = ",";
-
-            string formattedParameterName = $"\"{parameterName}\":";
-
-            int parameterTextStart = response.IndexOf(formattedParameterName, StringComparison.Ordinal);
-            int parameterStart = parameterTextStart + formattedParameterName.Length;
-            int parameterEnd = response.IndexOf(COMMA, parameterStart, StringComparison.Ordinal);
-            string parameterString = response.Substring(parameterStart, parameterEnd - parameterStart);
-
-            bool success = int.TryParse(parameterString, out int parameterValue);
-
-            AlpacaDeviceBaseClass.LogMessage(TL, 0, "GetIntParameter", $"ParameterTextStart: {parameterTextStart}, ParameterStart: {parameterStart}, PArameterEnd: {parameterEnd}, ParameterString: {parameterString}, ParameterValue: {parameterValue}, Success: {success}");
-
-            return parameterValue;
-        }
 
         public static object ImageArrayVariant(uint clientNumber, RestClient client, string URIBase, bool strictCasing, ILogger TL, ImageArrayTransferType imageArrayTransferType, ImageArrayCompression imageArrayCompression)
         {

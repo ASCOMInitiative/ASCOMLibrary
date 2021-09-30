@@ -1,9 +1,9 @@
-﻿using System;
+﻿using ASCOM.Common.DeviceInterfaces;
 using System.Collections.Generic;
 
 namespace ASCOM.Com.DriverAccess
 {
-    public class Focuser : ASCOMDevice, ASCOM.Standard.Interfaces.IFocuserV3
+    public class Focuser : ASCOMDevice, IFocuserV3
     {
         public static List<ASCOMRegistration> Focusers => ProfileAccess.GetDrivers(DriverTypes.Focuser);
 
@@ -16,7 +16,7 @@ namespace ASCOM.Com.DriverAccess
         {
             get
             {
-                if(InterfaceVersion == 1)
+                if (InterfaceVersion == 1)
                 {
                     return Link;
                 }

@@ -1,7 +1,4 @@
-﻿using ASCOM.Alpaca.Responses;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using ASCOM.Common.Alpaca;
 
 namespace ASCOM.Alpaca.Discovery
 {
@@ -37,7 +34,7 @@ namespace ASCOM.Alpaca.Discovery
         /// <param name="serverTransactionID">Server transaction ID</param>
         /// <param name="errorMessage">Value to return</param>
         /// <param name="errorCode">Server transaction ID</param>
-        public AlpacaDescriptionResponse(uint clientTransactionID, uint serverTransactionID, string errorMessage, Alpaca.ErrorCodes errorCode)
+        public AlpacaDescriptionResponse(uint clientTransactionID, uint serverTransactionID, string errorMessage, AlpacaErrors errorCode)
         {
             base.ServerTransactionID = serverTransactionID;
             base.ClientTransactionID = clientTransactionID;

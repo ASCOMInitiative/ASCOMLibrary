@@ -1,4 +1,5 @@
-﻿using ASCOM.Standard.Interfaces;
+﻿using ASCOM.Common;
+using ASCOM.Common.Interfaces;
 using System;
 
 namespace ASCOM.Tools
