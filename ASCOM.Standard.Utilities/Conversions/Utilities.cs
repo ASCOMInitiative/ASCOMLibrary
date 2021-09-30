@@ -32,7 +32,7 @@ namespace ASCOM.Tools
         /// <para>Examples of valid input values in a locale where point is used as the decimal separator: 60:27:45.846, 12:1.349, +345.1840746, -45:34:12.422</para>
         /// <para>Examples of valid input values in a locale where comma is used as the decimal separator: 60:27:45,846, 12:1,349, +345,1840746, -45:34:12,422</para>
         /// </remarks>
-        public double DMSToDegrees(string DMSString)
+        public static double DMSToDegrees(string DMSString)
         {
             double returnValue = 0.0; // Return value
             double sign; // Sign of the supplied value
@@ -95,7 +95,7 @@ namespace ASCOM.Tools
         /// <para>Examples of valid input values in a locale where point is used as the decimal separator: 60:27:45.846, 12:1.349, +345.1840746, -45:34:12.422</para>
         /// <para>Examples of valid input values in a locale where comma is used as the decimal separator: 60:27:45,846, 12:1,349, +345,1840746, -45:34:12,422</para>
         /// </remarks>
-        public double DMSToHours(string DMSString)
+        public static double DMSToHours(string DMSString)
         {
             return DMSToDegrees(DMSString) / 15.0;
         }
@@ -115,7 +115,7 @@ namespace ASCOM.Tools
         /// <para>Examples of valid input values in a locale where point is used as the decimal separator: 6:27:45.846, 7:1.349, +8.1840746, -5:34:12.422</para>
         /// <para>Examples of valid input values in a locale where comma is used as the decimal separator: 6:27:45,846, 7:1,349, +8,1840746, -5:34:12,422</para>
         /// </remarks>
-        public double HMSToHours(string HMSString)
+        public static double HMSToHours(string HMSString)
         {
             double returnValue = 0.0; // Return value
             double sign; // Sign of the supplied value
@@ -178,7 +178,7 @@ namespace ASCOM.Tools
         /// <para>Examples of valid input values in a locale where point is used as the decimal separator: 6:27:45.846, 7:1.349, +8.1840746, -5:34:12.422</para>
         /// <para>Examples of valid input values in a locale where comma is used as the decimal separator: 6:27:45,846, 7:1,349, +8,1840746, -5:34:12,422</para>
         /// </remarks>
-        public double HMSToDegrees(string HMS)
+        public static double HMSToDegrees(string HMS)
         {
             return HMSToHours(HMS) * 15.0;
         }
@@ -204,7 +204,7 @@ namespace ASCOM.Tools
         /// "DegreesToDMS(ByVal Degrees As Double, ByVal DegDelim As String, ByVal MinDelim As String, ByVal SecDelim As String)"
         /// with suitable parameters to achieve this effect.</para>
         /// </remarks>
-        public string DegreesToDMS(double Degrees)
+        public static string DegreesToDMS(double Degrees)
         {
             return DoubleToSexagesimalSeconds(Degrees, @":", @":", @"", 0);
         }
@@ -222,7 +222,7 @@ namespace ASCOM.Tools
         /// <para>If you need a leading plus sign, you must prepend it yourself. The delimiters are not restricted to single 
         /// characters.</para>
         /// </remarks>
-        public string DegreesToDMS(double Degrees, string DegDelim, string MinDelim, string SecDelim, int SecDecimalDigits)
+        public static string DegreesToDMS(double Degrees, string DegDelim, string MinDelim, string SecDelim, int SecDecimalDigits)
         {
 
             return DoubleToSexagesimalSeconds(Degrees, DegDelim, MinDelim, SecDelim, SecDecimalDigits);
@@ -243,7 +243,7 @@ namespace ASCOM.Tools
         /// "DegreesToDM(ByVal Degrees As Double, ByVal DegDelim As String, ByVal MinDelim As String, ByVal MinDecimalDigits As Integer)"
         /// with suitable parameters to achieve this effect.</para>
         /// </remarks>
-        public string DegreesToDM(double Degrees)
+        public static string DegreesToDM(double Degrees)
         {
             return DoubleToSexagesimalMinutes(Degrees, @":", @"", 0);
         }
@@ -259,7 +259,7 @@ namespace ASCOM.Tools
         /// <remarks>
         /// <para>If you need a leading plus sign, you must prepend it yourself. The delimiters are not restricted to single characters.</para>
         /// </remarks>
-        public string DegreesToDM(double Degrees, string DegDelim, string MinDelim, int MinDecimalDigits)
+        public static string DegreesToDM(double Degrees, string DegDelim, string MinDelim, int MinDecimalDigits)
         {
             return DoubleToSexagesimalMinutes(Degrees, DegDelim, MinDelim, MinDecimalDigits);
         }
@@ -279,7 +279,7 @@ namespace ASCOM.Tools
         /// "DegreesToHMS(ByVal Degrees As Double, ByVal HrsDelim As String, ByVal MinDelim As String, ByVal SecDelim As String, ByVal SecDecimalDigits As Integer)"
         /// with suitable parameters to achieve this effect.</para>
         /// </remarks>
-        public string DegreesToHMS(double Degrees)
+        public static string DegreesToHMS(double Degrees)
         {
             return DoubleToSexagesimalSeconds(Degrees / 15.0, @":", @":", @"", 0);
         }
@@ -296,7 +296,7 @@ namespace ASCOM.Tools
         /// <remarks>
         /// <para>If you need a leading plus sign, you must prepend it yourself. The delimiters are not restricted to single characters. </para>
         /// </remarks>
-        public string DegreesToHMS(double Degrees, string HrsDelim, string MinDelim, string SecDelim, int SecDecimalDigits)
+        public static string DegreesToHMS(double Degrees, string HrsDelim, string MinDelim, string SecDelim, int SecDecimalDigits)
         {
             return DoubleToSexagesimalSeconds(Degrees / 15.0, HrsDelim, MinDelim, SecDelim, SecDecimalDigits);
         }
@@ -316,7 +316,7 @@ namespace ASCOM.Tools
         /// "DegreesToHM(ByVal Degrees As Double, ByVal HrsDelim As String, ByVal MinDelim As String, ByVal MinDecimalDigits As Integer)"
         /// with suitable parameters to achieve this effect.</para>
         /// </remarks>
-        public string DegreesToHM(double Degrees)
+        public static string DegreesToHM(double Degrees)
         {
             return DoubleToSexagesimalMinutes(Degrees / 15.0, @":", @"", 0);
         }
@@ -332,7 +332,7 @@ namespace ASCOM.Tools
         /// <remarks>
         /// <para>If you need a leading plus sign, you must prepend it yourself. The delimiters are not restricted to single characters</para>
         /// </remarks>
-        public string DegreesToHM(double Degrees, string HrsDelim, string MinDelim, int MinDecimalDigits)
+        public static string DegreesToHM(double Degrees, string HrsDelim, string MinDelim, int MinDecimalDigits)
         {
             return DoubleToSexagesimalMinutes(Degrees / 15.0, HrsDelim, MinDelim, MinDecimalDigits);
         }
@@ -352,7 +352,7 @@ namespace ASCOM.Tools
         /// "HoursToHMS(ByVal Hours As Double, ByVal HrsDelim As String, ByVal MinDelim As String, ByVal SecDelim As String, ByVal SecDecimalDigits As Integer)"
         /// with suitable parameters to achieve this effect.</para>
         /// </remarks>
-        public string HoursToHMS(double Hours)
+        public static string HoursToHMS(double Hours)
         {
             return DoubleToSexagesimalSeconds(Hours, @":", @":", @"", 0);
         }
@@ -369,7 +369,7 @@ namespace ASCOM.Tools
         /// <remarks>
         /// <para>If you need a leading plus sign, you must prepend it yourself. The delimiters are not restricted to single characters.</para>
         /// </remarks>
-        public string HoursToHMS(double Hours, string HrsDelim, string MinDelim, string SecDelim, int SecDecimalDigits)
+        public static string HoursToHMS(double Hours, string HrsDelim, string MinDelim, string SecDelim, int SecDecimalDigits)
         {
             return DoubleToSexagesimalSeconds(Hours, HrsDelim, MinDelim, SecDelim, SecDecimalDigits);
         }
@@ -389,7 +389,7 @@ namespace ASCOM.Tools
         /// "HoursToHM(ByVal Hours As Double, ByVal HrsDelim As String, ByVal MinDelim As String, ByVal MinDecimalDigits As Integer)"
         /// with an suitable parameters to achieve this effect.</para>
         /// </remarks>
-        public string HoursToHM(double Hours)
+        public static string HoursToHM(double Hours)
         {
             return DoubleToSexagesimalMinutes(Hours, @":", @"", 0);
         }
@@ -405,7 +405,7 @@ namespace ASCOM.Tools
         /// <remarks>
         /// <para>If you need a leading plus sign, you must prepend it yourself. The delimiters are not restricted to single characters.</para>
         /// </remarks>
-        public string HoursToHM(double Hours, string HrsDelim, string MinDelim, int MinDecimalDigits)
+        public static string HoursToHM(double Hours, string HrsDelim, string MinDelim, int MinDecimalDigits)
         {
             return DoubleToSexagesimalMinutes(Hours, HrsDelim, MinDelim, MinDecimalDigits);
         }
@@ -425,7 +425,7 @@ namespace ASCOM.Tools
         /// <para>The algorithm is from the Explanatory Supplement to the Astronomical Almanac 3rd Edition 2013 edited by Urban and Seidelmann pages 617-619 and has been validated against
         /// the USNO Julian date calculator at https://aa.usno.navy.mil/data/docs/JulianDate.php </para>
         /// </remarks>
-        public DateTime JulianDateToDateTime(double JD)
+        public static DateTime JulianDateToDateTime(double JD)
         {
             // The algorithm employed here is taken from the Explanatory Supplement to the USNO/HMNAO Astronomical Almanac 3rd Edition 2013 edited by Urban and Seidelmann, pages 617 - 619.
             // This implementation has been validated against the USNO Julian date calculator at https://aa.usno.navy.mil/data/docs/JulianDate.php 
@@ -484,20 +484,20 @@ namespace ASCOM.Tools
             return new DateTime(Y, M, D, H, MIN, S, MS, DateTimeKind.Utc);
         }
 
-        
+
         /// <summary>
         /// Calculate the Julian date from a provided DateTime value
         /// </summary>
         /// <param name="ObservationDateTime">DateTime in UTC</param>
         /// <returns>Julian date</returns>
         /// <remarks>Julian dates should always be in UTC </remarks>
-        public double JulianDateFromDateTime(DateTime ObservationDateTime)
+        public static double JulianDateFromDateTime(DateTime ObservationDateTime)
         {
             // The algorithm employed here is taken from the Explanatory Supplement to the USNO/HMNAO Astronomical Almanac 3rd Edition 2013 edited by Urban and Seidelmann, pages 617 - 619.
             // This implementation has been validated against the USNO Julian date calculator at : https://aa.usno.navy.mil/data/docs/JulianDate.php 
 
             // Validate the supplied date / time to make sure it is on or after introduction of the Gregorian calendar in 15th October 1582
-            if (ObservationDateTime < GREGORIAN_CALENDAR_INTRODUCTION) throw new InvalidValueException($"JulianDateToDateTime: The supplied date {ObservationDateTime.ToString("hh:mm:ss.fff dd MMMM yyyy")} precedes introduction of the Gregorian calendar on 18th October 1582.");
+            if (ObservationDateTime < GREGORIAN_CALENDAR_INTRODUCTION) throw new InvalidValueException($"JulianDateToDateTime: The supplied date {ObservationDateTime:hh:mm:ss.fff dd MMMM yyyy} precedes introduction of the Gregorian calendar on 18th October 1582.");
 
             // Defined constants for the Gregorian calendar, taken from the Explanatory Supplement to the Astronomical Almanac.
             const int y = 4716;
@@ -548,7 +548,7 @@ namespace ASCOM.Tools
         /// </summary>
         /// <returns>Current Julian date on the UTC time scale</returns>
         /// <remarks></remarks>
-        public double JulianDateUtc
+        public static double JulianDateUtc
         {
             get
             {
@@ -579,7 +579,7 @@ namespace ASCOM.Tools
         /// <para>Knots conversions use the international nautical mile definition (1 nautical mile = 1852m) rather than the original UK or US Admiralty definitions.</para>
         /// <para>For convenience, milli bar and hecto Pascals are shown as separate units even though they have numerically identical values and there is a 1:1 conversion between them.</para>
         /// </remarks>
-        public double ConvertUnits(double InputValue, Unit FromUnits, Unit ToUnits)
+        public static double ConvertUnits(double InputValue, Unit FromUnits, Unit ToUnits)
         {
             double intermediateValue, finalValue;
 
@@ -831,7 +831,7 @@ namespace ASCOM.Tools
         ///  <remarks>'Calculation uses Vaisala formula for water vapour saturation pressure and is accurate to 0.083% over -20C - +50°C
         /// <para>http://www.vaisala.com/Vaisala%20Documents/Application%20notes/Humidity_Conversion_Formulas_B210973EN-F.pdf </para>
         /// </remarks>
-        public double Humidity2DewPoint(double RelativeHumidity, double AmbientTemperature)
+        public static double Humidity2DewPoint(double RelativeHumidity, double AmbientTemperature)
         {
             // Formulae taken from Vaisala: http://www.vaisala.com/Vaisala%20Documents/Application%20notes/Humidity_Conversion_Formulas_B210973EN-F.pdf 
             double Pws, Pw, Td;
@@ -865,7 +865,7 @@ namespace ASCOM.Tools
         /// <remarks>'Calculation uses the Vaisala formula for water vapour saturation pressure and is accurate to 0.083% over -20C - +50°C
         /// <para>http://www.vaisala.com/Vaisala%20Documents/Application%20notes/Humidity_Conversion_Formulas_B210973EN-F.pdf </para>
         /// </remarks>
-        public double DewPoint2Humidity(double DewPoint, double AmbientTemperature)
+        public static double DewPoint2Humidity(double DewPoint, double AmbientTemperature)
         {
             // Formulae taken from Vaisala: http://www.vaisala.com/Vaisala%20Documents/Application%20notes/Humidity_Conversion_Formulas_B210973EN-F.pdf 
             double RH;
@@ -893,7 +893,7 @@ namespace ASCOM.Tools
         /// <param name="ToAltitudeAboveMeanSeaLevel">Altitude to which the pressure is to be converted (metres)</param>
         /// <returns>Pressure in hPa at the "To" altitude</returns>
         /// <remarks>Uses the equation: p = p0 * (1.0 - 2.25577E-05 h)^5.25588</remarks>
-        public double ConvertPressure(double Pressure, double FromAltitudeAboveMeanSeaLevel, double ToAltitudeAboveMeanSeaLevel)
+        public static double ConvertPressure(double Pressure, double FromAltitudeAboveMeanSeaLevel, double ToAltitudeAboveMeanSeaLevel)
         {
             // Convert supplied pressure to sea level then convert again to the required altitude using this equation: p = p0 (1 - 2.25577 10-5 h)5.25588
 
@@ -929,7 +929,7 @@ namespace ASCOM.Tools
         /// <para>It is not permissible for both LowerEqual and UpperEqual to be false because it will not be possible to return a value that is exactly equal 
         /// to either lower or upper bounds. An exception is thrown if this scenario is requested.</para>
         /// </remarks>
-        public double Range(double Value, double LowerBound, bool LowerEqual, double UpperBound, bool UpperEqual)
+        public static double Range(double Value, double LowerBound, bool LowerEqual, double UpperBound, bool UpperEqual)
         {
             double ModuloValue;
             if (LowerBound >= UpperBound)
@@ -995,7 +995,7 @@ namespace ASCOM.Tools
         /// <param name="HA">Hour angle to condition</param>
         /// <returns>Hour angle in the range -12.0 to +12.0</returns>
         /// <remarks></remarks>
-        public double ConditionHA(double HA)
+        public static double ConditionHA(double HA)
         {
             double ReturnValue;
 
@@ -1011,7 +1011,7 @@ namespace ASCOM.Tools
         /// <param name="RA">Right ascension to be conditioned</param>
         /// <returns>Right ascension in the range 0 to 23.999999...</returns>
         /// <remarks></remarks>
-        public double ConditionRA(double RA)
+        public static double ConditionRA(double RA)
         {
             double ReturnValue;
 
