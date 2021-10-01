@@ -21,7 +21,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\ASCOM.Standard.Types\ASCOM.Common.csproj" />
+	  <ProjectReference Include="..\ASCOM.Common\ASCOM.Common.csproj" />
 	</ItemGroup>
 
 </Project>
