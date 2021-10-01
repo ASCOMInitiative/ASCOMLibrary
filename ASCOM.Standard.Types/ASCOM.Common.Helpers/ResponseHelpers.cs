@@ -1,7 +1,7 @@
 using ASCOM.Common.Alpaca;
 using System;
 
-namespace ASCOM.Standard.Helpers
+namespace ASCOM.Common.Helpers
 {
     /// <summary>
     /// This class contains helper functions to make responding from the server easier.

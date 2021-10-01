@@ -7,15 +7,15 @@
 		<StartupObject />
 		<RootNamespace>ASCOM.Standard.AlpacaClients</RootNamespace>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-		<Authors>Peter Simpson</Authors>
+		<Authors>Daniel Van Noord, Peter Simpson</Authors>
 		<Company>ASCOM Initiative</Company>
-		<Description>Present ASCOM Alpaca devices as ASCOM device interface objects.</Description>
+		<Description>A .Net Standard library providing ASCOM Alpaca client and discovery components.</Description>
 		<PackageLicenseExpression></PackageLicenseExpression>
 		<PackageIcon>ASCOM Alpaca.png</PackageIcon>
 		<PackageIconUrl />
 		<PackageReleaseNotes>Initial release supporting all device types except Video and targeting .NET Standard 2.0.</PackageReleaseNotes>
 		<AssemblyVersion>1.0.0.0</AssemblyVersion>
-		<PackageId>ASCOM.Standard.AlpacaClients</PackageId>
+		<PackageId>ASCOM.Alpaca.Components</PackageId>
 		<RepositoryUrl>https://www.myget.org/F/ascom-initiative/api/v3/index.json</RepositoryUrl>
 		<SignAssembly>true</SignAssembly>
 		<AssemblyOriginatorKeyFile>AlpacaClients.snk</AssemblyOriginatorKeyFile>

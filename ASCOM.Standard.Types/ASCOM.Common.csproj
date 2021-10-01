@@ -2,20 +2,25 @@
 
 	<PropertyGroup>
 		<TargetFramework>netstandard2.0</TargetFramework>
-		<RootNamespace>ASCOM.Standard</RootNamespace>
+		<RootNamespace>ASCOM.Common</RootNamespace>
 		<SignAssembly>true</SignAssembly>
 		<AssemblyOriginatorKeyFile>..\AlpacaSigningKey.snk</AssemblyOriginatorKeyFile>
 		<Copyright>ASCOM Initiative (c) 2019</Copyright>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<Authors>ASCOM Initiative</Authors>
 		<Product>ASCOM NetStandard types</Product>
-		<Description>The essential Interfaces, Enums and Responses for the ASCOM Alpaca projects.</Description>
+		<Description>A .Net Standard library providing common Interfaces, enums and other types for ASCOM projects.</Description>
 		<PackageProjectUrl>https://ascom-standards.org/</PackageProjectUrl>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<PackageId>ASCOM.Common.Components</PackageId>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
 		<DebugType>embedded</DebugType>
 	</PropertyGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="ASCOM.Exceptions" Version="6.5.1" />
+	</ItemGroup>
 
 </Project>

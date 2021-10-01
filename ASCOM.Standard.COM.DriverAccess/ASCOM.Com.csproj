@@ -3,9 +3,10 @@
 	<PropertyGroup>
 		<TargetFramework>netstandard2.0</TargetFramework>
 		<Authors>ASCOM Initiative, Daniel Van Noord</Authors>
-		<Description>A .Net Standard library for accessing ASCOM COM based drivers on Windows platforms.</Description>
+		<Description>A .Net Standard library for accessing ASCOM COM based drivers on Windows platforms and for reading ASCOM Profile information.</Description>
 		<Copyright>Copyright 2021</Copyright>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<PackageId>ASCOM.Com.Components</PackageId>
 	</PropertyGroup>
 
 	<ItemGroup>

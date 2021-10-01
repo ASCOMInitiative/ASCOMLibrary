@@ -5,6 +5,10 @@
 		<AssemblyOriginatorKeyFile>..\AlpacaSigningKey.snk</AssemblyOriginatorKeyFile>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<SignAssembly>true</SignAssembly>
+		<PackageId>ASCOM.Tools</PackageId>
+		<Company>D</Company>
+		<Authors>Daniel Van Noord, Peter Simpson</Authors>
+		<Description>A set of components to support development of ASCOM clients, drivers and Alapca devices.</Description>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
