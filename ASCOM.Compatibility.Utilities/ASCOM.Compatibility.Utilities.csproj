@@ -12,7 +12,8 @@
 		<Description>This wraps the ASCOM Utilities so they expose the equivalent ASCOM Standard types.</Description>
 		<PackageProjectUrl>https://ascom-standards.org/</PackageProjectUrl>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-		<PackageIcon>ASCOM.png</PackageIcon>
+		<PackageIcon>ASCOMBoarderless.png</PackageIcon>
+		<PackageIconUrl />
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -20,7 +21,7 @@
 	    <Pack>True</Pack>
 	    <PackagePath></PackagePath>
 	  </None>
-	  <None Include="..\ASCOM.png">
+	  <None Include="..\ASCOMBoarderless.png">
 	    <Pack>True</Pack>
 	    <PackagePath></PackagePath>
 	  </None>

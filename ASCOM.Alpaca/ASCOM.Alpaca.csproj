@@ -11,7 +11,7 @@
 		<Company>ASCOM Initiative</Company>
 		<Description>A .Net Standard library providing ASCOM Alpaca client and discovery components.</Description>
 		<PackageLicenseExpression></PackageLicenseExpression>
-		<PackageIcon>Alpaca.png</PackageIcon>
+		<PackageIcon>ASCOMBoarderless.png</PackageIcon>
 		<PackageIconUrl />
 		<PackageReleaseNotes>Initial release supporting all device types except Video and targeting .NET Standard 2.0.</PackageReleaseNotes>
 		<AssemblyVersion>1.0.0.0</AssemblyVersion>
@@ -29,7 +29,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <None Include="..\Alpaca.png">
+	  <None Include="..\ASCOMBoarderless.png">
 	    <Pack>True</Pack>
 	    <PackagePath></PackagePath>
 	  </None>
