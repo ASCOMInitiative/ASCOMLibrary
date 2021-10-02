@@ -4,10 +4,27 @@
 		<TargetFramework>netstandard2.0</TargetFramework>
 		<Authors>ASCOM Initiative, Daniel Van Noord</Authors>
 		<Description>A .Net Standard library for accessing ASCOM COM based drivers on Windows platforms and for reading ASCOM Profile information.</Description>
-		<Copyright>Copyright 2021</Copyright>
+		<Copyright>Copyright ASCOM Initiative 2021</Copyright>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PackageId>ASCOM.Com.Components</PackageId>
-	</PropertyGroup>
+		<SignAssembly>true</SignAssembly>
+		<AssemblyOriginatorKeyFile>..\ASCOM.snk</AssemblyOriginatorKeyFile>
+		<DelaySign>false</DelaySign>
+		<PackageIcon>ASCOM.png</PackageIcon>
+		<PackageTags>ascom;alpaca;com;driveraccess</PackageTags>
+		<Product>ASCOM COM Components</Product>
+		</PropertyGroup>
+
+	<ItemGroup>
+	  <None Remove="README.md" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Include="..\ASCOM.png">
+	    <Pack>True</Pack>
+	    <PackagePath></PackagePath>
+	  </None>
+	</ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="ASCOM.Exceptions" Version="6.5.1" />

@@ -4,7 +4,7 @@
 		<TargetFramework>netstandard2.0</TargetFramework>
 		<RootNamespace>ASCOM.Common</RootNamespace>
 		<SignAssembly>true</SignAssembly>
-		<AssemblyOriginatorKeyFile>..\AlpacaSigningKey.snk</AssemblyOriginatorKeyFile>
+		<AssemblyOriginatorKeyFile>..\ASCOM.snk</AssemblyOriginatorKeyFile>
 		<Copyright>ASCOM Initiative (c) 2019</Copyright>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<Authors>ASCOM Initiative</Authors>
@@ -13,6 +13,7 @@
 		<PackageProjectUrl>https://ascom-standards.org/</PackageProjectUrl>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PackageId>ASCOM.Common.Components</PackageId>
+		<PackageIcon>ASCOM.png</PackageIcon>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -20,7 +21,21 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <None Include="..\ASCOM.png">
+	    <Pack>True</Pack>
+	    <PackagePath></PackagePath>
+	  </None>
+	</ItemGroup>
+
+	<ItemGroup>
 	  <PackageReference Include="ASCOM.Exceptions" Version="6.5.1" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Update="README.md">
+	    <Pack>True</Pack>
+	    <PackagePath></PackagePath>
+	  </None>
 	</ItemGroup>
 
 </Project>

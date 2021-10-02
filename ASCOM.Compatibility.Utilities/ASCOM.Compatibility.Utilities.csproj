@@ -4,7 +4,7 @@
 		<TargetFramework>net472</TargetFramework>
 		<RootNamespace>ASCOM.Compatibility.Utilities</RootNamespace>
 		<SignAssembly>true</SignAssembly>
-		<AssemblyOriginatorKeyFile>..\AlpacaSigningKey.snk</AssemblyOriginatorKeyFile>
+		<AssemblyOriginatorKeyFile>..\ASCOM.snk</AssemblyOriginatorKeyFile>
 		<Copyright>ASCOM Initiative (c) 2020</Copyright>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<Authors>ASCOM Initiative</Authors>
@@ -12,7 +12,19 @@
 		<Description>This wraps the ASCOM Utilities so they expose the equivalent ASCOM Standard types.</Description>
 		<PackageProjectUrl>https://ascom-standards.org/</PackageProjectUrl>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<PackageIcon>ASCOM.png</PackageIcon>
 	</PropertyGroup>
+
+	<ItemGroup>
+	  <None Include="..\ASCOM.Common\README.md">
+	    <Pack>True</Pack>
+	    <PackagePath></PackagePath>
+	  </None>
+	  <None Include="..\ASCOM.png">
+	    <Pack>True</Pack>
+	    <PackagePath></PackagePath>
+	  </None>
+	</ItemGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\ASCOM.Common\ASCOM.Common.csproj" />
