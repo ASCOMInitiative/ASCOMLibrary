@@ -229,19 +229,6 @@ namespace ASCOM.Alpaca.Clients
             }
         }
 
-        public bool Link
-        {
-            get
-            {
-                return Connected;
-            }
-
-            set
-            {
-                Connected = value;
-            }
-        }
-
         public int MaxIncrement
         {
             get

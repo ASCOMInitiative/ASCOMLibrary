@@ -41,22 +41,6 @@
         bool IsMoving { get; }
 
         /// <summary>
-        /// State of the connection to the focuser.
-        /// </summary>
-        /// <remarks>
-        /// <exception cref="AlpacaException">Must throw an exception if the call was not successful</exception>
-        /// <p style="color:red"><b>Must be implemented</b></p> Set True to start the connection to the focuser; set False to terminate the connection. 
-        /// The current connection status can also be read back through this property. 
-        /// An exception will be raised if the link fails to change state for any reason. 
-        /// <para><b>Note</b></para>
-        /// <para>The FocuserV1 interface was the only interface to name its <i>"Connect"</i> method "Link" all others named 
-        /// their <i>"Connect"</i> method as "Connected". All interfaces including Focuser now have a <see cref="IAscomDevice.Connected"></see> method and this is 
-        /// the recommended method to use to <i>"Connect"</i> to Focusers exposing the V2 and later interfaces.</para>
-        /// <para>Do not use a NotConnectedException here, that exception is for use in other methods that require a connection in order to succeed.</para>
-        /// </remarks>
-        bool Link { get; set; }
-
-        /// <summary>
         /// Maximum increment size allowed by the focuser; 
         /// i.e. the maximum number of steps allowed in one move operation.
         /// </summary>
