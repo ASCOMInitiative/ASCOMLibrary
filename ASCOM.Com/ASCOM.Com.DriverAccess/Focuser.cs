@@ -9,7 +9,6 @@ namespace ASCOM.Com.DriverAccess
 
         public Focuser(string ProgID) : base(ProgID)
         {
-
         }
 
         public new bool Connected
@@ -18,7 +17,7 @@ namespace ASCOM.Com.DriverAccess
             {
                 if (InterfaceVersion == 1)
                 {
-                    return Link;
+                    return base.Device.Link;
                 }
                 return base.Connected;
             }
@@ -26,7 +25,7 @@ namespace ASCOM.Com.DriverAccess
             {
                 if (InterfaceVersion == 1)
                 {
-                    Link = value;
+                    base.Device.Link = value;
                 }
                 base.Connected = value;
             }
@@ -78,12 +77,6 @@ namespace ASCOM.Com.DriverAccess
                 }
                 return base.Name;
             }
-        }
-
-        public bool Link
-        {
-            get => base.Device.Link;
-            set => base.Device.Link = value;
         }
 
         public bool Absolute => base.Device.Absolute;
