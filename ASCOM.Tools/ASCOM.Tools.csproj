@@ -10,7 +10,6 @@
 		<Authors>Daniel Van Noord, Peter Simpson</Authors>
 		<Description>A set of components to support development of ASCOM clients, drivers and Alapca devices.</Description>
 		<PackageIcon>ASCOMBoarderless.png</PackageIcon>
-		<PackageIconUrl />
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

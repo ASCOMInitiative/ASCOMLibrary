@@ -13,7 +13,6 @@
 		<PackageProjectUrl>https://ascom-standards.org/</PackageProjectUrl>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PackageIcon>ASCOMBoarderless.png</PackageIcon>
-		<PackageIconUrl />
 	</PropertyGroup>
 
 	<ItemGroup>
