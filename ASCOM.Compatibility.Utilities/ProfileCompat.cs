@@ -1,20 +1,18 @@
-﻿using System;
-using System.Collections;
+﻿using ASCOM.Common.Interfaces;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ASCOM.Compatibility.Utilities
 {
-    public class ProfileCompat :  ASCOM.Standard.Interfaces.IProfile
+    public class ProfileCompat : IProfile
     {
         public string DriverID
         {
             get;
             set;
         } = string.Empty;
-        string DeviceType = string.Empty;
+
+        readonly string DeviceType = string.Empty;
         public ProfileCompat(string driverID, string deviceType)
         {
             DriverID = driverID;
@@ -23,7 +21,7 @@ namespace ASCOM.Compatibility.Utilities
 
         public void DeleteValue(string Name)
         {
-            using(ASCOM.Utilities.Profile profile = new ASCOM.Utilities.Profile())
+            using (ASCOM.Utilities.Profile profile = new ASCOM.Utilities.Profile())
             {
                 profile.DeviceType = DeviceType;
                 profile.DeleteValue(DriverID, Name);
@@ -57,7 +55,7 @@ namespace ASCOM.Compatibility.Utilities
                 List<string> retValues = new List<string>();
                 var values = profile.Values(DriverID);
 
-                foreach(var value in values)
+                foreach (var value in values)
                 {
                     retValues.Add(value.ToString());
                 }

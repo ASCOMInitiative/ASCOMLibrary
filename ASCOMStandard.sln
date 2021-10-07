@@ -1,17 +1,19 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29519.87
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31717.71
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASCOMStandard.Tests", "test\ASCOMStandard.Tests\ASCOMStandard.Tests.csproj", "{EC97A23E-7CB2-43A8-A351-CC4FDDA9CE2C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnitTests", "test\ASCOMStandard.Tests\UnitTests.csproj", "{EC97A23E-7CB2-43A8-A351-CC4FDDA9CE2C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASCOM.Standard.Types", "ASCOM.Standard.Types\ASCOM.Standard.Types.csproj", "{F0C9BFFD-C144-44AF-9318-847B19DF5C5B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASCOM.Common", "ASCOM.Common\ASCOM.Common.csproj", "{F0C9BFFD-C144-44AF-9318-847B19DF5C5B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASCOM.Standard.Utilities", "ASCOM.Standard.Utilities\ASCOM.Standard.Utilities.csproj", "{E0DA83D6-2F10-4A2E-B34A-1113335E2375}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASCOM.Tools", "ASCOM.Tools\ASCOM.Tools.csproj", "{E0DA83D6-2F10-4A2E-B34A-1113335E2375}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASCOM.Compatibility.Utilities", "ASCOM.Compatibility.Utilities\ASCOM.Compatibility.Utilities.csproj", "{AB690357-091B-4D8F-B424-1720247140FC}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASCOM.Standard.COM.DriverAccess", "ASCOM.Standard.COM.DriverAccess\ASCOM.Standard.COM.DriverAccess.csproj", "{15505B99-58E8-4CA7-87B0-BEDF9F2FF990}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASCOM.Com", "ASCOM.Com\ASCOM.Com.csproj", "{15505B99-58E8-4CA7-87B0-BEDF9F2FF990}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASCOM.Alpaca", "ASCOM.Alpaca\ASCOM.Alpaca.csproj", "{777AE5B4-4DF7-4382-9461-7A1A0D8C49D4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -61,6 +63,14 @@ Global
 		{15505B99-58E8-4CA7-87B0-BEDF9F2FF990}.Release|Any CPU.Build.0 = Release|Any CPU
 		{15505B99-58E8-4CA7-87B0-BEDF9F2FF990}.Release|x86.ActiveCfg = Release|Any CPU
 		{15505B99-58E8-4CA7-87B0-BEDF9F2FF990}.Release|x86.Build.0 = Release|Any CPU
+		{777AE5B4-4DF7-4382-9461-7A1A0D8C49D4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{777AE5B4-4DF7-4382-9461-7A1A0D8C49D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{777AE5B4-4DF7-4382-9461-7A1A0D8C49D4}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{777AE5B4-4DF7-4382-9461-7A1A0D8C49D4}.Debug|x86.Build.0 = Debug|Any CPU
+		{777AE5B4-4DF7-4382-9461-7A1A0D8C49D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{777AE5B4-4DF7-4382-9461-7A1A0D8C49D4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{777AE5B4-4DF7-4382-9461-7A1A0D8C49D4}.Release|x86.ActiveCfg = Release|Any CPU
+		{777AE5B4-4DF7-4382-9461-7A1A0D8C49D4}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

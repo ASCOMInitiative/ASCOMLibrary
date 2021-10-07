@@ -1,0 +1,50 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<OutputType>Library</OutputType>
+		<TargetFramework>netstandard2.0</TargetFramework>
+		<ApplicationIcon />
+		<StartupObject />
+		<RootNamespace>ASCOM.Standard.AlpacaClients</RootNamespace>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<Authors>Daniel Van Noord, Peter Simpson</Authors>
+		<Company>ASCOM Initiative</Company>
+		<Description>A .Net Standard library providing ASCOM Alpaca client and discovery components.</Description>
+		<PackageLicenseExpression></PackageLicenseExpression>
+		<PackageIcon>ASCOMBoarderless.png</PackageIcon>
+		<PackageIconUrl />
+		<PackageReleaseNotes>Initial release supporting all device types except Video and targeting .NET Standard 2.0.</PackageReleaseNotes>
+		<AssemblyVersion>1.0.0.0</AssemblyVersion>
+		<PackageId>ASCOM.Alpaca.Components</PackageId>
+		<RepositoryUrl>https://www.myget.org/F/ascom-initiative/api/v3/index.json</RepositoryUrl>
+		<SignAssembly>true</SignAssembly>
+		<AssemblyOriginatorKeyFile>..\ASCOM.snk</AssemblyOriginatorKeyFile>
+		<DelaySign>false</DelaySign>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<DebugType>embedded</DebugType>
+		<DebugSymbols>true</DebugSymbols>
+
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <None Include="..\ASCOMBoarderless.png">
+	    <Pack>True</Pack>
+	    <PackagePath></PackagePath>
+	  </None>
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="ASCOM.Exceptions" Version="6.5.1" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+		<PackageReference Include="RestSharp" Version="106.12.0" />
+		<PackageReference Include="System.Text.Json" Version="4.7.2" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\ASCOM.Common\ASCOM.Common.csproj" />
+	  <ProjectReference Include="..\ASCOM.Tools\ASCOM.Tools.csproj" />
+	</ItemGroup>
+
+</Project>
