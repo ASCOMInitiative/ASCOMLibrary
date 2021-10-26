@@ -82,47 +82,47 @@ namespace ASCOM.Common.Helpers
         {
             //Try with the HResult first, then type names
             int HResult = ex.HResult;
-            if (HResult == ASCOM.ErrorCodes.ActionNotImplementedException)
+            if (HResult == ErrorCodes.ActionNotImplementedException)
             {
                 return AlpacaErrors.ActionNotImplementedException;
             }
-            else if (HResult == ASCOM.ErrorCodes.InvalidOperationException)
+            else if (HResult == ErrorCodes.InvalidOperationException)
             {
                 return AlpacaErrors.InvalidOperationException;
             }
-            else if (HResult == ASCOM.ErrorCodes.InvalidValue)
+            else if (HResult == ErrorCodes.InvalidValue)
             {
                 return AlpacaErrors.InvalidValue;
             }
-            else if (HResult == ASCOM.ErrorCodes.InvalidWhileParked)
+            else if (HResult == ErrorCodes.InvalidWhileParked)
             {
                 return AlpacaErrors.InvalidWhileParked;
             }
-            else if (HResult == ASCOM.ErrorCodes.InvalidWhileSlaved)
+            else if (HResult == ErrorCodes.InvalidWhileSlaved)
             {
                 return AlpacaErrors.InvalidWhileSlaved;
             }
-            else if (HResult == ASCOM.ErrorCodes.NotConnected)
+            else if (HResult == ErrorCodes.NotConnected)
             {
                 return AlpacaErrors.NotConnected;
             }
-            else if (HResult == ASCOM.ErrorCodes.NotImplemented)
+            else if (HResult == ErrorCodes.NotImplemented)
             {
                 return AlpacaErrors.NotImplemented;
             }
-            else if (HResult == ASCOM.ErrorCodes.NotInCacheException)
+            else if (HResult == ErrorCodes.NotInCacheException)
             {
                 return AlpacaErrors.UnspecifiedError;
             }
-            else if (HResult == ASCOM.ErrorCodes.SettingsProviderError)
+            else if (HResult == ErrorCodes.SettingsProviderError)
             {
                 return AlpacaErrors.UnspecifiedError;
             }
-            else if (HResult == ASCOM.ErrorCodes.UnspecifiedError)
+            else if (HResult == ErrorCodes.UnspecifiedError)
             {
                 return AlpacaErrors.UnspecifiedError;
             }
-            else if (HResult == ASCOM.ErrorCodes.ValueNotSet)
+            else if (HResult == ErrorCodes.ValueNotSet)
             {
                 return AlpacaErrors.ValueNotSet;
             }
