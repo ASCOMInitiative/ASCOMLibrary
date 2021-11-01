@@ -650,9 +650,13 @@ namespace ASCOM.Alpaca.Clients
                             case ImageArrayTransferType.JSON:
                                 // No extra action because "accepts = application/json" will be applied automatically by the client
                                 break;
+
                             case ImageArrayTransferType.Base64HandOff:
+                            case ImageArrayTransferType.GetBase64Image:
+                            case ImageArrayTransferType.BestAvailable:
                                 request.AddHeader(SharedConstants.BASE64_HANDOFF_HEADER, SharedConstants.BASE64_HANDOFF_SUPPORTED);
                                 break;
+
                             default:
                                 throw new InvalidValueException($"Invalid image array transfer type: {imageArrayTransferType} - Correct this in the Dynamic Client setup dialogue.");
                         }
@@ -710,7 +714,7 @@ namespace ASCOM.Alpaca.Clients
                         if (typeof(T) == typeof(string))
                         {
                             StringResponse stringResponse = JsonSerializer.Deserialize<StringResponse>(deviceJsonResponse.Content, new JsonSerializerOptions { PropertyNameCaseInsensitive = !strictCasing });
-                            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, string.Format(LOG_FORMAT_STRING, stringResponse.ClientTransactionID, stringResponse.ServerTransactionID, (stringResponse.Value is null) ? "NO VALUE OR NULL VALUE RETURNED" : stringResponse.Value.ToString()));
+                            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, string.Format(LOG_FORMAT_STRING, stringResponse.ClientTransactionID, stringResponse.ServerTransactionID, (stringResponse.Value is null) ? "NO VALUE OR NULL VALUE RETURNED" : (stringResponse.Value.Length <= 500 ? stringResponse.Value : stringResponse.Value.Substring(0, 500))));
                             if (CallWasSuccessful(TL, stringResponse)) return (T)((object)stringResponse.Value);
                             restResponseBase = (Response)stringResponse;
                         }
@@ -974,7 +978,7 @@ namespace ASCOM.Alpaca.Clients
                                 // Now create and populate an appropriate array to return to the client that mirrors the array type returned by the device
                                 switch (arrayType) // Handle the different array return types
                                 {
-                                    case ImageArrayElementTypes.Int:
+                                    case ImageArrayElementTypes.Int32:
                                         switch (base64HandOffresponse.Rank)
                                         {
                                             case 2:
@@ -993,7 +997,7 @@ namespace ASCOM.Alpaca.Clients
                                         Buffer.BlockCopy(base64ArrayByteArray, 0, remoteArray, 0, base64ArrayByteArray.Length);
                                         break;
 
-                                    case ImageArrayElementTypes.Short:
+                                    case ImageArrayElementTypes.Int16:
                                         switch (base64HandOffresponse.Rank)
                                         {
                                             case 2:
@@ -1050,7 +1054,7 @@ namespace ASCOM.Alpaca.Clients
                                 sw.Restart(); // Clear and start the stopwatch
                                 switch (arrayType) // Handle the different return types that may come from ImageArrayVariant
                                 {
-                                    case ImageArrayElementTypes.Int:
+                                    case ImageArrayElementTypes.Int32:
                                         switch (arrayRank)
                                         {
                                             case 2:
@@ -1076,7 +1080,7 @@ namespace ASCOM.Alpaca.Clients
                                         }
                                         break;
 
-                                    case ImageArrayElementTypes.Short:
+                                    case ImageArrayElementTypes.Int16:
                                         switch (arrayRank)
                                         {
                                             case 2:
@@ -1315,8 +1319,9 @@ namespace ASCOM.Alpaca.Clients
                 { SharedConstants.ACTION_PARAMETERS_PARAMETER_NAME, actionParameters }
             };
             string remoteString = SendToRemoteDevice<string>(clientNumber, client, URIBase, strictCasing, TL, "Action", Parameters, Method.PUT, MemberTypes.Method);
-
-            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "Action", "Response: " + remoteString);
+            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "Action", $"Response length: {remoteString.Length}");
+            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "Action", $"Response: {((remoteString.Length <= 100) ? remoteString : remoteString.Substring(0, 100))}");
+            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "Action", $"Returning response length: {remoteString.Length}");
             return remoteString;
         }
 
