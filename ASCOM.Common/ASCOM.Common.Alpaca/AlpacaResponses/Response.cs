@@ -1,6 +1,11 @@
 ﻿using ASCOM.Common.Com;
 using System;
 
+#if Swashbuckle_Documentation
+using Swashbuckle.AspNetCore.Annotations;
+using System.ComponentModel.DataAnnotations;
+#endif
+
 namespace ASCOM.Common.Alpaca
 {
     /// <summary>
@@ -16,11 +21,19 @@ namespace ASCOM.Common.Alpaca
         /// <summary>
         /// Client's transaction ID (0 to 4294967295), as supplied by the client in the command request.
         /// </summary>
+#if Swashbuckle_Documentation
+        [SwaggerSchema(Format = "uint32")]
+        [Range(0, 4294967295)]
+#endif
         public uint ClientTransactionID { get; set; }
 
         /// <summary>
         /// Server's transaction ID (0 to 4294967295), should be unique for each client transaction so that log messages on the client can be associated with logs on the device.
         /// </summary>
+#if Swashbuckle_Documentation
+        [SwaggerSchema(Format = "uint32")]
+        [Range(0, 4294967295)]
+#endif
         public uint ServerTransactionID { get; set; }
 
         /// <summary>
@@ -28,6 +41,9 @@ namespace ASCOM.Common.Alpaca
         /// numbers whenever appropriate so that clients can take informed actions. E.g.returning 0x401 (1025) to indicate that an invalid value was received.
         /// </summary>
         /// <seealso cref="AlpacaErrors"/>
+#if Swashbuckle_Documentation
+        [Range(-2147483648, 2147483647)]
+#endif
         public AlpacaErrors ErrorNumber { get; set; }
 
         /// <summary>
@@ -36,10 +52,15 @@ namespace ASCOM.Common.Alpaca
         /// </summary>
         public string ErrorMessage { get; set; } = "";
 
+        //Do not include DriverException in the Swashbuckle documentation, it is not part of the standard returns
+
         /// <summary>
         /// Optional field for Windows drivers to return an exception to the client application.
         /// </summary>
         /// <remarks>Populating this automatically sets the ErrorMessage and ErrorNumber fields; COM errors in the range 0x80040400 to 0x8040FFF are translated to equivalent Alpaca error numbers in the range 0x400 to 0xFFF.</remarks>
+#if Swashbuckle_Documentation
+        [System.Text.Json.Serialization.JsonIgnore]
+#endif
         public Exception DriverException
         {
             get
