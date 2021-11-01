@@ -8,5 +8,4 @@
         GZip = 2,
         GZipOrDeflate = 3
     }
-
 }
