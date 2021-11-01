@@ -45,4 +45,8 @@
 	  <ProjectReference Include="..\ASCOM.Tools\ASCOM.Tools.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="ASCOM.Alpaca.Discovery\Response Classes\" />
+	</ItemGroup>
+
 </Project>

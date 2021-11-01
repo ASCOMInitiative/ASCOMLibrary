@@ -1,26 +1,24 @@
 ﻿using ASCOM.Common.Alpaca;
+using System.Collections.Generic;
 
 namespace ASCOM.Alpaca.Discovery
 {
-    /// <summary>
-    /// The response for the AlpacaDeviceDescription
-    /// </summary>
-    public class AlpacaDescriptionResponse : Response, IValueResponse<AlpacaDeviceDescription>
+    public class AlpacaConfiguredDevicesResponse : Response, IValueResponse<List<AlpacaConfiguredDevice>>
     {
         /// <summary>
-        /// Create a new AlpacaDescriptionResponse with default values
+        /// Create a new AlpacaConfiguredDevicesResponse with default values
         /// </summary>
-        public AlpacaDescriptionResponse()
+        public AlpacaConfiguredDevicesResponse()
         {
         }
 
         /// <summary>
-        /// Create a new AlpacaDescriptionResponse with the supplied parameter values
+        /// Create a new AlpacaConfiguredDevicesResponse with the supplied parameter values
         /// </summary>
         /// <param name="clientTransactionID">Client transaction ID</param>
         /// <param name="serverTransactionID">Server transaction ID</param>
         /// <param name="value">Value to return</param>
-        public AlpacaDescriptionResponse(uint clientTransactionID, uint serverTransactionID, AlpacaDeviceDescription value)
+        public AlpacaConfiguredDevicesResponse(uint clientTransactionID, uint serverTransactionID, List<AlpacaConfiguredDevice> value)
         {
             base.ServerTransactionID = serverTransactionID;
             base.ClientTransactionID = clientTransactionID;
@@ -28,13 +26,13 @@ namespace ASCOM.Alpaca.Discovery
         }
 
         /// <summary>
-        /// Create a new AlpacaDescriptionResponse with the supplied parameter values
+        /// Create a new AlpacaConfiguredDevicesResponse with the supplied parameter values
         /// </summary>
         /// <param name="clientTransactionID">Client transaction ID</param>
         /// <param name="serverTransactionID">Server transaction ID</param>
         /// <param name="errorMessage">Value to return</param>
         /// <param name="errorCode">Server transaction ID</param>
-        public AlpacaDescriptionResponse(uint clientTransactionID, uint serverTransactionID, string errorMessage, AlpacaErrors errorCode)
+        public AlpacaConfiguredDevicesResponse(uint clientTransactionID, uint serverTransactionID, string errorMessage, AlpacaErrors errorCode)
         {
             base.ServerTransactionID = serverTransactionID;
             base.ClientTransactionID = clientTransactionID;
@@ -43,9 +41,9 @@ namespace ASCOM.Alpaca.Discovery
         }
 
         /// <summary>
-        /// AlpacaDeviceDescription value returned by the device
+        /// AlpacaConfiguredDevicesResponse value returned by the device
         /// </summary>
-        public AlpacaDeviceDescription Value { get; set; }
+        public List<AlpacaConfiguredDevice> Value { get; set; } = new List<AlpacaConfiguredDevice>();
 
         /// <summary>
         /// Return the value as a string
