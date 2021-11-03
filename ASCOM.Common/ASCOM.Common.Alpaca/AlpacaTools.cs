@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data.SqlTypes;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -27,7 +28,7 @@ namespace ASCOM.Common.Alpaca
         public const int BASE64RESPONSE_DIMENSION0_POSITION = 16;
         public const int BASE64RESPONSE_DIMENSION1_POSITION = 20;
         public const int BASE64RESPONSE_DIMENSION2_POSITION = 24;
-        public const int BASE64RESPONSE_DATA_POSITION = 48;
+        public const int dataStart = 48;
         public const int ARRAY_METADATA_VERSION = 1;
 
         public const int ARRAY_METADATAV1_LENGTH = 36; // Length of the array metadata version 1 structure
@@ -174,91 +175,158 @@ namespace ASCOM.Common.Alpaca
                     throw new InvalidValueException($"ToByteArray - Received an unsupported return array type: {imageArray.GetType().Name}, with elements of type: {imageArray.GetType().GetElementType().Name}");
             }
 
-            // Special handling for Int32 arrays - see if we can convert them to Int16 arrays
+            // Special handling for Int32 arrays - see if we can convert them to Int16 or UInt16 arrays
             if (arrayElementTypeCode == TypeCode.Int32)
             {
-                // Attempt to convert Int32 arrays to Int16 arrays.
-                // An OverflowException will be thrown if any element can not be converted. If this happens we catch the exception and abandon the conversion so that the original Int32 array will be used
-                try
-                {
-                    switch (imageArray.Rank)
-                    {
-                        case 2:
-                            short[,] short2dArray = new short[imageArray.GetLength(0), imageArray.GetLength(1)];
-                            int[,] int2dArray = (int[,])imageArray;
+                // NOTE
+                // NOTE - This algorithm uses a UInt16 array to transmit an array with Int16 values because we are only interested in the byte values for this purpose,
+                // NOTE - not the arithmetic interpretation of those bytes.
+                // NOTE
 
-                            Parallel.For(0, imageArray.GetLength(0), (i) =>
+                bool arrayIsInt16 = true; // Flag indicating whether the supplied array conforms to the Int16 value range -32768 to +32767. Start by assuming success
+                bool arrayIsUint16 = true; // Flag indicating whether the supplied array conforms to the UInt16 value range 0 to +65535. Start by assuming success
+
+                // Handle 2D and 3D arrays
+                switch (imageArray.Rank)
+                {
+                    case 2:
+                        UInt16[,] uInt16Array = new UInt16[imageArray.GetLength(0), imageArray.GetLength(1)]; // Array to hold the 16bit transmission array (either Int16 or UInt16 values)
+
+                        // Get the device's Int32 image array
+                        int[,] int2dArray = (int[,])imageArray;
+
+                        // Parellelise the array copy to improve performance
+                        Parallel.For(0, imageArray.GetLength(0), (i) => // Iterate over the slowest changing dimension
+                        {
+                            Int32 int32ElementValue; // Local variable to hold the Int32 element being tested (saves calculating an array offset later in the process)
+                            Int16 int16ElementValue; // Local variable to hold the Int16 element value (saves calculating an array offset later in the process)
+                            UInt16 uInt16ElementValue; // Local variable to hold the Unt16 element value (saves calculating an array offset later in the process)
+                            bool arrayIsInt16Internal = true; // Local variable to hold the Int16 status within this particular thread. Used to reduce thread conflict when updating the arrayIsInt16 variable.
+                            bool arrayIsUint16Internal = true; // Local variable to hold the UInt16 status within this particular thread. Used to reduce thread conflict when updating the arrayIsInt16 variable.
+
+                            // Iterate over the fastest changing dimension
+                            for (int j = 0; j < imageArray.GetLength(1); j++)
                             {
-                                for (int j = 0; j < imageArray.GetLength(1); j++)
+                                // Get the current array element value
+                                int32ElementValue = int2dArray[i, j];
+
+                                // Truncate the supplied 4-byte Int32 value to create a 2-byte UInt16 value
+                                uInt16ElementValue = (UInt16)int32ElementValue;
+
+                                // Truncate the supplied 4-byte Int32 value to create a 2-byte Int16 value
+                                int16ElementValue = (Int16)int32ElementValue;
+
+                                // Store the UInt16 value in the array.
+                                uInt16Array[i, j] = uInt16ElementValue;
+
+
+                                // Compare the Int16 and Int32 values. 
+                                if (int16ElementValue != int32ElementValue) arrayIsInt16Internal = false;
+
+                                // Compare the UInt16 and Int32 values. 
+                                if (uInt16ElementValue != int32ElementValue) arrayIsUint16Internal = false;
+                            }
+
+                            // Update the master arrayIsInt16 and arrayIsUint16 variables as the logical AND of the mater and update values.
+                            arrayIsInt16 &= arrayIsInt16Internal;
+                            arrayIsUint16 &= arrayIsUint16Internal;
+                        });
+
+                        // Return the appropriate array if either a UInt16 or Int16 array was provided by the device
+                        if (arrayIsUint16) // Supplied array has UInt16 values so return the shorter array in place of the supplied Int32 array
+                        {
+                            imageArray = uInt16Array; // Assign the Int16 array to the imageArray variable in place of the Int32 array
+                            transmissionElementType = ImageArrayElementTypes.UInt16; // Flag that the array elements are UInt16
+                            transmissionElementSize = sizeof(UInt16); // Indicate that the transmitted elements are of UInt16 size rather than Int32 size
+                        }
+                        else if (arrayIsInt16) // Supplied array has Int16 values so return the shorter array in place of the supplied Int32 array
+                        {
+                            imageArray = uInt16Array; // Assign the UInt16 array to the imageArray variable in place of the Int32 array (at the byte level Int32 and UInt32 are equivalent - both consist of two bytes)
+                            transmissionElementType = ImageArrayElementTypes.Int16; // Flag that the array elements are Int16
+                            transmissionElementSize = sizeof(Int16); // Indicate that the transmitted elements are of UInt16 size rather than Int32 size
+                        }
+                        else
+                        {
+                            // No action, continue to use the supplied Int32 array because its values fall outside the Uint16 and Int16 number ranges
+                        }
+                        break;
+
+                    case 3:
+                        UInt16[,,] uInt163dArray = new UInt16[imageArray.GetLength(0), imageArray.GetLength(1), imageArray.GetLength(2)];  // Array to hold the 16bit transmission array (either Int16 or UInt16 values)
+
+                        // Get the device's Int32 image array
+                        Int32[,,] int3dArray = (Int32[,,])imageArray;
+
+                        // Parellelise the array copy to improve performance
+                        Parallel.For(0, imageArray.GetLength(0), (i) => // Iterate over the slowest changing dimension
+                        {
+                            bool arrayIsInt16Internal1 = true; // Local variable to hold the Int16 status within this particular thread. Used to reduce thread conflict when updating the arrayisInt16 variable.
+                            bool arrayIsUint16Internal1 = true; // Local variable to hold the UInt16 status within this particular thread. Used to reduce thread conflict when updating the arrayisInt16 variable.
+
+                            // Iterate over the mid changing dimension
+                            for (int j = 0; j < imageArray.GetLength(1); j++)
+                            {
+                                Int32 int32ElementValue; // Local variable to hold the Int32 element being tested (saves calculating an array offset later in the process)
+                                Int16 int16ElementValue; // Local variable to hold the Int16 element value (saves calculating an array offset later in the process)
+                                UInt16 uInt16ElementValue; // Local variable to hold the UInt16 element value (saves calculating an array offset later in the process)
+                                bool arrayIsInt16Internal2 = true; // Local variable to hold the Int16 status within this particular thread. Used to reduce thread conflict when updating the arrayIsInt16 variable.
+                                bool arrayIsUInt16Internal2 = true; // Local variable to hold the Int16 status within this particular thread. Used to reduce thread conflict when updating the arrayIsUInt16 variable.
+
+                                // Iterate over the fastest changing dimension
+                                for (int k = 0; k < imageArray.GetLength(2); k++)
                                 {
-                                    short2dArray[i, j] = Convert.ToInt16(int2dArray[i, j]);
+                                    // Get the current array element value
+                                    int32ElementValue = int3dArray[i, j, k];
+
+                                    // Truncate the supplied 4-byte Int32 value to create a 2-byte UInt16 value
+                                    uInt16ElementValue = (UInt16)int32ElementValue;
+
+                                    // Truncate the supplied 4-byte Int32 value to create a 2-byte Int16 value
+                                    int16ElementValue = (Int16)int32ElementValue;
+
+                                    // Copy the Int32 value to the corresponding Int16 array element. 
+                                    uInt163dArray[i, j, k] = uInt16ElementValue;
+
+                                    // Compare the Int16 and Int32 values. 
+                                    if (int16ElementValue != int32ElementValue) arrayIsInt16Internal2 = false; // If they are not the same the Int32 value was outside the range of Int16 and arrayIsInt16Internal will be set false
+
+                                    // Compare the UInt16 and Int32 values. 
+                                    if (uInt16ElementValue != int32ElementValue) arrayIsUInt16Internal2 = false;
                                 }
-                            });
 
-                            imageArray = short2dArray;
-                            transmissionElementType = ImageArrayElementTypes.Int16; // Flag that we are transmitting the array in Int16 format
-                            transmissionElementSize = 2;
-                            break;
-
-                        case 3:
-                            short[,,] short3dArray = new short[imageArray.GetLength(0), imageArray.GetLength(1), imageArray.GetLength(2)];
-                            int[,,] int3dArray = (int[,,])imageArray;
-
-                            int outerForDimensionNumber, midForDimensionNumber, innerForDimensionNumber;
-                            if (int3dArray.GetLength(2) > int3dArray.GetLength(0))
-                            {
-                                outerForDimensionNumber = 0;
-                                midForDimensionNumber = 1;
-                                innerForDimensionNumber = 2;
-                            }
-                            else
-                            {
-                                outerForDimensionNumber = 2;
-                                midForDimensionNumber = 1;
-                                innerForDimensionNumber = 0;
+                                // Update the arrayIsInt16Internal1 and arrayIsUint16Internal1 variables as the logical AND of the mater and update values.
+                                arrayIsInt16Internal1 &= arrayIsInt16Internal2;
+                                arrayIsUint16Internal1 &= arrayIsUInt16Internal2;
 
                             }
 
-                            Parallel.For(0, imageArray.GetLength(outerForDimensionNumber), (i) =>
-                             {
-                                 try
-                                 {
-                                     for (int j = 0; j < imageArray.GetLength(midForDimensionNumber); j++)
-                                     {
-                                         for (int k = 0; k < imageArray.GetLength(innerForDimensionNumber); k++)
-                                         {
-                                             short3dArray[i, j, k] = Convert.ToInt16(int3dArray[i, j, k]);
-                                         }
-                                     }
-                                 }
-                                 catch
-                                 {
-                                 }
-                             });
+                            // Update the master arrayIsInt16 and arrayIsUint16 variables as the logical AND of the mater and update values.
+                            arrayIsInt16 &= arrayIsInt16Internal1;
+                            arrayIsUint16 &= arrayIsUint16Internal1;
 
-                            imageArray = short3dArray;
-                            transmissionElementType = ImageArrayElementTypes.Int16; // Flag that we are transmitting the array in Int16 format
-                            transmissionElementSize = 2;
-                            break;
+                        });
 
-                        default:
-                            throw new InvalidOperationException($"ToByteArray - The camera returned an array of rank: {imageArray.Rank}, which is not supported.");
-                    }
+                        // Return the appropriate array if either a UInt16 or Int16 array was provided by the device
+                        if (arrayIsUint16) // Supplied array has UInt16 values so return the shorter array in place of the supplied Int32 array
+                        {
+                            imageArray = uInt163dArray; // Assign the Int16 array to the imageArray variable in place of the Int32 array
+                            transmissionElementType = ImageArrayElementTypes.UInt16; // Flag that the array elements are UInt16
+                            transmissionElementSize = sizeof(UInt16); // Indicate that the transmitted elements are of UInt16 size rather than Int32 size
+                        }
+                        else if (arrayIsInt16) // Supplied array has Int16 values so return the shorter array in place of the supplied Int32 array
+                        {
+                            imageArray = uInt163dArray; // Assign the UInt16 array to the imageArray variable in place of the Int32 array (at the byte level Int32 and UInt32 are equivalent - both consist of two bytes)
+                            transmissionElementType = ImageArrayElementTypes.Int16; // Flag that the array elements are Int16
+                            transmissionElementSize = sizeof(Int16); // Indicate that the transmitted elements are of UInt16 size rather than Int32 size
+                        }
+                        else
+                        {
+                            // No action, continue to use the supplied Int32 array because its values fall outside the Uint16 and Int16 number ranges
+                        }
+                        break;
 
-                }
-                catch (AggregateException ae)
-                {
-                    var ignoredExceptions = new List<Exception>();
-                    // Ignore OverflowExceptions in the AggregateException but retain all others
-                    foreach (var ex in ae.Flatten().InnerExceptions)
-                    {
-                        if (!(ex is OverflowException)) ignoredExceptions.Add(ex);
-                    }
-                    if (ignoredExceptions.Count > 0) throw new AggregateException(ignoredExceptions);
-                }
-                catch (OverflowException) // Other exceptions will go back to the client.
-                {
-                    // No action required
+                    default:
+                        throw new InvalidOperationException($"ToByteArray - The camera returned an array of rank: {imageArray.Rank}, which is not supported.");
                 }
             }
 
@@ -291,7 +359,7 @@ namespace ASCOM.Common.Alpaca
 
         }
 
-        public static Array ToImageArray(this byte[] base64ArrayByteArray)
+        public static Array ToImageArray(this byte[] imageBytes)
         {
             ImageArrayElementTypes imageElementType;
             ImageArrayElementTypes transmissionElementType;
@@ -299,18 +367,19 @@ namespace ASCOM.Common.Alpaca
             int dimension0;
             int dimension1;
             int dimension2;
+            int dataStart;
 
             // Validate the incoming array
-            if (base64ArrayByteArray is null) throw new InvalidValueException("ToImageArray - Supplied array is null.");
-            if (base64ArrayByteArray.Length < ARRAY_METADATAV1_LENGTH) throw new InvalidValueException($"ToImageArray - Supplied array does not exceed the size of the mandatory metadata. Arrays must contain at least {ARRAY_METADATAV1_LENGTH} bytes. The supplied array has a length of {base64ArrayByteArray.Length}.");
+            if (imageBytes is null) throw new InvalidValueException("ToImageArray - Supplied array is null.");
+            if (imageBytes.Length < ARRAY_METADATAV1_LENGTH) throw new InvalidValueException($"ToImageArray - Supplied array does not exceed the size of the mandatory metadata. Arrays must contain at least {ARRAY_METADATAV1_LENGTH} bytes. The supplied array has a length of {imageBytes.Length}.");
 
-            int metadataVersion = base64ArrayByteArray.GetMetadataVersion();
+            int metadataVersion = imageBytes.GetMetadataVersion();
 
             // Get the metadata version and extract the supplied values
             switch (metadataVersion)
             {
                 case 1:
-                    ArrayMetadataV1 metadataV1 = base64ArrayByteArray.GetMetadataV1();
+                    ArrayMetadataV1 metadataV1 = imageBytes.GetMetadataV1();
                     // Set the array type, rank and dimensions
                     imageElementType = metadataV1.ImageElementType;
                     transmissionElementType = metadataV1.TransmissionElementType;
@@ -318,6 +387,10 @@ namespace ASCOM.Common.Alpaca
                     dimension0 = metadataV1.Dimension0;
                     dimension1 = metadataV1.Dimension1;
                     dimension2 = metadataV1.Dimension2;
+                    dataStart = metadataV1.DataStart;
+
+                    Debug.WriteLine($"ToImageArray - Element type: {imageElementType} Transmission type: {transmissionElementType}");
+
                     break;
 
                 default:
@@ -338,8 +411,8 @@ namespace ASCOM.Common.Alpaca
                 switch (rank)
                 {
                     case 2: // Rank 2
-                        short[,] short2dArray = new short[dimension0, dimension1];
-                        Buffer.BlockCopy(base64ArrayByteArray, BASE64RESPONSE_DATA_POSITION, short2dArray, 0, base64ArrayByteArray.Length - BASE64RESPONSE_DATA_POSITION);
+                        Int16[,] short2dArray = new Int16[dimension0, dimension1];
+                        Buffer.BlockCopy(imageBytes, dataStart, short2dArray, 0, imageBytes.Length - dataStart);
 
                         int[,] int2dArray = new int[dimension0, dimension1];
                         Parallel.For(0, short2dArray.GetLength(0), (i) =>
@@ -352,8 +425,8 @@ namespace ASCOM.Common.Alpaca
                         return int2dArray;
 
                     case 3: // Rank 3
-                        short[,,] short3dArray = new short[dimension0, dimension1, dimension2];
-                        Buffer.BlockCopy(base64ArrayByteArray, BASE64RESPONSE_DATA_POSITION, short3dArray, 0, base64ArrayByteArray.Length - BASE64RESPONSE_DATA_POSITION);
+                        Int16[,,] short3dArray = new Int16[dimension0, dimension1, dimension2];
+                        Buffer.BlockCopy(imageBytes, dataStart, short3dArray, 0, imageBytes.Length - dataStart);
 
                         int[,,] int3dArray = new int[dimension0, dimension1, dimension2];
                         Parallel.For(0, short3dArray.GetLength(0), (i) =>
@@ -363,6 +436,45 @@ namespace ASCOM.Common.Alpaca
                                 for (int k = 0; k < short3dArray.GetLength(2); k++)
                                 {
                                     int3dArray[i, j, k] = short3dArray[i, j, k];
+                                }
+                            }
+                        });
+                        return int3dArray;
+
+                    default:
+                        throw new InvalidValueException($"ToImageArray - Returned array cannot be handled because it does not have a rank of 2 or 3. Returned array rank:{rank}.");
+                }
+            }
+            else if ((imageElementType == ImageArrayElementTypes.Int32) & (transmissionElementType == ImageArrayElementTypes.UInt16)) // Handle the special case where Int32 values has been converted to UInt16 for transmission
+            {
+                switch (rank)
+                {
+                    case 2: // Rank 2
+                        UInt16[,] uInt16Array2D = new UInt16[dimension0, dimension1];
+                        Buffer.BlockCopy(imageBytes, dataStart, uInt16Array2D, 0, imageBytes.Length - dataStart);
+
+                        int[,] int2dArray = new int[dimension0, dimension1];
+                        Parallel.For(0, uInt16Array2D.GetLength(0), (i) =>
+                        {
+                            for (int j = 0; j < uInt16Array2D.GetLength(1); j++)
+                            {
+                                int2dArray[i, j] = uInt16Array2D[i, j];
+                            }
+                        });
+                        return int2dArray;
+
+                    case 3: // Rank 3
+                        UInt16[,,] uInt16Array3D = new UInt16[dimension0, dimension1, dimension2];
+                        Buffer.BlockCopy(imageBytes, dataStart, uInt16Array3D, 0, imageBytes.Length - dataStart);
+
+                        int[,,] int3dArray = new int[dimension0, dimension1, dimension2];
+                        Parallel.For(0, uInt16Array3D.GetLength(0), (i) =>
+                        {
+                            for (int j = 0; j < uInt16Array3D.GetLength(1); j++)
+                            {
+                                for (int k = 0; k < uInt16Array3D.GetLength(2); k++)
+                                {
+                                    int3dArray[i, j, k] = uInt16Array3D[i, j, k];
                                 }
                             }
                         });
@@ -383,12 +495,12 @@ namespace ASCOM.Common.Alpaca
                             {
                                 case 2: // Rank 2
                                     byte[,] byte2dArray = new byte[dimension0, dimension1];
-                                    Buffer.BlockCopy(base64ArrayByteArray, BASE64RESPONSE_DATA_POSITION, byte2dArray, 0, base64ArrayByteArray.Length - BASE64RESPONSE_DATA_POSITION);
+                                    Buffer.BlockCopy(imageBytes, dataStart, byte2dArray, 0, imageBytes.Length - dataStart);
                                     return byte2dArray;
 
                                 case 3: // Rank 3
                                     byte[,,] byte3dArray = new byte[dimension0, dimension1, dimension2];
-                                    Buffer.BlockCopy(base64ArrayByteArray, BASE64RESPONSE_DATA_POSITION, byte3dArray, 0, base64ArrayByteArray.Length - BASE64RESPONSE_DATA_POSITION);
+                                    Buffer.BlockCopy(imageBytes, dataStart, byte3dArray, 0, imageBytes.Length - dataStart);
                                     return byte3dArray;
 
                                 default:
@@ -400,16 +512,33 @@ namespace ASCOM.Common.Alpaca
                             {
                                 case 2: // Rank 2
                                     short[,] short2dArray = new short[dimension0, dimension1];
-                                    Buffer.BlockCopy(base64ArrayByteArray, BASE64RESPONSE_DATA_POSITION, short2dArray, 0, base64ArrayByteArray.Length - BASE64RESPONSE_DATA_POSITION);
+                                    Buffer.BlockCopy(imageBytes, dataStart, short2dArray, 0, imageBytes.Length - dataStart);
                                     return short2dArray;
 
                                 case 3: // Rank 3
                                     short[,,] short3dArray = new short[dimension0, dimension1, dimension2];
-                                    Buffer.BlockCopy(base64ArrayByteArray, BASE64RESPONSE_DATA_POSITION, short3dArray, 0, base64ArrayByteArray.Length - BASE64RESPONSE_DATA_POSITION);
+                                    Buffer.BlockCopy(imageBytes, dataStart, short3dArray, 0, imageBytes.Length - dataStart);
                                     return short3dArray;
 
                                 default:
                                     throw new InvalidValueException($"ToImageArray - Returned Int16 array cannot be handled because it does not have a rank of 2 or 3. Returned array rank:{rank}.");
+                            }
+
+                        case ImageArrayElementTypes.UInt16:
+                            switch (rank)
+                            {
+                                case 2: // Rank 2
+                                    UInt16[,] uInt16Array2D = new UInt16[dimension0, dimension1];
+                                    Buffer.BlockCopy(imageBytes, dataStart, uInt16Array2D, 0, imageBytes.Length - dataStart);
+                                    return uInt16Array2D;
+
+                                case 3: // Rank 3
+                                    UInt16[,,] uInt16Array3D = new UInt16[dimension0, dimension1, dimension2];
+                                    Buffer.BlockCopy(imageBytes, dataStart, uInt16Array3D, 0, imageBytes.Length - dataStart);
+                                    return uInt16Array3D;
+
+                                default:
+                                    throw new InvalidValueException($"ToImageArray - Returned UInt16 array cannot be handled because it does not have a rank of 2 or 3. Returned array rank:{rank}.");
                             }
 
                         case ImageArrayElementTypes.Int32:
@@ -417,16 +546,33 @@ namespace ASCOM.Common.Alpaca
                             {
                                 case 2: // Rank 2
                                     int[,] int2dArray = new int[dimension0, dimension1];
-                                    Buffer.BlockCopy(base64ArrayByteArray, BASE64RESPONSE_DATA_POSITION, int2dArray, 0, base64ArrayByteArray.Length - BASE64RESPONSE_DATA_POSITION);
+                                    Buffer.BlockCopy(imageBytes, dataStart, int2dArray, 0, imageBytes.Length - dataStart);
                                     return int2dArray;
 
                                 case 3: // Rank 3
                                     int[,,] int3dArray = new int[dimension0, dimension1, dimension2];
-                                    Buffer.BlockCopy(base64ArrayByteArray, BASE64RESPONSE_DATA_POSITION, int3dArray, 0, base64ArrayByteArray.Length - BASE64RESPONSE_DATA_POSITION);
+                                    Buffer.BlockCopy(imageBytes, dataStart, int3dArray, 0, imageBytes.Length - dataStart);
                                     return int3dArray;
 
                                 default:
                                     throw new InvalidValueException($"ToImageArray - Returned Int32 array cannot be handled because it does not have a rank of 2 or 3. Returned array rank:{rank}.");
+                            }
+
+                        case ImageArrayElementTypes.UInt32:
+                            switch (rank)
+                            {
+                                case 2: // Rank 2
+                                    UInt32[,] uInt32Array2D = new UInt32[dimension0, dimension1];
+                                    Buffer.BlockCopy(imageBytes, dataStart, uInt32Array2D, 0, imageBytes.Length - dataStart);
+                                    return uInt32Array2D;
+
+                                case 3: // Rank 3
+                                    UInt32[,,] uInt32Array3D = new UInt32[dimension0, dimension1, dimension2];
+                                    Buffer.BlockCopy(imageBytes, dataStart, uInt32Array3D, 0, imageBytes.Length - dataStart);
+                                    return uInt32Array3D;
+
+                                default:
+                                    throw new InvalidValueException($"ToImageArray - Returned UInt32 array cannot be handled because it does not have a rank of 2 or 3. Returned array rank:{rank}.");
                             }
 
                         case ImageArrayElementTypes.Int64:
@@ -434,12 +580,12 @@ namespace ASCOM.Common.Alpaca
                             {
                                 case 2: // Rank 2
                                     Int64[,] int642dArray = new Int64[dimension0, dimension1];
-                                    Buffer.BlockCopy(base64ArrayByteArray, BASE64RESPONSE_DATA_POSITION, int642dArray, 0, base64ArrayByteArray.Length - BASE64RESPONSE_DATA_POSITION);
+                                    Buffer.BlockCopy(imageBytes, dataStart, int642dArray, 0, imageBytes.Length - dataStart);
                                     return int642dArray;
 
                                 case 3: // Rank 3
                                     Int64[,,] int643dArray = new Int64[dimension0, dimension1, dimension2];
-                                    Buffer.BlockCopy(base64ArrayByteArray, BASE64RESPONSE_DATA_POSITION, int643dArray, 0, base64ArrayByteArray.Length - BASE64RESPONSE_DATA_POSITION);
+                                    Buffer.BlockCopy(imageBytes, dataStart, int643dArray, 0, imageBytes.Length - dataStart);
                                     return int643dArray;
 
                                 default:
@@ -451,12 +597,12 @@ namespace ASCOM.Common.Alpaca
                             {
                                 case 2: // Rank 2
                                     Single[,] single2dArray = new Single[dimension0, dimension1];
-                                    Buffer.BlockCopy(base64ArrayByteArray, BASE64RESPONSE_DATA_POSITION, single2dArray, 0, base64ArrayByteArray.Length - BASE64RESPONSE_DATA_POSITION);
+                                    Buffer.BlockCopy(imageBytes, dataStart, single2dArray, 0, imageBytes.Length - dataStart);
                                     return single2dArray;
 
                                 case 3: // Rank 3
                                     Single[,,] single3dArray = new Single[dimension0, dimension1, dimension2];
-                                    Buffer.BlockCopy(base64ArrayByteArray, BASE64RESPONSE_DATA_POSITION, single3dArray, 0, base64ArrayByteArray.Length - BASE64RESPONSE_DATA_POSITION);
+                                    Buffer.BlockCopy(imageBytes, dataStart, single3dArray, 0, imageBytes.Length - dataStart);
                                     return single3dArray;
 
                                 default:
@@ -468,12 +614,12 @@ namespace ASCOM.Common.Alpaca
                             {
                                 case 2: // Rank 2
                                     Double[,] double2dArray = new Double[dimension0, dimension1];
-                                    Buffer.BlockCopy(base64ArrayByteArray, BASE64RESPONSE_DATA_POSITION, double2dArray, 0, base64ArrayByteArray.Length - BASE64RESPONSE_DATA_POSITION);
+                                    Buffer.BlockCopy(imageBytes, dataStart, double2dArray, 0, imageBytes.Length - dataStart);
                                     return double2dArray;
 
                                 case 3: // Rank 3
                                     Double[,,] double3dArray = new Double[dimension0, dimension1, dimension2];
-                                    Buffer.BlockCopy(base64ArrayByteArray, BASE64RESPONSE_DATA_POSITION, double3dArray, 0, base64ArrayByteArray.Length - BASE64RESPONSE_DATA_POSITION);
+                                    Buffer.BlockCopy(imageBytes, dataStart, double3dArray, 0, imageBytes.Length - dataStart);
                                     return double3dArray;
 
                                 default:
@@ -485,12 +631,12 @@ namespace ASCOM.Common.Alpaca
                             {
                                 case 2: // Rank 2
                                     Decimal[,] decimal2dArray = new Decimal[dimension0, dimension1];
-                                    Buffer.BlockCopy(base64ArrayByteArray, BASE64RESPONSE_DATA_POSITION, decimal2dArray, 0, base64ArrayByteArray.Length - BASE64RESPONSE_DATA_POSITION);
+                                    Buffer.BlockCopy(imageBytes, dataStart, decimal2dArray, 0, imageBytes.Length - dataStart);
                                     return decimal2dArray;
 
                                 case 3: // Rank 3
                                     Decimal[,,] decimal3dArray = new Decimal[dimension0, dimension1, dimension2];
-                                    Buffer.BlockCopy(base64ArrayByteArray, BASE64RESPONSE_DATA_POSITION, decimal3dArray, 0, base64ArrayByteArray.Length - BASE64RESPONSE_DATA_POSITION);
+                                    Buffer.BlockCopy(imageBytes, dataStart, decimal3dArray, 0, imageBytes.Length - dataStart);
                                     return decimal3dArray;
 
                                 default:

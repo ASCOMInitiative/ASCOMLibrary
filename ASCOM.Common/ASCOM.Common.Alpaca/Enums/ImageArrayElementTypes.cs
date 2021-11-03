@@ -12,6 +12,8 @@
         Single = 4,
         Decimal = 5,
         Byte = 6,
-        Int64 = 7
+        Int64 = 7,
+        UInt16 = 8,
+        UInt32 = 9,
     }
 }
