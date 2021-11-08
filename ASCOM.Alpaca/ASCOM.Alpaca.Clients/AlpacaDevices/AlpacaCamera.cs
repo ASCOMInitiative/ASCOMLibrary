@@ -1,5 +1,6 @@
 ﻿using ASCOM.Common.Alpaca;
 using ASCOM.Common.DeviceInterfaces;
+using ASCOM.Common.Helpers;
 using ASCOM.Common.Interfaces;
 using RestSharp;
 using System;
@@ -7,6 +8,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
+using System.Net;
+using System.Net.Http;
 using System.Reflection;
 using System.Threading.Tasks;
 
@@ -28,6 +31,7 @@ namespace ASCOM.Alpaca.Clients
         private ImageArrayTransferType imageArrayTransferType = ImageArrayTransferType.JSON;
         private ImageArrayCompression imageArrayCompression = ImageArrayCompression.None;
         private bool? canGetBase64Image = null; // Indicator of whether the remote device supports GetBase64Image functionality
+        private bool? canGetImageBytes = null; // Indicator of whether the remote device supports GetBase64Image functionality
 
         #endregion
 
@@ -498,211 +502,203 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                // Special handling for Getbase64Image transfers
-                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, DEVICE_TYPE, $"CameraBaseClass.ImageArray called...");
-                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, DEVICE_TYPE, $"CameraBaseClass.ImageArray called - canGetBase64Image.HasValue: {canGetBase64Image.HasValue}, imageArrayTransferType: {imageArrayTransferType}");
+                object returnArray;
 
-                // Determine whether we need to find out whether Getbase64Image functionality is provided by this driver
-                if ((!canGetBase64Image.HasValue) & ((imageArrayTransferType == ImageArrayTransferType.GetBase64Image) | (imageArrayTransferType == ImageArrayTransferType.BestAvailable)))
+                try
                 {
-                    // Try to get an answer from the device, if anything goes wrong assume that the feature is not available
-                    try
+                    // Special handling for GetBase64Image transfers
+                    LogMessage(TL, clientNumber, "ImageArray", $"ImageArray called - canGetBase64Image: {(canGetBase64Image.HasValue ? canGetBase64Image.Value.ToString() : "VALUE NOT SET")}, canGetImageBytes: {(canGetImageBytes.HasValue ? canGetImageBytes.Value.ToString() : "VALUE NOT SET")} , imageArrayTransferType: {imageArrayTransferType}");
+
+                    // Determine whether we need to find out whether Getbase64Image functionality is provided by this driver
+                    if (
+                        (!canGetBase64Image.HasValue) &
+                        ((imageArrayTransferType == ImageArrayTransferType.GetBase64Image) |
+                         (imageArrayTransferType == ImageArrayTransferType.BestAvailable) |
+                         (imageArrayTransferType == ImageArrayTransferType.GetImageBytes)
+                        )
+                       )
                     {
-                        // Initialise the supported flag to false
-                        canGetBase64Image = false;
-                        IList<string> supportedActions = this.SupportedActions;
-                        foreach (string action in supportedActions)
+                        // Determine whether the remote device supports GetBase64Image
+                        // Try to get a SupportedActions response from the device, if anything goes wrong assume that the feature is not available
+                        try
                         {
-                            // Set the supported flag true if the device advertises that it supports GetBase64Image
-                            if (action.ToLowerInvariant() == GETBASE64IMAGE_ACTION_NAME.ToLowerInvariant()) canGetBase64Image = true;
-                            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "CameraBaseClass.ImageArray", $"CameraBaseClass.ImageArray Found action: {action}, canGetBase64Image: {canGetBase64Image.Value}");
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        // Just log any errors but otherwise ignore them
-                        AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "CameraBaseClass.ImageArray", $"Received an exception when trying to get the device's SupportedActions: {ex.Message}");
-                    }
-                }
-                if (!canGetBase64Image.HasValue) canGetBase64Image = false; // Set false if we have no value at this point
-
-                // Throw an exception if GetBase64Image mode is explicitly requested but the device does not support this mode
-                if (imageArrayTransferType == ImageArrayTransferType.GetBase64Image & !canGetBase64Image.Value) throw new InvalidOperationException("GetBase64Image transfer mode has been requested by the device does not support this mode.");
-
-                // Use GetBase64Image mode because it is definitely supported 
-                if (canGetBase64Image.Value)
-                {
-                    Stopwatch sw = new Stopwatch();
-                    Stopwatch swOverall = new Stopwatch();
-                    swOverall.Start();
-                    sw.Start();
-
-                    // Call the GetBase64Image Action method to retrieve the image in base64 encoded form
-                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "CameraBaseClass.ImageArray", $"Submitting Action command...");
-                    string base64String = this.Action("GetBase64Image", "");
-                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "CameraBaseClass.ImageArray", $"Received response!");
-                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "CameraBaseClass.ImageArray", $"Received {base64String.Length} bytes in {sw.ElapsedMilliseconds}ms.");
-
-                    sw.Restart();
-                    byte[] base64ArrayByteArray = Convert.FromBase64String(base64String);
-                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "CameraBaseClass.ImageArray", $"Converted string to byte array in {sw.ElapsedMilliseconds}ms.");
-
-                    // Set the array type, rank and dimensions
-                    int version = BitConverter.ToInt32(base64ArrayByteArray, 0);
-                    ImageArrayElementTypes outputType = (ImageArrayElementTypes)BitConverter.ToInt32(base64ArrayByteArray, 4);
-                    ImageArrayElementTypes transmissionType = (ImageArrayElementTypes)BitConverter.ToInt32(base64ArrayByteArray, 8);
-                    int rank = BitConverter.ToInt32(base64ArrayByteArray, 12);
-                    int dimension0 = BitConverter.ToInt32(base64ArrayByteArray, 16);
-                    int dimension1 = BitConverter.ToInt32(base64ArrayByteArray, 20);
-                    int dimension2 = BitConverter.ToInt32(base64ArrayByteArray, 24);
-                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "CameraBaseClass.ImageArray", $"Version: {version}, Output Type: {outputType}, Transmission Type: {transmissionType}, Rank: {rank}, Dimension 0: {dimension0}, Dimension 1: {dimension1}, Dimension 2: {dimension2}");
-
-                    // Validate returned metadata values
-                    if (version != GETBASE64IMAGE_SUPPORTED_VERSION) throw new InvalidValueException($"GetBase64Image - The device returned an unsupported version: {version}, this Alpaca client supports version: {GETBASE64IMAGE_SUPPORTED_VERSION}");
-
-                    sw.Restart();
-                    // Convert the returned byte[] into the form that the client is expecting
-                    if ((outputType == ImageArrayElementTypes.Int32) & (transmissionType == ImageArrayElementTypes.Int16)) // Handle the special case where Int32 has been converted to Int16 for transmission
-                    {
-                        switch (rank)
-                        {
-                            case 2: // Rank 2
-                                short[,] short2dArray = new short[dimension0, dimension1];
-                                Buffer.BlockCopy(base64ArrayByteArray, 48, short2dArray, 0, base64ArrayByteArray.Length - 48);
-                                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "CameraBaseClass.ImageArray", $"Completed block copy of {base64ArrayByteArray.Length} bytes in {sw.ElapsedMilliseconds}ms");
-
-                                int[,] int2dArray = new int[dimension0, dimension1];
-                                Parallel.For(0, short2dArray.GetLength(0) - 1, (i) =>
-                                {
-                                    Parallel.For(0, short2dArray.GetLength(1) - 1, (j) =>
-                                    {
-                                        int2dArray[i, j] = short2dArray[i, j];
-                                    });
-                                });
-                                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "CameraBaseClass.ImageArray", $"CONVERTED 2D INT16 ARRAY TO INT32 ARRAY - GetBase64Image time: {swOverall.ElapsedMilliseconds}ms, Input length: {short2dArray.Length}, Output length: {int2dArray.Length}");
-                                return int2dArray;
-
-                            case 3: // Rank 3
-                                short[,,] short3dArray = new short[dimension0, dimension1, dimension2];
-                                Buffer.BlockCopy(base64ArrayByteArray, 48, short3dArray, 0, base64ArrayByteArray.Length - 48);
-                                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "CameraBaseClass.ImageArray", $"Completed block copy of {base64ArrayByteArray.Length} bytes in {sw.ElapsedMilliseconds}ms");
-
-                                int[,,] int3dArray = new int[dimension0, dimension1, dimension2];
-                                Parallel.For(0, short3dArray.GetLength(2) - 1, (k) =>
-                                {
-                                    Parallel.For(0, short3dArray.GetLength(1) - 1, (j) =>
-                                    {
-                                        Parallel.For(0, short3dArray.GetLength(0) - 1, (i) =>
-                                        {
-                                            int3dArray[i, j, k] = short3dArray[i, j, k];
-                                        });
-                                    });
-                                });
-                                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "CameraBaseClass.ImageArray", $"CONVERTED 3D INT16 ARRAY TO INT32 ARRAY - GetBase64Image time: {swOverall.ElapsedMilliseconds}ms, Input length: {short3dArray.Length}, Output length: {int3dArray.Length}");
-                                return int3dArray;
-
-                            default:
-                                throw new InvalidValueException($"CameraBaseClass.ImageArray - Returned array cannot be handled because it does not have a rank of 2 or 3. Returned array rank:{rank}.");
-                        }
-                    }
-                    else // Handle all other cases where the expected array type and the transmitted array type are the same
-                    {
-                        if (outputType == transmissionType) // Required and transmitted array element types are the same
-                        {
-                            switch (outputType)
+                            // Initialise the supported flag to false
+                            canGetBase64Image = false;
+                            IList<string> supportedActions = this.SupportedActions;
+                            foreach (string action in supportedActions)
                             {
-                                case ImageArrayElementTypes.Byte:
-                                    switch (rank)
-                                    {
-                                        case 2: // Rank 2
-                                            byte[,] byte2dArray = new byte[dimension0, dimension1];
-                                            Buffer.BlockCopy(base64ArrayByteArray, 48, byte2dArray, 0, base64ArrayByteArray.Length - 48);
-                                            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "CameraBaseClass.ImageArray", $"Completed byte[,] block copy of {base64ArrayByteArray.Length} bytes in {sw.ElapsedMilliseconds}ms");
-                                            return byte2dArray;
-
-                                        case 3: // Rank 3
-                                            byte[,,] byte3dArray = new byte[dimension0, dimension1, dimension2];
-                                            Buffer.BlockCopy(base64ArrayByteArray, 48, byte3dArray, 0, base64ArrayByteArray.Length - 48);
-                                            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "CameraBaseClass.ImageArray", $"Completed byte[,,] block copy of {base64ArrayByteArray.Length} bytes in {sw.ElapsedMilliseconds}ms");
-                                            return byte3dArray;
-
-                                        default:
-                                            throw new InvalidValueException($"ImageArray - Returned byte array cannot be handled because it does not have a rank of 2 or 3. Returned array rank:{rank}.");
-                                    }
-
-                                case ImageArrayElementTypes.Int16:
-                                    switch (rank)
-                                    {
-                                        case 2: // Rank 2
-                                            short[,] short2dArray = new short[dimension0, dimension1];
-                                            Buffer.BlockCopy(base64ArrayByteArray, 48, short2dArray, 0, base64ArrayByteArray.Length - 48);
-                                            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "CameraBaseClass.ImageArray", $"Completed Int16[,] block copy of {base64ArrayByteArray.Length} bytes in {sw.ElapsedMilliseconds}ms");
-                                            return short2dArray;
-
-                                        case 3: // Rank 3
-                                            short[,,] short3dArray = new short[dimension0, dimension1, dimension2];
-                                            Buffer.BlockCopy(base64ArrayByteArray, 48, short3dArray, 0, base64ArrayByteArray.Length - 48);
-                                            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "CameraBaseClass.ImageArray", $"Completed Int16[,,] block copy of {base64ArrayByteArray.Length} bytes in {sw.ElapsedMilliseconds}ms");
-                                            return short3dArray;
-
-                                        default:
-                                            throw new InvalidValueException($"ImageArray - Returned Int16 array cannot be handled because it does not have a rank of 2 or 3. Returned array rank:{rank}.");
-                                    }
-
-                                case ImageArrayElementTypes.Int32:
-                                    switch (rank)
-                                    {
-                                        case 2: // Rank 2
-                                            int[,] int2dArray = new int[dimension0, dimension1];
-                                            Buffer.BlockCopy(base64ArrayByteArray, 48, int2dArray, 0, base64ArrayByteArray.Length - 48);
-                                            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "CameraBaseClass.ImageArray", $"Completed Int32[,] block copy of {base64ArrayByteArray.Length} bytes in {sw.ElapsedMilliseconds}ms");
-                                            return int2dArray;
-
-                                        case 3: // Rank 3
-                                            int[,,] int3dArray = new int[dimension0, dimension1, dimension2];
-                                            Buffer.BlockCopy(base64ArrayByteArray, 48, int3dArray, 0, base64ArrayByteArray.Length - 48);
-                                            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "CameraBaseClass.ImageArray", $"Completed Int32[,,] block copy of {base64ArrayByteArray.Length} bytes in {sw.ElapsedMilliseconds}ms");
-                                            return int3dArray;
-
-                                        default:
-                                            throw new InvalidValueException($"ImageArray - Returned Int32 array cannot be handled because it does not have a rank of 2 or 3. Returned array rank:{rank}.");
-                                    }
-
-                                case ImageArrayElementTypes.Int64:
-                                    switch (rank)
-                                    {
-                                        case 2: // Rank 2
-                                            Int64[,] int642dArray = new Int64[dimension0, dimension1];
-                                            Buffer.BlockCopy(base64ArrayByteArray, 48, int642dArray, 0, base64ArrayByteArray.Length - 48);
-                                            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "CameraBaseClass.ImageArray", $"Completed Int64[,] block copy of {base64ArrayByteArray.Length} bytes in {sw.ElapsedMilliseconds}ms");
-                                            return int642dArray;
-
-                                        case 3: // Rank 3
-                                            Int64[,,] int643dArray = new Int64[dimension0, dimension1, dimension2];
-                                            Buffer.BlockCopy(base64ArrayByteArray, 48, int643dArray, 0, base64ArrayByteArray.Length - 48);
-                                            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "CameraBaseClass.ImageArray", $"Completed Int64[,,] block copy of {base64ArrayByteArray.Length} bytes in {sw.ElapsedMilliseconds}ms");
-                                            return int643dArray;
-
-                                        default:
-                                            throw new InvalidValueException($"ImageArray - Returned Int64 array cannot be handled because it does not have a rank of 2 or 3. Returned array rank:{rank}.");
-                                    }
-
-                                default:
-                                    throw new InvalidValueException($"The device has returned an unsupported image array element type: {outputType}.");
-
+                                // Set the supported flag true if the device advertises that it supports GetBase64Image
+                                if (action.ToLowerInvariant() == GETBASE64IMAGE_ACTION_NAME.ToLowerInvariant()) canGetBase64Image = true;
+                                LogMessage(TL, clientNumber, "ImageArray", $"Found SupportedAction: {action}, canGetBase64Image: {canGetBase64Image.Value}.");
                             }
                         }
-                        else // An unsupported combination of array element types has been returned
+                        catch (Exception ex)
                         {
-                            throw new InvalidValueException($"The device has returned an unsupported combination of Output type: {outputType} and Transmission type: {transmissionType}.");
+                            // Just log any errors but otherwise ignore them
+                            LogMessage(TL, clientNumber, "ImageArray", $"Received an exception when trying to get the device's SupportedActions: {ex.Message}");
+                        }
+
+                        // Determine whether the remote device supports the ImageArrayBytes property
+                        // Try to get an answer from the device, if anything goes wrong assume that the feature is not available
+                        try
+                        {
+                            // Initialise the supported flag to false
+                            canGetImageBytes = false;
+
+                            // Call the CanGetImageBytes property and store the value
+                            DynamicClientDriver.SetClientTimeout(client, standardDeviceResponseTimeout);
+                            canGetImageBytes = DynamicClientDriver.GetValue<bool>(clientNumber, client, URIBase, strictCasing, TL, "CanImageArrayBytes", MemberTypes.Property);
+
+                            LogMessage(TL, clientNumber, "ImageArray", $"CanImageArrayBytes returned {canGetImageBytes}");
+                        }
+                        catch (Exception ex)
+                        {
+                            // Just log any errors but otherwise ignore them
+                            LogMessage(TL, clientNumber, "ImageArray", $"Received an exception when calling the device's CanImageArrayBytes property : {ex.Message}");
                         }
                     }
-                }
-                else
-                {
 
-                    DynamicClientDriver.SetClientTimeout(client, longDeviceResponseTimeout);
-                    return DynamicClientDriver.GetValue<Array>(clientNumber, client, URIBase, strictCasing, TL, "ImageArray", imageArrayTransferType, imageArrayCompression, MemberTypes.Property);
+                    // As a precaution, set values false if we have no value at this point
+                    if (!canGetBase64Image.HasValue) canGetBase64Image = false;
+                    if (!canGetImageBytes.HasValue) canGetImageBytes = false;
+
+                    // Throw an exception if GetBase64Image mode is explicitly requested but the device does not support this mode
+                    if ((imageArrayTransferType == ImageArrayTransferType.GetBase64Image) & !canGetBase64Image.Value) throw new InvalidOperationException("GetBase64Image transfer mode has been requested but the device does not support this mode.");
+
+                    // Throw an exception if GetBase64Image mode is explicitly requested but the device does not support this mode
+                    if ((imageArrayTransferType == ImageArrayTransferType.GetImageBytes) & !canGetImageBytes.Value) throw new InvalidOperationException("GetImageBytes transfer mode has been requested but the device does not support this mode.");
+
+                    // Use a fast transfer mode if possible
+                    LogMessage(TL, clientNumber, "ImageArray", $"ImageArray 1 called - canGetBase64Image: {canGetBase64Image.Value}, canGetImageBytes: {canGetImageBytes.Value} , imageArrayTransferType: {imageArrayTransferType}");
+
+                    // Use the GetImageBytes mechanic if available
+                    if (canGetImageBytes.Value & ((imageArrayTransferType == ImageArrayTransferType.GetImageBytes) | (imageArrayTransferType == ImageArrayTransferType.BestAvailable)))
+                    {
+                        Stopwatch sw = new Stopwatch();
+                        Stopwatch swOverall = new Stopwatch();
+
+                        // Configure communications
+                        sw.Start();
+                        swOverall.Start();
+                        //RestRequest request = new RestRequest((URIBase + "ImageArrayBytes").ToLowerInvariant(), Method.GET)
+                        //{
+                        //    RequestFormat = DataFormat.None
+                        //};
+                        //client.ConfigureWebRequest(wr => wr.AutomaticDecompression = DecompressionMethods.None); // Prevent any decompression
+
+                        //// Add the transaction number and client ID parameters
+                        //uint transaction = DynamicClientDriver.TransactionNumber();
+                        //request.AddParameter(SharedConstants.CLIENTTRANSACTION_PARAMETER_NAME, transaction.ToString());
+                        //request.AddParameter(SharedConstants.CLIENTID_PARAMETER_NAME, clientNumber.ToString());
+
+                        //// Download the binary byte[] data
+                        string imageArrayBytesUri = $"{serviceType.ToString().ToLowerInvariant()}://{ipAddressString}:{portNumber}{URIBase}ImageArrayBytes".ToLowerInvariant();
+                        LogMessage(TL, clientNumber, "ImageArrayBytes", $"Downloading byte[] from {imageArrayBytesUri}");
+
+                        // Create a task to download the byte[]
+                        Task<byte[]> getByteArrayTask = GetByteArray(imageArrayBytesUri);
+
+                        // Wait for the task to complete
+                        Task.WaitAll(getByteArrayTask);
+
+                        // Get the byte array from the task
+                        byte[] imageBytes = getByteArrayTask.Result;
+
+                        sw.Stop();
+                        LogMessage(TL, clientNumber, "ImageArrayBytes", $"Downloaded {imageBytes.Length} bytes in {sw.ElapsedMilliseconds}ms.");
+
+                        LogMessage(TL, clientNumber, "ImageArrayBytes", $"Metadata bytes: " +
+                            $"[ {imageBytes[0]:X2} {imageBytes[1]:X2} {imageBytes[2]:X2} {imageBytes[3]:X2} ] [ {imageBytes[4]:X2} {imageBytes[5]:X2} {imageBytes[6]:X2} {imageBytes[7]:X2} ] " +
+                            $"[ {imageBytes[8]:X2} {imageBytes[9]:X2} {imageBytes[10]:X2} {imageBytes[11]:X2} ] [ {imageBytes[12]:X2} {imageBytes[13]:X2} {imageBytes[14]:X2} {imageBytes[15]:X2} ] " +
+                            $"[ {imageBytes[16]:X2} {imageBytes[17]:X2} {imageBytes[18]:X2} {imageBytes[19]:X2} ] [ {imageBytes[20]:X2} {imageBytes[21]:X2} {imageBytes[22]:X2} {imageBytes[23]:X2} ] " +
+                            $"[ {imageBytes[24]:X2} {imageBytes[25]:X2} {imageBytes[26]:X2} {imageBytes[27]:X2} ] [ {imageBytes[28]:X2} {imageBytes[29]:X2} {imageBytes[30]:X2} {imageBytes[31]:X2} ] " +
+                            $"[ {imageBytes[32]:X2} {imageBytes[33]:X2} {imageBytes[34]:X2} {imageBytes[35]:X2} ]");
+
+                        int metadataVersion = imageBytes.GetMetadataVersion();
+                        LogMessage(TL, clientNumber, "ImageArrayBytes", $"Metadata version: {metadataVersion}");
+
+                        AlpacaErrors errorNumber;
+                        switch (metadataVersion)
+                        {
+                            case 1:
+                                ArrayMetadataV1 metadataV1 = imageBytes.GetMetadataV1();
+                                LogMessage(TL, clientNumber, "ImageArrayBytes", $"Received array: Metadata version: {metadataV1.MetadataVersion} Image element type: {metadataV1.ImageElementType} Transmission element type: {metadataV1.TransmissionElementType} Array rank: {metadataV1.Rank} Dimension 0: {metadataV1.Dimension0} Dimension 1: {metadataV1.Dimension1} Dimension 2: {metadataV1.Dimension2} Error number: {metadataV1.ErrorNumber}.");
+                                errorNumber = metadataV1.ErrorNumber;
+                                break;
+
+                            default:
+                                throw new InvalidValueException($"ImageArray - ImageArrayBytes - Received an unsupported metadata version number: {metadataVersion} from the Alpaca device.");
+                        }
+
+                        // Handle success or failure of the call
+                        if (errorNumber == AlpacaErrors.AlpacaNoError) // Success so return the image array
+                        {
+                            // Convert the byte[] back to an image array
+                            sw.Restart();
+                            returnArray = imageBytes.ToImageArray();
+                            LogMessage(TL, clientNumber, "ImageArrayBytes", $"Converted byte[] to image array in {sw.ElapsedMilliseconds}ms. Overall time: {swOverall.ElapsedMilliseconds}ms.");
+                            return returnArray;
+                        }
+                        else // An error occurred so throw an exception
+                        {
+                            string errorMessage = imageBytes.GetErrrorMessage();
+                            LogMessage(TL, clientNumber, "ImageArrayBytes", $"The Alpaca device returned an error: {errorNumber} - {errorMessage}.");
+                            throw ExceptionHelpers.ExceptionFromErrorCode(errorNumber, errorMessage);
+                        }
+
+                    }
+                    else if (canGetBase64Image.Value & ((imageArrayTransferType == ImageArrayTransferType.GetBase64Image) | (imageArrayTransferType == ImageArrayTransferType.BestAvailable)))
+                    // Fall back to GetBase64Image if available
+                    {
+                        Stopwatch sw = new Stopwatch();
+                        Stopwatch swOverall = new Stopwatch();
+
+                        // Call the GetBase64Image Action method to retrieve the image in base64 encoded form
+                        swOverall.Start();
+                        sw.Start();
+                        string base64String = this.Action(AlpacaTools.BASE64RESPONSE_COMMAND_NAME, "");
+                        sw.Stop();
+                        LogMessage(TL, clientNumber, "GetBase64Image", $"Received {base64String.Length} bytes in {sw.ElapsedMilliseconds}ms.");
+
+                        // Convert from base 64 encoding to byte[]
+                        sw.Restart();
+                        byte[] base64ArrayByteArray = Convert.FromBase64String(base64String);
+                        sw.Stop();
+                        LogMessage(TL, clientNumber, "GetBase64Image", $"Converted string to byte array in {sw.ElapsedMilliseconds}ms.");
+
+
+                        int metadataVersion = base64ArrayByteArray.GetMetadataVersion();
+                        LogMessage(TL, clientNumber, "GetBase64Image", $"Metadata version: {metadataVersion}");
+
+                        switch (metadataVersion)
+                        {
+                            case 1:
+                                ArrayMetadataV1 metadataV1 = base64ArrayByteArray.GetMetadataV1();
+                                LogMessage(TL, clientNumber, "GetBase64Image", $"Received array: Metadata version: {metadataV1.MetadataVersion} Image element type: {metadataV1.ImageElementType} Transmission element type: {metadataV1.TransmissionElementType} Array rank: {metadataV1.Rank} Dimension 0: {metadataV1.Dimension0} Dimension 1: {metadataV1.Dimension1} Dimension 2: {metadataV1.Dimension2}");
+                                break;
+
+                            default:
+                                throw new InvalidValueException($"GetBase64Image - ImageArrayBytes - Received an unsupported metadata version number: {metadataVersion} from the Alpaca device.");
+                        }
+
+                        // Convert the byte[] back to an image array
+                        sw.Restart();
+                        returnArray = base64ArrayByteArray.ToImageArray();
+                        LogMessage(TL, clientNumber, "GetBase64Image", $"Converted byte[] to image array in {sw.ElapsedMilliseconds}ms. Overall time: {swOverall.ElapsedMilliseconds}ms.");
+
+                        return returnArray;
+                    }
+                    else
+                    // Fall back to Base64 hand-off if available, otherwise use JSON
+                    {
+                        DynamicClientDriver.SetClientTimeout(client, longDeviceResponseTimeout);
+                        return DynamicClientDriver.GetValue<Array>(clientNumber, client, URIBase, strictCasing, TL, "ImageArray", imageArrayTransferType, imageArrayCompression, MemberTypes.Property);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LogMessage(TL, clientNumber, "ImageArray", $"CameraBaseClass.ImageArray exception: {ex}");
+                    throw;
                 }
             }
         }
@@ -1102,5 +1098,15 @@ namespace ASCOM.Alpaca.Clients
 
         #endregion
 
+        #region Support code
+
+        private async Task<byte[]> GetByteArray(string url)
+        {
+            HttpClient wClient = new HttpClient();
+            byte[] imageBytes = await wClient.GetByteArrayAsync(url);
+            return imageBytes;
+        }
+
+        #endregion
     }
 }

@@ -17,6 +17,7 @@ namespace ASCOM.Common.Alpaca
 
         // ImageArrayBytes constants
         public const string BYTE_ARRAY_ENPOINT_NAME = "imagearraybytes";
+        public const int ARRAY_METADATAV1_LENGTH = 36; // Length of the array metadata version 1 structure
 
         // GetBase64Image constants
         public const string BASE64RESPONSE_COMMAND_NAME = "GetBase64Image";
@@ -28,10 +29,8 @@ namespace ASCOM.Common.Alpaca
         public const int BASE64RESPONSE_DIMENSION0_POSITION = 16;
         public const int BASE64RESPONSE_DIMENSION1_POSITION = 20;
         public const int BASE64RESPONSE_DIMENSION2_POSITION = 24;
-        public const int dataStart = 48;
         public const int ARRAY_METADATA_VERSION = 1;
 
-        public const int ARRAY_METADATAV1_LENGTH = 36; // Length of the array metadata version 1 structure
 
         #endregion
 
@@ -371,7 +370,7 @@ namespace ASCOM.Common.Alpaca
 
             // Validate the incoming array
             if (imageBytes is null) throw new InvalidValueException("ToImageArray - Supplied array is null.");
-            if (imageBytes.Length < ARRAY_METADATAV1_LENGTH) throw new InvalidValueException($"ToImageArray - Supplied array does not exceed the size of the mandatory metadata. Arrays must contain at least {ARRAY_METADATAV1_LENGTH} bytes. The supplied array has a length of {imageBytes.Length}.");
+            if (imageBytes.Length <= ARRAY_METADATAV1_LENGTH) throw new InvalidValueException($"ToImageArray - Supplied array does not exceed the size of the mandatory metadata. Arrays must contain at least {ARRAY_METADATAV1_LENGTH} bytes. The supplied array has a length of {imageBytes.Length}.");
 
             int metadataVersion = imageBytes.GetMetadataVersion();
 
@@ -673,7 +672,8 @@ namespace ASCOM.Common.Alpaca
             switch (metadataVersion)
             {
                 case 1:
-                    return Encoding.UTF8.GetString(errorMessageBytes, ARRAY_METADATAV1_LENGTH, errorMessageBytes.Length - ARRAY_METADATAV1_LENGTH);
+                    ArrayMetadataV1 arrayMetadataV1 = errorMessageBytes.GetMetadataV1();
+                    return Encoding.UTF8.GetString(errorMessageBytes, arrayMetadataV1.DataStart, errorMessageBytes.Length - arrayMetadataV1.DataStart);
 
                 default:
                     throw new InvalidValueException($"GetErrrorMessage - The supplied array contains an unsupported metadata version number: {metadataVersion}. This component supports metadata version 1.");
@@ -687,7 +687,7 @@ namespace ASCOM.Common.Alpaca
             // Initialise array to hold the metadata bytes
             byte[] metadataV1Bytes = new byte[ARRAY_METADATAV1_LENGTH];
 
-            // COPy the metadata bytes from the image array to the metadata bytes array
+            // Copy the metadata bytes from the image array to the metadata bytes array
             Array.Copy(imageBytes, 0, metadataV1Bytes, 0, ARRAY_METADATAV1_LENGTH);
 
             // Create the metadata structure from the metadata bytes and return it to the caller

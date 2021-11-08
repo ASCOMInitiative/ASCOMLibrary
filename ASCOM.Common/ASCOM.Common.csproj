@@ -18,7 +18,7 @@
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
 		<DebugType>embedded</DebugType>
-		<Optimize>true</Optimize>
+		<Optimize>False</Optimize>
 	</PropertyGroup>
 
 	<ItemGroup>

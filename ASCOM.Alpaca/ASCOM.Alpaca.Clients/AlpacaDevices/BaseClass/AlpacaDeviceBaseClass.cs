@@ -45,7 +45,6 @@ namespace ASCOM.Alpaca.Clients
 
         protected virtual void Dispose(bool disposing)
         {
-            Console.WriteLine($"AlpacaDeviceBaseClass.Dispose() {disposing}");
             if (!disposedValue)
             {
                 if (disposing)
