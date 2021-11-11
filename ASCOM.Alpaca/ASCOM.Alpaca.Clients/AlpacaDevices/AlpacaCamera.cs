@@ -688,6 +688,14 @@ namespace ASCOM.Alpaca.Clients
 
                         return returnArray;
                     }
+                    else if (!canGetImageBytes.Value & (imageArrayTransferType == ImageArrayTransferType.GetImageBytes)) // Throw an exception if GetImageBytes is specified but not available
+                    {
+                        throw new InvalidOperationException("ImageArrayBytes - The GetImageBytes transfer mechanic was specified but is not supported by this device.");
+                    }
+                    else if (!canGetBase64Image.Value & (imageArrayTransferType == ImageArrayTransferType.GetBase64Image)) // Throw an exception if GetBase64Image is specified but not available
+                    {
+                        throw new InvalidOperationException("GetBase64Image - The GetBase64Image transfer mechanic was specified but is not supported by this device.");
+                    }
                     else
                     // Fall back to Base64 hand-off if available, otherwise use JSON
                     {

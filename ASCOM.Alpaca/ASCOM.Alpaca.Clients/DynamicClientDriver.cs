@@ -651,6 +651,7 @@ namespace ASCOM.Alpaca.Clients
                                 // No extra action because "accepts = application/json" will be applied automatically by the client
                                 break;
 
+                            case ImageArrayTransferType.GetImageBytes:
                             case ImageArrayTransferType.Base64HandOff:
                             case ImageArrayTransferType.GetBase64Image:
                             case ImageArrayTransferType.BestAvailable:
@@ -805,9 +806,9 @@ namespace ASCOM.Alpaca.Clients
                                 AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, string.Format(LOG_FORMAT_STRING, trackingRatesResponse.ClientTransactionID, trackingRatesResponse.ServerTransactionID, "NO VALUE OR NULL VALUE RETURNED"));
 
                                 // Now force an error return
-                                if (trackingRatesResponse.ErrorNumber == 0) trackingRatesResponse.ErrorNumber = (AlpacaErrors)DYNAMIC_DRIVER_ERROR_NUMBER;
-                                if (string.IsNullOrEmpty(trackingRatesResponse.ErrorMessage)) trackingRatesResponse.ErrorMessage = "Dynamic driver generated error: the Alpaca device returned no value or a null value for TrackingRates";
-
+                                trackingRatesResponse = new TrackingRatesResponse();
+                                trackingRatesResponse.ErrorNumber = (AlpacaErrors)DYNAMIC_DRIVER_ERROR_NUMBER;
+                                trackingRatesResponse.ErrorMessage = "Dynamic driver generated error: the Alpaca device returned no value or a null value for TrackingRates";
                             }
                             restResponseBase = (Response)trackingRatesResponse;
                         }
@@ -887,8 +888,9 @@ namespace ASCOM.Alpaca.Clients
                                 AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, string.Format(LOG_FORMAT_STRING, axisRatesResponse.ClientTransactionID, axisRatesResponse.ServerTransactionID, "NO VALUE OR NULL VALUE RETURNED"));
 
                                 // Now force an error return
-                                if (axisRatesResponse.ErrorNumber == 0) axisRatesResponse.ErrorNumber = (AlpacaErrors)DYNAMIC_DRIVER_ERROR_NUMBER;
-                                if (string.IsNullOrEmpty(axisRatesResponse.ErrorMessage)) axisRatesResponse.ErrorMessage = "Dynamic driver generated error: the Alpaca device returned no value or a null value for AxisRates";
+                                axisRatesResponse = new AxisRatesResponse();
+                                axisRatesResponse.ErrorNumber = (AlpacaErrors)DYNAMIC_DRIVER_ERROR_NUMBER;
+                                axisRatesResponse.ErrorMessage = "Dynamic driver generated error: the Alpaca device returned no value or a null value for AxisRates";
                             }
 
                             restResponseBase = (Response)axisRatesResponse;
@@ -907,137 +909,142 @@ namespace ASCOM.Alpaca.Clients
                                 // De-serialise the JSON image array hand-off response 
                                 sw.Restart(); // Clear and start the stopwatch
                                 Base64ArrayHandOffResponse base64HandOffresponse = JsonSerializer.Deserialize<Base64ArrayHandOffResponse>(deviceJsonResponse.Content, new JsonSerializerOptions { PropertyNameCaseInsensitive = !strictCasing });
-                                ImageArrayElementTypes arrayType = (ImageArrayElementTypes)base64HandOffresponse.Type; // Extract the array type from the JSON response
-
-                                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Base64 - Extracted array information in {sw.ElapsedMilliseconds}ms. Array Type: {arrayType}, Rank: {base64HandOffresponse.Rank}, Dimension 0 length: {base64HandOffresponse.Dimension0Length}, Dimension 1 length: {base64HandOffresponse.Dimension1Length}, Dimension 2 length: {base64HandOffresponse.Dimension2Length}");
-                                sw.Restart();
-
-                                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Base64 - Downloading base64 serialised image");
-
-                                // Construct an HTTP request to get the base 64 encoded image
-                                string base64Uri = (client.BaseUrl + uriBase.TrimStart('/') + method.ToLowerInvariant() + SharedConstants.BASE64_HANDOFF_FILE_DOWNLOAD_URI_EXTENSION).ToLowerInvariant(); // Create the download URI from the REST client elements
-                                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Base64 URI: {base64Uri}");
-
-                                // Create a variable to hold the returned base 64 string
-                                string base64ArrayString = "";
-
-                                // Create a handler to indicate the compression levels supported by this client
-                                using (HttpClientHandler imageDownloadHandler = new HttpClientHandler())
+                                if (CallWasSuccessful(TL, base64HandOffresponse))
                                 {
-                                    switch (imageArrayCompression)
+
+                                    ImageArrayElementTypes arrayType = (ImageArrayElementTypes)base64HandOffresponse.Type; // Extract the array type from the JSON response
+
+                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Base64 - Extracted array information in {sw.ElapsedMilliseconds}ms. Array Type: {arrayType}, Rank: {base64HandOffresponse.Rank}, Dimension 0 length: {base64HandOffresponse.Dimension0Length}, Dimension 1 length: {base64HandOffresponse.Dimension1Length}, Dimension 2 length: {base64HandOffresponse.Dimension2Length}");
+                                    sw.Restart();
+
+                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Base64 - Downloading base64 serialised image");
+
+                                    // Construct an HTTP request to get the base 64 encoded image
+                                    string base64Uri = (client.BaseUrl + uriBase.TrimStart('/') + method.ToLowerInvariant() + SharedConstants.BASE64_HANDOFF_FILE_DOWNLOAD_URI_EXTENSION).ToLowerInvariant(); // Create the download URI from the REST client elements
+                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Base64 URI: {base64Uri}");
+
+                                    // Create a variable to hold the returned base 64 string
+                                    string base64ArrayString = "";
+
+                                    // Create a handler to indicate the compression levels supported by this client
+                                    using (HttpClientHandler imageDownloadHandler = new HttpClientHandler())
                                     {
-                                        case ImageArrayCompression.None:
-                                            imageDownloadHandler.AutomaticDecompression = DecompressionMethods.None;
+                                        switch (imageArrayCompression)
+                                        {
+                                            case ImageArrayCompression.None:
+                                                imageDownloadHandler.AutomaticDecompression = DecompressionMethods.None;
+                                                break;
+                                            case ImageArrayCompression.Deflate:
+                                                imageDownloadHandler.AutomaticDecompression = DecompressionMethods.Deflate;
+                                                break;
+                                            case ImageArrayCompression.GZip:
+                                                imageDownloadHandler.AutomaticDecompression = DecompressionMethods.GZip;
+                                                break;
+                                            case ImageArrayCompression.GZipOrDeflate:
+                                                imageDownloadHandler.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip; // Allow both Deflate and GZip decompression
+                                                break;
+                                            default:
+                                                throw new InvalidValueException($"Unknown ImageArrayCompression value: {imageArrayCompression} - Can't proceed further!");
+                                        }
+
+                                        // Create an HTTP client  to download the base64 string
+                                        using (HttpClient httpClient = new HttpClient(imageDownloadHandler))
+                                        {
+                                            // Get the async stream from the HTTPClient
+                                            Stream base64ArrayStream = httpClient.GetStreamAsync(base64Uri).Result;
+                                            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Downloaded base64 stream obtained in {sw.ElapsedMilliseconds}ms"); sw.Restart();
+
+                                            // Read the stream contents into the string variable ready for further processing
+                                            using (StreamReader sr = new StreamReader(base64ArrayStream, System.Text.Encoding.ASCII, false))
+                                            {
+                                                base64ArrayString = sr.ReadToEnd();
+                                            }
+                                        }
+                                    }
+
+                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Read base64 string from stream ({base64ArrayString.Length} bytes) in {sw.ElapsedMilliseconds}ms"); sw.Restart();
+                                    try { AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Base64 string start: {base64ArrayString.Substring(0, 300)}"); } catch { }
+                                    try { AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Base64 string end: {base64ArrayString.Substring(60000000, 300)}"); } catch { }
+
+                                    // Convert the array from base64 encoding to a byte array
+                                    byte[] base64ArrayByteArray = Convert.FromBase64String(base64ArrayString);
+                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Converted base64 string of length {base64ArrayString.Length} to byte array of length {base64ArrayByteArray.Length} in {sw.ElapsedMilliseconds}ms"); sw.Restart();
+                                    string byteLine = "";
+                                    try
+                                    {
+                                        for (int i = 0; i < 300; i++)
+                                        {
+                                            byteLine += base64ArrayByteArray[i].ToString() + " ";
+                                        }
+                                        AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Converted base64 bytes: {byteLine}");
+                                    }
+                                    catch { }
+
+                                    // Now create and populate an appropriate array to return to the client that mirrors the array type returned by the device
+                                    switch (arrayType) // Handle the different array return types
+                                    {
+                                        case ImageArrayElementTypes.Int32:
+                                            switch (base64HandOffresponse.Rank)
+                                            {
+                                                case 2:
+                                                    remoteArray = new int[base64HandOffresponse.Dimension0Length, base64HandOffresponse.Dimension1Length];
+                                                    break;
+
+                                                case 3:
+                                                    remoteArray = new int[base64HandOffresponse.Dimension0Length, base64HandOffresponse.Dimension1Length, base64HandOffresponse.Dimension2Length];
+                                                    break;
+
+                                                default:
+                                                    throw new InvalidOperationException("Arrays of Rank " + base64HandOffresponse.Rank + " are not supported.");
+                                            }
+
+                                            // Copy the array bytes to the response array that will return to the client
+                                            Buffer.BlockCopy(base64ArrayByteArray, 0, remoteArray, 0, base64ArrayByteArray.Length);
                                             break;
-                                        case ImageArrayCompression.Deflate:
-                                            imageDownloadHandler.AutomaticDecompression = DecompressionMethods.Deflate;
+
+                                        case ImageArrayElementTypes.Int16:
+                                            switch (base64HandOffresponse.Rank)
+                                            {
+                                                case 2:
+                                                    remoteArray = new short[base64HandOffresponse.Dimension0Length, base64HandOffresponse.Dimension1Length];
+                                                    break;
+
+                                                case 3:
+                                                    remoteArray = new short[base64HandOffresponse.Dimension0Length, base64HandOffresponse.Dimension1Length, base64HandOffresponse.Dimension2Length];
+                                                    break;
+
+                                                default:
+                                                    throw new InvalidOperationException("Arrays of Rank " + base64HandOffresponse.Rank + " are not supported.");
+                                            }
+                                            Buffer.BlockCopy(base64ArrayByteArray, 0, remoteArray, 0, base64ArrayByteArray.Length); // Copy the array bytes to the response array that will return to the client
                                             break;
-                                        case ImageArrayCompression.GZip:
-                                            imageDownloadHandler.AutomaticDecompression = DecompressionMethods.GZip;
+
+                                        case ImageArrayElementTypes.Double:
+                                            switch (base64HandOffresponse.Rank)
+                                            {
+                                                case 2:
+                                                    remoteArray = new double[base64HandOffresponse.Dimension0Length, base64HandOffresponse.Dimension1Length];
+                                                    break;
+
+                                                case 3:
+                                                    remoteArray = new double[base64HandOffresponse.Dimension0Length, base64HandOffresponse.Dimension1Length, base64HandOffresponse.Dimension2Length];
+                                                    break;
+
+                                                default:
+                                                    throw new InvalidOperationException("Arrays of Rank " + base64HandOffresponse.Rank + " are not supported.");
+                                            }
+                                            Buffer.BlockCopy(base64ArrayByteArray, 0, remoteArray, 0, base64ArrayByteArray.Length); // Copy the array bytes to the response array that will return to the client
                                             break;
-                                        case ImageArrayCompression.GZipOrDeflate:
-                                            imageDownloadHandler.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip; // Allow both Deflate and GZip decompression
-                                            break;
+
                                         default:
-                                            throw new InvalidValueException($"Unknown ImageArrayCompression value: {imageArrayCompression} - Can't proceed further!");
+                                            throw new InvalidOperationException($"SendToRemoteDevice Base64HandOff - Image array element type {arrayType} is not supported. The device returned this value: {base64HandOffresponse.Type}");
                                     }
 
-                                    // Create an HTTP client  to download the base64 string
-                                    using (HttpClient httpClient = new HttpClient(imageDownloadHandler))
-                                    {
-                                        // Get the async stream from the HTTPClient
-                                        Stream base64ArrayStream = httpClient.GetStreamAsync(base64Uri).Result;
-                                        AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Downloaded base64 stream obtained in {sw.ElapsedMilliseconds}ms"); sw.Restart();
+                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Created and copied the array in {sw.ElapsedMilliseconds}ms"); sw.Restart();
 
-                                        // Read the stream contents into the string variable ready for further processing
-                                        using (StreamReader sr = new StreamReader(base64ArrayStream, System.Text.Encoding.ASCII, false))
-                                        {
-                                            base64ArrayString = sr.ReadToEnd();
-                                        }
-                                    }
+                                    return (T)(object)remoteArray;
                                 }
-
-                                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Read base64 string from stream ({base64ArrayString.Length} bytes) in {sw.ElapsedMilliseconds}ms"); sw.Restart();
-                                try { AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Base64 string start: {base64ArrayString.Substring(0, 300)}"); } catch { }
-                                try { AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Base64 string end: {base64ArrayString.Substring(60000000, 300)}"); } catch { }
-
-                                // Convert the array from base64 encoding to a byte array
-                                byte[] base64ArrayByteArray = Convert.FromBase64String(base64ArrayString);
-                                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Converted base64 string of length {base64ArrayString.Length} to byte array of length {base64ArrayByteArray.Length} in {sw.ElapsedMilliseconds}ms"); sw.Restart();
-                                string byteLine = "";
-                                try
-                                {
-                                    for (int i = 0; i < 300; i++)
-                                    {
-                                        byteLine += base64ArrayByteArray[i].ToString() + " ";
-                                    }
-                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Converted base64 bytes: {byteLine}");
-                                }
-                                catch { }
-
-                                // Now create and populate an appropriate array to return to the client that mirrors the array type returned by the device
-                                switch (arrayType) // Handle the different array return types
-                                {
-                                    case ImageArrayElementTypes.Int32:
-                                        switch (base64HandOffresponse.Rank)
-                                        {
-                                            case 2:
-                                                remoteArray = new int[base64HandOffresponse.Dimension0Length, base64HandOffresponse.Dimension1Length];
-                                                break;
-
-                                            case 3:
-                                                remoteArray = new int[base64HandOffresponse.Dimension0Length, base64HandOffresponse.Dimension1Length, base64HandOffresponse.Dimension2Length];
-                                                break;
-
-                                            default:
-                                                throw new InvalidOperationException("Arrays of Rank " + base64HandOffresponse.Rank + " are not supported.");
-                                        }
-
-                                        // Copy the array bytes to the response array that will return to the client
-                                        Buffer.BlockCopy(base64ArrayByteArray, 0, remoteArray, 0, base64ArrayByteArray.Length);
-                                        break;
-
-                                    case ImageArrayElementTypes.Int16:
-                                        switch (base64HandOffresponse.Rank)
-                                        {
-                                            case 2:
-                                                remoteArray = new short[base64HandOffresponse.Dimension0Length, base64HandOffresponse.Dimension1Length];
-                                                break;
-
-                                            case 3:
-                                                remoteArray = new short[base64HandOffresponse.Dimension0Length, base64HandOffresponse.Dimension1Length, base64HandOffresponse.Dimension2Length];
-                                                break;
-
-                                            default:
-                                                throw new InvalidOperationException("Arrays of Rank " + base64HandOffresponse.Rank + " are not supported.");
-                                        }
-                                        Buffer.BlockCopy(base64ArrayByteArray, 0, remoteArray, 0, base64ArrayByteArray.Length); // Copy the array bytes to the response array that will return to the client
-                                        break;
-
-                                    case ImageArrayElementTypes.Double:
-                                        switch (base64HandOffresponse.Rank)
-                                        {
-                                            case 2:
-                                                remoteArray = new double[base64HandOffresponse.Dimension0Length, base64HandOffresponse.Dimension1Length];
-                                                break;
-
-                                            case 3:
-                                                remoteArray = new double[base64HandOffresponse.Dimension0Length, base64HandOffresponse.Dimension1Length, base64HandOffresponse.Dimension2Length];
-                                                break;
-
-                                            default:
-                                                throw new InvalidOperationException("Arrays of Rank " + base64HandOffresponse.Rank + " are not supported.");
-                                        }
-                                        Buffer.BlockCopy(base64ArrayByteArray, 0, remoteArray, 0, base64ArrayByteArray.Length); // Copy the array bytes to the response array that will return to the client
-                                        break;
-
-                                    default:
-                                        throw new InvalidOperationException("Image array element type" + arrayType + " is not supported.");
-                                }
-
-                                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Created and copied the array in {sw.ElapsedMilliseconds}ms"); sw.Restart();
-
-                                return (T)(object)remoteArray;
+                                restResponseBase = (Response)base64HandOffresponse;
                             }
 
                             // Handle conventional JSON response with integer array elements individually serialised
@@ -1045,96 +1052,101 @@ namespace ASCOM.Alpaca.Clients
                             {
                                 sw.Restart(); // Clear and start the stopwatch
                                 ImageArrayResponseBase responseBase = JsonSerializer.Deserialize<ImageArrayResponseBase>(deviceJsonResponse.Content, new JsonSerializerOptions { PropertyNameCaseInsensitive = !strictCasing });
-                                ImageArrayElementTypes arrayType = (ImageArrayElementTypes)responseBase.Type;
-                                int arrayRank = responseBase.Rank;
-
-                                // Include some debug logging
-                                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Extracted array type and rank by JsonSerializer.Deserialize in {sw.ElapsedMilliseconds}ms. Type: {arrayType}, Rank: {arrayRank}, Response values - Type: {responseBase.Type}, Rank: {responseBase.Rank}");
-
-                                sw.Restart(); // Clear and start the stopwatch
-                                switch (arrayType) // Handle the different return types that may come from ImageArrayVariant
+                                if (CallWasSuccessful(TL, responseBase))
                                 {
-                                    case ImageArrayElementTypes.Int32:
-                                        switch (arrayRank)
-                                        {
-                                            case 2:
-                                                //IntArray2DResponse intArray2DResponse = JsonSerializer.Deserialize<IntArray2DResponse>(deviceJsonResponse.Content, new JsonSerializerOptions { PropertyNameCaseInsensitive = !strictCasing });
-                                                IntArray2DResponse intArray2DResponse = Newtonsoft.Json.JsonConvert.DeserializeObject<IntArray2DResponse>(deviceJsonResponse.Content);
-                                                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, string.Format(LOG_FORMAT_STRING, intArray2DResponse.ClientTransactionID, intArray2DResponse.ServerTransactionID, intArray2DResponse.Rank.ToString())); //, intArray2DResponse.Method));
-                                                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Array was deserialised in {sw.ElapsedMilliseconds} ms, Type: {(ImageArrayElementTypes)intArray2DResponse.Type}, Rank: {intArray2DResponse.Rank}");
-                                                if (CallWasSuccessful(TL, intArray2DResponse)) return (T)((object)intArray2DResponse.Value);
-                                                restResponseBase = (Response)intArray2DResponse;
-                                                break;
 
-                                            case 3:
-                                                //IntArray3DResponse intArray3DResponse = JsonSerializer.Deserialize<IntArray3DResponse>(deviceJsonResponse.Content, new JsonSerializerOptions { PropertyNameCaseInsensitive = !strictCasing });
-                                                IntArray3DResponse intArray3DResponse = Newtonsoft.Json.JsonConvert.DeserializeObject<IntArray3DResponse>(deviceJsonResponse.Content);
-                                                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, string.Format(LOG_FORMAT_STRING, intArray3DResponse.ClientTransactionID, intArray3DResponse.ServerTransactionID, intArray3DResponse.Rank.ToString())); //, intArray3DResponse.Method));
-                                                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Array was deserialised in {sw.ElapsedMilliseconds} ms, Type: {(ImageArrayElementTypes)intArray3DResponse.Type}, Rank: {intArray3DResponse.Rank}");
-                                                if (CallWasSuccessful(TL, intArray3DResponse)) return (T)((object)intArray3DResponse.Value);
-                                                restResponseBase = (Response)intArray3DResponse;
-                                                break;
+                                    ImageArrayElementTypes arrayType = (ImageArrayElementTypes)responseBase.Type;
+                                    int arrayRank = responseBase.Rank;
 
-                                            default:
-                                                throw new InvalidOperationException("Arrays of Rank " + arrayRank + " are not supported.");
-                                        }
-                                        break;
+                                    // Include some debug logging
+                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Extracted array type and rank by JsonSerializer.Deserialize in {sw.ElapsedMilliseconds}ms. Type: {arrayType}, Rank: {arrayRank}, Response values - Type: {responseBase.Type}, Rank: {responseBase.Rank}");
 
-                                    case ImageArrayElementTypes.Int16:
-                                        switch (arrayRank)
-                                        {
-                                            case 2:
-                                                //ShortArray2DResponse shortArray2DResponse = JsonSerializer.Deserialize<ShortArray2DResponse>(deviceJsonResponse.Content, new JsonSerializerOptions { PropertyNameCaseInsensitive = !strictCasing });
-                                                ShortArray2DResponse shortArray2DResponse = Newtonsoft.Json.JsonConvert.DeserializeObject<ShortArray2DResponse>(deviceJsonResponse.Content);
-                                                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, string.Format(LOG_FORMAT_STRING, shortArray2DResponse.ClientTransactionID, shortArray2DResponse.ServerTransactionID, shortArray2DResponse.Rank.ToString())); //, shortArray2DResponse.Method));
-                                                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Array was deserialised in {sw.ElapsedMilliseconds} ms, Type: {(ImageArrayElementTypes)shortArray2DResponse.Type}, Rank: {shortArray2DResponse.Rank}");
-                                                if (CallWasSuccessful(TL, shortArray2DResponse)) return (T)((object)shortArray2DResponse.Value);
-                                                restResponseBase = (Response)shortArray2DResponse;
-                                                break;
+                                    sw.Restart(); // Clear and start the stopwatch
+                                    switch (arrayType) // Handle the different return types that may come from ImageArrayVariant
+                                    {
+                                        case ImageArrayElementTypes.Int32:
+                                            switch (arrayRank)
+                                            {
+                                                case 2:
+                                                    //IntArray2DResponse intArray2DResponse = JsonSerializer.Deserialize<IntArray2DResponse>(deviceJsonResponse.Content, new JsonSerializerOptions { PropertyNameCaseInsensitive = !strictCasing });
+                                                    IntArray2DResponse intArray2DResponse = Newtonsoft.Json.JsonConvert.DeserializeObject<IntArray2DResponse>(deviceJsonResponse.Content);
+                                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, string.Format(LOG_FORMAT_STRING, intArray2DResponse.ClientTransactionID, intArray2DResponse.ServerTransactionID, intArray2DResponse.Rank.ToString())); //, intArray2DResponse.Method));
+                                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Array was deserialised in {sw.ElapsedMilliseconds} ms, Type: {(ImageArrayElementTypes)intArray2DResponse.Type}, Rank: {intArray2DResponse.Rank}");
+                                                    if (CallWasSuccessful(TL, intArray2DResponse)) return (T)((object)intArray2DResponse.Value);
+                                                    restResponseBase = (Response)intArray2DResponse;
+                                                    break;
 
-                                            case 3:
-                                                //ShortArray3DResponse shortArray3DResponse = JsonSerializer.Deserialize<ShortArray3DResponse>(deviceJsonResponse.Content, new JsonSerializerOptions { PropertyNameCaseInsensitive = !strictCasing });
-                                                ShortArray3DResponse shortArray3DResponse = Newtonsoft.Json.JsonConvert.DeserializeObject<ShortArray3DResponse>(deviceJsonResponse.Content);
-                                                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, string.Format(LOG_FORMAT_STRING, shortArray3DResponse.ClientTransactionID, shortArray3DResponse.ServerTransactionID, shortArray3DResponse.Rank.ToString())); //, shortArray3DResponse.Method));
-                                                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Array was deserialised in {sw.ElapsedMilliseconds} ms, Type: {(ImageArrayElementTypes)shortArray3DResponse.Type}, Rank: {shortArray3DResponse.Rank}");
-                                                if (CallWasSuccessful(TL, shortArray3DResponse)) return (T)((object)shortArray3DResponse.Value);
-                                                restResponseBase = (Response)shortArray3DResponse;
-                                                break;
+                                                case 3:
+                                                    //IntArray3DResponse intArray3DResponse = JsonSerializer.Deserialize<IntArray3DResponse>(deviceJsonResponse.Content, new JsonSerializerOptions { PropertyNameCaseInsensitive = !strictCasing });
+                                                    IntArray3DResponse intArray3DResponse = Newtonsoft.Json.JsonConvert.DeserializeObject<IntArray3DResponse>(deviceJsonResponse.Content);
+                                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, string.Format(LOG_FORMAT_STRING, intArray3DResponse.ClientTransactionID, intArray3DResponse.ServerTransactionID, intArray3DResponse.Rank.ToString())); //, intArray3DResponse.Method));
+                                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Array was deserialised in {sw.ElapsedMilliseconds} ms, Type: {(ImageArrayElementTypes)intArray3DResponse.Type}, Rank: {intArray3DResponse.Rank}");
+                                                    if (CallWasSuccessful(TL, intArray3DResponse)) return (T)((object)intArray3DResponse.Value);
+                                                    restResponseBase = (Response)intArray3DResponse;
+                                                    break;
 
-                                            default:
-                                                throw new InvalidOperationException("Arrays of Rank " + arrayRank + " are not supported.");
-                                        }
-                                        break;
+                                                default:
+                                                    throw new InvalidOperationException("Arrays of Rank " + arrayRank + " are not supported.");
+                                            }
+                                            break;
 
-                                    case ImageArrayElementTypes.Double:
-                                        switch (arrayRank)
-                                        {
-                                            case 2:
-                                                // DoubleArray2DResponse doubleArray2DResponse = JsonSerializer.Deserialize<DoubleArray2DResponse>(deviceJsonResponse.Content, new JsonSerializerOptions { PropertyNameCaseInsensitive = !strictCasing });
-                                                DoubleArray2DResponse doubleArray2DResponse = Newtonsoft.Json.JsonConvert.DeserializeObject<DoubleArray2DResponse>(deviceJsonResponse.Content);
-                                                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, string.Format(LOG_FORMAT_STRING, doubleArray2DResponse.ClientTransactionID, doubleArray2DResponse.ServerTransactionID, doubleArray2DResponse.Rank.ToString())); //, doubleArray2DResponse.Method));
-                                                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Array was deserialised in {sw.ElapsedMilliseconds} ms, Type: {(ImageArrayElementTypes)doubleArray2DResponse.Type}, Rank: {doubleArray2DResponse.Rank}");
-                                                if (CallWasSuccessful(TL, doubleArray2DResponse)) return (T)((object)doubleArray2DResponse.Value);
-                                                restResponseBase = (Response)doubleArray2DResponse;
-                                                break;
+                                        case ImageArrayElementTypes.Int16:
+                                            switch (arrayRank)
+                                            {
+                                                case 2:
+                                                    //ShortArray2DResponse shortArray2DResponse = JsonSerializer.Deserialize<ShortArray2DResponse>(deviceJsonResponse.Content, new JsonSerializerOptions { PropertyNameCaseInsensitive = !strictCasing });
+                                                    ShortArray2DResponse shortArray2DResponse = Newtonsoft.Json.JsonConvert.DeserializeObject<ShortArray2DResponse>(deviceJsonResponse.Content);
+                                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, string.Format(LOG_FORMAT_STRING, shortArray2DResponse.ClientTransactionID, shortArray2DResponse.ServerTransactionID, shortArray2DResponse.Rank.ToString())); //, shortArray2DResponse.Method));
+                                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Array was deserialised in {sw.ElapsedMilliseconds} ms, Type: {(ImageArrayElementTypes)shortArray2DResponse.Type}, Rank: {shortArray2DResponse.Rank}");
+                                                    if (CallWasSuccessful(TL, shortArray2DResponse)) return (T)((object)shortArray2DResponse.Value);
+                                                    restResponseBase = (Response)shortArray2DResponse;
+                                                    break;
 
-                                            case 3:
-                                                //DoubleArray3DResponse doubleArray3DResponse = JsonSerializer.Deserialize<DoubleArray3DResponse>(deviceJsonResponse.Content, new JsonSerializerOptions { PropertyNameCaseInsensitive = !strictCasing });
-                                                DoubleArray3DResponse doubleArray3DResponse = Newtonsoft.Json.JsonConvert.DeserializeObject<DoubleArray3DResponse>(deviceJsonResponse.Content);
-                                                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, string.Format(LOG_FORMAT_STRING, doubleArray3DResponse.ClientTransactionID, doubleArray3DResponse.ServerTransactionID, doubleArray3DResponse.Rank.ToString())); //, doubleArray3DResponse.Method));
-                                                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Array was deserialised in {sw.ElapsedMilliseconds} ms, Type: {(ImageArrayElementTypes)doubleArray3DResponse.Type}, Rank: {doubleArray3DResponse.Rank}");
-                                                if (CallWasSuccessful(TL, doubleArray3DResponse)) return (T)((object)doubleArray3DResponse.Value);
-                                                restResponseBase = (Response)doubleArray3DResponse;
-                                                break;
+                                                case 3:
+                                                    //ShortArray3DResponse shortArray3DResponse = JsonSerializer.Deserialize<ShortArray3DResponse>(deviceJsonResponse.Content, new JsonSerializerOptions { PropertyNameCaseInsensitive = !strictCasing });
+                                                    ShortArray3DResponse shortArray3DResponse = Newtonsoft.Json.JsonConvert.DeserializeObject<ShortArray3DResponse>(deviceJsonResponse.Content);
+                                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, string.Format(LOG_FORMAT_STRING, shortArray3DResponse.ClientTransactionID, shortArray3DResponse.ServerTransactionID, shortArray3DResponse.Rank.ToString())); //, shortArray3DResponse.Method));
+                                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Array was deserialised in {sw.ElapsedMilliseconds} ms, Type: {(ImageArrayElementTypes)shortArray3DResponse.Type}, Rank: {shortArray3DResponse.Rank}");
+                                                    if (CallWasSuccessful(TL, shortArray3DResponse)) return (T)((object)shortArray3DResponse.Value);
+                                                    restResponseBase = (Response)shortArray3DResponse;
+                                                    break;
 
-                                            default:
-                                                throw new InvalidOperationException("Arrays of Rank " + arrayRank + " are not supported.");
-                                        }
-                                        break;
+                                                default:
+                                                    throw new InvalidOperationException("Arrays of Rank " + arrayRank + " are not supported.");
+                                            }
+                                            break;
 
-                                    default:
-                                        throw new InvalidOperationException("Image array element type" + arrayType + " is not supported.");
+                                        case ImageArrayElementTypes.Double:
+                                            switch (arrayRank)
+                                            {
+                                                case 2:
+                                                    // DoubleArray2DResponse doubleArray2DResponse = JsonSerializer.Deserialize<DoubleArray2DResponse>(deviceJsonResponse.Content, new JsonSerializerOptions { PropertyNameCaseInsensitive = !strictCasing });
+                                                    DoubleArray2DResponse doubleArray2DResponse = Newtonsoft.Json.JsonConvert.DeserializeObject<DoubleArray2DResponse>(deviceJsonResponse.Content);
+                                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, string.Format(LOG_FORMAT_STRING, doubleArray2DResponse.ClientTransactionID, doubleArray2DResponse.ServerTransactionID, doubleArray2DResponse.Rank.ToString())); //, doubleArray2DResponse.Method));
+                                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Array was deserialised in {sw.ElapsedMilliseconds} ms, Type: {(ImageArrayElementTypes)doubleArray2DResponse.Type}, Rank: {doubleArray2DResponse.Rank}");
+                                                    if (CallWasSuccessful(TL, doubleArray2DResponse)) return (T)((object)doubleArray2DResponse.Value);
+                                                    restResponseBase = (Response)doubleArray2DResponse;
+                                                    break;
+
+                                                case 3:
+                                                    //DoubleArray3DResponse doubleArray3DResponse = JsonSerializer.Deserialize<DoubleArray3DResponse>(deviceJsonResponse.Content, new JsonSerializerOptions { PropertyNameCaseInsensitive = !strictCasing });
+                                                    DoubleArray3DResponse doubleArray3DResponse = Newtonsoft.Json.JsonConvert.DeserializeObject<DoubleArray3DResponse>(deviceJsonResponse.Content);
+                                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, string.Format(LOG_FORMAT_STRING, doubleArray3DResponse.ClientTransactionID, doubleArray3DResponse.ServerTransactionID, doubleArray3DResponse.Rank.ToString())); //, doubleArray3DResponse.Method));
+                                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Array was deserialised in {sw.ElapsedMilliseconds} ms, Type: {(ImageArrayElementTypes)doubleArray3DResponse.Type}, Rank: {doubleArray3DResponse.Rank}");
+                                                    if (CallWasSuccessful(TL, doubleArray3DResponse)) return (T)((object)doubleArray3DResponse.Value);
+                                                    restResponseBase = (Response)doubleArray3DResponse;
+                                                    break;
+
+                                                default:
+                                                    throw new InvalidOperationException("Arrays of Rank " + arrayRank + " are not supported.");
+                                            }
+                                            break;
+
+                                        default:
+                                            throw new InvalidOperationException($"SendToRemoteDevice JSON - Image array element type {arrayType} is not supported. The device returned this value: {responseBase.Type}");
+                                    }
                                 }
+                                restResponseBase = (Response)responseBase;
                             } // remote device has used JSON encoding
                         }
 
@@ -1291,7 +1303,15 @@ namespace ASCOM.Alpaca.Clients
         /// <returns>True if the call was successful otherwise returns false.</returns>
         private static bool CallWasSuccessful(ILogger TL, Response response)
         {
-            AlpacaDeviceBaseClass.LogMessage(TL, 0, "CallWasSuccessful", $"DriverException == null: {response.DriverException == null}, ErrorMessage: {response.ErrorMessage}, ErrorNumber: 0x{(int)response.ErrorNumber:X8}");
+            if (response is null)
+            {
+                AlpacaDeviceBaseClass.LogMessage(TL, 0, "CallWasNotSuccessful", "No response from device - Returning False");
+                AlpacaDeviceBaseClass.LogBlankLine(TL);
+                return false; // No response so return false
+
+            }
+
+            AlpacaDeviceBaseClass.LogMessage(TL, 0, "CallWasSuccessful", $"DriverException == null: {response.DriverException == null}, ErrorMessage: '{response.ErrorMessage}', ErrorNumber: 0x{(int)response.ErrorNumber:X8}");
             if (response.DriverException != null) AlpacaDeviceBaseClass.LogMessage(TL, 0, "CallWasSuccessfulEx", response.DriverException.ToString());
             if ((response.DriverException == null) & (response.ErrorMessage == "") & (response.ErrorNumber == AlpacaErrors.AlpacaNoError))
             {
@@ -1301,7 +1321,7 @@ namespace ASCOM.Alpaca.Clients
             }
             else
             {
-                AlpacaDeviceBaseClass.LogMessage(TL, 0, "CallWasSuccessful", "Returning False");
+                AlpacaDeviceBaseClass.LogMessage(TL, 0, "CallWasNotSuccessful", "Returning False");
                 AlpacaDeviceBaseClass.LogBlankLine(TL);
                 return false; // Some sort of issue so return false
             }
@@ -1454,6 +1474,7 @@ namespace ASCOM.Alpaca.Clients
             Array returnArray;
             object[,] objectArray2D;
             object[,,] objectArray3D;
+            Stopwatch sw = new Stopwatch();
 
             returnArray = GetValue<Array>(clientNumber, client, URIBase, strictCasing, TL, "ImageArrayVariant", imageArrayTransferType, imageArrayCompression, MemberTypes.Property);
 
@@ -1480,38 +1501,40 @@ namespace ASCOM.Alpaca.Clients
                 switch (returnArray.Rank)
                 {
                     case 2:
+                        objectArray2D = new object[returnArray.GetLength(0), returnArray.GetLength(1)];
                         switch (variantType)
                         {
                             case "Int16[,]":
-                                objectArray2D = new object[returnArray.GetLength(0), returnArray.GetLength(1)];
-                                for (int i = 0; i < returnArray.GetLength(1); i++)
+                                Int16[,] short2DArray = (Int16[,])returnArray;
+
+                                sw.Restart();
+                                Parallel.For(0, short2DArray.GetLength(0), (i) =>
                                 {
-                                    for (int j = 0; j < returnArray.GetLength(0); j++)
+                                    for (int j = 0; j < returnArray.GetLength(1); j++)
                                     {
-                                        objectArray2D[j, i] = ((short[,])returnArray)[j, i];
+                                        objectArray2D[i, j] = short2DArray[i, j];
                                     }
-                                }
+                                });
+
+                                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "ImageArrayVariant", $"Finished copying Int16[,] array in {sw.ElapsedMilliseconds}ms.");
                                 return objectArray2D;
 
                             case "Int32[,]":
-                                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "ImageArrayVariant", $"About to create 2D object array");
-                                objectArray2D = new object[returnArray.GetLength(0), returnArray.GetLength(1)];
-                                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "ImageArrayVariant", $"Created 2D object array");
+                                int[,] int2DArray = (int[,])returnArray;
 
-                                Array.Copy(returnArray, objectArray2D, returnArray.Length);
-                                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "ImageArrayVariant", $"Finished copying array");
+                                sw.Restart();
+                                Parallel.For(0, int2DArray.GetLength(0), (i) =>
+                                {
+                                    for (int j = 0; j < returnArray.GetLength(1); j++)
+                                    {
+                                        objectArray2D[i, j] = int2DArray[i, j];
+                                    }
+                                });
 
-                                //for (int i = 0; i < returnArray.GetLength(1); i++)
-                                //{
-                                //    for (int j = 0; j < returnArray.GetLength(0); j++)
-                                //    {
-                                //        objectArray2D[j, i] = ((int[,])returnArray)[j, i];
-                                //    }
-                                //}
+                                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "ImageArrayVariant", $"Finished copying Int32[,] array in {sw.ElapsedMilliseconds}ms.");
                                 return objectArray2D;
 
                             case "Double[,]":
-                                objectArray2D = new object[returnArray.GetLength(0), returnArray.GetLength(1)];
                                 for (int i = 0; i < returnArray.GetLength(1); i++)
                                 {
                                     for (int j = 0; j < returnArray.GetLength(0); j++)
@@ -1519,6 +1542,19 @@ namespace ASCOM.Alpaca.Clients
                                         objectArray2D[j, i] = ((double[,])returnArray)[j, i];
                                     }
                                 }
+                                double[,] double2DArray = (double[,])returnArray;
+
+                                sw.Restart();
+                                Parallel.For(0, double2DArray.GetLength(0), (i) =>
+                                {
+                                    for (int j = 0; j < returnArray.GetLength(1); j++)
+                                    {
+                                        objectArray2D[i, j] = double2DArray[i, j];
+                                    }
+                                });
+
+                                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "ImageArrayVariant", $"Finished copying Double[,] array in {sw.ElapsedMilliseconds}ms.");
+
                                 return objectArray2D;
 
                             case "Object[,]":
@@ -1529,41 +1565,45 @@ namespace ASCOM.Alpaca.Clients
                                 throw new InvalidValueException("DynamicRemoteClient Driver Camera.ImageArrayVariant: Unsupported return array rank from DynamicClientDriver.GetValue<Array>: " + returnArray.Rank);
                         }
                     case 3:
+                        objectArray3D = new object[returnArray.GetLength(0), returnArray.GetLength(1), returnArray.GetLength(2)];
                         switch (variantType)
                         {
                             case "Int16[,,]":
-                                objectArray3D = new object[returnArray.GetLength(0), returnArray.GetLength(1), 3];
                                 for (int i = 0; i < returnArray.GetLength(1); i++)
                                 {
                                     for (int j = 0; j < returnArray.GetLength(0); j++)
                                     {
-                                        for (int k = 0; k < 3; k++)
+                                        for (int k = 0; k < returnArray.GetLength(2); k++)
                                             objectArray3D[j, i, k] = ((short[,,])returnArray)[j, i, k];
                                     }
                                 }
                                 return objectArray3D;
 
                             case "Int32[,,]":
-                                objectArray3D = new object[returnArray.GetLength(0), returnArray.GetLength(1), returnArray.GetLength(2)];
+                                sw.Restart();
+                                int[,,] int3DArray = (int[,,])returnArray;
+
                                 for (int k = 0; k < returnArray.GetLength(2); k++)
                                 {
                                     for (int j = 0; j < returnArray.GetLength(1); j++)
                                     {
                                         for (int i = 0; i < returnArray.GetLength(0); i++)
                                         {
-                                            objectArray3D[i, j, k] = ((int[,,])returnArray)[i, j, k];
+                                            objectArray3D[i, j, k] = int3DArray[i, j, k];
                                         }
                                     }
                                 }
+
+                                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "ImageArrayVariant", $"Finished copying Int32[,,] array in {sw.ElapsedMilliseconds}ms.");
+
                                 return objectArray3D;
 
                             case "Double[,,]":
-                                objectArray3D = new object[returnArray.GetLength(0), returnArray.GetLength(1), 3];
                                 for (int i = 0; i < returnArray.GetLength(1); i++)
                                 {
                                     for (int j = 0; j < returnArray.GetLength(0); j++)
                                     {
-                                        for (int k = 0; k < 3; k++)
+                                        for (int k = 0; k < returnArray.GetLength(2); k++)
                                             objectArray3D[j, i, k] = ((double[,,])returnArray)[j, i, k];
                                     }
                                 }
