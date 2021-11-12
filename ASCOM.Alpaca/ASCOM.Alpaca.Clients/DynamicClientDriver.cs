@@ -1535,13 +1535,6 @@ namespace ASCOM.Alpaca.Clients
                                 return objectArray2D;
 
                             case "Double[,]":
-                                for (int i = 0; i < returnArray.GetLength(1); i++)
-                                {
-                                    for (int j = 0; j < returnArray.GetLength(0); j++)
-                                    {
-                                        objectArray2D[j, i] = ((double[,])returnArray)[j, i];
-                                    }
-                                }
                                 double[,] double2DArray = (double[,])returnArray;
 
                                 sw.Restart();
