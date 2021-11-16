@@ -58,5 +58,16 @@ namespace ASCOM.Alpaca.Clients
         public const string BASE64_HANDOFF_SUPPORTED = "true"; // Value of HTTP header to indicate support for binary serialised image array data
         public const string BASE64_HANDOFF_FILE_DOWNLOAD_URI_EXTENSION = "base64"; // Addition to the ImageArray and ImageArrayVariant method names from which base64 serialised image files can be downloaded
 
+        // Image array ImageBytes - basic mime-type values
+        public const string ACCEPT_HEADER_NAME = "Accept"; // Name of HTTP header used to affirm ImageBytes support for image array data
+        public const string CONTENT_TYPE_HEADER_NAME = "Content-Type"; // Name of HTTP header used to affirm the type of data returned by the device
+        public const string IMAGE_BYTES_MIME_TYPE = "application/imagebytes"; // Image bytes mime type
+        public const string APPLICATION_JSON_MIME_TYPE = "application/json"; // Application/json mime type
+        public const string TEXT_JSON_MIME_TYPE = "text/json"; // Text/json mime type
+
+        // Image array ImageBytes - combined mime-type values
+        public const string JSON_MIME_TYPES = APPLICATION_JSON_MIME_TYPE + ", " + TEXT_JSON_MIME_TYPE; // JSON mime types
+        public const string IMAGE_BYTES_ACCEPT_HEADER = IMAGE_BYTES_MIME_TYPE + ", " + JSON_MIME_TYPES; // Value of HTTP header to indicate support for the GetImageBytes mechanic
+
     }
 }
