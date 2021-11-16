@@ -31,7 +31,6 @@ namespace ASCOM.Alpaca.Clients
         private ImageArrayTransferType imageArrayTransferType = ImageArrayTransferType.JSON;
         private ImageArrayCompression imageArrayCompression = ImageArrayCompression.None;
         private bool? canGetBase64Image = null; // Indicator of whether the remote device supports GetBase64Image functionality
-        private bool? canGetImageBytes = null; // Indicator of whether the remote device supports GetBase64Image functionality
 
         #endregion
 
@@ -507,7 +506,7 @@ namespace ASCOM.Alpaca.Clients
                 try
                 {
                     // Special handling for GetBase64Image transfers
-                    LogMessage(TL, clientNumber, "ImageArray", $"ImageArray called - canGetBase64Image: {(canGetBase64Image.HasValue ? canGetBase64Image.Value.ToString() : "VALUE NOT SET")}, canGetImageBytes: {(canGetImageBytes.HasValue ? canGetImageBytes.Value.ToString() : "VALUE NOT SET")} , imageArrayTransferType: {imageArrayTransferType}");
+                    LogMessage(TL, clientNumber, "ImageArray", $"ImageArray called - canGetBase64Image: {(canGetBase64Image.HasValue ? canGetBase64Image.Value.ToString() : "VALUE NOT SET")}, imageArrayTransferType: {imageArrayTransferType}");
 
                     // Determine whether we need to find out whether Getbase64Image functionality is provided by this driver
                     if (
@@ -536,25 +535,6 @@ namespace ASCOM.Alpaca.Clients
                             // Just log any errors but otherwise ignore them
                             LogMessage(TL, clientNumber, "ImageArray", $"Received an exception when trying to get the device's SupportedActions: {ex.Message}");
                         }
-
-                        // Determine whether the remote device supports the ImageArrayBytes property
-                        // Try to get an answer from the device, if anything goes wrong assume that the feature is not available
-                        try
-                        {
-                            // Initialise the supported flag to false
-                            canGetImageBytes = false;
-
-                            // Call the CanGetImageBytes property and store the value
-                            DynamicClientDriver.SetClientTimeout(client, standardDeviceResponseTimeout);
-                            canGetImageBytes = DynamicClientDriver.GetValue<bool>(clientNumber, client, URIBase, strictCasing, TL, "CanImageArrayBytes", MemberTypes.Property);
-
-                            LogMessage(TL, clientNumber, "ImageArray", $"CanImageArrayBytes returned {canGetImageBytes}");
-                        }
-                        catch (Exception ex)
-                        {
-                            // Just log any errors but otherwise ignore them
-                            LogMessage(TL, clientNumber, "ImageArray", $"Received an exception when calling the device's CanImageArrayBytes property : {ex.Message}");
-                        }
                     }
 
                     // As a precaution, set values false if we have no value at this point
@@ -564,7 +544,7 @@ namespace ASCOM.Alpaca.Clients
                     if ((imageArrayTransferType == ImageArrayTransferType.GetBase64Image) & !canGetBase64Image.Value) throw new InvalidOperationException("GetBase64Image transfer mode has been requested but the device does not support this mode.");
 
                     // Use a fast transfer mode if possible
-                    LogMessage(TL, clientNumber, "ImageArray", $"ImageArray 1 called - canGetBase64Image: {canGetBase64Image.Value}, canGetImageBytes: {canGetImageBytes.Value} , imageArrayTransferType: {imageArrayTransferType}");
+                    LogMessage(TL, clientNumber, "ImageArray", $"ImageArray 1 called - canGetBase64Image: {canGetBase64Image.Value}, imageArrayTransferType: {imageArrayTransferType}");
 
                     // Use the GetImageBytes mechanic if specified and available
                     if (canGetBase64Image.Value & (imageArrayTransferType == ImageArrayTransferType.GetBase64Image))
