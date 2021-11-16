@@ -7,7 +7,7 @@ using System.Reflection;
 namespace ASCOM.Alpaca.Clients
 {
     /// <summary>
-    /// ASCOM DynamicRemoteClients ObservingConditions base class
+    /// ASCOM Alpaca ObservingConditions client
     /// </summary>
     public class AlpacaObservingConditions : AlpacaDeviceBaseClass, IObservingConditions
     {

@@ -7,7 +7,7 @@ using System.Reflection;
 namespace ASCOM.Alpaca.Clients
 {
     /// <summary>
-    /// ASCOM DynamicRemoteClients Switch base class
+    /// ASCOM Alpaca Switch client
     /// </summary>
     public class AlpacaSwitch : AlpacaDeviceBaseClass, ISwitchV2
     {

@@ -9,7 +9,7 @@ using System.Reflection;
 namespace ASCOM.Alpaca.Clients
 {
     /// <summary>
-    /// ASCOM DynamicRemoteClients Rotator base class
+    /// ASCOM Alpaca Rotator client
     /// </summary>
     public class AlpacaRotator : AlpacaDeviceBaseClass, IRotatorV3
     {

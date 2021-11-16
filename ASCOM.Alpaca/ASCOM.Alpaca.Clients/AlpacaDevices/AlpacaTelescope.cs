@@ -9,7 +9,7 @@ using System.Reflection;
 namespace ASCOM.Alpaca.Clients
 {
     /// <summary>
-    /// ASCOM DynamicRemoteClients Telescope base class
+    /// ASCOM Alpaca Telescope client
     /// </summary>
     public class AlpacaTelescope : AlpacaDeviceBaseClass, ITelescopeV3
     {

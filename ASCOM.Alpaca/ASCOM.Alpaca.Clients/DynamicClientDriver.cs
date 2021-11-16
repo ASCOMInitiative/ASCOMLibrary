@@ -1704,11 +1704,11 @@ namespace ASCOM.Alpaca.Clients
         /// <summary>
         /// Use an HttpClient to retrieve the image array byte data
         /// </summary>
-        /// <param name="url">URL from which to retireve data</param>
-        /// <param name="acceptString">The Acdept string og mim types that we are prepared to accept.</param>
+        /// <param name="url">URL from which to retrieve data</param>
+        /// <param name="acceptString">The Accept string of mime types that we are prepared to accept.</param>
         /// <param name="TL">TraceLogger for logging purposes.</param>
         /// <returns>A populated RestSharp RestResponse</returns>
-        /// <remarks>This approach is used because of inexplicable delays that occured when using the RestSharp client to retieve large binary byte arrays.</remarks>
+        /// <remarks>This approach is used because of inexplicable delays that occurred when using the RestSharp client to retrieve large binary byte arrays.</remarks>
         private static IRestResponse GetResponse(string url, string acceptString, uint clientNumber, ILogger TL)
         {
             HttpClient wClient = new HttpClient();
@@ -1733,7 +1733,7 @@ namespace ASCOM.Alpaca.Clients
 
                 if (headers is null) throw new InvalidValueException("The device did not return any headers. Expected a Content-Type header with a value of 'application/json' or 'text/json' or 'application/imagebytes'.");
 
-                // Extract the content type from tyhe headers
+                // Extract the content type from the headers
                 if (headers.TryGetValues(SharedConstants.CONTENT_TYPE_HEADER_NAME, out contentTypeValues))
                 {
                     contentType = contentTypeValues.First().ToLowerInvariant();

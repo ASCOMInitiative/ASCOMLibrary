@@ -11,12 +11,22 @@ using System.Threading.Tasks;
 
 namespace ASCOM.Common.Alpaca
 {
+    /// <summary>
+    /// Repository of tools and constants specific to Alpaca implementation
+    /// </summary>
     public static class AlpacaTools
     {
         #region Constants
 
         // ImageArrayBytes constants
+        /// <summary>
+        /// Name of the base64 hand-off endpoint
+        /// </summary>
         public const string BYTE_ARRAY_ENPOINT_NAME = "imagearraybytes";
+
+        /// <summary>
+        /// Length of array metadata version 1
+        /// </summary>
         public const int ARRAY_METADATAV1_LENGTH = 36; // Length of the array metadata version 1 structure
 
         // GetBase64Image constants
@@ -36,6 +46,14 @@ namespace ASCOM.Common.Alpaca
 
         #region Public Functions
 
+        /// <summary>
+        /// Convert an Alpaca error number and message to a byte array for transfer to a client.
+        /// </summary>
+        /// <param name="metadataVersion">Required metadata version - Currently 1</param>
+        /// <param name="alpacaErrorNumber">Alpaca error number</param>
+        /// <param name="errorMessage">Error message to encode.</param>
+        /// <returns></returns>
+        /// <exception cref="InvalidValueException"></exception>
         public static byte[] ErrorMessageToByteArray(int metadataVersion, AlpacaErrors alpacaErrorNumber, string errorMessage)
         {
             // Validate supplied parameters
@@ -80,6 +98,17 @@ namespace ASCOM.Common.Alpaca
 
         #region Public Extensions
 
+        /// <summary>
+        /// Alpaca Extension - Convert the array or error message to a byte array for transmission to a client
+        /// </summary>
+        /// <param name="imageArray">The 2D or 3D source image array. (Ignored when returning an error.)</param>
+        /// <param name="metadataVersion">Metadata version to use (Currently 1).</param>
+        /// <param name="errorNumber">Error number. 0 for success, non-zero for an error.</param>
+        /// <param name="errorMessage">Error message. Empty string for success, error message for an error.</param>
+        /// <returns>Byte array prefixed with array metadata.</returns>
+        /// <exception cref="InvalidValueException">If only one of the error number and error message indicates an error.</exception>
+        /// <exception cref="InvalidValueException">Image array is null for a successful transaction or the array rank is <2 or >3 or the array is of type object</exception>
+        /// <exception cref="InvalidValueException">The array element type is not supported.</exception>
         public static byte[] ToByteArray(this Array imageArray, int metadataVersion, AlpacaErrors errorNumber, string errorMessage)
         {
             int transmissionElementSize; // Managed size of transmitted elements
@@ -112,7 +141,7 @@ namespace ASCOM.Common.Alpaca
 
             // At this point we have a successful transaction so validate the incoming array
             if (imageArray is null) throw new InvalidValueException("ToByteArray - Supplied array is null.");
-            if ((imageArray.Rank < 2) | (imageArray.Rank > 3)) throw new InvalidValueException($"IToByteArray - Only arrays of rank 2 and 3 are supported. The supplied array has a rank of {imageArray.Rank}.");
+            if ((imageArray.Rank < 2) | (imageArray.Rank > 3)) throw new InvalidValueException($"ToByteArray - Only arrays of rank 2 and 3 are supported. The supplied array has a rank of {imageArray.Rank}.");
 
             // We can't handle object arrays so test for this
             string arrayTypeName = imageArray.GetType().Name;
@@ -325,14 +354,14 @@ namespace ASCOM.Common.Alpaca
                         break;
 
                     default:
-                        throw new InvalidOperationException($"ToByteArray - The camera returned an array of rank: {imageArray.Rank}, which is not supported.");
+                        throw new InvalidValueException($"ToByteArray - The camera returned an array of rank: {imageArray.Rank}, which is not supported.");
                 }
             }
 
             switch (metadataVersion)
             {
                 case 1:
-                    // Create a version 2 metadata structure
+                    // Create a version 1 metadata structure
                     ArrayMetadataV1 metadataVersion1;
                     if (imageArray.Rank == 2) metadataVersion1 = new ArrayMetadataV1(intendedElementType, transmissionElementType, 2, imageArray.GetLength(0), imageArray.GetLength(1), 0, AlpacaErrors.AlpacaNoError);
                     else metadataVersion1 = new ArrayMetadataV1(intendedElementType, transmissionElementType, 3, imageArray.GetLength(0), imageArray.GetLength(1), imageArray.GetLength(2), AlpacaErrors.AlpacaNoError);
@@ -358,6 +387,12 @@ namespace ASCOM.Common.Alpaca
 
         }
 
+        /// <summary>
+        /// Alpaca Extension - Convert a byte array to a 2D or 3D mage array based on the array metadata.
+        /// </summary>
+        /// <param name="imageBytes">byte array to convert</param>
+        /// <returns>2D or 3D array as specified in the array metadata.</returns>
+        /// <exception cref="InvalidValueException">The byte array is null.</exception>
         public static Array ToImageArray(this byte[] imageBytes)
         {
             ImageArrayElementTypes imageElementType;
@@ -653,17 +688,30 @@ namespace ASCOM.Common.Alpaca
             }
         }
 
+        /// <summary>
+        /// Alpaca Extension - Returns the metadata version in use within the byte array presentation of an image array.
+        /// </summary>
+        /// <param name="imageBytes">Source byte array.</param>
+        /// <returns>Integer metadata version number.</returns>
+        /// <exception cref="InvalidOperationException"></exception>
         public static int GetMetadataVersion(this byte[] imageBytes)
         {
             if (imageBytes.Length < ARRAY_METADATAV1_LENGTH) throw new InvalidOperationException($"GetMetadataVersion - Supplied array size: {imageBytes.Length} is smaller than the minimum metadata size ({ARRAY_METADATAV1_LENGTH})");
             return BitConverter.ToInt32(imageBytes, 0);
         }
 
+        /// <summary>
+        /// Alpaca Extension - Extracts the error message from a byte array returned by an Alpaca device.
+        /// </summary>
+        /// <param name="errorMessageBytes">The byte array from which to extract the error message.</param>
+        /// <returns>The error message as a string.</returns>
+        /// <exception cref="InvalidOperationException">The byte array is smaller than the smallest metadata size.</exception>
+        /// <exception cref="InvalidOperationException">The byte array equals the smallest metadata length and thus does not contain an error message.</exception>
         public static string GetErrrorMessage(this byte[] errorMessageBytes)
         {
             // Validate error message array
             if (errorMessageBytes.Length < ARRAY_METADATAV1_LENGTH) throw new InvalidOperationException($"GetErrrorMessage - Supplied array size: {errorMessageBytes.Length} is smaller than the minimum metadata size ({ARRAY_METADATAV1_LENGTH})");
-            if (errorMessageBytes.Length == ARRAY_METADATAV1_LENGTH) throw new InvalidValueException($"GetErrrorMessage - The byte array length equals the metadata length, the supplied array does not contain any message bytes.");
+            if (errorMessageBytes.Length == ARRAY_METADATAV1_LENGTH) throw new InvalidOperationException($"GetErrrorMessage - The byte array length equals the metadata length, the supplied array does not contain any message bytes.");
 
             // Get the metadata version
             int metadataVersion = errorMessageBytes.GetMetadataVersion();
@@ -680,6 +728,12 @@ namespace ASCOM.Common.Alpaca
             }
         }
 
+        /// <summary>
+        /// Alpaca Extension - Extracts the array metadata from in version 1 form from a byte array returned by an Alpaca device.
+        /// </summary>
+        /// <param name="imageBytes">The byte array from which to extract the metadata.</param>
+        /// <returns>The metadata as a version 1 structure.</returns>
+        /// <exception cref="InvalidOperationException">The byte array is smaller than the version 1 metadata size.</exception>
         public static ArrayMetadataV1 GetMetadataV1(this byte[] imageBytes)
         {
             if (imageBytes.Length < ARRAY_METADATAV1_LENGTH) throw new InvalidOperationException($"GetMetadataV1 - Supplied array size: {imageBytes.Length} is smaller than the minimum metadata size ({ARRAY_METADATAV1_LENGTH}");

@@ -10,10 +10,6 @@ namespace ASCOM.Alpaca.Clients
     // both COM and .NET. The IAxisRates and IEnumerable interfaces provide
     // this polymorphism. 
     //
-    // The Guid attribute sets the CLSID for ADynamicRemoteClients AxisRates class
-    // The ClassInterface/None attribute prevents an empty interface called
-    // _AxisRates from being created and used as the [default] interface
-    //
     internal class AxisRates : IAxisRates, IEnumerable, IEnumerator, IDisposable
     {
         private readonly TelescopeAxis m_axis;

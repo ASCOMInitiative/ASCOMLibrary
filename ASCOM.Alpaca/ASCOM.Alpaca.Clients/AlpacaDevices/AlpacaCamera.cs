@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 namespace ASCOM.Alpaca.Clients
 {
     /// <summary>
-    /// ASCOM DynamicRemoteClients Camera base class.
+    /// ASCOM Alpaca Camera client
     /// </summary>
     public class AlpacaCamera : AlpacaDeviceBaseClass, ICameraV3
     {

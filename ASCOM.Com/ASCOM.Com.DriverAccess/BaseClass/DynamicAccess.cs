@@ -239,7 +239,7 @@ namespace ASCOM.Com.DriverAccess
     {
         internal static void LogMessageCrLf(string memberName, string v)
         {
-            if (memberName == v) return; // Arbitary statement just to use the supplied parameters and thereby avoid two compiler warnings about unused variables.
+            if (memberName == v) return; // Arbitrary statement just to use the supplied parameters and thereby avoid two compiler warnings about unused variables.
         }
     }
 }

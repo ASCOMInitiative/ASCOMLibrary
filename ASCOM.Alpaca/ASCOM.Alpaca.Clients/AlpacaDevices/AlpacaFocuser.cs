@@ -9,7 +9,7 @@ using System.Reflection;
 namespace ASCOM.Alpaca.Clients
 {
     /// <summary>
-    /// ASCOM DynamicRemoteClients Focuser base class
+    /// ASCOM Alpaca Focuser client
     /// </summary>
     public class AlpacaFocuser : AlpacaDeviceBaseClass, IFocuserV3
     {

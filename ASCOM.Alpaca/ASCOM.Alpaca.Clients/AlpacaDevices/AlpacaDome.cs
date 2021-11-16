@@ -9,7 +9,7 @@ using System.Reflection;
 namespace ASCOM.Alpaca.Clients
 {
     /// <summary>
-    /// ASCOM DynamicRemoteClients Dome base class.
+    /// ASCOM Alpaca Dome client.
     /// </summary>
     public class AlpacaDome : AlpacaDeviceBaseClass, IDomeV2
     {

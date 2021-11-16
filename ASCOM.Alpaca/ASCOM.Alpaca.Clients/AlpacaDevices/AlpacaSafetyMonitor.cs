@@ -7,7 +7,7 @@ using System.Reflection;
 namespace ASCOM.Alpaca.Clients
 {
     /// <summary>
-    /// ASCOM DynamicRemoteClients SafetyMonitor base class
+    /// ASCOM Alpaca SafetyMonitor client
     /// </summary>
     public class AlpacaSafetyMonitor : AlpacaDeviceBaseClass, ISafetyMonitor
     {

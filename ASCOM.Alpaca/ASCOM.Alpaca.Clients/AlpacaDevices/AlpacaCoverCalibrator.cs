@@ -9,7 +9,7 @@ using System.Reflection;
 namespace ASCOM.Alpaca.Clients
 {
     /// <summary>
-    /// ASCOM DynamicRemoteClients SafetyMonitor base class
+    /// ASCOM Alpaca CoverCalibrator client
     /// </summary>
     public class AlpacaCoverCalibrator : AlpacaDeviceBaseClass, ICoverCalibratorV1
     {

@@ -7,7 +7,7 @@ using System.Reflection;
 namespace ASCOM.Alpaca.Clients
 {
     /// <summary>
-    /// ASCOM DynamicRemoteClients FilterWheel base class
+    /// ASCOM Alpaca FilterWheel client
     /// </summary>
     public class AlpacaFilterWheel : AlpacaDeviceBaseClass, IFilterWheelV2
     {
