@@ -91,7 +91,7 @@ namespace ASCOM.Alpaca.Clients
         {
             try
             {
-                URIBase = $"{SharedConstants.API_URL_BASE}{SharedConstants.API_VERSION_V1}/{DEVICE_TYPE}/{remoteDeviceNumber}/";
+                URIBase = $"{AlpacaConstants.API_URL_BASE}{AlpacaConstants.API_VERSION_V1}/{DEVICE_TYPE}/{remoteDeviceNumber}/";
                 Version version = Assembly.GetEntryAssembly().GetName().Version;
 
                 AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, DEVICE_TYPE, "Alpaca Camera Client starting initialisation, Version: " + version.ToString());
@@ -292,8 +292,8 @@ namespace ASCOM.Alpaca.Clients
         {
             Dictionary<string, string> Parameters = new Dictionary<string, string>
             {
-                { SharedConstants.DIRECTION_PARAMETER_NAME, ((int)Direction).ToString(CultureInfo.InvariantCulture) },
-                { SharedConstants.DURATION_PARAMETER_NAME, Duration.ToString(CultureInfo.InvariantCulture) }
+                { AlpacaConstants.DIRECTION_PARAMETER_NAME, ((int)Direction).ToString(CultureInfo.InvariantCulture) },
+                { AlpacaConstants.DURATION_PARAMETER_NAME, Duration.ToString(CultureInfo.InvariantCulture) }
             };
             DynamicClientDriver.SendToRemoteDevice<NoReturnValue>(clientNumber, client, URIBase, strictCasing, TL, "PulseGuide", Parameters, Method.PUT, MemberTypes.Method);
         }
@@ -302,8 +302,8 @@ namespace ASCOM.Alpaca.Clients
         {
             Dictionary<string, string> Parameters = new Dictionary<string, string>
             {
-                { SharedConstants.DURATION_PARAMETER_NAME, Duration.ToString(CultureInfo.InvariantCulture) },
-                { SharedConstants.LIGHT_PARAMETER_NAME, Light.ToString() }
+                { AlpacaConstants.DURATION_PARAMETER_NAME, Duration.ToString(CultureInfo.InvariantCulture) },
+                { AlpacaConstants.LIGHT_PARAMETER_NAME, Light.ToString() }
             };
             DynamicClientDriver.SendToRemoteDevice<NoReturnValue>(clientNumber, client, URIBase, strictCasing, TL, "StartExposure", Parameters, Method.PUT, MemberTypes.Method);
         }
@@ -499,7 +499,7 @@ namespace ASCOM.Alpaca.Clients
             get
             {
                 DynamicClientDriver.SetClientTimeout(client, longDeviceResponseTimeout);
-                return DynamicClientDriver.GetValue<Array>(clientNumber, client, URIBase, strictCasing, TL, SharedConstants.IMAGE_ARRAY_METHOD_NAME, imageArrayTransferType, imageArrayCompression, MemberTypes.Property);
+                return DynamicClientDriver.GetValue<Array>(clientNumber, client, URIBase, strictCasing, TL, AlpacaConstants.IMAGE_ARRAY_METHOD_NAME, imageArrayTransferType, imageArrayCompression, MemberTypes.Property);
             }
         }
 

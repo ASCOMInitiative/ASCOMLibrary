@@ -1,4 +1,5 @@
-﻿using ASCOM.Common.DeviceInterfaces;
+﻿using ASCOM.Common.Alpaca;
+using ASCOM.Common.DeviceInterfaces;
 using ASCOM.Common.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -75,7 +76,7 @@ namespace ASCOM.Alpaca.Clients
         {
             try
             {
-                URIBase = $"{SharedConstants.API_URL_BASE}{SharedConstants.API_VERSION_V1}/{DEVICE_TYPE}/{remoteDeviceNumber}/";
+                URIBase = $"{AlpacaConstants.API_URL_BASE}{AlpacaConstants.API_VERSION_V1}/{DEVICE_TYPE}/{remoteDeviceNumber}/";
                 Version version = Assembly.GetEntryAssembly().GetName().Version;
 
                 AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, DEVICE_TYPE, "Starting initialisation, Version: " + version.ToString());

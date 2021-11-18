@@ -1,4 +1,5 @@
-﻿using ASCOM.Common.DeviceInterfaces;
+﻿using ASCOM.Common.Alpaca;
+using ASCOM.Common.DeviceInterfaces;
 using ASCOM.Common.Interfaces;
 using RestSharp;
 using System;
@@ -77,7 +78,7 @@ namespace ASCOM.Alpaca.Clients
         {
             try
             {
-                URIBase = $"{SharedConstants.API_URL_BASE}{SharedConstants.API_VERSION_V1}/{DEVICE_TYPE}/{remoteDeviceNumber}/";
+                URIBase = $"{AlpacaConstants.API_URL_BASE}{AlpacaConstants.API_VERSION_V1}/{DEVICE_TYPE}/{remoteDeviceNumber}/";
                 Version version = Assembly.GetEntryAssembly().GetName().Version;
 
                 AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, DEVICE_TYPE, "Starting initialisation, Version: " + version.ToString());
@@ -280,7 +281,7 @@ namespace ASCOM.Alpaca.Clients
         {
             Dictionary<string, string> Parameters = new Dictionary<string, string>
             {
-                { SharedConstants.POSITION_PARAMETER_NAME, Position.ToString(CultureInfo.InvariantCulture) }
+                { AlpacaConstants.POSITION_PARAMETER_NAME, Position.ToString(CultureInfo.InvariantCulture) }
             };
             DynamicClientDriver.SetClientTimeout(client, longDeviceResponseTimeout);
             DynamicClientDriver.SendToRemoteDevice<NoReturnValue>(clientNumber, client, URIBase, strictCasing, TL, "Move", Parameters, Method.PUT, MemberTypes.Method);
@@ -291,7 +292,7 @@ namespace ASCOM.Alpaca.Clients
         {
             Dictionary<string, string> Parameters = new Dictionary<string, string>
             {
-                { SharedConstants.POSITION_PARAMETER_NAME, Position.ToString(CultureInfo.InvariantCulture) }
+                { AlpacaConstants.POSITION_PARAMETER_NAME, Position.ToString(CultureInfo.InvariantCulture) }
             };
             DynamicClientDriver.SetClientTimeout(client, longDeviceResponseTimeout);
             DynamicClientDriver.SendToRemoteDevice<NoReturnValue>(clientNumber, client, URIBase, strictCasing, TL, "MoveAbsolute", Parameters, Method.PUT, MemberTypes.Method);
@@ -315,7 +316,7 @@ namespace ASCOM.Alpaca.Clients
         {
             Dictionary<string, string> Parameters = new Dictionary<string, string>
             {
-                { SharedConstants.POSITION_PARAMETER_NAME, Position.ToString(CultureInfo.InvariantCulture) }
+                { AlpacaConstants.POSITION_PARAMETER_NAME, Position.ToString(CultureInfo.InvariantCulture) }
             };
             DynamicClientDriver.SetClientTimeout(client, longDeviceResponseTimeout);
             DynamicClientDriver.SendToRemoteDevice<NoReturnValue>(clientNumber, client, URIBase, strictCasing, TL, "Sync", Parameters, Method.PUT, MemberTypes.Method);
@@ -326,7 +327,7 @@ namespace ASCOM.Alpaca.Clients
         {
             Dictionary<string, string> Parameters = new Dictionary<string, string>
             {
-                { SharedConstants.POSITION_PARAMETER_NAME, Position.ToString(CultureInfo.InvariantCulture) }
+                { AlpacaConstants.POSITION_PARAMETER_NAME, Position.ToString(CultureInfo.InvariantCulture) }
             };
             DynamicClientDriver.SetClientTimeout(client, longDeviceResponseTimeout);
             DynamicClientDriver.SendToRemoteDevice<NoReturnValue>(clientNumber, client, URIBase, strictCasing, TL, "MoveMechanical", Parameters, Method.PUT, MemberTypes.Method);

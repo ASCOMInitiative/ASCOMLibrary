@@ -1,4 +1,5 @@
-﻿using ASCOM.Common.DeviceInterfaces;
+﻿using ASCOM.Common.Alpaca;
+using ASCOM.Common.DeviceInterfaces;
 using ASCOM.Common.Interfaces;
 using RestSharp;
 using System;
@@ -77,7 +78,7 @@ namespace ASCOM.Alpaca.Clients
         {
             try
             {
-                URIBase = $"{SharedConstants.API_URL_BASE}{SharedConstants.API_VERSION_V1}/{DEVICE_TYPE}/{remoteDeviceNumber}/";
+                URIBase = $"{AlpacaConstants.API_URL_BASE}{AlpacaConstants.API_VERSION_V1}/{DEVICE_TYPE}/{remoteDeviceNumber}/";
                 Version version = Assembly.GetEntryAssembly().GetName().Version;
 
                 AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, DEVICE_TYPE, "Starting initialisation, Version: " + version.ToString());
@@ -251,7 +252,7 @@ namespace ASCOM.Alpaca.Clients
         {
             Dictionary<string, string> Parameters = new Dictionary<string, string>
             {
-                { SharedConstants.ALT_PARAMETER_NAME, Altitude.ToString(CultureInfo.InvariantCulture) }
+                { AlpacaConstants.ALT_PARAMETER_NAME, Altitude.ToString(CultureInfo.InvariantCulture) }
             };
             DynamicClientDriver.SendToRemoteDevice<NoReturnValue>(clientNumber, client, URIBase, strictCasing, TL, "SlewToAltitude", Parameters, Method.PUT, MemberTypes.Method);
         }
@@ -260,7 +261,7 @@ namespace ASCOM.Alpaca.Clients
         {
             Dictionary<string, string> Parameters = new Dictionary<string, string>
             {
-                { SharedConstants.AZ_PARAMETER_NAME, Azimuth.ToString(CultureInfo.InvariantCulture) }
+                { AlpacaConstants.AZ_PARAMETER_NAME, Azimuth.ToString(CultureInfo.InvariantCulture) }
             };
             DynamicClientDriver.SendToRemoteDevice<NoReturnValue>(clientNumber, client, URIBase, strictCasing, TL, "SlewToAzimuth", Parameters, Method.PUT, MemberTypes.Method);
         }
@@ -269,7 +270,7 @@ namespace ASCOM.Alpaca.Clients
         {
             Dictionary<string, string> Parameters = new Dictionary<string, string>
             {
-                { SharedConstants.AZ_PARAMETER_NAME, Azimuth.ToString(CultureInfo.InvariantCulture) }
+                { AlpacaConstants.AZ_PARAMETER_NAME, Azimuth.ToString(CultureInfo.InvariantCulture) }
             };
             DynamicClientDriver.SendToRemoteDevice<NoReturnValue>(clientNumber, client, URIBase, strictCasing, TL, "SyncToAzimuth", Parameters, Method.PUT, MemberTypes.Method);
         }

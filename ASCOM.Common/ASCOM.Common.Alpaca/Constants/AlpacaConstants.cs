@@ -1,8 +1,6 @@
-﻿using ASCOM.Common.Alpaca;
-
-namespace ASCOM.Alpaca.Clients
+﻿namespace ASCOM.Common.Alpaca
 {
-    internal static class SharedConstants
+    public static class AlpacaConstants
     {
         // Regular expressions to validate IP addresses and host names
         public const string ValidIpAddressRegex = @"^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$";

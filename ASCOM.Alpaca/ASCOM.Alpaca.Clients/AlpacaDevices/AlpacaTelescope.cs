@@ -1,4 +1,5 @@
-﻿using ASCOM.Common.DeviceInterfaces;
+﻿using ASCOM.Common.Alpaca;
+using ASCOM.Common.DeviceInterfaces;
 using ASCOM.Common.Interfaces;
 using RestSharp;
 using System;
@@ -77,7 +78,7 @@ namespace ASCOM.Alpaca.Clients
         {
             try
             {
-                URIBase = $"{SharedConstants.API_URL_BASE}{SharedConstants.API_VERSION_V1}/{DEVICE_TYPE}/{remoteDeviceNumber}/";
+                URIBase = $"{AlpacaConstants.API_URL_BASE}{AlpacaConstants.API_VERSION_V1}/{DEVICE_TYPE}/{remoteDeviceNumber}/";
                 Version version = Assembly.GetEntryAssembly().GetName().Version;
 
                 AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, DEVICE_TYPE, "Starting initialisation, Version: " + version.ToString());
@@ -356,7 +357,7 @@ namespace ASCOM.Alpaca.Clients
             DynamicClientDriver.SetClientTimeout(client, standardDeviceResponseTimeout);
             Dictionary<string, string> Parameters = new Dictionary<string, string>
             {
-                { SharedConstants.AXIS_PARAMETER_NAME, ((int)Axis).ToString(CultureInfo.InvariantCulture) }
+                { AlpacaConstants.AXIS_PARAMETER_NAME, ((int)Axis).ToString(CultureInfo.InvariantCulture) }
             };
             return DynamicClientDriver.SendToRemoteDevice<IAxisRates>(clientNumber, client, URIBase, strictCasing, TL, "AxisRates", Parameters, Method.GET, MemberTypes.Method);
         }
@@ -384,7 +385,7 @@ namespace ASCOM.Alpaca.Clients
             DynamicClientDriver.SetClientTimeout(client, standardDeviceResponseTimeout);
             Dictionary<string, string> Parameters = new Dictionary<string, string>
             {
-                { SharedConstants.AXIS_PARAMETER_NAME, ((int)Axis).ToString(CultureInfo.InvariantCulture) }
+                { AlpacaConstants.AXIS_PARAMETER_NAME, ((int)Axis).ToString(CultureInfo.InvariantCulture) }
             };
             return DynamicClientDriver.SendToRemoteDevice<bool>(clientNumber, client, URIBase, strictCasing, TL, "CanMoveAxis", Parameters, Method.GET, MemberTypes.Method);
         }
@@ -561,8 +562,8 @@ namespace ASCOM.Alpaca.Clients
             DynamicClientDriver.SetClientTimeout(client, standardDeviceResponseTimeout);
             Dictionary<string, string> Parameters = new Dictionary<string, string>
             {
-                { SharedConstants.RA_PARAMETER_NAME, RightAscension.ToString(CultureInfo.InvariantCulture) },
-                { SharedConstants.DEC_PARAMETER_NAME, Declination.ToString(CultureInfo.InvariantCulture) }
+                { AlpacaConstants.RA_PARAMETER_NAME, RightAscension.ToString(CultureInfo.InvariantCulture) },
+                { AlpacaConstants.DEC_PARAMETER_NAME, Declination.ToString(CultureInfo.InvariantCulture) }
             };
             return DynamicClientDriver.SendToRemoteDevice<PointingState>(clientNumber, client, URIBase, strictCasing, TL, "DestinationSideOfPier", Parameters, Method.GET, MemberTypes.Method);
         }
@@ -648,8 +649,8 @@ namespace ASCOM.Alpaca.Clients
             DynamicClientDriver.SetClientTimeout(client, longDeviceResponseTimeout);
             Dictionary<string, string> Parameters = new Dictionary<string, string>
             {
-                { SharedConstants.AXIS_PARAMETER_NAME, ((int)Axis).ToString(CultureInfo.InvariantCulture) },
-                { SharedConstants.RATE_PARAMETER_NAME, Rate.ToString(CultureInfo.InvariantCulture) }
+                { AlpacaConstants.AXIS_PARAMETER_NAME, ((int)Axis).ToString(CultureInfo.InvariantCulture) },
+                { AlpacaConstants.RATE_PARAMETER_NAME, Rate.ToString(CultureInfo.InvariantCulture) }
             };
             DynamicClientDriver.SendToRemoteDevice<NoReturnValue>(clientNumber, client, URIBase, strictCasing, TL, "MoveAxis", Parameters, Method.PUT, MemberTypes.Method);
         }
@@ -666,8 +667,8 @@ namespace ASCOM.Alpaca.Clients
             DynamicClientDriver.SetClientTimeout(client, longDeviceResponseTimeout);
             Dictionary<string, string> Parameters = new Dictionary<string, string>
             {
-                { SharedConstants.DIRECTION_PARAMETER_NAME, ((int)Direction).ToString(CultureInfo.InvariantCulture) },
-                { SharedConstants.DURATION_PARAMETER_NAME, Duration.ToString(CultureInfo.InvariantCulture) }
+                { AlpacaConstants.DIRECTION_PARAMETER_NAME, ((int)Direction).ToString(CultureInfo.InvariantCulture) },
+                { AlpacaConstants.DURATION_PARAMETER_NAME, Duration.ToString(CultureInfo.InvariantCulture) }
             };
             DynamicClientDriver.SendToRemoteDevice<NoReturnValue>(clientNumber, client, URIBase, strictCasing, TL, "PulseGuide", Parameters, Method.PUT, MemberTypes.Method);
         }
@@ -714,7 +715,7 @@ namespace ASCOM.Alpaca.Clients
                 DynamicClientDriver.SetClientTimeout(client, longDeviceResponseTimeout);
                 Dictionary<string, string> Parameters = new Dictionary<string, string>
                 {
-                    { SharedConstants.SIDEOFPIER_PARAMETER_NAME, ((int)value).ToString(CultureInfo.InvariantCulture) }
+                    { AlpacaConstants.SIDEOFPIER_PARAMETER_NAME, ((int)value).ToString(CultureInfo.InvariantCulture) }
                 };
                 DynamicClientDriver.SendToRemoteDevice<NoReturnValue>(clientNumber, client, URIBase, strictCasing, TL, "SideOfPier", Parameters, Method.PUT, MemberTypes.Property);
             }
@@ -789,8 +790,8 @@ namespace ASCOM.Alpaca.Clients
             DynamicClientDriver.SetClientTimeout(client, longDeviceResponseTimeout);
             Dictionary<string, string> Parameters = new Dictionary<string, string>
             {
-                { SharedConstants.AZ_PARAMETER_NAME, Azimuth.ToString(CultureInfo.InvariantCulture) },
-                { SharedConstants.ALT_PARAMETER_NAME, Altitude.ToString(CultureInfo.InvariantCulture) }
+                { AlpacaConstants.AZ_PARAMETER_NAME, Azimuth.ToString(CultureInfo.InvariantCulture) },
+                { AlpacaConstants.ALT_PARAMETER_NAME, Altitude.ToString(CultureInfo.InvariantCulture) }
             };
             DynamicClientDriver.SendToRemoteDevice<NoReturnValue>(clientNumber, client, URIBase, strictCasing, TL, "SlewToAltAz", Parameters, Method.PUT, MemberTypes.Method);
         }
@@ -800,8 +801,8 @@ namespace ASCOM.Alpaca.Clients
             DynamicClientDriver.SetClientTimeout(client, longDeviceResponseTimeout);
             Dictionary<string, string> Parameters = new Dictionary<string, string>
             {
-                { SharedConstants.AZ_PARAMETER_NAME, Azimuth.ToString(CultureInfo.InvariantCulture) },
-                { SharedConstants.ALT_PARAMETER_NAME, Altitude.ToString(CultureInfo.InvariantCulture) }
+                { AlpacaConstants.AZ_PARAMETER_NAME, Azimuth.ToString(CultureInfo.InvariantCulture) },
+                { AlpacaConstants.ALT_PARAMETER_NAME, Altitude.ToString(CultureInfo.InvariantCulture) }
             };
             DynamicClientDriver.SendToRemoteDevice<NoReturnValue>(clientNumber, client, URIBase, strictCasing, TL, "SlewToAltAzAsync", Parameters, Method.PUT, MemberTypes.Method);
         }
@@ -811,8 +812,8 @@ namespace ASCOM.Alpaca.Clients
             DynamicClientDriver.SetClientTimeout(client, longDeviceResponseTimeout);
             Dictionary<string, string> Parameters = new Dictionary<string, string>
             {
-                { SharedConstants.RA_PARAMETER_NAME, RightAscension.ToString(CultureInfo.InvariantCulture) },
-                { SharedConstants.DEC_PARAMETER_NAME, Declination.ToString(CultureInfo.InvariantCulture) }
+                { AlpacaConstants.RA_PARAMETER_NAME, RightAscension.ToString(CultureInfo.InvariantCulture) },
+                { AlpacaConstants.DEC_PARAMETER_NAME, Declination.ToString(CultureInfo.InvariantCulture) }
             };
             DynamicClientDriver.SendToRemoteDevice<NoReturnValue>(clientNumber, client, URIBase, strictCasing, TL, "SlewToCoordinates", Parameters, Method.PUT, MemberTypes.Method);
         }
@@ -822,8 +823,8 @@ namespace ASCOM.Alpaca.Clients
             DynamicClientDriver.SetClientTimeout(client, longDeviceResponseTimeout);
             Dictionary<string, string> Parameters = new Dictionary<string, string>
             {
-                { SharedConstants.RA_PARAMETER_NAME, RightAscension.ToString(CultureInfo.InvariantCulture) },
-                { SharedConstants.DEC_PARAMETER_NAME, Declination.ToString(CultureInfo.InvariantCulture) }
+                { AlpacaConstants.RA_PARAMETER_NAME, RightAscension.ToString(CultureInfo.InvariantCulture) },
+                { AlpacaConstants.DEC_PARAMETER_NAME, Declination.ToString(CultureInfo.InvariantCulture) }
             };
             DynamicClientDriver.SendToRemoteDevice<NoReturnValue>(clientNumber, client, URIBase, strictCasing, TL, "SlewToCoordinatesAsync", Parameters, Method.PUT, MemberTypes.Method);
         }
@@ -856,8 +857,8 @@ namespace ASCOM.Alpaca.Clients
             DynamicClientDriver.SetClientTimeout(client, standardDeviceResponseTimeout);
             Dictionary<string, string> Parameters = new Dictionary<string, string>
             {
-                { SharedConstants.AZ_PARAMETER_NAME, Azimuth.ToString(CultureInfo.InvariantCulture) },
-                { SharedConstants.ALT_PARAMETER_NAME, Altitude.ToString(CultureInfo.InvariantCulture) }
+                { AlpacaConstants.AZ_PARAMETER_NAME, Azimuth.ToString(CultureInfo.InvariantCulture) },
+                { AlpacaConstants.ALT_PARAMETER_NAME, Altitude.ToString(CultureInfo.InvariantCulture) }
             };
             DynamicClientDriver.SendToRemoteDevice<NoReturnValue>(clientNumber, client, URIBase, strictCasing, TL, "SyncToAltAz", Parameters, Method.PUT, MemberTypes.Method);
         }
@@ -867,8 +868,8 @@ namespace ASCOM.Alpaca.Clients
             DynamicClientDriver.SetClientTimeout(client, standardDeviceResponseTimeout);
             Dictionary<string, string> Parameters = new Dictionary<string, string>
             {
-                { SharedConstants.RA_PARAMETER_NAME, RightAscension.ToString(CultureInfo.InvariantCulture) },
-                { SharedConstants.DEC_PARAMETER_NAME, Declination.ToString(CultureInfo.InvariantCulture) }
+                { AlpacaConstants.RA_PARAMETER_NAME, RightAscension.ToString(CultureInfo.InvariantCulture) },
+                { AlpacaConstants.DEC_PARAMETER_NAME, Declination.ToString(CultureInfo.InvariantCulture) }
             };
             DynamicClientDriver.SendToRemoteDevice<NoReturnValue>(clientNumber, client, URIBase, strictCasing, TL, "SyncToCoordinates", Parameters, Method.PUT, MemberTypes.Method);
         }
@@ -956,8 +957,8 @@ namespace ASCOM.Alpaca.Clients
             {
                 DynamicClientDriver.SetClientTimeout(client, standardDeviceResponseTimeout);
                 Dictionary<string, string> Parameters = new Dictionary<string, string>();
-                string utcDateString = value.ToString(SharedConstants.ISO8601_DATE_FORMAT_STRING) + "Z";
-                Parameters.Add(SharedConstants.UTCDATE_PARAMETER_NAME, utcDateString);
+                string utcDateString = value.ToString(AlpacaConstants.ISO8601_DATE_FORMAT_STRING) + "Z";
+                Parameters.Add(AlpacaConstants.UTCDATE_PARAMETER_NAME, utcDateString);
                 AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "UTCDate", "Sending date string: " + utcDateString);
                 DynamicClientDriver.SendToRemoteDevice<NoReturnValue>(clientNumber, client, URIBase, strictCasing, TL, "UTCDate", Parameters, Method.PUT, MemberTypes.Property);
             }
