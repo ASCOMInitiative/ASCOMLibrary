@@ -12,23 +12,39 @@ namespace ASCOM.Common.Alpaca
     [StructLayout(LayoutKind.Explicit, Size = AlpacaTools.ARRAY_METADATAV1_LENGTH)]
     public struct ArrayMetadataV1
     {
-        public ArrayMetadataV1(ImageArrayElementTypes imageElementType,
-                                     ImageArrayElementTypes transmissionElementType,
-                                     int arrayRank,
-                                     int arrayDimension0,
-                                     int arrayDimension1,
-                                     int arrayDimension2,
-                                     AlpacaErrors errorNumber)
+        /// <summary>
+        /// Initialise the ArrayMetadataV1 structure
+        /// </summary>
+        /// <param name="errorNumber">Transaction error number.</param>
+        /// <param name="clientTransactionID">Client's transaction ID</param>
+        /// <param name="serverTransactionID">Device's transaction ID</param>
+        /// <param name="imageElementType">Intended element type of the resultant array.</param>
+        /// <param name="transmissionElementType">Element type actually sent.</param>
+        /// <param name="arrayRank">Rank of the arrayresultant array.</param>
+        /// <param name="arrayDimension1">Size of the first dimension of the resultant array (array[Dimension1, Dimension2, Dimension3]).</param>
+        /// <param name="arrayDimension1">Size of the second dimension of the resultant array (array[Dimension1, Dimension2, Dimension3]).</param>
+        /// <param name="arrayDimension2">Size of the third dimension of the resultant array (array[Dimension1, Dimension2, Dimension3]).</param>
+        public ArrayMetadataV1(AlpacaErrors errorNumber,
+                               uint clientTransactionID,
+                               uint serverTransactionID,
+                               ImageArrayElementTypes imageElementType,
+                               ImageArrayElementTypes transmissionElementType,
+                               int arrayRank,
+                               int arrayDimension1,
+                               int arrayDimension2,
+                               int arrayDimension3)
         {
             MetadataVersion = 1;
+            this.ErrorNumber = errorNumber;
+            this.ClientTransactionID = clientTransactionID;
+            this.ServerTransactionID = serverTransactionID;
+            DataStart = AlpacaTools.ARRAY_METADATAV1_LENGTH;
             this.ImageElementType = imageElementType;
             this.TransmissionElementType = transmissionElementType;
             this.Rank = arrayRank;
-            this.Dimension0 = arrayDimension0;
             this.Dimension1 = arrayDimension1;
             this.Dimension2 = arrayDimension2;
-            this.ErrorNumber = errorNumber;
-            DataStart = AlpacaTools.ARRAY_METADATAV1_LENGTH;
+            this.Dimension3 = arrayDimension3;
         }
 
         /// <summary>
@@ -42,34 +58,44 @@ namespace ASCOM.Common.Alpaca
         [FieldOffset(4)] public AlpacaErrors ErrorNumber; // Bytes 4..7 - Alpaca error number or zero for success
 
         /// <summary>
+        /// Client's transaction ID
+        /// </summary>
+        [FieldOffset(8)] public uint ClientTransactionID;
+
+        /// <summary>
+        /// Device's transaction ID
+        /// </summary>
+        [FieldOffset(12)] public uint ServerTransactionID;
+
+        /// <summary>
         /// Offset to the start of the returned data bytes or UTF8 encoded error message.
         /// </summary>
-        [FieldOffset(8)] public int DataStart; // Bytes 8..11 - Offset of the start of the returned data byte array
+        [FieldOffset(16)] public int DataStart; // Bytes 8..11 - Offset of the start of the returned data byte array
 
         /// <summary>
         /// Type of element in the image array as supplied by the device
         /// </summary>
-        [FieldOffset(12)] public ImageArrayElementTypes ImageElementType; // Bytes 12..15 - Element type of the source image array
+        [FieldOffset(20)] public ImageArrayElementTypes ImageElementType; // Bytes 12..15 - Element type of the source image array
 
         /// <summary>
         /// Type of element being transmitted over the network. Can be smaller in byte size than the ImageElementType
         /// </summary>
-        [FieldOffset(16)] public ImageArrayElementTypes TransmissionElementType; // Bytes 16..19 - Element type of the array as transmitted over the network
-        
+        [FieldOffset(24)] public ImageArrayElementTypes TransmissionElementType; // Bytes 16..19 - Element type of the array as transmitted over the network
+
         /// <summary>
         /// Array rank
         /// </summary>
-        [FieldOffset(20)] public int Rank; // Bytes 20..23 - image array rank
+        [FieldOffset(28)] public int Rank; // Bytes 20..23 - image array rank
 
         /// <summary>
-        /// Length of the array's first dimension (array[Dimension0, Dimension1, Dimension2]) 
+        /// Length of the array's first dimension (array[Dimension1, Dimension2, Dimension3]) 
         /// </summary>
-        [FieldOffset(24)] public int Dimension0; // Bytes 24..27 - Length of image array first dimension
+        [FieldOffset(32)] public int Dimension1; // Bytes 24..27 - Length of image array first dimension
 
-        /// Length of the array's second dimension (array[Dimension0, Dimension1, Dimension2]) 
-        [FieldOffset(28)] public int Dimension1; // Bytes 28..31 - Length of image array second dimension
+        /// Length of the array's second dimension (array[Dimension1, Dimension2, Dimension3]) 
+        [FieldOffset(36)] public int Dimension2; // Bytes 28..31 - Length of image array second dimension
 
-        /// Length of the array's third dimension (array[Dimension0, Dimension1, Dimension2]) - 0 for a 2D array. 
-        [FieldOffset(32)] public int Dimension2; // Bytes 32..35 - Length of image array third dimension (0 for 2D array)
+        /// Length of the array's third dimension (array[Dimension1, Dimension2, Dimension3]) - 0 for a 2D array. 
+        [FieldOffset(40)] public int Dimension3; // Bytes 32..35 - Length of image array third dimension (0 for 2D array)
     }
 }

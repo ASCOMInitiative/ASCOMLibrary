@@ -5,8 +5,7 @@
     {
         JSON = 0,
         Base64HandOff = 1,
-        GetBase64Image = 2,
-        GetImageBytes = 3,
-        BestAvailable = 4
+        ImageBytes = 2,
+        BestAvailable = 3
     }
 }

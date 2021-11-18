@@ -654,12 +654,11 @@ namespace ASCOM.Alpaca.Clients
                                 // No extra action because "accepts = application/json" will be applied automatically by the client
                                 break;
 
-                            case ImageArrayTransferType.GetBase64Image:
                             case ImageArrayTransferType.Base64HandOff:
                                 request.AddHeader(SharedConstants.BASE64_HANDOFF_HEADER, SharedConstants.BASE64_HANDOFF_SUPPORTED);
                                 break;
 
-                            case ImageArrayTransferType.GetImageBytes:
+                            case ImageArrayTransferType.ImageBytes:
                                 request.AddHeader(SharedConstants.ACCEPT_HEADER_NAME, SharedConstants.IMAGE_BYTES_ACCEPT_HEADER);
                                 break;
 
@@ -691,7 +690,7 @@ namespace ASCOM.Alpaca.Clients
                     IRestResponse deviceJsonResponse;
 
                     // Use the more efficient .NET HttpClient to get the large image array as a byte[] for the ImageBytes mechanic
-                    if (imageArrayTransferType == ImageArrayTransferType.GetImageBytes)
+                    if ((method == SharedConstants.IMAGE_ARRAY_METHOD_NAME) & ((imageArrayTransferType == ImageArrayTransferType.ImageBytes) | ((imageArrayTransferType == ImageArrayTransferType.BestAvailable))))
                     {
                         deviceJsonResponse = GetResponse($"{client.BaseUrl}{uriBase}{method}".ToLowerInvariant(), SharedConstants.IMAGE_BYTES_ACCEPT_HEADER, clientNumber, TL); ;
                     }
@@ -950,7 +949,8 @@ namespace ASCOM.Alpaca.Clients
                                     $"[ {imageBytes[8]:X2} {imageBytes[9]:X2} {imageBytes[10]:X2} {imageBytes[11]:X2} ] [ {imageBytes[12]:X2} {imageBytes[13]:X2} {imageBytes[14]:X2} {imageBytes[15]:X2} ] " +
                                     $"[ {imageBytes[16]:X2} {imageBytes[17]:X2} {imageBytes[18]:X2} {imageBytes[19]:X2} ] [ {imageBytes[20]:X2} {imageBytes[21]:X2} {imageBytes[22]:X2} {imageBytes[23]:X2} ] " +
                                     $"[ {imageBytes[24]:X2} {imageBytes[25]:X2} {imageBytes[26]:X2} {imageBytes[27]:X2} ] [ {imageBytes[28]:X2} {imageBytes[29]:X2} {imageBytes[30]:X2} {imageBytes[31]:X2} ] " +
-                                    $"[ {imageBytes[32]:X2} {imageBytes[33]:X2} {imageBytes[34]:X2} {imageBytes[35]:X2} ]");
+                                    $"[ {imageBytes[32]:X2} {imageBytes[33]:X2} {imageBytes[34]:X2} {imageBytes[35]:X2} ] [ {imageBytes[36]:X2} {imageBytes[37]:X2} {imageBytes[38]:X2} {imageBytes[39]:X2} ] " +
+                                    $"[ {imageBytes[40]:X2} {imageBytes[41]:X2} {imageBytes[42]:X2} {imageBytes[43]:X2} ]");
 
                                 int metadataVersion = imageBytes.GetMetadataVersion();
                                 AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "ImageBytes", $"Metadata version: {metadataVersion}");
@@ -960,7 +960,17 @@ namespace ASCOM.Alpaca.Clients
                                 {
                                     case 1:
                                         ArrayMetadataV1 metadataV1 = imageBytes.GetMetadataV1();
-                                        AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "ImageArrayBytes", $"Received array: Metadata version: {metadataV1.MetadataVersion} Image element type: {metadataV1.ImageElementType} Transmission element type: {metadataV1.TransmissionElementType} Array rank: {metadataV1.Rank} Dimension 0: {metadataV1.Dimension0} Dimension 1: {metadataV1.Dimension1} Dimension 2: {metadataV1.Dimension2} Error number: {metadataV1.ErrorNumber}.");
+                                        AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "ImageArrayBytes", $"Received array: Metadata version: {metadataV1.MetadataVersion}" +
+                                                                                                              $"Error number: {metadataV1.ErrorNumber} " +
+                                                                                                              $"Client transaction ID: {metadataV1.ClientTransactionID} " +
+                                                                                                              $"Server transaction ID: {metadataV1.ServerTransactionID} " +
+                                                                                                              $"Image element type: {metadataV1.ImageElementType} " +
+                                                                                                              $"Transmission element type: {metadataV1.TransmissionElementType} " +
+                                                                                                              $"Array rank: {metadataV1.Rank} " +
+                                                                                                              $"Dimension 1: {metadataV1.Dimension1} " +
+                                                                                                              $"Dimension 2: {metadataV1.Dimension2} " +
+                                                                                                              $"Dimension 3: {metadataV1.Dimension3}.");
+
                                         errorNumber = metadataV1.ErrorNumber;
                                         break;
 
@@ -1733,6 +1743,12 @@ namespace ASCOM.Alpaca.Clients
 
                 if (headers is null) throw new InvalidValueException("The device did not return any headers. Expected a Content-Type header with a value of 'application/json' or 'text/json' or 'application/imagebytes'.");
 
+                // List the headers received
+                foreach(var header in headers)
+                {
+                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "GetResponse", $"Received header {header.Key} = {header.Value.FirstOrDefault()}.");
+                }
+
                 // Extract the content type from the headers
                 if (headers.TryGetValues(SharedConstants.CONTENT_TYPE_HEADER_NAME, out contentTypeValues))
                 {
@@ -1744,25 +1760,8 @@ namespace ASCOM.Alpaca.Clients
                 byte[] rawbytes = response.Content.ReadAsByteArrayAsync().Result;
                 AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "GetResponse", $"ReadAsByteArrayAsync time: {sw.ElapsedMilliseconds}ms, Overall time: {swOverall.ElapsedMilliseconds}ms.");
 
-                // If the content type is JSON - Populate the Content property with a string converted from the byte[] 
-                if ((contentType.Contains(SharedConstants.APPLICATION_JSON_MIME_TYPE)) | (contentType.Contains(SharedConstants.TEXT_JSON_MIME_TYPE)))
-                {
-                    sw.Restart();
-                    RestResponse restResponse = new RestResponse()
-                    {
-                        Content = Encoding.UTF8.GetString(rawbytes),
-                        ContentType = contentType,
-                        ResponseStatus = ResponseStatus.Completed,
-                        StatusCode = response.StatusCode,
-                        StatusDescription = response.ReasonPhrase
-                    };
-                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "GetResponse", $"GetStringAsync time: {sw.ElapsedMilliseconds}ms, Overall time: {swOverall.ElapsedMilliseconds}ms.");
-
-                    return restResponse;
-                }
-
-                // If the content type is ImageBytes - ASsign the byte[] to the rawBytes property 
-                else if (contentType.ToLowerInvariant().Contains(SharedConstants.IMAGE_BYTES_MIME_TYPE))
+                // If the content type is ImageBytes - Assign the byte[] to the rawBytes property 
+                if (contentType.ToLowerInvariant().Contains(SharedConstants.IMAGE_BYTES_MIME_TYPE))
                 {
                     sw.Restart();
                     RestResponse restResponse = new RestResponse
@@ -1774,6 +1773,23 @@ namespace ASCOM.Alpaca.Clients
                         StatusDescription = response.ReasonPhrase
                     };
                     AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "GetResponse", $"GetByteArrayAsync time: {sw.ElapsedMilliseconds}ms, Overall time: {swOverall.ElapsedMilliseconds}ms.");
+
+                    return restResponse;
+                }
+
+                // If the content type is JSON - Populate the Content property with a string converted from the byte[] 
+                else if ((contentType.ToLowerInvariant().Contains(SharedConstants.APPLICATION_JSON_MIME_TYPE)) | (contentType.ToLowerInvariant().Contains(SharedConstants.TEXT_JSON_MIME_TYPE)))
+                {
+                    sw.Restart();
+                    RestResponse restResponse = new RestResponse()
+                    {
+                        Content = Encoding.UTF8.GetString(rawbytes),
+                        ContentType = contentType,
+                        ResponseStatus = ResponseStatus.Completed,
+                        StatusCode = response.StatusCode,
+                        StatusDescription = response.ReasonPhrase
+                    };
+                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "GetResponse", $"GetStringAsync time: {sw.ElapsedMilliseconds}ms, Overall time: {swOverall.ElapsedMilliseconds}ms.");
 
                     return restResponse;
                 }

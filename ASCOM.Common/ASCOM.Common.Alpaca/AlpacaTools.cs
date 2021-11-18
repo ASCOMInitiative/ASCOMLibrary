@@ -18,29 +18,17 @@ namespace ASCOM.Common.Alpaca
     {
         #region Constants
 
-        // ImageArrayBytes constants
-        /// <summary>
-        /// Name of the base64 hand-off endpoint
-        /// </summary>
-        public const string BYTE_ARRAY_ENPOINT_NAME = "imagearraybytes";
+        // ImageBytes constants
 
         /// <summary>
         /// Length of array metadata version 1
         /// </summary>
-        public const int ARRAY_METADATAV1_LENGTH = 36; // Length of the array metadata version 1 structure
+        public const int ARRAY_METADATAV1_LENGTH = 44; // Length of the array metadata version 1 structure
 
-        // GetBase64Image constants
-        public const string BASE64RESPONSE_COMMAND_NAME = "GetBase64Image";
-        public const int BASE64RESPONSE_VERSION_NUMBER = 1;
-        public const int BASE64RESPONSE_VERSION_POSITION = 0;
-        public const int BASE64RESPONSE_OUTPUTTYPE_POSITION = 4;
-        public const int BASE64RESPONSE_TRANSMISSIONTYPE_POSITION = 8;
-        public const int BASE64RESPONSE_RANK_POSITION = 12;
-        public const int BASE64RESPONSE_DIMENSION0_POSITION = 16;
-        public const int BASE64RESPONSE_DIMENSION1_POSITION = 20;
-        public const int BASE64RESPONSE_DIMENSION2_POSITION = 24;
+        /// <summary>
+        /// Latest verison number of the ImageBytes metadata array
+        /// </summary>
         public const int ARRAY_METADATA_VERSION = 1;
-
 
         #endregion
 
@@ -54,7 +42,7 @@ namespace ASCOM.Common.Alpaca
         /// <param name="errorMessage">Error message to encode.</param>
         /// <returns></returns>
         /// <exception cref="InvalidValueException"></exception>
-        public static byte[] ErrorMessageToByteArray(int metadataVersion, AlpacaErrors alpacaErrorNumber, string errorMessage)
+        public static byte[] ErrorMessageToByteArray(int metadataVersion, uint clientTransactionID, uint serverTransactionID, AlpacaErrors alpacaErrorNumber, string errorMessage)
         {
             // Validate supplied parameters
             if (metadataVersion != 1) throw new InvalidValueException($"ErrorMessageToByteArray - Unsupported metadata version: {metadataVersion}.");
@@ -69,7 +57,7 @@ namespace ASCOM.Common.Alpaca
             {
                 case 1:
                     // Create a metadata structure containing the supplied error number
-                    ArrayMetadataV1 arrayMetadataV1 = new ArrayMetadataV1(ImageArrayElementTypes.Unknown, ImageArrayElementTypes.Unknown, 0, 0, 0, 0, alpacaErrorNumber);
+                    ArrayMetadataV1 arrayMetadataV1 = new ArrayMetadataV1(alpacaErrorNumber, clientTransactionID, serverTransactionID,ImageArrayElementTypes.Unknown, ImageArrayElementTypes.Unknown, 0, 0, 0, 0);
 
                     // Create a byte array from the metadata structure
                     byte[] arrayMetadataV1Bytes = arrayMetadataV1.ToByteArray<ArrayMetadataV1>();
@@ -103,13 +91,15 @@ namespace ASCOM.Common.Alpaca
         /// </summary>
         /// <param name="imageArray">The 2D or 3D source image array. (Ignored when returning an error.)</param>
         /// <param name="metadataVersion">Metadata version to use (Currently 1).</param>
+        /// <param name="clientTransactionID">Client's transaction ID.</param>
+        /// <param name="serverTransactionID">Device's transaction ID.</param>
         /// <param name="errorNumber">Error number. 0 for success, non-zero for an error.</param>
         /// <param name="errorMessage">Error message. Empty string for success, error message for an error.</param>
         /// <returns>Byte array prefixed with array metadata.</returns>
         /// <exception cref="InvalidValueException">If only one of the error number and error message indicates an error.</exception>
         /// <exception cref="InvalidValueException">Image array is null for a successful transaction or the array rank is <2 or >3 or the array is of type object</exception>
         /// <exception cref="InvalidValueException">The array element type is not supported.</exception>
-        public static byte[] ToByteArray(this Array imageArray, int metadataVersion, AlpacaErrors errorNumber, string errorMessage)
+        public static byte[] ToByteArray(this Array imageArray, int metadataVersion, uint clientTransactionID, uint serverTransactionID, AlpacaErrors errorNumber, string errorMessage)
         {
             int transmissionElementSize; // Managed size of transmitted elements
 
@@ -363,8 +353,8 @@ namespace ASCOM.Common.Alpaca
                 case 1:
                     // Create a version 1 metadata structure
                     ArrayMetadataV1 metadataVersion1;
-                    if (imageArray.Rank == 2) metadataVersion1 = new ArrayMetadataV1(intendedElementType, transmissionElementType, 2, imageArray.GetLength(0), imageArray.GetLength(1), 0, AlpacaErrors.AlpacaNoError);
-                    else metadataVersion1 = new ArrayMetadataV1(intendedElementType, transmissionElementType, 3, imageArray.GetLength(0), imageArray.GetLength(1), imageArray.GetLength(2), AlpacaErrors.AlpacaNoError);
+                    if (imageArray.Rank == 2) metadataVersion1 = new ArrayMetadataV1(AlpacaErrors.AlpacaNoError, clientTransactionID, serverTransactionID,intendedElementType, transmissionElementType, 2, imageArray.GetLength(0), imageArray.GetLength(1), 0);
+                    else metadataVersion1 = new ArrayMetadataV1(AlpacaErrors.AlpacaNoError, clientTransactionID, serverTransactionID,intendedElementType, transmissionElementType, 3, imageArray.GetLength(0), imageArray.GetLength(1), imageArray.GetLength(2));
 
                     // Turn the metadata structure into a byte array
                     byte[] metadataVersion2Bytes = metadataVersion1.ToByteArray<ArrayMetadataV1>();
@@ -398,9 +388,9 @@ namespace ASCOM.Common.Alpaca
             ImageArrayElementTypes imageElementType;
             ImageArrayElementTypes transmissionElementType;
             int rank;
-            int dimension0;
             int dimension1;
             int dimension2;
+            int dimension3;
             int dataStart;
 
             // Validate the incoming array
@@ -418,9 +408,9 @@ namespace ASCOM.Common.Alpaca
                     imageElementType = metadataV1.ImageElementType;
                     transmissionElementType = metadataV1.TransmissionElementType;
                     rank = metadataV1.Rank;
-                    dimension0 = metadataV1.Dimension0;
                     dimension1 = metadataV1.Dimension1;
                     dimension2 = metadataV1.Dimension2;
+                    dimension3 = metadataV1.Dimension3;
                     dataStart = metadataV1.DataStart;
 
                     Debug.WriteLine($"ToImageArray - Element type: {imageElementType} Transmission type: {transmissionElementType}");
@@ -445,10 +435,10 @@ namespace ASCOM.Common.Alpaca
                 switch (rank)
                 {
                     case 2: // Rank 2
-                        Int16[,] short2dArray = new Int16[dimension0, dimension1];
+                        Int16[,] short2dArray = new Int16[dimension1, dimension2];
                         Buffer.BlockCopy(imageBytes, dataStart, short2dArray, 0, imageBytes.Length - dataStart);
 
-                        int[,] int2dArray = new int[dimension0, dimension1];
+                        int[,] int2dArray = new int[dimension1, dimension2];
                         Parallel.For(0, short2dArray.GetLength(0), (i) =>
                         {
                             for (int j = 0; j < short2dArray.GetLength(1); j++)
@@ -459,10 +449,10 @@ namespace ASCOM.Common.Alpaca
                         return int2dArray;
 
                     case 3: // Rank 3
-                        Int16[,,] short3dArray = new Int16[dimension0, dimension1, dimension2];
+                        Int16[,,] short3dArray = new Int16[dimension1, dimension2, dimension3];
                         Buffer.BlockCopy(imageBytes, dataStart, short3dArray, 0, imageBytes.Length - dataStart);
 
-                        int[,,] int3dArray = new int[dimension0, dimension1, dimension2];
+                        int[,,] int3dArray = new int[dimension1, dimension2, dimension3];
                         Parallel.For(0, short3dArray.GetLength(0), (i) =>
                         {
                             for (int j = 0; j < short3dArray.GetLength(1); j++)
@@ -484,10 +474,10 @@ namespace ASCOM.Common.Alpaca
                 switch (rank)
                 {
                     case 2: // Rank 2
-                        UInt16[,] uInt16Array2D = new UInt16[dimension0, dimension1];
+                        UInt16[,] uInt16Array2D = new UInt16[dimension1, dimension2];
                         Buffer.BlockCopy(imageBytes, dataStart, uInt16Array2D, 0, imageBytes.Length - dataStart);
 
-                        int[,] int2dArray = new int[dimension0, dimension1];
+                        int[,] int2dArray = new int[dimension1, dimension2];
                         Parallel.For(0, uInt16Array2D.GetLength(0), (i) =>
                         {
                             for (int j = 0; j < uInt16Array2D.GetLength(1); j++)
@@ -498,10 +488,10 @@ namespace ASCOM.Common.Alpaca
                         return int2dArray;
 
                     case 3: // Rank 3
-                        UInt16[,,] uInt16Array3D = new UInt16[dimension0, dimension1, dimension2];
+                        UInt16[,,] uInt16Array3D = new UInt16[dimension1, dimension2, dimension3];
                         Buffer.BlockCopy(imageBytes, dataStart, uInt16Array3D, 0, imageBytes.Length - dataStart);
 
-                        int[,,] int3dArray = new int[dimension0, dimension1, dimension2];
+                        int[,,] int3dArray = new int[dimension1, dimension2, dimension3];
                         Parallel.For(0, uInt16Array3D.GetLength(0), (i) =>
                         {
                             for (int j = 0; j < uInt16Array3D.GetLength(1); j++)
@@ -528,12 +518,12 @@ namespace ASCOM.Common.Alpaca
                             switch (rank)
                             {
                                 case 2: // Rank 2
-                                    byte[,] byte2dArray = new byte[dimension0, dimension1];
+                                    byte[,] byte2dArray = new byte[dimension1, dimension2];
                                     Buffer.BlockCopy(imageBytes, dataStart, byte2dArray, 0, imageBytes.Length - dataStart);
                                     return byte2dArray;
 
                                 case 3: // Rank 3
-                                    byte[,,] byte3dArray = new byte[dimension0, dimension1, dimension2];
+                                    byte[,,] byte3dArray = new byte[dimension1, dimension2, dimension3];
                                     Buffer.BlockCopy(imageBytes, dataStart, byte3dArray, 0, imageBytes.Length - dataStart);
                                     return byte3dArray;
 
@@ -545,12 +535,12 @@ namespace ASCOM.Common.Alpaca
                             switch (rank)
                             {
                                 case 2: // Rank 2
-                                    short[,] short2dArray = new short[dimension0, dimension1];
+                                    short[,] short2dArray = new short[dimension1, dimension2];
                                     Buffer.BlockCopy(imageBytes, dataStart, short2dArray, 0, imageBytes.Length - dataStart);
                                     return short2dArray;
 
                                 case 3: // Rank 3
-                                    short[,,] short3dArray = new short[dimension0, dimension1, dimension2];
+                                    short[,,] short3dArray = new short[dimension1, dimension2, dimension3];
                                     Buffer.BlockCopy(imageBytes, dataStart, short3dArray, 0, imageBytes.Length - dataStart);
                                     return short3dArray;
 
@@ -562,12 +552,12 @@ namespace ASCOM.Common.Alpaca
                             switch (rank)
                             {
                                 case 2: // Rank 2
-                                    UInt16[,] uInt16Array2D = new UInt16[dimension0, dimension1];
+                                    UInt16[,] uInt16Array2D = new UInt16[dimension1, dimension2];
                                     Buffer.BlockCopy(imageBytes, dataStart, uInt16Array2D, 0, imageBytes.Length - dataStart);
                                     return uInt16Array2D;
 
                                 case 3: // Rank 3
-                                    UInt16[,,] uInt16Array3D = new UInt16[dimension0, dimension1, dimension2];
+                                    UInt16[,,] uInt16Array3D = new UInt16[dimension1, dimension2, dimension3];
                                     Buffer.BlockCopy(imageBytes, dataStart, uInt16Array3D, 0, imageBytes.Length - dataStart);
                                     return uInt16Array3D;
 
@@ -579,12 +569,12 @@ namespace ASCOM.Common.Alpaca
                             switch (rank)
                             {
                                 case 2: // Rank 2
-                                    int[,] int2dArray = new int[dimension0, dimension1];
+                                    int[,] int2dArray = new int[dimension1, dimension2];
                                     Buffer.BlockCopy(imageBytes, dataStart, int2dArray, 0, imageBytes.Length - dataStart);
                                     return int2dArray;
 
                                 case 3: // Rank 3
-                                    int[,,] int3dArray = new int[dimension0, dimension1, dimension2];
+                                    int[,,] int3dArray = new int[dimension1, dimension2, dimension3];
                                     Buffer.BlockCopy(imageBytes, dataStart, int3dArray, 0, imageBytes.Length - dataStart);
                                     return int3dArray;
 
@@ -596,12 +586,12 @@ namespace ASCOM.Common.Alpaca
                             switch (rank)
                             {
                                 case 2: // Rank 2
-                                    UInt32[,] uInt32Array2D = new UInt32[dimension0, dimension1];
+                                    UInt32[,] uInt32Array2D = new UInt32[dimension1, dimension2];
                                     Buffer.BlockCopy(imageBytes, dataStart, uInt32Array2D, 0, imageBytes.Length - dataStart);
                                     return uInt32Array2D;
 
                                 case 3: // Rank 3
-                                    UInt32[,,] uInt32Array3D = new UInt32[dimension0, dimension1, dimension2];
+                                    UInt32[,,] uInt32Array3D = new UInt32[dimension1, dimension2, dimension3];
                                     Buffer.BlockCopy(imageBytes, dataStart, uInt32Array3D, 0, imageBytes.Length - dataStart);
                                     return uInt32Array3D;
 
@@ -613,12 +603,12 @@ namespace ASCOM.Common.Alpaca
                             switch (rank)
                             {
                                 case 2: // Rank 2
-                                    Int64[,] int642dArray = new Int64[dimension0, dimension1];
+                                    Int64[,] int642dArray = new Int64[dimension1, dimension2];
                                     Buffer.BlockCopy(imageBytes, dataStart, int642dArray, 0, imageBytes.Length - dataStart);
                                     return int642dArray;
 
                                 case 3: // Rank 3
-                                    Int64[,,] int643dArray = new Int64[dimension0, dimension1, dimension2];
+                                    Int64[,,] int643dArray = new Int64[dimension1, dimension2, dimension3];
                                     Buffer.BlockCopy(imageBytes, dataStart, int643dArray, 0, imageBytes.Length - dataStart);
                                     return int643dArray;
 
@@ -630,12 +620,12 @@ namespace ASCOM.Common.Alpaca
                             switch (rank)
                             {
                                 case 2: // Rank 2
-                                    Single[,] single2dArray = new Single[dimension0, dimension1];
+                                    Single[,] single2dArray = new Single[dimension1, dimension2];
                                     Buffer.BlockCopy(imageBytes, dataStart, single2dArray, 0, imageBytes.Length - dataStart);
                                     return single2dArray;
 
                                 case 3: // Rank 3
-                                    Single[,,] single3dArray = new Single[dimension0, dimension1, dimension2];
+                                    Single[,,] single3dArray = new Single[dimension1, dimension2, dimension3];
                                     Buffer.BlockCopy(imageBytes, dataStart, single3dArray, 0, imageBytes.Length - dataStart);
                                     return single3dArray;
 
@@ -647,12 +637,12 @@ namespace ASCOM.Common.Alpaca
                             switch (rank)
                             {
                                 case 2: // Rank 2
-                                    Double[,] double2dArray = new Double[dimension0, dimension1];
+                                    Double[,] double2dArray = new Double[dimension1, dimension2];
                                     Buffer.BlockCopy(imageBytes, dataStart, double2dArray, 0, imageBytes.Length - dataStart);
                                     return double2dArray;
 
                                 case 3: // Rank 3
-                                    Double[,,] double3dArray = new Double[dimension0, dimension1, dimension2];
+                                    Double[,,] double3dArray = new Double[dimension1, dimension2, dimension3];
                                     Buffer.BlockCopy(imageBytes, dataStart, double3dArray, 0, imageBytes.Length - dataStart);
                                     return double3dArray;
 
@@ -664,12 +654,12 @@ namespace ASCOM.Common.Alpaca
                             switch (rank)
                             {
                                 case 2: // Rank 2
-                                    Decimal[,] decimal2dArray = new Decimal[dimension0, dimension1];
+                                    Decimal[,] decimal2dArray = new Decimal[dimension1, dimension2];
                                     Buffer.BlockCopy(imageBytes, dataStart, decimal2dArray, 0, imageBytes.Length - dataStart);
                                     return decimal2dArray;
 
                                 case 3: // Rank 3
-                                    Decimal[,,] decimal3dArray = new Decimal[dimension0, dimension1, dimension2];
+                                    Decimal[,,] decimal3dArray = new Decimal[dimension1, dimension2, dimension3];
                                     Buffer.BlockCopy(imageBytes, dataStart, decimal3dArray, 0, imageBytes.Length - dataStart);
                                     return decimal3dArray;
 
@@ -800,34 +790,6 @@ namespace ASCOM.Common.Alpaca
             }
 
             return structure;
-        }
-
-        #endregion
-
-        #region Unused code
-
-        // As used by initial alpha versions
-        [StructLayout(LayoutKind.Explicit, Size = 28)]
-        public struct ArrayMetadataVersion0
-        {
-            public ArrayMetadataVersion0(ImageArrayElementTypes imageElementType, ImageArrayElementTypes transmissionElementType, int arrayRank, int arrayDimension0, int arrayDimension1, int arrayDimension2)
-            {
-                MetadataVersion = 0;
-                this.ImageElementType = imageElementType;
-                this.TransmissionElementType = transmissionElementType;
-                this.ArrayRank = arrayRank;
-                this.ArrayDimension0 = arrayDimension0;
-                this.ArrayDimension1 = arrayDimension1;
-                this.ArrayDimension2 = arrayDimension2;
-            }
-
-            [FieldOffset(0)] public int MetadataVersion; // Bytes 0..3 - Must always be the first field!
-            [FieldOffset(4)] public ImageArrayElementTypes ImageElementType; // Bytes 4..7
-            [FieldOffset(8)] public ImageArrayElementTypes TransmissionElementType; // Bytes 8..11
-            [FieldOffset(12)] public int ArrayRank; // Bytes 12..15
-            [FieldOffset(16)] public int ArrayDimension0; // Bytes 16..19
-            [FieldOffset(20)] public int ArrayDimension1; // Bytes 20..23
-            [FieldOffset(24)] public int ArrayDimension2; // Bytes 24..27
         }
 
         #endregion

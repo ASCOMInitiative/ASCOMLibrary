@@ -24,13 +24,10 @@ namespace ASCOM.Alpaca.Clients
 
         // Set the device type
         private const string DEVICE_TYPE = "Camera";
-        public const string GETBASE64IMAGE_ACTION_NAME = "GetBase64Image";
-        public const int GETBASE64IMAGE_SUPPORTED_VERSION = 1;
 
         // Variables specific to this device type
         private ImageArrayTransferType imageArrayTransferType = ImageArrayTransferType.JSON;
         private ImageArrayCompression imageArrayCompression = ImageArrayCompression.None;
-        private bool? canGetBase64Image = null; // Indicator of whether the remote device supports GetBase64Image functionality
 
         #endregion
 
@@ -501,112 +498,8 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                object returnArray;
-
-                try
-                {
-                    // Special handling for GetBase64Image transfers
-                    LogMessage(TL, clientNumber, "ImageArray", $"ImageArray called - canGetBase64Image: {(canGetBase64Image.HasValue ? canGetBase64Image.Value.ToString() : "VALUE NOT SET")}, imageArrayTransferType: {imageArrayTransferType}");
-
-                    // Determine whether we need to find out whether Getbase64Image functionality is provided by this driver
-                    if (
-                        (!canGetBase64Image.HasValue) &
-                        ((imageArrayTransferType == ImageArrayTransferType.GetBase64Image) |
-                         (imageArrayTransferType == ImageArrayTransferType.BestAvailable)
-                        )
-                       )
-                    {
-                        // Determine whether the remote device supports GetBase64Image
-                        // Try to get a SupportedActions response from the device, if anything goes wrong assume that the feature is not available
-                        try
-                        {
-                            // Initialise the supported flag to false
-                            canGetBase64Image = false;
-                            IList<string> supportedActions = this.SupportedActions;
-                            foreach (string action in supportedActions)
-                            {
-                                // Set the supported flag true if the device advertises that it supports GetBase64Image
-                                if (action.ToLowerInvariant() == GETBASE64IMAGE_ACTION_NAME.ToLowerInvariant()) canGetBase64Image = true;
-                                LogMessage(TL, clientNumber, "ImageArray", $"Found SupportedAction: {action}, canGetBase64Image: {canGetBase64Image.Value}.");
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            // Just log any errors but otherwise ignore them
-                            LogMessage(TL, clientNumber, "ImageArray", $"Received an exception when trying to get the device's SupportedActions: {ex.Message}");
-                        }
-                    }
-
-                    // As a precaution, set values false if we have no value at this point
-                    if (!canGetBase64Image.HasValue) canGetBase64Image = false;
-
-                    // Throw an exception if GetBase64Image mode is explicitly requested but the device does not support this mode
-                    if ((imageArrayTransferType == ImageArrayTransferType.GetBase64Image) & !canGetBase64Image.Value) throw new InvalidOperationException("GetBase64Image transfer mode has been requested but the device does not support this mode.");
-
-                    // Use a fast transfer mode if possible
-                    LogMessage(TL, clientNumber, "ImageArray", $"ImageArray 1 called - canGetBase64Image: {canGetBase64Image.Value}, imageArrayTransferType: {imageArrayTransferType}");
-
-                    // Use the GetImageBytes mechanic if specified and available
-                    if (canGetBase64Image.Value & (imageArrayTransferType == ImageArrayTransferType.GetBase64Image))
-                    // Fall back to GetBase64Image if available
-                    {
-                        Stopwatch sw = new Stopwatch();
-                        Stopwatch swOverall = new Stopwatch();
-
-                        // Call the GetBase64Image Action method to retrieve the image in base64 encoded form
-                        swOverall.Start();
-                        sw.Start();
-                        string base64String = this.Action(AlpacaTools.BASE64RESPONSE_COMMAND_NAME, "");
-                        sw.Stop();
-                        LogMessage(TL, clientNumber, "GetBase64Image", $"Received {base64String.Length} bytes in {sw.ElapsedMilliseconds}ms.");
-
-                        // Convert from base 64 encoding to byte[]
-                        sw.Restart();
-                        byte[] base64ArrayByteArray = Convert.FromBase64String(base64String);
-                        sw.Stop();
-                        LogMessage(TL, clientNumber, "GetBase64Image", $"Converted string to byte array in {sw.ElapsedMilliseconds}ms.");
-
-
-                        int metadataVersion = base64ArrayByteArray.GetMetadataVersion();
-                        LogMessage(TL, clientNumber, "GetBase64Image", $"Metadata version: {metadataVersion}");
-
-                        switch (metadataVersion)
-                        {
-                            case 1:
-                                ArrayMetadataV1 metadataV1 = base64ArrayByteArray.GetMetadataV1();
-                                LogMessage(TL, clientNumber, "GetBase64Image", $"Received array: Metadata version: {metadataV1.MetadataVersion} Image element type: {metadataV1.ImageElementType} Transmission element type: {metadataV1.TransmissionElementType} Array rank: {metadataV1.Rank} Dimension 0: {metadataV1.Dimension0} Dimension 1: {metadataV1.Dimension1} Dimension 2: {metadataV1.Dimension2}");
-                                break;
-
-                            default:
-                                throw new InvalidValueException($"GetBase64Image - ImageArrayBytes - Received an unsupported metadata version number: {metadataVersion} from the Alpaca device.");
-                        }
-
-                        // Convert the byte[] back to an image array
-                        sw.Restart();
-                        returnArray = base64ArrayByteArray.ToImageArray();
-                        LogMessage(TL, clientNumber, "GetBase64Image", $"Converted byte[] to image array in {sw.ElapsedMilliseconds}ms. Overall time: {swOverall.ElapsedMilliseconds}ms.");
-
-                        return returnArray;
-                    }
-
-                    // Throw an exception if GetBase64Image is specified but not available
-                    else if (!canGetBase64Image.Value & (imageArrayTransferType == ImageArrayTransferType.GetBase64Image))
-                    {
-                        throw new InvalidOperationException("GetBase64Image - The GetBase64Image transfer mechanic was specified but is not supported by this device.");
-                    }
-                    else
-
-                    // Fall through to use ImageBytes or Base64 hand-off if available, otherwise to the JSON mechanic.
-                    {
-                        DynamicClientDriver.SetClientTimeout(client, longDeviceResponseTimeout);
-                        return DynamicClientDriver.GetValue<Array>(clientNumber, client, URIBase, strictCasing, TL, "ImageArray", imageArrayTransferType, imageArrayCompression, MemberTypes.Property);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    LogMessage(TL, clientNumber, "ImageArray", $"CameraBaseClass.ImageArray exception: {ex}");
-                    throw;
-                }
+                DynamicClientDriver.SetClientTimeout(client, longDeviceResponseTimeout);
+                return DynamicClientDriver.GetValue<Array>(clientNumber, client, URIBase, strictCasing, TL, SharedConstants.IMAGE_ARRAY_METHOD_NAME, imageArrayTransferType, imageArrayCompression, MemberTypes.Property);
             }
         }
 
