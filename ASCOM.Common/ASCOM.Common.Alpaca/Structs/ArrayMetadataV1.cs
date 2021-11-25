@@ -60,42 +60,46 @@ namespace ASCOM.Common.Alpaca
         /// <summary>
         /// Client's transaction ID
         /// </summary>
-        [FieldOffset(8)] public uint ClientTransactionID;
+        [FieldOffset(8)] public uint ClientTransactionID; // Bytes 8..11 - Client's transaction ID
 
         /// <summary>
         /// Device's transaction ID
         /// </summary>
-        [FieldOffset(12)] public uint ServerTransactionID;
+        [FieldOffset(12)] public uint ServerTransactionID; // Bytes 12..15 - Device's transaction ID
 
         /// <summary>
         /// Offset to the start of the returned data bytes or UTF8 encoded error message.
         /// </summary>
-        [FieldOffset(16)] public int DataStart; // Bytes 8..11 - Offset of the start of the returned data byte array
+        [FieldOffset(16)] public int DataStart; // Bytes 16..19 - Offset of the start of the returned data byte array
 
         /// <summary>
         /// Type of element in the image array as supplied by the device
         /// </summary>
-        [FieldOffset(20)] public ImageArrayElementTypes ImageElementType; // Bytes 12..15 - Element type of the source image array
+        [FieldOffset(20)] public ImageArrayElementTypes ImageElementType; // Bytes 20..23 - Element type of the source image array
 
         /// <summary>
         /// Type of element being transmitted over the network. Can be smaller in byte size than the ImageElementType
         /// </summary>
-        [FieldOffset(24)] public ImageArrayElementTypes TransmissionElementType; // Bytes 16..19 - Element type of the array as transmitted over the network
+        [FieldOffset(24)] public ImageArrayElementTypes TransmissionElementType; // Bytes 24..27 - Element type of the array as transmitted over the network
 
         /// <summary>
         /// Array rank
         /// </summary>
-        [FieldOffset(28)] public int Rank; // Bytes 20..23 - image array rank
+        [FieldOffset(28)] public int Rank; // Bytes 28..31 - image array rank
 
         /// <summary>
         /// Length of the array's first dimension (array[Dimension1, Dimension2, Dimension3]) 
         /// </summary>
-        [FieldOffset(32)] public int Dimension1; // Bytes 24..27 - Length of image array first dimension
+        [FieldOffset(32)] public int Dimension1; // Bytes 32..35 - Length of image array first dimension
 
-        /// Length of the array's second dimension (array[Dimension1, Dimension2, Dimension3]) 
-        [FieldOffset(36)] public int Dimension2; // Bytes 28..31 - Length of image array second dimension
+        /// <summary>
+        /// Length of the array's second dimension (array[Dimension1, Dimension2, Dimension3])
+        /// </summary>
+        [FieldOffset(36)] public int Dimension2; // Bytes 36..39 - Length of image array second dimension
 
+        /// <summary>
         /// Length of the array's third dimension (array[Dimension1, Dimension2, Dimension3]) - 0 for a 2D array. 
-        [FieldOffset(40)] public int Dimension3; // Bytes 32..35 - Length of image array third dimension (0 for 2D array)
+        /// </summary>
+        [FieldOffset(40)] public int Dimension3; // Bytes 40..43 - Length of image array third dimension (0 for 2D array)
     }
 }
