@@ -10,10 +10,10 @@
         Int32 = 2,
         Double = 3,
         Single = 4,
-        Decimal = 5,
-        Byte = 6,
-        Int64 = 7,
-        UInt16 = 8,
-        UInt32 = 9,
+        Byte = 5,
+        Int64 = 6,
+        UInt16 = 7,
+        UInt32 = 8,
+        UInt64 = 9
     }
 }
