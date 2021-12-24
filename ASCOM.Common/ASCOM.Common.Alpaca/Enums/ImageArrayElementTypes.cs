@@ -10,7 +10,7 @@
         Int32 = 2,
         Double = 3,
         Single = 4,
-        Decimal = 5,
+        UInt64 = 5,
         Byte = 6,
         Int64 = 7,
         UInt16 = 8,

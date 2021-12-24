@@ -57,7 +57,7 @@ namespace ASCOM.Common.Alpaca
             {
                 case 1:
                     // Create a metadata structure containing the supplied error number
-                    ArrayMetadataV1 arrayMetadataV1 = new ArrayMetadataV1(alpacaErrorNumber, clientTransactionID, serverTransactionID,ImageArrayElementTypes.Unknown, ImageArrayElementTypes.Unknown, 0, 0, 0, 0);
+                    ArrayMetadataV1 arrayMetadataV1 = new ArrayMetadataV1(alpacaErrorNumber, clientTransactionID, serverTransactionID, ImageArrayElementTypes.Unknown, ImageArrayElementTypes.Unknown, 0, 0, 0, 0);
 
                     // Create a byte array from the metadata structure
                     byte[] arrayMetadataV1Bytes = arrayMetadataV1.ToByteArray<ArrayMetadataV1>();
@@ -110,23 +110,7 @@ namespace ASCOM.Common.Alpaca
                 if ((errorNumber == 0) & (!string.IsNullOrWhiteSpace(errorMessage))) throw new InvalidValueException($"ToByteArray - Error number is {errorNumber} but an error message has been supplied: '{errorMessage}'");
                 if ((errorNumber != 0) & (string.IsNullOrWhiteSpace(errorMessage))) throw new InvalidValueException($"ToByteArray - Error number is {errorNumber} but no error message has been supplied: '{errorMessage}'");
 
-                // Handle metadata versions
-                switch (metadataVersion)
-                {
-                    case 1:
-                        byte[] errorMessageBytes = Encoding.UTF8.GetBytes(errorMessage);
-                        ArrayMetadataV1 metadataVersion1 = new ArrayMetadataV1();
-                        metadataVersion1.ErrorNumber = errorNumber;
-
-                        byte[] metadataBytes = metadataVersion1.ToByteArray();
-                        byte[] returnBytes = new byte[metadataBytes.Length + errorMessageBytes.Length];
-                        Array.Copy(metadataBytes, returnBytes, metadataBytes.Length);
-                        Array.Copy(errorMessageBytes, 0, returnBytes, metadataBytes.Length, errorMessageBytes.Length);
-                        return returnBytes;
-
-                    default:
-                        throw new InvalidValueException($"Unsupported metadata version: {metadataVersion}");
-                }
+                return ErrorMessageToByteArray(metadataVersion, clientTransactionID, serverTransactionID, errorNumber, errorMessage);
             }
 
             // At this point we have a successful transaction so validate the incoming array
@@ -184,9 +168,9 @@ namespace ASCOM.Common.Alpaca
                     break;
 
                 case TypeCode.Decimal:
-                    intendedElementType = ImageArrayElementTypes.Decimal;
-                    transmissionElementType = ImageArrayElementTypes.Decimal;
-                    transmissionElementSize = 16;
+                    intendedElementType = ImageArrayElementTypes.UInt64;
+                    transmissionElementType = ImageArrayElementTypes.UInt64;
+                    transmissionElementSize = 8;
                     break;
 
                 default:
@@ -353,8 +337,8 @@ namespace ASCOM.Common.Alpaca
                 case 1:
                     // Create a version 1 metadata structure
                     ArrayMetadataV1 metadataVersion1;
-                    if (imageArray.Rank == 2) metadataVersion1 = new ArrayMetadataV1(AlpacaErrors.AlpacaNoError, clientTransactionID, serverTransactionID,intendedElementType, transmissionElementType, 2, imageArray.GetLength(0), imageArray.GetLength(1), 0);
-                    else metadataVersion1 = new ArrayMetadataV1(AlpacaErrors.AlpacaNoError, clientTransactionID, serverTransactionID,intendedElementType, transmissionElementType, 3, imageArray.GetLength(0), imageArray.GetLength(1), imageArray.GetLength(2));
+                    if (imageArray.Rank == 2) metadataVersion1 = new ArrayMetadataV1(AlpacaErrors.AlpacaNoError, clientTransactionID, serverTransactionID, intendedElementType, transmissionElementType, 2, imageArray.GetLength(0), imageArray.GetLength(1), 0);
+                    else metadataVersion1 = new ArrayMetadataV1(AlpacaErrors.AlpacaNoError, clientTransactionID, serverTransactionID, intendedElementType, transmissionElementType, 3, imageArray.GetLength(0), imageArray.GetLength(1), imageArray.GetLength(2));
 
                     // Turn the metadata structure into a byte array
                     byte[] metadataVersion2Bytes = metadataVersion1.ToByteArray<ArrayMetadataV1>();
@@ -616,6 +600,23 @@ namespace ASCOM.Common.Alpaca
                                     throw new InvalidValueException($"ToImageArray - Returned Int64 array cannot be handled because it does not have a rank of 2 or 3. Returned array rank:{rank}.");
                             }
 
+                        case ImageArrayElementTypes.UInt64:
+                            switch (rank)
+                            {
+                                case 2: // Rank 2
+                                    UInt64[,] uint64Array2D = new UInt64[dimension1, dimension2];
+                                    Buffer.BlockCopy(imageBytes, dataStart, uint64Array2D, 0, imageBytes.Length - dataStart);
+                                    return uint64Array2D;
+
+                                case 3: // Rank 3
+                                    UInt64[,,] uint64Array3D = new UInt64[dimension1, dimension2, dimension3];
+                                    Buffer.BlockCopy(imageBytes, dataStart, uint64Array3D, 0, imageBytes.Length - dataStart);
+                                    return uint64Array3D;
+
+                                default:
+                                    throw new InvalidValueException($"ToImageArray - Returned Int64 array cannot be handled because it does not have a rank of 2 or 3. Returned array rank:{rank}.");
+                            }
+
                         case ImageArrayElementTypes.Single:
                             switch (rank)
                             {
@@ -645,23 +646,6 @@ namespace ASCOM.Common.Alpaca
                                     Double[,,] double3dArray = new Double[dimension1, dimension2, dimension3];
                                     Buffer.BlockCopy(imageBytes, dataStart, double3dArray, 0, imageBytes.Length - dataStart);
                                     return double3dArray;
-
-                                default:
-                                    throw new InvalidValueException($"ToImageArray - Returned Int64 array cannot be handled because it does not have a rank of 2 or 3. Returned array rank:{rank}.");
-                            }
-
-                        case ImageArrayElementTypes.Decimal:
-                            switch (rank)
-                            {
-                                case 2: // Rank 2
-                                    Decimal[,] decimal2dArray = new Decimal[dimension1, dimension2];
-                                    Buffer.BlockCopy(imageBytes, dataStart, decimal2dArray, 0, imageBytes.Length - dataStart);
-                                    return decimal2dArray;
-
-                                case 3: // Rank 3
-                                    Decimal[,,] decimal3dArray = new Decimal[dimension1, dimension2, dimension3];
-                                    Buffer.BlockCopy(imageBytes, dataStart, decimal3dArray, 0, imageBytes.Length - dataStart);
-                                    return decimal3dArray;
 
                                 default:
                                     throw new InvalidValueException($"ToImageArray - Returned Int64 array cannot be handled because it does not have a rank of 2 or 3. Returned array rank:{rank}.");
