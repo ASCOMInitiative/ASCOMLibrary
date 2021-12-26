@@ -143,15 +143,33 @@ namespace ASCOM.Common.Alpaca
                     transmissionElementSize = 2;
                     break;
 
+                case TypeCode.UInt16:
+                    intendedElementType = ImageArrayElementTypes.UInt16;
+                    transmissionElementType = ImageArrayElementTypes.UInt16;
+                    transmissionElementSize = 2;
+                    break;
+
                 case TypeCode.Int32:
                     intendedElementType = ImageArrayElementTypes.Int32;
                     transmissionElementType = ImageArrayElementTypes.Int32;
                     transmissionElementSize = 4;
                     break;
 
+                case TypeCode.UInt32:
+                    intendedElementType = ImageArrayElementTypes.UInt32;
+                    transmissionElementType = ImageArrayElementTypes.UInt32;
+                    transmissionElementSize = 4;
+                    break;
+
                 case TypeCode.Int64:
                     intendedElementType = ImageArrayElementTypes.Int64;
                     transmissionElementType = ImageArrayElementTypes.Int64;
+                    transmissionElementSize = 8;
+                    break;
+
+                case TypeCode.UInt64:
+                    intendedElementType = ImageArrayElementTypes.UInt64;
+                    transmissionElementType = ImageArrayElementTypes.UInt64;
                     transmissionElementSize = 8;
                     break;
 
@@ -167,12 +185,6 @@ namespace ASCOM.Common.Alpaca
                     transmissionElementSize = 8;
                     break;
 
-                case TypeCode.Decimal:
-                    intendedElementType = ImageArrayElementTypes.UInt64;
-                    transmissionElementType = ImageArrayElementTypes.UInt64;
-                    transmissionElementSize = 8;
-                    break;
-
                 default:
                     throw new InvalidValueException($"ToByteArray - Received an unsupported return array type: {imageArray.GetType().Name}, with elements of type: {imageArray.GetType().GetElementType().Name}");
             }
@@ -185,6 +197,7 @@ namespace ASCOM.Common.Alpaca
                 // NOTE - not the arithmetic interpretation of those bytes.
                 // NOTE
 
+                bool arrayIsByte = true; // Flag indicating whether the supplied array conforms to the Byte value range 0 to +255. Start by assuming success
                 bool arrayIsInt16 = true; // Flag indicating whether the supplied array conforms to the Int16 value range -32768 to +32767. Start by assuming success
                 bool arrayIsUint16 = true; // Flag indicating whether the supplied array conforms to the UInt16 value range 0 to +65535. Start by assuming success
 
@@ -192,17 +205,21 @@ namespace ASCOM.Common.Alpaca
                 switch (imageArray.Rank)
                 {
                     case 2:
+                        byte[,] byteArray = new byte[imageArray.GetLength(0), imageArray.GetLength(1)]; // Array to hold the 8bit transmission array
                         UInt16[,] uInt16Array = new UInt16[imageArray.GetLength(0), imageArray.GetLength(1)]; // Array to hold the 16bit transmission array (either Int16 or UInt16 values)
 
                         // Get the device's Int32 image array
                         int[,] int2dArray = (int[,])imageArray;
 
                         // Parellelise the array copy to improve performance
-                        Parallel.For(0, imageArray.GetLength(0), (i) => // Iterate over the slowest changing dimension
+                        Parallel.For(0, imageArray.GetLength(0), (i, state) => // Iterate over the slowest changing dimension
                         {
+                            byte byteElementValue; // Local variable to hold the Byte element being tested (saves calculating an array offset later in the process)
                             Int32 int32ElementValue; // Local variable to hold the Int32 element being tested (saves calculating an array offset later in the process)
                             Int16 int16ElementValue; // Local variable to hold the Int16 element value (saves calculating an array offset later in the process)
                             UInt16 uInt16ElementValue; // Local variable to hold the Unt16 element value (saves calculating an array offset later in the process)
+
+                            bool arrayIsByteInternal = true; // Local variable to hold the Byte status within this particular thread. Used to reduce thread conflict when updating the arrayIsByte variable.
                             bool arrayIsInt16Internal = true; // Local variable to hold the Int16 status within this particular thread. Used to reduce thread conflict when updating the arrayIsInt16 variable.
                             bool arrayIsUint16Internal = true; // Local variable to hold the UInt16 status within this particular thread. Used to reduce thread conflict when updating the arrayIsInt16 variable.
 
@@ -212,30 +229,49 @@ namespace ASCOM.Common.Alpaca
                                 // Get the current array element value
                                 int32ElementValue = int2dArray[i, j];
 
+                                // Truncate the supplied 4-byte Int32 value to create a 1-byte Byte value
+                                byteElementValue = (byte)int32ElementValue;
+
                                 // Truncate the supplied 4-byte Int32 value to create a 2-byte UInt16 value
                                 uInt16ElementValue = (UInt16)int32ElementValue;
 
                                 // Truncate the supplied 4-byte Int32 value to create a 2-byte Int16 value
                                 int16ElementValue = (Int16)int32ElementValue;
 
+                                // Store the Byte value in the array.
+                                byteArray[i, j] = byteElementValue;
+
                                 // Store the UInt16 value in the array.
                                 uInt16Array[i, j] = uInt16ElementValue;
 
+                                // Compare the Byte and Int32 values, indicating whether they match. 
+                                if (byteElementValue != int32ElementValue) arrayIsByteInternal = false;
 
-                                // Compare the Int16 and Int32 values. 
+                                // Compare the Int16 and Int32 values, indicating whether they match. 
                                 if (int16ElementValue != int32ElementValue) arrayIsInt16Internal = false;
 
-                                // Compare the UInt16 and Int32 values. 
+                                // Compare the UInt16 and Int32 values, indicating whether they match. 
                                 if (uInt16ElementValue != int32ElementValue) arrayIsUint16Internal = false;
                             }
 
                             // Update the master arrayIsInt16 and arrayIsUint16 variables as the logical AND of the mater and update values.
+                            arrayIsByte &= arrayIsByteInternal;
                             arrayIsInt16 &= arrayIsInt16Internal;
                             arrayIsUint16 &= arrayIsUint16Internal;
+
+                            // Terminate the parallel for loop early if the image data is determined to be 32bit
+                            if (!arrayIsInt16 & !arrayIsUint16) state.Break();
+
                         });
 
-                        // Return the appropriate array if either a UInt16 or Int16 array was provided by the device
-                        if (arrayIsUint16) // Supplied array has UInt16 values so return the shorter array in place of the supplied Int32 array
+                        // Return the appropriate array if either a Byte, UInt16 or Int16 array was provided by the device
+                        if (arrayIsByte) // Supplied array has UInt16 values so return the shorter array in place of the supplied Int32 array
+                        {
+                            imageArray = byteArray; // Assign the Int16 array to the imageArray variable in place of the Int32 array
+                            transmissionElementType = ImageArrayElementTypes.Byte; // Flag that the array elements are UInt16
+                            transmissionElementSize = sizeof(byte); // Indicate that the transmitted elements are of UInt16 size rather than Int32 size
+                        }
+                        else if (arrayIsUint16) // Supplied array has UInt16 values so return the shorter array in place of the supplied Int32 array
                         {
                             imageArray = uInt16Array; // Assign the Int16 array to the imageArray variable in place of the Int32 array
                             transmissionElementType = ImageArrayElementTypes.UInt16; // Flag that the array elements are UInt16
@@ -351,7 +387,7 @@ namespace ASCOM.Common.Alpaca
 
                     // Copy the image array bytes after the metadata
                     Buffer.BlockCopy(imageArray, 0, imageArrayBytesV2, metadataVersion2Bytes.Length, imageArray.Length * transmissionElementSize);
-
+                    Console.WriteLine("TEST MESSAGE");
                     // Return the byte array
                     return imageArrayBytesV2;
 
@@ -721,6 +757,28 @@ namespace ASCOM.Common.Alpaca
             // Create the metadata structure from the metadata bytes and return it to the caller
             ArrayMetadataV1 metadataV1 = metadataV1Bytes.ToStructure<ArrayMetadataV1>();
             return metadataV1;
+        }
+
+        /// <summary>
+        /// Alpaca Extension - Returns the image data from an ImageBytes byte array.
+        /// </summary>
+        /// <param name="imageBytes">ImageVBytes array containing the image data.</param>
+        /// <returns>Byte array continaing the image data</returns>
+        /// <exception cref="InvalidValueException">The ImageArray data contains an unsupported metadata version.</exception>
+        public static byte[] GetImageData(this byte[] imageBytes)
+        {
+            int metadataVersion = imageBytes.GetMetadataVersion();
+            switch (metadataVersion)
+            {
+                case 1:
+                    ArrayMetadataV1 metadata = imageBytes.GetMetadataV1();
+                    byte[] imageData = new byte[imageBytes.Length - ARRAY_METADATAV1_LENGTH];
+                    Array.Copy(imageBytes, metadata.DataStart, imageData, 0, imageData.Length);
+                    return imageData;
+
+                default:
+                    throw new InvalidValueException($"GetImageBytes - The supplied array contains an unsupported metadata version number: {metadataVersion}. This component supports metadata version 1.");
+            }
         }
 
         #endregion
