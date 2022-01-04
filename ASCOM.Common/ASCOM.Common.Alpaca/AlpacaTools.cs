@@ -102,6 +102,7 @@ namespace ASCOM.Common.Alpaca
         public static byte[] ToByteArray(this Array imageArray, int metadataVersion, uint clientTransactionID, uint serverTransactionID, AlpacaErrors errorNumber, string errorMessage)
         {
             int transmissionElementSize; // Managed size of transmitted elements
+            bool arrayIsByte; // Flag indicating whether the supplied array conforms to the Byte value range 0 to +255.
 
             // Handle error conditions
             if ((errorNumber != 0) | (!string.IsNullOrWhiteSpace(errorMessage)))
@@ -141,18 +142,468 @@ namespace ASCOM.Common.Alpaca
                     intendedElementType = ImageArrayElementTypes.Int16;
                     transmissionElementType = ImageArrayElementTypes.Int16;
                     transmissionElementSize = 2;
+
+                    // Special handling for Int16 arrays - see if we can convert them to a Byte array
+
+                    arrayIsByte = true; // Flag indicating whether the supplied array conforms to the Byte value range 0 to +255. Start by assuming success
+
+                    // Handle 2D and 3D arrays
+                    switch (imageArray.Rank)
+                    {
+                        case 2:
+                            byte[,] byteArray = new byte[imageArray.GetLength(0), imageArray.GetLength(1)]; // Array to hold the 8bit transmission array
+
+                            // Get the device's Int16 image array
+                            Int16[,] int2dArray = (Int16[,])imageArray;
+
+                            // Parellelise the array copy to improve performance
+                            Parallel.For(0, imageArray.GetLength(0), (i, state) => // Iterate over the slowest changing dimension
+                            {
+                                byte byteElementValue; // Local variable to hold the Byte element being tested (saves calculating an array offset later in the process)
+                                Int16 int16ElementValue; // Local variable to hold the Int16 element value (saves calculating an array offset later in the process)
+
+                                bool arrayIsByteInternal = true; // Local variable to hold the Byte status within this particular thread. Used to reduce thread conflict when updating the arrayIsByte variable.
+
+                                // Iterate over the fastest changing dimension
+                                for (int j = 0; j < imageArray.GetLength(1); j++)
+                                {
+                                    // Get the current array element value
+                                    int16ElementValue = int2dArray[i, j];
+
+                                    // Truncate the supplied 2-byte Int16 value to create a 1-byte Byte value
+                                    byteElementValue = (byte)int16ElementValue;
+
+                                    // Store the Byte value in the array.
+                                    byteArray[i, j] = byteElementValue;
+
+                                    // Compare the Byte and Int16 values, indicating whether they match. 
+                                    if (byteElementValue != int16ElementValue) arrayIsByteInternal = false;
+
+                                }
+
+                                // Update the master arrayIsByte variable.
+                                arrayIsByte &= arrayIsByteInternal;
+
+                                // Terminate the parallel for loop early if the image data is determined to be 16bit
+                                if (!arrayIsByte) state.Break();
+
+                            });
+
+                            // Return the Byte array values if these were provided by the device
+                            if (arrayIsByte) // Supplied array has Byte values so return the shorter array in place of the supplied Int16 array
+                            {
+                                imageArray = byteArray; // Assign the Byte array to the imageArray variable in place of the Int16 array
+                                transmissionElementType = ImageArrayElementTypes.Byte; // Flag that the array elements are Byte
+                                transmissionElementSize = sizeof(byte); // Indicate that the transmitted elements are of Byte size rather than Int16 size
+                            }
+                            else
+                            {
+                                // No action, continue to use the supplied Int16 array because its values fall outside the Byte number range
+                            }
+                            break;
+
+                        case 3:
+                            byte[,,] byte3dArray = new byte[imageArray.GetLength(0), imageArray.GetLength(1), imageArray.GetLength(2)]; // Array to hold the 8bit transmission array
+
+                            // Get the device's Int16 image array
+                            Int16[,,] int3dArray = (Int16[,,])imageArray;
+
+                            // Parellelise the array copy to improve performance
+                            Parallel.For(0, imageArray.GetLength(0), (i, state) => // Iterate over the slowest changing dimension
+                            {
+                                bool arrayIsByteInternal1 = true; // Local variable to hold the Byte status within this particular thread. Used to reduce thread conflict when updating the arrayIsByte variable.
+
+                                // Iterate over the mid changing dimension
+                                for (int j = 0; j < imageArray.GetLength(1); j++)
+                                {
+                                    byte byteElementValue; // Local variable to hold the Byte element being tested (saves calculating an array offset later in the process)
+                                    Int16 int16ElementValue; // Local variable to hold the Int16 element value (saves calculating an array offset later in the process)
+                                    bool arrayIsByteInternal2 = true; // Local variable to hold the Byte status within this particular thread. Used to reduce thread conflict when updating the arrayIsByte variable.
+
+                                    // Iterate over the fastest changing dimension
+                                    for (int k = 0; k < imageArray.GetLength(2); k++)
+                                    {
+                                        // Get the current array element value
+                                        int16ElementValue = int3dArray[i, j, k];
+
+                                        // Truncate the supplied 2-byte Int16 value to create a 1-byte Byte value
+                                        byteElementValue = (byte)int16ElementValue;
+
+                                        // Store the Byte value in the array.
+                                        byte3dArray[i, j, k] = byteElementValue;
+
+                                        // Compare the Byte and Int16 values, indicating whether they match. 
+                                        if (byteElementValue != int16ElementValue) arrayIsByteInternal2 = false;
+
+                                    }
+
+                                    // Update the arrayIsByteInternal1variable.
+                                    arrayIsByteInternal1 &= arrayIsByteInternal2;
+
+                                }
+
+                                // Update the master arrayIsByte variable as the logical AND of the mater and update values.
+                                arrayIsByte &= arrayIsByteInternal1;
+
+                                // Terminate the parallel for loop early if the image data is determined to be 16bit
+                                if (!arrayIsByte ) state.Break();
+                            });
+
+                            // Return the appropriate array if either Byte array values were provided by the device
+                            if (arrayIsByte) // Supplied array has Byte values so return the shorter array in place of the supplied Int16 array
+                            {
+                                imageArray = byte3dArray; // Assign the Byte array to the imageArray variable in place of the Int16 array
+                                transmissionElementType = ImageArrayElementTypes.Byte; // Flag that the array elements are Byte
+                                transmissionElementSize = sizeof(byte); // Indicate that the transmitted elements are of Byte size rather than Int16 size
+                            }
+                            else
+                            {
+                                // No action, continue to use the supplied Int16 array because its values fall outside the Byte number range.
+                            }
+                            break;
+
+                        default:
+                            throw new InvalidValueException($"ToByteArray - The camera returned an array of rank: {imageArray.Rank}, which is not supported.");
+                    }
+
                     break;
 
                 case TypeCode.UInt16:
                     intendedElementType = ImageArrayElementTypes.UInt16;
                     transmissionElementType = ImageArrayElementTypes.UInt16;
                     transmissionElementSize = 2;
+
+                    // Special handling for UInt16 arrays - see if we can convert them to a Byte array
+
+                    arrayIsByte = true; // Flag indicating whether the supplied array conforms to the Byte value range 0 to +255. Start by assuming success
+
+                    // Handle 2D and 3D arrays
+                    switch (imageArray.Rank)
+                    {
+                        case 2:
+                            byte[,] byteArray = new byte[imageArray.GetLength(0), imageArray.GetLength(1)]; // Array to hold the 8bit transmission array
+
+                            // Get the device's Int16 image array
+                            UInt16[,] uint2dArray = (UInt16[,])imageArray;
+
+                            // Parellelise the array copy to improve performance
+                            Parallel.For(0, imageArray.GetLength(0), (i, state) => // Iterate over the slowest changing dimension
+                            {
+                                byte byteElementValue; // Local variable to hold the Byte element being tested (saves calculating an array offset later in the process)
+                                UInt16 uint16ElementValue; // Local variable to hold the Int16 element value (saves calculating an array offset later in the process)
+
+                                bool arrayIsByteInternal = true; // Local variable to hold the Byte status within this particular thread. Used to reduce thread conflict when updating the arrayIsByte variable.
+
+                                // Iterate over the fastest changing dimension
+                                for (int j = 0; j < imageArray.GetLength(1); j++)
+                                {
+                                    // Get the current array element value
+                                    uint16ElementValue = uint2dArray[i, j];
+
+                                    // Truncate the supplied 2-byte UInt16 value to create a 1-byte Byte value
+                                    byteElementValue = (byte)uint16ElementValue;
+
+                                    // Store the Byte value in the array.
+                                    byteArray[i, j] = byteElementValue;
+
+                                    // Compare the Byte and UInt16 values, indicating whether they match. 
+                                    if (byteElementValue != uint16ElementValue) arrayIsByteInternal = false;
+
+                                }
+
+                                // Update the master arrayIsByte variable.
+                                arrayIsByte &= arrayIsByteInternal;
+
+                                // Terminate the parallel for loop early if the image data is determined to be 16bit
+                                if (!arrayIsByte) state.Break();
+
+                            });
+
+                            // Return the Byte array values if these were provided by the device
+                            if (arrayIsByte) // Supplied array has Byte values so return the shorter array in place of the supplied UInt16 array
+                            {
+                                imageArray = byteArray; // Assign the Byte array to the imageArray variable in place of the UInt16 array
+                                transmissionElementType = ImageArrayElementTypes.Byte; // Flag that the array elements are Byte
+                                transmissionElementSize = sizeof(byte); // Indicate that the transmitted elements are of Byte size rather than UInt16 size
+                            }
+                            else
+                            {
+                                // No action, continue to use the supplied Int16 array because its values fall outside the Byte number range
+                            }
+                            break;
+
+                        case 3:
+                            byte[,,] byte3dArray = new byte[imageArray.GetLength(0), imageArray.GetLength(1), imageArray.GetLength(2)]; // Array to hold the 8bit transmission array
+
+                            // Get the device's Int16 image array
+                            UInt16[,,] uint3dArray = (UInt16[,,])imageArray;
+
+                            // Parellelise the array copy to improve performance
+                            Parallel.For(0, imageArray.GetLength(0), (i, state) => // Iterate over the slowest changing dimension
+                            {
+                                bool arrayIsByteInternal1 = true; // Local variable to hold the Byte status within this particular thread. Used to reduce thread conflict when updating the arrayIsByte variable.
+
+                                // Iterate over the mid changing dimension
+                                for (int j = 0; j < imageArray.GetLength(1); j++)
+                                {
+                                    byte byteElementValue; // Local variable to hold the Byte element being tested (saves calculating an array offset later in the process)
+                                    UInt16 uint16ElementValue; // Local variable to hold the Int16 element value (saves calculating an array offset later in the process)
+                                    bool arrayIsByteInternal2 = true; // Local variable to hold the Byte status within this particular thread. Used to reduce thread conflict when updating the arrayIsByte variable.
+
+                                    // Iterate over the fastest changing dimension
+                                    for (int k = 0; k < imageArray.GetLength(2); k++)
+                                    {
+                                        // Get the current array element value
+                                        uint16ElementValue = uint3dArray[i, j, k];
+
+                                        // Truncate the supplied 2-byte UInt16 value to create a 1-byte Byte value
+                                        byteElementValue = (byte)uint16ElementValue;
+
+                                        // Store the Byte value in the array.
+                                        byte3dArray[i, j, k] = byteElementValue;
+
+                                        // Compare the Byte and UInt16 values, indicating whether they match. 
+                                        if (byteElementValue != uint16ElementValue) arrayIsByteInternal2 = false;
+
+                                    }
+
+                                    // Update the arrayIsByteInternal1variable.
+                                    arrayIsByteInternal1 &= arrayIsByteInternal2;
+
+                                }
+
+                                // Update the master arrayIsByte variable as the logical AND of the mater and update values.
+                                arrayIsByte &= arrayIsByteInternal1;
+
+                                // Terminate the parallel for loop early if the image data is determined to be 16bit
+                                if (!arrayIsByte) state.Break();
+                            });
+
+                            // Return the appropriate array if either Byte array values were provided by the device
+                            if (arrayIsByte) // Supplied array has Byte values so return the shorter array in place of the supplied UInt16 array
+                            {
+                                imageArray = byte3dArray; // Assign the byte array to the imageArray variable in place of the UInt16 array
+                                transmissionElementType = ImageArrayElementTypes.Byte; // Flag that the array elements are Byte
+                                transmissionElementSize = sizeof(byte); // Indicate that the transmitted elements are of Byte size rather than UInt16 size
+                            }
+                            else
+                            {
+                                // No action, continue to use the supplied Int16 array because its values fall outside the Byte number range.
+                            }
+                            break;
+
+                        default:
+                            throw new InvalidValueException($"ToByteArray - The camera returned an array of rank: {imageArray.Rank}, which is not supported.");
+                    }
+
+
                     break;
 
                 case TypeCode.Int32:
                     intendedElementType = ImageArrayElementTypes.Int32;
                     transmissionElementType = ImageArrayElementTypes.Int32;
                     transmissionElementSize = 4;
+
+                    // Special handling for Int32 arrays - see if we can convert them to Int16 or UInt16 arrays
+
+                    // NOTE
+                    // NOTE - This algorithm uses a UInt16 array to transmit an array with Int16 values because we are only interested in the byte values for this purpose,
+                    // NOTE - not the arithmetic interpretation of those bytes.
+                    // NOTE
+
+                    arrayIsByte = true; // Flag indicating whether the supplied array conforms to the Byte value range 0 to +255. Start by assuming success
+                    bool arrayIsInt16 = true; // Flag indicating whether the supplied array conforms to the Int16 value range -32768 to +32767. Start by assuming success
+                    bool arrayIsUint16 = true; // Flag indicating whether the supplied array conforms to the UInt16 value range 0 to +65535. Start by assuming success
+
+                    // Handle 2D and 3D arrays
+                    switch (imageArray.Rank)
+                    {
+                        case 2:
+                            byte[,] byteArray = new byte[imageArray.GetLength(0), imageArray.GetLength(1)]; // Array to hold the 8bit transmission array
+                            UInt16[,] uInt16Array = new UInt16[imageArray.GetLength(0), imageArray.GetLength(1)]; // Array to hold the 16bit transmission array (either Int16 or UInt16 values)
+
+                            // Get the device's Int32 image array
+                            int[,] int2dArray = (int[,])imageArray;
+
+                            // Parellelise the array copy to improve performance
+                            Parallel.For(0, imageArray.GetLength(0), (i, state) => // Iterate over the slowest changing dimension
+                            {
+                                byte byteElementValue; // Local variable to hold the Byte element being tested (saves calculating an array offset later in the process)
+                                Int32 int32ElementValue; // Local variable to hold the Int32 element being tested (saves calculating an array offset later in the process)
+                                Int16 int16ElementValue; // Local variable to hold the Int16 element value (saves calculating an array offset later in the process)
+                                UInt16 uInt16ElementValue; // Local variable to hold the Unt16 element value (saves calculating an array offset later in the process)
+
+                                bool arrayIsByteInternal = true; // Local variable to hold the Byte status within this particular thread. Used to reduce thread conflict when updating the arrayIsByte variable.
+                                bool arrayIsInt16Internal = true; // Local variable to hold the Int16 status within this particular thread. Used to reduce thread conflict when updating the arrayIsInt16 variable.
+                                bool arrayIsUint16Internal = true; // Local variable to hold the UInt16 status within this particular thread. Used to reduce thread conflict when updating the arrayIsInt16 variable.
+
+                                // Iterate over the fastest changing dimension
+                                for (int j = 0; j < imageArray.GetLength(1); j++)
+                                {
+                                    // Get the current array element value
+                                    int32ElementValue = int2dArray[i, j];
+
+                                    // Truncate the supplied 4-byte Int32 value to create a 1-byte Byte value
+                                    byteElementValue = (byte)int32ElementValue;
+
+                                    // Truncate the supplied 4-byte Int32 value to create a 2-byte UInt16 value
+                                    uInt16ElementValue = (UInt16)int32ElementValue;
+
+                                    // Truncate the supplied 4-byte Int32 value to create a 2-byte Int16 value
+                                    int16ElementValue = (Int16)int32ElementValue;
+
+                                    // Store the Byte value in the array.
+                                    byteArray[i, j] = byteElementValue;
+
+                                    // Store the UInt16 value in the array.
+                                    uInt16Array[i, j] = uInt16ElementValue;
+
+                                    // Compare the Byte and Int32 values, indicating whether they match. 
+                                    if (byteElementValue != int32ElementValue) arrayIsByteInternal = false;
+
+                                    // Compare the Int16 and Int32 values, indicating whether they match. 
+                                    if (int16ElementValue != int32ElementValue) arrayIsInt16Internal = false;
+
+                                    // Compare the UInt16 and Int32 values, indicating whether they match. 
+                                    if (uInt16ElementValue != int32ElementValue) arrayIsUint16Internal = false;
+                                }
+
+                                // Update the master arrayIsInt16 and arrayIsUint16 variables as the logical AND of the mater and update values.
+                                arrayIsByte &= arrayIsByteInternal;
+                                arrayIsInt16 &= arrayIsInt16Internal;
+                                arrayIsUint16 &= arrayIsUint16Internal;
+
+                                // Terminate the parallel for loop early if the image data is determined to be 32bit
+                                if (!arrayIsInt16 & !arrayIsUint16) state.Break();
+
+                            });
+
+                            // Return the appropriate array if either a Byte, UInt16 or Int16 array was provided by the device
+                            if (arrayIsByte) // Supplied array has UInt16 values so return the shorter array in place of the supplied Int32 array
+                            {
+                                imageArray = byteArray; // Assign the Int16 array to the imageArray variable in place of the Int32 array
+                                transmissionElementType = ImageArrayElementTypes.Byte; // Flag that the array elements are UInt16
+                                transmissionElementSize = sizeof(byte); // Indicate that the transmitted elements are of UInt16 size rather than Int32 size
+                            }
+                            else if (arrayIsUint16) // Supplied array has UInt16 values so return the shorter array in place of the supplied Int32 array
+                            {
+                                imageArray = uInt16Array; // Assign the Int16 array to the imageArray variable in place of the Int32 array
+                                transmissionElementType = ImageArrayElementTypes.UInt16; // Flag that the array elements are UInt16
+                                transmissionElementSize = sizeof(UInt16); // Indicate that the transmitted elements are of UInt16 size rather than Int32 size
+                            }
+                            else if (arrayIsInt16) // Supplied array has Int16 values so return the shorter array in place of the supplied Int32 array
+                            {
+                                imageArray = uInt16Array; // Assign the UInt16 array to the imageArray variable in place of the Int32 array (at the byte level Int32 and UInt32 are equivalent - both consist of two bytes)
+                                transmissionElementType = ImageArrayElementTypes.Int16; // Flag that the array elements are Int16
+                                transmissionElementSize = sizeof(Int16); // Indicate that the transmitted elements are of UInt16 size rather than Int32 size
+                            }
+                            else
+                            {
+                                // No action, continue to use the supplied Int32 array because its values fall outside the Uint16 and Int16 number ranges
+                            }
+                            break;
+
+                        case 3:
+                            byte[,,] byte3dArray = new byte[imageArray.GetLength(0), imageArray.GetLength(1), imageArray.GetLength(2)]; // Array to hold the 8bit transmission array
+                            UInt16[,,] uInt163dArray = new UInt16[imageArray.GetLength(0), imageArray.GetLength(1), imageArray.GetLength(2)];  // Array to hold the 16bit transmission array (either Int16 or UInt16 values)
+
+                            // Get the device's Int32 image array
+                            Int32[,,] int3dArray = (Int32[,,])imageArray;
+
+                            // Parellelise the array copy to improve performance
+                            Parallel.For(0, imageArray.GetLength(0), (i, state) => // Iterate over the slowest changing dimension
+                            {
+                                bool arrayIsByteInternal1 = true; // Local variable to hold the Byte status within this particular thread. Used to reduce thread conflict when updating the arrayIsByte variable.
+                                bool arrayIsInt16Internal1 = true; // Local variable to hold the Int16 status within this particular thread. Used to reduce thread conflict when updating the arrayisInt16 variable.
+                                bool arrayIsUint16Internal1 = true; // Local variable to hold the UInt16 status within this particular thread. Used to reduce thread conflict when updating the arrayisInt16 variable.
+
+                                // Iterate over the mid changing dimension
+                                for (int j = 0; j < imageArray.GetLength(1); j++)
+                                {
+                                    byte byteElementValue; // Local variable to hold the Byte element being tested (saves calculating an array offset later in the process)
+                                    Int32 int32ElementValue; // Local variable to hold the Int32 element being tested (saves calculating an array offset later in the process)
+                                    Int16 int16ElementValue; // Local variable to hold the Int16 element value (saves calculating an array offset later in the process)
+                                    UInt16 uInt16ElementValue; // Local variable to hold the UInt16 element value (saves calculating an array offset later in the process)
+                                    bool arrayIsByteInternal2 = true; // Local variable to hold the Byte status within this particular thread. Used to reduce thread conflict when updating the arrayIsByte variable.
+                                    bool arrayIsInt16Internal2 = true; // Local variable to hold the Int16 status within this particular thread. Used to reduce thread conflict when updating the arrayIsInt16 variable.
+                                    bool arrayIsUInt16Internal2 = true; // Local variable to hold the Int16 status within this particular thread. Used to reduce thread conflict when updating the arrayIsUInt16 variable.
+
+                                    // Iterate over the fastest changing dimension
+                                    for (int k = 0; k < imageArray.GetLength(2); k++)
+                                    {
+                                        // Get the current array element value
+                                        int32ElementValue = int3dArray[i, j, k];
+
+                                        // Truncate the supplied 4-byte Int32 value to create a 1-byte Byte value
+                                        byteElementValue = (byte)int32ElementValue;
+
+                                        // Truncate the supplied 4-byte Int32 value to create a 2-byte UInt16 value
+                                        uInt16ElementValue = (UInt16)int32ElementValue;
+
+                                        // Truncate the supplied 4-byte Int32 value to create a 2-byte Int16 value
+                                        int16ElementValue = (Int16)int32ElementValue;
+
+                                        // Store the Byte value in the array.
+                                        byte3dArray[i, j, k] = byteElementValue;
+
+                                        // Store the UInt16 value to the corresponding Int16 array element. 
+                                        uInt163dArray[i, j, k] = uInt16ElementValue;
+
+                                        // Compare the Byte and Int32 values, indicating whether they match. 
+                                        if (byteElementValue != int32ElementValue) arrayIsByteInternal2 = false;
+
+                                        // Compare the Int16 and Int32 values. 
+                                        if (int16ElementValue != int32ElementValue) arrayIsInt16Internal2 = false; // If they are not the same the Int32 value was outside the range of Int16 and arrayIsInt16Internal will be set false
+
+                                        // Compare the UInt16 and Int32 values. 
+                                        if (uInt16ElementValue != int32ElementValue) arrayIsUInt16Internal2 = false;
+                                    }
+
+                                    // Update the arrayIsInt16Internal1 and arrayIsUint16Internal1 variables as the logical AND of the mater and update values.
+                                    arrayIsByteInternal1 &= arrayIsByteInternal2;
+                                    arrayIsInt16Internal1 &= arrayIsInt16Internal2;
+                                    arrayIsUint16Internal1 &= arrayIsUInt16Internal2;
+
+                                }
+
+                                // Update the master arrayIsInt16 and arrayIsUint16 variables as the logical AND of the mater and update values.
+                                arrayIsByte &= arrayIsByteInternal1;
+                                arrayIsInt16 &= arrayIsInt16Internal1;
+                                arrayIsUint16 &= arrayIsUint16Internal1;
+
+                                // Terminate the parallel for loop early if the image data is determined to be 32bit
+                                if (!arrayIsInt16 & !arrayIsUint16) state.Break();
+                            });
+
+                            // Return the appropriate array if either a Byte, UInt16 or Int16 array was provided by the device
+                            if (arrayIsByte) // Supplied array has UInt16 values so return the shorter array in place of the supplied Int32 array
+                            {
+                                imageArray = byte3dArray; // Assign the Int16 array to the imageArray variable in place of the Int32 array
+                                transmissionElementType = ImageArrayElementTypes.Byte; // Flag that the array elements are UInt16
+                                transmissionElementSize = sizeof(byte); // Indicate that the transmitted elements are of UInt16 size rather than Int32 size
+                            }
+                            else if (arrayIsUint16) // Supplied array has UInt16 values so return the shorter array in place of the supplied Int32 array
+                            {
+                                imageArray = uInt163dArray; // Assign the Int16 array to the imageArray variable in place of the Int32 array
+                                transmissionElementType = ImageArrayElementTypes.UInt16; // Flag that the array elements are UInt16
+                                transmissionElementSize = sizeof(UInt16); // Indicate that the transmitted elements are of UInt16 size rather than Int32 size
+                            }
+                            else if (arrayIsInt16) // Supplied array has Int16 values so return the shorter array in place of the supplied Int32 array
+                            {
+                                imageArray = uInt163dArray; // Assign the UInt16 array to the imageArray variable in place of the Int32 array (at the byte level Int32 and UInt32 are equivalent - both consist of two bytes)
+                                transmissionElementType = ImageArrayElementTypes.Int16; // Flag that the array elements are Int16
+                                transmissionElementSize = sizeof(Int16); // Indicate that the transmitted elements are of UInt16 size rather than Int32 size
+                            }
+                            else
+                            {
+                                // No action, continue to use the supplied Int32 array because its values fall outside the Uint16 and Int16 number ranges
+                            }
+                            break;
+
+                        default:
+                            throw new InvalidValueException($"ToByteArray - The camera returned an array of rank: {imageArray.Rank}, which is not supported.");
+                    }
+
                     break;
 
                 case TypeCode.UInt32:
@@ -189,184 +640,6 @@ namespace ASCOM.Common.Alpaca
                     throw new InvalidValueException($"ToByteArray - Received an unsupported return array type: {imageArray.GetType().Name}, with elements of type: {imageArray.GetType().GetElementType().Name}");
             }
 
-            // Special handling for Int32 arrays - see if we can convert them to Int16 or UInt16 arrays
-            if (arrayElementTypeCode == TypeCode.Int32)
-            {
-                // NOTE
-                // NOTE - This algorithm uses a UInt16 array to transmit an array with Int16 values because we are only interested in the byte values for this purpose,
-                // NOTE - not the arithmetic interpretation of those bytes.
-                // NOTE
-
-                bool arrayIsByte = true; // Flag indicating whether the supplied array conforms to the Byte value range 0 to +255. Start by assuming success
-                bool arrayIsInt16 = true; // Flag indicating whether the supplied array conforms to the Int16 value range -32768 to +32767. Start by assuming success
-                bool arrayIsUint16 = true; // Flag indicating whether the supplied array conforms to the UInt16 value range 0 to +65535. Start by assuming success
-
-                // Handle 2D and 3D arrays
-                switch (imageArray.Rank)
-                {
-                    case 2:
-                        byte[,] byteArray = new byte[imageArray.GetLength(0), imageArray.GetLength(1)]; // Array to hold the 8bit transmission array
-                        UInt16[,] uInt16Array = new UInt16[imageArray.GetLength(0), imageArray.GetLength(1)]; // Array to hold the 16bit transmission array (either Int16 or UInt16 values)
-
-                        // Get the device's Int32 image array
-                        int[,] int2dArray = (int[,])imageArray;
-
-                        // Parellelise the array copy to improve performance
-                        Parallel.For(0, imageArray.GetLength(0), (i, state) => // Iterate over the slowest changing dimension
-                        {
-                            byte byteElementValue; // Local variable to hold the Byte element being tested (saves calculating an array offset later in the process)
-                            Int32 int32ElementValue; // Local variable to hold the Int32 element being tested (saves calculating an array offset later in the process)
-                            Int16 int16ElementValue; // Local variable to hold the Int16 element value (saves calculating an array offset later in the process)
-                            UInt16 uInt16ElementValue; // Local variable to hold the Unt16 element value (saves calculating an array offset later in the process)
-
-                            bool arrayIsByteInternal = true; // Local variable to hold the Byte status within this particular thread. Used to reduce thread conflict when updating the arrayIsByte variable.
-                            bool arrayIsInt16Internal = true; // Local variable to hold the Int16 status within this particular thread. Used to reduce thread conflict when updating the arrayIsInt16 variable.
-                            bool arrayIsUint16Internal = true; // Local variable to hold the UInt16 status within this particular thread. Used to reduce thread conflict when updating the arrayIsInt16 variable.
-
-                            // Iterate over the fastest changing dimension
-                            for (int j = 0; j < imageArray.GetLength(1); j++)
-                            {
-                                // Get the current array element value
-                                int32ElementValue = int2dArray[i, j];
-
-                                // Truncate the supplied 4-byte Int32 value to create a 1-byte Byte value
-                                byteElementValue = (byte)int32ElementValue;
-
-                                // Truncate the supplied 4-byte Int32 value to create a 2-byte UInt16 value
-                                uInt16ElementValue = (UInt16)int32ElementValue;
-
-                                // Truncate the supplied 4-byte Int32 value to create a 2-byte Int16 value
-                                int16ElementValue = (Int16)int32ElementValue;
-
-                                // Store the Byte value in the array.
-                                byteArray[i, j] = byteElementValue;
-
-                                // Store the UInt16 value in the array.
-                                uInt16Array[i, j] = uInt16ElementValue;
-
-                                // Compare the Byte and Int32 values, indicating whether they match. 
-                                if (byteElementValue != int32ElementValue) arrayIsByteInternal = false;
-
-                                // Compare the Int16 and Int32 values, indicating whether they match. 
-                                if (int16ElementValue != int32ElementValue) arrayIsInt16Internal = false;
-
-                                // Compare the UInt16 and Int32 values, indicating whether they match. 
-                                if (uInt16ElementValue != int32ElementValue) arrayIsUint16Internal = false;
-                            }
-
-                            // Update the master arrayIsInt16 and arrayIsUint16 variables as the logical AND of the mater and update values.
-                            arrayIsByte &= arrayIsByteInternal;
-                            arrayIsInt16 &= arrayIsInt16Internal;
-                            arrayIsUint16 &= arrayIsUint16Internal;
-
-                            // Terminate the parallel for loop early if the image data is determined to be 32bit
-                            if (!arrayIsInt16 & !arrayIsUint16) state.Break();
-
-                        });
-
-                        // Return the appropriate array if either a Byte, UInt16 or Int16 array was provided by the device
-                        if (arrayIsByte) // Supplied array has UInt16 values so return the shorter array in place of the supplied Int32 array
-                        {
-                            imageArray = byteArray; // Assign the Int16 array to the imageArray variable in place of the Int32 array
-                            transmissionElementType = ImageArrayElementTypes.Byte; // Flag that the array elements are UInt16
-                            transmissionElementSize = sizeof(byte); // Indicate that the transmitted elements are of UInt16 size rather than Int32 size
-                        }
-                        else if (arrayIsUint16) // Supplied array has UInt16 values so return the shorter array in place of the supplied Int32 array
-                        {
-                            imageArray = uInt16Array; // Assign the Int16 array to the imageArray variable in place of the Int32 array
-                            transmissionElementType = ImageArrayElementTypes.UInt16; // Flag that the array elements are UInt16
-                            transmissionElementSize = sizeof(UInt16); // Indicate that the transmitted elements are of UInt16 size rather than Int32 size
-                        }
-                        else if (arrayIsInt16) // Supplied array has Int16 values so return the shorter array in place of the supplied Int32 array
-                        {
-                            imageArray = uInt16Array; // Assign the UInt16 array to the imageArray variable in place of the Int32 array (at the byte level Int32 and UInt32 are equivalent - both consist of two bytes)
-                            transmissionElementType = ImageArrayElementTypes.Int16; // Flag that the array elements are Int16
-                            transmissionElementSize = sizeof(Int16); // Indicate that the transmitted elements are of UInt16 size rather than Int32 size
-                        }
-                        else
-                        {
-                            // No action, continue to use the supplied Int32 array because its values fall outside the Uint16 and Int16 number ranges
-                        }
-                        break;
-
-                    case 3:
-                        UInt16[,,] uInt163dArray = new UInt16[imageArray.GetLength(0), imageArray.GetLength(1), imageArray.GetLength(2)];  // Array to hold the 16bit transmission array (either Int16 or UInt16 values)
-
-                        // Get the device's Int32 image array
-                        Int32[,,] int3dArray = (Int32[,,])imageArray;
-
-                        // Parellelise the array copy to improve performance
-                        Parallel.For(0, imageArray.GetLength(0), (i) => // Iterate over the slowest changing dimension
-                        {
-                            bool arrayIsInt16Internal1 = true; // Local variable to hold the Int16 status within this particular thread. Used to reduce thread conflict when updating the arrayisInt16 variable.
-                            bool arrayIsUint16Internal1 = true; // Local variable to hold the UInt16 status within this particular thread. Used to reduce thread conflict when updating the arrayisInt16 variable.
-
-                            // Iterate over the mid changing dimension
-                            for (int j = 0; j < imageArray.GetLength(1); j++)
-                            {
-                                Int32 int32ElementValue; // Local variable to hold the Int32 element being tested (saves calculating an array offset later in the process)
-                                Int16 int16ElementValue; // Local variable to hold the Int16 element value (saves calculating an array offset later in the process)
-                                UInt16 uInt16ElementValue; // Local variable to hold the UInt16 element value (saves calculating an array offset later in the process)
-                                bool arrayIsInt16Internal2 = true; // Local variable to hold the Int16 status within this particular thread. Used to reduce thread conflict when updating the arrayIsInt16 variable.
-                                bool arrayIsUInt16Internal2 = true; // Local variable to hold the Int16 status within this particular thread. Used to reduce thread conflict when updating the arrayIsUInt16 variable.
-
-                                // Iterate over the fastest changing dimension
-                                for (int k = 0; k < imageArray.GetLength(2); k++)
-                                {
-                                    // Get the current array element value
-                                    int32ElementValue = int3dArray[i, j, k];
-
-                                    // Truncate the supplied 4-byte Int32 value to create a 2-byte UInt16 value
-                                    uInt16ElementValue = (UInt16)int32ElementValue;
-
-                                    // Truncate the supplied 4-byte Int32 value to create a 2-byte Int16 value
-                                    int16ElementValue = (Int16)int32ElementValue;
-
-                                    // Copy the Int32 value to the corresponding Int16 array element. 
-                                    uInt163dArray[i, j, k] = uInt16ElementValue;
-
-                                    // Compare the Int16 and Int32 values. 
-                                    if (int16ElementValue != int32ElementValue) arrayIsInt16Internal2 = false; // If they are not the same the Int32 value was outside the range of Int16 and arrayIsInt16Internal will be set false
-
-                                    // Compare the UInt16 and Int32 values. 
-                                    if (uInt16ElementValue != int32ElementValue) arrayIsUInt16Internal2 = false;
-                                }
-
-                                // Update the arrayIsInt16Internal1 and arrayIsUint16Internal1 variables as the logical AND of the mater and update values.
-                                arrayIsInt16Internal1 &= arrayIsInt16Internal2;
-                                arrayIsUint16Internal1 &= arrayIsUInt16Internal2;
-
-                            }
-
-                            // Update the master arrayIsInt16 and arrayIsUint16 variables as the logical AND of the mater and update values.
-                            arrayIsInt16 &= arrayIsInt16Internal1;
-                            arrayIsUint16 &= arrayIsUint16Internal1;
-
-                        });
-
-                        // Return the appropriate array if either a UInt16 or Int16 array was provided by the device
-                        if (arrayIsUint16) // Supplied array has UInt16 values so return the shorter array in place of the supplied Int32 array
-                        {
-                            imageArray = uInt163dArray; // Assign the Int16 array to the imageArray variable in place of the Int32 array
-                            transmissionElementType = ImageArrayElementTypes.UInt16; // Flag that the array elements are UInt16
-                            transmissionElementSize = sizeof(UInt16); // Indicate that the transmitted elements are of UInt16 size rather than Int32 size
-                        }
-                        else if (arrayIsInt16) // Supplied array has Int16 values so return the shorter array in place of the supplied Int32 array
-                        {
-                            imageArray = uInt163dArray; // Assign the UInt16 array to the imageArray variable in place of the Int32 array (at the byte level Int32 and UInt32 are equivalent - both consist of two bytes)
-                            transmissionElementType = ImageArrayElementTypes.Int16; // Flag that the array elements are Int16
-                            transmissionElementSize = sizeof(Int16); // Indicate that the transmitted elements are of UInt16 size rather than Int32 size
-                        }
-                        else
-                        {
-                            // No action, continue to use the supplied Int32 array because its values fall outside the Uint16 and Int16 number ranges
-                        }
-                        break;
-
-                    default:
-                        throw new InvalidValueException($"ToByteArray - The camera returned an array of rank: {imageArray.Rank}, which is not supported.");
-                }
-            }
 
             switch (metadataVersion)
             {
