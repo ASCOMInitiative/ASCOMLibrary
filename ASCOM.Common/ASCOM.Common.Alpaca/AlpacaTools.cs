@@ -99,6 +99,13 @@ namespace ASCOM.Common.Alpaca
         /// <exception cref="InvalidValueException">If only one of the error number and error message indicates an error.</exception>
         /// <exception cref="InvalidValueException">Image array is null for a successful transaction or the array rank is <2 or >3 or the array is of type object</exception>
         /// <exception cref="InvalidValueException">The array element type is not supported.</exception>
+        /// <remarks>
+        /// Int32 source arrays where all elements have Int16, UInt16 or Byte values will automatically be converted to the smaller 
+        /// data size for transmission in order to improve performance and reduce network trafic. 
+        /// Int16 and UInt16 source arrays that only have Byte values will similarly be converted to the smaller 
+        /// data size for transmission. 
+        /// All other element types are transmited as supplied.
+        /// </remarks>
         public static byte[] ToByteArray(this Array imageArray, int metadataVersion, uint clientTransactionID, uint serverTransactionID, AlpacaErrors errorNumber, string errorMessage)
         {
             int transmissionElementSize; // Managed size of transmitted elements
@@ -723,7 +730,125 @@ namespace ASCOM.Common.Alpaca
                 throw new InvalidValueException("ToImageArray - The TransmissionElementType is 0, meaning ImageArrayElementTypes.Unknown");
 
             // Convert the returned byte[] into the form that the client is expecting
-            if ((imageElementType == ImageArrayElementTypes.Int32) & (transmissionElementType == ImageArrayElementTypes.Int16)) // Handle the special case where Int32 has been converted to Int16 for transmission
+
+            if ((imageElementType == ImageArrayElementTypes.Int16) & (transmissionElementType == ImageArrayElementTypes.Byte)) // Handle the special case where Int32 has been converted to Byte for transmission
+            {
+                switch (rank)
+                {
+                    case 2: // Rank 2
+                        byte[,] byte2dArray = new byte[dimension1, dimension2];
+                        Buffer.BlockCopy(imageBytes, dataStart, byte2dArray, 0, imageBytes.Length - dataStart);
+
+                        Int16[,] int2dArray = new Int16[dimension1, dimension2];
+                        Parallel.For(0, byte2dArray.GetLength(0), (i) =>
+                        {
+                            for (int j = 0; j < byte2dArray.GetLength(1); j++)
+                            {
+                                int2dArray[i, j] = byte2dArray[i, j];
+                            }
+                        });
+                        return int2dArray;
+
+                    case 3: // Rank 3
+                        byte[,,] byte3dArray = new byte[dimension1, dimension2, dimension3];
+                        Buffer.BlockCopy(imageBytes, dataStart, byte3dArray, 0, imageBytes.Length - dataStart);
+
+                        Int16[,,] int3dArray = new Int16[dimension1, dimension2, dimension3];
+                        Parallel.For(0, byte3dArray.GetLength(0), (i) =>
+                        {
+                            for (int j = 0; j < byte3dArray.GetLength(1); j++)
+                            {
+                                for (int k = 0; k < byte3dArray.GetLength(2); k++)
+                                {
+                                    int3dArray[i, j, k] = byte3dArray[i, j, k];
+                                }
+                            }
+                        });
+                        return int3dArray;
+
+                    default:
+                        throw new InvalidValueException($"ToImageArray - Returned array cannot be handled because it does not have a rank of 2 or 3. Returned array rank:{rank}.");
+                }
+            }
+            else if ((imageElementType == ImageArrayElementTypes.UInt16) & (transmissionElementType == ImageArrayElementTypes.Byte)) // Handle the special case where Int32 has been converted to Byte for transmission
+            {
+                switch (rank)
+                {
+                    case 2: // Rank 2
+                        byte[,] byte2dArray = new byte[dimension1, dimension2];
+                        Buffer.BlockCopy(imageBytes, dataStart, byte2dArray, 0, imageBytes.Length - dataStart);
+
+                        UInt16[,] uint2dArray = new UInt16[dimension1, dimension2];
+                        Parallel.For(0, byte2dArray.GetLength(0), (i) =>
+                        {
+                            for (int j = 0; j < byte2dArray.GetLength(1); j++)
+                            {
+                                uint2dArray[i, j] = byte2dArray[i, j];
+                            }
+                        });
+                        return uint2dArray;
+
+                    case 3: // Rank 3
+                        byte[,,] byte3dArray = new byte[dimension1, dimension2, dimension3];
+                        Buffer.BlockCopy(imageBytes, dataStart, byte3dArray, 0, imageBytes.Length - dataStart);
+
+                        UInt16[,,] uint3dArray = new UInt16[dimension1, dimension2, dimension3];
+                        Parallel.For(0, byte3dArray.GetLength(0), (i) =>
+                        {
+                            for (int j = 0; j < byte3dArray.GetLength(1); j++)
+                            {
+                                for (int k = 0; k < byte3dArray.GetLength(2); k++)
+                                {
+                                    uint3dArray[i, j, k] = byte3dArray[i, j, k];
+                                }
+                            }
+                        });
+                        return uint3dArray;
+
+                    default:
+                        throw new InvalidValueException($"ToImageArray - Returned array cannot be handled because it does not have a rank of 2 or 3. Returned array rank:{rank}.");
+                }
+            }
+            else if ((imageElementType == ImageArrayElementTypes.Int32) & (transmissionElementType == ImageArrayElementTypes.Byte)) // Handle the special case where Int32 has been converted to Byte for transmission
+            {
+                switch (rank)
+                {
+                    case 2: // Rank 2
+                        byte[,] byte2dArray = new byte[dimension1, dimension2];
+                        Buffer.BlockCopy(imageBytes, dataStart, byte2dArray, 0, imageBytes.Length - dataStart);
+
+                        Int32[,] int2dArray = new Int32[dimension1, dimension2];
+                        Parallel.For(0, byte2dArray.GetLength(0), (i) =>
+                        {
+                            for (int j = 0; j < byte2dArray.GetLength(1); j++)
+                            {
+                                int2dArray[i, j] = byte2dArray[i, j];
+                            }
+                        });
+                        return int2dArray;
+
+                    case 3: // Rank 3
+                        byte[,,] byte3dArray = new byte[dimension1, dimension2, dimension3];
+                        Buffer.BlockCopy(imageBytes, dataStart, byte3dArray, 0, imageBytes.Length - dataStart);
+
+                        Int32[,,] int3dArray = new Int32[dimension1, dimension2, dimension3];
+                        Parallel.For(0, byte3dArray.GetLength(0), (i) =>
+                        {
+                            for (int j = 0; j < byte3dArray.GetLength(1); j++)
+                            {
+                                for (int k = 0; k < byte3dArray.GetLength(2); k++)
+                                {
+                                    int3dArray[i, j, k] = byte3dArray[i, j, k];
+                                }
+                            }
+                        });
+                        return int3dArray;
+
+                    default:
+                        throw new InvalidValueException($"ToImageArray - Returned array cannot be handled because it does not have a rank of 2 or 3. Returned array rank:{rank}.");
+                }
+            }
+            else if ((imageElementType == ImageArrayElementTypes.Int32) & (transmissionElementType == ImageArrayElementTypes.Int16)) // Handle the special case where Int32 has been converted to Int16 for transmission
             {
                 switch (rank)
                 {
