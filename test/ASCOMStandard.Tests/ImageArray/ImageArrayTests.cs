@@ -6,6 +6,7 @@ using ASCOM.Common.Alpaca;
 using Xunit.Abstractions;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace ASCOM.Alpaca.Tests.ImageArray
 {
@@ -454,7 +455,7 @@ namespace ASCOM.Alpaca.Tests.ImageArray
             const int IMAGE_HEIGHT = 3000;
 
             Object[,,] imageArray = new Object[IMAGE_WIDTH, IMAGE_HEIGHT, 3];
-            for (int i = 0; i < IMAGE_WIDTH; i++)
+            Parallel.For(0, IMAGE_WIDTH, (i) =>
             {
                 for (int j = 0; j < IMAGE_HEIGHT; j++)
                 {
@@ -463,7 +464,7 @@ namespace ASCOM.Alpaca.Tests.ImageArray
                         imageArray[i, j, k] = (Byte)k;
                     }
                 }
-            }
+            });
 
             Stopwatch sw = Stopwatch.StartNew();
 
@@ -487,7 +488,7 @@ namespace ASCOM.Alpaca.Tests.ImageArray
             const int IMAGE_HEIGHT = 3000;
 
             Object[,,] imageArray = new Object[IMAGE_WIDTH, IMAGE_HEIGHT, 3];
-            for (int i = 0; i < IMAGE_WIDTH; i++)
+            Parallel.For(0, IMAGE_WIDTH, (i) =>
             {
                 for (int j = 0; j < IMAGE_HEIGHT; j++)
                 {
@@ -496,7 +497,7 @@ namespace ASCOM.Alpaca.Tests.ImageArray
                         imageArray[i, j, k] = (Int16)((i * j % 65536) - 32768);
                     }
                 }
-            }
+            });
 
             Stopwatch sw = Stopwatch.StartNew();
 
@@ -519,7 +520,7 @@ namespace ASCOM.Alpaca.Tests.ImageArray
             const int IMAGE_HEIGHT = 3000;
 
             Object[,,] imageArray = new Object[IMAGE_WIDTH, IMAGE_HEIGHT, 3];
-            for (int i = 0; i < IMAGE_WIDTH; i++)
+            Parallel.For(0, IMAGE_WIDTH, (i) =>
             {
                 for (int j = 0; j < IMAGE_HEIGHT; j++)
                 {
@@ -528,7 +529,7 @@ namespace ASCOM.Alpaca.Tests.ImageArray
                         imageArray[i, j, k] = (UInt16)((i * j % 65536));
                     }
                 }
-            }
+            });
 
             Stopwatch sw = Stopwatch.StartNew();
 
@@ -550,18 +551,22 @@ namespace ASCOM.Alpaca.Tests.ImageArray
             const int IMAGE_HEIGHT = 3000;
 
             Object[,,] imageArray = new Object[IMAGE_WIDTH, IMAGE_HEIGHT, 3];
-            for (int i = 0; i < IMAGE_WIDTH; i++)
-            {
-                for (int j = 0; j < IMAGE_HEIGHT; j++)
-                {
-                    for (int k = 0; k < 3; k++)
-                    {
-                        imageArray[i, j, k] = -32769 + i + 10 * j;
-                    }
-                }
-            }
 
             Stopwatch sw = Stopwatch.StartNew();
+
+            Parallel.For(0, IMAGE_WIDTH, (i) =>
+              {
+                  for (int j = 0; j < IMAGE_HEIGHT; j++)
+                  {
+                      for (int k = 0; k < 3; k++)
+                      {
+                          imageArray[i, j, k] = -32769 + i + 10 * j;
+                      }
+                  }
+              });
+            output.WriteLine($"Data preparation time: {sw.Elapsed.TotalMilliseconds:0.0}");
+
+            sw.Restart();
 
             byte[] bytes = imageArray.ToByteArray(1, 0, 0, AlpacaErrors.AlpacaNoError, "");
             output.WriteLine($"Time to create byte array: {sw.Elapsed.TotalMilliseconds:0.0}");
@@ -582,7 +587,7 @@ namespace ASCOM.Alpaca.Tests.ImageArray
             const int IMAGE_HEIGHT = 3000;
 
             Object[,,] imageArray = new Object[IMAGE_WIDTH, IMAGE_HEIGHT, 3];
-            for (int i = 0; i < IMAGE_WIDTH; i++)
+            Parallel.For(0, IMAGE_WIDTH, (i) =>
             {
                 for (int j = 0; j < IMAGE_HEIGHT; j++)
                 {
@@ -591,7 +596,7 @@ namespace ASCOM.Alpaca.Tests.ImageArray
                         imageArray[i, j, k] = (UInt32)(i + 10 * j);
                     }
                 }
-            }
+            });
 
             Stopwatch sw = Stopwatch.StartNew();
 
@@ -615,7 +620,7 @@ namespace ASCOM.Alpaca.Tests.ImageArray
             const int IMAGE_HEIGHT = 3000;
 
             Object[,,] imageArray = new Object[IMAGE_WIDTH, IMAGE_HEIGHT, 3];
-            for (int i = 0; i < IMAGE_WIDTH; i++)
+            Parallel.For(0, IMAGE_WIDTH, (i) =>
             {
                 for (int j = 0; j < IMAGE_HEIGHT; j++)
                 {
@@ -624,7 +629,7 @@ namespace ASCOM.Alpaca.Tests.ImageArray
                         imageArray[i, j, k] = (Int64)(i + 10 * j);
                     }
                 }
-            }
+            });
 
             Stopwatch sw = Stopwatch.StartNew();
 
@@ -648,7 +653,7 @@ namespace ASCOM.Alpaca.Tests.ImageArray
             const int IMAGE_HEIGHT = 3000;
 
             Object[,,] imageArray = new Object[IMAGE_WIDTH, IMAGE_HEIGHT, 3];
-            for (int i = 0; i < IMAGE_WIDTH; i++)
+            Parallel.For(0, IMAGE_WIDTH, (i) =>
             {
                 for (int j = 0; j < IMAGE_HEIGHT; j++)
                 {
@@ -657,7 +662,7 @@ namespace ASCOM.Alpaca.Tests.ImageArray
                         imageArray[i, j, k] = (UInt64)(i + 10 * j);
                     }
                 }
-            }
+            });
 
             Stopwatch sw = Stopwatch.StartNew();
 
@@ -681,7 +686,7 @@ namespace ASCOM.Alpaca.Tests.ImageArray
             const int IMAGE_HEIGHT = 3000;
 
             Object[,,] imageArray = new Object[IMAGE_WIDTH, IMAGE_HEIGHT, 3];
-            for (int i = 0; i < IMAGE_WIDTH; i++)
+            Parallel.For(0, IMAGE_WIDTH, (i) =>
             {
                 for (int j = 0; j < IMAGE_HEIGHT; j++)
                 {
@@ -690,7 +695,7 @@ namespace ASCOM.Alpaca.Tests.ImageArray
                         imageArray[i, j, k] = (Single)(i + 10 * j);
                     }
                 }
-            }
+            });
 
             Stopwatch sw = Stopwatch.StartNew();
 
@@ -714,7 +719,7 @@ namespace ASCOM.Alpaca.Tests.ImageArray
             const int IMAGE_HEIGHT = 3000;
 
             Object[,,] imageArray = new Object[IMAGE_WIDTH, IMAGE_HEIGHT, 3];
-            for (int i = 0; i < IMAGE_WIDTH; i++)
+            Parallel.For(0, IMAGE_WIDTH, (i) =>
             {
                 for (int j = 0; j < IMAGE_HEIGHT; j++)
                 {
@@ -723,7 +728,7 @@ namespace ASCOM.Alpaca.Tests.ImageArray
                         imageArray[i, j, k] = (Double)(100 * i + 10 * j + k);
                     }
                 }
-            }
+            });
 
             Stopwatch sw = Stopwatch.StartNew();
 
