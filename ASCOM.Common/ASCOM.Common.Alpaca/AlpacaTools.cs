@@ -1379,146 +1379,128 @@ namespace ASCOM.Common.Alpaca
                         {
                             case ImageArrayElementTypes.Byte:
                                 Object[,,] byteArray3D = new Object[dimension1, dimension2, dimension3];
-                                int nextArrayElement = ARRAY_METADATAV1_LENGTH;
-                                for (int i = 0; i < dimension1; i++)
+                                Parallel.For(0, dimension1, (i) =>
                                 {
                                     for (int j = 0; j < dimension2; j++)
                                     {
                                         for (int k = 0; k < dimension3; k++)
                                         {
-                                            byteArray3D[i, j, k] = (Byte)imageBytes[nextArrayElement];
-                                            nextArrayElement += 1;
+                                            byteArray3D[i, j, k] = imageBytes[ARRAY_METADATAV1_LENGTH + (k + (dimension3 * (j + i * dimension2)))];
                                         }
                                     }
-                                }
+                                });
                                 return byteArray3D;
 
                             case ImageArrayElementTypes.Int16:
                                 Object[,,] int16Array3D = new Object[dimension1, dimension2, dimension3];
-                                nextArrayElement = ARRAY_METADATAV1_LENGTH;
-                                for (int i = 0; i < dimension1; i++)
+                                Parallel.For(0, dimension1, (i) =>
                                 {
                                     for (int j = 0; j < dimension2; j++)
                                     {
                                         for (int k = 0; k < dimension3; k++)
                                         {
-                                            int16Array3D[i, j, k] = BitConverter.ToInt16(imageBytes, nextArrayElement);
-                                            nextArrayElement += 2;
+                                            int16Array3D[i, j, k] = BitConverter.ToInt16(imageBytes, ARRAY_METADATAV1_LENGTH + (2 * (k + (dimension3 * (j + i * dimension2)))));
                                         }
                                     }
-                                }
+                                });
                                 return int16Array3D;
 
                             case ImageArrayElementTypes.UInt16:
                                 Object[,,] uint16Array3D = new Object[dimension1, dimension2, dimension3];
-                                nextArrayElement = ARRAY_METADATAV1_LENGTH;
-                                for (int i = 0; i < dimension1; i++)
+                                Parallel.For(0, dimension1, (i) =>
                                 {
                                     for (int j = 0; j < dimension2; j++)
                                     {
                                         for (int k = 0; k < dimension3; k++)
                                         {
-                                            uint16Array3D[i, j, k] = BitConverter.ToUInt16(imageBytes, nextArrayElement);
-                                            nextArrayElement += 2;
+                                            uint16Array3D[i, j, k] = BitConverter.ToUInt16(imageBytes, ARRAY_METADATAV1_LENGTH + (2 * (k + (dimension3 * (j + i * dimension2)))));
                                         }
                                     }
-                                }
+                                });
                                 return uint16Array3D;
 
                             case ImageArrayElementTypes.Int32:
                                 Object[,,] int32Array3D = new Object[dimension1, dimension2, dimension3];
-                                nextArrayElement = ARRAY_METADATAV1_LENGTH;
-                                for (int i = 0; i < dimension1; i++)
+                                Parallel.For(0, dimension1, (i) =>
                                 {
                                     for (int j = 0; j < dimension2; j++)
                                     {
                                         for (int k = 0; k < dimension3; k++)
                                         {
-                                            int32Array3D[i, j, k] = BitConverter.ToInt32(imageBytes, nextArrayElement);
-                                            nextArrayElement += 4;
+                                            int32Array3D[i, j, k] = BitConverter.ToInt32(imageBytes, ARRAY_METADATAV1_LENGTH + (4 * (k + (dimension3 * (j + i * dimension2)))));
                                         }
                                     }
-                                }
+                                });
                                 return int32Array3D;
 
                             case ImageArrayElementTypes.UInt32:
                                 Object[,,] uint32Array3D = new Object[dimension1, dimension2, dimension3];
-                                nextArrayElement = ARRAY_METADATAV1_LENGTH;
-                                for (int i = 0; i < dimension1; i++)
+                                Parallel.For(0, dimension1, (i) =>
                                 {
                                     for (int j = 0; j < dimension2; j++)
                                     {
                                         for (int k = 0; k < dimension3; k++)
                                         {
-                                            uint32Array3D[i, j, k] = BitConverter.ToUInt32(imageBytes, nextArrayElement);
-                                            nextArrayElement += 4;
+                                            uint32Array3D[i, j, k] = BitConverter.ToUInt32(imageBytes, ARRAY_METADATAV1_LENGTH + (4 * (k + (dimension3 * (j + i * dimension2)))));
                                         }
                                     }
-                                }
+                                });
                                 return uint32Array3D;
 
                             case ImageArrayElementTypes.Int64:
                                 Object[,,] int64Array3D = new Object[dimension1, dimension2, dimension3];
-                                nextArrayElement = ARRAY_METADATAV1_LENGTH;
-                                for (int i = 0; i < dimension1; i++)
+                                Parallel.For(0, dimension1, (i) =>
                                 {
                                     for (int j = 0; j < dimension2; j++)
                                     {
                                         for (int k = 0; k < dimension3; k++)
                                         {
-                                            int64Array3D[i, j, k] = BitConverter.ToInt64(imageBytes, nextArrayElement);
-                                            nextArrayElement += 8;
+                                            int64Array3D[i, j, k] = BitConverter.ToInt64(imageBytes, ARRAY_METADATAV1_LENGTH + (8 * (k + (dimension3 * (j + i * dimension2)))));
                                         }
                                     }
-                                }
+                                });
                                 return int64Array3D;
 
                             case ImageArrayElementTypes.UInt64:
                                 Object[,,] uint64Array3D = new Object[dimension1, dimension2, dimension3];
-                                nextArrayElement = ARRAY_METADATAV1_LENGTH;
-                                for (int i = 0; i < dimension1; i++)
+                                Parallel.For(0, dimension1, (i) =>
                                 {
                                     for (int j = 0; j < dimension2; j++)
                                     {
                                         for (int k = 0; k < dimension3; k++)
                                         {
-                                            uint64Array3D[i, j, k] = BitConverter.ToUInt64(imageBytes, nextArrayElement);
-                                            nextArrayElement += 8;
+                                            uint64Array3D[i, j, k] = BitConverter.ToUInt64(imageBytes, ARRAY_METADATAV1_LENGTH + (8 * (k + (dimension3 * (j + i * dimension2)))));
                                         }
                                     }
-                                }
+                                });
                                 return uint64Array3D;
 
                             case ImageArrayElementTypes.Single:
                                 Object[,,] singleArray3D = new Object[dimension1, dimension2, dimension3];
-                                nextArrayElement = ARRAY_METADATAV1_LENGTH;
-                                for (int i = 0; i < dimension1; i++)
+                                Parallel.For(0, dimension1, (i) =>
                                 {
                                     for (int j = 0; j < dimension2; j++)
                                     {
                                         for (int k = 0; k < dimension3; k++)
                                         {
-                                            singleArray3D[i, j, k] = BitConverter.ToSingle(imageBytes, nextArrayElement);
-                                            nextArrayElement += 4;
+                                            singleArray3D[i, j, k] = BitConverter.ToSingle(imageBytes, ARRAY_METADATAV1_LENGTH + (4 * (k + (dimension3 * (j + i * dimension2)))));
                                         }
                                     }
-                                }
+                                });
                                 return singleArray3D;
 
                             case ImageArrayElementTypes.Double:
                                 Object[,,] doubleArray3D = new Object[dimension1, dimension2, dimension3];
-                                nextArrayElement = ARRAY_METADATAV1_LENGTH;
-                                for (int i = 0; i < dimension1; i++)
+                                Parallel.For(0, dimension1, (i) =>
                                 {
                                     for (int j = 0; j < dimension2; j++)
                                     {
                                         for (int k = 0; k < dimension3; k++)
                                         {
-                                            doubleArray3D[i, j, k] = BitConverter.ToDouble(imageBytes, nextArrayElement);
-                                            nextArrayElement += 8;
+                                            doubleArray3D[i, j, k] = BitConverter.ToDouble(imageBytes, ARRAY_METADATAV1_LENGTH + (8 * (k + (dimension3 * (j + i * dimension2)))));
                                         }
                                     }
-                                }
+                                });
                                 return doubleArray3D;
 
                             default:
