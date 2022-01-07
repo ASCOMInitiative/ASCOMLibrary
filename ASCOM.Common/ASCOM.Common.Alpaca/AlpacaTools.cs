@@ -125,10 +125,6 @@ namespace ASCOM.Common.Alpaca
             if (imageArray is null) throw new InvalidValueException("ToByteArray - Supplied array is null.");
             if ((imageArray.Rank < 2) | (imageArray.Rank > 3)) throw new InvalidValueException($"ToByteArray - Only arrays of rank 2 and 3 are supported. The supplied array has a rank of {imageArray.Rank}.");
 
-            // We can't handle object arrays so test for this
-            string arrayTypeName = imageArray.GetType().Name;
-            if (arrayTypeName.ToLowerInvariant().Contains("object")) throw new InvalidValueException($"ToByteArray - Object arrays of type {arrayTypeName} are not supported.");
-
             // Set the array type
             ImageArrayElementTypes intendedElementType = ImageArrayElementTypes.Unknown;
             ImageArrayElementTypes transmissionElementType = ImageArrayElementTypes.Unknown;
@@ -253,7 +249,7 @@ namespace ASCOM.Common.Alpaca
                                 arrayIsByte &= arrayIsByteInternal1;
 
                                 // Terminate the parallel for loop early if the image data is determined to be 16bit
-                                if (!arrayIsByte ) state.Break();
+                                if (!arrayIsByte) state.Break();
                             });
 
                             // Return the appropriate array if either Byte array values were provided by the device
@@ -643,8 +639,79 @@ namespace ASCOM.Common.Alpaca
                     transmissionElementSize = 8;
                     break;
 
+                case TypeCode.Object:
+                    intendedElementType = ImageArrayElementTypes.Object;
+
+                    // Get the type name of the elements within the objectt array
+                    string elementTypeName = "";
+
+                    switch (imageArray.Rank)
+                    {
+                        case 2:
+                            elementTypeName = imageArray.GetValue(0, 0).GetType().Name;
+                            break;
+
+                        case 3:
+                            elementTypeName = imageArray.GetValue(0, 0, 0).GetType().Name;
+                            break;
+                    }
+
+                    switch (elementTypeName)
+                    {
+                        case "Byte":
+                            transmissionElementType = ImageArrayElementTypes.Byte;
+                            transmissionElementSize = 1;
+                            break;
+
+                        case "Int16":
+                            transmissionElementType = ImageArrayElementTypes.Int16;
+                            transmissionElementSize = 2;
+                            break;
+
+                        case "UInt16":
+                            transmissionElementType = ImageArrayElementTypes.UInt16;
+                            transmissionElementSize = 2;
+                            break;
+
+                        case "Int32":
+                            transmissionElementType = ImageArrayElementTypes.Int32;
+                            transmissionElementSize = 4;
+                            break;
+
+                        case "UInt32":
+                            transmissionElementType = ImageArrayElementTypes.UInt32;
+                            transmissionElementSize = 4;
+                            break;
+
+                        case "Int64":
+                            transmissionElementType = ImageArrayElementTypes.Int64;
+                            transmissionElementSize = 8;
+                            break;
+
+                        case "UInt64":
+                            transmissionElementType = ImageArrayElementTypes.UInt64;
+                            transmissionElementSize = 8;
+                            break;
+
+                        case "Single":
+                            transmissionElementType = ImageArrayElementTypes.Single;
+                            transmissionElementSize = 4;
+                            break;
+
+                        case "Double":
+                            transmissionElementType = ImageArrayElementTypes.Double;
+                            transmissionElementSize = 8;
+                            break;
+
+                        default:
+                            throw new InvalidValueException($"ToByteArray - Received an unsupported object array element type: {elementTypeName}");
+
+                    }
+
+                    break;
+
                 default:
-                    throw new InvalidValueException($"ToByteArray - Received an unsupported return array type: {imageArray.GetType().Name}, with elements of type: {imageArray.GetType().GetElementType().Name}");
+                    throw new InvalidValueException($"ToByteArray - Received an unsupported return array type: {imageArray.GetType().Name}, with elements of type: {imageArray.GetType().GetElementType().Name} with TypeCode: {arrayElementTypeCode}");
             }
 
 
@@ -657,19 +724,272 @@ namespace ASCOM.Common.Alpaca
                     else metadataVersion1 = new ArrayMetadataV1(AlpacaErrors.AlpacaNoError, clientTransactionID, serverTransactionID, intendedElementType, transmissionElementType, 3, imageArray.GetLength(0), imageArray.GetLength(1), imageArray.GetLength(2));
 
                     // Turn the metadata structure into a byte array
-                    byte[] metadataVersion2Bytes = metadataVersion1.ToByteArray<ArrayMetadataV1>();
+                    byte[] metadataBytes = metadataVersion1.ToByteArray<ArrayMetadataV1>();
 
                     // Create a return array of size equal to the sum of the metadata and image array lengths
-                    byte[] imageArrayBytesV2 = new byte[imageArray.Length * transmissionElementSize + metadataVersion2Bytes.Length]; // Size the image array bytes as the product of the transmission element size and the number of elements
+                    byte[] imageArrayBytes = new byte[imageArray.Length * transmissionElementSize + metadataBytes.Length]; // Size the image array bytes as the product of the transmission element size and the number of elements
 
                     // Copy the metadata bytes to the start of the return byte array
-                    Array.Copy(metadataVersion2Bytes, imageArrayBytesV2, metadataVersion2Bytes.Length);
+                    Array.Copy(metadataBytes, imageArrayBytes, metadataBytes.Length);
 
                     // Copy the image array bytes after the metadata
-                    Buffer.BlockCopy(imageArray, 0, imageArrayBytesV2, metadataVersion2Bytes.Length, imageArray.Length * transmissionElementSize);
-                    Console.WriteLine("TEST MESSAGE");
+                    if (arrayElementTypeCode != TypeCode.Object) // For all arrays, except object arrays, copy the image array directly to the byte array
+                    {
+                        Buffer.BlockCopy(imageArray, 0, imageArrayBytes, metadataBytes.Length, imageArray.Length * transmissionElementSize);
+                    }
+                    else // Special handling for object arrays
+                    {
+                        int startOfNextElement = ARRAY_METADATAV1_LENGTH;
+                        switch (imageArray.Rank)
+                        {
+                            case 2:
+                                switch (transmissionElementType)
+                                {
+                                    case ImageArrayElementTypes.Byte:
+                                        for (int i = 0; i < imageArray.GetLength(0); i++)
+                                        {
+                                            for (int j = 0; j < imageArray.GetLength(1); j++)
+                                            {
+                                                Array.Copy(BitConverter.GetBytes((Byte)imageArray.GetValue(i, j)), 0, imageArrayBytes, startOfNextElement, transmissionElementSize);
+                                                startOfNextElement += transmissionElementSize;
+                                            }
+                                        }
+                                        break;
+
+                                    case ImageArrayElementTypes.Int16:
+                                        for (int i = 0; i < imageArray.GetLength(0); i++)
+                                        {
+                                            for (int j = 0; j < imageArray.GetLength(1); j++)
+                                            {
+                                                Array.Copy(BitConverter.GetBytes((Int16)imageArray.GetValue(i, j)), 0, imageArrayBytes, startOfNextElement, transmissionElementSize);
+                                                startOfNextElement += transmissionElementSize;
+                                            }
+                                        }
+                                        break;
+
+                                    case ImageArrayElementTypes.UInt16:
+                                        for (int i = 0; i < imageArray.GetLength(0); i++)
+                                        {
+                                            for (int j = 0; j < imageArray.GetLength(1); j++)
+                                            {
+                                                Array.Copy(BitConverter.GetBytes((UInt16)imageArray.GetValue(i, j)), 0, imageArrayBytes, startOfNextElement, transmissionElementSize);
+                                                startOfNextElement += transmissionElementSize;
+                                            }
+                                        }
+                                        break;
+
+                                    case ImageArrayElementTypes.Int32:
+                                        for (int i = 0; i < imageArray.GetLength(0); i++)
+                                        {
+                                            for (int j = 0; j < imageArray.GetLength(1); j++)
+                                            {
+                                                Array.Copy(BitConverter.GetBytes((Int32)imageArray.GetValue(i, j)), 0, imageArrayBytes, startOfNextElement, transmissionElementSize);
+                                                startOfNextElement += transmissionElementSize;
+                                            }
+                                        }
+                                        break;
+
+                                    case ImageArrayElementTypes.UInt32:
+                                        for (int i = 0; i < imageArray.GetLength(0); i++)
+                                        {
+                                            for (int j = 0; j < imageArray.GetLength(1); j++)
+                                            {
+                                                Array.Copy(BitConverter.GetBytes((UInt32)imageArray.GetValue(i, j)), 0, imageArrayBytes, startOfNextElement, transmissionElementSize);
+                                                startOfNextElement += transmissionElementSize;
+                                            }
+                                        }
+                                        break;
+
+                                    case ImageArrayElementTypes.Int64:
+                                        for (int i = 0; i < imageArray.GetLength(0); i++)
+                                        {
+                                            for (int j = 0; j < imageArray.GetLength(1); j++)
+                                            {
+                                                Array.Copy(BitConverter.GetBytes((Int64)imageArray.GetValue(i, j)), 0, imageArrayBytes, startOfNextElement, transmissionElementSize);
+                                                startOfNextElement += transmissionElementSize;
+                                            }
+                                        }
+                                        break;
+
+                                    case ImageArrayElementTypes.UInt64:
+                                        for (int i = 0; i < imageArray.GetLength(0); i++)
+                                        {
+                                            for (int j = 0; j < imageArray.GetLength(1); j++)
+                                            {
+                                                Array.Copy(BitConverter.GetBytes((UInt64)imageArray.GetValue(i, j)), 0, imageArrayBytes, startOfNextElement, transmissionElementSize);
+                                                startOfNextElement += transmissionElementSize;
+                                            }
+                                        }
+                                        break;
+
+                                    case ImageArrayElementTypes.Single:
+                                        for (int i = 0; i < imageArray.GetLength(0); i++)
+                                        {
+                                            for (int j = 0; j < imageArray.GetLength(1); j++)
+                                            {
+                                                Array.Copy(BitConverter.GetBytes((Single)imageArray.GetValue(i, j)), 0, imageArrayBytes, startOfNextElement, transmissionElementSize);
+                                                startOfNextElement += transmissionElementSize;
+                                            }
+                                        }
+                                        break;
+
+                                    case ImageArrayElementTypes.Double:
+                                        for (int i = 0; i < imageArray.GetLength(0); i++)
+                                        {
+                                            for (int j = 0; j < imageArray.GetLength(1); j++)
+                                            {
+                                                Array.Copy(BitConverter.GetBytes((Double)imageArray.GetValue(i, j)), 0, imageArrayBytes, startOfNextElement, transmissionElementSize);
+                                                startOfNextElement += transmissionElementSize;
+                                            }
+                                        }
+                                        break;
+
+                                    default:
+                                        throw new InvalidValueException($"Unsupported object array element type: {imageArray.GetValue(0, 0, 0).GetType().Name}");
+                                }
+                                break;
+
+                            case 3:
+                                switch (transmissionElementType)
+                                {
+                                    case ImageArrayElementTypes.Byte:
+                                        for (int i = 0; i < imageArray.GetLength(0); i++)
+                                        {
+                                            for (int j = 0; j < imageArray.GetLength(1); j++)
+                                            {
+                                                for (int k = 0; k < imageArray.GetLength(2); k++)
+                                                {
+                                                    Array.Copy(BitConverter.GetBytes((Byte)imageArray.GetValue(i, j, k)), 0, imageArrayBytes, startOfNextElement, transmissionElementSize);
+                                                    startOfNextElement += transmissionElementSize;
+                                                }
+                                            }
+                                        }
+                                        break;
+
+                                    case ImageArrayElementTypes.Int16:
+                                        for (int i = 0; i < imageArray.GetLength(0); i++)
+                                        {
+                                            for (int j = 0; j < imageArray.GetLength(1); j++)
+                                            {
+                                                for (int k = 0; k < imageArray.GetLength(2); k++)
+                                                {
+                                                    Array.Copy(BitConverter.GetBytes((Int16)imageArray.GetValue(i, j, k)), 0, imageArrayBytes, startOfNextElement, transmissionElementSize);
+                                                    startOfNextElement += transmissionElementSize;
+                                                }
+                                            }
+                                        }
+                                        break;
+
+                                    case ImageArrayElementTypes.UInt16:
+                                        for (int i = 0; i < imageArray.GetLength(0); i++)
+                                        {
+                                            for (int j = 0; j < imageArray.GetLength(1); j++)
+                                            {
+                                                for (int k = 0; k < imageArray.GetLength(2); k++)
+                                                {
+                                                    Array.Copy(BitConverter.GetBytes((UInt16)imageArray.GetValue(i, j, k)), 0, imageArrayBytes, startOfNextElement, transmissionElementSize);
+                                                    startOfNextElement += transmissionElementSize;
+                                                }
+                                            }
+                                        }
+                                        break;
+
+                                    case ImageArrayElementTypes.Int32:
+                                        for (int i = 0; i < imageArray.GetLength(0); i++)
+                                        {
+                                            for (int j = 0; j < imageArray.GetLength(1); j++)
+                                            {
+                                                for (int k = 0; k < imageArray.GetLength(2); k++)
+                                                {
+                                                    Array.Copy(BitConverter.GetBytes((Int32)imageArray.GetValue(i, j, k)), 0, imageArrayBytes, startOfNextElement, transmissionElementSize);
+                                                    startOfNextElement += transmissionElementSize;
+                                                }
+                                            }
+                                        }
+                                        break;
+
+                                    case ImageArrayElementTypes.UInt32:
+                                        for (int i = 0; i < imageArray.GetLength(0); i++)
+                                        {
+                                            for (int j = 0; j < imageArray.GetLength(1); j++)
+                                            {
+                                                for (int k = 0; k < imageArray.GetLength(2); k++)
+                                                {
+                                                    Array.Copy(BitConverter.GetBytes((UInt32)imageArray.GetValue(i, j, k)), 0, imageArrayBytes, startOfNextElement, transmissionElementSize);
+                                                    startOfNextElement += transmissionElementSize;
+                                                }
+                                            }
+                                        }
+                                        break;
+
+                                    case ImageArrayElementTypes.Int64:
+                                        for (int i = 0; i < imageArray.GetLength(0); i++)
+                                        {
+                                            for (int j = 0; j < imageArray.GetLength(1); j++)
+                                            {
+                                                for (int k = 0; k < imageArray.GetLength(2); k++)
+                                                {
+                                                    Array.Copy(BitConverter.GetBytes((Int64)imageArray.GetValue(i, j, k)), 0, imageArrayBytes, startOfNextElement, transmissionElementSize);
+                                                    startOfNextElement += transmissionElementSize;
+                                                }
+                                            }
+                                        }
+                                        break;
+
+                                    case ImageArrayElementTypes.UInt64:
+                                        for (int i = 0; i < imageArray.GetLength(0); i++)
+                                        {
+                                            for (int j = 0; j < imageArray.GetLength(1); j++)
+                                            {
+                                                for (int k = 0; k < imageArray.GetLength(2); k++)
+                                                {
+                                                    Array.Copy(BitConverter.GetBytes((UInt64)imageArray.GetValue(i, j, k)), 0, imageArrayBytes, startOfNextElement, transmissionElementSize);
+                                                    startOfNextElement += transmissionElementSize;
+                                                }
+                                            }
+                                        }
+                                        break;
+
+                                    case ImageArrayElementTypes.Single:
+                                        for (int i = 0; i < imageArray.GetLength(0); i++)
+                                        {
+                                            for (int j = 0; j < imageArray.GetLength(1); j++)
+                                            {
+                                                for (int k = 0; k < imageArray.GetLength(2); k++)
+                                                {
+                                                    Array.Copy(BitConverter.GetBytes((Single)imageArray.GetValue(i, j, k)), 0, imageArrayBytes, startOfNextElement, transmissionElementSize);
+                                                    startOfNextElement += transmissionElementSize;
+                                                }
+                                            }
+                                        }
+                                        break;
+
+                                    case ImageArrayElementTypes.Double:
+                                        for (int i = 0; i < imageArray.GetLength(0); i++)
+                                        {
+                                            for (int j = 0; j < imageArray.GetLength(1); j++)
+                                            {
+                                                for (int k = 0; k < imageArray.GetLength(2); k++)
+                                                {
+                                                    Array.Copy(BitConverter.GetBytes((Double)imageArray.GetValue(i, j, k)), 0, imageArrayBytes, startOfNextElement, transmissionElementSize);
+                                                    startOfNextElement += transmissionElementSize;
+                                                }
+                                            }
+                                        }
+                                        break;
+
+                                    default:
+                                        throw new InvalidValueException($"Unsupported object array element type: {imageArray.GetValue(0, 0, 0).GetType().Name}");
+                                }
+
+                                break;
+                        }
+
+                    }
+
+
                     // Return the byte array
-                    return imageArrayBytesV2;
+                    return imageArrayBytes;
 
                 default:
                     throw new InvalidValueException($"ToByteArray - Unsupported metadata version: {metadataVersion}");
@@ -926,6 +1246,290 @@ namespace ASCOM.Common.Alpaca
                         throw new InvalidValueException($"ToImageArray - Returned array cannot be handled because it does not have a rank of 2 or 3. Returned array rank:{rank}.");
                 }
             }
+            else if (imageElementType == ImageArrayElementTypes.Object)
+            {
+                switch (rank)
+                {
+                    case 2: // Rank 2
+                        switch (transmissionElementType)
+                        {
+                            case ImageArrayElementTypes.Byte:
+                                Object[,] byteArray2D = new Object[dimension1, dimension2];
+                                int nextArrayElement = ARRAY_METADATAV1_LENGTH;
+                                for (int i = 0; i < dimension1; i++)
+                                {
+                                    for (int j = 0; j < dimension2; j++)
+                                    {
+                                        byteArray2D[i, j] = imageBytes[nextArrayElement];
+                                        nextArrayElement += 1;
+                                    }
+                                }
+                                return byteArray2D;
+
+                            case ImageArrayElementTypes.Int16:
+                                Object[,] int16Array2D = new Object[dimension1, dimension2];
+                                nextArrayElement = ARRAY_METADATAV1_LENGTH;
+                                for (int i = 0; i < dimension1; i++)
+                                {
+                                    for (int j = 0; j < dimension2; j++)
+                                    {
+                                        int16Array2D[i, j] = BitConverter.ToInt16(imageBytes, nextArrayElement);
+                                        nextArrayElement += 2;
+                                    }
+                                }
+                                return int16Array2D;
+
+                            case ImageArrayElementTypes.UInt16:
+                                Object[,] uint16Array2D = new Object[dimension1, dimension2];
+                                nextArrayElement = ARRAY_METADATAV1_LENGTH;
+                                for (int i = 0; i < dimension1; i++)
+                                {
+                                    for (int j = 0; j < dimension2; j++)
+                                    {
+                                        uint16Array2D[i, j] = BitConverter.ToUInt16(imageBytes, nextArrayElement);
+                                        nextArrayElement += 2;
+                                    }
+                                }
+                                return uint16Array2D;
+
+                            case ImageArrayElementTypes.Int32:
+                                Object[,] int32Array2D = new Object[dimension1, dimension2];
+                                nextArrayElement = ARRAY_METADATAV1_LENGTH;
+                                for (int i = 0; i < dimension1; i++)
+                                {
+                                    for (int j = 0; j < dimension2; j++)
+                                    {
+                                        int32Array2D[i, j] = BitConverter.ToInt32(imageBytes, nextArrayElement);
+                                        nextArrayElement += 4;
+                                    }
+                                }
+                                return int32Array2D;
+
+                            case ImageArrayElementTypes.UInt32:
+                                Object[,] uint32Array2D = new Object[dimension1, dimension2];
+                                nextArrayElement = ARRAY_METADATAV1_LENGTH;
+                                for (int i = 0; i < dimension1; i++)
+                                {
+                                    for (int j = 0; j < dimension2; j++)
+                                    {
+                                        uint32Array2D[i, j] = BitConverter.ToUInt32(imageBytes, nextArrayElement);
+                                        nextArrayElement += 4;
+                                    }
+                                }
+                                return uint32Array2D;
+
+                            case ImageArrayElementTypes.Int64:
+                                Object[,] int64Array2D = new Object[dimension1, dimension2];
+                                nextArrayElement = ARRAY_METADATAV1_LENGTH;
+                                for (int i = 0; i < dimension1; i++)
+                                {
+                                    for (int j = 0; j < dimension2; j++)
+                                    {
+                                        int64Array2D[i, j] = BitConverter.ToInt64(imageBytes, nextArrayElement);
+                                        nextArrayElement += 8;
+                                    }
+                                }
+                                return int64Array2D;
+
+                            case ImageArrayElementTypes.UInt64:
+                                Object[,] uint64Array2D = new Object[dimension1, dimension2];
+                                nextArrayElement = ARRAY_METADATAV1_LENGTH;
+                                for (int i = 0; i < dimension1; i++)
+                                {
+                                    for (int j = 0; j < dimension2; j++)
+                                    {
+                                        uint64Array2D[i, j] = BitConverter.ToUInt64(imageBytes, nextArrayElement);
+                                        nextArrayElement += 8;
+                                    }
+                                }
+                                return uint64Array2D;
+
+                            case ImageArrayElementTypes.Single:
+                                Object[,] singleArray2D = new Object[dimension1, dimension2];
+                                nextArrayElement = ARRAY_METADATAV1_LENGTH;
+                                for (int i = 0; i < dimension1; i++)
+                                {
+                                    for (int j = 0; j < dimension2; j++)
+                                    {
+                                        singleArray2D[i, j] = BitConverter.ToSingle(imageBytes, nextArrayElement);
+                                        nextArrayElement += 4;
+                                    }
+                                }
+                                return singleArray2D;
+
+                            case ImageArrayElementTypes.Double:
+                                Object[,] doubleArray2D = new Object[dimension1, dimension2];
+                                nextArrayElement = ARRAY_METADATAV1_LENGTH;
+                                for (int i = 0; i < dimension1; i++)
+                                {
+                                    for (int j = 0; j < dimension2; j++)
+                                    {
+                                        doubleArray2D[i, j] = BitConverter.ToDouble(imageBytes, nextArrayElement);
+                                        nextArrayElement += 8;
+                                    }
+                                }
+                                return doubleArray2D;
+
+                            default:
+                                throw new InvalidValueException($"ToImageArray - Returned array cannot be handled because it does not have a rank of 2 or 3. Returned array rank:{rank}.");
+                        }
+
+                    case 3: // Rank 3
+                        switch (transmissionElementType)
+                        {
+                            case ImageArrayElementTypes.Byte:
+                                Object[,,] byteArray3D = new Object[dimension1, dimension2, dimension3];
+                                int nextArrayElement = ARRAY_METADATAV1_LENGTH;
+                                for (int i = 0; i < dimension1; i++)
+                                {
+                                    for (int j = 0; j < dimension2; j++)
+                                    {
+                                        for (int k = 0; k < dimension3; k++)
+                                        {
+                                            byteArray3D[i, j, k] = (Byte)imageBytes[nextArrayElement];
+                                            nextArrayElement += 1;
+                                        }
+                                    }
+                                }
+                                return byteArray3D;
+
+                            case ImageArrayElementTypes.Int16:
+                                Object[,,] int16Array3D = new Object[dimension1, dimension2, dimension3];
+                                nextArrayElement = ARRAY_METADATAV1_LENGTH;
+                                for (int i = 0; i < dimension1; i++)
+                                {
+                                    for (int j = 0; j < dimension2; j++)
+                                    {
+                                        for (int k = 0; k < dimension3; k++)
+                                        {
+                                            int16Array3D[i, j, k] = BitConverter.ToInt16(imageBytes, nextArrayElement);
+                                            nextArrayElement += 2;
+                                        }
+                                    }
+                                }
+                                return int16Array3D;
+
+                            case ImageArrayElementTypes.UInt16:
+                                Object[,,] uint16Array3D = new Object[dimension1, dimension2, dimension3];
+                                nextArrayElement = ARRAY_METADATAV1_LENGTH;
+                                for (int i = 0; i < dimension1; i++)
+                                {
+                                    for (int j = 0; j < dimension2; j++)
+                                    {
+                                        for (int k = 0; k < dimension3; k++)
+                                        {
+                                            uint16Array3D[i, j, k] = BitConverter.ToUInt16(imageBytes, nextArrayElement);
+                                            nextArrayElement += 2;
+                                        }
+                                    }
+                                }
+                                return uint16Array3D;
+
+                            case ImageArrayElementTypes.Int32:
+                                Object[,,] int32Array3D = new Object[dimension1, dimension2, dimension3];
+                                nextArrayElement = ARRAY_METADATAV1_LENGTH;
+                                for (int i = 0; i < dimension1; i++)
+                                {
+                                    for (int j = 0; j < dimension2; j++)
+                                    {
+                                        for (int k = 0; k < dimension3; k++)
+                                        {
+                                            int32Array3D[i, j, k] = BitConverter.ToInt32(imageBytes, nextArrayElement);
+                                            nextArrayElement += 4;
+                                        }
+                                    }
+                                }
+                                return int32Array3D;
+
+                            case ImageArrayElementTypes.UInt32:
+                                Object[,,] uint32Array3D = new Object[dimension1, dimension2, dimension3];
+                                nextArrayElement = ARRAY_METADATAV1_LENGTH;
+                                for (int i = 0; i < dimension1; i++)
+                                {
+                                    for (int j = 0; j < dimension2; j++)
+                                    {
+                                        for (int k = 0; k < dimension3; k++)
+                                        {
+                                            uint32Array3D[i, j, k] = BitConverter.ToUInt32(imageBytes, nextArrayElement);
+                                            nextArrayElement += 4;
+                                        }
+                                    }
+                                }
+                                return uint32Array3D;
+
+                            case ImageArrayElementTypes.Int64:
+                                Object[,,] int64Array3D = new Object[dimension1, dimension2, dimension3];
+                                nextArrayElement = ARRAY_METADATAV1_LENGTH;
+                                for (int i = 0; i < dimension1; i++)
+                                {
+                                    for (int j = 0; j < dimension2; j++)
+                                    {
+                                        for (int k = 0; k < dimension3; k++)
+                                        {
+                                            int64Array3D[i, j, k] = BitConverter.ToInt64(imageBytes, nextArrayElement);
+                                            nextArrayElement += 8;
+                                        }
+                                    }
+                                }
+                                return int64Array3D;
+
+                            case ImageArrayElementTypes.UInt64:
+                                Object[,,] uint64Array3D = new Object[dimension1, dimension2, dimension3];
+                                nextArrayElement = ARRAY_METADATAV1_LENGTH;
+                                for (int i = 0; i < dimension1; i++)
+                                {
+                                    for (int j = 0; j < dimension2; j++)
+                                    {
+                                        for (int k = 0; k < dimension3; k++)
+                                        {
+                                            uint64Array3D[i, j, k] = BitConverter.ToUInt64(imageBytes, nextArrayElement);
+                                            nextArrayElement += 8;
+                                        }
+                                    }
+                                }
+                                return uint64Array3D;
+
+                            case ImageArrayElementTypes.Single:
+                                Object[,,] singleArray3D = new Object[dimension1, dimension2, dimension3];
+                                nextArrayElement = ARRAY_METADATAV1_LENGTH;
+                                for (int i = 0; i < dimension1; i++)
+                                {
+                                    for (int j = 0; j < dimension2; j++)
+                                    {
+                                        for (int k = 0; k < dimension3; k++)
+                                        {
+                                            singleArray3D[i, j, k] = BitConverter.ToSingle(imageBytes, nextArrayElement);
+                                            nextArrayElement += 4;
+                                        }
+                                    }
+                                }
+                                return singleArray3D;
+
+                            case ImageArrayElementTypes.Double:
+                                Object[,,] doubleArray3D = new Object[dimension1, dimension2, dimension3];
+                                nextArrayElement = ARRAY_METADATAV1_LENGTH;
+                                for (int i = 0; i < dimension1; i++)
+                                {
+                                    for (int j = 0; j < dimension2; j++)
+                                    {
+                                        for (int k = 0; k < dimension3; k++)
+                                        {
+                                            doubleArray3D[i, j, k] = BitConverter.ToDouble(imageBytes, nextArrayElement);
+                                            nextArrayElement += 8;
+                                        }
+                                    }
+                                }
+                                return doubleArray3D;
+
+                            default:
+                                throw new InvalidValueException($"ToImageArray - Returned array cannot be handled because it does not have a rank of 2 or 3. Returned array rank:{rank}.");
+                        }
+
+                    default:
+                        throw new InvalidValueException($"ToImageArray - Returned array cannot be handled because it does not have a rank of 2 or 3. Returned array rank:{rank}.");
+                }
+
+            }
             else // Handle all other cases where the expected array type and the transmitted array type are the same
             {
                 if (imageElementType == transmissionElementType) // Required and transmitted array element types are the same
@@ -1048,7 +1652,7 @@ namespace ASCOM.Common.Alpaca
                                     return uint64Array3D;
 
                                 default:
-                                    throw new InvalidValueException($"ToImageArray - Returned Int64 array cannot be handled because it does not have a rank of 2 or 3. Returned array rank:{rank}.");
+                                    throw new InvalidValueException($"ToImageArray - Returned UInt64 array cannot be handled because it does not have a rank of 2 or 3. Returned array rank:{rank}.");
                             }
 
                         case ImageArrayElementTypes.Single:
@@ -1065,7 +1669,7 @@ namespace ASCOM.Common.Alpaca
                                     return single3dArray;
 
                                 default:
-                                    throw new InvalidValueException($"ToImageArray - Returned Int64 array cannot be handled because it does not have a rank of 2 or 3. Returned array rank:{rank}.");
+                                    throw new InvalidValueException($"ToImageArray - Returned Single array cannot be handled because it does not have a rank of 2 or 3. Returned array rank:{rank}.");
                             }
 
                         case ImageArrayElementTypes.Double:
@@ -1082,7 +1686,24 @@ namespace ASCOM.Common.Alpaca
                                     return double3dArray;
 
                                 default:
-                                    throw new InvalidValueException($"ToImageArray - Returned Int64 array cannot be handled because it does not have a rank of 2 or 3. Returned array rank:{rank}.");
+                                    throw new InvalidValueException($"ToImageArray - Returned Double array cannot be handled because it does not have a rank of 2 or 3. Returned array rank:{rank}.");
+                            }
+
+                        case ImageArrayElementTypes.Object:
+                            switch (rank)
+                            {
+                                case 2: // Rank 2
+                                    Object[,] object2dArray = new Object[dimension1, dimension2];
+                                    Buffer.BlockCopy(imageBytes, dataStart, object2dArray, 0, imageBytes.Length - dataStart);
+                                    return object2dArray;
+
+                                case 3: // Rank 3
+                                    Object[,,] object3dArray = new Object[dimension1, dimension2, dimension3];
+                                    Buffer.BlockCopy(imageBytes, dataStart, object3dArray, 0, imageBytes.Length - dataStart);
+                                    return object3dArray;
+
+                                default:
+                                    throw new InvalidValueException($"ToImageArray - Returned Object array cannot be handled because it does not have a rank of 2 or 3. Returned array rank:{rank}.");
                             }
 
                         default:

@@ -690,7 +690,7 @@ namespace ASCOM.Alpaca.Clients
                     IRestResponse deviceJsonResponse;
 
                     // Use the more efficient .NET HttpClient to get the large image array as a byte[] for the ImageBytes mechanic
-                    if ((method == AlpacaConstants.IMAGE_ARRAY_METHOD_NAME) & ((imageArrayTransferType == ImageArrayTransferType.ImageBytes) | (imageArrayTransferType == ImageArrayTransferType.BestAvailable)))
+                    if ((typeof(T) == typeof(Array)) & ((imageArrayTransferType == ImageArrayTransferType.ImageBytes) | (imageArrayTransferType == ImageArrayTransferType.BestAvailable)))
                     {
                         deviceJsonResponse = GetResponse($"{client.BaseUrl}{uriBase}{method}".ToLowerInvariant(), AlpacaConstants.IMAGE_BYTES_ACCEPT_HEADER, clientNumber, transaction, TL);
                     }

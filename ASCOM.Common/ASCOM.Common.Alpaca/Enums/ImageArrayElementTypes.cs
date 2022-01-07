@@ -15,5 +15,6 @@
         Int64 = 7,
         UInt16 = 8,
         UInt32 = 9,
+        Object=10
     }
 }

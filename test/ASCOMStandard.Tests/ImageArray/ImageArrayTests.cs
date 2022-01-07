@@ -18,7 +18,7 @@ namespace ASCOM.Alpaca.Tests.ImageArray
             this.output = output;
         }
 
-        #region ImageArray.ToByteArray() 2D Tests
+        #region Int16 Tests
 
         [Fact]
         public void ImageArrayInt162DByte()
@@ -174,6 +174,575 @@ namespace ASCOM.Alpaca.Tests.ImageArray
             Assert.True(CompareArrays(imageArray, responseArray));
         }
 
+        #endregion
+
+        #region Object 2D Tests
+
+        [Fact]
+        public void ImageArray2DObjectByte()
+        {
+            const int IMAGE_WIDTH = 4000;
+            const int IMAGE_HEIGHT = 3000;
+
+            Object[,] imageArray = new Object[IMAGE_WIDTH, IMAGE_HEIGHT];
+            for (int i = 0; i < IMAGE_WIDTH; i++)
+            {
+                for (int j = 0; j < IMAGE_HEIGHT; j++)
+                {
+                    imageArray[i, j] = (Byte)((i * j) % 256);
+                }
+            }
+
+            Stopwatch sw = Stopwatch.StartNew();
+
+            byte[] bytes = imageArray.ToByteArray(1, 0, 0, AlpacaErrors.AlpacaNoError, "");
+            output.WriteLine($"Time to create byte array: {sw.Elapsed.TotalMilliseconds:0.0}");
+
+            ArrayMetadataV1 metadata = bytes.GetMetadataV1();
+            Assert.True(metadata.TransmissionElementType == ImageArrayElementTypes.Byte);
+
+            sw.Restart();
+            Object[,] responseArray = (Object[,])bytes.ToImageArray();
+            output.WriteLine($"Time to create return array: {sw.Elapsed.TotalMilliseconds:0.0}");
+            Assert.True(CompareArrays(imageArray, responseArray, false));
+        }
+
+        [Fact]
+        public void ImageArray2DObjectInt16()
+        {
+            const int IMAGE_WIDTH = 4000;
+            const int IMAGE_HEIGHT = 3000;
+
+            Object[,] imageArray = new Object[IMAGE_WIDTH, IMAGE_HEIGHT];
+            for (int i = 0; i < IMAGE_WIDTH; i++)
+            {
+                for (int j = 0; j < IMAGE_HEIGHT; j++)
+                {
+                    imageArray[i, j] = (Int16)((i * j % 65536) - 32768);
+                }
+            }
+
+            Stopwatch sw = Stopwatch.StartNew();
+
+            byte[] bytes = imageArray.ToByteArray(1, 0, 0, AlpacaErrors.AlpacaNoError, "");
+            output.WriteLine($"Time to create byte array: {sw.Elapsed.TotalMilliseconds:0.0}");
+
+            ArrayMetadataV1 metadata = bytes.GetMetadataV1();
+            Assert.True(metadata.TransmissionElementType == ImageArrayElementTypes.Int16);
+
+            sw.Restart();
+            Object[,] responseArray = (Object[,])bytes.ToImageArray();
+            output.WriteLine($"Time to create return array: {sw.Elapsed.TotalMilliseconds:0.0}");
+            Assert.True(CompareArrays(imageArray, responseArray, false));
+        }
+
+        [Fact]
+        public void ImageArray2DObjectUInt16()
+        {
+            const int IMAGE_WIDTH = 4000;
+            const int IMAGE_HEIGHT = 3000;
+
+            Object[,] imageArray = new Object[IMAGE_WIDTH, IMAGE_HEIGHT];
+            for (int i = 0; i < IMAGE_WIDTH; i++)
+            {
+                for (int j = 0; j < IMAGE_HEIGHT; j++)
+                {
+                    imageArray[i, j] = (UInt16)((i * j % 65536));
+                }
+            }
+
+            Stopwatch sw = Stopwatch.StartNew();
+
+            byte[] bytes = imageArray.ToByteArray(1, 0, 0, AlpacaErrors.AlpacaNoError, "");
+            output.WriteLine($"Time to create byte array: {sw.Elapsed.TotalMilliseconds:0.0}");
+
+            ArrayMetadataV1 metadata = bytes.GetMetadataV1();
+            Assert.True(metadata.TransmissionElementType == ImageArrayElementTypes.UInt16);
+
+            sw.Restart();
+            Object[,] responseArray = (Object[,])bytes.ToImageArray();
+            output.WriteLine($"Time to create return array: {sw.Elapsed.TotalMilliseconds:0.0}");
+            Assert.True(CompareArrays(imageArray, responseArray, false));
+        }
+        [Fact]
+        public void ImageArray2DObjectInt32()
+        {
+            const int IMAGE_WIDTH = 4000;
+            const int IMAGE_HEIGHT = 3000;
+
+            Object[,] imageArray = new Object[IMAGE_WIDTH, IMAGE_HEIGHT];
+            for (int i = 0; i < IMAGE_WIDTH; i++)
+            {
+                for (int j = 0; j < IMAGE_HEIGHT; j++)
+                {
+                    imageArray[i, j] = -32769 + i + 10 * j;
+                }
+            }
+
+            Stopwatch sw = Stopwatch.StartNew();
+
+            byte[] bytes = imageArray.ToByteArray(1, 0, 0, AlpacaErrors.AlpacaNoError, "");
+            output.WriteLine($"Time to create byte array: {sw.Elapsed.TotalMilliseconds:0.0}");
+
+            ArrayMetadataV1 metadata = bytes.GetMetadataV1();
+            Assert.True(metadata.TransmissionElementType == ImageArrayElementTypes.Int32);
+
+            sw.Restart();
+            Object[,] responseArray = (Object[,])bytes.ToImageArray();
+            output.WriteLine($"Time to create return array: {sw.Elapsed.TotalMilliseconds:0.0}");
+            Assert.True(CompareArrays(imageArray, responseArray, false));
+        }
+
+        [Fact]
+        public void ImageArray2DObjectUInt32()
+        {
+            const int IMAGE_WIDTH = 4000;
+            const int IMAGE_HEIGHT = 3000;
+
+            Object[,] imageArray = new Object[IMAGE_WIDTH, IMAGE_HEIGHT];
+            for (int i = 0; i < IMAGE_WIDTH; i++)
+            {
+                for (int j = 0; j < IMAGE_HEIGHT; j++)
+                {
+                    imageArray[i, j] = (UInt32)(i + 10 * j);
+                }
+            }
+
+            Stopwatch sw = Stopwatch.StartNew();
+
+            byte[] bytes = imageArray.ToByteArray(1, 0, 0, AlpacaErrors.AlpacaNoError, "");
+            output.WriteLine($"Time to create byte array: {sw.Elapsed.TotalMilliseconds:0.0}");
+
+            ArrayMetadataV1 metadata = bytes.GetMetadataV1();
+            output.WriteLine($"Metadata Image Element type: {metadata.ImageElementType}, Transmission Element Type: {metadata.TransmissionElementType}");
+            Assert.True(metadata.TransmissionElementType == ImageArrayElementTypes.UInt32);
+
+            sw.Restart();
+            Object[,] responseArray = (Object[,])bytes.ToImageArray();
+            output.WriteLine($"Time to create return array: {sw.Elapsed.TotalMilliseconds:0.0}");
+            Assert.True(CompareArrays(imageArray, responseArray, false));
+        }
+
+        [Fact]
+        public void ImageArray2DObjectInt64()
+        {
+            const int IMAGE_WIDTH = 4000;
+            const int IMAGE_HEIGHT = 3000;
+
+            Object[,] imageArray = new Object[IMAGE_WIDTH, IMAGE_HEIGHT];
+            for (int i = 0; i < IMAGE_WIDTH; i++)
+            {
+                for (int j = 0; j < IMAGE_HEIGHT; j++)
+                {
+                    imageArray[i, j] = (Int64)(i + 10 * j);
+                }
+            }
+
+            Stopwatch sw = Stopwatch.StartNew();
+
+            byte[] bytes = imageArray.ToByteArray(1, 0, 0, AlpacaErrors.AlpacaNoError, "");
+            output.WriteLine($"Time to create byte array: {sw.Elapsed.TotalMilliseconds:0.0}");
+
+            ArrayMetadataV1 metadata = bytes.GetMetadataV1();
+            output.WriteLine($"Metadata Image Element type: {metadata.ImageElementType}, Transmission Element Type: {metadata.TransmissionElementType}");
+            Assert.True(metadata.TransmissionElementType == ImageArrayElementTypes.Int64);
+
+            sw.Restart();
+            Object[,] responseArray = (Object[,])bytes.ToImageArray();
+            output.WriteLine($"Time to create return array: {sw.Elapsed.TotalMilliseconds:0.0}");
+            Assert.True(CompareArrays(imageArray, responseArray, false));
+        }
+
+        [Fact]
+        public void ImageArray2DObjectUInt64()
+        {
+            const int IMAGE_WIDTH = 4000;
+            const int IMAGE_HEIGHT = 3000;
+
+            Object[,] imageArray = new Object[IMAGE_WIDTH, IMAGE_HEIGHT];
+            for (int i = 0; i < IMAGE_WIDTH; i++)
+            {
+                for (int j = 0; j < IMAGE_HEIGHT; j++)
+                {
+                    imageArray[i, j] = (UInt64)(i + 10 * j);
+                }
+            }
+
+            Stopwatch sw = Stopwatch.StartNew();
+
+            byte[] bytes = imageArray.ToByteArray(1, 0, 0, AlpacaErrors.AlpacaNoError, "");
+            output.WriteLine($"Time to create byte array: {sw.Elapsed.TotalMilliseconds:0.0}");
+
+            ArrayMetadataV1 metadata = bytes.GetMetadataV1();
+            output.WriteLine($"Metadata Image Element type: {metadata.ImageElementType}, Transmission Element Type: {metadata.TransmissionElementType}");
+            Assert.True(metadata.TransmissionElementType == ImageArrayElementTypes.UInt64);
+
+            sw.Restart();
+            Object[,] responseArray = (Object[,])bytes.ToImageArray();
+            output.WriteLine($"Time to create return array: {sw.Elapsed.TotalMilliseconds:0.0}");
+            Assert.True(CompareArrays(imageArray, responseArray, false));
+        }
+
+        [Fact]
+        public void ImageArray2DObjectSingle()
+        {
+            const int IMAGE_WIDTH = 4000;
+            const int IMAGE_HEIGHT = 3000;
+
+            Object[,] imageArray = new Object[IMAGE_WIDTH, IMAGE_HEIGHT];
+            for (int i = 0; i < IMAGE_WIDTH; i++)
+            {
+                for (int j = 0; j < IMAGE_HEIGHT; j++)
+                {
+                    imageArray[i, j] = (Single)(i + 10 * j);
+                }
+            }
+
+            Stopwatch sw = Stopwatch.StartNew();
+
+            byte[] bytes = imageArray.ToByteArray(1, 0, 0, AlpacaErrors.AlpacaNoError, "");
+            output.WriteLine($"Time to create byte array: {sw.Elapsed.TotalMilliseconds:0.0}");
+
+            ArrayMetadataV1 metadata = bytes.GetMetadataV1();
+            output.WriteLine($"Metadata Image Element type: {metadata.ImageElementType}, Transmission Element Type: {metadata.TransmissionElementType}");
+            Assert.True(metadata.TransmissionElementType == ImageArrayElementTypes.Single);
+
+            sw.Restart();
+            Object[,] responseArray = (Object[,])bytes.ToImageArray();
+            output.WriteLine($"Time to create return array: {sw.Elapsed.TotalMilliseconds:0.0}");
+            Assert.True(CompareArrays(imageArray, responseArray, false));
+        }
+
+        [Fact]
+        public void ImageArray2DObjectDouble()
+        {
+            const int IMAGE_WIDTH = 4000;
+            const int IMAGE_HEIGHT = 3000;
+
+            Object[,] imageArray = new Object[IMAGE_WIDTH, IMAGE_HEIGHT];
+            for (int i = 0; i < IMAGE_WIDTH; i++)
+            {
+                for (int j = 0; j < IMAGE_HEIGHT; j++)
+                {
+                    imageArray[i, j] = (Double)(i + 10 * j);
+                }
+            }
+
+            Stopwatch sw = Stopwatch.StartNew();
+
+            byte[] bytes = imageArray.ToByteArray(1, 0, 0, AlpacaErrors.AlpacaNoError, "");
+            output.WriteLine($"Time to create byte array: {sw.Elapsed.TotalMilliseconds:0.0}");
+
+            ArrayMetadataV1 metadata = bytes.GetMetadataV1();
+            output.WriteLine($"Metadata Image Element type: {metadata.ImageElementType}, Transmission Element Type: {metadata.TransmissionElementType}");
+            Assert.True(metadata.TransmissionElementType == ImageArrayElementTypes.Double);
+
+            sw.Restart();
+            Object[,] responseArray = (Object[,])bytes.ToImageArray();
+            output.WriteLine($"Time to create return array: {sw.Elapsed.TotalMilliseconds:0.0}");
+            Assert.True(CompareArrays(imageArray, responseArray, false));
+        }
+
+        #endregion
+
+        #region Object 3D Tests
+
+        [Fact]
+        public void ImageArray3DObjectByte()
+        {
+            const int IMAGE_WIDTH = 4000;
+            const int IMAGE_HEIGHT = 3000;
+
+            Object[,,] imageArray = new Object[IMAGE_WIDTH, IMAGE_HEIGHT, 3];
+            for (int i = 0; i < IMAGE_WIDTH; i++)
+            {
+                for (int j = 0; j < IMAGE_HEIGHT; j++)
+                {
+                    for (int k = 0; k < 3; k++)
+                    {
+                        imageArray[i, j, k] = (Byte)k;
+                    }
+                }
+            }
+
+            Stopwatch sw = Stopwatch.StartNew();
+
+            byte[] bytes = imageArray.ToByteArray(1, 0, 0, AlpacaErrors.AlpacaNoError, "");
+            output.WriteLine($"Time to create byte array: {sw.Elapsed.TotalMilliseconds:0.0}");
+
+            ArrayMetadataV1 metadata = bytes.GetMetadataV1();
+            output.WriteLine($"Metadata - ImageArrayElementType: {metadata.ImageElementType}, transmission Type: {metadata.TransmissionElementType}, Array Rank: {metadata.Rank}, Dim1: {metadata.Dimension1}, Dim2: {metadata.Dimension2}, Dim3: {metadata.Dimension3}");
+            Assert.True(metadata.TransmissionElementType == ImageArrayElementTypes.Byte);
+
+            sw.Restart();
+            Object[,,] responseArray = (Object[,,])bytes.ToImageArray();
+            output.WriteLine($"Time to create return array: {sw.Elapsed.TotalMilliseconds:0.0}");
+            Assert.True(CompareArrays(imageArray, responseArray, false));
+        }
+
+        [Fact]
+        public void ImageArray3DObjectInt16()
+        {
+            const int IMAGE_WIDTH = 4000;
+            const int IMAGE_HEIGHT = 3000;
+
+            Object[,,] imageArray = new Object[IMAGE_WIDTH, IMAGE_HEIGHT, 3];
+            for (int i = 0; i < IMAGE_WIDTH; i++)
+            {
+                for (int j = 0; j < IMAGE_HEIGHT; j++)
+                {
+                    for (int k = 0; k < 3; k++)
+                    {
+                        imageArray[i, j, k] = (Int16)((i * j % 65536) - 32768);
+                    }
+                }
+            }
+
+            Stopwatch sw = Stopwatch.StartNew();
+
+            byte[] bytes = imageArray.ToByteArray(1, 0, 0, AlpacaErrors.AlpacaNoError, "");
+            output.WriteLine($"Time to create byte array: {sw.Elapsed.TotalMilliseconds:0.0}");
+
+            ArrayMetadataV1 metadata = bytes.GetMetadataV1();
+            Assert.True(metadata.TransmissionElementType == ImageArrayElementTypes.Int16);
+
+            sw.Restart();
+            Object[,,] responseArray = (Object[,,])bytes.ToImageArray();
+            output.WriteLine($"Time to create return array: {sw.Elapsed.TotalMilliseconds:0.0}");
+            Assert.True(CompareArrays(imageArray, responseArray, false));
+        }
+
+        [Fact]
+        public void ImageArray3DObjectUInt16()
+        {
+            const int IMAGE_WIDTH = 4000;
+            const int IMAGE_HEIGHT = 3000;
+
+            Object[,,] imageArray = new Object[IMAGE_WIDTH, IMAGE_HEIGHT, 3];
+            for (int i = 0; i < IMAGE_WIDTH; i++)
+            {
+                for (int j = 0; j < IMAGE_HEIGHT; j++)
+                {
+                    for (int k = 0; k < 3; k++)
+                    {
+                        imageArray[i, j, k] = (UInt16)((i * j % 65536));
+                    }
+                }
+            }
+
+            Stopwatch sw = Stopwatch.StartNew();
+
+            byte[] bytes = imageArray.ToByteArray(1, 0, 0, AlpacaErrors.AlpacaNoError, "");
+            output.WriteLine($"Time to create byte array: {sw.Elapsed.TotalMilliseconds:0.0}");
+
+            ArrayMetadataV1 metadata = bytes.GetMetadataV1();
+            Assert.True(metadata.TransmissionElementType == ImageArrayElementTypes.UInt16);
+
+            sw.Restart();
+            Object[,,] responseArray = (Object[,,])bytes.ToImageArray();
+            output.WriteLine($"Time to create return array: {sw.Elapsed.TotalMilliseconds:0.0}");
+            Assert.True(CompareArrays(imageArray, responseArray, false));
+        }
+        [Fact]
+        public void ImageArray3DObjectInt32()
+        {
+            const int IMAGE_WIDTH = 4000;
+            const int IMAGE_HEIGHT = 3000;
+
+            Object[,,] imageArray = new Object[IMAGE_WIDTH, IMAGE_HEIGHT, 3];
+            for (int i = 0; i < IMAGE_WIDTH; i++)
+            {
+                for (int j = 0; j < IMAGE_HEIGHT; j++)
+                {
+                    for (int k = 0; k < 3; k++)
+                    {
+                        imageArray[i, j, k] = -32769 + i + 10 * j;
+                    }
+                }
+            }
+
+            Stopwatch sw = Stopwatch.StartNew();
+
+            byte[] bytes = imageArray.ToByteArray(1, 0, 0, AlpacaErrors.AlpacaNoError, "");
+            output.WriteLine($"Time to create byte array: {sw.Elapsed.TotalMilliseconds:0.0}");
+
+            ArrayMetadataV1 metadata = bytes.GetMetadataV1();
+            Assert.True(metadata.TransmissionElementType == ImageArrayElementTypes.Int32);
+
+            sw.Restart();
+            Object[,,] responseArray = (Object[,,])bytes.ToImageArray();
+            output.WriteLine($"Time to create return array: {sw.Elapsed.TotalMilliseconds:0.0}");
+            Assert.True(CompareArrays(imageArray, responseArray, false));
+        }
+
+        [Fact]
+        public void ImageArray3DObjectUInt32()
+        {
+            const int IMAGE_WIDTH = 4000;
+            const int IMAGE_HEIGHT = 3000;
+
+            Object[,,] imageArray = new Object[IMAGE_WIDTH, IMAGE_HEIGHT, 3];
+            for (int i = 0; i < IMAGE_WIDTH; i++)
+            {
+                for (int j = 0; j < IMAGE_HEIGHT; j++)
+                {
+                    for (int k = 0; k < 3; k++)
+                    {
+                        imageArray[i, j, k] = (UInt32)(i + 10 * j);
+                    }
+                }
+            }
+
+            Stopwatch sw = Stopwatch.StartNew();
+
+            byte[] bytes = imageArray.ToByteArray(1, 0, 0, AlpacaErrors.AlpacaNoError, "");
+            output.WriteLine($"Time to create byte array: {sw.Elapsed.TotalMilliseconds:0.0}");
+
+            ArrayMetadataV1 metadata = bytes.GetMetadataV1();
+            output.WriteLine($"Metadata Image Element type: {metadata.ImageElementType}, Transmission Element Type: {metadata.TransmissionElementType}");
+            Assert.True(metadata.TransmissionElementType == ImageArrayElementTypes.UInt32);
+
+            sw.Restart();
+            Object[,,] responseArray = (Object[,,])bytes.ToImageArray();
+            output.WriteLine($"Time to create return array: {sw.Elapsed.TotalMilliseconds:0.0}");
+            Assert.True(CompareArrays(imageArray, responseArray, false));
+        }
+
+        [Fact]
+        public void ImageArray3DObjectInt64()
+        {
+            const int IMAGE_WIDTH = 4000;
+            const int IMAGE_HEIGHT = 3000;
+
+            Object[,,] imageArray = new Object[IMAGE_WIDTH, IMAGE_HEIGHT, 3];
+            for (int i = 0; i < IMAGE_WIDTH; i++)
+            {
+                for (int j = 0; j < IMAGE_HEIGHT; j++)
+                {
+                    for (int k = 0; k < 3; k++)
+                    {
+                        imageArray[i, j, k] = (Int64)(i + 10 * j);
+                    }
+                }
+            }
+
+            Stopwatch sw = Stopwatch.StartNew();
+
+            byte[] bytes = imageArray.ToByteArray(1, 0, 0, AlpacaErrors.AlpacaNoError, "");
+            output.WriteLine($"Time to create byte array: {sw.Elapsed.TotalMilliseconds:0.0}");
+
+            ArrayMetadataV1 metadata = bytes.GetMetadataV1();
+            output.WriteLine($"Metadata Image Element type: {metadata.ImageElementType}, Transmission Element Type: {metadata.TransmissionElementType}");
+            Assert.True(metadata.TransmissionElementType == ImageArrayElementTypes.Int64);
+
+            sw.Restart();
+            Object[,,] responseArray = (Object[,,])bytes.ToImageArray();
+            output.WriteLine($"Time to create return array: {sw.Elapsed.TotalMilliseconds:0.0}");
+            Assert.True(CompareArrays(imageArray, responseArray, false));
+        }
+
+        [Fact]
+        public void ImageArray3DObjectUInt64()
+        {
+            const int IMAGE_WIDTH = 4000;
+            const int IMAGE_HEIGHT = 3000;
+
+            Object[,,] imageArray = new Object[IMAGE_WIDTH, IMAGE_HEIGHT, 3];
+            for (int i = 0; i < IMAGE_WIDTH; i++)
+            {
+                for (int j = 0; j < IMAGE_HEIGHT; j++)
+                {
+                    for (int k = 0; k < 3; k++)
+                    {
+                        imageArray[i, j, k] = (UInt64)(i + 10 * j);
+                    }
+                }
+            }
+
+            Stopwatch sw = Stopwatch.StartNew();
+
+            byte[] bytes = imageArray.ToByteArray(1, 0, 0, AlpacaErrors.AlpacaNoError, "");
+            output.WriteLine($"Time to create byte array: {sw.Elapsed.TotalMilliseconds:0.0}");
+
+            ArrayMetadataV1 metadata = bytes.GetMetadataV1();
+            output.WriteLine($"Metadata Image Element type: {metadata.ImageElementType}, Transmission Element Type: {metadata.TransmissionElementType}");
+            Assert.True(metadata.TransmissionElementType == ImageArrayElementTypes.UInt64);
+
+            sw.Restart();
+            Object[,,] responseArray = (Object[,,])bytes.ToImageArray();
+            output.WriteLine($"Time to create return array: {sw.Elapsed.TotalMilliseconds:0.0}");
+            Assert.True(CompareArrays(imageArray, responseArray, false));
+        }
+
+        [Fact]
+        public void ImageArray3DObjectSingle()
+        {
+            const int IMAGE_WIDTH = 4000;
+            const int IMAGE_HEIGHT = 3000;
+
+            Object[,,] imageArray = new Object[IMAGE_WIDTH, IMAGE_HEIGHT, 3];
+            for (int i = 0; i < IMAGE_WIDTH; i++)
+            {
+                for (int j = 0; j < IMAGE_HEIGHT; j++)
+                {
+                    for (int k = 0; k < 3; k++)
+                    {
+                        imageArray[i, j, k] = (Single)(i + 10 * j);
+                    }
+                }
+            }
+
+            Stopwatch sw = Stopwatch.StartNew();
+
+            byte[] bytes = imageArray.ToByteArray(1, 0, 0, AlpacaErrors.AlpacaNoError, "");
+            output.WriteLine($"Time to create byte array: {sw.Elapsed.TotalMilliseconds:0.0}");
+
+            ArrayMetadataV1 metadata = bytes.GetMetadataV1();
+            output.WriteLine($"Metadata Image Element type: {metadata.ImageElementType}, Transmission Element Type: {metadata.TransmissionElementType}");
+            Assert.True(metadata.TransmissionElementType == ImageArrayElementTypes.Single);
+
+            sw.Restart();
+            Object[,,] responseArray = (Object[,,])bytes.ToImageArray();
+            output.WriteLine($"Time to create return array: {sw.Elapsed.TotalMilliseconds:0.0}");
+            Assert.True(CompareArrays(imageArray, responseArray, false));
+        }
+
+        [Fact]
+        public void ImageArray3DObjectDouble()
+        {
+            const int IMAGE_WIDTH = 4000;
+            const int IMAGE_HEIGHT = 3000;
+
+            Object[,,] imageArray = new Object[IMAGE_WIDTH, IMAGE_HEIGHT, 3];
+            for (int i = 0; i < IMAGE_WIDTH; i++)
+            {
+                for (int j = 0; j < IMAGE_HEIGHT; j++)
+                {
+                    for (int k = 0; k < 3; k++)
+                    {
+                        imageArray[i, j, k] = (Double)(100 * i + 10 * j + k);
+                    }
+                }
+            }
+
+            Stopwatch sw = Stopwatch.StartNew();
+
+            byte[] bytes = imageArray.ToByteArray(1, 0, 0, AlpacaErrors.AlpacaNoError, "");
+            output.WriteLine($"Time to create byte array: {sw.Elapsed.TotalMilliseconds:0.0}");
+
+            ArrayMetadataV1 metadata = bytes.GetMetadataV1();
+            output.WriteLine($"Metadata Image Element type: {metadata.ImageElementType}, Transmission Element Type: {metadata.TransmissionElementType}");
+            Assert.True(metadata.TransmissionElementType == ImageArrayElementTypes.Double);
+
+            sw.Restart();
+            Object[,,] responseArray = (Object[,,])bytes.ToImageArray();
+            output.WriteLine($"Time to create return array: {sw.Elapsed.TotalMilliseconds:0.0}");
+            Assert.True(CompareArrays(imageArray, responseArray, false));
+        }
+
+        #endregion
+
+        #region ImageArray.ToByteArray() 2D Tests
 
         [Fact]
         public void ImageArray2DByte()
@@ -1217,6 +1786,11 @@ namespace ASCOM.Alpaca.Tests.ImageArray
 
         private bool CompareArrays(Array sourceArray, Array responseArray)
         {
+            return CompareArrays(sourceArray, responseArray, true);
+        }
+
+        private bool CompareArrays(Array sourceArray, Array responseArray, bool includeElementTypeTest)
+        {
             if (sourceArray is null)
             {
                 output.WriteLine($"Source Array is NULL!");
@@ -1251,13 +1825,14 @@ namespace ASCOM.Alpaca.Tests.ImageArray
                     return false;
                 }
             }
-            if (sourceArray.GetType().GetElementType() != responseArray.GetType().GetElementType())
+            if (includeElementTypeTest)
             {
-                output.WriteLine($"Element types are not the same. Source: {sourceArray.GetType().GetElementType()}, Response: {responseArray.GetType().GetElementType()}");
-                return false;
+                if (sourceArray.GetType().GetElementType() != responseArray.GetType().GetElementType())
+                {
+                    output.WriteLine($"Element types are not the same. Source: {sourceArray.GetType().GetElementType()}, Response: {responseArray.GetType().GetElementType()}");
+                    return false;
+                }
             }
-
-
             try
             {
                 switch (sourceArray.Rank)
@@ -1280,13 +1855,15 @@ namespace ASCOM.Alpaca.Tests.ImageArray
                         break;
 
                     case 3:
+                        output.WriteLine($"Array element types. Source: {sourceArray.GetType().GetElementType()}, Response: {responseArray.GetType().GetElementType()}");
+                        output.WriteLine($"Array element values at index [0,0,0]. Source: {sourceArray.GetValue(0, 0, 0)}, Response: {responseArray.GetValue(0, 0, 0)}");
                         for (int i = 0; i < sourceArray.GetLength(0); i++)
                         {
                             for (int j = 0; j < sourceArray.GetLength(1); j++)
                             {
                                 for (int k = 0; k < sourceArray.GetLength(2); k++)
                                 {
-                                    if (sourceArray.GetValue(i, j, k) != responseArray.GetValue(i, j, k))
+                                    if (Convert.ToDouble(sourceArray.GetValue(i, j, k)) != Convert.ToDouble(responseArray.GetValue(i, j, k)))
                                     {
                                         output.WriteLine($"Array element values at index [{i},{j},{k}] are not equal. Source: {sourceArray.GetValue(i, j, k)}, Response: {responseArray.GetValue(i, j, k)}");
                                         return false;
@@ -1306,7 +1883,6 @@ namespace ASCOM.Alpaca.Tests.ImageArray
 
                 throw;
             }
-
 
             return true;
         }
