@@ -179,63 +179,6 @@ namespace ASCOM.Alpaca.Tests.ImageArray
 
         #region Object 2D Tests
 
-        [Fact]
-        public void ImageArray2DObjectByte()
-        {
-            const int IMAGE_WIDTH = 4000;
-            const int IMAGE_HEIGHT = 3000;
-
-            Object[,] imageArray = new Object[IMAGE_WIDTH, IMAGE_HEIGHT];
-            for (int i = 0; i < IMAGE_WIDTH; i++)
-            {
-                for (int j = 0; j < IMAGE_HEIGHT; j++)
-                {
-                    imageArray[i, j] = (Byte)((i * j) % 256);
-                }
-            }
-
-            Stopwatch sw = Stopwatch.StartNew();
-
-            byte[] bytes = imageArray.ToByteArray(1, 0, 0, AlpacaErrors.AlpacaNoError, "");
-            output.WriteLine($"Time to create byte array: {sw.Elapsed.TotalMilliseconds:0.0}");
-
-            ArrayMetadataV1 metadata = bytes.GetMetadataV1();
-            Assert.True(metadata.TransmissionElementType == ImageArrayElementTypes.Byte);
-
-            sw.Restart();
-            Object[,] responseArray = (Object[,])bytes.ToImageArray();
-            output.WriteLine($"Time to create return array: {sw.Elapsed.TotalMilliseconds:0.0}");
-            Assert.True(CompareArrays(imageArray, responseArray, false));
-        }
-
-        [Fact]
-        public void ImageArray2DObjectInt16()
-        {
-            const int IMAGE_WIDTH = 4000;
-            const int IMAGE_HEIGHT = 3000;
-
-            Object[,] imageArray = new Object[IMAGE_WIDTH, IMAGE_HEIGHT];
-            for (int i = 0; i < IMAGE_WIDTH; i++)
-            {
-                for (int j = 0; j < IMAGE_HEIGHT; j++)
-                {
-                    imageArray[i, j] = (Int16)((i * j % 65536) - 32768);
-                }
-            }
-
-            Stopwatch sw = Stopwatch.StartNew();
-
-            byte[] bytes = imageArray.ToByteArray(1, 0, 0, AlpacaErrors.AlpacaNoError, "");
-            output.WriteLine($"Time to create byte array: {sw.Elapsed.TotalMilliseconds:0.0}");
-
-            ArrayMetadataV1 metadata = bytes.GetMetadataV1();
-            Assert.True(metadata.TransmissionElementType == ImageArrayElementTypes.Int16);
-
-            sw.Restart();
-            Object[,] responseArray = (Object[,])bytes.ToImageArray();
-            output.WriteLine($"Time to create return array: {sw.Elapsed.TotalMilliseconds:0.0}");
-            Assert.True(CompareArrays(imageArray, responseArray, false));
-        }
 
         [Fact]
         public void ImageArray2DObjectUInt16()
