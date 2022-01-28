@@ -6,6 +6,8 @@
         <IsPackable>false</IsPackable>
 
         <RootNamespace>ASCOM.Alpaca.Tests</RootNamespace>
+
+        <Configurations>Debug;Release;Swashbuckle_Documentation</Configurations>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

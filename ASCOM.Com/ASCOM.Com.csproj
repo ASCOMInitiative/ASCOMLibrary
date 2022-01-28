@@ -13,6 +13,7 @@
 		<PackageIcon>ASCOMBoarderless.png</PackageIcon>
 		<PackageTags>ascom;alpaca;com;driveraccess</PackageTags>
 		<Product>ASCOM COM Components</Product>
+		<Configurations>Debug;Release;Swashbuckle_Documentation</Configurations>
 		</PropertyGroup>
 
 	<ItemGroup>
