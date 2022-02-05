@@ -1,17 +1,9 @@
-# Notes / Open issues / questions
+# ASCOM.Tools
+
+A set of cross platform math utilities, logging, and basic settings providers that implement the ASCOM.Common interfaces.
 
 ## Logging
 Given the change to non shared libraries should TraceLogger require a mutex?
-
-## Conversions
-These should be pretty much the same as the upstream ASCOM.Standard project. I have made no changes. I don't know where they came from and they need to be checked for completeness and function.
-
-## Discovery
-Implementations of the Alpaca Discovery Protocol. This includes both Client and Device functions.
-
-## Helpers
-These are all newly added. The are helper methods for Alpaca interfaces (making it easier to handle Exceptions and Responses).
-The open question is if they belong here or in ASCOM.Standard.Types (they are generic).
 
 ## Utilities
 * ConsoleLogger is an ILogger implementation that logs out to the console, using color coding messages
