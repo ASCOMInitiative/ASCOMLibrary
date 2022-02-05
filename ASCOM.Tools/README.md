@@ -1,4 +1,6 @@
-# Notes / Open issues / questions
+# ASCOM.Tools
+
+A set of cross platform math utilities, logging, and basic settings providers that implement the ASCOM.Common interfaces.
 
 ## Logging
 Given the change to non shared libraries should TraceLogger require a mutex?

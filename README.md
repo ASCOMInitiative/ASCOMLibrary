@@ -11,5 +11,4 @@ See https://www.ascom-standards.org/Developer/Alpaca.htm for further information
 * ASCOM.Tools - A set of CrossPlatform tools for logging, settings and conversions.
 
 # ToDo
-* Close open notes / issues. There is a readme in each folder with the notes for each project
 * Test on Windows, Linux and MacOS (only minimally tested in MacOS)

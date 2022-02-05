@@ -1,6 +1,6 @@
 # ASCOM.COM
 
-A set of tools to access ASCOM COM drivers from .Net Standard / Core / 5.0. This then translates the interfaces to use the ASCOM.Common version of the interface to behave the same as Alpaca devices.
+A set of tools to access ASCOM COM drivers from .Net Standard 2.0. This then translates the interfaces to use the ASCOM.Common version of the interface to behave the same as Alpaca devices.
 
 Currently this reads the registry directly looking for device ProgIDs. It does not check the bitness of the registered drivers. Because .Net Core is not supposed to load from the GAC this uses reflection for all access and does not use any ASCOM platform interfaces.
 
