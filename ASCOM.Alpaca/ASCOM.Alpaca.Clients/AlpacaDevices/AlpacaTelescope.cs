@@ -964,7 +964,7 @@ namespace ASCOM.Alpaca.Clients
             }
         }
 
-        public void UnPark()
+        public void Unpark()
         {
             DynamicClientDriver.SetClientTimeout(client, longDeviceResponseTimeout);
             DynamicClientDriver.CallMethodWithNoParameters(clientNumber, client, URIBase, strictCasing, TL, "UnPark", MemberTypes.Method);
