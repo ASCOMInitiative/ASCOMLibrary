@@ -906,7 +906,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// </summary>
         /// <remarks>
         /// <p style="color:red"><b>Must be implemented and must not throw a NotImplementedException.</b></p>
-        /// At a minimum, this must contain an item for <see cref="DriveRate.DriveSidereal" />.
+        /// At a minimum, this must contain an item for <see cref="DriveRate.Sidereal" />.
         /// <para>This is only available for telescope InterfaceVersions 2 and 3</para>
         /// </remarks>
         ITrackingRates TrackingRates { get; }
