@@ -30,7 +30,7 @@ namespace ASCOM.Alpaca.Clients
             // the tracking rates supported by your telescope. The one value
             // (tracking rate) that MUST be supported is driveSidereal!
             //
-            m_TrackingRates = new DriveRate[] { DriveRate.DriveSidereal, DriveRate.DriveKing, DriveRate.DriveLunar, DriveRate.DriveSolar };
+            m_TrackingRates = new DriveRate[] { DriveRate.Sidereal, DriveRate.King, DriveRate.Lunar, DriveRate.Solar };
         }
 
         public void SetRates(DriveRate[] rates)

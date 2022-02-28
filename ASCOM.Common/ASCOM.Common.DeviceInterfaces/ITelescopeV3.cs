@@ -69,7 +69,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <para>AtPark is True when the telescope is in the parked state. This is achieved by calling the <see cref="Park" /> method. When AtPark is true, 
         /// the telescope movement is stopped (or restricted to a small safe range of movement) and all calls that would cause telescope 
         /// movement (e.g. slewing, changing Tracking state) must not do so, and must raise an error.</para>
-        /// <para>The telescope is taken out of parked state by calling the <see cref="UnPark" /> method. If the telescope cannot be parked, 
+        /// <para>The telescope is taken out of parked state by calling the <see cref="Unpark" /> method. If the telescope cannot be parked, 
         /// then AtPark must always return False.</para>
         /// <para>This is only available for telescope InterfaceVersions 2 and 3</para>
         /// </remarks>
@@ -260,7 +260,7 @@ namespace ASCOM.Common.DeviceInterfaces
         bool CanSyncAltAz { get; }
 
         /// <summary>
-        /// True if this telescope is capable of programmed unparking (<see cref="UnPark" /> method).
+        /// True if this telescope is capable of programmed unparking (<see cref="Unpark" /> method).
         /// </summary>
         /// <remarks>
         /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
@@ -476,7 +476,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="NotImplementedException">If the method is not implemented and <see cref="CanPark" /> is False</exception>
         /// <remarks>
         /// Raises an error if there is a problem communicating with the telescope or if parking fails. Parking should put the telescope into a state where its pointing accuracy 
-        /// will not be lost if it is power-cycled (without moving it).Some telescopes must be power-cycled before unparking. Others may be unparked by simply calling the <see cref="UnPark" /> method.
+        /// will not be lost if it is power-cycled (without moving it).Some telescopes must be power-cycled before unparking. Others may be unparked by simply calling the <see cref="Unpark" /> method.
         /// Calling this with <see cref="AtPark" /> = True does nothing (harmless) 
         /// </remarks>
         void Park();
@@ -906,7 +906,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// </summary>
         /// <remarks>
         /// <p style="color:red"><b>Must be implemented and must not throw a NotImplementedException.</b></p>
-        /// At a minimum, this must contain an item for <see cref="DriveRate.DriveSidereal" />.
+        /// At a minimum, this must contain an item for <see cref="DriveRate.Sidereal" />.
         /// <para>This is only available for telescope InterfaceVersions 2 and 3</para>
         /// </remarks>
         ITrackingRates TrackingRates { get; }
@@ -919,7 +919,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// The state of <see cref="Tracking" /> after unparking is undetermined. Valid only after <see cref="Park" />. Applications must check and change Tracking as needed after unparking. 
         /// Raises an error if unparking fails. Calling this with <see cref="AtPark" /> = False does nothing (harmless) 
         /// </remarks>
-        void UnPark();
+        void Unpark();
 
         /// <summary>
         /// The UTC date/time of the telescope's internal clock

@@ -478,7 +478,7 @@ namespace ASCOM.Com.DriverAccess
             base.Device.SyncToTarget();
         }
 
-        public void UnPark()
+        public void Unpark()
         {
             base.Device.Unpark();
         }
