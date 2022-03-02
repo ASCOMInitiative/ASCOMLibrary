@@ -366,7 +366,7 @@ namespace ASCOM.Com.DriverAccess
         {
             if (InterfaceVersion == 1)
             {
-                throw new ASCOM.MethodNotImplementedException("AxisRates is only supported by Interface Versions 2 and above.");
+                throw new ASCOM.NotImplementedException("AxisRates is only supported by Interface Versions 2 and above.");
             }
             AxisRates rates = new AxisRates();
 
@@ -387,7 +387,7 @@ namespace ASCOM.Com.DriverAccess
         {
             if (InterfaceVersion == 1)
             {
-                throw new ASCOM.MethodNotImplementedException("AtPark is only supported by Interface Versions 2 and above.");
+                throw new ASCOM.NotImplementedException("AtPark is only supported by Interface Versions 2 and above.");
             }
             return (PointingState)base.Device.DestinationSideOfPier(RightAscension, Declination);
         }
@@ -396,7 +396,7 @@ namespace ASCOM.Com.DriverAccess
         {
             if (InterfaceVersion == 1)
             {
-                throw new ASCOM.MethodNotImplementedException("FindHome is only supported by Interface Versions 2 and above.");
+                throw new ASCOM.NotImplementedException("FindHome is only supported by Interface Versions 2 and above.");
             }
             base.Device.FindHome();
         }
@@ -425,7 +425,7 @@ namespace ASCOM.Com.DriverAccess
         {
             if (InterfaceVersion == 1)
             {
-                throw new ASCOM.MethodNotImplementedException("SlewToAltAz is only supported by Interface Versions 2 and above.");
+                throw new ASCOM.NotImplementedException("SlewToAltAz is only supported by Interface Versions 2 and above.");
             }
             base.Device.SlewToAltAz(Azimuth, Altitude);
         }
@@ -434,7 +434,7 @@ namespace ASCOM.Com.DriverAccess
         {
             if (InterfaceVersion == 1)
             {
-                throw new ASCOM.MethodNotImplementedException("SlewToAltAzAsync is only supported by Interface Versions 2 and above.");
+                throw new ASCOM.NotImplementedException("SlewToAltAzAsync is only supported by Interface Versions 2 and above.");
             }
             base.Device.SlewToAltAzAsync(Azimuth, Altitude);
         }
@@ -463,7 +463,7 @@ namespace ASCOM.Com.DriverAccess
         {
             if (InterfaceVersion == 1)
             {
-                throw new ASCOM.MethodNotImplementedException("SyncToAltAz is only supported by Interface Versions 2 and above.");
+                throw new ASCOM.NotImplementedException("SyncToAltAz is only supported by Interface Versions 2 and above.");
             }
             base.Device.SyncToAltAz(Azimuth, Altitude);
         }

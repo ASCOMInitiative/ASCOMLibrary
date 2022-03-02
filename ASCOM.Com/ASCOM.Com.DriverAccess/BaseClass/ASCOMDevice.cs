@@ -128,7 +128,7 @@ namespace ASCOM.Com.DriverAccess
         {
             if (this.InterfaceVersion < MinimumVersion)
             {
-                throw new ASCOM.MethodNotImplementedException(Message);
+                throw new ASCOM.NotImplementedException(Message);
             }
         }
 
@@ -136,7 +136,7 @@ namespace ASCOM.Com.DriverAccess
         {
             if (this.InterfaceVersion < MinimumVersion)
             {
-                throw new ASCOM.PropertyNotImplementedException(Message);
+                throw new ASCOM.NotImplementedException(Message);
             }
         }
     }
