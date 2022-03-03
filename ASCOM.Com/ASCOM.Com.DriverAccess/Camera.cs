@@ -120,7 +120,7 @@ namespace ASCOM.Com.DriverAccess
             {
                 if (InterfaceVersion < 2)
                 {
-                    throw new PropertyNotImplementedException("BayerOffsetX is only supported by Interface Versions 2 and above.");
+                    throw new ASCOM.NotImplementedException("BayerOffsetX is only supported by Interface Versions 2 and above.");
                 }
                 return base.Device.BayerOffsetX;
             }
@@ -132,7 +132,7 @@ namespace ASCOM.Com.DriverAccess
             {
                 if (InterfaceVersion < 2)
                 {
-                    throw new PropertyNotImplementedException("BayerOffsetY is only supported by Interface Versions 2 and above.");
+                    throw new ASCOM.NotImplementedException("BayerOffsetY is only supported by Interface Versions 2 and above.");
                 }
                 return base.Device.BayerOffsetY;
             }
@@ -157,7 +157,7 @@ namespace ASCOM.Com.DriverAccess
             {
                 if (InterfaceVersion < 2)
                 {
-                    throw new PropertyNotImplementedException("ExposureMax is only supported by Interface Versions 2 and above.");
+                    throw new ASCOM.NotImplementedException("ExposureMax is only supported by Interface Versions 2 and above.");
                 }
                 return base.Device.ExposureMax;
             }
@@ -169,7 +169,7 @@ namespace ASCOM.Com.DriverAccess
             {
                 if (InterfaceVersion < 2)
                 {
-                    throw new PropertyNotImplementedException("ExposureMin is only supported by Interface Versions 2 and above.");
+                    throw new ASCOM.NotImplementedException("ExposureMin is only supported by Interface Versions 2 and above.");
                 }
                 return base.Device.ExposureMin;
             }
@@ -181,7 +181,7 @@ namespace ASCOM.Com.DriverAccess
             {
                 if (InterfaceVersion < 2)
                 {
-                    throw new PropertyNotImplementedException("ExposureResolution is only supported by Interface Versions 2 and above.");
+                    throw new ASCOM.NotImplementedException("ExposureResolution is only supported by Interface Versions 2 and above.");
                 }
                 return base.Device.ExposureResolution;
             }
@@ -193,7 +193,7 @@ namespace ASCOM.Com.DriverAccess
             {
                 if (InterfaceVersion < 2)
                 {
-                    throw new PropertyNotImplementedException("FastReadout is only supported by Interface Versions 2 and above.");
+                    throw new ASCOM.NotImplementedException("FastReadout is only supported by Interface Versions 2 and above.");
                 }
                 return base.Device.FastReadout;
             }
@@ -202,7 +202,7 @@ namespace ASCOM.Com.DriverAccess
             {
                 if (InterfaceVersion < 2)
                 {
-                    throw new PropertyNotImplementedException("FastReadout is only supported by Interface Versions 2 and above.");
+                    throw new ASCOM.NotImplementedException("FastReadout is only supported by Interface Versions 2 and above.");
                 }
                 base.Device.FastReadout = value;
             }
@@ -214,7 +214,7 @@ namespace ASCOM.Com.DriverAccess
             {
                 if (InterfaceVersion < 2)
                 {
-                    throw new PropertyNotImplementedException("Gain is only supported by Interface Versions 2 and above.");
+                    throw new ASCOM.NotImplementedException("Gain is only supported by Interface Versions 2 and above.");
                 }
                 return base.Device.Gain;
             }
@@ -223,7 +223,7 @@ namespace ASCOM.Com.DriverAccess
             {
                 if (InterfaceVersion < 2)
                 {
-                    throw new PropertyNotImplementedException("Gain is only supported by Interface Versions 2 and above.");
+                    throw new ASCOM.NotImplementedException("Gain is only supported by Interface Versions 2 and above.");
                 }
                 base.Device.Gain = value;
             }
@@ -235,7 +235,7 @@ namespace ASCOM.Com.DriverAccess
             {
                 if (InterfaceVersion < 2)
                 {
-                    throw new PropertyNotImplementedException("GainMax is only supported by Interface Versions 2 and above.");
+                    throw new ASCOM.NotImplementedException("GainMax is only supported by Interface Versions 2 and above.");
                 }
                 return base.Device.GainMax;
             }
@@ -247,7 +247,7 @@ namespace ASCOM.Com.DriverAccess
             {
                 if (InterfaceVersion < 2)
                 {
-                    throw new PropertyNotImplementedException("GainMin is only supported by Interface Versions 2 and above.");
+                    throw new ASCOM.NotImplementedException("GainMin is only supported by Interface Versions 2 and above.");
                 }
                 return base.Device.GainMin;
             }
@@ -259,7 +259,7 @@ namespace ASCOM.Com.DriverAccess
             {
                 if (InterfaceVersion < 2)
                 {
-                    throw new PropertyNotImplementedException("Gains is only supported by Interface Versions 2 and above.");
+                    throw new ASCOM.NotImplementedException("Gains is only supported by Interface Versions 2 and above.");
                 }
                 return (Device.Gains as IEnumerable).Cast<string>().ToList();
             }
@@ -271,7 +271,7 @@ namespace ASCOM.Com.DriverAccess
             {
                 if (InterfaceVersion < 2)
                 {
-                    throw new PropertyNotImplementedException("PercentCompleted is only supported by Interface Versions 2 and above.");
+                    throw new ASCOM.NotImplementedException("PercentCompleted is only supported by Interface Versions 2 and above.");
                 }
                 return base.Device.PercentCompleted;
             }
@@ -283,7 +283,7 @@ namespace ASCOM.Com.DriverAccess
             {
                 if (InterfaceVersion < 2)
                 {
-                    throw new PropertyNotImplementedException("ReadoutMode is only supported by Interface Versions 2 and above.");
+                    throw new ASCOM.NotImplementedException("ReadoutMode is only supported by Interface Versions 2 and above.");
                 }
                 return base.Device.ReadoutMode;
             }
@@ -292,7 +292,7 @@ namespace ASCOM.Com.DriverAccess
             {
                 if (InterfaceVersion < 2)
                 {
-                    throw new PropertyNotImplementedException("ReadoutMode is only supported by Interface Versions 2 and above.");
+                    throw new ASCOM.NotImplementedException("ReadoutMode is only supported by Interface Versions 2 and above.");
                 }
                 base.Device.ReadoutMode = value;
             }
@@ -304,7 +304,7 @@ namespace ASCOM.Com.DriverAccess
             {
                 if (InterfaceVersion < 2)
                 {
-                    throw new PropertyNotImplementedException("ReadoutModes is only supported by Interface Versions 2 and above.");
+                    throw new ASCOM.NotImplementedException("ReadoutModes is only supported by Interface Versions 2 and above.");
                 }
                 return (Device.ReadoutModes as IEnumerable).Cast<string>().ToList();
             }
@@ -316,7 +316,7 @@ namespace ASCOM.Com.DriverAccess
             {
                 if (InterfaceVersion < 2)
                 {
-                    throw new PropertyNotImplementedException("SensorName is only supported by Interface Versions 2 and above.");
+                    throw new ASCOM.NotImplementedException("SensorName is only supported by Interface Versions 2 and above.");
                 }
                 return base.Device.SensorName;
             }
@@ -328,7 +328,7 @@ namespace ASCOM.Com.DriverAccess
             {
                 if (InterfaceVersion < 2)
                 {
-                    throw new PropertyNotImplementedException("SensorType is only supported by Interface Versions 2 and above.");
+                    throw new ASCOM.NotImplementedException("SensorType is only supported by Interface Versions 2 and above.");
                 }
                 return (SensorType)base.Device.SensorType;
             }
@@ -340,7 +340,7 @@ namespace ASCOM.Com.DriverAccess
             {
                 if (InterfaceVersion < 3)
                 {
-                    throw new PropertyNotImplementedException("Offset is only supported by Interface Versions 3 and above.");
+                    throw new ASCOM.NotImplementedException("Offset is only supported by Interface Versions 3 and above.");
                 }
                 return base.Device.Offset;
             }
@@ -349,7 +349,7 @@ namespace ASCOM.Com.DriverAccess
             {
                 if (InterfaceVersion < 3)
                 {
-                    throw new PropertyNotImplementedException("Offset is only supported by Interface Versions 3 and above.");
+                    throw new ASCOM.NotImplementedException("Offset is only supported by Interface Versions 3 and above.");
                 }
                 base.Device.Offset = value;
             }
@@ -361,7 +361,7 @@ namespace ASCOM.Com.DriverAccess
             {
                 if (InterfaceVersion < 3)
                 {
-                    throw new PropertyNotImplementedException("OffsetMax is only supported by Interface Versions 3 and above.");
+                    throw new ASCOM.NotImplementedException("OffsetMax is only supported by Interface Versions 3 and above.");
                 }
                 return base.Device.OffsetMax;
             }
@@ -373,7 +373,7 @@ namespace ASCOM.Com.DriverAccess
             {
                 if (InterfaceVersion < 3)
                 {
-                    throw new PropertyNotImplementedException("OffsetMin is only supported by Interface Versions 3 and above.");
+                    throw new ASCOM.NotImplementedException("OffsetMin is only supported by Interface Versions 3 and above.");
                 }
                 return base.Device.OffsetMin;
             }
@@ -385,7 +385,7 @@ namespace ASCOM.Com.DriverAccess
             {
                 if (InterfaceVersion < 3)
                 {
-                    throw new PropertyNotImplementedException("Offsets is only supported by Interface Versions 3 and above.");
+                    throw new ASCOM.NotImplementedException("Offsets is only supported by Interface Versions 3 and above.");
                 }
                 return (Device.Offsets as IEnumerable).Cast<string>().ToList();
             }
@@ -397,7 +397,7 @@ namespace ASCOM.Com.DriverAccess
             {
                 if (InterfaceVersion < 3)
                 {
-                    throw new PropertyNotImplementedException("SubExposureDuration is only supported by Interface Versions 3 and above.");
+                    throw new ASCOM.NotImplementedException("SubExposureDuration is only supported by Interface Versions 3 and above.");
                 }
                 return base.Device.SubExposureDuration;
             }
@@ -406,7 +406,7 @@ namespace ASCOM.Com.DriverAccess
             {
                 if (InterfaceVersion < 3)
                 {
-                    throw new PropertyNotImplementedException("SubExposureDuration is only supported by Interface Versions 3 and above.");
+                    throw new ASCOM.NotImplementedException("SubExposureDuration is only supported by Interface Versions 3 and above.");
                 }
                 base.Device.SubExposureDuration = value;
             }

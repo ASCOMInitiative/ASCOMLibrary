@@ -50,8 +50,8 @@ namespace ASCOM.Com.DriverAccess
             {
                 if (ex.InnerException?.HResult == ErrorCodes.NotImplemented)
                 {
-                    FakeLogger.LogMessageCrLf(binder.Name, "  Throwing MethodNotImplementedException: '" + binder.Name + "'");
-                    throw new MethodNotImplementedException(binder.Name, ex.InnerException);
+                    FakeLogger.LogMessageCrLf(binder.Name, "  Throwing NotImplementedException: '" + binder.Name + "'");
+                    throw new NotImplementedException(binder.Name, ex.InnerException);
                 }
 
                 CheckDotNetExceptions(binder.Name, ex);
@@ -83,8 +83,8 @@ namespace ASCOM.Com.DriverAccess
 
                 if (ex.InnerException?.HResult == ErrorCodes.NotImplemented)
                 {
-                    FakeLogger.LogMessageCrLf(binder.Name, "  Throwing PropertyNotImplementedException: '" + binder.Name + "'");
-                    throw new PropertyNotImplementedException(binder.Name, false, ex.InnerException);
+                    FakeLogger.LogMessageCrLf(binder.Name, "  Throwing NotImplementedException: '" + binder.Name + "'");
+                    throw new NotImplementedException(binder.Name, ex.InnerException);
                 }
 
                 throw;
@@ -113,8 +113,8 @@ namespace ASCOM.Com.DriverAccess
             {
                 if (ex.InnerException?.HResult == ErrorCodes.NotImplemented)
                 {
-                    FakeLogger.LogMessageCrLf(binder.Name, "  Throwing PropertyNotImplementedException: '" + binder.Name + "'");
-                    throw new PropertyNotImplementedException(binder.Name, false, ex.InnerException);
+                    FakeLogger.LogMessageCrLf(binder.Name, "  Throwing NotImplementedException: '" + binder.Name + "'");
+                    throw new NotImplementedException(binder.Name, ex.InnerException);
                 }
 
                 CheckDotNetExceptions(binder.Name, ex);

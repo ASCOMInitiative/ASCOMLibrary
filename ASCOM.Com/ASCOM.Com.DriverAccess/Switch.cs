@@ -49,7 +49,7 @@ namespace ASCOM.Com.DriverAccess
             {
                 return base.Device.MaxSwitchValue(id);
             }
-            catch (System.NotImplementedException)
+            catch (ASCOM.NotImplementedException)
             {
                 return 1.0;
             }
@@ -61,7 +61,7 @@ namespace ASCOM.Com.DriverAccess
             {
                 return base.Device.MinSwitchValue(id);
             }
-            catch (System.NotImplementedException)
+            catch (ASCOM.NotImplementedException)
             {
                 return 0.0;
             }
@@ -73,7 +73,7 @@ namespace ASCOM.Com.DriverAccess
             {
                 return base.Device.SwitchStep(id);
             }
-            catch (System.NotImplementedException)
+            catch (ASCOM.NotImplementedException)
             {
                 return 1.0;
             }
@@ -85,7 +85,7 @@ namespace ASCOM.Com.DriverAccess
             {
                 return base.Device.GetSwitchValue(id);
             }
-            catch (System.NotImplementedException)
+            catch (ASCOM.NotImplementedException)
             {
                 return this.GetSwitch(id) ? 1.0 : 0.0;
             }
@@ -97,7 +97,7 @@ namespace ASCOM.Com.DriverAccess
             {
                 base.Device.SetSwitchValue(id, value);
             }
-            catch (System.NotImplementedException)
+            catch (ASCOM.NotImplementedException)
             {
                 bool bv = value >= 0.5;
                 this.SetSwitch(id, bv);
