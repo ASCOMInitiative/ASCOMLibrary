@@ -53,13 +53,28 @@ namespace ASCOM.Com.DriverAccess
 
         public int Height => base.Device.Height;
 
-        public int IntegrationRate 
+        public int IntegrationRate
         {
             get => base.Device.IntegrationRate;
             set => base.Device.IntegrationRate = value;
         }
 
-        public IVideoFrame LastVideoFrame => base.Device.LastVideoFrame;
+        public IVideoFrame LastVideoFrame
+        {
+            get 
+            {
+                var frame = base.Device.LastVideoFrame;
+
+                //Convert the ASCOM KeyValuePair to the .Net System version
+                List<KeyValuePair<string, string>> metadata = new List<KeyValuePair<string, string>>();
+                foreach(var pair in frame.ImageMetadata)
+                {
+                    metadata.Add(new KeyValuePair<string, string>(pair.Key(), pair.Value()));
+                }
+
+                return new VideoFrame(frame.ImageArray, frame.PreviewBitmap, frame.FrameNumber, frame.ExposureDuration, frame.ExposureStartTime, metadata);
+            }
+        }
 
         public double PixelSizeX => base.Device.PixelSizeX;
 
