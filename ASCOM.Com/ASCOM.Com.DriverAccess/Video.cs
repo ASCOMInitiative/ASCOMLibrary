@@ -17,8 +17,7 @@ namespace ASCOM.Com.DriverAccess
 
         public int BitDepth => base.Device.BitDepth;
 
-        //ToDo add this type to ASCOM Standard
-        public object CameraState => base.Device.CameraState;
+        public VideoCameraState CameraState => (VideoCameraState)base.Device.CameraState;
 
         public bool CanConfigureDeviceProperties => base.Device.CanConfigureDeviceProperties;
 
@@ -26,8 +25,7 @@ namespace ASCOM.Com.DriverAccess
 
         public double ExposureMin => base.Device.ExposureMin;
 
-        //ToDo add this type to ASCOM Standard
-        public object FrameRate => base.Device.FrameRate;
+        public VideoCameraFrameRate FrameRate => (VideoCameraFrameRate)base.Device.FrameRate;
 
         public short Gain
         {
@@ -39,7 +37,7 @@ namespace ASCOM.Com.DriverAccess
 
         public short GainMin => base.Device.GainMin;
 
-        public List<string> Gains => (base.Device.Gains as IEnumerable).Cast<string>().ToList();
+        public IList<string> Gains => (base.Device.Gains as IEnumerable).Cast<string>().ToList();
 
         public short Gamma
         {
@@ -51,14 +49,32 @@ namespace ASCOM.Com.DriverAccess
 
         public short GammaMin => base.Device.GammaMin;
 
-        public List<string> Gammas => (base.Device.Gammas as IEnumerable).Cast<string>().ToList();
+        public IList<string> Gammas => (base.Device.Gammas as IEnumerable).Cast<string>().ToList();
 
         public int Height => base.Device.Height;
 
-        public int IntegrationRate => base.Device.IntegrationRate;
+        public int IntegrationRate
+        {
+            get => base.Device.IntegrationRate;
+            set => base.Device.IntegrationRate = value;
+        }
 
-        //ToDo add this type to ASCOM Standard
-        public object LastVideoFrame => base.Device.LastVideoFrame;
+        public IVideoFrame LastVideoFrame
+        {
+            get 
+            {
+                var frame = base.Device.LastVideoFrame;
+
+                //Convert the ASCOM KeyValuePair to the .Net System version
+                List<KeyValuePair<string, string>> metadata = new List<KeyValuePair<string, string>>();
+                foreach(var pair in frame.ImageMetadata)
+                {
+                    metadata.Add(new KeyValuePair<string, string>(pair.Key(), pair.Value()));
+                }
+
+                return new VideoFrame(frame.ImageArray, frame.PreviewBitmap, frame.FrameNumber, frame.ExposureDuration, frame.ExposureStartTime, metadata);
+            }
+        }
 
         public double PixelSizeX => base.Device.PixelSizeX;
 
@@ -66,10 +82,9 @@ namespace ASCOM.Com.DriverAccess
 
         public string SensorName => base.Device.SensorName;
 
-        //ToDo add this type to ASCOM Standard
-        public object SensorType => base.Device.SensorType;
+        public SensorType SensorType => (SensorType)base.Device.SensorType;
 
-        public List<double> SupportedIntegrationRates => (base.Device.SupportedIntegrationRates as IEnumerable).Cast<double>().ToList();
+        public IList<double> SupportedIntegrationRates => (base.Device.SupportedIntegrationRates as IEnumerable).Cast<double>().ToList();
 
         public string VideoCaptureDeviceName => base.Device.VideoCaptureDeviceName;
 
@@ -86,9 +101,9 @@ namespace ASCOM.Com.DriverAccess
             base.Device.ConfigureDeviceProperties();
         }
 
-        public void StartRecordingVideoFile(string PreferredFileName)
+        public string StartRecordingVideoFile(string PreferredFileName)
         {
-            base.Device.StartRecordingVideoFile(PreferredFileName);
+            return base.Device.StartRecordingVideoFile(PreferredFileName);
         }
 
         public void StopRecordingVideoFile()
