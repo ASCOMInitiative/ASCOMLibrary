@@ -12,7 +12,6 @@ namespace ASCOM.Com.DriverAccess
 
         public Telescope(string ProgID) : base(ProgID)
         {
-
         }
 
         public new IList<string> SupportedActions
@@ -222,6 +221,7 @@ namespace ASCOM.Com.DriverAccess
                 base.Device.GuideRateDeclination = value;
             }
         }
+
         public double GuideRateRightAscension
         {
             get
@@ -290,6 +290,7 @@ namespace ASCOM.Com.DriverAccess
                 base.Device.SiteLatitude = value;
             }
         }
+
         public double SiteLongitude
         {
             get
@@ -313,9 +314,13 @@ namespace ASCOM.Com.DriverAccess
         public bool Slewing => base.Device.Slewing;
 
         public short SlewSettleTime { get => base.Device.SlewSettleTime; set => base.Device.SlewSettleTime = value; }
+
         public double TargetDeclination { get => base.Device.TargetDeclination; set => base.Device.TargetDeclination = value; }
+
         public double TargetRightAscension { get => base.Device.TargetRightAscension; set => base.Device.TargetRightAscension = value; }
+
         public bool Tracking { get => base.Device.Tracking; set => base.Device.Tracking = value; }
+
         public DriveRate TrackingRate
         {
             get
@@ -488,6 +493,7 @@ namespace ASCOM.Com.DriverAccess
     {
         private readonly List<DriveRate> m_TrackingRates = new List<DriveRate>();
         private int _pos = -1;
+
         //
         // Default constructor - Internal prevents public creation
         // of instances. Returned by Telescope.AxisRates.
@@ -514,7 +520,6 @@ namespace ASCOM.Com.DriverAccess
             return this as IEnumerator;
         }
 
-
         public DriveRate this[int index]
         {
             get
@@ -524,7 +529,8 @@ namespace ASCOM.Com.DriverAccess
                 return m_TrackingRates[index - 1];
             }   // 1-based
         }
-        #endregion
+
+        #endregion ITrackingRates Members
 
         #region IEnumerator implementation
 
@@ -548,7 +554,7 @@ namespace ASCOM.Com.DriverAccess
             }
         }
 
-        #endregion
+        #endregion IEnumerator implementation
 
         #region IDisposable Members
 
@@ -564,7 +570,7 @@ namespace ASCOM.Com.DriverAccess
             if (disposing)
             {
                 // free managed resources
-                /* Following code commented out in Platform 6.4 because m_TrackingRates is a global variable for the whole driver and there could be more than one 
+                /* Following code commented out in Platform 6.4 because m_TrackingRates is a global variable for the whole driver and there could be more than one
                  * instance of the TrackingRates class (created by the calling application). One instance should not invalidate the variable that could be in use
                  * by other instances of which this one is unaware.
 
@@ -573,7 +579,8 @@ namespace ASCOM.Com.DriverAccess
                 */
             }
         }
-        #endregion
+
+        #endregion IDisposable Members
     }
 
     public class AxisRates : IAxisRates, IEnumerable, IEnumerator, IDisposable
@@ -617,7 +624,7 @@ namespace ASCOM.Com.DriverAccess
             }
         }
 
-        #endregion
+        #endregion IAxisRates Members
 
         #region IDisposable Members
 
@@ -637,7 +644,7 @@ namespace ASCOM.Com.DriverAccess
             }
         }
 
-        #endregion
+        #endregion IDisposable Members
 
         #region IEnumerator implementation
 
@@ -661,6 +668,6 @@ namespace ASCOM.Com.DriverAccess
             }
         }
 
-        #endregion
+        #endregion IEnumerator implementation
     }
 }
