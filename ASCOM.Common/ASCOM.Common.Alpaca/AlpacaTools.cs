@@ -38,7 +38,9 @@ namespace ASCOM.Common.Alpaca
         /// Convert an Alpaca error number and message to a byte array for transfer to a client.
         /// </summary>
         /// <param name="metadataVersion">Required metadata version - Currently 1</param>
-        /// <param name="alpacaErrorNumber">Alpaca error number</param>
+        /// <param name="clientTransactionID">Client's transaction ID.</param>
+        /// <param name="serverTransactionID">Device's transaction ID.r</param>
+        /// <param name="alpacaErrorNumber">Alpaca error number</param> 
         /// <param name="errorMessage">Error message to encode.</param>
         /// <returns></returns>
         /// <exception cref="InvalidValueException"></exception>
@@ -97,7 +99,7 @@ namespace ASCOM.Common.Alpaca
         /// <param name="errorMessage">Error message. Empty string for success, error message for an error.</param>
         /// <returns>Byte array prefixed with array metadata.</returns>
         /// <exception cref="InvalidValueException">If only one of the error number and error message indicates an error.</exception>
-        /// <exception cref="InvalidValueException">Image array is null for a successful transaction or the array rank is <2 or >3 or the array is of type object</exception>
+        /// <exception cref="InvalidValueException">Image array is null for a successful transaction or the array rank is &lt;2 or &gt;3 or the array is of type object</exception>
         /// <exception cref="InvalidValueException">The array element type is not supported.</exception>
         /// <remarks>
         /// Int32 source arrays where all elements have Int16, UInt16 or Byte values will automatically be converted to the smaller 
