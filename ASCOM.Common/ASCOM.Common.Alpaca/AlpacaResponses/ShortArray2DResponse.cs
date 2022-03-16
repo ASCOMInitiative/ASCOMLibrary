@@ -42,11 +42,6 @@ namespace ASCOM.Common.Alpaca
         }
 
         /// <summary>
-        /// Short 2d array returned by the device
-        /// </summary>
-        public short[,] Value { get; set; }
-
-        /// <summary>
         /// Image array type (int16)
         /// </summary>
         public ArrayType Type { get; } = ArrayType.Short;
@@ -55,6 +50,11 @@ namespace ASCOM.Common.Alpaca
         /// The array's rank, will be 2 (single plane image (monochrome)).
         /// </summary>
         public int Rank { get; } = 2;
+
+        /// <summary>
+        /// Short 2d array returned by the device
+        /// </summary>
+        public short[,] Value { get; set; }
 
         /// <summary>
         /// Return the value as a string

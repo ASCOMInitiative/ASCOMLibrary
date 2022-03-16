@@ -38,8 +38,6 @@
             base.ErrorNumber = errorCode;
         }
 
-        public int[] Value { get; set; }
-
         /// <summary>
         /// Image array type (int32)
         /// </summary>
@@ -49,6 +47,11 @@
         /// The array's rank is 1
         /// </summary>
         public int Rank { get; } = 1;
+
+        /// <summary>
+        /// 1D image array of int32 values
+        /// </summary>
+        public int[] Value { get; set; }
 
         /// <summary>
         /// Return the value as a string

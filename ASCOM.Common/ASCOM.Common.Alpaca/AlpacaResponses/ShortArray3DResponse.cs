@@ -42,11 +42,6 @@ namespace ASCOM.Common.Alpaca
         }
 
         /// <summary>
-        ///  3D image array of short (int16) values
-        /// </summary>
-        public short[,,] Value { get; set; }
-
-        /// <summary>
         /// Image array type (int16)
         /// </summary>
         public ArrayType Type { get; } = ArrayType.Short;
@@ -55,6 +50,11 @@ namespace ASCOM.Common.Alpaca
         /// The array's rank, will be 3 (multi plane image (colour)).
         /// </summary>
         public int Rank { get; } = 3;
+
+                /// <summary>
+        ///  3D image array of short (int16) values
+        /// </summary>
+        public short[,,] Value { get; set; }
 
         /// <summary>
         /// Return the value as a string

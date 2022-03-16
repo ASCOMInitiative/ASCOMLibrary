@@ -42,11 +42,6 @@ namespace ASCOM.Common.Alpaca
         }
 
         /// <summary>
-        /// 2D image array of int32 values
-        /// </summary>
-        public int[,] Value { get; set; }
-
-        /// <summary>
         /// Image array type (int32)
         /// </summary>
         public ArrayType Type { get; } = ArrayType.Int;
@@ -55,6 +50,11 @@ namespace ASCOM.Common.Alpaca
         /// The array's rank, will be 2 (single plane image (monochrome)).
         /// </summary>
         public int Rank { get; } = 2;
+
+        /// <summary>
+        /// 2D image array of int32 values
+        /// </summary>
+        public int[,] Value { get; set; }
 
         /// <summary>
         /// Return the value as a string
