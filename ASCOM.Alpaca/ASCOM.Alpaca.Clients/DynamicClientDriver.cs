@@ -337,9 +337,21 @@ namespace ASCOM.Alpaca.Clients
                 PreAuthenticate = true
             };
 
-            // Add an HTTP basic authenticator configured with the user name and password to the client
-            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, deviceType, "Creating Authenticator");
-            client.Authenticator = new HttpBasicAuthenticator(userName, password);
+            // Add a basic authenticator if the user name is not null
+            if (!string.IsNullOrEmpty(userName))
+            {
+                // Deal with null passwords
+                if (string.IsNullOrEmpty(password)) // Handle the special case of a null string password
+                {
+                    // Add an HTTP basic authenticator configured with the user name and empty password to the client
+                    client.Authenticator = new HttpBasicAuthenticator(userName, "");
+                }
+                else // Handle the normal case of a non-empty string username and password
+                {
+                    // Add an HTTP basic authenticator configured with the user name and password to the client
+                    client.Authenticator = new HttpBasicAuthenticator(userName, password);
+                }
+            }
 
             // Set the client timeout
             SetClientTimeout(client, deviceResponseTimeout);
