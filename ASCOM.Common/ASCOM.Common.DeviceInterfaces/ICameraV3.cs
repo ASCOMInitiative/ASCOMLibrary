@@ -28,7 +28,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// </remarks>
         /// <exception cref="NotConnectedException">Thrown if the driver is not connected.</exception>
         /// <exception cref="InvalidOperationException">Thrown if abort is not currently possible (e.g. during download).</exception>
-        /// <exception cref="AlpacaException">Thrown if a communications error occurs, or if the abort fails.</exception>
+        /// <exception cref="DriverException">Thrown if a communications error occurs, or if the abort fails.</exception>
         void AbortExposure();
 
         /// <summary>
@@ -410,7 +410,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <param name="Direction">The direction of movement.</param>
         /// <param name="Duration">The duration of movement in milli-seconds.</param>
         /// <exception cref="NotImplementedException">PulseGuide command is unsupported</exception>
-        /// <exception cref=" AlpacaException">PulseGuide command is unsuccessful</exception>
+        /// <exception cref=" DriverException">PulseGuide command is unsuccessful</exception>
         /// <exception cref="NotConnectedException">Thrown if the driver is not connected.</exception>
         void PulseGuide(GuideDirection Direction, int Duration);
 
@@ -425,7 +425,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// thermal shock and potential damage to the CCD array or cooler stack.
         /// </remarks>
         /// <value>The set CCD temperature.</value>
-        /// <exception cref="AlpacaException">Must throw exception if command not successful.</exception>
+        /// <exception cref="DriverException">Must throw exception if command not successful.</exception>
         /// <exception cref="InvalidValueException">Must throw an InvalidValueException if an attempt is made to set a value is outside the 
         /// camera's valid temperature setpoint range.</exception>
         /// <exception cref="NotImplementedException">Must throw exception if <see cref="CanSetCCDTemperature" /> is <c>false</c>.</exception>
@@ -482,7 +482,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// </remarks>
         /// <exception cref="MethodNotImplementedException">Must throw an exception if CanStopExposure is <c>false</c></exception>
         /// <exception cref="NotConnectedException">Must throw an exception if the camera or connection has an error condition</exception>
-        /// <exception cref="AlpacaException">Must throw an exception if for any reason no image readout will be available.</exception>
+        /// <exception cref="DriverException">Must throw an exception if for any reason no image readout will be available.</exception>
         void StopExposure();
 
         #endregion
@@ -531,7 +531,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// Camera has a fast readout mode
         /// </summary>
         /// <exception cref="NotConnectedException">Must throw an exception if the information is not available. (Some drivers may require an
-        /// active <see cref="Connected">connection</see> in order to retrieve necessary information from the camera.)</exception>
+        /// active <see cref="IAscomDevice.Connected">connection</see> in order to retrieve necessary information from the camera.)</exception>
         /// <returns><c>true</c> when the camera supports a fast readout mode</returns>
         /// <remarks><p style="color:red"><b>Must be implemented, must not throw a PropertyNotImplementedException.</b></p>
         /// It is recommended that this function be called only after a <see cref="IAscomDevice.Connected">connection</see> is established with the camera hardware, to 
@@ -599,7 +599,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="NotConnectedException">Thrown if the driver is not connected and a connection is required to obtain this information.</exception>
         /// <remarks><p style="color:red"><b>Must throw a PropertyNotImplementedException if CanFastReadout is false or
         /// return a boolean value if CanFastReadout is true.</b></p>
-        /// Must thrown an exception if no <see cref="Connected">connection</see> is established to the camera. Must throw
+        /// Must thrown an exception if no <see cref="IAscomDevice.Connected">connection</see> is established to the camera. Must throw
         /// a <see cref="PropertyNotImplementedException" /> if <see cref="CanFastReadout" /> returns <c>false</c>.
         /// <para>Many cameras have a "fast mode" intended for use in focusing. When set to <c>true</c>, the camera will operate in Fast mode; when
         /// set <c>false</c>, the camera will operate normally. This property, if implemented, should default to <c>False</c>.</para>
@@ -735,7 +735,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// the camera's current readout mode.</returns>
         /// <exception cref="InvalidValueException">Must throw an exception if set to an illegal or unavailable mode.</exception>
         /// <exception cref="NotConnectedException">Must throw an exception if the information is not available. (Some drivers may require an
-        /// active <see cref="Connected">connection</see> in order to retrieve necessary information from the camera.)</exception>
+        /// active <see cref="IAscomDevice.Connected">connection</see> in order to retrieve necessary information from the camera.)</exception>
         /// <remarks><p style="color:red"><b>Must be implemented if CanFastReadout is false, must throw a PropertyNotImplementedException if
         /// CanFastReadout is true.</b></p>
         /// <see cref="ReadoutMode" /> is an index into the array <see cref="ReadoutModes" />, and selects the desired readout mode for the camera.
@@ -752,7 +752,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// </summary>
         /// <returns>An ArrayList of readout mode names</returns>
         /// <exception cref="NotConnectedException">Must throw an exception if the information is not available. (Some drivers may require an
-        /// active <see cref="Connected">connection</see> in order to retrieve necessary information from the camera.)</exception>
+        /// active <see cref="IAscomDevice.Connected">connection</see> in order to retrieve necessary information from the camera.)</exception>
         /// <remarks><p style="color:red"><b>Must be implemented if CanFastReadout is false, must throw a PropertyNotImplementedException if
         /// CanFastReadout is true.</b></p>
         /// This property provides an array of strings, each of which describes an available readout mode of the camera.
@@ -761,15 +761,15 @@ namespace ASCOM.Common.DeviceInterfaces
         /// Please note that if the camera has many different modes of operation, then the most commonly adjusted settings should be in
         /// <see cref="ReadoutModes" />; additional settings may be provided using <see cref="SetupDialog" />.
         /// <para>To select a mode, the application will set <see cref="ReadoutMode" /> to the index of the desired mode.  The index is zero-based.</para>
-        /// <para>This property should only be read while a <see cref="Connected">connection</see> to the camera is actually established.  Drivers often support
-        /// multiple cameras with different capabilities, which are not known until the <see cref="Connected">connection</see> is made.  If the available readout modes
-        /// are not known because no <see cref="Connected">connection</see> has been established, this property shall throw an exception.</para>
+        /// <para>This property should only be read while a <see cref="IAscomDevice.Connected">connection</see> to the camera is actually established.  Drivers often support
+        /// multiple cameras with different capabilities, which are not known until the <see cref="IAscomDevice.Connected">connection</see> is made.  If the available readout modes
+        /// are not known because no <see cref="IAscomDevice.Connected">connection</see> has been established, this property shall throw an exception.</para>
         /// <para>Please note that the default <see cref="ReadoutMode" /> setting is 0. It is strongly recommended, but not required, that
         /// driver authors use the 0-index mode for standard imaging operations, since it is the default.</para>
         /// <para>This feature may be used in parallel with <see cref="FastReadout" />; however, care should be taken to ensure that the two
         /// features work together consistently. If there are modes that are inconsistent having a separate fast/normal switch, then it
         /// may be better to simply list Fast as one of the <see cref="ReadoutModes" />.</para>
-        /// <para>It is recommended that this function be called only after a <see cref="Connected">connection</see> is established with
+        /// <para>It is recommended that this function be called only after a <see cref="IAscomDevice.Connected">connection</see> is established with
         /// the camera hardware, to ensure that the driver is aware of the capabilities of the specific camera model.</para>
         /// <para>This is only available for the Camera Interface Version 2</para>
         /// </remarks>
@@ -802,7 +802,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <para>The most common usage of this property is to select approximate colour balance parameters to be applied to
         /// the Bayer matrix of one-shot colour sensors.  Application authors should assume that an appropriate IR cut-off filter is
         /// in place for colour sensors.</para>
-        /// <para>It is recommended that this function be called only after a <see cref="Connected">connection</see> is established with
+        /// <para>It is recommended that this function be called only after a <see cref="IAscomDevice.Connected">connection</see> is established with
         /// the camera hardware, to ensure that the driver is aware of the capabilities of the specific camera model.</para>
         /// <para>This is only available for the Camera Interface Version 2</para>
         /// </remarks>
@@ -1482,7 +1482,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// </tr>
         /// </table>
         /// </para>
-        /// <para>It is recommended that this function be called only after a <see cref="Connected">connection</see> is established with the camera hardware, to ensure that
+        /// <para>It is recommended that this function be called only after a <see cref="IAscomDevice.Connected">connection</see> is established with the camera hardware, to ensure that
         /// the driver is aware of the capabilities of the specific camera model.</para>
         /// </remarks>
         SensorType SensorType { get; }

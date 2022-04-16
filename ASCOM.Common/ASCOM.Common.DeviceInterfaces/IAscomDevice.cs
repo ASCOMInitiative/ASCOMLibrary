@@ -21,7 +21,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// of driver capabilities, but the driver must still throw an ASCOM.ActionNotImplemented exception if it is asked to 
         /// perform an action that it does not support.</exception>
         /// <exception cref="NotConnectedException">If the driver is not connected.</exception>
-        /// <exception cref="AlpacaException">Must throw an exception if the call was not successful</exception>
+        /// <exception cref="DriverException">Must throw an exception if the call was not successful</exception>
         /// <example>Suppose filter wheels start to appear with automatic wheel changers; new actions could 
         /// be “FilterWheel:QueryWheels” and “FilterWheel:SelectWheel”. The former returning a 
         /// formatted list of wheel names and the second taking a wheel name and making the change, returning appropriate 
@@ -54,7 +54,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// </param>
         /// <exception cref="NotImplementedException">If the method is not implemented</exception>
         /// <exception cref="NotConnectedException">If the driver is not connected.</exception>
-        /// <exception cref="AlpacaException">Must throw an exception if the call was not successful</exception>
+        /// <exception cref="DriverException">Must throw an exception if the call was not successful</exception>
         /// <remarks><p style="color:red"><b>May throw a NotImplementedException.</b></p> </remarks>
         void CommandBlind(string Command, bool Raw = false);
 
@@ -72,7 +72,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// </returns>
         /// <exception cref="NotImplementedException">If the method is not implemented</exception>
         /// <exception cref="NotConnectedException">If the driver is not connected.</exception>
-        /// <exception cref="AlpacaException">Must throw an exception if the call was not successful</exception>
+        /// <exception cref="DriverException">Must throw an exception if the call was not successful</exception>
         /// <remarks><p style="color:red"><b>May throw a NotImplementedException.</b></p> </remarks>
         bool CommandBool(string Command, bool Raw = false);
 
@@ -90,7 +90,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// </returns>
         /// <exception cref="NotImplementedException">If the method is not implemented</exception>
         /// <exception cref="NotConnectedException">If the driver is not connected.</exception>
-        /// <exception cref="AlpacaException">Must throw an exception if the call was not successful</exception>
+        /// <exception cref="DriverException">Must throw an exception if the call was not successful</exception>
         /// <remarks><p style="color:red"><b>May throw a NotImplementedException.</b></p> </remarks>
         string CommandString(string Command, bool Raw = false);
 
@@ -144,7 +144,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// Returns the list of action names supported by this driver.
         /// </summary>
         /// <value>An ArrayList of strings (SafeArray collection) containing the names of supported actions.</value>
-        /// <exception cref="AlpacaException">Must throw an exception if the call was not successful</exception>
+        /// <exception cref="DriverException">Must throw an exception if the call was not successful</exception>
         /// <remarks><p style="color:red"><b>Must be implemented</b></p> This method must return an empty arraylist if no actions are supported. Please do not throw a 
         /// <see cref="NotImplementedException" />.
         /// <para>This is an aid to client authors and testers who would otherwise have to repeatedly poll the driver to determine its capabilities. 

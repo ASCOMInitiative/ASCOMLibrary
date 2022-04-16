@@ -22,8 +22,8 @@ namespace ASCOM.Common.Alpaca
         /// <param name="transmissionElementType">Element type actually sent.</param>
         /// <param name="arrayRank">Rank of the arrayresultant array.</param>
         /// <param name="arrayDimension1">Size of the first dimension of the resultant array (array[Dimension1, Dimension2, Dimension3]).</param>
-        /// <param name="arrayDimension1">Size of the second dimension of the resultant array (array[Dimension1, Dimension2, Dimension3]).</param>
-        /// <param name="arrayDimension2">Size of the third dimension of the resultant array (array[Dimension1, Dimension2, Dimension3]).</param>
+        /// <param name="arrayDimension2">Size of the second dimension of the resultant array (array[Dimension1, Dimension2, Dimension3]).</param>
+        /// <param name="arrayDimension3">Size of the third dimension of the resultant array (array[Dimension1, Dimension2, Dimension3]).</param>
         public ArrayMetadataV1(AlpacaErrors errorNumber,
                                uint clientTransactionID,
                                uint serverTransactionID,

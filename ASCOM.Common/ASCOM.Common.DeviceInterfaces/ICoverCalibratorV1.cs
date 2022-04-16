@@ -29,7 +29,7 @@
         /// Initiates cover opening if a cover is present
         /// </summary>
         /// <exception cref="MethodNotImplementedException">When <see cref="CoverState"/> returns <see cref="CoverStatus.NotPresent"/>.</exception>
-        /// <exception cref="NotConnectedException">When <see cref="Connected"/> is False.</exception>
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <remarks>
         /// <para>While the cover is opening <see cref="CoverState"/> must return <see cref="CoverStatus.Moving"/>.</para>
         /// <para>When the cover is open <see cref="CoverState"/> must return <see cref="CoverStatus.Open"/>.</para>
@@ -41,7 +41,7 @@
         /// Initiates cover closing if a cover is present
         /// </summary>
         /// <exception cref="MethodNotImplementedException">When <see cref="CoverState"/> returns <see cref="CoverStatus.NotPresent"/>.</exception>
-        /// <exception cref="NotConnectedException">When <see cref="Connected"/> is False.</exception>
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <remarks>
         /// <para>While the cover is closing <see cref="CoverState"/> must return <see cref="CoverStatus.Moving"/>.</para>
         /// <para>When the cover is closed <see cref="CoverState"/> must return <see cref="CoverStatus.Closed"/>.</para>
@@ -53,7 +53,7 @@
         /// Stops any cover movement that may be in progress if a cover is present and cover movement can be interrupted.
         /// </summary>
         /// <exception cref="MethodNotImplementedException">When <see cref="CoverState"/> returns <see cref="CoverStatus.NotPresent"/> or if cover movement cannot be interrupted.</exception>
-        /// <exception cref="NotConnectedException">When <see cref="Connected"/> is False.</exception>
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <remarks>
         /// <para>This must stop any cover movement as soon as possible and set a <see cref="CoverState"/> of <see cref="CoverStatus.Open"/>, <see cref="CoverStatus.Closed"/> 
         /// or <see cref="CoverStatus.Unknown"/> as appropriate.</para>
@@ -101,7 +101,7 @@
         /// </summary>
         /// <param name="Brightness">Sets the required calibrator illumination brightness in the range 0 (fully off) to <see cref="MaxBrightness"/> (fully on).</param>
         /// <exception cref="MethodNotImplementedException">When <see cref="CalibratorState"/> returns <see cref="CalibratorStatus.NotPresent"/>.</exception>
-        /// <exception cref="NotConnectedException">When <see cref="Connected"/> is False.</exception>
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="InvalidValueException">When the supplied brightness parameter is outside the range 0 to <see cref="MaxBrightness"/>.</exception>
         /// <remarks>
         /// <para>This is a mandatory method for a calibrator device that must be implemented.</para>
@@ -116,7 +116,7 @@
         /// Turns the calibrator off if the device has calibration capability
         /// </summary>
         /// <exception cref="MethodNotImplementedException">When <see cref="CalibratorState"/> returns <see cref="CalibratorStatus.NotPresent"/>.</exception>
-        /// <exception cref="NotConnectedException">When <see cref="Connected"/> is False.</exception>
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <remarks>
         /// <para>This is a mandatory method for a calibrator device.</para>
         /// <para>If the calibrator requires time to safely stabilise after use, <see cref="CalibratorState"/> must return <see cref="CalibratorStatus.NotReady"/>. When the 
