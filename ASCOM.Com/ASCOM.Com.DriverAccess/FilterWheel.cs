@@ -1,11 +1,12 @@
 ﻿using ASCOM.Common.DeviceInterfaces;
 using System.Collections.Generic;
+using ASCOM.Common.Devices;
 
 namespace ASCOM.Com.DriverAccess
 {
     public class FilterWheel : ASCOMDevice, IFilterWheelV2
     {
-        public static List<ASCOMRegistration> FilterWheels => ProfileAccess.GetDrivers(DriverTypes.FilterWheel);
+        public static List<ASCOMRegistration> FilterWheels => Profile.GetDrivers(DeviceTypes.FilterWheel);
 
         public FilterWheel(string ProgID) : base(ProgID)
         {

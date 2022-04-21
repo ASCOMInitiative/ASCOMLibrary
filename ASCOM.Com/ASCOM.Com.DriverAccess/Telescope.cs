@@ -3,12 +3,13 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
+using ASCOM.Common.Devices;
 
 namespace ASCOM.Com.DriverAccess
 {
     public class Telescope : ASCOMDevice, ITelescopeV3
     {
-        public static List<ASCOMRegistration> Telescopes => ProfileAccess.GetDrivers(DriverTypes.Telescope);
+        public static List<ASCOMRegistration> Telescopes => Profile.GetDrivers(DeviceTypes.Telescope);
 
         public Telescope(string ProgID) : base(ProgID)
         {

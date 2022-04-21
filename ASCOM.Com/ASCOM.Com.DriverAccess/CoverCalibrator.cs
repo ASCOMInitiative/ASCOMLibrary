@@ -1,11 +1,12 @@
 ﻿using ASCOM.Common.DeviceInterfaces;
 using System.Collections.Generic;
+using ASCOM.Common.Devices;
 
 namespace ASCOM.Com.DriverAccess
 {
     public class CoverCalibrator : ASCOMDevice, ICoverCalibratorV1
     {
-        public static List<ASCOMRegistration> CoverCalibrators => ProfileAccess.GetDrivers(DriverTypes.CoverCalibrator);
+        public static List<ASCOMRegistration> CoverCalibrators => Profile.GetDrivers(DeviceTypes.CoverCalibrator);
 
         public CoverCalibrator(string ProgID) : base(ProgID)
         {

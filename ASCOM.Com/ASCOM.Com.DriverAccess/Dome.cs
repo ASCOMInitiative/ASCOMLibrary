@@ -1,11 +1,12 @@
 ﻿using ASCOM.Common.DeviceInterfaces;
 using System.Collections.Generic;
+using ASCOM.Common.Devices;
 
 namespace ASCOM.Com.DriverAccess
 {
     public class Dome : ASCOMDevice, IDomeV2
     {
-        public static List<ASCOMRegistration> Domes => ProfileAccess.GetDrivers(DriverTypes.Dome);
+        public static List<ASCOMRegistration> Domes => Profile.GetDrivers(DeviceTypes.Dome);
 
         public Dome(string ProgID) : base(ProgID)
         {

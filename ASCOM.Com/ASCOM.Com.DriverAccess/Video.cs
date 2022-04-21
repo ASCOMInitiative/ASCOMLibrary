@@ -2,13 +2,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using ASCOM.Common.Devices;
 
 namespace ASCOM.Com.DriverAccess
 {
     //Note: Currently Video is not a part of ASCOM Standard.
     public class Video : ASCOMDevice, IVideo
     {
-        public static List<ASCOMRegistration> Videos => ProfileAccess.GetDrivers(DriverTypes.Video);
+        public static List<ASCOMRegistration> Videos => Profile.GetDrivers(DeviceTypes.Video);
 
         public Video(string ProgID) : base(ProgID)
         {

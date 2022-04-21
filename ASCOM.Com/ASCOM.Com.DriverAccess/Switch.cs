@@ -1,11 +1,12 @@
 ﻿using ASCOM.Common.DeviceInterfaces;
 using System.Collections.Generic;
+using ASCOM.Common.Devices;
 
 namespace ASCOM.Com.DriverAccess
 {
     public class Switch : ASCOMDevice, ISwitchV2
     {
-        public static List<ASCOMRegistration> Switches => ProfileAccess.GetDrivers(DriverTypes.Switch);
+        public static List<ASCOMRegistration> Switches => Profile.GetDrivers(DeviceTypes.Switch);
 
         public Switch(string ProgID) : base(ProgID)
         {

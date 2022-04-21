@@ -1,4 +1,5 @@
 ﻿using ASCOM.Common.DeviceInterfaces;
+using ASCOM.Common.Devices;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +8,7 @@ namespace ASCOM.Com.DriverAccess
 {
     public class Camera : ASCOMDevice, ICameraV3
     {
-        public static List<ASCOMRegistration> Cameras => ProfileAccess.GetDrivers(DriverTypes.Camera);
+        public static List<ASCOMRegistration> Cameras => Profile.GetDrivers(DeviceTypes.Camera);
 
         public Camera(string ProgID) : base(ProgID)
         {

@@ -1,11 +1,12 @@
 ﻿using ASCOM.Common.DeviceInterfaces;
 using System.Collections.Generic;
+using ASCOM.Common.Devices;
 
 namespace ASCOM.Com.DriverAccess
 {
     public class Rotator : ASCOMDevice, IRotatorV3
     {
-        public static List<ASCOMRegistration> Rotators => ProfileAccess.GetDrivers(DriverTypes.Rotator);
+        public static List<ASCOMRegistration> Rotators => Profile.GetDrivers(DeviceTypes.Rotator);
 
         public Rotator(string ProgID) : base(ProgID)
         {

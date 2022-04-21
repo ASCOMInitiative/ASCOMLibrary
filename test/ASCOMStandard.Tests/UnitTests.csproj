@@ -27,6 +27,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\ASCOM.Common\ASCOM.Common.csproj" />
+      <ProjectReference Include="..\..\ASCOM.Com\ASCOM.Com.csproj" />
       <ProjectReference Include="..\..\ASCOM.Tools\ASCOM.Tools.csproj" />
     </ItemGroup>
 

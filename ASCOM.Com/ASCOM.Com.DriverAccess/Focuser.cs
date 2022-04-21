@@ -1,11 +1,12 @@
 ﻿using ASCOM.Common.DeviceInterfaces;
 using System.Collections.Generic;
+using ASCOM.Common.Devices;
 
 namespace ASCOM.Com.DriverAccess
 {
     public class Focuser : ASCOMDevice, IFocuserV3
     {
-        public static List<ASCOMRegistration> Focusers => ProfileAccess.GetDrivers(DriverTypes.Focuser);
+        public static List<ASCOMRegistration> Focusers => Profile.GetDrivers(DeviceTypes.Focuser);
 
         public Focuser(string ProgID) : base(ProgID)
         {

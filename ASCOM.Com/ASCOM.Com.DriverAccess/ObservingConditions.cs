@@ -1,11 +1,12 @@
 ﻿using ASCOM.Common.DeviceInterfaces;
 using System.Collections.Generic;
+using ASCOM.Common.Devices;
 
 namespace ASCOM.Com.DriverAccess
 {
     public class ObservingConditions : ASCOMDevice, IObservingConditions
     {
-        public static List<ASCOMRegistration> ObservingConditionDrivers => ProfileAccess.GetDrivers(DriverTypes.ObservingConditions);
+        public static List<ASCOMRegistration> ObservingConditionDrivers => Profile.GetDrivers(DeviceTypes.ObservingConditions);
 
         public ObservingConditions(string ProgID) : base(ProgID)
         {
