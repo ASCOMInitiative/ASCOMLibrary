@@ -6,7 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
-using ASCOM.Common.Devices;
+using ASCOM.Common;
 using System.Xml.Linq;
 
 namespace ASCOM.Com

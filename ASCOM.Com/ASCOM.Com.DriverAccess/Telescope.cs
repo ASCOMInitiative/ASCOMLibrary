@@ -3,7 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
-using ASCOM.Common.Devices;
+using ASCOM.Common;
 
 namespace ASCOM.Com.DriverAccess
 {

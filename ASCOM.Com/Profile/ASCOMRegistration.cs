@@ -1,4 +1,4 @@
-﻿namespace ASCOM.Com.DriverAccess
+﻿namespace ASCOM.Com
 {
     /// <summary>
     /// A class that represents the registration data for a driver that is stored in the ASCOM Register

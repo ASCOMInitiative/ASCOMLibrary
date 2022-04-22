@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using ASCOM.Common.Devices;
+using ASCOM.Common;
 
 namespace ASCOM.Com.DriverAccess
 {

@@ -1,6 +1,6 @@
 ﻿using ASCOM.Common.DeviceInterfaces;
 using System.Collections.Generic;
-using ASCOM.Common.Devices;
+using ASCOM.Common;
 
 namespace ASCOM.Com.DriverAccess
 {

@@ -1,4 +1,4 @@
-﻿namespace ASCOM.Common.Devices
+﻿namespace ASCOM.Common
 {
     // NOTE
     // NOTE - Member spelling in this enumeration must be the same as the expected spelling when using the device type as a string.

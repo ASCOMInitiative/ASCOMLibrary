@@ -1,5 +1,5 @@
 ﻿using ASCOM.Common.DeviceInterfaces;
-using ASCOM.Common.Devices;
+using ASCOM.Common;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;

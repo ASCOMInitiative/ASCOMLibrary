@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace ASCOM.Common.Devices
+namespace ASCOM.Common
 {
     public static class Devices
     {
