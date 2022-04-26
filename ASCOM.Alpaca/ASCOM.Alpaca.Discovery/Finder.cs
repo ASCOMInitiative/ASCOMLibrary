@@ -163,7 +163,7 @@ namespace ASCOM.Alpaca.Discovery
                 LogMessage($"ReceiveCallback", $"Received {ReceiveString} from Alpaca device at {endpoint.Address}");
 
                 // Configure the UdpClient class to accept more messages, if they arrive
-                udpClient.BeginReceive(ReceiveCallback, udpClient);
+                udpClient.BeginReceive(new AsyncCallback(ReceiveCallback), udpClient);
 
                 // Accept responses containing the discovery response string and don't respond to your own transmissions
                 if (ReceiveString.ToLowerInvariant().Contains(Constants.ResponseString.ToLowerInvariant())) // Accept responses in any casing so that bad casing can be reported
@@ -375,7 +375,7 @@ namespace ASCOM.Alpaca.Discovery
             //0 tells OS to give us a free ephemeral port
             client.Client.Bind(new IPEndPoint(host, port));
 
-            client.BeginReceive(ReceiveCallback, client);
+            client.BeginReceive(new AsyncCallback(ReceiveCallback), client);
 
             return client;
         }
