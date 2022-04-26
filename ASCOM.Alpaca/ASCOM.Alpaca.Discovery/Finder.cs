@@ -20,7 +20,7 @@ namespace ASCOM.Alpaca.Discovery
         private readonly ILogger logger; // Optional logger
         private int discoveryPort = Constants.DiscoveryPort; // Default to the standard discovery port
         private readonly UdpClient iPv4Client; // UDP client to send and listen for IPv4 broadcasts
-        private readonly Dictionary<IPAddress, UdpClient> IPv6Clients = new Dictionary<IPAddress, UdpClient>(); // Colleciton of IP v6 clients for the various link local and localhost networks
+        private readonly Dictionary<IPAddress, UdpClient> IPv6Clients = new Dictionary<IPAddress, UdpClient>(); // Collection of IP v6 clients for the various link local and localhost networks
         private bool disposedValue; // Disposed variable
 
         #region Initialisation and Dispose
@@ -39,7 +39,7 @@ namespace ASCOM.Alpaca.Discovery
                 MulticastLoopback = false
             };
 
-            // 0 tells OS to give us a free ethereal port
+            // 0 tells OS to give us a free ephemeral port
             iPv4Client.Client.Bind(new IPEndPoint(IPAddress.Any, 0));
             iPv4Client.BeginReceive(ReceiveCallback, iPv4Client);
         }
@@ -346,7 +346,7 @@ namespace ASCOM.Alpaca.Discovery
         {
             var client = new UdpClient(AddressFamily.InterNetworkV6);
 
-            //0 tells OS to give us a free ethereal port
+            //0 tells OS to give us a free ephemeral port
             client.Client.Bind(new IPEndPoint(host, port));
 
             client.BeginReceive(ReceiveCallback, client);
