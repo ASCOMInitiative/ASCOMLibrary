@@ -152,18 +152,16 @@ namespace ASCOM.Alpaca.Discovery
         private void ReceiveCallback(IAsyncResult ar)
         {
             IPEndPoint endpoint = null;
+            UdpClient udpClient = null;
             try
             {
-                UdpClient udpClient = (UdpClient)ar.AsyncState;
+                udpClient = (UdpClient)ar.AsyncState;
 
                 endpoint = new IPEndPoint(IPAddress.Any, discoveryPort);
 
                 // Obtain the UDP message body and convert it to a string, with remote IP address attached as well
                 string ReceiveString = Encoding.ASCII.GetString(udpClient.EndReceive(ar, ref endpoint));
                 LogMessage($"ReceiveCallback", $"Received {ReceiveString} from Alpaca device at {endpoint.Address}");
-
-                // Configure the UdpClient class to accept more messages, if they arrive
-                udpClient.BeginReceive(new AsyncCallback(ReceiveCallback), udpClient);
 
                 // Accept responses containing the discovery response string and don't respond to your own transmissions
                 if (ReceiveString.ToLowerInvariant().Contains(Constants.ResponseString.ToLowerInvariant())) // Accept responses in any casing so that bad casing can be reported
@@ -196,6 +194,18 @@ namespace ASCOM.Alpaca.Discovery
                 Tools.Logger.LogError($"Failed to parse response from {endpoint} with exception: {ex.Message}");
                 LogMessage("ReceiveCallback", $"Exception from {endpoint}: " + ex.ToString());
 
+            }
+            finally
+            {
+                try
+                {
+                    // Configure the UdpClient class to accept more messages, if they arrive
+                    udpClient?.BeginReceive(new AsyncCallback(ReceiveCallback), udpClient);
+                }
+                catch (Exception ex)
+                {
+                    Tools.Logger.LogError($"Error restarting search: {ex.Message}");
+                }
             }
         }
 
