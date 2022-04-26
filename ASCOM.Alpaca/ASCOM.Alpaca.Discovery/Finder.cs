@@ -19,7 +19,7 @@ namespace ASCOM.Alpaca.Discovery
         private readonly bool strictCasing = true; // Default to strict casing of the AlpacaPort JSON variable name
         private readonly ILogger logger; // Optional logger
         private int discoveryPort = Constants.DiscoveryPort; // Default to the standard discovery port
-        private readonly UdpClient iPv4Client; // UDP client to send and listen for IPv4 broadcasts
+        private readonly Dictionary<IPAddress, UdpClient> IPv4Clients = new Dictionary<IPAddress, UdpClient>(); // Collection of IP v4 clients for the various link local and localhost networks
         private readonly Dictionary<IPAddress, UdpClient> IPv6Clients = new Dictionary<IPAddress, UdpClient>(); // Collection of IP v6 clients for the various link local and localhost networks
         private bool disposedValue; // Disposed variable
 
@@ -33,15 +33,7 @@ namespace ASCOM.Alpaca.Discovery
         /// </summary>
         public Finder()
         {
-            iPv4Client = new UdpClient()
-            {
-                EnableBroadcast = true,
-                MulticastLoopback = false
-            };
 
-            // 0 tells OS to give us a free ephemeral port
-            iPv4Client.Client.Bind(new IPEndPoint(IPAddress.Any, 0));
-            iPv4Client.BeginReceive(ReceiveCallback, iPv4Client);
         }
 
         /// <summary>
@@ -66,13 +58,18 @@ namespace ASCOM.Alpaca.Discovery
                 if (disposing)
                 {
                     //Dispose IPv4
-                    try
+                    foreach (var dev in IPv4Clients)
                     {
-                        iPv4Client.Dispose();
+                        try
+                        {
+                            dev.Value.Dispose();
+                        }
+                        catch
+                        {
+                        }
                     }
-                    catch
-                    {
-                    }
+
+                    IPv4Clients.Clear();
 
                     //Dispose IPv6 clients
                     foreach (var dev in IPv6Clients)
@@ -235,8 +232,25 @@ namespace ASCOM.Alpaca.Discovery
                                     if (uni.Address.AddressFamily != AddressFamily.InterNetwork)
                                         continue;
 
+                                    if (uni.IPv4Mask == IPAddress.Parse("255.255.255.255"))
+                                    {
+                                        //No broadcast on single device endpoint
+                                        continue;
+                                    }
+
+                                    if (!IPv4Clients.ContainsKey(uni.Address))
+                                    {
+                                        IPv4Clients.Add(uni.Address, NewIPv4Client(uni.Address));
+                                    }
+
+                                    if (!IPv4Clients[uni.Address].Client.IsBound)
+                                    {
+                                        IPv4Clients.Remove(uni.Address);
+                                        continue;
+                                    }
+
                                     // Local host addresses (127.*.*.*) may have a null mask in Net Framework. We do want to search these. The correct mask is 255.0.0.0.
-                                    iPv4Client.Send(Constants.DiscoveryMessageArray, Constants.DiscoveryMessageArray.Length, new IPEndPoint(GetBroadcastAddress(uni.Address, uni.IPv4Mask ?? IPAddress.Parse("255.0.0.0")), discoveryPort));
+                                    IPv4Clients[uni.Address].Send(Constants.DiscoveryMessageArray, Constants.DiscoveryMessageArray.Length, new IPEndPoint(GetBroadcastAddress(uni.Address, uni.IPv4Mask ?? IPAddress.Parse("255.0.0.0")), discoveryPort));
                                     LogMessage("SearchIPv4", $"Sent broadcast to: {uni.Address}");
 
                                 }
@@ -253,6 +267,29 @@ namespace ASCOM.Alpaca.Discovery
                     ASCOM.Tools.Logger.LogError(ex.Message);
                 }
             }
+        }
+
+
+        private UdpClient NewIPv4Client(IPAddress host)
+        {
+            var client = new UdpClient();
+
+            client.EnableBroadcast = true;
+            client.MulticastLoopback = false;
+
+            //Fix for ICMP Reset
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                int SIO_UDP_CONNRESET = -1744830452;
+                client.Client.IOControl((IOControlCode)SIO_UDP_CONNRESET, new byte[] { 0, 0, 0, 0 }, null);
+            }
+
+            //0 tells OS to give us a free ephemeral port
+            client.Client.Bind(new IPEndPoint(IPAddress.Any, 0));
+
+            client.BeginReceive(new AsyncCallback(ReceiveCallback), client);
+
+            return client;
         }
 
         /// <summary>
@@ -306,7 +343,7 @@ namespace ASCOM.Alpaca.Discovery
                                         {
                                             if (!IPv6Clients.ContainsKey(uni.Address))
                                             {
-                                                IPv6Clients.Add(uni.Address, NewClient(uni.Address, 0));
+                                                IPv6Clients.Add(uni.Address, NewIPv6Client(uni.Address, 0));
                                             }
 
                                             IPv6Clients[uni.Address].Send(Constants.DiscoveryMessageArray, Constants.DiscoveryMessageArray.Length, new IPEndPoint(IPAddress.Parse(Constants.MulticastGroup), discoveryPort));
@@ -335,14 +372,14 @@ namespace ASCOM.Alpaca.Discovery
             {
                 if (!IPv6Clients.ContainsKey(IPAddress.IPv6Any))
                 {
-                    IPv6Clients.Add(IPAddress.IPv6Any, NewClient(IPAddress.IPv6Any, 0));
+                    IPv6Clients.Add(IPAddress.IPv6Any, NewIPv6Client(IPAddress.IPv6Any, 0));
                 }
 
                 IPv6Clients[IPAddress.IPv6Any].Send(Constants.DiscoveryMessageArray, Constants.DiscoveryMessageArray.Length, new IPEndPoint(IPAddress.Parse(Constants.MulticastGroup), discoveryPort));
             }
         }
 
-        private UdpClient NewClient(IPAddress host, int port)
+        private UdpClient NewIPv6Client(IPAddress host, int port)
         {
             var client = new UdpClient(AddressFamily.InterNetworkV6);
 
