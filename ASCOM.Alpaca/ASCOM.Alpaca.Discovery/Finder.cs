@@ -300,82 +300,71 @@ namespace ASCOM.Alpaca.Discovery
         {
             LogMessage("SearchIPv6", $"Sending IPv6 discovery broadcasts");
 
-            // Windows needs to bind a socket to each adapter explicitly
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            // Bind a socket to each adapter explicitly
+
+            foreach (var adapter in NetworkInterface.GetAllNetworkInterfaces())
             {
-                foreach (var adapter in NetworkInterface.GetAllNetworkInterfaces())
+                try
                 {
-                    try
+                    LogMessage("SearchIPv6", $"Found network interface {adapter.Description}, Interface type: {adapter.NetworkInterfaceType} - supports multicast: {adapter.SupportsMulticast}");
+                    if (adapter.OperationalStatus != OperationalStatus.Up)
+                        continue;
+                    LogMessage("SearchIPv6", $"Interface is up");
+
+                    if (adapter.Supports(NetworkInterfaceComponent.IPv6) && adapter.SupportsMulticast)
                     {
-                        LogMessage("SearchIPv6", $"Found network interface {adapter.Description}, Interface type: {adapter.NetworkInterfaceType} - supports multicast: {adapter.SupportsMulticast}");
-                        if (adapter.OperationalStatus != OperationalStatus.Up)
+                        LogMessage("SearchIPv6", $"Interface supports IPv6");
+
+                        IPInterfaceProperties adapterProperties = adapter.GetIPProperties();
+                        if (adapterProperties == null)
                             continue;
-                        LogMessage("SearchIPv6", $"Interface is up");
 
-                        if (adapter.Supports(NetworkInterfaceComponent.IPv6) && adapter.SupportsMulticast)
+                        UnicastIPAddressInformationCollection uniCast = adapterProperties.UnicastAddresses;
+                        LogMessage("SearchIPv6", $"Adapter does have properties. Number of unicast addresses: {uniCast.Count}");
+
+                        if (uniCast.Count > 0)
                         {
-                            LogMessage("SearchIPv6", $"Interface supports IPv6");
-
-                            IPInterfaceProperties adapterProperties = adapter.GetIPProperties();
-                            if (adapterProperties == null)
-                                continue;
-
-                            UnicastIPAddressInformationCollection uniCast = adapterProperties.UnicastAddresses;
-                            LogMessage("SearchIPv6", $"Adapter does have properties. Number of unicast addresses: {uniCast.Count}");
-
-                            if (uniCast.Count > 0)
+                            foreach (UnicastIPAddressInformation uni in uniCast)
                             {
-                                foreach (UnicastIPAddressInformation uni in uniCast)
+                                try
                                 {
+                                    if (uni.Address.AddressFamily != AddressFamily.InterNetworkV6)
+                                        continue;
+                                    LogMessage("SearchIPv6", $"Interface {uni.Address} supports IPv6 - IsLinkLocal: {uni.Address.IsIPv6LinkLocal}, LocalHost: {uni.Address == IPAddress.Parse("::1")}");
+
+                                    //Only use LinkLocal or LocalHost addresses
+                                    //if (!uni.Address.IsIPv6LinkLocal && uni.Address != IPAddress.Parse("::1"))
+                                    //    continue;
+                                    if (!uni.Address.IsIPv6LinkLocal && !IPAddress.IsLoopback(uni.Address))
+                                        continue;
+
                                     try
                                     {
-                                        if (uni.Address.AddressFamily != AddressFamily.InterNetworkV6)
-                                            continue;
-                                        LogMessage("SearchIPv6", $"Interface {uni.Address} supports IPv6 - IsLinkLocal: {uni.Address.IsIPv6LinkLocal}, LocalHost: {uni.Address == IPAddress.Parse("::1")}");
-
-                                        //Only use LinkLocal or LocalHost addresses
-                                        //if (!uni.Address.IsIPv6LinkLocal && uni.Address != IPAddress.Parse("::1"))
-                                        //    continue;
-                                        if (!uni.Address.IsIPv6LinkLocal && !IPAddress.IsLoopback(uni.Address))
-                                            continue;
-
-                                        try
+                                        if (!IPv6Clients.ContainsKey(uni.Address))
                                         {
-                                            if (!IPv6Clients.ContainsKey(uni.Address))
-                                            {
-                                                IPv6Clients.Add(uni.Address, NewIPv6Client(uni.Address, 0));
-                                            }
-
-                                            IPv6Clients[uni.Address].Send(Constants.DiscoveryMessageArray, Constants.DiscoveryMessageArray.Length, new IPEndPoint(IPAddress.Parse(Constants.MulticastGroup), discoveryPort));
-                                            LogMessage("SearchIPv6", $"Sent multicast IPv6 discovery packet");
-
+                                            IPv6Clients.Add(uni.Address, NewIPv6Client(uni.Address, 0));
                                         }
-                                        catch (SocketException)
-                                        {
-                                        }
+
+                                        IPv6Clients[uni.Address].Send(Constants.DiscoveryMessageArray, Constants.DiscoveryMessageArray.Length, new IPEndPoint(IPAddress.Parse(Constants.MulticastGroup), discoveryPort));
+                                        LogMessage("SearchIPv6", $"Sent multicast IPv6 discovery packet");
+
                                     }
-                                    catch (Exception ex)
+                                    catch (SocketException)
                                     {
-                                        ASCOM.Tools.Logger.LogError(ex.Message);
                                     }
+                                }
+                                catch (Exception ex)
+                                {
+                                    ASCOM.Tools.Logger.LogError(ex.Message);
                                 }
                             }
                         }
                     }
-                    catch (Exception ex)
-                    {
-                        ASCOM.Tools.Logger.LogError(ex.Message);
-                    }
                 }
-            }
-            else
-            {
-                if (!IPv6Clients.ContainsKey(IPAddress.IPv6Any))
+                catch (Exception ex)
                 {
-                    IPv6Clients.Add(IPAddress.IPv6Any, NewIPv6Client(IPAddress.IPv6Any, 0));
+                    ASCOM.Tools.Logger.LogError(ex.Message);
                 }
-
-                IPv6Clients[IPAddress.IPv6Any].Send(Constants.DiscoveryMessageArray, Constants.DiscoveryMessageArray.Length, new IPEndPoint(IPAddress.Parse(Constants.MulticastGroup), discoveryPort));
             }
         }
 
@@ -387,8 +376,6 @@ namespace ASCOM.Alpaca.Discovery
             client.Client.Bind(new IPEndPoint(host, port));
 
             client.BeginReceive(ReceiveCallback, client);
-
-            client.Send(Constants.DiscoveryMessageArray, Constants.DiscoveryMessageArray.Length, new IPEndPoint(IPAddress.Parse(Constants.MulticastGroup), discoveryPort));
 
             return client;
         }
