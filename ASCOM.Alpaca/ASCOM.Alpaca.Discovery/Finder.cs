@@ -250,7 +250,7 @@ namespace ASCOM.Alpaca.Discovery
 
                                     if (!IPv4Clients.ContainsKey(uni.Address))
                                     {
-                                        IPv4Clients.Add(uni.Address, NewIPv4Client(uni.Address));
+                                        IPv4Clients.Add(uni.Address, NewIPv4Client());
                                     }
 
                                     if (!IPv4Clients[uni.Address].Client.IsBound)
@@ -280,7 +280,7 @@ namespace ASCOM.Alpaca.Discovery
         }
 
 
-        private UdpClient NewIPv4Client(IPAddress host)
+        private UdpClient NewIPv4Client()
         {
             var client = new UdpClient();
 
