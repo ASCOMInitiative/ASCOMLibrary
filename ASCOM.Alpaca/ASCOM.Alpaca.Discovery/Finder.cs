@@ -23,6 +23,8 @@ namespace ASCOM.Alpaca.Discovery
         private readonly Dictionary<IPAddress, UdpClient> IPv6Clients = new Dictionary<IPAddress, UdpClient>(); // Collection of IP v6 clients for the various link local and localhost networks
         private bool disposedValue; // Disposed variable
 
+        private const int SIO_UDP_CONNRESET = -1744830452; //Control code to turn off UDP ICMP Connection Reset
+
         #region Initialisation and Dispose
 
         /// <summary>
@@ -289,8 +291,7 @@ namespace ASCOM.Alpaca.Discovery
 
             //Fix for ICMP Reset
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                int SIO_UDP_CONNRESET = -1744830452;
+            { 
                 client.Client.IOControl((IOControlCode)SIO_UDP_CONNRESET, new byte[] { 0, 0, 0, 0 }, null);
             }
 
