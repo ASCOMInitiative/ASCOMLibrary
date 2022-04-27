@@ -194,7 +194,7 @@ namespace ASCOM.Alpaca.Discovery
             catch (Exception ex)
             {
                 Tools.Logger.LogError($"Failed to parse response from {endpoint} with exception: {ex.Message}");
-                LogMessage("ReceiveCallback", $"Exception from {endpoint}: " + ex.ToString());
+                LogMessage("ReceiveCallback", $"Failed to parse response from {endpoint}: {ex}");
 
             }
             finally
@@ -207,6 +207,7 @@ namespace ASCOM.Alpaca.Discovery
                 catch (Exception ex)
                 {
                     Tools.Logger.LogError($"Error restarting search: {ex.Message}");
+                    LogMessage("ReceiveCallback", $"Error restarting search: {ex.Message}");
                 }
             }
         }
@@ -268,7 +269,8 @@ namespace ASCOM.Alpaca.Discovery
                                 }
                                 catch (Exception ex)
                                 {
-                                    ASCOM.Tools.Logger.LogError(ex.Message);
+                                    Tools.Logger.LogError(ex.Message);
+                                    LogMessage("SearchIPv4", $"Exception: {ex}");
                                 }
                             }
                         }
@@ -276,7 +278,8 @@ namespace ASCOM.Alpaca.Discovery
                 }
                 catch (Exception ex)
                 {
-                    ASCOM.Tools.Logger.LogError(ex.Message);
+                    Tools.Logger.LogError(ex.Message);
+                    LogMessage("SearchIPv4", $"Exception: {ex}");
                 }
             }
         }
@@ -366,7 +369,8 @@ namespace ASCOM.Alpaca.Discovery
                                 }
                                 catch (Exception ex)
                                 {
-                                    ASCOM.Tools.Logger.LogError(ex.Message);
+                                    Tools.Logger.LogError(ex.Message);
+                                    LogMessage("SearchIPv6", $"Exception sending IPv6 discovery packet: {ex}");
                                 }
                             }
                         }
@@ -374,7 +378,8 @@ namespace ASCOM.Alpaca.Discovery
                 }
                 catch (Exception ex)
                 {
-                    ASCOM.Tools.Logger.LogError(ex.Message);
+                    Tools.Logger.LogError(ex.Message);
+                    LogMessage("SearchIPv6", $"Exception: {ex}");
                 }
             }
         }
