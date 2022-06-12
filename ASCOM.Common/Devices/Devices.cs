@@ -6,28 +6,19 @@ namespace ASCOM.Common
 {
     public static class Devices
     {
-        // List of ASCOM device types
-        private static readonly IEnumerable<string> deviceTypes = new List<string>() {
-            DeviceTypes.Camera.ToString(),
-            DeviceTypes.CoverCalibrator.ToString(),
-            DeviceTypes.Dome.ToString(),
-            DeviceTypes.FilterWheel.ToString(),
-            DeviceTypes.Focuser.ToString(),
-            DeviceTypes.ObservingConditions.ToString(),
-            DeviceTypes.Rotator.ToString(),
-            DeviceTypes.SafetyMonitor.ToString(),
-            DeviceTypes.Switch.ToString(),
-            DeviceTypes.Telescope.ToString(),
-            DeviceTypes.Video.ToString()
-            };
-
         /// <summary>
         /// Returns a list of valid ASCOM device type names
         /// </summary>
-        /// <returns>List of ASCOM device types.</returns>
+        /// <returns>String list of ASCOM device types.</returns>
         public static List<string> DeviceTypeNames()
         {
-            return deviceTypes.ToList();
+            List<String> deviceNames = new List<string>();
+            foreach (string deviceName in Enum.GetNames(typeof(DeviceTypes)))
+            {
+                deviceNames.Add(deviceName);
+            }
+
+            return deviceNames;
         }
 
         /// <summary>
@@ -35,9 +26,9 @@ namespace ASCOM.Common
         /// </summary>
         /// <param name="deviceType">Device type name to assess.</param>
         /// <returns>Returns true if the supplied name is a valid ASCOM device type, otherwise returns false.</returns>
-        public static bool IsValidDeviceType(string deviceType)
+        public static bool IsValidDeviceType(DeviceTypes deviceType)
         {
-            return DeviceTypeNames().Contains<string>(deviceType, StringComparer.OrdinalIgnoreCase);
+            return Enum.IsDefined(typeof(DeviceTypes), deviceType);
         }
     }
 }

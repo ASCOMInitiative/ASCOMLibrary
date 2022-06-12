@@ -1,4 +1,5 @@
-﻿using Microsoft.Win32;
+﻿using ASCOM.Common;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -11,7 +12,8 @@ namespace ASCOM.Alpaca.Tests.Profile
     {
         static Random random = new Random();
 
-        public const string TEST_DEVICE_TYPE = "Camera";
+        public const int BAD_DEVICE_TYPE_VALUE = 99;
+        public const DeviceTypes TEST_DEVICE_TYPE = DeviceTypes.Camera;
         public const string TEST_DESCRIPTION = "Test description";
         public const string TEST_SUBKEY1 = "TestSubkey1";
         public const string TEST_SUBKEY2 = "TestSubkey2";
@@ -35,7 +37,7 @@ namespace ASCOM.Alpaca.Tests.Profile
         /// </summary>
         /// <param name="deviceType">The ASCOM device type for the device.</param>
         /// <returns>Random ProgId string.</returns>
-        public static string GetProgId(string deviceType)
+        public static string GetProgId(DeviceTypes deviceType)
         {
             return $"TestDevice{random.Next(1000000, 10000000)}.{deviceType}";
         }
@@ -57,7 +59,7 @@ namespace ASCOM.Alpaca.Tests.Profile
         /// <param name="subKey">Sub-key to read from.</param>
         /// <param name="valueName">Name of the value to be read.</param>
         /// <returns>String value.</returns>
-        public static string ReadTestValue(string deviceType, string progId, string subKey, string valueName)
+        public static string ReadTestValue(DeviceTypes deviceType, string progId, string subKey, string valueName)
         {
             object registryValue = null;
 

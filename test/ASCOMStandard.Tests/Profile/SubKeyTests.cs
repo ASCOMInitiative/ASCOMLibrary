@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ASCOM.Common;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using Xunit;
@@ -14,8 +15,7 @@ namespace ASCOM.Alpaca.Tests.Profile
 
             Test.ClearDeviceRegistration(progId);
 
-            Assert.Throws<InvalidValueException>(() => Com.Profile.CreateSubKey(null, null, null));
-            Assert.Throws<InvalidValueException>(() => Com.Profile.CreateSubKey("Garbage", null, null));
+            Assert.Throws<InvalidValueException>(() => Com.Profile.CreateSubKey((DeviceTypes)Test.BAD_DEVICE_TYPE_VALUE, null, null));
             Assert.Throws<InvalidValueException>(() => Com.Profile.CreateSubKey(Test.TEST_DEVICE_TYPE, null, null));
             Assert.Throws<InvalidValueException>(() => Com.Profile.CreateSubKey(Test.TEST_DEVICE_TYPE, progId, null));
             Assert.Throws<InvalidValueException>(() => Com.Profile.CreateSubKey(Test.TEST_DEVICE_TYPE, progId, "  ")); // Fails because sub-key is white space
@@ -49,8 +49,7 @@ namespace ASCOM.Alpaca.Tests.Profile
 
             Test.ClearDeviceRegistration(progId);
 
-            Assert.Throws<InvalidValueException>(() => Com.Profile.DeleteSubKey(null, null, null));
-            Assert.Throws<InvalidValueException>(() => Com.Profile.DeleteSubKey("Garbage", null, null));
+            Assert.Throws<InvalidValueException>(() => Com.Profile.DeleteSubKey((DeviceTypes)Test.BAD_DEVICE_TYPE_VALUE, null, null));
             Assert.Throws<InvalidValueException>(() => Com.Profile.DeleteSubKey(Test.TEST_DEVICE_TYPE, null, null));
             Assert.Throws<InvalidValueException>(() => Com.Profile.DeleteSubKey(Test.TEST_DEVICE_TYPE, progId, null));
             Assert.Throws<InvalidValueException>(() => Com.Profile.DeleteSubKey(Test.TEST_DEVICE_TYPE, progId, "  ")); // Fails because sub-key is white space

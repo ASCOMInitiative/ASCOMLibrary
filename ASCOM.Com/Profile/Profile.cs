@@ -79,13 +79,12 @@ namespace ASCOM.Com
         /// <param name="description">Device description that will appear in the Chooser list.</param>
         /// <exception cref="InvalidValueException">If the ASCOM device type or COM progId are null, empty or just contain white space.</exception>
         /// <exception cref="InvalidValueException">If the device is not a valid ASCOM device type.</exception>
-        public static void Register(string deviceType, string progId, string description)
+        public static void Register(DeviceTypes deviceType, string progId, string description)
         {
             // Validate parameters
-            if (string.IsNullOrWhiteSpace(deviceType)) throw new InvalidValueException("Profile.Register - Supplied device type is null or empty.");
+            if (!Devices.IsValidDeviceType(deviceType)) throw new InvalidValueException($"Profile.Register - Device type {deviceType} is not a valid device type.");
             if (string.IsNullOrWhiteSpace(progId)) throw new InvalidValueException("Profile.Register - Supplied ProgId is null or empty.");
             if (string.IsNullOrEmpty(description)) throw new InvalidValueException("Profile.Register - Supplied description is null or empty.");
-            if (!Devices.IsValidDeviceType(deviceType)) throw new InvalidValueException($"Profile.Register - Device type {deviceType} is not a valid device type.");
 
             // Open the local machine hive in 32bit mode
             using (RegistryKey localmachine32 = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry32))
@@ -103,12 +102,11 @@ namespace ASCOM.Com
         /// <exception cref="InvalidValueException">If the ASCOM device type or COM progId are null, empty or just contain white space.</exception>
         /// <exception cref="InvalidValueException">If the device type is not a valid ASCOM device type.</exception>
         /// <remarks>This method will succeed (no exception will be thrown) regardless of whether or not the device is registered.</remarks>
-        public static void UnRegister(string deviceType, string progId)
+        public static void UnRegister(DeviceTypes deviceType, string progId)
         {
             // Validate parameters
-            if (string.IsNullOrWhiteSpace(deviceType)) throw new InvalidValueException("Profile.UnRegister - Supplied device type is null or empty.");
-            if (string.IsNullOrWhiteSpace(progId)) throw new InvalidValueException("Profile.UnRegister - Supplied ProgId is null or empty.");
             if (!Devices.IsValidDeviceType(deviceType)) throw new InvalidValueException($"UnRegister.Register - Device type {deviceType} is not a valid device type.");
+            if (string.IsNullOrWhiteSpace(progId)) throw new InvalidValueException("Profile.UnRegister - Supplied ProgId is null or empty.");
 
             // Open the local machine hive in 32bit mode
             using (RegistryKey localmachine32 = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry32))
@@ -125,12 +123,11 @@ namespace ASCOM.Com
         /// <returns><see langword="true"/> if the device is registered, otherwise returns <see langword="false"/>.</returns>
         /// <exception cref="InvalidValueException">If the ASCOM device type or COM progId are null, empty or just contain white space.</exception>
         /// <exception cref="InvalidValueException">If the device type is not a valid ASCOM device type.</exception>
-        public static bool IsRegistered(string deviceType, string progId)
+        public static bool IsRegistered(DeviceTypes deviceType, string progId)
         {
             // Validate parameters
-            if (string.IsNullOrWhiteSpace(deviceType)) throw new InvalidValueException("Profile.IsRegistered - Supplied device type is null or empty.");
-            if (string.IsNullOrWhiteSpace(progId)) throw new InvalidValueException("Profile.IsRegistered - Supplied ProgId is null or empty.");
             if (!Devices.IsValidDeviceType(deviceType)) throw new InvalidValueException($"Profile.IsRegistered - Device type {deviceType} is not a valid device type.");
+            if (string.IsNullOrWhiteSpace(progId)) throw new InvalidValueException("Profile.IsRegistered - Supplied ProgId is null or empty.");
 
             // Assume failure
             bool returnValue = false;
@@ -178,7 +175,7 @@ namespace ASCOM.Com
         /// <exception cref="InvalidValueException">If the ASCOM device type or COM progId are null, empty or just contain white space.</exception>
         /// <exception cref="InvalidValueException">If the device is not registered or is not a valid ASCOM device type.</exception>
         /// <exception cref="ValueNotSetException">The requested parameter has not been set and no default value was provided.</exception>
-        public static string GetValue(string deviceType, string progId, string valueName, string defaultValue)
+        public static string GetValue(DeviceTypes deviceType, string progId, string valueName, string defaultValue)
         {
             return GetValue(deviceType, progId, valueName, defaultValue, null);
         }
@@ -195,14 +192,13 @@ namespace ASCOM.Com
         /// <exception cref="InvalidValueException">If the ASCOM device type or COM progId are null, empty or just contain white space.</exception>
         /// <exception cref="InvalidValueException">If the device is not registered or is not a valid ASCOM device type.</exception>
         /// <exception cref="ValueNotSetException">The requested parameter has not been set and the supplied default value is null.</exception>
-        public static string GetValue(string deviceType, string progId, string valueName, string defaultValue, string subKey)
+        public static string GetValue(DeviceTypes deviceType, string progId, string valueName, string defaultValue, string subKey)
         {
             object returnValue = null;
 
             // Validate parameters
-            if (string.IsNullOrWhiteSpace(deviceType)) throw new InvalidValueException("Profile.GetValue - Supplied device type is null or empty.");
-            if (string.IsNullOrWhiteSpace(progId)) throw new InvalidValueException("Profile.GetValue - Supplied ProgId is null or empty.");
             if (!Devices.IsValidDeviceType(deviceType)) throw new InvalidValueException($"Profile.GetValue - Device type {deviceType} is not a valid device type.");
+            if (string.IsNullOrWhiteSpace(progId)) throw new InvalidValueException("Profile.GetValue - Supplied ProgId is null or empty.");
 
             // Confirm that the specified driver is registered
             if (!IsRegistered(deviceType, progId)) throw new InvalidValueException($"Profile.GetValue - Device {progId} is not registered.");
@@ -271,7 +267,7 @@ namespace ASCOM.Com
         /// <returns>Dictionary of name:value string pairs.</returns>
         /// <exception cref="InvalidValueException">If the ASCOM device type or COM progId are null, empty or just contain white space.</exception>
         /// <exception cref="InvalidValueException">If the device is not registered or is not a valid ASCOM device type.</exception>
-        public static Dictionary<string, string> GetValues(string deviceType, string progId)
+        public static Dictionary<string, string> GetValues(DeviceTypes deviceType, string progId)
         {
             return GetValues(deviceType, progId, null);
         }
@@ -286,14 +282,13 @@ namespace ASCOM.Com
         /// <exception cref="InvalidValueException">If the ASCOM device type or COM progId are null, empty or just contain white space.</exception>
         /// <exception cref="InvalidValueException">If the device is not registered or is not a valid ASCOM device type.</exception>
         /// <exception cref="InvalidValueException">If the sub-key only contains white space.</exception>
-        public static Dictionary<string, string> GetValues(string deviceType, string progId, string subKey)
+        public static Dictionary<string, string> GetValues(DeviceTypes deviceType, string progId, string subKey)
         {
             Dictionary<string, string> returnValue = new Dictionary<string, string>();
 
             // Validate parameters
-            if (string.IsNullOrWhiteSpace(deviceType)) throw new InvalidValueException("Profile.GetValues - Supplied device type is null or empty.");
-            if (!Devices.IsValidDeviceType(deviceType)) throw new InvalidValueException($"Profile.GetValues - Device type {deviceType} is not a valid device type.");
             if (string.IsNullOrWhiteSpace(progId)) throw new InvalidValueException("Profile.GetValues - Supplied ProgId is null or empty.");
+            if (!Devices.IsValidDeviceType(deviceType)) throw new InvalidValueException($"Profile.GetValues - Device type {deviceType} is not a valid device type.");
 
             // Confirm that the specified driver is registered
             if (!IsRegistered(deviceType, progId)) throw new InvalidValueException($"Profile.GetValues - Device {progId} is not registered.");
@@ -346,7 +341,7 @@ namespace ASCOM.Com
         /// <param name="progId">COM ProgID of the device.</param>
         /// <returns>Dictionary of name:value string pairs.</returns>
         /// <exception cref="InvalidValueException">If device type, progId or sub-key are null or invalid.</exception>
-        public static List<string> GetSubKeys(string deviceType, string progId)
+        public static List<string> GetSubKeys(DeviceTypes deviceType, string progId)
         {
             return GetSubKeys(deviceType, progId, null);
         }
@@ -361,12 +356,11 @@ namespace ASCOM.Com
         /// <exception cref="InvalidValueException">If the ASCOM device type or COM progId are null, empty or just contain white space.</exception>
         /// <exception cref="InvalidValueException">If the device is not registered or is not a valid ASCOM device type.</exception>
         /// <exception cref="InvalidValueException">If the sub-key only contains white space.</exception>
-        public static List<string> GetSubKeys(string deviceType, string progId, string subKey)
+        public static List<string> GetSubKeys(DeviceTypes deviceType, string progId, string subKey)
         {
             List<string> returnValue = new List<string>();
 
             // Validate parameters
-            if (string.IsNullOrWhiteSpace(deviceType)) throw new InvalidValueException("Profile.GetSubKeys - Supplied device type is null or empty.");
             if (!Devices.IsValidDeviceType(deviceType)) throw new InvalidValueException($"Profile.GetSubKeys - Device type {deviceType} is not a valid device type.");
             if (string.IsNullOrWhiteSpace(progId)) throw new InvalidValueException("Profile.GetSubKeys - Supplied ProgId is null or empty.");
 
@@ -421,7 +415,7 @@ namespace ASCOM.Com
         /// <param name="valueName">Name of this parameter.</param>
         /// <param name="value">Value to be set.</param>
         /// <exception cref="InvalidValueException">If device type, progId, name, value or sub-key are null or invalid.</exception>
-        public static void SetValue(string deviceType, string progId, string valueName, string value)
+        public static void SetValue(DeviceTypes deviceType, string progId, string valueName, string value)
         {
             SetValue(deviceType, progId, valueName, value, null);
         }
@@ -436,10 +430,9 @@ namespace ASCOM.Com
         /// <param name="subkey">Name of the sub-key under which to place this value.</param>
         /// <exception cref="InvalidValueException">If device type, progId, name or value are null or invalid.</exception>
         /// <exception cref="InvalidValueException">If the sub-key only contains white space.</exception>
-        public static void SetValue(string deviceType, string progId, string valueName, string value, string subkey)
+        public static void SetValue(DeviceTypes deviceType, string progId, string valueName, string value, string subkey)
         {
             // Validate parameters
-            if (string.IsNullOrWhiteSpace(deviceType)) throw new InvalidValueException("Profile.SetValue - Supplied device type is null or empty.");
             if (!Devices.IsValidDeviceType(deviceType)) throw new InvalidValueException($"Profile.SetValue - Device type {deviceType} is not a valid device type.");
             if (string.IsNullOrWhiteSpace(progId)) throw new InvalidValueException("Profile.SetValue - Supplied ProgId is null or empty.");
 
@@ -495,7 +488,7 @@ namespace ASCOM.Com
         /// <param name="progId">COM ProgID of the device.</param>
         /// <param name="valueName">Name of this parameter.</param>
         /// <exception cref="InvalidValueException">If device type, progId, name, value or sub-key are null or invalid.</exception>
-        public static void DeleteValue(string deviceType, string progId, string valueName)
+        public static void DeleteValue(DeviceTypes deviceType, string progId, string valueName)
         {
             DeleteValue(deviceType, progId, valueName, null);
         }
@@ -509,12 +502,11 @@ namespace ASCOM.Com
         /// <param name="subKey">Name of the sub-key under which to read this value.</param>
         /// <exception cref="InvalidValueException">If device type, progId, name or value are null or invalid.</exception>
         /// <exception cref="InvalidValueException">If the sub-key only contains white space.</exception>
-        public static void DeleteValue(string deviceType, string progId, string valueName, string subKey)
+        public static void DeleteValue(DeviceTypes deviceType, string progId, string valueName, string subKey)
         {
             // Validate parameters
-            if (string.IsNullOrWhiteSpace(deviceType)) throw new InvalidValueException("Profile.DeleteValue - Supplied device type is null or empty.");
-            if (string.IsNullOrWhiteSpace(progId)) throw new InvalidValueException("Profile.DeleteValue - Supplied ProgId is null or empty.");
             if (!Devices.IsValidDeviceType(deviceType)) throw new InvalidValueException($"Profile.DeleteValue - Device type {deviceType} is not a valid device type.");
+            if (string.IsNullOrWhiteSpace(progId)) throw new InvalidValueException("Profile.DeleteValue - Supplied ProgId is null or empty.");
 
             // Confirm that the specified driver is registered
             if (!IsRegistered(deviceType, progId)) throw new InvalidValueException($"Profile.DeleteValue - Device {progId} is not registered.");
@@ -567,10 +559,9 @@ namespace ASCOM.Com
         /// <exception cref="InvalidValueException">If device type or progId are null or invalid.</exception>
         /// <exception cref="InvalidValueException">If the sub-key only contains white space.</exception>
         /// <exception cref="InvalidOperationException">If the Device's Profile root key cannot be opened for writing.</exception>
-        public static void CreateSubKey(string deviceType, string progId, string subKey)
+        public static void CreateSubKey(DeviceTypes deviceType, string progId, string subKey)
         {
             // Validate parameters
-            if (string.IsNullOrWhiteSpace(deviceType)) throw new InvalidValueException("Profile.CreateSubKey - Supplied device type is null or empty.");
             if (!Devices.IsValidDeviceType(deviceType)) throw new InvalidValueException($"Profile.CreateSubKey - Device type {deviceType} is not a valid device type.");
             if (string.IsNullOrWhiteSpace(progId)) throw new InvalidValueException("Profile.CreateSubKey - Supplied ProgId is null or empty.");
             // Confirm that the specified driver is registered
@@ -609,10 +600,9 @@ namespace ASCOM.Com
         /// <exception cref="InvalidValueException">If device type or progId are null or invalid.</exception>
         /// <exception cref="InvalidValueException">If the sub-key only contains white space.</exception>
         /// <exception cref="InvalidOperationException">If the Device's Profile root key cannot be opened for writing.</exception>
-        public static void DeleteSubKey(string deviceType, string progId, string subKey)
+        public static void DeleteSubKey(DeviceTypes deviceType, string progId, string subKey)
         {
             // Validate parameters
-            if (string.IsNullOrWhiteSpace(deviceType)) throw new InvalidValueException("Profile.DeleteSubKey - Supplied device type is null or empty.");
             if (!Devices.IsValidDeviceType(deviceType)) throw new InvalidValueException($"Profile.DeleteSubKey - Device type {deviceType} is not a valid device type.");
             if (string.IsNullOrWhiteSpace(progId)) throw new InvalidValueException("Profile.DeleteSubKey - Supplied ProgId is null or empty.");
             // Confirm that the specified driver is registered

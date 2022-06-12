@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ASCOM.Common;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using Xunit;
@@ -14,8 +15,7 @@ namespace ASCOM.Alpaca.Tests.Profile
 
             Test.ClearDeviceRegistration(progId);
 
-            Assert.Throws<InvalidValueException>(() => Com.Profile.GetValue(null, null, null, null, null));
-            Assert.Throws<InvalidValueException>(() => Com.Profile.GetValue("Garbage", null, null, null, null));
+            Assert.Throws<InvalidValueException>(() => Com.Profile.GetValue((DeviceTypes)Test.BAD_DEVICE_TYPE_VALUE, null, null, null, null));
             Assert.Throws<InvalidValueException>(() => Com.Profile.GetValue(Test.TEST_DEVICE_TYPE, null, null, null, null));
             Assert.Throws<InvalidValueException>(() => Com.Profile.GetValue(Test.TEST_DEVICE_TYPE, progId, Test.TEST_VALUE_NAME1, null, null));
             Assert.Throws<InvalidValueException>(() => Com.Profile.GetValue(Test.TEST_DEVICE_TYPE, progId, Test.TEST_VALUE_NAME1, null, Test.TEST_SUBKEY1));
