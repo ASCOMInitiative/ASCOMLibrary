@@ -1,3 +1,4 @@
+using ASCOM.Common;
 using ASCOM.Common.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -16,6 +17,12 @@ namespace ASCOM.Tools
         private readonly string FilePath = string.Empty;
 
         private List<SettingsPair> Settings = new List<SettingsPair>();
+
+        private ILogger Logger
+        {
+            get;
+            set;
+        }
 
         private static string FileName
         {
@@ -73,7 +80,7 @@ namespace ASCOM.Tools
         /// <param name="driverID">A unique name for your driver. Must be allowed to be in the path.</param>
         /// <param name="deviceType">The ASCOM / Alpaca device type IE focuser, camera, telescope, etc.  Must be allowed to be in the path.</param>
         /// <param name="deviceNumber">The Alpaca device number. Defaults to 0 for drivers with only one device.</param>
-        public XMLProfile(string driverID, string deviceType, uint deviceNumber = 0) : this(Path.Combine(AlpacaDataPath, driverID, deviceType, SettingsVersion, $"{FileName}-{deviceNumber}.xml"))
+        public XMLProfile(string driverID, string deviceType, uint deviceNumber = 0, ILogger logger = null) : this(Path.Combine(AlpacaDataPath, driverID, deviceType, SettingsVersion, $"{FileName}-{deviceNumber}.xml"), logger)
         {
         }
 
@@ -82,13 +89,14 @@ namespace ASCOM.Tools
         /// It is not recommended to access the same file from two different instances of this Profile at the same time
         /// </summary>
         /// <param name="pathAndFileName">The path and filename to store the profile at</param>
-        public XMLProfile(string pathAndFileName)
+        public XMLProfile(string pathAndFileName, ILogger logger = null)
         {
             //ToDo
             //Save last X versions of file
             //Handle updates
             //Handle multiple corrupt files
             //Create file with correct permissions
+            Logger = logger;
 
             FilePath = pathAndFileName;
 
@@ -101,7 +109,7 @@ namespace ASCOM.Tools
                 catch (Exception ex)
                 {
                     //File exists but is corrupt.
-                    Logger.LogError(ex.Message);
+                    Logger?.LogError(ex.Message);
                     try
                     {
                         var newName = FilePath + ".old";
@@ -113,7 +121,7 @@ namespace ASCOM.Tools
                     }
                     catch (Exception e)
                     {
-                        Logger.LogError(e.Message);
+                        Logger?.LogError(e.Message);
                         throw;
                     }
                 }
