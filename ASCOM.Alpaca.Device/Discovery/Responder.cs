@@ -1,6 +1,8 @@
 ﻿// (c) 2019 Daniel Van Noord
 // This code is licensed under MIT license (see License.txt for details)
 
+using ASCOM.Common;
+using ASCOM.Common.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -19,6 +21,12 @@ namespace ASCOM.Alpaca.Discovery
 
         private readonly List<UdpClient> Clients = new List<UdpClient>();
 
+        private ILogger Logger
+        {
+            get;
+            set;
+        }
+
         public bool AllowRemoteAccess
         {
             get;
@@ -31,7 +39,6 @@ namespace ASCOM.Alpaca.Discovery
             set;
         } = true;
 
-
         public bool Disposed
         {
             get;
@@ -42,7 +49,7 @@ namespace ASCOM.Alpaca.Discovery
         /// Create an Alpaca Responder reporting the AlpacaPort. This will use default Discovery Port (32227) and will respond on IPv4 and IPv6.
         /// </summary>
         /// <param name="AlpacaPort">The port the Alpaca REST API is available on</param>
-        public Responder(int AlpacaPort) : this(AlpacaPort, Constants.DiscoveryPort, true, true)
+        public Responder(int AlpacaPort, ILogger Logger = null) : this(AlpacaPort, Constants.DiscoveryPort, true, true, Logger)
         {
 
         }
@@ -53,7 +60,7 @@ namespace ASCOM.Alpaca.Discovery
         /// <param name="AlpacaPort">The port the Alpaca REST API is available on</param>
         /// <param name="IPv4">Respond on IPv4</param>
         /// <param name="IPv6">Respond on IPv6</param>
-        public Responder(int AlpacaPort, bool IPv4, bool IPv6) : this(AlpacaPort, Constants.DiscoveryPort, IPv4, IPv6)
+        public Responder(int AlpacaPort, bool IPv4, bool IPv6, ILogger Logger = null) : this(AlpacaPort, Constants.DiscoveryPort, IPv4, IPv6, Logger)
         {
 
         }
@@ -65,8 +72,9 @@ namespace ASCOM.Alpaca.Discovery
         /// <param name="DiscoveryPort">The Discovery Port</param>
         /// <param name="IPv4">Respond on IPv4</param>
         /// <param name="IPv6">Respond on IPv6</param>
-        public Responder(int AlpacaPort, int DiscoveryPort, bool IPv4, bool IPv6)
+        public Responder(int AlpacaPort, int DiscoveryPort, bool IPv4, bool IPv6, ILogger Logger = null)
         {
+            this.Logger = Logger;
             port = AlpacaPort;
             this.DiscoveryPort = DiscoveryPort;
 
@@ -220,7 +228,7 @@ namespace ASCOM.Alpaca.Discovery
                     if (ReceiveString.Contains(Constants.DiscoveryMessage))//Contains rather then equals because of invisible padding garbage
                     {
                         //For testing only
-                        Tools.Logger.LogInformation(string.Format("Received a discovery packet from {0} at {1}", endpoint.Address, DateTime.Now));
+                        Logger?.LogInformation(string.Format("Received a discovery packet from {0} at {1}", endpoint.Address, DateTime.Now));
 
                         byte[] response = Encoding.ASCII.GetBytes(string.Format("{{\"AlpacaPort\": {0}}}", port));
 
@@ -233,7 +241,7 @@ namespace ASCOM.Alpaca.Discovery
             }
             catch (Exception ex)
             {
-                Tools.Logger.LogError(ex.Message);
+                Logger?.LogError(ex.Message);
             }
             finally
             {
@@ -244,13 +252,13 @@ namespace ASCOM.Alpaca.Discovery
                 }
                 catch (Exception ex)
                 {
-                    Tools.Logger.LogError(ex.Message);
+                    Logger?.LogError(ex.Message);
                 }
             }
         }
 
         //Use string so localhost works
-        internal static bool IsLocalIpAddress(string host)
+        internal bool IsLocalIpAddress(string host)
         {
             try
             {
@@ -270,7 +278,7 @@ namespace ASCOM.Alpaca.Discovery
             }
             catch (Exception ex)
             {
-                Tools.Logger.LogError(ex.Message);
+                Logger?.LogError(ex.Message);
             }
             return false;
         }
