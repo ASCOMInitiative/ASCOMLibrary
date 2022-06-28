@@ -37,6 +37,8 @@
         /// <summary>
         /// The number of switch devices managed by this driver
         /// </summary>
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <returns>The number of devices managed by this driver.</returns>
         /// <remarks><p style="color:red"><b>Must be implemented, must not throw a <see cref="NotImplementedException"/></b></p> 
         /// <p>Devices are numbered from 0 to <see cref="MaxSwitch"/> - 1</p></remarks>
@@ -45,6 +47,8 @@
         /// <summary>
         /// Return the name of switch device n.
         /// </summary>
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <param name="id">The device number (0 to <see cref="MaxSwitch"/> - 1)</param>
         /// <returns>The name of the device</returns>
         /// <exception cref="InvalidValueException">If id is outside the range 0 to <see cref="MaxSwitch"/> - 1</exception>
@@ -59,6 +63,8 @@
         /// <param name="name">The name of the device</param>
         /// <exception cref="NotImplementedException">If the device name cannot be set in the application code.</exception>
         /// <exception cref="InvalidValueException">If id is outside the range 0 to <see cref="MaxSwitch"/> - 1</exception>
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks><p style="color:red"><b>Can throw a <see cref="NotImplementedException"/> if the device name can not be set by the application.</b></p>
         /// <para>Devices are numbered from 0 to <see cref="MaxSwitch"/> - 1</para>
         /// </remarks>
@@ -73,8 +79,10 @@
         ///   String giving the device description.
         /// </returns>
         /// <exception cref="InvalidValueException">If id is outside the range 0 to <see cref="MaxSwitch"/> - 1</exception>
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks><p style="color:red"><b>Must be implemented, must not throw an ASCOM.NotImplementedException</b></p>
-        /// <para>Decices are numbered from 0 to <see cref="MaxSwitch"/> - 1</para>
+        /// <para>Devices are numbered from 0 to <see cref="MaxSwitch"/> - 1</para>
         /// <para>This is a Version 2 method.</para>
         /// </remarks>
         string GetSwitchDescription(short id);
@@ -83,6 +91,8 @@
         /// Reports if the specified switch device can be written to, default true.
         /// This is false if the device cannot be written to, for example a limit switch or a sensor.
         /// </summary>
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <param name="id">The device number (0 to <see cref="MaxSwitch"/> - 1)</param>
         /// <returns>
         ///   <c>true</c> if the device can be written to, otherwise <c>false</c>.
@@ -99,8 +109,10 @@
         /// </summary>
         /// <param name="id">The device number (0 to <see cref="MaxSwitch"/> - 1)</param>
         /// <returns>True or false</returns>
-        /// <exception cref="InvalidValueException">If id is outside the range 0 to <see cref="MaxSwitch"/> - 1</exception>
         /// <exception cref="InvalidOperationException">If there is a temporary condition that prevents the device value being returned.</exception>
+        /// <exception cref="InvalidValueException">If id is outside the range 0 to <see cref="MaxSwitch"/> - 1</exception>
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks><p style="color:red"><b>Must be implemented, must not throw a <see cref="NotImplementedException"/>.</b></p> 
         /// <para>All devices must implement this. A multi-state device will return true if the device is at the maximum value, false if the value is at the minumum
         /// and either true or false as specified by the driver developer for intermediate values.</para>
@@ -119,8 +131,10 @@
         /// </summary>
         /// <param name="id">The device number (0 to <see cref="MaxSwitch"/> - 1)</param>
         /// <param name="state">The required control state</param>
-        /// <exception cref="InvalidValueException">If id is outside the range 0 to <see cref="MaxSwitch"/> - 1</exception>
-        /// <exception cref="NotImplementedException">If <see cref="CanWrite"/> is false.</exception>
+         /// <exception cref="NotImplementedException">If <see cref="CanWrite"/> is false.</exception>
+       /// <exception cref="InvalidValueException">If id is outside the range 0 to <see cref="MaxSwitch"/> - 1</exception>
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks><p style="color:red"><b>Can throw a <see cref="NotImplementedException"/> if <see cref="CanWrite"/> is False.</b></p>
         /// <para><see cref="GetSwitchValue"/> must return <see cref="MaxSwitchValue" /> if the set state is true and <see cref="MinSwitchValue" /> if the set state is false.</para>
         /// <para>Devices are numbered from 0 to <see cref="MaxSwitch"/> - 1</para></remarks>
@@ -132,6 +146,8 @@
         /// <param name="id">The device number (0 to <see cref="MaxSwitch"/> - 1)</param>
         /// <returns>The maximum value to which this device can be set or which a read only sensor will return.</returns>
         /// <exception cref="InvalidValueException">If id is outside the range 0 to <see cref="MaxSwitch"/> - 1</exception>
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks><p style="color:red"><b>Must be implemented, must not throw a <see cref="NotImplementedException"/>.</b></p> 
         /// <para>If a two state device cannot report its state,  <see cref="MaxSwitchValue"/> should return the value 1.0.</para>
         /// <para> Devices are numbered from 0 to <see cref="MaxSwitch"/> - 1.</para>
@@ -145,6 +161,8 @@
         /// <param name="id">The device number (0 to <see cref="MaxSwitch"/> - 1)</param>
         /// <returns>The minimum value to which this device can be set or which a read only sensor will return.</returns>
         /// <exception cref="InvalidValueException">If id is outside the range 0 to <see cref="MaxSwitch"/> - 1</exception>
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks><p style="color:red"><b>Must be implemented, must not throw a <see cref="NotImplementedException"/>.</b></p> 
         /// <para>If a two state device cannot report its state, <see cref="MinSwitchValue"/> should return the value 0.0.</para>
         /// <para> Devices are numbered from 0 to <see cref="MaxSwitch"/> - 1.</para>
@@ -158,6 +176,8 @@
         /// <param name="id">The device number (0 to <see cref="MaxSwitch"/> - 1)</param>
         /// <returns>The step size for this device.</returns>
         /// <exception cref="InvalidValueException">If id is outside the range 0 to <see cref="MaxSwitch"/> - 1</exception>
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks><p style="color:red"><b>Must be implemented, must not throw <see cref="NotImplementedException"/>.</b></p>
         /// <para>SwitchStep, MinSwitchValue and MaxSwitchValue can be used to determine the way the device is controlled and/or displayed,
         /// for example by setting the number of decimal places or number of states for a display.</para>
@@ -174,6 +194,8 @@
         /// Returns the value for switch device id as a double
         /// </summary>
         /// <param name="id">The device number (0 to <see cref="MaxSwitch"/> - 1)</param>
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <returns>The value for this switch, this is expected to be between <see cref="MinSwitchValue"/> and
         /// <see cref="MaxSwitchValue"/>.</returns>
         /// <exception cref="InvalidOperationException">If there is a temporary condition that prevents the device value being returned.</exception>
@@ -196,9 +218,11 @@
         /// </summary>
         /// <param name="id">The device number (0 to <see cref="MaxSwitch"/> - 1)</param>
         /// <param name="value">The value to be set, between <see cref="MinSwitchValue"/> and <see cref="MaxSwitchValue"/></param>
+        /// <exception cref="NotImplementedException">If <see cref="CanWrite"/> is false.</exception>
         /// <exception cref="InvalidValueException">If id is outside the range 0 to <see cref="MaxSwitch"/> - 1</exception>
         /// <exception cref="InvalidValueException">If value is outside the range <see cref="MinSwitchValue"/> to <see cref="MaxSwitchValue"/></exception>
-        /// <exception cref="NotImplementedException">If <see cref="CanWrite"/> is false.</exception>
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks><p style="color:red"><b>Can throw a <see cref="NotImplementedException"/> if <see cref="CanWrite"/> is False.</b></p>
         /// <para>If the value is more than <see cref="MaxSwitchValue"/> or less than <see cref="MinSwitchValue"/>
         /// then the method must throw an <see cref="InvalidValueException"/>.</para>

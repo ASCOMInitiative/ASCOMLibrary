@@ -16,7 +16,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// or ImageArray[NumPlane, Height, Width].
         /// </summary>
         /// <remarks>
-        /// <p style="color:red"><b>Must be implemented, must not throw an ASCOM.PropertyNotImplementedException.</b></p>
+        /// <p style="color:red"><b>Must be implemented, must not throw an ASCOM.NotImplementedException.</b></p>
         /// <para>The application must inspect the Safearray parameters to determine the dimensions and also the <see cref="P:ASCOM.DeviceInterface.IVideo.SensorType"/> to determine if the image is <b>Color</b> or not.
         /// The following table should be used to determine the format of the data:</para>
         /// <para>
@@ -90,7 +90,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// </code>
         /// </example>
         /// <remarks>
-        /// <p style="color:red"><b>Must be implemented, must not throw an ASCOM.PropertyNotImplementedException.</b></p> The application can use this bitmap to show a preview image of the last video frame when required. This is a convenience property for
+        /// <p style="color:red"><b>Must be implemented, must not throw an ASCOM.NotImplementedException.</b></p> The application can use this bitmap to show a preview image of the last video frame when required. This is a convenience property for
         /// those applications that don't require to process the <see cref="P:ASCOM.DeviceInterface.IVideoFrame.ImageArray"/> but usually only adjust the video camera settings and then record a video file.
         /// <para>When a 24bit RGB image can be returned by the driver this should be the preferred format. </para>
         /// </remarks>
@@ -100,7 +100,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <summary>
         /// Returns the frame number.
         /// </summary>
-        /// <remarks><p style="color:red"><b>Must be implemented, must not throw an ASCOM.PropertyNotImplementedException.</b></p>
+        /// <remarks><p style="color:red"><b>Must be implemented, must not throw an ASCOM.NotImplementedException.</b></p>
         /// The frame number of the first exposed frame may not be zero and is dependent on the device and/or the driver. The frame number increases with each acquired frame not with each requested frame by the client.
         /// </remarks>
         /// <value>The frame number of the current video frame.</value>
@@ -113,21 +113,21 @@ namespace ASCOM.Common.DeviceInterfaces
         /// This may differ from the exposure time corresponding to the requested frame exposure due to shutter latency, camera timing precision, etc.
         /// </remarks>
         /// <value>The duration of the frame exposure.</value>
-        /// <exception cref="PropertyNotImplementedException">Must throw an exception if not implemented.</exception>
+        /// <exception cref="NotImplementedException">Must throw an exception if not implemented.</exception>
         double ExposureDuration { get; }
 
         /// <summary>
         /// Returns the actual exposure start time in the FITS-standard CCYY-MM-DDThh:mm:ss[.sss...] format, if supported.
         /// </summary>
         /// <value>The frame exposure start time.</value>
-        /// <exception cref="PropertyNotImplementedException">Must throw an exception if not implemented.</exception>
+        /// <exception cref="NotImplementedException">Must throw an exception if not implemented.</exception>
         string ExposureStartTime { get; }
 
         /// <summary>
         /// Returns additional information associated with the video frame as a list of named variables.
         /// </summary>
         /// <remarks>
-        /// <p style="color:red"><b>Must be implemented, must not throw an ASCOM.PropertyNotImplementedException.</b></p>
+        /// <p style="color:red"><b>Must be implemented, must not throw an ASCOM.NotImplementedException.</b></p>
         /// <para>The returned object contains entries for each value. For each entry, the Key property is the value's name, and the Value property is the string value itself.</para>
         /// This property must return an empty list if no video frame metadata is provided.
         /// <para>The Keys is a single word, or multiple words joined by underscore characters, that sensibly describes the variable. It is recommended that Keys

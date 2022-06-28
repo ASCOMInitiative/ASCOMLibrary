@@ -14,7 +14,9 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <summary>
         /// The name of the video capture device when such a device is used.
         /// </summary>
-        /// <exception cref="PropertyNotImplementedException">Must throw an exception if not implemented.</exception>
+        /// <exception cref="NotImplementedException">Must throw an exception if not implemented.</exception>
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks>For analogue video this is usually the video capture card or dongle attached to the computer.
         /// </remarks>
         string VideoCaptureDeviceName { get; }
@@ -23,8 +25,10 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <summary>
         /// The maximum supported exposure (integration time) in seconds.
         /// </summary>
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks>
-        /// <p style="color:red"><b>Must be implemented, must not throw an ASCOM.PropertyNotImplementedException.</b></p>
+        /// <p style="color:red"><b>Must be implemented, must not throw an ASCOM.NotImplementedException.</b></p>
         /// This value is for information purposes only. The exposure cannot be set directly in seconds, use <see cref="P:ASCOM.DeviceInterface.IVideo.IntegrationRate"/> property to change the exposure.
         /// </remarks>
         double ExposureMax { get; }
@@ -32,8 +36,10 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <summary>
         /// The minimum supported exposure (integration time) in seconds.
         /// </summary>
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks>
-        /// <p style="color:red"><b>Must be implemented, must not throw an ASCOM.PropertyNotImplementedException.</b></p>
+        /// <p style="color:red"><b>Must be implemented, must not throw an ASCOM.NotImplementedException.</b></p>
         /// This value is for information purposes only. The exposure cannot be set directly in seconds, use <see cref="P:ASCOM.DeviceInterface.IVideo.IntegrationRate"/> property to change the exposure.
         /// </remarks>
         double ExposureMin { get; }
@@ -41,8 +47,10 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <summary>
         /// The frame rate at which the camera is running.
         /// </summary>
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks>
-        /// <p style="color:red"><b>Must be implemented, must not throw an ASCOM.PropertyNotImplementedException.</b></p>
+        /// <p style="color:red"><b>Must be implemented, must not throw an ASCOM.NotImplementedException.</b></p>
         /// Analogue cameras run in one of the two fixed frame rates - 25fps for PAL video and 29.97fps for NTSC video.
         /// Digital cameras usually can run at a variable frame rate. This value is for information purposes only and cannot be set. The FrameRate has the same value during the entire operation of the device.
         /// Changing the <see cref="P:ASCOM.DeviceInterface.IVideo.IntegrationRate"/> property may change the actual variable frame rate but cannot change the return value of this property.
@@ -52,14 +60,15 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <summary>
         /// Returns the list of integration rates supported by the video camera.
         /// </summary>
+        /// <value>The list of supported integration rates in seconds.</value>
+        /// <exception cref="NotImplementedException">Must throw exception if camera supports only one integration rate (exposure) that cannot be changed.</exception>
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks>
         /// Digital and integrating analogue video cameras allow the effective exposure of a frame to be changed. If the camera supports setting the exposure directly i.e. 2.153 sec then the driver must only
         /// return a range of useful supported exposures. For many video cameras the supported exposures (integration rates) increase by a factor of 2 from a base exposure e.g. 1, 2, 4, 8, 16 sec or 0.04, 0.08, 0.16, 0.32, 0.64, 1.28, 2.56, 5.12, 10.24 sec.
-        /// If the cameras supports only one exposure that cannot be changed (such as all non integrating PAL or NTSC video cameras) then this property must throw <see cref="PropertyNotImplementedException"/>.
+        /// If the cameras supports only one exposure that cannot be changed (such as all non integrating PAL or NTSC video cameras) then this property must throw <see cref="NotImplementedException"/>.
         /// </remarks>
-        /// <value>The list of supported integration rates in seconds.</value>
-        /// <exception cref="NotConnectedException">Must throw exception if data unavailable.</exception>
-        /// <exception cref="PropertyNotImplementedException">Must throw exception if camera supports only one integration rate (exposure) that cannot be changed.</exception>
         IList<double> SupportedIntegrationRates { get; }
 
         /// <summary>
@@ -67,10 +76,10 @@ namespace ASCOM.Common.DeviceInterfaces
         /// </summary>
         /// <value>Integer index for the current camera integration rate in the <see cref="P:ASCOM.DeviceInterface.IVideo.SupportedIntegrationRates"/> string array.</value>
         /// <returns>Index into the SupportedIntegrationRates array for the selected camera integration rate.</returns>
-        /// <exception cref="NotConnectedException">Must throw an exception if the information is not available. (Some drivers may require an
-        /// active <see cref="P:ASCOM.DeviceInterface.IVideo.Connected">connection</see> in order to retrieve necessary information from the camera.)</exception>
+        /// <exception cref="NotImplementedException">Must throw an exception if the camera supports only one integration rate (exposure) that cannot be changed.</exception>
         /// <exception cref="InvalidValueException">Must throw an exception if not valid.</exception>
-        /// <exception cref="PropertyNotImplementedException">Must throw an exception if the camera supports only one integration rate (exposure) that cannot be changed.</exception>
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks>
         /// <see cref="P:ASCOM.DeviceInterface.IVideo.IntegrationRate"/> can be used to adjust the integration rate (exposure) of the camera, if supported. A 0-based array of strings - <see cref="P:ASCOM.DeviceInterface.IVideo.SupportedIntegrationRates"/>,
         /// which correspond to different discrete integration rate settings supported by the camera will be returned. <see cref="P:ASCOM.DeviceInterface.IVideo.IntegrationRate"/> must be set to an integer in this range.
@@ -82,10 +91,11 @@ namespace ASCOM.Common.DeviceInterfaces
         /// Returns an <see cref="IVideoFrame"/> with its <see cref="P:ASCOM.DeviceInterface.IVideoFrame.ImageArray"/> property populated.
         /// </summary>
         /// <value>The current video frame.</value>
-        /// <exception cref="NotConnectedException">Must throw exception if data unavailable.</exception>
         /// <exception cref="InvalidOperationException">If called before any video frame has been taken.</exception>
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks>
-        /// <p style="color:red"><b>Must be implemented, must not throw an ASCOM.PropertyNotImplementedException.</b></p>
+        /// <p style="color:red"><b>Must be implemented, must not throw an ASCOM.NotImplementedException.</b></p>
         /// </remarks>
         IVideoFrame LastVideoFrame { get; }
 
@@ -93,11 +103,11 @@ namespace ASCOM.Common.DeviceInterfaces
         /// Sensor name.
         /// </summary>
         /// <returns>The name of sensor used within the camera.</returns>
-        /// <exception cref="NotConnectedException">Must throw an exception if the information is not available. (Some drivers may require an
-        /// active <see cref="P:ASCOM.DeviceInterface.IVideo.Connected">connection</see> in order to retrieve necessary information from the camera.)</exception>
-        /// <exception cref="PropertyNotImplementedException">Must throw exception if not implemented.</exception>
-        /// <remarks>Returns the name (datasheet part number) of the sensor, e.g. ICX285AL.  The format is to be exactly as shown on
-        /// manufacturer data sheet, subject to the following rules. All letter shall be uppercase.  Spaces shall not be included.
+        /// <exception cref="NotImplementedException">Must throw exception if not implemented.</exception>
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <remarks>Returns the name (data sheet part number) of the sensor, e.g. ICX285AL.  The format is to be exactly as shown on
+        /// manufacturer data sheet, subject to the following rules. All letter shall be upper case.  Spaces shall not be included.
         /// <para>Any extra suffixes that define region codes, package types, temperature range, coatings, grading, color/monochrome,
         /// etc. shall not be included. For color sensors, if a suffix differentiates different Bayer matrix encodings, it shall be
         /// included.</para>
@@ -108,7 +118,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// </list>
         /// <para><b>Note:</b></para>
         /// <para>The most common usage of this property is to select approximate color balance parameters to be applied to
-        /// the Bayer matrix of one-shot color sensors.  Application authors should assume that an appropriate IR cutoff filter is
+        /// the Bayer matrix of one-shot color sensors.  Application authors should assume that an appropriate IR cut-off filter is
         /// in place for color sensors.</para>
         /// <para>It is recommended that this function be called only after a <see cref="P:ASCOM.DeviceInterface.IVideo.Connected">connection</see> is established with
         /// the camera hardware, to ensure that the driver is aware of the capabilities of the specific camera model.</para>
@@ -120,10 +130,10 @@ namespace ASCOM.Common.DeviceInterfaces
         /// </summary>
         /// <value></value>
         /// <returns>The <see cref="SensorType"/> enum value of the camera sensor</returns>
-        /// <exception cref="NotConnectedException">Must throw an exception if the information is not available. (Some drivers may require an
-        /// active <see cref="P:ASCOM.DeviceInterface.IVideo.Connected">connection</see> in order to retrieve necessary information from the camera.)</exception>
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks>
-        /// <p style="color:red"><b>Must be implemented, must not throw an ASCOM.PropertyNotImplementedException.</b></p>
+        /// <p style="color:red"><b>Must be implemented, must not throw an ASCOM.NotImplementedException.</b></p>
         /// <para><see cref="P:ASCOM.DeviceInterface.IVideo.SensorType"/> returns a value indicating whether the sensor is monochrome, or what Bayer matrix it encodes.
         /// The following values are defined:</para>
         /// <para>
@@ -153,7 +163,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <td style="padding-right: 10px; padding-left: 10px; &#xA; border-right-color: #000000; border-right-style: Solid; &#xA; border-bottom-color: #000000; border-bottom-style: Solid; &#xA; border-right-width: 1px; border-left-width: 1px; border-top-width: 1px; border-bottom-width: 1px; ">
         /// Colour</td>
         /// <td style="padding-right: 10px; padding-left: 10px; &#xA; border-right-color: #000000; border-right-style: Solid; &#xA; border-bottom-color: #000000; border-bottom-style: Solid; &#xA; border-right-width: 1px; border-left-width: 1px; border-top-width: 1px; border-bottom-width: 1px; ">
-        /// Camera produces color image directly, requiring not Bayer decoding. The monochome pixels for the R, G and B channels are returned in this order in the <see cref="P:ASCOM.DeviceInterface.IVideoFrame.ImageArray"/>.</td>
+        /// Camera produces color image directly, requiring not Bayer decoding. The monochrome pixels for the R, G and B channels are returned in this order in the <see cref="P:ASCOM.DeviceInterface.IVideoFrame.ImageArray"/>.</td>
         /// </tr>
         /// <tr>
         /// <td style="padding-right: 10px; padding-left: 10px; &#xA; border-left-color: #000000; border-left-style: Solid; &#xA; border-right-color: #000000; border-right-style: Solid; &#xA; border-bottom-color: #000000; border-bottom-style: Solid; &#xA; border-right-width: 1px; border-left-width: 1px; border-top-width: 1px; border-bottom-width: 1px; ">
@@ -190,7 +200,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// </table>
         /// </para>
         /// <para>Please note that additional values may be defined in future updates of the standard, as new Bayer matrices may be created
-        /// by sensor manufacturers in the future.  If this occurs, then a new enumeration value shall be defined. The preexisting enumeration
+        /// by sensor manufacturers in the future.  If this occurs, then a new enumeration value shall be defined. The pre-existing enumeration
         /// values shall not change.
         /// <para>In the following definitions, R = red, G = green, B = blue, C = cyan, M = magenta, Y = yellow.  The Bayer matrix is
         /// defined with X increasing from left to right, and Y increasing from top to bottom. The pattern repeats every N x M pixels for the
@@ -387,9 +397,10 @@ namespace ASCOM.Common.DeviceInterfaces
         /// Returns the width of the video frame in pixels.
         /// </summary>
         /// <value>The video frame width.</value>
-        /// <exception cref="NotConnectedException">Must throw exception if the value is not known.</exception>
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks>
-        /// <p style="color:red"><b>Must be implemented, must not throw an ASCOM.PropertyNotImplementedException.</b></p>
+        /// <p style="color:red"><b>Must be implemented, must not throw an ASCOM.NotImplementedException.</b></p>
         /// For analogue video cameras working via a frame grabber the dimensions of the video frames may be different than the dimension of the CCD chip
         /// </remarks>
         int Width { get; }
@@ -398,9 +409,10 @@ namespace ASCOM.Common.DeviceInterfaces
         /// Returns the height of the video frame in pixels.
         /// </summary>
         /// <value>The video frame height.</value>
-        /// <exception cref="NotConnectedException">Must throw exception if the value is not known.</exception>
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks>
-        /// <p style="color:red"><b>Must be implemented, must not throw an ASCOM.PropertyNotImplementedException.</b></p>
+        /// <p style="color:red"><b>Must be implemented, must not throw an ASCOM.NotImplementedException.</b></p>
         /// For analogue video cameras working via a frame grabber the dimensions of the video frames may be different than the dimension of the CCD chip
         /// </remarks>
         int Height { get; }
@@ -409,30 +421,37 @@ namespace ASCOM.Common.DeviceInterfaces
         /// Returns the width of the CCD chip pixels in microns.
         /// </summary>
         /// <value>The pixel size X if known.</value>
-        /// <exception cref="PropertyNotImplementedException">Must throw exception if not implemented.</exception>
+        /// <exception cref="NotImplementedException">Must throw exception if not implemented.</exception>
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         double PixelSizeX { get; }
 
         /// <summary>
         /// Returns the height of the CCD chip pixels in microns.
         /// </summary>
         /// <value>The pixel size Y if known.</value>
-        /// <exception cref="PropertyNotImplementedException">Must throw exception if not implemented.</exception>
+        /// <exception cref="NotImplementedException">Must throw exception if not implemented.</exception>
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         double PixelSizeY { get; }
 
         /// <summary>
         /// Reports the bit depth the camera can produce.
         /// </summary>
         /// <value>The bit depth per pixel. Typical analogue videos are 8-bit while some digital cameras can provide 12, 14 or 16-bit images.</value>
-        /// <exception cref="NotConnectedException">Must throw exception if data unavailable.</exception>
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks>
-        /// <p style="color:red"><b>Must be implemented, must not throw an ASCOM.PropertyNotImplementedException.</b></p>
+        /// <p style="color:red"><b>Must be implemented, must not throw an ASCOM.NotImplementedException.</b></p>
         /// </remarks>
         int BitDepth { get; }
 
         /// <summary>
         /// Returns the video codec used to record the video file.
         /// </summary>
-        /// <exception cref="PropertyNotImplementedException">Must throw exception if not implemented.</exception>
+        /// <exception cref="NotImplementedException">Must throw exception if not implemented.</exception>
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks>For AVI files this is usually the FourCC identifier of the codec- e.g. XVID, DVSD, YUY2, HFYU etc.
         /// If the recorded video file doesn't use codecs an empty string must be returned.
         /// </remarks>
@@ -441,8 +460,10 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <summary>
         /// Returns the file format of the recorded video file, e.g. AVI, MPEG, ADV etc.
         /// </summary>
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks>
-        /// <p style="color:red"><b>Must be implemented, must not throw an ASCOM.PropertyNotImplementedException.</b></p>
+        /// <p style="color:red"><b>Must be implemented, must not throw an ASCOM.NotImplementedException.</b></p>
         /// </remarks>
         string VideoFileFormat { get; }
 
@@ -450,7 +471,9 @@ namespace ASCOM.Common.DeviceInterfaces
         /// The size of the video frame buffer.
         /// </summary>
         /// <value>The size of the video frame buffer. </value>
-        /// <remarks><p style="color:red"><b>Must be implemented, must not throw an ASCOM.PropertyNotImplementedException.</b></p> When retrieving video frames using the <see cref="P:ASCOM.DeviceInterface.IVideo.LastVideoFrame" /> property
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <remarks><p style="color:red"><b>Must be implemented, must not throw an ASCOM.NotImplementedException.</b></p> When retrieving video frames using the <see cref="P:ASCOM.DeviceInterface.IVideo.LastVideoFrame" /> property
         /// the driver may use a buffer to queue the frames waiting to be read by the client. This property returns the size of the buffer in frames or
         /// if no buffering is supported then the value of less than 2 should be returned. The size of the buffer can be controlled by the end user from the driver setup dialog.
         /// </remarks>
@@ -461,26 +484,26 @@ namespace ASCOM.Common.DeviceInterfaces
         /// </summary>
         /// <param name="PreferredFileName">The file name requested by the client. Some systems may not allow the file name to be controlled directly and they should ignore this parameter.</param>
         /// <returns>The actual file name of the file that is being recorded.</returns>
-        /// <exception cref="MethodNotImplementedException">Must throw exception if not implemented.</exception>
-        /// <exception cref="NotConnectedException">Must throw exception if not connected.</exception>
+        /// <exception cref="NotImplementedException">Must throw exception if not implemented.</exception>
         /// <exception cref="InvalidOperationException">Must throw exception if the current camera state doesn't allow to begin recording a file.</exception>
-        /// <exception cref="DriverException">Must throw exception if there is any other problem as result of which the recording cannot begin.</exception>
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         string StartRecordingVideoFile(string PreferredFileName);
 
         /// <summary>
         /// Stops the recording of a video file.
         /// </summary>
-        /// <exception cref="MethodNotImplementedException">Must throw exception if not implemented.</exception>
-        /// <exception cref="NotConnectedException">Must throw exception if not connected.</exception>
+        /// <exception cref="NotImplementedException">Must throw exception if not implemented.</exception>
         /// <exception cref="InvalidOperationException">Must throw exception if the current camera state doesn't allow to stop recording the file or no file is currently being recorded.</exception>
-        /// <exception cref="DriverException">Must throw exception if there is any other problem as result of which the recording cannot stop.</exception>
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         void StopRecordingVideoFile();
 
         /// <summary>
         /// Returns the current camera operational state.
         /// </summary>
         /// <remarks>
-        /// <p style="color:red"><b>Must be implemented, must not throw an ASCOM.PropertyNotImplementedException.</b></p>
+        /// <p style="color:red"><b>Must be implemented, must not throw an ASCOM.NotImplementedException.</b></p>
         /// Returns one of the following status information:
         /// <list type="bullet">
         /// <listheader><description>Value  State           Meaning</description></listheader>
@@ -495,7 +518,8 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <img src="../media/VideoCamera State Diagram.png"/></para>
         /// </remarks>
         /// <value>The state of the camera.</value>
-        /// <exception cref="NotConnectedException">Must return an exception if the camera status is unavailable.</exception>
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         VideoCameraState CameraState { get; }
 
         /// <summary>
@@ -503,9 +527,9 @@ namespace ASCOM.Common.DeviceInterfaces
         /// </summary>
         /// <value>Short integer representing the maximum gain value supported by the camera.</value>
         /// <returns>The maximum gain value that this camera supports</returns>
-        /// <exception cref="NotConnectedException">Must throw an exception if the information is not available. (Some drivers may require an
-        /// active <see cref="P:ASCOM.DeviceInterface.IVideo.Connected">connection</see> in order to retrieve necessary information from the camera.)</exception>
-        /// <exception cref="PropertyNotImplementedException">Must throw an exception if GainMax is not supported.</exception>
+        /// <exception cref="NotImplementedException">Must throw an exception if GainMax is not supported.</exception>
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks>When specifying the gain setting with an integer value, <see cref="P:ASCOM.DeviceInterface.IVideo.GainMax"/> is used in conjunction with <see cref="P:ASCOM.DeviceInterface.IVideo.GainMin"/> to
         /// specify the range of valid settings.
         /// <para><see cref="P:ASCOM.DeviceInterface.IVideo.GainMax"/> shall be greater than <see cref="P:ASCOM.DeviceInterface.IVideo.GainMin"/>. If either is available, then both must be available.</para>
@@ -519,9 +543,9 @@ namespace ASCOM.Common.DeviceInterfaces
         /// Minimum value of <see cref="P:ASCOM.DeviceInterface.IVideo.Gain"/>.
         /// </summary>
         /// <returns>The minimum gain value that this camera supports</returns>
-        /// <exception cref="NotConnectedException">Must throw an exception if the information is not available. (Some drivers may require an
-        /// active <see cref="P:ASCOM.DeviceInterface.IVideo.Connected">connection</see> in order to retrieve necessary information from the camera.)</exception>
-        /// <exception cref="PropertyNotImplementedException">Must throw an exception if GainMin is not supported.</exception>
+        /// <exception cref="NotImplementedException">Must throw an exception if GainMin is not supported.</exception>
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks>When specifying the gain setting with an integer value, <see cref="P:ASCOM.DeviceInterface.IVideo.GainMin"/> is used in conjunction with <see cref="P:ASCOM.DeviceInterface.IVideo.GainMax"/> to
         /// specify the range of valid settings.
         /// <para><see cref="P:ASCOM.DeviceInterface.IVideo.GainMax"/> shall be greater than <see cref="P:ASCOM.DeviceInterface.IVideo.GainMin"/>. If either is available, then both must be available.</para>
@@ -536,10 +560,10 @@ namespace ASCOM.Common.DeviceInterfaces
         /// </summary>
         /// <value>Short integer index for the current camera gain in the <see cref="P:ASCOM.DeviceInterface.IVideo.Gains"/> string array.</value>
         /// <returns>Index into the Gains array for the selected camera gain</returns>
-        /// <exception cref="NotConnectedException">Must throw an exception if the information is not available. (Some drivers may require an
-        /// active <see cref="P:ASCOM.DeviceInterface.IVideo.Connected">connection</see> in order to retrieve necessary information from the camera.)</exception>
+        /// <exception cref="NotImplementedException">Must throw an exception if gain is not supported.</exception>
         /// <exception cref="InvalidValueException">Must throw an exception if not valid.</exception>
-        /// <exception cref="PropertyNotImplementedException">Must throw an exception if gain is not supported.</exception>
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks>
         /// <see cref="P:ASCOM.DeviceInterface.IVideo.Gain"/> can be used to adjust the gain setting of the camera, if supported. There are two typical usage scenarios:
         /// <ul>
@@ -555,9 +579,9 @@ namespace ASCOM.Common.DeviceInterfaces
         /// Gains supported by the camera.
         /// </summary>
         /// <returns>An ArrayList of gain names or values</returns>
-        /// <exception cref="NotConnectedException">Must throw an exception if the information is not available. (Some drivers may require an
-        /// active <see cref="P:ASCOM.DeviceInterface.IVideo.Connected">connection</see> in order to retrieve necessary information from the camera.)</exception>
-        /// <exception cref="PropertyNotImplementedException">Must throw an exception if Gains is not supported</exception>
+        /// <exception cref="NotImplementedException">Must throw an exception if Gains is not supported</exception>
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks><see cref="P:ASCOM.DeviceInterface.IVideo.Gains"/> provides a 0-based array of available gain settings.
         /// Typically the application software will display the available gain settings in a drop list. The application will then supply
         /// the selected index to the driver via the <see cref="P:ASCOM.DeviceInterface.IVideo.Gain"/> property.
@@ -573,9 +597,9 @@ namespace ASCOM.Common.DeviceInterfaces
         /// </summary>
         /// <value>Short integer representing the maximum gamma value supported by the camera.</value>
         /// <returns>The maximum gain value that this camera supports</returns>
-        /// <exception cref="NotConnectedException">Must throw an exception if the information is not available. (Some drivers may require an
-        /// active <see cref="P:ASCOM.DeviceInterface.IVideo.Connected">connection</see> in order to retrieve necessary information from the camera.)</exception>
-        /// <exception cref="PropertyNotImplementedException">Must throw an exception if GammaMax is not supported</exception>
+        /// <exception cref="NotImplementedException">Must throw an exception if GammaMax is not supported</exception>
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks>When specifying the gamma setting with an integer value, <see cref="P:ASCOM.DeviceInterface.IVideo.GammaMax"/> is used in conjunction with <see cref="P:ASCOM.DeviceInterface.IVideo.GammaMin"/> to
         /// specify the range of valid settings.
         /// <para><see cref="P:ASCOM.DeviceInterface.IVideo.GammaMax"/> shall be greater than <see cref="P:ASCOM.DeviceInterface.IVideo.GammaMin"/>. If either is available, then both must be available.</para>
@@ -589,9 +613,9 @@ namespace ASCOM.Common.DeviceInterfaces
         /// Minimum value of <see cref="P:ASCOM.DeviceInterface.IVideo.Gamma"/>.
         /// </summary>
         /// <returns>The minimum gamma value that this camera supports</returns>
-        /// <exception cref="NotConnectedException">Must throw an exception if the information is not available. (Some drivers may require an
-        /// active <see cref="P:ASCOM.DeviceInterface.IVideo.Connected">connection</see> in order to retrieve necessary information from the camera.)</exception>
-        /// <exception cref="PropertyNotImplementedException">Must throw an exception if GammaMin is not supported.</exception>
+        /// <exception cref="NotImplementedException">Must throw an exception if GammaMin is not supported.</exception>
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks>When specifying the gamma setting with an integer value, <see cref="P:ASCOM.DeviceInterface.IVideo.GammaMin"/> is used in conjunction with <see cref="P:ASCOM.DeviceInterface.IVideo.GammaMax"/> to
         /// specify the range of valid settings.
         /// <para><see cref="P:ASCOM.DeviceInterface.IVideo.GammaMax"/> shall be greater than <see cref="P:ASCOM.DeviceInterface.IVideo.GammaMin"/>. If either is available, then both must be available.</para>
@@ -606,10 +630,10 @@ namespace ASCOM.Common.DeviceInterfaces
         /// </summary>
         /// <value>Short integer index for the current camera gamma in the <see cref="P:ASCOM.DeviceInterface.IVideo.Gammas"/> string array.</value>
         /// <returns>Index into the Gammas array for the selected camera gamma</returns>
-        /// <exception cref="NotConnectedException">Must throw an exception if the information is not available. (Some drivers may require an
-        /// active <see cref="P:ASCOM.DeviceInterface.IVideo.Connected">connection</see> in order to retrieve necessary information from the camera.)</exception>
+        /// <exception cref="NotImplementedException">Must throw an exception if Gamma is not supported.</exception>
         /// <exception cref="InvalidValueException">Must throw an exception if not valid.</exception>
-        /// <exception cref="PropertyNotImplementedException">Must throw an exception if Gamma is not supported.</exception>
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks>
         /// <see cref="P:ASCOM.DeviceInterface.IVideo.Gamma"/> can be used to adjust the gamma setting of the camera, if supported. There are two typical usage scenarios:
         /// <ul>
@@ -625,9 +649,9 @@ namespace ASCOM.Common.DeviceInterfaces
         /// Gammas supported by the camera.
         /// </summary>
         /// <returns>An ArrayList of gamma names or values</returns>
-        /// <exception cref="NotConnectedException">Must throw an exception if the information is not available. (Some drivers may require an
-        /// active <see cref="P:ASCOM.DeviceInterface.IVideo.Connected">connection</see> in order to retrieve necessary information from the camera.)</exception>
-        /// <exception cref="PropertyNotImplementedException">Must throw an exception if Gammas is not supported</exception>
+        /// <exception cref="NotImplementedException">Must throw an exception if Gammas is not supported</exception>
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks><see cref="P:ASCOM.DeviceInterface.IVideo.Gammas"/> provides a 0-based array of available gamma settings. This list can contain the widely used values of <b>OFF</b>, <b>LO</b> and <b>HI</b> that correspond to gammas of <b>1.00</b>, <b>0.45</b> and <b>0.35</b> as well as other extended values.
         /// Typically the application software will display the available gamma settings in a drop list. The application will then supply
         /// the selected index to the driver via the <see cref="P:ASCOM.DeviceInterface.IVideo.Gamma"/> property.
@@ -641,17 +665,18 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <summary>
         /// Returns True if the driver supports custom device properties configuration via the <see cref="M:ASCOM.DeviceInterface.IVideo.ConfigureDeviceProperties"/> method.
         /// </summary>
-        /// <remarks><p style="color:red"><b>Must be implemented, must not throw an ASCOM.PropertyNotImplementedException.</b></p>
+        /// <remarks><p style="color:red"><b>Must be implemented, must not throw an ASCOM.NotImplementedException.</b></p>
         /// </remarks>
         bool CanConfigureDeviceProperties { get; }
 
         /// <summary>
         /// Displays a device properties configuration dialog that allows the configuration of specialized settings.
         /// </summary>
-        /// <exception cref="NotConnectedException">Must throw an exception if the camera is not connected.</exception>
-        /// <exception cref="MethodNotImplementedException">Must throw an exception if not implemented.</exception>
+        /// <exception cref="NotImplementedException">Must throw an exception if not implemented.</exception>
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks>
-        /// <para>The dialog could also provide buttons for cameras that can be controlled via 'on screen display' menues and a set of navigation buttons such as Up, Down, Left, Right and Enter.
+        /// <para>The dialog could also provide buttons for cameras that can be controlled via 'on screen display' menus and a set of navigation buttons such as Up, Down, Left, Right and Enter.
         /// This dialog is not intended to be used in unattended mode but can give greater control over video cameras that provide special features. The dialog may also allow
         /// changing standard <see cref="IVideo"/> interface settings such as Gamma and Gain. If a client software
         /// displays any <see cref="IVideo"/> interface settings then it should take care to keep in sync the values changed by this method and those changed directly via the interface.</para>

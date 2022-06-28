@@ -18,7 +18,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// Aborts the current exposure, if any, and returns the camera to Idle state.
         /// </summary>
         /// <remarks>
-        /// <p style="color:red"><b>Must be implemented, must not throw a MethodNotImplementedException.</b></p>
+        /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
         /// <para><b>NOTES:</b>
         /// <list type="bullet">
         /// <item><description>Must throw exception if camera is not idle and abort is unsuccessful (or not possible, e.g. during download).</description></item>
@@ -26,8 +26,8 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <item><description>Must NOT throw an exception if the camera is already idle.</description></item>
         /// </list> </para>
         /// </remarks>
-        /// <exception cref="NotConnectedException">Thrown if the driver is not connected.</exception>
         /// <exception cref="InvalidOperationException">Thrown if abort is not currently possible (e.g. during download).</exception>
+        /// <exception cref="NotConnectedException">Thrown if the driver is not connected.</exception>
         /// <exception cref="DriverException">Thrown if a communications error occurs, or if the abort fails.</exception>
         void AbortExposure();
 
@@ -40,6 +40,8 @@ namespace ASCOM.Common.DeviceInterfaces
         /// </remarks>
         /// <value>The X binning value</value>
         /// <exception cref="InvalidValueException">Must throw an exception for illegal binning values</exception>
+		/// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+		/// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         short BinX { get; set; }
 
         /// <summary>
@@ -51,6 +53,8 @@ namespace ASCOM.Common.DeviceInterfaces
         /// </remarks>
         /// <value>The Y binning value.</value>
         /// <exception cref="InvalidValueException">Must throw an exception for illegal binning values</exception>
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         short BinY { get; set; }
 
         /// <summary>
@@ -69,21 +73,24 @@ namespace ASCOM.Common.DeviceInterfaces
         /// </list>
         /// </remarks>
         /// <value>The state of the camera.</value>
-        /// <exception cref="NotConnectedException">Must return an exception if the camera status is unavailable.</exception>
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         CameraState CameraState { get; }
 
         /// <summary>
         /// Returns the width of the CCD camera chip in unbinned pixels.
         /// </summary>
         /// <value>The size of the camera X.</value>
-        /// <exception cref="NotConnectedException">Must throw exception if the value is not known</exception>
+		/// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+		/// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         int CameraXSize { get; }
 
         /// <summary>
         /// Returns the height of the CCD camera chip in unbinned pixels.
         /// </summary>
         /// <value>The size of the camera Y.</value>
-        /// <exception cref="NotConnectedException">Must throw exception if the value is not known</exception>
+		/// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+		/// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         int CameraYSize { get; }
 
         /// <summary>
@@ -92,7 +99,8 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <value>
         /// <c>true</c> if this instance can abort exposure; otherwise, <c>false</c>.
         /// </value>
-        /// <exception cref="NotConnectedException">Thrown if the driver is not connected.</exception>
+		/// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+		/// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks>
         /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
         /// </remarks>
@@ -109,7 +117,8 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <value>
         /// <c>true</c> if this instance can asymmetric bin; otherwise, <c>false</c>.
         /// </value>
-        /// <exception cref="NotConnectedException">Must throw exception if the value is not known (n.b. normally only
+		/// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+		/// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// occurs if no connection established and camera must be queried)</exception>
         bool CanAsymmetricBin { get; }
 
@@ -119,7 +128,8 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <value>
         /// <c>true</c> if this instance can get cooler power; otherwise, <c>false</c>.
         /// </value>
-        /// <exception cref="NotConnectedException">Thrown if the driver is not connected.</exception>
+		/// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+		/// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks>
         /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
         /// </remarks>
@@ -136,7 +146,8 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <value>
         /// <c>true</c> if this instance can pulse guide; otherwise, <c>false</c>.
         /// </value>
-        /// <exception cref="NotConnectedException">Thrown if the driver is not connected.</exception>
+		/// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+		/// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         bool CanPulseGuide { get; }
 
         /// <summary>
@@ -151,7 +162,8 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <value>
         /// <c>true</c> if this instance can set CCD temperature; otherwise, <c>false</c>.
         /// </value>
-        /// <exception cref="NotConnectedException">Thrown if the driver is not connected.</exception>
+		/// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+		/// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         bool CanSetCCDTemperature { get; }
 
         /// <summary>
@@ -166,7 +178,8 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <value>
         /// <c>true</c> if the camera can stop the exposure; otherwise, <c>false</c>.
         /// </value>
-        /// <exception cref=" NotConnectedException">an error condition such as connection failure is present</exception>
+		/// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+		/// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         bool CanStopExposure { get; }
 
         /// <summary>
@@ -175,6 +188,8 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <value>The CCD temperature.</value>
         /// <exception cref="InvalidValueException">Must throw exception if data unavailable.</exception>
         /// <exception cref="NotImplementedException">Must throw exception if not supported.</exception>
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         double CCDTemperature { get; }
 
         /// <summary>
@@ -188,7 +203,8 @@ namespace ASCOM.Common.DeviceInterfaces
         /// </remarks>
         /// <value><c>true</c> if the cooler is on; otherwise, <c>false</c>.</value>
         /// <exception cref=" NotImplementedException">not supported</exception>
-        /// <exception cref=" NotConnectedException">an error condition such as connection failure is present</exception>
+		/// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+		/// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         bool CoolerOn { get; set; }
 
         /// <summary>
@@ -199,7 +215,8 @@ namespace ASCOM.Common.DeviceInterfaces
         /// </remarks>
         /// <value>The cooler power.</value>
         /// <exception cref=" NotImplementedException">not supported</exception>
-        /// <exception cref=" NotConnectedException">an error condition such as connection failure is present</exception>
+		/// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+		/// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         double CoolerPower { get; }
 
         /// <summary>
@@ -210,14 +227,16 @@ namespace ASCOM.Common.DeviceInterfaces
         /// static during a session.
         /// </remarks>
         /// <value>The electrons per ADU.</value>
-        /// <exception cref=" NotConnectedException">Must throw exception if data unavailable.</exception>
+		/// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+		/// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         double ElectronsPerADU { get; }
 
         /// <summary>
         /// Reports the full well capacity of the camera in electrons, at the current camera settings (binning, SetupDialog settings, etc.)
         /// </summary>
         /// <value>The full well capacity.</value>
-        /// <exception cref=" NotConnectedException">Must throw exception if data unavailable.</exception>
+		/// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+		/// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         double FullWellCapacity { get; }
 
         /// <summary>
@@ -231,7 +250,8 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <value>
         /// <c>true</c> if this instance has shutter; otherwise, <c>false</c>.
         /// </value>
-        /// <exception cref="NotConnectedException">Thrown if the driver is not connected.</exception>
+		/// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+		/// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         bool HasShutter { get; }
 
         /// <summary>
@@ -241,7 +261,8 @@ namespace ASCOM.Common.DeviceInterfaces
         /// Only valid if  <see cref="CanSetCCDTemperature" /> is <c>true</c>.
         /// </remarks>
         /// <value>The heat sink temperature.</value>
-        /// <exception cref=" NotConnectedException">Must throw exception if data unavailable.</exception>
+		/// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+		/// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         double HeatSinkTemperature { get; }
 
         /// <summary>
@@ -256,8 +277,9 @@ namespace ASCOM.Common.DeviceInterfaces
         /// NumPlanes.  If the application cannot handle multispectral images, it should use just the first plane.</para>
         /// </remarks>
         /// <value>The image array.</value>
-        /// <exception cref="NotConnectedException">Thrown if the driver is not connected.</exception>
         /// <exception cref="InvalidOperationException">If no image data is available.</exception>
+		/// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+		/// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         object ImageArray { get; }
 
         /// <summary>
@@ -275,8 +297,9 @@ namespace ASCOM.Common.DeviceInterfaces
         /// just the first plane.</para>
         /// </remarks>
         /// <value>The image array variant.</value>
-        /// <exception cref="NotConnectedException">Thrown if the driver is not connected.</exception>
         /// <exception cref="InvalidOperationException">If no image data is available.</exception>
+		/// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+		/// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         object ImageArrayVariant { get; }
 
         /// <summary>
@@ -287,7 +310,8 @@ namespace ASCOM.Common.DeviceInterfaces
         /// is available and attempts to use the <see cref="ImageArray" /> method will produce an exception
         /// </remarks>.
         /// <value><c>true</c> if [image ready]; otherwise, <c>false</c>.</value>
-        /// <exception cref=" NotConnectedException">hardware or communications connection error has occurred.</exception>
+		/// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+		/// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         bool ImageReady { get; }
 
         /// <summary>
@@ -300,7 +324,8 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <value>
         /// <c>true</c> if this instance is pulse guiding; otherwise, <c>false</c>.
         /// </value>
-        /// <exception cref=" NotConnectedException">hardware or communications connection error has occurred.</exception>
+		/// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+		/// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         bool IsPulseGuiding { get; }
 
         /// <summary>
@@ -310,8 +335,9 @@ namespace ASCOM.Common.DeviceInterfaces
         /// This may differ from the exposure time requested due to shutter latency, camera timing precision, etc.
         /// </remarks>
         /// <value>The last duration of the exposure.</value>
-        /// <exception cref="NotImplementedException">Must throw an exception if not supported</exception>
         /// <exception cref="InvalidOperationException">If called before any exposure has been taken</exception>
+		/// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+		/// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         double LastExposureDuration { get; }
 
         /// <summary>
@@ -319,15 +345,17 @@ namespace ASCOM.Common.DeviceInterfaces
         /// The start time must be UTC.
         /// </summary>
         /// <value>The last exposure start time in UTC.</value>
-        /// <exception cref="NotImplementedException">Must throw an exception if not supported</exception>
         /// <exception cref="InvalidOperationException">If called before any exposure has been taken</exception>
+		/// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+		/// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         string LastExposureStartTime { get; }
 
         /// <summary>
         /// Reports the maximum ADU value the camera can produce.
         /// </summary>
         /// <value>The maximum ADU.</value>
-        /// <exception cref="NotConnectedException">Must throw exception if data unavailable.</exception>
+		/// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+		/// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         int MaxADU { get; }
 
         /// <summary>
@@ -338,7 +366,8 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <see cref="CanAsymmetricBin" /> = <c>true</c>, returns the maximum allowed binning factor for the X axis.
         /// </remarks>
         /// <value>The max bin X.</value>
-        /// <exception cref="NotConnectedException">Must throw exception if data unavailable.</exception>
+		/// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+		/// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         short MaxBinX { get; }
 
         /// <summary>
@@ -349,7 +378,8 @@ namespace ASCOM.Common.DeviceInterfaces
         /// returns the maximum allowed binning factor for the Y axis.
         /// </remarks>
         /// <value>The max bin Y.</value>
-        /// <exception cref="NotConnectedException">Must throw exception if data unavailable.</exception>
+		/// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+		/// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         short MaxBinY { get; }
 
         /// <summary>
@@ -360,6 +390,8 @@ namespace ASCOM.Common.DeviceInterfaces
         /// Should default to <see cref="CameraXSize" />.
         /// </remarks>
         /// <value>The num X.</value>
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         int NumX { get; set; }
 
         /// <summary>
@@ -371,20 +403,24 @@ namespace ASCOM.Common.DeviceInterfaces
         /// Should default to <see cref="CameraYSize" />.
         /// </remarks>
         /// <value>The num Y.</value>
+		/// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+		/// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         int NumY { get; set; }
 
         /// <summary>
         /// Returns the width of the CCD chip pixels in microns.
         /// </summary>
         /// <value>The pixel size X.</value>
-        /// <exception cref="NotConnectedException">Must throw exception if data unavailable.</exception>
+		/// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+		/// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         double PixelSizeX { get; }
 
         /// <summary>
         /// Returns the height of the CCD chip pixels in microns.
         /// </summary>
         /// <value>The pixel size Y.</value>
-        /// <exception cref="NotConnectedException">Must throw exception if data unavailable.</exception>
+		/// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+		/// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         double PixelSizeY { get; }
 
         /// <summary>
@@ -410,8 +446,8 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <param name="Direction">The direction of movement.</param>
         /// <param name="Duration">The duration of movement in milli-seconds.</param>
         /// <exception cref="NotImplementedException">PulseGuide command is unsupported</exception>
-        /// <exception cref=" DriverException">PulseGuide command is unsuccessful</exception>
-        /// <exception cref="NotConnectedException">Thrown if the driver is not connected.</exception>
+		/// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+		/// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         void PulseGuide(GuideDirection Direction, int Duration);
 
         /// <summary>
@@ -425,11 +461,11 @@ namespace ASCOM.Common.DeviceInterfaces
         /// thermal shock and potential damage to the CCD array or cooler stack.
         /// </remarks>
         /// <value>The set CCD temperature.</value>
-        /// <exception cref="DriverException">Must throw exception if command not successful.</exception>
         /// <exception cref="InvalidValueException">Must throw an InvalidValueException if an attempt is made to set a value is outside the 
         /// camera's valid temperature setpoint range.</exception>
         /// <exception cref="NotImplementedException">Must throw exception if <see cref="CanSetCCDTemperature" /> is <c>false</c>.</exception>
-        /// <exception cref="NotConnectedException">Thrown if the driver is not connected.</exception>
+		/// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+		/// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         double SetCCDTemperature { get; set; }
 
         /// <summary>
@@ -448,7 +484,8 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref=" InvalidValueException"><see cref="NumX" />, <see cref="NumY" />, <see cref="BinX" />,
         /// <see cref="BinY" />, <see cref="StartX" />, <see cref="StartY" />, or <see cref="StartExposure">Duration</see> parameters are invalid.</exception>
         /// <exception cref=" InvalidOperationException"><see cref="CanAsymmetricBin" /> is <c>false</c> and <see cref="BinX" /> != <see cref="BinY" /></exception>
-        /// <exception cref="NotConnectedException">the exposure cannot be started for any reason, such as a hardware or communications error</exception>
+		/// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+		/// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         void StartExposure(double Duration, bool Light);
 
         /// <summary>
@@ -459,7 +496,8 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <para>If binning is active, value is in binned pixels.</para>
         /// </remarks>
         /// <value>The start X.</value>
-        /// <exception cref="NotConnectedException">Thrown if the driver is not connected.</exception>
+		/// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+		/// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         int StartX { get; set; }
 
         /// <summary>
@@ -470,7 +508,8 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <para>If binning is active, value is in binned pixels.</para>
         /// </remarks>
         /// <value>The start Y.</value>
-        /// <exception cref="NotConnectedException">Thrown if the driver is not connected.</exception>
+		/// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+		/// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         int StartY { get; set; }
 
         /// <summary>
@@ -480,9 +519,9 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <p style="color:red"><b>May throw a not implemented exception</b></p>
         /// <para>If an exposure is in progress, the readout process is initiated.  Ignored if readout is already in process.</para>
         /// </remarks>
-        /// <exception cref="MethodNotImplementedException">Must throw an exception if CanStopExposure is <c>false</c></exception>
-        /// <exception cref="NotConnectedException">Must throw an exception if the camera or connection has an error condition</exception>
-        /// <exception cref="DriverException">Must throw an exception if for any reason no image readout will be available.</exception>
+        /// <exception cref="NotImplementedException">Must throw an exception if CanStopExposure is <c>false</c></exception>
+		/// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+		/// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         void StopExposure();
 
         #endregion
@@ -493,13 +532,13 @@ namespace ASCOM.Common.DeviceInterfaces
         /// Returns the X offset of the Bayer matrix, as defined in <see cref="SensorType" />.
         /// </summary>
         /// <returns>The Bayer colour matrix X offset, as defined in <see cref="SensorType" />.</returns>
-        /// <exception cref="PropertyNotImplementedException">Monochrome cameras must throw this exception, colour cameras must not.</exception>
-        /// <exception cref="NotConnectedException">Must throw an exception if the information is not available. (Some drivers may require an
-        /// active <see cref="IAscomDevice.Connected">connection</see> in order to retrieve necessary information from the camera.)</exception>
+        /// <exception cref="NotImplementedException">Monochrome cameras must throw this exception, colour cameras must not.</exception>
         /// <exception cref="InvalidValueException">Must throw an exception if not valid.</exception>
-        /// <remarks><p style="color:red"><b>Must be implemented by colour cameras, monochrome cameras must throw a PropertyNotImplementedException</b></p>
-        /// <para>Since monochrome cameras don't have a Bayer colour matrix by definition, such cameras should throw a <see cref="PropertyNotImplementedException" />.
-        /// Colour cameras should always return a value and must not throw a <see cref="PropertyNotImplementedException" /></para>
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <remarks><p style="color:red"><b>Must be implemented by colour cameras, monochrome cameras must throw a NotImplementedException</b></p>
+        /// <para>Since monochrome cameras don't have a Bayer colour matrix by definition, such cameras should throw a <see cref="NotImplementedException" />.
+        /// Colour cameras should always return a value and must not throw a <see cref="NotImplementedException" /></para>
         /// <para>The value returned must be in the range 0 to M-1 where M is the width of the Bayer matrix. The offset is relative to the 0,0 pixel in
         /// the sensor array, and does not change to reflect subframe settings.</para>
         /// <para>It is recommended that this function be called only after a <see cref="IAscomDevice.Connected">connection</see> is established with 
@@ -512,13 +551,13 @@ namespace ASCOM.Common.DeviceInterfaces
         /// Returns the Y offset of the Bayer matrix, as defined in <see cref="SensorType" />.
         /// </summary>
         /// <returns>The Bayer colour matrix Y offset, as defined in <see cref="SensorType" />.</returns>
-        /// <exception cref="PropertyNotImplementedException">Monochrome cameras must throw this exception, colour cameras must not.</exception>
-        /// <exception cref="NotConnectedException">Must throw an exception if the information is not available. (Some drivers may require an
-        /// active <see cref="IAscomDevice.Connected">connection</see> in order to retrieve necessary information from the camera.)</exception>
+        /// <exception cref="NotImplementedException">Monochrome cameras must throw this exception, colour cameras must not.</exception>
         /// <exception cref="InvalidValueException">Must throw an exception if not valid.</exception>
-        /// <remarks><p style="color:red"><b>Must be implemented by colour cameras, monochrome cameras must throw a PropertyNotImplementedException</b></p>
-        /// <para>Since monochrome cameras don't have a Bayer colour matrix by definition, such cameras should throw a <see cref="PropertyNotImplementedException" />.
-        /// Colour cameras should always return a value and must not throw a <see cref="PropertyNotImplementedException" /></para>
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <remarks><p style="color:red"><b>Must be implemented by colour cameras, monochrome cameras must throw a NotImplementedException</b></p>
+        /// <para>Since monochrome cameras don't have a Bayer colour matrix by definition, such cameras should throw a <see cref="NotImplementedException" />.
+        /// Colour cameras should always return a value and must not throw a <see cref="NotImplementedException" /></para>
         /// <para>The value returned must be in the range 0 to M-1 where M is the width of the Bayer matrix. The offset is relative to the 0,0 pixel in
         /// the sensor array, and does not change to reflect subframe settings.</para>
         /// <para>It is recommended that this function be called only after a <see cref="IAscomDevice.Connected">connection</see> is established with 
@@ -530,10 +569,10 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <summary>
         /// Camera has a fast readout mode
         /// </summary>
-        /// <exception cref="NotConnectedException">Must throw an exception if the information is not available. (Some drivers may require an
-        /// active <see cref="IAscomDevice.Connected">connection</see> in order to retrieve necessary information from the camera.)</exception>
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <returns><c>true</c> when the camera supports a fast readout mode</returns>
-        /// <remarks><p style="color:red"><b>Must be implemented, must not throw a PropertyNotImplementedException.</b></p>
+        /// <remarks><p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
         /// It is recommended that this function be called only after a <see cref="IAscomDevice.Connected">connection</see> is established with the camera hardware, to 
         /// ensure that the driver is aware of the capabilities of the specific camera model.
         /// <para>This is only available for the Camera Interface Version 2</para>
@@ -544,10 +583,10 @@ namespace ASCOM.Common.DeviceInterfaces
         /// Returns the maximum exposure time supported by <see cref="StartExposure">StartExposure</see>.
         /// </summary>
         /// <returns>The maximum exposure time, in seconds, that the camera supports</returns>
-        /// <exception cref="NotConnectedException">Must throw an exception if the information is not available. (Some drivers may require an
-        /// active <see cref="IAscomDevice.Connected">connection</see> in order to retrieve necessary information from the camera.)</exception>
         /// <exception cref="InvalidValueException">Must throw an exception if not valid.</exception>
-        /// <remarks><p style="color:red"><b>Must be implemented, must not throw a PropertyNotImplementedException.</b></p>
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <remarks><p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
         /// It is recommended that this function be called only after
         /// a <see cref="IAscomDevice.Connected">connection</see> is established with the camera hardware, to ensure that the driver is aware of the capabilities of the 
         /// specific camera model.
@@ -559,10 +598,10 @@ namespace ASCOM.Common.DeviceInterfaces
         /// Minimum exposure time
         /// </summary>
         /// <returns>The minimum exposure time, in seconds, that the camera supports through <see cref="StartExposure">StartExposure</see></returns>
-        /// <exception cref="NotConnectedException">Must throw an exception if the information is not available. (Some drivers may require an
-        /// active <see cref="IAscomDevice.Connected">connection</see> in order to retrieve necessary information from the camera.)</exception>
         /// <exception cref="InvalidValueException">Must throw an exception if not valid.</exception>
-        /// <remarks><p style="color:red"><b>Must be implemented, must not throw a PropertyNotImplementedException.</b></p>
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <remarks><p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
         /// This must be a non-zero number representing the shortest possible exposure time supported by the camera model.
         /// <para>Please note that for bias frame acquisition an even shorter exposure may be possible; please see <see cref="StartExposure">StartExposure</see>
         /// for more information.</para>
@@ -576,10 +615,10 @@ namespace ASCOM.Common.DeviceInterfaces
         /// Exposure resolution
         /// </summary>
         /// <returns>The smallest increment in exposure time supported by <see cref="StartExposure">StartExposure</see>.</returns>
-        /// <exception cref="NotConnectedException">Must throw an exception if the information is not available. (Some drivers may require an
-        /// active <see cref="IAscomDevice.Connected">connection</see> in order to retrieve necessary information from the camera.)</exception>
         /// <exception cref="InvalidValueException">Must throw an exception if not valid.</exception>
-        /// <remarks><p style="color:red"><b>Must be implemented, must not throw a PropertyNotImplementedException.</b></p>
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <remarks><p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
         /// This can be used, for example, to specify the resolution of a user interface "spin control" used to dial in the exposure time.
         /// <para>Please note that the Duration provided to <see cref="StartExposure">StartExposure</see> does not have to be an exact multiple of this number;
         /// the driver should choose the closest available value. Also in some cases the resolution may not be constant over the full range
@@ -595,12 +634,13 @@ namespace ASCOM.Common.DeviceInterfaces
         /// Gets or sets Fast Readout Mode
         /// </summary>
         /// <value><c>true</c> for fast readout mode, <c>false</c> for normal mode</value>
-        /// <exception cref="PropertyNotImplementedException">Thrown if <see cref="CanFastReadout" /> is <c>false</c>.</exception>
-        /// <exception cref="NotConnectedException">Thrown if the driver is not connected and a connection is required to obtain this information.</exception>
-        /// <remarks><p style="color:red"><b>Must throw a PropertyNotImplementedException if CanFastReadout is false or
+        /// <exception cref="NotImplementedException">Thrown if <see cref="CanFastReadout" /> is <c>false</c>.</exception>
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <remarks><p style="color:red"><b>Must throw a NotImplementedException if CanFastReadout is false or
         /// return a boolean value if CanFastReadout is true.</b></p>
         /// Must thrown an exception if no <see cref="IAscomDevice.Connected">connection</see> is established to the camera. Must throw
-        /// a <see cref="PropertyNotImplementedException" /> if <see cref="CanFastReadout" /> returns <c>false</c>.
+        /// a <see cref="NotImplementedException" /> if <see cref="CanFastReadout" /> returns <c>false</c>.
         /// <para>Many cameras have a "fast mode" intended for use in focusing. When set to <c>true</c>, the camera will operate in Fast mode; when
         /// set <c>false</c>, the camera will operate normally. This property, if implemented, should default to <c>False</c>.</para>
         /// <para>Please note that this function may in some cases interact with <see cref="ReadoutModes" />; for example, there may be modes where
@@ -618,29 +658,30 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <p style="color:red"><b>OR</b></p>
         /// <b>GAINS INDEX MODE:</b> Index into the Gains array for the current camera gain
         /// </returns>
-        /// <exception cref="PropertyNotImplementedException">When neither <b>GAINS INDEX</b> mode nor <b>GAIN VALUE</b> mode are supported.</exception>
-        /// <exception cref="NotConnectedException">When the information is not available. (Some drivers may require an active connection in order to retrieve necessary information from the camera.)</exception>
+        /// <exception cref="NotImplementedException">When neither <b>GAINS INDEX</b> mode nor <b>GAIN VALUE</b> mode are supported.</exception>
         /// <exception cref="InvalidValueException">When the supplied value is not valid.</exception>
-        /// <remarks><p style="color:red"><b>This is an optional property and can throw a PropertyNotImplementedException if Gain is not supported by the camera.</b></p>
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <remarks><p style="color:red"><b>This is an optional property and can throw a NotImplementedException if Gain is not supported by the camera.</b></p>
         /// The <see cref="Gain" /> property is used to adjust the gain setting of the camera and has <b>two modes of operation</b>:
         /// <ul>
         /// <li><b>GAIN VALUE MODE</b> - The <see cref="Gain" /> property is a direct numeric representation of the camera's gain.
         /// <ul>
         /// <li>In this mode the <see cref="GainMin" /> and <see cref="GainMax" /> properties must return integers specifying the valid range for <see cref="Gain" /></li>
-        /// <li>The <see cref="Gains"/> property must return a <see cref="PropertyNotImplementedException"/>.</li>
+        /// <li>The <see cref="Gains"/> property must return a <see cref="NotImplementedException"/>.</li>
         /// </ul>
         /// </li>
         /// <li><b>GAINS INDEX MODE</b> - The <see cref="Gain" /> property is the selected gain's index within the <see cref="Gains"/> array of textual gain descriptions.
         /// <ul>
         /// <li>In this  mode the <see cref="Gains" /> method returns a 0-based array of strings, which describe available gain settings e.g. "ISO 200", "ISO 1600" </li>
-        /// <li><see cref="GainMin" /> and <see cref="GainMax" /> must throw <see cref="PropertyNotImplementedException"/>s.</li>
+        /// <li><see cref="GainMin" /> and <see cref="GainMax" /> must throw <see cref="NotImplementedException"/>s.</li>
         /// <li>Please note that the <see cref="Gains"/> array is zero based.</li>
         /// </ul>
         /// </li>
         /// </ul>
         /// <para>A driver can support none, one or both gain modes depending on the camera's capabilities. However, only one mode can be active at any one moment because both modes share
         /// the <see cref="Gain"/> property to return the gain value. Client applications can determine which mode is operational by reading the <see cref="GainMin"/>, <see cref="GainMax"/> and 
-        /// <see cref="Gain"/> properties. If a property can be read then its associated mode is active, if it throws a <see cref="PropertyNotImplementedException"/> then the mode is not active.</para>
+        /// <see cref="Gain"/> properties. If a property can be read then its associated mode is active, if it throws a <see cref="NotImplementedException"/> then the mode is not active.</para>
         /// <para>If a driver supports both modes the astronomer must be able to select the required mode through the driver Setup dialogue.</para>
         /// <para>During driver initialisation the driver must set <see cref="Gain" /> to a valid value.</para>
         /// <para>Please note that <see cref="ReadoutMode" /> may in some cases affect the gain of the camera; if so, the driver must be ensure that the two properties do not conflict if both are used.</para>
@@ -652,16 +693,17 @@ namespace ASCOM.Common.DeviceInterfaces
         /// Maximum <see cref="Gain" /> value of that this camera supports
         /// </summary>
         /// <returns>The maximum gain value that this camera supports</returns>
-        /// <exception cref="PropertyNotImplementedException">When the <see cref="Gain"/> property is not implemented or is operating in <b>GAINS INDEX</b> mode.</exception>
-        /// <exception cref="NotConnectedException">When the information is not available. (Some drivers may require an active connection in order to retrieve necessary information from the camera.)</exception>
-        /// <remarks><p style="color:red"><b>This is an optional property and can throw a PropertyNotImplementedException.</b></p>
+        /// <exception cref="NotImplementedException">When the <see cref="Gain"/> property is not implemented or is operating in <b>GAINS INDEX</b> mode.</exception>
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <remarks><p style="color:red"><b>This is an optional property and can throw a NotImplementedException.</b></p>
         /// When <see cref="Gain"/> is operating in <b><see cref="Gain">GAIN VALUE</see></b> mode:
         /// <ul>
         /// <li><see cref="GainMax" /> must return the camera's highest valid <see cref="Gain" /> setting.</li>
         /// <li><see cref="GainMax" /> must be equal to or greater than <see cref="GainMin" />.</li>
-        /// <li><see cref="Gains"/> must throw a <see cref="PropertyNotImplementedException"/></li>
+        /// <li><see cref="Gains"/> must throw a <see cref="NotImplementedException"/></li>
         /// </ul>
-        /// <para>Please note that <see cref="GainMin"/> and <see cref="GainMax"/> act together and that either both must be implemented or both must throw <see cref="PropertyNotImplementedException"/>s.</para>
+        /// <para>Please note that <see cref="GainMin"/> and <see cref="GainMax"/> act together and that either both must be implemented or both must throw <see cref="NotImplementedException"/>s.</para>
         /// <para>It is recommended that this function be called only after a connection is established with the camera hardware to ensure that the driver is aware of the capabilities of the specific camera model.</para>
         /// <para>This property is only available in Camera Interface Version 2 and later.</para>
         /// </remarks>
@@ -671,16 +713,17 @@ namespace ASCOM.Common.DeviceInterfaces
         /// Minimum <see cref="Gain" /> value of that this camera supports
         /// </summary>
         /// <returns>The minimum gain value that this camera supports</returns>
-        /// <exception cref="PropertyNotImplementedException">When the <see cref="Gain"/> property is not implemented or is operating in <b>GAINS INDEX</b> mode.</exception>
-        /// <exception cref="NotConnectedException">When the information is not available. (Some drivers may require an active connection in order to retrieve necessary information from the camera.)</exception>
-        /// <remarks><p style="color:red"><b>This is an optional property and can throw a PropertyNotImplementedException.</b></p>
+        /// <exception cref="NotImplementedException">When the <see cref="Gain"/> property is not implemented or is operating in <b>GAINS INDEX</b> mode.</exception>
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <remarks><p style="color:red"><b>This is an optional property and can throw a NotImplementedException.</b></p>
         /// When <see cref="Gain"/> is operating in <b><see cref="Gain">GAIN VALUE</see></b> mode:
         /// <ul>
         /// <li><see cref="GainMin" /> must return the camera's lowest valid <see cref="Gain" /> setting.</li>
         /// <li><see cref="GainMin" /> must be less than or equal to <see cref="GainMax" />.</li>
-        /// <li><see cref="Gains"/> must throw a <see cref="PropertyNotImplementedException"/></li>
+        /// <li><see cref="Gains"/> must throw a <see cref="NotImplementedException"/></li>
         /// </ul>
-        /// <para>Please note that <see cref="GainMin"/> and <see cref="GainMax"/> act together and that either both must be implemented or both must throw <see cref="PropertyNotImplementedException"/>s.</para>
+        /// <para>Please note that <see cref="GainMin"/> and <see cref="GainMax"/> act together and that either both must be implemented or both must throw <see cref="NotImplementedException"/>s.</para>
         /// <para>It is recommended that this function be called only after a connection is established with the camera hardware to ensure that the driver is aware of the capabilities of the specific camera model.</para>
         /// <para>This property is only available in Camera Interface Version 2 and later.</para>
         /// </remarks>
@@ -690,13 +733,14 @@ namespace ASCOM.Common.DeviceInterfaces
         /// List of Gain names supported by the camera
         /// </summary>
         /// <returns>The list of supported gain names as an ArrayList of strings</returns>
-        /// <exception cref="PropertyNotImplementedException">When the <see cref="Gain"/> property is not implemented or is operating in <b>GAIN VALUE</b> mode.</exception>
-        /// <exception cref="NotConnectedException">When the information is not available. (Some drivers may require an active connection in order to retrieve necessary information from the camera.)</exception>
-        /// <remarks><p style="color:red"><b>This is an optional property and can throw a PropertyNotImplementedException.</b></p>
+        /// <exception cref="NotImplementedException">When the <see cref="Gain"/> property is not implemented or is operating in <b>GAIN VALUE</b> mode.</exception>
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <remarks><p style="color:red"><b>This is an optional property and can throw a NotImplementedException.</b></p>
         /// When <see cref="Gain"/> is operating in <b><see cref="Gain">GAINS INDEX</see></b> mode:
         /// <ul>
         /// <li>The <see cref="Gains" /> property must return a zero-based ArrayList of available gain setting names.</li>
-        /// <li>The <see cref="GainMin"/> and <see cref="GainMax"/> properties must throw <see cref="PropertyNotImplementedException"/>s.</li>
+        /// <li>The <see cref="GainMin"/> and <see cref="GainMax"/> properties must throw <see cref="NotImplementedException"/>s.</li>
         /// </ul>
         /// <para>The returned gain names could, for example, be a list of ISO settings for a DSLR camera or a list of gain names for a CMOS camera.
         /// Typically the application software will display the returned gain names in a drop list, from which the astronomer can select the required value.
@@ -710,9 +754,10 @@ namespace ASCOM.Common.DeviceInterfaces
         /// Percent completed, Interface Version 2 only
         /// </summary>
         /// <returns>A value between 0 and 100% indicating the completeness of this operation</returns>
-        /// <exception cref="PropertyNotImplementedException">Must throw an exception if PercentCompleted is not supported</exception>
         /// <exception cref="InvalidOperationException">Thrown when it is inappropriate to call <see cref="PercentCompleted" /></exception>
-        /// <remarks><p style="color:red"><b>May throw a PropertyNotImplementedException if PercentCompleted is not supported by the camera.</b></p>
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <remarks><p style="color:red"><b>May throw a NotImplementedException if PercentCompleted is not supported by the camera.</b></p>
         /// If valid, returns an integer between 0 and 100, where 0 indicates 0% progress (function just started) and
         /// 100 indicates 100% progress (i.e. completion).
         /// <para>At the discretion of the driver author, <see cref="PercentCompleted" /> may optionally be valid
@@ -734,9 +779,9 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <returns>Short integer index into the <see cref="ReadoutModes">ReadoutModes</see> array of string readout mode names indicating
         /// the camera's current readout mode.</returns>
         /// <exception cref="InvalidValueException">Must throw an exception if set to an illegal or unavailable mode.</exception>
-        /// <exception cref="NotConnectedException">Must throw an exception if the information is not available. (Some drivers may require an
-        /// active <see cref="IAscomDevice.Connected">connection</see> in order to retrieve necessary information from the camera.)</exception>
-        /// <remarks><p style="color:red"><b>Must be implemented if CanFastReadout is false, must throw a PropertyNotImplementedException if
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <remarks><p style="color:red"><b>Must be implemented if CanFastReadout is false, must throw a NotImplementedException if
         /// CanFastReadout is true.</b></p>
         /// <see cref="ReadoutMode" /> is an index into the array <see cref="ReadoutModes" />, and selects the desired readout mode for the camera.
         /// Defaults to 0 if not set.  Throws an exception if the selected mode is not available.
@@ -751,9 +796,9 @@ namespace ASCOM.Common.DeviceInterfaces
         /// List of available readout modes, Interface Version 2 only
         /// </summary>
         /// <returns>An ArrayList of readout mode names</returns>
-        /// <exception cref="NotConnectedException">Must throw an exception if the information is not available. (Some drivers may require an
-        /// active <see cref="IAscomDevice.Connected">connection</see> in order to retrieve necessary information from the camera.)</exception>
-        /// <remarks><p style="color:red"><b>Must be implemented if CanFastReadout is false, must throw a PropertyNotImplementedException if
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <remarks><p style="color:red"><b>Must be implemented if CanFastReadout is false, must throw a NotImplementedException if
         /// CanFastReadout is true.</b></p>
         /// This property provides an array of strings, each of which describes an available readout mode of the camera.
         /// At least one string must be present in the list. The user interface of a control application will typically present to the
@@ -780,9 +825,9 @@ namespace ASCOM.Common.DeviceInterfaces
         /// ## Mandatory must return an empty string if the sensor is unknown
         /// </summary>
         /// <returns>The name of the sensor used within the camera.</returns>
-        /// <exception cref="NotConnectedException">Must throw an exception if the information is not available. (Some drivers may require an
-        /// active <see cref="IAscomDevice.Connected">connection</see> in order to retrieve necessary information from the camera.)</exception>
-        /// <remarks><p style="color:red"><b>May throw a PropertyNotImplementedException if the sensor's name is not known.</b></p>
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <remarks><p style="color:red"><b>May throw a NotImplementedException if the sensor's name is not known.</b></p>
         /// <para>Returns the name (data sheet part number) of the sensor, e.g. ICX285AL.  The format is to be exactly as shown on
         /// manufacturer data sheet, subject to the following rules:
         /// <list type="bullet">
@@ -813,13 +858,13 @@ namespace ASCOM.Common.DeviceInterfaces
         /// </summary>
         /// <value></value>
         /// <returns>The <see cref="ASCOM.DeviceInterface.SensorType" /> enum value of the camera sensor</returns>
-        /// <exception cref="NotConnectedException">Must throw an exception if the information is not available. (Some drivers may require an
-        /// active <see cref="IAscomDevice.Connected">connection</see> in order to retrieve necessary information from the camera.)</exception>
-        /// <remarks><p style="color:red"><b>May throw a PropertyNotImplementedException if the sensor type is not known.</b></p>
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <remarks><p style="color:red"><b>May throw a NotImplementedException if the sensor type is not known.</b></p>
         /// <para>This is only available for the Camera Interface Version 2</para>
         /// <para><see cref="SensorType" /> returns a value indicating whether the sensor is monochrome, or what Bayer matrix it encodes. If this value
         /// cannot be determined by interrogating the camera, the appropriate value may be set through the user setup dialogue or the property may
-        /// return a <see cref="PropertyNotImplementedException" />. Please note that for some cameras, changing <see cref="BinX" />,
+        /// return a <see cref="NotImplementedException" />. Please note that for some cameras, changing <see cref="BinX" />,
         /// <see cref="BinY" /> or <see cref="ReadoutMode" /> may change the apparent type of the sensor and so you should change the value returned here
         /// to match if this is the case for your camera.</para>
         /// <para>The following values are defined:</para>
@@ -1498,29 +1543,29 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <p style="color:red"><b>OR</b></p>
         /// <b>OFFSETS INDEX MODE:</b> Index into the Offsets array for the current camera offset
         /// </returns>
-        /// <exception cref="PropertyNotImplementedException">When neither <b>OFFSETS INDEX</b> mode nor <b>OFFSET VALUE</b> mode are supported.</exception>
-        /// <exception cref="NotConnectedException">When the information is not available. (Some drivers may require an active connection in order to retrieve necessary information from the camera.)</exception>
-        /// <exception cref="InvalidValueException">When the supplied value is not valid.</exception>
-        /// <remarks><p style="color:red"><b>This is an optional property and can throw a PropertyNotImplementedException if Offset is not supported by the camera.</b></p>
+        /// <exception cref="NotImplementedException">When neither <b>OFFSETS INDEX</b> mode nor <b>OFFSET VALUE</b> mode are supported.</exception>
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <remarks><p style="color:red"><b>This is an optional property and can throw a NotImplementedException if Offset is not supported by the camera.</b></p>
         /// The <see cref="Offset" /> property is used to adjust the offset setting of the camera and has <b>two modes of operation</b>:
         /// <ul>
         /// <li><b>OFFSET VALUE MODE</b> - The <see cref="Offset" /> property is a direct numeric representation of the camera's offset.
         /// <ul>
         /// <li>In this mode the <see cref="OffsetMin" /> and <see cref="OffsetMax" /> properties must return integers specifying the valid range for <see cref="Offset" /></li>
-        /// <li>The <see cref="Offsets"/> property must return a <see cref="PropertyNotImplementedException"/>.</li>
+        /// <li>The <see cref="Offsets"/> property must return a <see cref="NotImplementedException"/>.</li>
         /// </ul>
         /// </li>
         /// <li><b>OFFSETS INDEX MODE</b> - The <see cref="Offset" /> property is the selected offset's index within the <see cref="Offsets"/> array of textual offset descriptions.
         /// <ul>
         /// <li>In this  mode the <see cref="Offsets" /> method returns a 0-based array of strings, which describe available offset settings e.g. "ISO 200", "ISO 1600" </li>
-        /// <li><see cref="OffsetMin" /> and <see cref="OffsetMax" /> must throw <see cref="PropertyNotImplementedException"/>s.</li>
+        /// <li><see cref="OffsetMin" /> and <see cref="OffsetMax" /> must throw <see cref="NotImplementedException"/>s.</li>
         /// <li>Please note that the <see cref="Offsets"/> array is zero based.</li>
         /// </ul>
         /// </li>
         /// </ul>
         /// <para>A driver can support none, one or both offset modes depending on the camera's capabilities. However, only one mode can be active at any one moment because both modes share
         /// the <see cref="Offset"/> property to return the offset value. Client applications can determine which mode is operational by reading the <see cref="OffsetMin"/>, <see cref="OffsetMax"/> and 
-        /// <see cref="Offset"/> properties. If a property can be read then its associated mode is active, if it throws a <see cref="PropertyNotImplementedException"/> then the mode is not active.</para>
+        /// <see cref="Offset"/> properties. If a property can be read then its associated mode is active, if it throws a <see cref="NotImplementedException"/> then the mode is not active.</para>
         /// <para>If a driver supports both modes the astronomer must be able to select the required mode through the driver Setup dialogue.</para>
         /// <para>During driver initialisation the driver must set <see cref="Offset" /> to a valid value.</para>
         /// <para>Please note that <see cref="ReadoutMode" /> may in some cases affect the offset of the camera; if so, the driver must be ensure that the two properties do not conflict if both are used.</para>
@@ -1532,16 +1577,17 @@ namespace ASCOM.Common.DeviceInterfaces
         /// Maximum <see cref="Offset" /> value of that this camera supports
         /// </summary>
         /// <returns>The maximum offset value that this camera supports</returns>
-        /// <exception cref="PropertyNotImplementedException">When the <see cref="Offset"/> property is not implemented or is operating in <b>OFFSETS INDEX</b> mode.</exception>
-        /// <exception cref="NotConnectedException">When the information is not available. (Some drivers may require an active connection in order to retrieve necessary information from the camera.)</exception>
-        /// <remarks><p style="color:red"><b>This is an optional property and can throw a PropertyNotImplementedException.</b></p>
+        /// <exception cref="NotImplementedException">When the <see cref="Offset"/> property is not implemented or is operating in <b>OFFSETS INDEX</b> mode.</exception>
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <remarks><p style="color:red"><b>This is an optional property and can throw a NotImplementedException.</b></p>
         /// When <see cref="Offset"/> is operating in <b><see cref="Offset">OFFSET VALUE</see></b> mode:
         /// <ul>
         /// <li><see cref="OffsetMax" /> must return the camera's highest valid <see cref="Offset" /> setting.</li>
         /// <li><see cref="OffsetMax" /> must be equal to or greater than <see cref="OffsetMin" />.</li>
-        /// <li><see cref="Offsets"/> must throw a <see cref="PropertyNotImplementedException"/></li>
+        /// <li><see cref="Offsets"/> must throw a <see cref="NotImplementedException"/></li>
         /// </ul>
-        /// <para>Please note that <see cref="OffsetMin"/> and <see cref="OffsetMax"/> act together and that either both must be implemented or both must throw <see cref="PropertyNotImplementedException"/>s.</para>
+        /// <para>Please note that <see cref="OffsetMin"/> and <see cref="OffsetMax"/> act together and that either both must be implemented or both must throw <see cref="NotImplementedException"/>s.</para>
         /// <para>It is recommended that this function be called only after a connection is established with the camera hardware to ensure that the driver is aware of the capabilities of the specific camera model.</para>
         /// <para>This property is only available in Camera Interface Version 3 and later.</para>
         /// </remarks>
@@ -1551,16 +1597,17 @@ namespace ASCOM.Common.DeviceInterfaces
         /// Minimum <see cref="Offset" /> value of that this camera supports
         /// </summary>
         /// <returns>The minimum offset value that this camera supports</returns>
-        /// <exception cref="PropertyNotImplementedException">When the <see cref="Offset"/> property is not implemented or is operating in <b>OFFSETS INDEX</b> mode.</exception>
-        /// <exception cref="NotConnectedException">When the information is not available. (Some drivers may require an active connection in order to retrieve necessary information from the camera.)</exception>
-        /// <remarks><p style="color:red"><b>This is an optional property and can throw a PropertyNotImplementedException.</b></p>
+        /// <exception cref="NotImplementedException">When the <see cref="Offset"/> property is not implemented or is operating in <b>OFFSETS INDEX</b> mode.</exception>
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <remarks><p style="color:red"><b>This is an optional property and can throw a NotImplementedException.</b></p>
         /// When <see cref="Offset"/> is operating in <b><see cref="Offset">OFFSET VALUE</see></b> mode:
         /// <ul>
         /// <li><see cref="OffsetMin" /> must return the camera's lowest valid <see cref="Offset" /> setting.</li>
         /// <li><see cref="OffsetMin" /> must be less than or equal to <see cref="OffsetMax" />.</li>
-        /// <li><see cref="Offsets"/> must throw a <see cref="PropertyNotImplementedException"/></li>
+        /// <li><see cref="Offsets"/> must throw a <see cref="NotImplementedException"/></li>
         /// </ul>
-        /// <para>Please note that <see cref="OffsetMin"/> and <see cref="OffsetMax"/> act together and that either both must be implemented or both must throw <see cref="PropertyNotImplementedException"/>s.</para>
+        /// <para>Please note that <see cref="OffsetMin"/> and <see cref="OffsetMax"/> act together and that either both must be implemented or both must throw <see cref="NotImplementedException"/>s.</para>
         /// <para>It is recommended that this function be called only after a connection is established with the camera hardware to ensure that the driver is aware of the capabilities of the specific camera model.</para>
         /// <para>This property is only available in Camera Interface Version 3 and later.</para>
         /// </remarks>
@@ -1570,13 +1617,14 @@ namespace ASCOM.Common.DeviceInterfaces
         /// List of Offset names supported by the camera
         /// </summary>
         /// <returns>The list of supported offset names as an ArrayList of strings</returns>
-        /// <exception cref="PropertyNotImplementedException">When the <see cref="Offset"/> property is not implemented or is operating in <b>OFFSET VALUE</b> mode.</exception>
-        /// <exception cref="NotConnectedException">When the information is not available. (Some drivers may require an active connection in order to retrieve necessary information from the camera.)</exception>
-        /// <remarks><p style="color:red"><b>This is an optional property and can throw a PropertyNotImplementedException.</b></p>
+        /// <exception cref="NotImplementedException">When the <see cref="Offset"/> property is not implemented or is operating in <b>OFFSET VALUE</b> mode.</exception>
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <remarks><p style="color:red"><b>This is an optional property and can throw a NotImplementedException.</b></p>
         /// When <see cref="Offset"/> is operating in <b><see cref="Offset">OFFSETS INDEX</see></b> mode:
         /// <ul>
         /// <li>The <see cref="Offsets" /> property must return a zero-based ArrayList of available offset setting names.</li>
-        /// <li>The <see cref="OffsetMin"/> and <see cref="OffsetMax"/> properties must throw <see cref="PropertyNotImplementedException"/>s.</li>
+        /// <li>The <see cref="OffsetMin"/> and <see cref="OffsetMax"/> properties must throw <see cref="NotImplementedException"/>s.</li>
         /// </ul>
         /// <para>The returned offset names are at the manufacturer / driver author's discretion and could for example be: "Low gain", "Medium gain" and "High gain"to match the offset to different camera use scenarios.
         /// Typically the application software will display the returned offset names in a drop list, from which the astronomer can select the required value.
@@ -1589,10 +1637,11 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <summary>
         /// Camera's sub-exposure interval
         /// </summary>
-        /// <exception cref="PropertyNotImplementedException">When the camera does not support sub exposure configuration.</exception>
-        /// <exception cref="NotConnectedException">When the information is not available. (Some drivers may require an active connection in order to retrieve necessary information from the camera.)</exception>
+        /// <exception cref="NotImplementedException">When the camera does not support sub exposure configuration.</exception>
         /// <exception cref="InvalidValueException">When the supplied value is not valid.</exception>
-        /// <remarks><p style="color:red"><b>This is an optional property and can throw a PropertyNotImplementedException.</b></p>
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <remarks><p style="color:red"><b>This is an optional property and can throw a NotImplementedException.</b></p>
         /// <para>This is only available in Camera Interface Version 3 and later.</para>
         /// </remarks>
         double SubExposureDuration { get; set; }
