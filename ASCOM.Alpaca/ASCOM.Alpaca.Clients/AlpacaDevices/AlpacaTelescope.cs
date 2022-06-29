@@ -16,9 +16,6 @@ namespace ASCOM.Alpaca.Clients
     {
         #region Variables and Constants
 
-        // Set the device type
-        private const string DEVICE_TYPE = "Telescope";
-
         #endregion
 
         #region Initialiser
@@ -78,213 +75,29 @@ namespace ASCOM.Alpaca.Clients
         {
             try
             {
-                URIBase = $"{AlpacaConstants.API_URL_BASE}{AlpacaConstants.API_VERSION_V1}/{DEVICE_TYPE}/{remoteDeviceNumber}/";
+                // Set the device type
+                clientDeviceType = "Telescope";
+
+                URIBase = $"{AlpacaConstants.API_URL_BASE}{AlpacaConstants.API_VERSION_V1}/{clientDeviceType}/{remoteDeviceNumber}/";
                 Version version = Assembly.GetEntryAssembly().GetName().Version;
 
-                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, DEVICE_TYPE, "Starting initialisation, Version: " + version.ToString());
-                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, DEVICE_TYPE, "This instance's unique client number: " + clientNumber);
-                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, DEVICE_TYPE, "This devices's base URI: " + URIBase);
-                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, DEVICE_TYPE, "Establish communications timeout: " + establishConnectionTimeout.ToString());
-                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, DEVICE_TYPE, "Standard device response timeout: " + standardDeviceResponseTimeout.ToString());
-                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, DEVICE_TYPE, "Long device response timeout: " + longDeviceResponseTimeout.ToString());
-                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, DEVICE_TYPE, $"User name is Null or Empty: {string.IsNullOrEmpty(userName)}, User name is Null or White Space: {string.IsNullOrWhiteSpace(userName)}");
-                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, DEVICE_TYPE, $"User name length: {password.Length}");
-                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, DEVICE_TYPE, $"Password is Null or Empty: {string.IsNullOrEmpty(password)}, Password is Null or White Space: {string.IsNullOrWhiteSpace(password)}");
-                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, DEVICE_TYPE, $"Password length: {password.Length}");
+                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, clientDeviceType, "Starting initialisation, Version: " + version.ToString());
+                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, clientDeviceType, "This instance's unique client number: " + clientNumber);
+                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, clientDeviceType, "This devices's base URI: " + URIBase);
+                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, clientDeviceType, "Establish communications timeout: " + establishConnectionTimeout.ToString());
+                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, clientDeviceType, "Standard device response timeout: " + standardDeviceResponseTimeout.ToString());
+                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, clientDeviceType, "Long device response timeout: " + longDeviceResponseTimeout.ToString());
+                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, clientDeviceType, $"User name is Null or Empty: {string.IsNullOrEmpty(userName)}, User name is Null or White Space: {string.IsNullOrWhiteSpace(userName)}");
+                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, clientDeviceType, $"User name length: {password.Length}");
+                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, clientDeviceType, $"Password is Null or Empty: {string.IsNullOrEmpty(password)}, Password is Null or White Space: {string.IsNullOrWhiteSpace(password)}");
+                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, clientDeviceType, $"Password length: {password.Length}");
 
-                DynamicClientDriver.ConnectToRemoteDevice(ref client, serviceType, ipAddressString, portNumber, clientNumber, DEVICE_TYPE, standardDeviceResponseTimeout, userName, password, TL);
-                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, DEVICE_TYPE, "Completed initialisation");
+                DynamicClientDriver.ConnectToRemoteDevice(ref client, serviceType, ipAddressString, portNumber, clientNumber, clientDeviceType, standardDeviceResponseTimeout, userName, password, TL);
+                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, clientDeviceType, "Completed initialisation");
             }
             catch (Exception ex)
             {
-                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, DEVICE_TYPE, ex.ToString());
-            }
-        }
-
-        #endregion
-
-        #region Common properties and methods.
-
-        public string Action(string actionName, string actionParameters)
-        {
-            DynamicClientDriver.SetClientTimeout(client, longDeviceResponseTimeout);
-            return DynamicClientDriver.Action(clientNumber, client, URIBase, strictCasing, TL, actionName, actionParameters);
-        }
-
-        public void CommandBlind(string command, bool raw = false)
-        {
-            DynamicClientDriver.SetClientTimeout(client, longDeviceResponseTimeout);
-            DynamicClientDriver.CommandBlind(clientNumber, client, URIBase, strictCasing, TL, command, raw);
-        }
-
-        public bool CommandBool(string command, bool raw = false)
-        {
-            DynamicClientDriver.SetClientTimeout(client, longDeviceResponseTimeout);
-            return DynamicClientDriver.CommandBool(clientNumber, client, URIBase, strictCasing, TL, command, raw);
-        }
-
-        public string CommandString(string command, bool raw = false)
-        {
-            DynamicClientDriver.SetClientTimeout(client, longDeviceResponseTimeout);
-            return DynamicClientDriver.CommandString(clientNumber, client, URIBase, strictCasing, TL, command, raw);
-        }
-
-        public bool Connected
-        {
-            get
-            {
-                return clientIsConnected;
-            }
-            set
-            {
-                clientIsConnected = value;
-                if (manageConnectLocally)
-                {
-                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, DEVICE_TYPE, $"The Connected property is being managed locally so the new value '{value}' will not be sent to the remote device");
-                }
-                else // Send the command to the remote device
-                {
-                    DynamicClientDriver.SetClientTimeout(client, establishConnectionTimeout);
-                    if (value) DynamicClientDriver.Connect(clientNumber, client, URIBase, strictCasing, TL);
-                    else DynamicClientDriver.Disconnect(clientNumber, client, URIBase, strictCasing, TL);
-                }
-            }
-        }
-
-        public string Description
-        {
-            get
-            {
-                DynamicClientDriver.SetClientTimeout(client, standardDeviceResponseTimeout);
-                string response = DynamicClientDriver.Description(clientNumber, client, URIBase, strictCasing, TL);
-                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "Description", response);
-                return response;
-            }
-        }
-
-        public string DriverInfo
-        {
-            get
-            {
-                DynamicClientDriver.SetClientTimeout(client, standardDeviceResponseTimeout);
-                return DynamicClientDriver.DriverInfo(clientNumber, client, URIBase, strictCasing, TL);
-
-            }
-        }
-
-        public string DriverVersion
-        {
-            get
-            {
-                DynamicClientDriver.SetClientTimeout(client, standardDeviceResponseTimeout);
-                return DynamicClientDriver.DriverVersion(clientNumber, client, URIBase, strictCasing, TL);
-            }
-        }
-
-        public short InterfaceVersion
-        {
-            get
-            {
-                DynamicClientDriver.SetClientTimeout(client, standardDeviceResponseTimeout);
-                return DynamicClientDriver.InterfaceVersion(clientNumber, client, URIBase, strictCasing, TL);
-            }
-        }
-
-        public string Name
-        {
-            get
-            {
-                string response = DynamicClientDriver.GetValue<string>(clientNumber, client, URIBase, strictCasing, TL, "Name", MemberTypes.Property);
-                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "Name", response);
-                return response;
-            }
-        }
-
-        public void SetupDialog()
-        {
-            //LogMessage(TL,clientNumber, "SetupDialog", "Connected: " + clientIsConnected.ToString());
-            //if (clientIsConnected)
-            //{
-            //    MessageBox.Show("Simulator is connected, setup parameters cannot be changed, please press OK");
-            //}
-            //else
-            //{
-            //    LogMessage(TL,clientNumber, "SetupDialog", "Creating setup form");
-            //    using (setupForm = new SetupDialogForm(TL))
-            //    {
-            //        // Pass the setup dialogue data into the form
-            //        setupForm.DriverDisplayName = DriverDisplayName;
-            //        setupForm.TraceState = traceState;
-            //        setupForm.DebugTraceState = debugTraceState;
-            //        setupForm.ServiceType = serviceType;
-            //        setupForm.IPAddressString = ipAddressString;
-            //        setupForm.PortNumber = portNumber;
-            //        setupForm.RemoteDeviceNumber = remoteDeviceNumber;
-            //        setupForm.EstablishConnectionTimeout = establishConnectionTimeout;
-            //        setupForm.StandardTimeout = standardDeviceResponseTimeout;
-            //        setupForm.LongTimeout = longDeviceResponseTimeout;
-            //        setupForm.UserName = userName;
-            //        setupForm.Password = password;
-            //        setupForm.ManageConnectLocally = manageConnectLocally;
-            //        setupForm.ImageArrayTransferType = imageArrayTransferType;
-            //        setupForm.DeviceType = DEVICE_TYPE;
-            //        setupForm.EnableRediscovery = enableRediscovery;
-            //        setupForm.IpV4Enabled = ipV4Enabled;
-            //        setupForm.IpV6Enabled = ipV6Enabled;
-            //        setupForm.DiscoveryPort = discoveryPort;
-
-            //        LogMessage(TL,clientNumber, "SetupDialog", "Showing Dialogue");
-            //        var result = setupForm.ShowDialog();
-            //        LogMessage(TL,clientNumber, "SetupDialog", "Dialogue closed");
-            //        if (result == DialogResult.OK)
-            //        {
-            //            LogMessage(TL,clientNumber, "SetupDialog", "Dialogue closed with OK status");
-
-            //            // Retrieve revised setup data from the form
-            //            traceState = setupForm.TraceState;
-            //            debugTraceState = setupForm.DebugTraceState;
-            //            serviceType = setupForm.ServiceType;
-            //            ipAddressString = setupForm.IPAddressString;
-            //            portNumber = setupForm.PortNumber;
-            //            remoteDeviceNumber = setupForm.RemoteDeviceNumber;
-            //            establishConnectionTimeout = (int)setupForm.EstablishConnectionTimeout;
-            //            standardDeviceResponseTimeout = (int)setupForm.StandardTimeout;
-            //            longDeviceResponseTimeout = (int)setupForm.LongTimeout;
-            //            userName = setupForm.UserName;
-            //            password = setupForm.Password;
-            //            manageConnectLocally = setupForm.ManageConnectLocally;
-            //            imageArrayTransferType = setupForm.ImageArrayTransferType;
-            //            enableRediscovery = setupForm.EnableRediscovery;
-            //            ipV4Enabled = setupForm.IpV4Enabled;
-            //            ipV6Enabled = setupForm.IpV6Enabled;
-            //            discoveryPort = setupForm.DiscoveryPort;
-
-            //            // Write the changed values to the Profile
-            //            LogMessage(TL,clientNumber, "SetupDialog", "Writing new values to profile");
-            //            DynamicClientDriver.WriteProfile(clientNumber, TL, DEVICE_TYPE, DriverProgId, traceState, debugTraceState, ipAddressString, portNumber, remoteDeviceNumber, serviceType,
-            //                establishConnectionTimeout, standardDeviceResponseTimeout, longDeviceResponseTimeout, userName, password, manageConnectLocally, imageArrayTransferType, imageArrayCompression, uniqueId, enableRediscovery, ipV4Enabled, ipV6Enabled, discoveryPort);
-
-            //            // Establish new host and device parameters
-            //            LogMessage(TL,clientNumber, "SetupDialog", "Establishing new host and device parameters");
-            //            DynamicClientDriver.ConnectToRemoteDevice(ref client, ipAddressString, portNumber, establishConnectionTimeout, serviceType, TL, clientNumber, DriverProgId, DEVICE_TYPE,
-            //                                                      standardDeviceResponseTimeout, userName, password, uniqueId, enableRediscovery, ipV4Enabled, ipV6Enabled, discoveryPort);
-            //        }
-            //        else LogMessage(TL,clientNumber, "SetupDialog", "Dialogue closed with Cancel status");
-            //    }
-            //    if (!(setupForm == null))
-            //    {
-            //        setupForm.Dispose();
-            //        setupForm = null;
-            //    }
-            //}
-        }
-
-        public IList<string> SupportedActions
-        {
-            get
-            {
-                DynamicClientDriver.SetClientTimeout(client, standardDeviceResponseTimeout);
-                return DynamicClientDriver.SupportedActions(clientNumber, client, URIBase, strictCasing, TL);
+                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, clientDeviceType, ex.ToString());
             }
         }
 
