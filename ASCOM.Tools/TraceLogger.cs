@@ -478,12 +478,20 @@ namespace ASCOM.Tools
 
         #region ILogger implementation
 
+        /// <summary>
+        /// Return the current log level.
+        /// </summary>
         public LogLevel LoggingLevel
         {
             get;
             private set;
         } = LogLevel.Information;
 
+        /// <summary>
+        /// Write a message to the log.
+        /// </summary>
+        /// <param name="level">Logging level of this message.</param>
+        /// <param name="message">Message text.</param>
         public void Log(LogLevel level, string message)
         {
             if (this.IsLevelActive(level))
@@ -492,6 +500,10 @@ namespace ASCOM.Tools
             }
         }
 
+        /// <summary>
+        /// Set the minimum log level to display.
+        /// </summary>
+        /// <param name="level">Required logging level.</param>
         public void SetMinimumLoggingLevel(LogLevel level)
         {
             LoggingLevel = level;

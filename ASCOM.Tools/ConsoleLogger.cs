@@ -4,14 +4,25 @@ using System;
 
 namespace ASCOM.Tools
 {
+    /// <summary>
+    /// Simple logger to write to the console
+    /// </summary>
     public class ConsoleLogger : ILogger
     {
+        /// <summary>
+        /// Return the current logging level
+        /// </summary>
         public LogLevel LoggingLevel
         {
             get;
             private set;
         } = LogLevel.Information;
 
+        /// <summary>
+        /// Write a message to the console
+        /// </summary>
+        /// <param name="level">Logging level</param>
+        /// <param name="message">Message text</param>
         public void Log(LogLevel level, string message)
         {
             if (this.IsLevelActive(level))
@@ -43,10 +54,14 @@ namespace ASCOM.Tools
 
                 Console.ResetColor();
 
-                Console.WriteLine($" - { message}");
+                Console.WriteLine($" - {message}");
             }
         }
 
+        /// <summary>
+        /// Minimum logging level to display.
+        /// </summary>
+        /// <param name="level"></param>
         public void SetMinimumLoggingLevel(LogLevel level)
         {
             LoggingLevel = level;

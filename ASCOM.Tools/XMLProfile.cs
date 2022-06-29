@@ -10,6 +10,9 @@ using System.Xml.Serialization;
 
 namespace ASCOM.Tools
 {
+    /// <summary>
+    /// Creates and manages an ASCOM Profile as an XML file
+    /// </summary>
     public class XMLProfile : IProfile
     {
         private const string SettingsVersion = "v1";
@@ -40,6 +43,9 @@ namespace ASCOM.Tools
             }
         }
 
+        /// <summary>
+        /// Return the Alpaca folder referenced from the ApplicationDataPath
+        /// </summary>
         public static string AlpacaDataPath
         {
             get
@@ -50,12 +56,15 @@ namespace ASCOM.Tools
                 }
                 else
                 {
-                    //Lowercase on *nix
+                    //Lower-case on *nix
                     return Path.Combine(ApplicationDataPath, "alpaca/");
                 }
             }
         }
 
+        /// <summary>
+        /// Return ASCOM's application data folder on this Base machine
+        /// </summary>
         public static string ApplicationDataPath
         {
             get
@@ -80,6 +89,7 @@ namespace ASCOM.Tools
         /// <param name="driverID">A unique name for your driver. Must be allowed to be in the path.</param>
         /// <param name="deviceType">The ASCOM / Alpaca device type IE focuser, camera, telescope, etc.  Must be allowed to be in the path.</param>
         /// <param name="deviceNumber">The Alpaca device number. Defaults to 0 for drivers with only one device.</param>
+        /// <param name="logger">The logging device to be used (can be null).</param>
         public XMLProfile(string driverID, string deviceType, uint deviceNumber = 0, ILogger logger = null) : this(Path.Combine(AlpacaDataPath, driverID, deviceType, SettingsVersion, $"{FileName}-{deviceNumber}.xml"), logger)
         {
         }
@@ -89,6 +99,7 @@ namespace ASCOM.Tools
         /// It is not recommended to access the same file from two different instances of this Profile at the same time
         /// </summary>
         /// <param name="pathAndFileName">The path and filename to store the profile at</param>
+        /// <param name="logger">The logging device to be used (can be null).</param>
         public XMLProfile(string pathAndFileName, ILogger logger = null)
         {
             //ToDo
@@ -132,6 +143,9 @@ namespace ASCOM.Tools
             }
         }
 
+        /// <summary>
+        /// Clears all setting and deletes the XML Profile file
+        /// </summary>
         public void Clear()
         {
             if (File.Exists(FilePath))
@@ -141,11 +155,22 @@ namespace ASCOM.Tools
             Settings.Clear();
         }
 
+        /// <summary>
+        /// Determines whether a settings key already exists
+        /// </summary>
+        /// <param name="key">Name of the key</param>
+        /// <returns></returns>
         public bool ContainsKey(string key)
         {
             return Settings.Any(s => s.Key == key);
         }
 
+        /// <summary>
+        /// Gets a key's current value, returning a KeyNotFound exception if the key doesn't exist
+        /// </summary>
+        /// <param name="key">Key name</param>
+        /// <returns>String key value.</returns>
+        /// <exception cref="KeyNotFoundException"></exception>
         public string GetValue(string key)
         {
             if (ContainsKey(key))
@@ -158,6 +183,12 @@ namespace ASCOM.Tools
             }
         }
 
+        /// <summary>
+        /// Gets a key's current value, setting and returning the supplied default value if the key does not already exist
+        /// </summary>
+        /// <param name="key">Key name</param>
+        /// <param name="defaultValue">Value to be set and returned if the key does not already exist.</param>
+        /// <returns>String key value.</returns>
         public string GetValue(string key, string defaultValue)
         {
             if (ContainsKey(key))
@@ -170,6 +201,11 @@ namespace ASCOM.Tools
             }
         }
 
+        /// <summary>
+        /// Returns the whole Profile as an XML document
+        /// </summary>
+        /// <returns>string XML document</returns>
+        /// <exception cref="NullReferenceException">No settings have been loaded.</exception>
         public string GetProfile()
         {
             if (Settings == null)
@@ -197,6 +233,10 @@ namespace ASCOM.Tools
             }
         }
 
+        /// <summary>
+        /// Deletes a key from the Profile
+        /// </summary>
+        /// <param name="key"></param>
         public void DeleteValue(string key)
         {
             try
@@ -210,6 +250,11 @@ namespace ASCOM.Tools
             }
         }
 
+        /// <summary>
+        /// Loads a profile from an XML document
+        /// </summary>
+        /// <param name="rawProfile"></param>
+        /// <exception cref="ArgumentNullException"></exception>
         public void SetProfile(string rawProfile)
         {
             if (string.IsNullOrEmpty(rawProfile))
@@ -221,7 +266,7 @@ namespace ASCOM.Tools
             {
                 var settings = new List<SettingsPair>();
 
-                //We are going to deserialize this to make sure that it is valid xml
+                //We are going to de-serialize this to make sure that it is valid XML
                 using (StringReader read = new StringReader(rawProfile))
                 {
                     Type outType = Settings.GetType();
@@ -245,6 +290,10 @@ namespace ASCOM.Tools
             }
         }
 
+        /// <summary>
+        /// Returns a list of Profile values
+        /// </summary>
+        /// <returns>String list of values</returns>
         public List<string> Values()
         {
             var retList = new List<string>();
@@ -256,6 +305,10 @@ namespace ASCOM.Tools
             return retList;
         }
 
+        /// <summary>
+        /// Returns a list of Profile keys
+        /// </summary>
+        /// <returns>String list of keys</returns>
         public List<string> Keys()
         {
             var retList = new List<string>();
@@ -267,7 +320,11 @@ namespace ASCOM.Tools
             return retList;
         }
 
-
+        /// <summary>
+        /// Write a key and value to the XML Profile.
+        /// </summary>
+        /// <param name="key">Key name.</param>
+        /// <param name="value">Key value.</param>
         public void WriteValue(string key, string value)
         {
             if (ContainsKey(key))
@@ -280,7 +337,7 @@ namespace ASCOM.Tools
         }
 
         /// <summary>
-        /// Deserializes a file and returns an object
+        /// De-serializes a file and returns an object
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="fileName"></param>
@@ -318,6 +375,12 @@ namespace ASCOM.Tools
             return objectOut;
         }
 
+        /// <summary>
+        /// Serializes a file and returns an object
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="serializableObject"></param>
+        /// <param name="filePathAndName"></param>
         private static void SerializeObject<T>(T serializableObject, string filePathAndName)
         {
             if (serializableObject == null) { return; }
@@ -346,29 +409,49 @@ namespace ASCOM.Tools
             }
         }
 
+        /// <summary>
+        /// persist the current Profile to the backing file store
+        /// </summary>
         private void Save()
         {
             SerializeObject(Settings, FilePath);
         }
 
+        /// <summary>
+        /// Class representing an ASCOM Profile Key-Value pair.
+        /// </summary>
         public class SettingsPair
         {
+            /// <summary>
+            /// Initialise the SettingsPair as an empty object.
+            /// </summary>
             public SettingsPair()
             {
             }
 
+            /// <summary>
+            /// Initialise the SettingsPair with the supplied key name and value.
+            /// </summary>
+            /// <param name="key"></param>
+            /// <param name="value"></param>
             public SettingsPair(string key, string value)
             {
                 Key = key;
                 Value = value;
             }
 
+            /// <summary>
+            /// This setting's Key name.
+            /// </summary>
             public string Key
             {
                 get;
                 set;
             }
 
+            /// <summary>
+            /// This setting's value.
+            /// </summary>
             public string Value
             {
                 get;
