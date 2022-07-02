@@ -118,7 +118,7 @@ namespace ASCOM.Alpaca.Clients
         /// Indicates whether the Rotator supports the <see cref="Reverse" /> method.
         /// </summary>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <returns>
         /// True if the Rotator supports the <see cref="Reverse" /> method.
         /// </returns>
@@ -138,7 +138,7 @@ namespace ASCOM.Alpaca.Clients
         /// Indicates whether the rotator is currently moving
         /// </summary>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <returns>True if the Rotator is moving to a new position. False if the Rotator is stationary.</returns>
         /// <remarks>
         /// <p style="color:red;margin-bottom:0"><b>Must be implemented.</b></p>
@@ -160,7 +160,7 @@ namespace ASCOM.Alpaca.Clients
         /// </summary>
         /// <exception cref="InvalidValueException">If Position is invalid.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
         /// <p style="color:red;margin-bottom:0"><b>Must be implemented.</b></p>
         /// <p style="color:red"><b>SPECIFICATION REVISION - IRotatorV3 - Platform 6.5</b></p>
@@ -196,7 +196,7 @@ namespace ASCOM.Alpaca.Clients
         /// Sets or Returns the rotator’s Reverse state.
         /// </summary>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <value>True if the rotation and angular direction must be reversed for the optics</value>
         /// <remarks>
         /// <p style="color:red;margin-bottom:0"><b>Must be implemented.</b></p>
@@ -224,7 +224,7 @@ namespace ASCOM.Alpaca.Clients
         /// </summary>
         /// <exception cref="NotImplementedException">Throw a NotImplementedException if the rotator does not know its step size.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
         /// <p style="color:red"><b>Optional - can throw a not implemented exception</b></p>
         /// <para>Raises an exception if the rotator does not intrinsically know what the step size is.</para>
@@ -242,7 +242,7 @@ namespace ASCOM.Alpaca.Clients
         /// The destination position angle for Move() and MoveAbsolute().
         /// </summary>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <value>The destination position angle for<see cref="Move">Move</see> and <see cref="MoveAbsolute">MoveAbsolute</see>.</value>
         /// <remarks>
         /// <p style="color:red;margin-bottom:0"><b>Must be implemented.</b></p>
@@ -265,7 +265,7 @@ namespace ASCOM.Alpaca.Clients
         /// </summary>
         /// <exception cref="NotImplementedException">Throw a NotImplementedException if the rotator cannot halt.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks><p style="color:red"><b>Optional - can throw a not implemented exception</b></p> </remarks>
         public void Halt()
         {
@@ -279,7 +279,7 @@ namespace ASCOM.Alpaca.Clients
         /// </summary>
         /// <exception cref="InvalidValueException">If Position is invalid.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <param name="Position">Relative position to move in degrees from current <see cref="Position" />.</param>
         /// <remarks>
         /// <p style="color:red;margin-bottom:0"><b>Must be implemented.</b></p>
@@ -305,7 +305,7 @@ namespace ASCOM.Alpaca.Clients
         /// <param name="Position">Absolute position in degrees.</param>
         /// <exception cref="InvalidValueException">If Position is invalid.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
         /// <p style="color:red;margin-bottom:0"><b>Must be implemented.</b></p>
         /// <p style="color:red"><b>SPECIFICATION REVISION - IRotatorV3 - Platform 6.5</b></p>
@@ -335,7 +335,7 @@ namespace ASCOM.Alpaca.Clients
         /// This returns the raw mechanical position of the rotator in degrees.
         /// </summary>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
         /// <p style="color:red"><b>Must be implemented.</b></p>
         /// <p style="color:red"><b>Introduced in IRotatorV3.</b></p>
@@ -357,7 +357,7 @@ namespace ASCOM.Alpaca.Clients
         /// <param name="Position">Synchronised rotator position angle.</param>
         /// <exception cref="InvalidValueException">If Position is invalid.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
         /// <p style="color:red"><b>Must be implemented.</b></p>
         /// <p style="color:red"><b>Introduced in IRotatorV3.</b></p>
@@ -381,7 +381,7 @@ namespace ASCOM.Alpaca.Clients
         /// <param name="Position">Mechanical rotator position angle.</param>
         /// <exception cref="InvalidValueException">If Position is invalid.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
         /// <p style="color:red"><b>Must be implemented.</b></p>
         /// <p style="color:red"><b>Introduced in IRotatorV3.</b></p>

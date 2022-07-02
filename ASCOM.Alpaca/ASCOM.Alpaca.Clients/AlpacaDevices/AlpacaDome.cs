@@ -118,7 +118,7 @@ namespace ASCOM.Alpaca.Clients
         /// Immediately cancel current dome operation.
         /// </summary>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
         /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
         /// Calling this method will immediately disable hardware slewing (<see cref="Slaved" /> will become False). Raises an error if a communications failure occurs, or if the command is known to have failed. 
@@ -134,7 +134,7 @@ namespace ASCOM.Alpaca.Clients
         /// </summary>
         /// <exception cref="NotImplementedException">If the method is not implemented</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         public void CloseShutter()
         {
             DynamicClientDriver.SetClientTimeout(client, standardDeviceResponseTimeout);
@@ -146,7 +146,7 @@ namespace ASCOM.Alpaca.Clients
         /// </summary>
         /// <exception cref="NotImplementedException">If the method is not implemented</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
         /// After Home position is established initializes <see cref="Azimuth" /> to the default value and sets the <see cref="AtHome" /> flag. 
         /// Exception if not supported or communications failure. Raises an error if <see cref="Slaved" /> is True.
@@ -162,7 +162,7 @@ namespace ASCOM.Alpaca.Clients
         /// </summary>
         /// <exception cref="NotImplementedException">If the method is not implemented</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
         /// Raises an error if not supported or if a communications failure occurs. 
         /// </remarks>
@@ -177,7 +177,7 @@ namespace ASCOM.Alpaca.Clients
         /// </summary>
         /// <exception cref="NotImplementedException">If the method is not implemented</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
         /// After assuming programmed park position, sets <see cref="AtPark" /> flag. Raises an error if <see cref="Slaved" /> is True, or if not supported, or if a communications failure has occurred. 
         /// </remarks>
@@ -192,7 +192,7 @@ namespace ASCOM.Alpaca.Clients
         /// </summary>
         /// <exception cref="NotImplementedException">If the method is not implemented</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
         /// Raises an error if not supported or if a communications failure occurs. 
         /// </remarks>
@@ -208,7 +208,7 @@ namespace ASCOM.Alpaca.Clients
         /// <exception cref="NotImplementedException">If the method is not implemented</exception>
         /// <exception cref="InvalidValueException">If the supplied altitude is outside the range 0..90 degrees.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
         /// Raises an error if <see cref="Slaved" /> is True, if not supported, if a communications failure occurs, or if the dome can not reach indicated altitude. 
         /// </remarks>
@@ -228,7 +228,7 @@ namespace ASCOM.Alpaca.Clients
         /// <exception cref="NotImplementedException">If the method is not implemented</exception>
         /// <exception cref="InvalidValueException">If the supplied azimuth is outside the range 0..360 degrees.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
         /// Raises an error if <see cref="Slaved" /> is True, if not supported, if a communications failure occurs, or if the dome can not reach indicated azimuth. 
         /// </remarks>
@@ -248,7 +248,7 @@ namespace ASCOM.Alpaca.Clients
         /// <exception cref="NotImplementedException">If the method is not implemented</exception>
         /// <exception cref="InvalidValueException">If the supplied azimuth is outside the range 0..360 degrees.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
         /// Raises an error if not supported or if a communications failure occurs. 
         /// </remarks>
@@ -267,7 +267,7 @@ namespace ASCOM.Alpaca.Clients
         /// </summary>
         /// <exception cref="NotImplementedException">If the property is not implemented</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
         /// Raises an error only if no altitude control. If actual dome altitude can not be read, then reports back the last slew position. 
         /// </remarks>
@@ -292,7 +292,7 @@ namespace ASCOM.Alpaca.Clients
         /// </summary>
         /// <exception cref="NotImplementedException">If the property is not implemented</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
         /// <para>The home position is normally defined by a hardware sensor positioned around the dome circumference and represents a fixed, known azimuth reference.</para>
         /// <para>For some devices, the home position may represent a small range of azimuth values, rather than a discrete value, since dome inertia, the resolution of the home position sensor and/or the azimuth encoder may be
@@ -314,7 +314,7 @@ namespace ASCOM.Alpaca.Clients
         /// </summary>
         /// <exception cref="NotImplementedException">If the property is not implemented</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
         /// Set only following a <see cref="Park" /> operation and reset with any slew operation. Raises an error if not supported. 
         /// </remarks>
@@ -332,7 +332,7 @@ namespace ASCOM.Alpaca.Clients
         /// </summary>
         /// <exception cref="NotImplementedException">If the property is not implemented</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>Raises an error only if no azimuth control. If actual dome azimuth can not be read, then reports back last slew position</remarks>
         public double Azimuth
         {
@@ -347,7 +347,7 @@ namespace ASCOM.Alpaca.Clients
         /// True if driver can do a search for home position.
         /// </summary>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
         /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
         /// </remarks>
@@ -364,7 +364,7 @@ namespace ASCOM.Alpaca.Clients
         /// True if driver is capable of setting dome altitude.
         /// </summary>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
         /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
         /// </remarks>
@@ -381,7 +381,7 @@ namespace ASCOM.Alpaca.Clients
         /// True if driver is capable of setting dome altitude.
         /// </summary>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
         /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
         /// </remarks>
@@ -398,7 +398,7 @@ namespace ASCOM.Alpaca.Clients
         /// True if driver is capable of setting dome azimuth.
         /// </summary>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
         /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
         /// </remarks>
@@ -415,7 +415,7 @@ namespace ASCOM.Alpaca.Clients
         /// True if driver can set the dome park position.
         /// </summary>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
         /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
         /// </remarks>
@@ -432,7 +432,7 @@ namespace ASCOM.Alpaca.Clients
         /// True if driver is capable of automatically operating shutter.
         /// </summary>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
         /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
         /// </remarks>
@@ -449,7 +449,7 @@ namespace ASCOM.Alpaca.Clients
         /// True if the dome hardware supports slaving to a telescope.
         /// </summary>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
         /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
         /// See the notes for the <see cref="Slaved" /> property.
@@ -467,7 +467,7 @@ namespace ASCOM.Alpaca.Clients
         /// True if driver is capable of synchronizing the dome azimuth position using the <see cref="SyncToAzimuth" /> method.
         /// </summary>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
         /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
         /// </remarks>
@@ -485,7 +485,7 @@ namespace ASCOM.Alpaca.Clients
         /// </summary>
         /// <exception cref="NotImplementedException">If the property is not implemented</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
         /// Raises an error only if no shutter control. If actual shutter status can not be read, then reports back the last shutter state. 
         /// </remarks>
@@ -502,7 +502,7 @@ namespace ASCOM.Alpaca.Clients
         /// True if the dome is slaved to the telescope in its hardware, else False.
         /// </summary>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
         /// <p style="color:red;margin-bottom:0"><b>Slaved Read must be implemented and must not throw a NotImplementedException. </b></p>
         /// <p style="color:red;margin-top:0"><b>Slaved Write can throw a NotImplementedException.</b></p>
@@ -528,7 +528,7 @@ namespace ASCOM.Alpaca.Clients
         /// True if any part of the dome is currently moving, False if all dome components are steady.
         /// </summary>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
         /// <p style="color:red;margin-bottom:0"><b>Slewing must be implemented and must not throw a NotImplementedException. </b></p>
         /// Raises an error if <see cref="Slaved" /> is True, if not supported, if a communications failure occurs, or if the dome can not reach indicated azimuth. 

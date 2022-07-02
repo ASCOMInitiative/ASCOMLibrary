@@ -120,7 +120,7 @@ namespace ASCOM.Alpaca.Clients
         /// <exception cref="NotImplementedException">If the sensor is not implemented.</exception>
         /// <exception cref="InvalidValueException">If an invalid property name parameter is supplied.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
         /// <p style="color:red"><b>Must Not throw a NotImplementedException when the specified sensor Is implemented but must throw a NotImplementedException when the specified sensor Is Not implemented.</b></p>
         /// <para>PropertyName must be the name of one of the sensor properties specified in the <see cref="IObservingConditions"/> interface. If the caller supplies some other value, throw an InvalidValueException.</para>
@@ -141,7 +141,7 @@ namespace ASCOM.Alpaca.Clients
         /// <exception cref="NotImplementedException">If the sensor is not implemented.</exception>
         /// <exception cref="InvalidValueException">If an invalid property name parameter is supplied.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
         /// <p style="color:red"><b>Must Not throw a NotImplementedException when the specified sensor Is implemented 
         /// but must throw a NotImplementedException when the specified sensor Is Not implemented.</b></p>
@@ -160,7 +160,7 @@ namespace ASCOM.Alpaca.Clients
         /// </summary>
         /// <exception cref="NotImplementedException">If this method is not available.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
         /// <p style="color:red"><b>Optional method, can throw a NotImplementedException</b></p>
         /// </remarks>
@@ -176,7 +176,7 @@ namespace ASCOM.Alpaca.Clients
         /// <value>Time period (hours) over which to average sensor readings</value>
         /// <exception cref="InvalidValueException">If the value set is not available for this driver. All drivers must accept 0.0 to specify that an instantaneous value is available.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
         /// <p style="color:red"><b>Mandatory property, must be implemented, can NOT throw a NotImplementedException</b></p>
         /// <para>This property should return the time period (hours) over which sensor readings will be averaged. If your driver is delivering instantaneous sensor readings this property should return a value of 0.0.</para>
@@ -204,7 +204,7 @@ namespace ASCOM.Alpaca.Clients
         /// <value>percentage of the sky covered by cloud</value>
         /// <exception cref="NotImplementedException">If this property is not available.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
         /// <p style="color:red"><b>Optional property, can throw a NotImplementedException</b></p>
         /// This property should return a value between 0.0 and 100.0 where 0.0 = clear sky and 100.0 = 100% cloud coverage
@@ -224,7 +224,7 @@ namespace ASCOM.Alpaca.Clients
         /// <value>Atmospheric dew point reported in °C.</value>
         /// <exception cref="NotImplementedException">If this property is not available.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
         /// <p style="color:red"><b>Optional property, can throw a NotImplementedException when the <see cref="Humidity"/> property also throws a NotImplementedException.</b></p>
         /// <p style="color:red"><b>Mandatory property, must NOT throw a NotImplementedException when the <see cref="Humidity"/> property is implemented.</b></p>
@@ -248,7 +248,7 @@ namespace ASCOM.Alpaca.Clients
         /// <value>Atmospheric humidity (%)</value>
         /// <exception cref="NotImplementedException">If this property is not available.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
         /// <p style="color:red"><b>Optional property, can throw a NotImplementedException when the <see cref="DewPoint"/> property also throws a NotImplementedException.</b></p>
         /// <p style="color:red"><b>Mandatory property, must NOT throw a NotImplementedException when the <see cref="DewPoint"/> property is implemented.</b></p>
@@ -272,7 +272,7 @@ namespace ASCOM.Alpaca.Clients
         /// <value>Atmospheric pressure at the observatory (hPa)</value>
         /// <exception cref="NotImplementedException">If this property is not available.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
         /// <p style="color:red"><b>Optional property, can throw a NotImplementedException</b></p>
         /// <para>The units of this property are hectoPascals. Client and driver authors can use the method ASCOM.Tools.Utilities.ConvertUnits
@@ -298,7 +298,7 @@ namespace ASCOM.Alpaca.Clients
         /// <value>Rain rate (mm / hour)</value>
         /// <exception cref="NotImplementedException">If this property is not available.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
         /// <p style="color:red"><b>Optional property, can throw a NotImplementedException</b></p>
         /// <para>The units of this property are millimetres per hour. Client and driver authors can use the methodASCOM.Tools.Utilities.ConvertUnits
@@ -327,7 +327,7 @@ namespace ASCOM.Alpaca.Clients
         /// <value>Sky brightness (Lux)</value>
         /// <exception cref="NotImplementedException">If this property is not available.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
         /// <p style="color:red"><b>Optional property, can throw a NotImplementedException</b></p>
         /// This property returns the sky brightness measured in Lux.
@@ -365,7 +365,7 @@ namespace ASCOM.Alpaca.Clients
         /// <value>Sky quality measured in magnitudes per square arc second</value>
         /// <exception cref="NotImplementedException">If this property is not available.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
         /// <p style="color:red"><b>Optional property, can throw a NotImplementedException</b></p>
         /// <para>Sky quality is typically measured in units of magnitudes per square arc second. A sky quality of 20 magnitudes per square arc second means that the
@@ -524,7 +524,7 @@ namespace ASCOM.Alpaca.Clients
         /// <value>Seeing reported as star full width half maximum (arc seconds)</value>
         /// <exception cref="NotImplementedException">If this property is not available.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
         /// <p style="color:red"><b>Optional property, can throw a NotImplementedException</b></p>
         /// </remarks>
@@ -543,7 +543,7 @@ namespace ASCOM.Alpaca.Clients
         /// <value>Sky temperature in °C</value>
         /// <exception cref="NotImplementedException">If this property is not available.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
         /// <p style="color:red"><b>Optional property, can throw a NotImplementedException</b></p>
         /// <para>The units of this property are degrees Celsius. Driver and application authors can use the ASCOM.Tools.Utilities.ConvertUnits method
@@ -565,7 +565,7 @@ namespace ASCOM.Alpaca.Clients
         /// <value>Temperature in °C</value>
         /// <exception cref="NotImplementedException">If this property is not available.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
         /// <p style="color:red"><b>Optional property, can throw a NotImplementedException</b></p>
         /// <para>The units of this property are degrees Celsius. Driver and application authors can use the ASCOM.Tools.Utilities.ConvertUnits method
@@ -587,7 +587,7 @@ namespace ASCOM.Alpaca.Clients
         /// <value>Wind direction (degrees, 0..360.0)</value>
         /// <exception cref="NotImplementedException">If this property is not available.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
         /// <p style="color:red"><b>Optional property, can throw a NotImplementedException</b></p>
         /// The returned value must be between 0.0 and 360.0, interpreted according to the metereological standard, where a special value of 0.0 is returned when the wind speed is 0.0. 
@@ -608,7 +608,7 @@ namespace ASCOM.Alpaca.Clients
         /// <value>Wind gust (m/s) Peak 3 second wind speed over the last 2 minutes</value>
         /// <exception cref="NotImplementedException">If this property is not available.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
         /// <p style="color:red"><b>Optional property, can throw a NotImplementedException</b></p>
         /// The units of this property are metres per second. Driver and application authors can use the ASCOM.Tools.Utilities.ConvertUnits method
@@ -629,7 +629,7 @@ namespace ASCOM.Alpaca.Clients
         /// <value>Wind speed (m/s)</value>
         /// <exception cref="NotImplementedException">If this property is not available.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
         /// <p style="color:red"><b>Optional property, can throw a NotImplementedException</b></p>
         /// The units of this property are metres per second. Driver and application authors can use the ASCOM.Tools.Utilities.ConvertUnits method
