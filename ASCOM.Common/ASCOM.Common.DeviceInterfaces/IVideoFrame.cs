@@ -132,7 +132,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// This property must return an empty list if no video frame metadata is provided.
         /// <para>The Keys is a single word, or multiple words joined by underscore characters, that sensibly describes the variable. It is recommended that Keys
         /// should be a maximum of 16 characters for legibility and all upper case.</para>
-        /// <para>The KeyValuePair objects are instances of the <see cref="System.Collections.Generic.KeyValuePair">KeyValuePair class</see></para>
+        /// <para>The KeyValuePair objects are instances of the <see cref="KeyValuePair{TKey, TValue}">KeyValuePair class</see></para>
         /// </remarks>
         /// <value>An ArrayList of KeyValuePair objects.</value>
         IList<KeyValuePair<string, string>> ImageMetadata { get; }

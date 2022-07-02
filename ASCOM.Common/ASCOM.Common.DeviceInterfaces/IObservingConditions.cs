@@ -50,11 +50,10 @@
         /// <remarks>
         /// <p style="color:red"><b>Optional property, can throw a NotImplementedException when the <see cref="Humidity"/> property also throws a NotImplementedException.</b></p>
         /// <p style="color:red"><b>Mandatory property, must NOT throw a NotImplementedException when the <see cref="Humidity"/> property is implemented.</b></p>
-        /// <para>The units of this property are degrees Celsius. Driver and application authors can use the <see cref="Utilities.Utilities.ConvertUnits"/> method
-        /// to convert these units to and from degrees Fahrenheit.</para>
+        /// <para>The units of this property are degrees Celsius. Driver and application authors can use the ASCOM.Tools.Utilities.ConvertUnits method to convert these units to and from degrees Fahrenheit.</para>
         /// <para>The ASCOM specification requires that DewPoint and Humidity are either both implemented or both throw NotImplementedExceptions. It is not allowed for 
-        /// one to be implemented and the other to throw a NotImplementedException. The Utilities component contains methods (<see cref="Utilities.Utilities.DewPoint2Humidity"/> and 
-        /// <see cref="Utilities.Utilities.Humidity2DewPoint"/>) to convert DewPoint to Humidity and vice versa given the ambient temperature.</para>
+        /// one to be implemented and the other to throw a NotImplementedException. The ASCOM.Tools.Utilities component contains methods DewPoint2Humidity and 
+        /// Humidity2DewPoint to convert DewPoint to Humidity and vice versa given the ambient temperature.</para>
         /// </remarks>
         double DewPoint { get; }
 
@@ -69,8 +68,8 @@
         /// <p style="color:red"><b>Optional property, can throw a NotImplementedException when the <see cref="DewPoint"/> property also throws a NotImplementedException.</b></p>
         /// <p style="color:red"><b>Mandatory property, must NOT throw a NotImplementedException when the <see cref="DewPoint"/> property is implemented.</b></p>
         /// <para>The ASCOM specification requires that DewPoint and Humidity are either both implemented or both throw NotImplementedExceptions. It is not allowed for 
-        /// one to be implemented and the other to throw a NotImplementedException. The Utilities component contains methods (<see cref="Utilities.Utilities.DewPoint2Humidity"/> and 
-        /// <see cref="Utilities.Utilities.Humidity2DewPoint"/>) to convert DewPoint to Humidity and vice versa given the ambient temperature.</para>
+        /// one to be implemented and the other to throw a NotImplementedException. The ASCOM.Tools.Utilities component contains methods DewPoint2Humidity and 
+        /// Humidity2DewPoint to convert DewPoint to Humidity and vice versa given the ambient temperature.</para>
         /// <para>This property should return a value between 0.0 and 100.0 where 0.0 = 0% relative humidity and 100.0 = 100% relative humidity.</para>
         /// </remarks>
         double Humidity { get; }
@@ -84,12 +83,12 @@
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks>
         /// <p style="color:red"><b>Optional property, can throw a NotImplementedException</b></p>
-        /// <para>The units of this property are hectoPascals. Client and driver authors can use the method <see cref="Utilities.Utilities.ConvertUnits"/>
+        /// <para>The units of this property are hectoPascals. Client and driver authors can use the method ASCOM.Tools.Utilities.ConvertUnits
         /// to convert these units to and from milliBar, mm of mercury and inches of mercury.</para>
         /// <para>This must be the pressure at the observatory altitude and not the adjusted pressure at sea level.
         /// Please check whether your pressure sensor delivers local observatory pressure or sea level pressure and, if it returns sea level pressure, 
         /// adjust this to actual pressure at the observatory's altitude before returning a value to the client.
-        /// The <see cref="Utilities.Utilities.ConvertPressure"/> method can be used to effect this adjustment.
+        /// The ASCOM.Tools.Utilities.ConvertPressure method can be used to effect this adjustment.
         /// </para>
         /// </remarks>
         double Pressure { get; }
@@ -103,7 +102,7 @@
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks>
         /// <p style="color:red"><b>Optional property, can throw a NotImplementedException</b></p>
-        /// <para>The units of this property are millimetres per hour. Client and driver authors can use the method <see cref="Utilities.Utilities.ConvertUnits"/>
+        /// <para>The units of this property are millimetres per hour. Client and driver authors can use the methodASCOM.Tools.Utilities.ConvertUnits
         /// to convert these units to and from inches per hour.</para>
         /// <para>This property can be interpreted as 0.0 = Dry any positive nonzero value = wet.</para>
         /// <para>Rainfall intensity is classified according to the rate of precipitation:</para>
@@ -320,7 +319,7 @@
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks>
         /// <p style="color:red"><b>Optional property, can throw a NotImplementedException</b></p>
-        /// <para>The units of this property are degrees Celsius. Driver and application authors can use the <see cref="Utilities.Utilities.ConvertUnits"/> method
+        /// <para>The units of this property are degrees Celsius. Driver and application authors can use the ASCOM.Tools.Utilities.ConvertUnits method
         /// to convert these units to and from degrees Farenhheit.</para>
         /// <para>This is expected to be returned by an infra-red sensor looking at the sky. The lower the temperature the more the sky is likely to be clear.</para>
         /// </remarks>
@@ -335,7 +334,7 @@
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks>
         /// <p style="color:red"><b>Optional property, can throw a NotImplementedException</b></p>
-        /// <para>The units of this property are degrees Celsius. Driver and application authors can use the <see cref="Utilities.Utilities.ConvertUnits"/> method
+        /// <para>The units of this property are degrees Celsius. Driver and application authors can use the ASCOM.Tools.Utilities.ConvertUnits method
         /// to convert these units to and from degrees Farenhheit.</para>
         /// <para>This is expected to be the ambient temperature at the observatory.</para>
         /// </remarks>
@@ -364,7 +363,7 @@
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks>
         /// <p style="color:red"><b>Optional property, can throw a NotImplementedException</b></p>
-        /// The units of this property are metres per second. Driver and application authors can use the <see cref="Utilities.Utilities.ConvertUnits"/> method
+        /// The units of this property are metres per second. Driver and application authors can use the ASCOM.Tools.Utilities.ConvertUnits method
         /// to convert these units to and from miles per hour or knots.
         /// </remarks>
         double WindGust { get; }
@@ -378,7 +377,7 @@
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks>
         /// <p style="color:red"><b>Optional property, can throw a NotImplementedException</b></p>
-        /// The units of this property are metres per second. Driver and application authors can use the <see cref="Utilities.Utilities.ConvertUnits"/> method
+        /// The units of this property are metres per second. Driver and application authors can use the ASCOM.Tools.Utilities.ConvertUnits method
         /// to convert these units to and from miles per hour or knots.
         /// </remarks>
         double WindSpeed { get; }

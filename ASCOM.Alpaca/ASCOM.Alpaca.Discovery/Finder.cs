@@ -54,6 +54,10 @@ namespace ASCOM.Alpaca.Discovery
             LogMessage("Finder", "Initialised");
         }
 
+        /// <summary>
+        /// Internal Dispose call used by the CLR, do not call directly, use the <see cref="Dispose()"/> method instead.
+        /// </summary>
+        /// <param name="disposing"></param>
         protected virtual void Dispose(bool disposing)
         {
             if (!disposedValue)
@@ -93,6 +97,9 @@ namespace ASCOM.Alpaca.Discovery
             }
         }
 
+        /// <summary>
+        /// DIspose of the Finder
+        /// </summary>
         public void Dispose()
         {
             // Do not change this code. Put clean-up code in 'Dispose(bool disposing)' method
@@ -141,6 +148,9 @@ namespace ASCOM.Alpaca.Discovery
             get;
         } = new List<IPEndPoint>();
 
+        /// <summary>
+        /// Clear cached endpoint values.
+        /// </summary>
         public void ClearCache()
         {
             CachedEndpoints.Clear();
@@ -295,7 +305,7 @@ namespace ASCOM.Alpaca.Discovery
 
             //Fix for ICMP Reset
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            { 
+            {
                 client.Client.IOControl((IOControlCode)SIO_UDP_CONNRESET, new byte[] { 0, 0, 0, 0 }, null);
             }
 

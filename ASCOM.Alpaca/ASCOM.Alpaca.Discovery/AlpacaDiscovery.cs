@@ -20,17 +20,17 @@ namespace ASCOM.Alpaca.Discovery
     /// </summary>
     /// <remarks>
     /// <para>
-    /// The discovery process is asynchronous and is initiated by the <see cref="StartDiscovery(Integer, Integer, Integer, Double, Boolean, Boolean, Boolean)"/> method. Clients can then either work synchronously by looping and periodically 
+    /// The discovery process is asynchronous and is initiated by the <see cref="StartDiscovery(int, int, int, double, bool, bool, bool, ServiceType)"/> method. Clients can then either work synchronously by looping and periodically 
     /// polling the <see cref="DiscoveryComplete"/> property or work asynchronously by handling the <see cref="AlpacaDevicesUpdated"/> and <see cref="DiscoveryCompleted"/> events while doing other work.
     /// </para>
     /// <para>
-    /// The <see cref="StartDiscovery(Integer, Integer, Integer, Double, Boolean, Boolean, Boolean)"/> method is used to set the character of the discovery e.g. the discovery duration and whether to search for IPv4 and/or IPv6 devices. 
+    /// The <see cref="StartDiscovery(int, int, int, double, bool, bool, bool, ServiceType)"/> method is used to set the character of the discovery e.g. the discovery duration and whether to search for IPv4 and/or IPv6 devices. 
     /// After the specified discovery duration, the <see cref="DiscoveryComplete"/> event fires and the <see cref="DiscoveryCompleted"/> property returns True.
     /// </para>
     /// <para>
-    /// Once discovery is complete, .NET clients can retrieve details of discovered Alpaca devices and associated ASCOM interface devices through the <see cref="GetAlpacaDevices"/> and <see cref="GetASCOMDevices"/> methods.
-    /// COM clients must use the <see cref="GetAlpacaDevicesAsArrayList"/> and <see cref="GetASCOMDevicesAsArrayList"/> properties because COM does not support the generic classes used 
-    /// in the <see cref="GetAlpacaDevices"/> and <see cref="GetASCOMDevices"/> methods. 
+    /// Once discovery is complete, .NET clients can retrieve details of discovered Alpaca devices and associated ASCOM interface devices through the <see cref="GetAlpacaDevices"/> and <see cref="GetAscomDevices(string)"/> methods.
+    /// COM clients must use the <see cref="GetAlpacaDevicesAsArrayList"/> and <see cref="GetAscomDevicesAsArrayList(string)"/> properties because COM does not support the generic classes used 
+    /// in the <see cref="GetAlpacaDevices"/> and <see cref="GetAscomDevices(string)"/> methods. 
     /// </para>
     /// </remarks>
     public class AlpacaDiscovery : IDisposable
@@ -71,6 +71,7 @@ namespace ASCOM.Alpaca.Discovery
         /// <summary>
         /// Initialiser that takes a trace logger (Can only be used from .NET clients)
         /// </summary>
+        /// <param name="strictCasing">Trace logger instance to use for activity logging</param>
         /// <param name="traceLogger">Trace logger instance to use for activity logging</param>
         public AlpacaDiscovery(bool strictCasing, TraceLogger traceLogger)
         {
@@ -108,6 +109,10 @@ namespace ASCOM.Alpaca.Discovery
             }
         }
 
+        /// <summary>
+        /// Call used by the CLR during disposal. Do not call this method, use <see cref="Dispose()"/> instead.
+        /// </summary>
+        /// <param name="disposing"></param>
         protected virtual void Dispose(bool disposing)
         {
             if (!disposedValue)
@@ -167,7 +172,7 @@ namespace ASCOM.Alpaca.Discovery
         /// Flag that indicates when a discovery cycle is complete
         /// </summary>
         /// <returns>True when discovery is complete.</returns>
-        /// <remarks>The discovery is considered complete when the time period specified on the <see cref="StartDiscovery(Integer, Integer, Integer, Double, Boolean, Boolean, Boolean)"/> method is exceeded.</remarks>
+        /// <remarks>The discovery is considered complete when the time period specified on the <see cref="StartDiscovery(int, int, int, double, bool, bool, bool, ServiceType)"/> method is exceeded.</remarks>
         public bool DiscoveryComplete
         {
             get
@@ -291,6 +296,7 @@ namespace ASCOM.Alpaca.Discovery
         /// <param name="resolveDnsName">Attempt to resolve host IP addresses to DNS names</param>
         /// <param name="useIpV4">Search for Alpaca devices that use IPv4 addresses. (One or both of useIpV4 and useIpV6 must be True.)</param>
         /// <param name="useIpV6">Search for Alpaca devices that use IPv6 addresses. (One or both of useIpV4 and useIpV6 must be True.)</param>
+        /// <param name="serviceType"><see cref="ServiceType.Http"/> or <see cref="ServiceType.Https"/></param>
         public void StartDiscovery(int numberOfPolls, int pollInterval, int discoveryPort, double discoveryDuration, bool resolveDnsName, bool useIpV4, bool useIpV6, ServiceType serviceType)
         {
 
@@ -391,8 +397,8 @@ namespace ASCOM.Alpaca.Discovery
         /// <summary>
         /// Handler for device responses coming from the Finder
         /// </summary>
+        /// <param name="caller">Initiating object.</param>
         /// <param name="responderIPEndPoint">Responder's IP address and port</param>
-        /// <param name="alpacaDiscoveryResponse">Class containing the information provided by the device in its response.</param>
         private void FoundDeviceEventHandler(object caller, IPEndPoint responderIPEndPoint)
         {
             try
@@ -600,7 +606,7 @@ namespace ASCOM.Alpaca.Discovery
             }
             catch (TimeoutException)
             {
-                LogMessage("ResolveIpAddressToHostName", $"Timed out trying to resolve the DNS name for {(deviceIpEndPoint is null ? "Unknown IP address" : deviceIpEndPoint.ToString()) }");
+                LogMessage("ResolveIpAddressToHostName", $"Timed out trying to resolve the DNS name for {(deviceIpEndPoint is null ? "Unknown IP address" : deviceIpEndPoint.ToString())}");
             }
             catch (Exception ex)
             {
@@ -639,13 +645,6 @@ namespace ASCOM.Alpaca.Discovery
         {
             TL?.Log(LogLevel.Information, $"AlpacaDiscovery - {methodName} - {Thread.CurrentThread.ManagedThreadId,2} {message}");
         }
-
-        /// <summary>
-        /// Call a device URL and return the response as a string, timing out after a specified time
-        /// </summary>
-        /// <param name="deviceUrl">Device's URL to call</param>
-        /// <param name="timeOut">Length of time to wait for a response</param>
-        /// <returns>Device response as a string</returns>
 
         #endregion
 

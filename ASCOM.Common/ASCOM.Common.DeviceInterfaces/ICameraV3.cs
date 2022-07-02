@@ -119,7 +119,6 @@ namespace ASCOM.Common.DeviceInterfaces
         /// </value>
 		/// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
 		/// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// occurs if no connection established and camera must be queried)</exception>
         bool CanAsymmetricBin { get; }
 
         /// <summary>
@@ -804,7 +803,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// At least one string must be present in the list. The user interface of a control application will typically present to the
         /// user a drop-list of modes.  The choice of available modes made available is entirely at the discretion of the driver author.
         /// Please note that if the camera has many different modes of operation, then the most commonly adjusted settings should be in
-        /// <see cref="ReadoutModes" />; additional settings may be provided using <see cref="SetupDialog" />.
+        /// <see cref="ReadoutModes" />; additional settings may be provided using a set-up dialog.
         /// <para>To select a mode, the application will set <see cref="ReadoutMode" /> to the index of the desired mode.  The index is zero-based.</para>
         /// <para>This property should only be read while a <see cref="IAscomDevice.Connected">connection</see> to the camera is actually established.  Drivers often support
         /// multiple cameras with different capabilities, which are not known until the <see cref="IAscomDevice.Connected">connection</see> is made.  If the available readout modes
@@ -857,7 +856,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// Type of colour information returned by the camera sensor, Interface Version 2 only
         /// </summary>
         /// <value></value>
-        /// <returns>The <see cref="ASCOM.DeviceInterface.SensorType" /> enum value of the camera sensor</returns>
+        /// <returns>The <see cref="SensorType" /> enum value of the camera sensor</returns>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks><p style="color:red"><b>May throw a NotImplementedException if the sensor type is not known.</b></p>

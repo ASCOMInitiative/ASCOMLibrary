@@ -61,7 +61,7 @@ namespace ASCOM.Alpaca.Clients
         /// <summary>
         /// Returns a unique client number to the calling instance in the range 1::65536
         /// </summary>
-        public static uint GetUniqueClientNumber()
+        internal static uint GetUniqueClientNumber()
         {
             uint randomvalue;
 
@@ -81,7 +81,7 @@ namespace ASCOM.Alpaca.Clients
         /// <summary>
         /// Returns a unique client number to the calling instance
         /// </summary>
-        public static uint TransactionNumber()
+        internal static uint TransactionNumber()
         {
             lock (transactionCountlockObject)
             {
@@ -94,8 +94,9 @@ namespace ASCOM.Alpaca.Clients
         /// Test whether a particular client is already connected
         /// </summary>
         /// <param name="clientNumber">Number of the calling client</param>
+        /// <param name="TL">ILogger device to which to send runtime diagnostic information</param>
         /// <returns></returns>
-        public static bool IsClientConnected(uint clientNumber, ILogger TL)
+        internal static bool IsClientConnected(uint clientNumber, ILogger TL)
         {
             foreach (KeyValuePair<long, bool> kvp in connectStates)
             {
@@ -110,7 +111,7 @@ namespace ASCOM.Alpaca.Clients
         /// <summary>
         /// Returns the number of connected clients
         /// </summary>
-        public static uint ConnectionCount(ILogger TL)
+        internal static uint ConnectionCount(ILogger TL)
         {
             AlpacaDeviceBaseClass.LogMessage(TL, 0, "ConnectionCount", connectStates.Count.ToString());
             return (uint)connectStates.Count;
@@ -121,7 +122,7 @@ namespace ASCOM.Alpaca.Clients
         /// </summary>
         /// <returns>Name of current method</returns>
         [MethodImpl(MethodImplOptions.NoInlining)]
-        public static string GetCurrentMethod()
+        internal static string GetCurrentMethod()
         {
             StackTrace st = new StackTrace();
             StackFrame sf = st.GetFrame(1);
@@ -134,7 +135,7 @@ namespace ASCOM.Alpaca.Clients
         /// </summary>
         /// <param name="client">REST client to use</param>
         /// <param name="deviceResponseTimeout">Timeout to be set</param>
-        public static void SetClientTimeout(RestClient client, int deviceResponseTimeout)
+        internal static void SetClientTimeout(RestClient client, int deviceResponseTimeout)
         {
             client.Timeout = deviceResponseTimeout * 1000;
             client.ReadWriteTimeout = deviceResponseTimeout * 1000;
@@ -146,7 +147,6 @@ namespace ASCOM.Alpaca.Clients
         /// <param name="client"></param>
         /// <param name="ipAddressString"></param>
         /// <param name="portNumber"></param>
-        /// <param name="connectionTimeout"></param>
         /// <param name="serviceType"></param>
         /// <param name="TL"></param>
         /// <param name="clientNumber"></param>
@@ -154,9 +154,8 @@ namespace ASCOM.Alpaca.Clients
         /// <param name="deviceResponseTimeout"></param>
         /// <param name="userName"></param>
         /// <param name="password"></param>
-        /// <param name="uniqueId"></param>
         /// <remarks>This method will attempt to re-discover the Alpaca device if it is not possible to establish a TCP connection with the device at the specified address and port.</remarks>
-        public static void ConnectToRemoteDevice(ref RestClient client, ServiceType serviceType, string ipAddressString, decimal portNumber,
+        internal static void ConnectToRemoteDevice(ref RestClient client, ServiceType serviceType, string ipAddressString, decimal portNumber,
                                                  uint clientNumber, string deviceType, int deviceResponseTimeout, string userName, string password, ILogger TL)
         {
             string clientHostAddress = $"{serviceType.ToString().ToLowerInvariant()}://{ipAddressString}:{portNumber}";
@@ -357,15 +356,15 @@ namespace ASCOM.Alpaca.Clients
             SetClientTimeout(client, deviceResponseTimeout);
         }
 
-        /// <summary>
-        /// test whether there is a device at the specified IP address and port by opening a TCP connection to it
-        /// </summary>
-        /// <param name="ipAddressString">IP address of the device</param>
-        /// <param name="portNumber">IP port number on the device</param>
-        /// <param name="connectionTimeout">Time to wait before timing out</param>
-        /// <param name="TL">Trace logger in which to report progress</param>
-        /// <param name="clientNumber">The client's number</param>
-        /// <returns></returns>
+        // /// <summary>
+        // /// test whether there is a device at the specified IP address and port by opening a TCP connection to it
+        // /// </summary>
+        // /// <param name="ipAddressString">IP address of the device</param>
+        // /// <param name="portNumber">IP port number on the device</param>
+        // /// <param name="connectionTimeout">Time to wait before timing out</param>
+        // /// <param name="TL">Trace logger in which to report progress</param>
+        // /// <param name="clientNumber">The client's number</param>
+        // /// <returns></returns>
         //private static bool ClientIsUp(string ipAddressString, decimal portNumber, int connectionTimeout, ILogger TL, uint clientNumber)
         //{
         //    TcpClient tcpClient = null;
@@ -433,7 +432,7 @@ namespace ASCOM.Alpaca.Clients
 
         #region Remote access methods
 
-        public static void CallMethodWithNoParameters(uint clientNumber, RestClient client, string URIBase, bool strictCasing, ILogger TL, string method, MemberTypes memberType)
+        internal static void CallMethodWithNoParameters(uint clientNumber, RestClient client, string URIBase, bool strictCasing, ILogger TL, string method, MemberTypes memberType)
         {
             Dictionary<string, string> Parameters = new Dictionary<string, string>();
             SendToRemoteDevice<NoReturnValue>(clientNumber, client, URIBase, strictCasing, TL, method, Parameters, Method.PUT, memberType);
@@ -446,11 +445,12 @@ namespace ASCOM.Alpaca.Clients
         /// <param name="clientNumber"></param>
         /// <param name="client"></param>
         /// <param name="URIBase"></param>
+        /// <param name="strictCasing"></param>
         /// <param name="TL"></param>
         /// <param name="method"></param>
         /// <param name="memberType"></param>
         /// <returns></returns>
-        public static T GetValue<T>(uint clientNumber, RestClient client, string URIBase, bool strictCasing, ILogger TL, string method, MemberTypes memberType)
+        internal static T GetValue<T>(uint clientNumber, RestClient client, string URIBase, bool strictCasing, ILogger TL, string method, MemberTypes memberType)
         {
             return GetValue<T>(clientNumber, client, URIBase, strictCasing, TL, method, AlpacaConstants.IMAGE_ARRAY_TRANSFER_TYPE_DEFAULT, AlpacaConstants.IMAGE_ARRAY_COMPRESSION_DEFAULT, memberType); // Set an arbitrary value for ImageArrayTransferType
         }
@@ -462,19 +462,20 @@ namespace ASCOM.Alpaca.Clients
         /// <param name="clientNumber"></param>
         /// <param name="client"></param>
         /// <param name="URIBase"></param>
+        /// <param name="strictCasing"></param>
         /// <param name="TL"></param>
         /// <param name="method"></param>
         /// <param name="imageArrayTransferType"></param>
         /// <param name="imageArrayCompression"></param>
         /// <param name="memberType"></param>
         /// <returns></returns>
-        public static T GetValue<T>(uint clientNumber, RestClient client, string URIBase, bool strictCasing, ILogger TL, string method, ImageArrayTransferType imageArrayTransferType, ImageArrayCompression imageArrayCompression, MemberTypes memberType)
+        internal static T GetValue<T>(uint clientNumber, RestClient client, string URIBase, bool strictCasing, ILogger TL, string method, ImageArrayTransferType imageArrayTransferType, ImageArrayCompression imageArrayCompression, MemberTypes memberType)
         {
             Dictionary<string, string> Parameters = new Dictionary<string, string>();
             return SendToRemoteDevice<T>(clientNumber, client, URIBase, strictCasing, TL, method, Parameters, Method.GET, imageArrayTransferType, imageArrayCompression, memberType);
         }
 
-        public static void SetBool(uint clientNumber, RestClient client, string URIBase, bool strictCasing, ILogger TL, string method, bool parmeterValue, MemberTypes memberType)
+        internal static void SetBool(uint clientNumber, RestClient client, string URIBase, bool strictCasing, ILogger TL, string method, bool parmeterValue, MemberTypes memberType)
         {
             Dictionary<string, string> Parameters = new Dictionary<string, string>
             {
@@ -483,7 +484,7 @@ namespace ASCOM.Alpaca.Clients
             SendToRemoteDevice<NoReturnValue>(clientNumber, client, URIBase, strictCasing, TL, method, Parameters, Method.PUT, memberType);
         }
 
-        public static void SetInt(uint clientNumber, RestClient client, string URIBase, bool strictCasing, ILogger TL, string method, int parmeterValue, MemberTypes memberType)
+        internal static void SetInt(uint clientNumber, RestClient client, string URIBase, bool strictCasing, ILogger TL, string method, int parmeterValue, MemberTypes memberType)
         {
             Dictionary<string, string> Parameters = new Dictionary<string, string>
             {
@@ -492,7 +493,7 @@ namespace ASCOM.Alpaca.Clients
             SendToRemoteDevice<NoReturnValue>(clientNumber, client, URIBase, strictCasing, TL, method, Parameters, Method.PUT, memberType);
         }
 
-        public static void SetShort(uint clientNumber, RestClient client, string URIBase, bool strictCasing, ILogger TL, string method, short parmeterValue, MemberTypes memberType)
+        internal static void SetShort(uint clientNumber, RestClient client, string URIBase, bool strictCasing, ILogger TL, string method, short parmeterValue, MemberTypes memberType)
         {
             Dictionary<string, string> Parameters = new Dictionary<string, string>
             {
@@ -501,7 +502,7 @@ namespace ASCOM.Alpaca.Clients
             SendToRemoteDevice<NoReturnValue>(clientNumber, client, URIBase, strictCasing, TL, method, Parameters, Method.PUT, memberType);
         }
 
-        public static void SetDouble(uint clientNumber, RestClient client, string URIBase, bool strictCasing, ILogger TL, string method, double parmeterValue, MemberTypes memberType)
+        internal static void SetDouble(uint clientNumber, RestClient client, string URIBase, bool strictCasing, ILogger TL, string method, double parmeterValue, MemberTypes memberType)
         {
             Dictionary<string, string> Parameters = new Dictionary<string, string>
             {
@@ -510,7 +511,7 @@ namespace ASCOM.Alpaca.Clients
             SendToRemoteDevice<NoReturnValue>(clientNumber, client, URIBase, strictCasing, TL, method, Parameters, Method.PUT, memberType);
         }
 
-        public static void SetDoubleWithShortParameter(uint clientNumber, RestClient client, string URIBase, bool strictCasing, ILogger TL, string method, short index, double parmeterValue, MemberTypes memberType)
+        internal static void SetDoubleWithShortParameter(uint clientNumber, RestClient client, string URIBase, bool strictCasing, ILogger TL, string method, short index, double parmeterValue, MemberTypes memberType)
         {
             Dictionary<string, string> Parameters = new Dictionary<string, string>
             {
@@ -520,7 +521,7 @@ namespace ASCOM.Alpaca.Clients
             SendToRemoteDevice<NoReturnValue>(clientNumber, client, URIBase, strictCasing, TL, method, Parameters, Method.PUT, memberType);
         }
 
-        public static void SetBoolWithShortParameter(uint clientNumber, RestClient client, string URIBase, bool strictCasing, ILogger TL, string method, short index, bool parmeterValue, MemberTypes memberType)
+        internal static void SetBoolWithShortParameter(uint clientNumber, RestClient client, string URIBase, bool strictCasing, ILogger TL, string method, short index, bool parmeterValue, MemberTypes memberType)
         {
             Dictionary<string, string> Parameters = new Dictionary<string, string>
             {
@@ -530,7 +531,7 @@ namespace ASCOM.Alpaca.Clients
             SendToRemoteDevice<NoReturnValue>(clientNumber, client, URIBase, strictCasing, TL, method, Parameters, Method.PUT, memberType);
         }
 
-        public static void SetStringWithShortParameter(uint clientNumber, RestClient client, string URIBase, bool strictCasing, ILogger TL, string method, short index, string parmeterValue, MemberTypes memberType)
+        internal static void SetStringWithShortParameter(uint clientNumber, RestClient client, string URIBase, bool strictCasing, ILogger TL, string method, short index, string parmeterValue, MemberTypes memberType)
         {
             Dictionary<string, string> Parameters = new Dictionary<string, string>
             {
@@ -540,7 +541,7 @@ namespace ASCOM.Alpaca.Clients
             SendToRemoteDevice<NoReturnValue>(clientNumber, client, URIBase, strictCasing, TL, method, Parameters, Method.PUT, memberType);
         }
 
-        public static string GetStringIndexedString(uint clientNumber, RestClient client, string URIBase, bool strictCasing, ILogger TL, string method, string parameterValue, MemberTypes memberType)
+        internal static string GetStringIndexedString(uint clientNumber, RestClient client, string URIBase, bool strictCasing, ILogger TL, string method, string parameterValue, MemberTypes memberType)
         {
             Dictionary<string, string> Parameters = new Dictionary<string, string>
             {
@@ -549,7 +550,7 @@ namespace ASCOM.Alpaca.Clients
             return SendToRemoteDevice<string>(clientNumber, client, URIBase, strictCasing, TL, method, Parameters, Method.GET, memberType);
         }
 
-        public static double GetStringIndexedDouble(uint clientNumber, RestClient client, string URIBase, bool strictCasing, ILogger TL, string method, string parameterValue, MemberTypes memberType)
+        internal static double GetStringIndexedDouble(uint clientNumber, RestClient client, string URIBase, bool strictCasing, ILogger TL, string method, string parameterValue, MemberTypes memberType)
         {
             Dictionary<string, string> Parameters = new Dictionary<string, string>
             {
@@ -558,7 +559,7 @@ namespace ASCOM.Alpaca.Clients
             return SendToRemoteDevice<double>(clientNumber, client, URIBase, strictCasing, TL, method, Parameters, Method.GET, memberType);
         }
 
-        public static double GetShortIndexedDouble(uint clientNumber, RestClient client, string URIBase, bool strictCasing, ILogger TL, string method, short parameterValue, MemberTypes memberType)
+        internal static double GetShortIndexedDouble(uint clientNumber, RestClient client, string URIBase, bool strictCasing, ILogger TL, string method, short parameterValue, MemberTypes memberType)
         {
             Dictionary<string, string> Parameters = new Dictionary<string, string>
             {
@@ -567,7 +568,7 @@ namespace ASCOM.Alpaca.Clients
             return SendToRemoteDevice<double>(clientNumber, client, URIBase, strictCasing, TL, method, Parameters, Method.GET, memberType);
         }
 
-        public static bool GetShortIndexedBool(uint clientNumber, RestClient client, string URIBase, bool strictCasing, ILogger TL, string method, short parameterValue, MemberTypes memberType)
+        internal static bool GetShortIndexedBool(uint clientNumber, RestClient client, string URIBase, bool strictCasing, ILogger TL, string method, short parameterValue, MemberTypes memberType)
         {
             Dictionary<string, string> Parameters = new Dictionary<string, string>
             {
@@ -576,7 +577,7 @@ namespace ASCOM.Alpaca.Clients
             return SendToRemoteDevice<bool>(clientNumber, client, URIBase, strictCasing, TL, method, Parameters, Method.GET, memberType);
         }
 
-        public static string GetShortIndexedString(uint clientNumber, RestClient client, string URIBase, bool strictCasing, ILogger TL, string method, short parameterValue, MemberTypes memberType)
+        internal static string GetShortIndexedString(uint clientNumber, RestClient client, string URIBase, bool strictCasing, ILogger TL, string method, short parameterValue, MemberTypes memberType)
         {
             Dictionary<string, string> Parameters = new Dictionary<string, string>
             {
@@ -592,12 +593,14 @@ namespace ASCOM.Alpaca.Clients
         /// <param name="clientNumber"></param>
         /// <param name="client"></param>
         /// <param name="URIBase"></param>
+        /// <param name="strictCasing"></param>
         /// <param name="TL"></param>
         /// <param name="method"></param>
         /// <param name="Parameters"></param>
         /// <param name="HttpMethod"></param>
+        /// <param name="memberType"></param>
         /// <returns></returns>
-        public static T SendToRemoteDevice<T>(uint clientNumber, RestClient client, string URIBase, bool strictCasing, ILogger TL, string method, Dictionary<string, string> Parameters, Method HttpMethod, MemberTypes memberType)
+        internal static T SendToRemoteDevice<T>(uint clientNumber, RestClient client, string URIBase, bool strictCasing, ILogger TL, string method, Dictionary<string, string> Parameters, Method HttpMethod, MemberTypes memberType)
         {
             return SendToRemoteDevice<T>(clientNumber, client, URIBase, strictCasing, TL, method, Parameters, HttpMethod, AlpacaConstants.IMAGE_ARRAY_TRANSFER_TYPE_DEFAULT, AlpacaConstants.IMAGE_ARRAY_COMPRESSION_DEFAULT, memberType);
         }
@@ -609,13 +612,16 @@ namespace ASCOM.Alpaca.Clients
         /// <param name="clientNumber"></param>
         /// <param name="client"></param>
         /// <param name="uriBase"></param>
+        /// <param name="strictCasing"></param>
         /// <param name="TL"></param>
         /// <param name="method"></param>
         /// <param name="parameters"></param>
         /// <param name="httpMethod"></param>
         /// <param name="imageArrayTransferType"></param>
+        /// <param name="imageArrayCompression"></param>
+        /// <param name="memberType"></param>
         /// <returns></returns>
-        public static T SendToRemoteDevice<T>(uint clientNumber, RestClient client, string uriBase, bool strictCasing, ILogger TL, string method, Dictionary<string, string> parameters, Method httpMethod, ImageArrayTransferType imageArrayTransferType, ImageArrayCompression imageArrayCompression, MemberTypes memberType)
+        internal static T SendToRemoteDevice<T>(uint clientNumber, RestClient client, string uriBase, bool strictCasing, ILogger TL, string method, Dictionary<string, string> parameters, Method httpMethod, ImageArrayTransferType imageArrayTransferType, ImageArrayCompression imageArrayCompression, MemberTypes memberType)
         {
             int retryCounter = 0; // Initialise the socket error retry counter
             Stopwatch sw = new Stopwatch(); // Stopwatch to time activities
@@ -1397,6 +1403,7 @@ namespace ASCOM.Alpaca.Clients
         /// <summary>
         /// Test whether an error occurred in the driver
         /// </summary>
+        /// <param name="TL">ILogger to which runtime diagnostic information will be sent.</param>
         /// <param name="response">The driver's response </param>
         /// <returns>True if the call was successful otherwise returns false.</returns>
         private static bool CallWasSuccessful(ILogger TL, Response response)
@@ -1429,7 +1436,7 @@ namespace ASCOM.Alpaca.Clients
 
         #region ASCOM Common members
 
-        public static string Action(uint clientNumber, RestClient client, string URIBase, bool strictCasing, ILogger TL, string actionName, string actionParameters)
+        internal static string Action(uint clientNumber, RestClient client, string URIBase, bool strictCasing, ILogger TL, string actionName, string actionParameters)
         {
             Dictionary<string, string> Parameters = new Dictionary<string, string>
             {
@@ -1443,7 +1450,7 @@ namespace ASCOM.Alpaca.Clients
             return remoteString;
         }
 
-        public static void CommandBlind(uint clientNumber, RestClient client, string URIBase, bool strictCasing, ILogger TL, string command, bool raw)
+        internal static void CommandBlind(uint clientNumber, RestClient client, string URIBase, bool strictCasing, ILogger TL, string command, bool raw)
         {
             Dictionary<string, string> Parameters = new Dictionary<string, string>
             {
@@ -1454,7 +1461,7 @@ namespace ASCOM.Alpaca.Clients
             AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "CommandBlind", "Completed OK");
         }
 
-        public static bool CommandBool(uint clientNumber, RestClient client, string URIBase, bool strictCasing, ILogger TL, string command, bool raw)
+        internal static bool CommandBool(uint clientNumber, RestClient client, string URIBase, bool strictCasing, ILogger TL, string command, bool raw)
         {
             Dictionary<string, string> Parameters = new Dictionary<string, string>
             {
@@ -1467,7 +1474,7 @@ namespace ASCOM.Alpaca.Clients
             return remoteBool;
         }
 
-        public static string CommandString(uint clientNumber, RestClient client, string URIBase, bool strictCasing, ILogger TL, string command, bool raw)
+        internal static string CommandString(uint clientNumber, RestClient client, string URIBase, bool strictCasing, ILogger TL, string command, bool raw)
         {
             Dictionary<string, string> Parameters = new Dictionary<string, string>
             {
@@ -1480,7 +1487,7 @@ namespace ASCOM.Alpaca.Clients
             return remoteString;
         }
 
-        public static void Connect(uint clientNumber, RestClient client, string URIBase, bool strictCasing, ILogger TL)
+        internal static void Connect(uint clientNumber, RestClient client, string URIBase, bool strictCasing, ILogger TL)
         {
             AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "Connect", "Acquiring connection lock");
             lock (connectLockObject) // Ensure that only one connection attempt can happen at a time
@@ -1508,12 +1515,12 @@ namespace ASCOM.Alpaca.Clients
             }
         }
 
-        public static string Description(uint clientNumber, RestClient client, string URIBase, bool strictCasing, ILogger TL)
+        internal static string Description(uint clientNumber, RestClient client, string URIBase, bool strictCasing, ILogger TL)
         {
             return GetValue<string>(clientNumber, client, URIBase, strictCasing, TL, "Description", MemberTypes.Property);
         }
 
-        public static void Disconnect(uint clientNumber, RestClient client, string URIBase, bool strictCasing, ILogger TL)
+        internal static void Disconnect(uint clientNumber, RestClient client, string URIBase, bool strictCasing, ILogger TL)
         {
 
             if (IsClientConnected(clientNumber, TL)) // If we are already connected then disconnect, otherwise ignore disconnect 
@@ -1529,26 +1536,26 @@ namespace ASCOM.Alpaca.Clients
             }
         }
 
-        public static string DriverInfo(uint clientNumber, RestClient client, string URIBase, bool strictCasing, ILogger TL)
+        internal static string DriverInfo(uint clientNumber, RestClient client, string URIBase, bool strictCasing, ILogger TL)
         {
             return GetValue<string>(clientNumber, client, URIBase, strictCasing, TL, "DriverInfo", MemberTypes.Property);
         }
 
-        public static string DriverVersion(uint clientNumber, RestClient client, string URIBase, bool strictCasing, ILogger TL)
+        internal static string DriverVersion(uint clientNumber, RestClient client, string URIBase, bool strictCasing, ILogger TL)
         {
             string remoteString = GetValue<string>(clientNumber, client, URIBase, strictCasing, TL, "DriverVersion", MemberTypes.Property);
             AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "DriverVersion", remoteString);
             return remoteString;
         }
 
-        public static short InterfaceVersion(uint clientNumber, RestClient client, string URIBase, bool strictCasing, ILogger TL)
+        internal static short InterfaceVersion(uint clientNumber, RestClient client, string URIBase, bool strictCasing, ILogger TL)
         {
             short interfaceVersion = GetValue<short>(clientNumber, client, URIBase, strictCasing, TL, "InterfaceVersion", MemberTypes.Property);
             AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "InterfaceVersion", interfaceVersion.ToString());
             return interfaceVersion;
         }
 
-        public static IList<string> SupportedActions(uint clientNumber, RestClient client, string URIBase, bool strictCasing, ILogger TL)
+        internal static IList<string> SupportedActions(uint clientNumber, RestClient client, string URIBase, bool strictCasing, ILogger TL)
         {
             List<string> supportedActions = GetValue<List<string>>(clientNumber, client, URIBase, strictCasing, TL, "SupportedActions", MemberTypes.Property);
             AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "SupportedActions", $"Returning {supportedActions.Count} actions");
@@ -1567,7 +1574,7 @@ namespace ASCOM.Alpaca.Clients
 
         #region Complex Camera Properties
 
-        public static object ImageArrayVariant(uint clientNumber, RestClient client, string URIBase, bool strictCasing, ILogger TL, ImageArrayTransferType imageArrayTransferType, ImageArrayCompression imageArrayCompression)
+        internal static object ImageArrayVariant(uint clientNumber, RestClient client, string URIBase, bool strictCasing, ILogger TL, ImageArrayTransferType imageArrayTransferType, ImageArrayCompression imageArrayCompression)
         {
             Array returnArray;
             object[,] objectArray2D;
@@ -1928,6 +1935,8 @@ namespace ASCOM.Alpaca.Clients
         /// </summary>
         /// <param name="url">URL from which to retrieve data</param>
         /// <param name="acceptString">The Accept string of mime types that we are prepared to accept.</param>
+        /// <param name="clientId">TraceLogger for logging purposes.</param>
+        /// <param name="clientTransactionId">TraceLogger for logging purposes.</param>
         /// <param name="TL">TraceLogger for logging purposes.</param>
         /// <returns>A populated RestSharp RestResponse</returns>
         /// <remarks>This approach is used because of inexplicable delays that occurred when using the RestSharp client to retrieve large binary byte arrays.</remarks>

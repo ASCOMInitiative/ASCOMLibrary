@@ -18,11 +18,17 @@ namespace ASCOM.Alpaca.Clients
 
         #region Initialiser
 
+        /// <summary>
+        /// Create an Alpaca SafetyMonitor device with all values set to default
+        /// </summary>
         public AlpacaSafetyMonitor()
         {
             Initialise();
         }
 
+        /// <summary>
+        /// Create an Alpaca SafetyMonitor device specifying all parameters
+        /// </summary>
         public AlpacaSafetyMonitor(ServiceType serviceType,
                           string ipAddressString,
                           int portNumber,
@@ -53,6 +59,9 @@ namespace ASCOM.Alpaca.Clients
             Initialise();
         }
 
+        /// <summary>
+        /// Create an Alpaca SafetyMonitor device specifying the minimum required parameters, others will have default values
+        /// </summary>
         public AlpacaSafetyMonitor(ServiceType serviceType,
                          string ipAddressString,
                          int portNumber,
@@ -103,6 +112,15 @@ namespace ASCOM.Alpaca.Clients
 
         #region ISafetyMonitor Implementation
 
+        /// <summary>
+        /// Indicates whether the monitored state is safe for use.
+        /// </summary>
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <value>True if the state is safe, False if it is unsafe.</value>
+        /// <remarks>
+        /// <p style="color:red;margin-bottom:0"><b>Must be implemented and must not throw a NotImplementedException. </b></p>
+        /// </remarks>
         public bool IsSafe
         {
             get

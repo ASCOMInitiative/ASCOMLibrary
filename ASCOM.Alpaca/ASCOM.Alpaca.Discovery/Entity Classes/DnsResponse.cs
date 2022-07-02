@@ -12,11 +12,17 @@ namespace ASCOM.Alpaca.Discovery
     {
         private IPHostEntry f_IpHostEntry;
 
+        /// <summary>
+        /// Initialise the class with a new ManualResetEvent
+        /// </summary>
         public DnsResponse()
         {
             CallComplete = new ManualResetEvent(false);
         }
 
+        /// <summary>
+        /// The IPHostEntry for the discovered Alpaca device
+        /// </summary>
         public IPHostEntry IpHostEntry
         {
             get
@@ -34,9 +40,24 @@ namespace ASCOM.Alpaca.Discovery
             }
         }
 
+        /// <summary>
+        /// The The discovery's ManualResetEvent
+        /// </summary>
         public ManualResetEvent CallComplete { get; set; }
+
+        /// <summary>
+        /// The Alpaca device's host name
+        /// </summary>
         public string HostName { get; set; }
+
+        /// <summary>
+        /// The device's aliases
+        /// </summary>
         public string[] Aliases { get; set; }
+
+        /// <summary>
+        /// The list of IP addresses presented by the discovered device
+        /// </summary>
         public IPAddress[] AddressList { get; set; }
     }
 }
