@@ -4,15 +4,33 @@ using ASCOM.Common;
 
 namespace ASCOM.Com.DriverAccess
 {
+    /// <summary>
+    /// FilterWheel device class
+    /// </summary>
     public class FilterWheel : ASCOMDevice, IFilterWheelV2
     {
+        /// <summary>
+        /// Return a list of all FilterWheels registered in the ASCOM Profile
+        /// </summary>
         public static List<ASCOMRegistration> FilterWheels => Profile.GetDrivers(DeviceTypes.FilterWheel);
 
+        /// <summary>
+        /// Initialise FilterWheel device
+        /// </summary>
+        /// <param name="ProgID">COM ProgID of the device.</param>
         public FilterWheel(string ProgID) : base(ProgID)
         {
 
         }
 
+        /// <summary>
+        /// Returns a description of the driver, such as manufacturer and model
+        /// number. Any ASCII characters may be used. The string shall not exceed 68
+        /// characters (for compatibility with FITS headers).
+        /// </summary>
+        /// <value>The description.</value>
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         public new string Description
         {
             get
@@ -25,6 +43,14 @@ namespace ASCOM.Com.DriverAccess
             }
         }
 
+        /// <summary>
+        /// Descriptive and version information about this ASCOM driver.
+        /// This string may contain line endings and may be hundreds to thousands of characters long.
+        /// It is intended to display detailed information on the ASCOM driver, including version and copyright data.
+        /// See the Description property for descriptive info on the telescope itself.
+        /// To get the driver version in a parseable string, use the DriverVersion property.
+        /// </summary>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         public new string DriverInfo
         {
             get
@@ -37,6 +63,12 @@ namespace ASCOM.Com.DriverAccess
             }
         }
 
+        /// <summary>
+        /// A string containing only the major and minor version of the driver.
+        /// This must be in the form "n.n".
+        /// Not to be confused with the InterfaceVersion property, which is the version of this specification supported by the driver (currently 2). 
+        /// </summary>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         public new string DriverVersion
         {
             get
@@ -49,6 +81,10 @@ namespace ASCOM.Com.DriverAccess
             }
         }
 
+        /// <summary>
+        /// The short name of the driver, for display purposes
+        /// </summary>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         public new string Name
         {
             get
@@ -65,7 +101,7 @@ namespace ASCOM.Com.DriverAccess
         /// Focus offset of each filter in the wheel
         /// </summary>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
         /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
         /// For each valid slot number (from 0 to N-1), reports the focus offset for the given filter position.  These values are focuser and filter dependent, and  would usually be set up by the user via 
@@ -77,7 +113,7 @@ namespace ASCOM.Com.DriverAccess
         /// Name of each filter in the wheel
         /// </summary>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
         /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
         /// For each valid slot number (from 0 to N-1), reports the name given to the filter position.  These names would usually be set up by the user via the
@@ -90,7 +126,7 @@ namespace ASCOM.Com.DriverAccess
         /// </summary>
         /// <exception cref="InvalidValueException">Must throw an InvalidValueException if an invalid position is set</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
         /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
         /// Write a position number between 0 and N-1, where N is the number of filter slots (see <see cref="Names"/>). Starts filter wheel rotation immediately when written. Reading

@@ -6,10 +6,20 @@ using System.Linq;
 
 namespace ASCOM.Com.DriverAccess
 {
+    /// <summary>
+    /// Camera device class
+    /// </summary>
     public class Camera : ASCOMDevice, ICameraV3
     {
+        /// <summary>
+        /// Return a list of all Cameras registered in the ASCOM Profile
+        /// </summary>
         public static List<ASCOMRegistration> Cameras => Profile.GetDrivers(DeviceTypes.Camera);
 
+        /// <summary>
+        /// Initialise Camera device
+        /// </summary>
+        /// <param name="ProgID"></param>
         public Camera(string ProgID) : base(ProgID)
         {
 
@@ -22,7 +32,7 @@ namespace ASCOM.Com.DriverAccess
         /// See the Description property for descriptive info on the telescope itself.
         /// To get the driver version in a parseable string, use the DriverVersion property.
         /// </summary>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         public new string DriverInfo
         {
             get
@@ -40,7 +50,7 @@ namespace ASCOM.Com.DriverAccess
         /// This must be in the form "n.n".
         /// Not to be confused with the InterfaceVersion property, which is the version of this specification supported by the driver (currently 2). 
         /// </summary>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         public new string DriverVersion
         {
             get
@@ -56,7 +66,7 @@ namespace ASCOM.Com.DriverAccess
         /// <summary>
         /// The short name of the driver, for display purposes
         /// </summary>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         public new string Name
         {
             get
@@ -79,7 +89,7 @@ namespace ASCOM.Com.DriverAccess
         /// <value>The X binning value</value>
         /// <exception cref="InvalidValueException">Must throw an exception for illegal binning values</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         public short BinX { get => base.Device.BinX; set => base.Device.BinX = value; }
 
         /// <summary>
@@ -92,7 +102,7 @@ namespace ASCOM.Com.DriverAccess
         /// <value>The Y binning value.</value>
         /// <exception cref="InvalidValueException">Must throw an exception for illegal binning values</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         public short BinY { get => base.Device.BinY; set => base.Device.BinY = value; }
 
         /// <summary>
@@ -112,7 +122,7 @@ namespace ASCOM.Com.DriverAccess
         /// </remarks>
         /// <value>The state of the camera.</value>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         public CameraState CameraState => (CameraState)base.Device.CameraState;
 
         /// <summary>
@@ -120,7 +130,7 @@ namespace ASCOM.Com.DriverAccess
         /// </summary>
         /// <value>The size of the camera X.</value>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         public int CameraXSize => base.Device.CameraXSize;
 
         /// <summary>
@@ -128,7 +138,7 @@ namespace ASCOM.Com.DriverAccess
         /// </summary>
         /// <value>The size of the camera Y.</value>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         public int CameraYSize => base.Device.CameraYSize;
 
         /// <summary>
@@ -138,7 +148,7 @@ namespace ASCOM.Com.DriverAccess
         /// <c>true</c> if this instance can abort exposure; otherwise, <c>false</c>.
         /// </value>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
         /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
         /// </remarks>
@@ -156,8 +166,7 @@ namespace ASCOM.Com.DriverAccess
         /// <c>true</c> if this instance can asymmetric bin; otherwise, <c>false</c>.
         /// </value>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// occurs if no connection established and camera must be queried)</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         public bool CanAsymmetricBin => base.Device.CanAsymmetricBin;
 
         /// <summary>
@@ -167,7 +176,7 @@ namespace ASCOM.Com.DriverAccess
         /// <c>true</c> if this instance can get cooler power; otherwise, <c>false</c>.
         /// </value>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
         /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
         /// </remarks>
@@ -185,7 +194,7 @@ namespace ASCOM.Com.DriverAccess
         /// <c>true</c> if this instance can pulse guide; otherwise, <c>false</c>.
         /// </value>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         public bool CanPulseGuide => base.Device.CanPulseGuide;
 
         /// <summary>
@@ -201,7 +210,7 @@ namespace ASCOM.Com.DriverAccess
         /// <c>true</c> if this instance can set CCD temperature; otherwise, <c>false</c>.
         /// </value>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         public bool CanSetCCDTemperature => base.Device.CanSetCCDTemperature;
 
         /// <summary>
@@ -217,7 +226,7 @@ namespace ASCOM.Com.DriverAccess
         /// <c>true</c> if the camera can stop the exposure; otherwise, <c>false</c>.
         /// </value>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         public bool CanStopExposure => base.Device.CanStopExposure;
 
         /// <summary>
@@ -227,7 +236,7 @@ namespace ASCOM.Com.DriverAccess
         /// <exception cref="InvalidValueException">Must throw exception if data unavailable.</exception>
         /// <exception cref="NotImplementedException">Must throw exception if not supported.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         public double CCDTemperature => base.Device.CCDTemperature;
 
         /// <summary>
@@ -242,7 +251,7 @@ namespace ASCOM.Com.DriverAccess
         /// <value><c>true</c> if the cooler is on; otherwise, <c>false</c>.</value>
         /// <exception cref=" NotImplementedException">not supported</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         public bool CoolerOn { get => base.Device.CoolerOn; set => base.Device.CoolerOn = value; }
 
         /// <summary>
@@ -254,7 +263,7 @@ namespace ASCOM.Com.DriverAccess
         /// <value>The cooler power.</value>
         /// <exception cref=" NotImplementedException">not supported</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         public double CoolerPower => base.Device.CoolerPower;
 
         /// <summary>
@@ -266,7 +275,7 @@ namespace ASCOM.Com.DriverAccess
         /// </remarks>
         /// <value>The electrons per ADU.</value>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         public double ElectronsPerADU => base.Device.ElectronsPerADU;
 
         /// <summary>
@@ -274,7 +283,7 @@ namespace ASCOM.Com.DriverAccess
         /// </summary>
         /// <value>The full well capacity.</value>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         public double FullWellCapacity => base.Device.FullWellCapacity;
 
         /// <summary>
@@ -289,7 +298,7 @@ namespace ASCOM.Com.DriverAccess
         /// <c>true</c> if this instance has shutter; otherwise, <c>false</c>.
         /// </value>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         public bool HasShutter => base.Device.HasShutter;
 
         /// <summary>
@@ -300,7 +309,7 @@ namespace ASCOM.Com.DriverAccess
         /// </remarks>
         /// <value>The heat sink temperature.</value>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         public double HeatSinkTemperature => base.Device.HeatSinkTemperature;
 
         /// <summary>
@@ -317,7 +326,7 @@ namespace ASCOM.Com.DriverAccess
         /// <value>The image array.</value>
         /// <exception cref="InvalidOperationException">If no image data is available.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         public object ImageArray => base.Device.ImageArray;
 
         /// <summary>
@@ -337,7 +346,7 @@ namespace ASCOM.Com.DriverAccess
         /// <value>The image array variant.</value>
         /// <exception cref="InvalidOperationException">If no image data is available.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         public object ImageArrayVariant => base.Device.ImageArrayVariant;
 
         /// <summary>
@@ -349,7 +358,7 @@ namespace ASCOM.Com.DriverAccess
         /// </remarks>.
         /// <value><c>true</c> if [image ready]; otherwise, <c>false</c>.</value>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         public bool ImageReady => base.Device.ImageReady;
 
         /// <summary>
@@ -363,7 +372,7 @@ namespace ASCOM.Com.DriverAccess
         /// <c>true</c> if this instance is pulse guiding; otherwise, <c>false</c>.
         /// </value>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         public bool IsPulseGuiding => base.Device.IsPulseGuiding;
 
         /// <summary>
@@ -375,7 +384,7 @@ namespace ASCOM.Com.DriverAccess
         /// <value>The last duration of the exposure.</value>
         /// <exception cref="InvalidOperationException">If called before any exposure has been taken</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         public double LastExposureDuration => base.Device.LastExposureDuration;
 
         /// <summary>
@@ -385,7 +394,7 @@ namespace ASCOM.Com.DriverAccess
         /// <value>The last exposure start time in UTC.</value>
         /// <exception cref="InvalidOperationException">If called before any exposure has been taken</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         public string LastExposureStartTime => base.Device.LastExposureStartTime;
 
         /// <summary>
@@ -393,7 +402,7 @@ namespace ASCOM.Com.DriverAccess
         /// </summary>
         /// <value>The maximum ADU.</value>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         public int MaxADU => base.Device.MaxADU;
 
         /// <summary>
@@ -405,7 +414,7 @@ namespace ASCOM.Com.DriverAccess
         /// </remarks>
         /// <value>The max bin X.</value>
 		/// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-		/// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+		/// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         public short MaxBinX => base.Device.MaxBinX;
 
         /// <summary>
@@ -417,7 +426,7 @@ namespace ASCOM.Com.DriverAccess
         /// </remarks>
         /// <value>The max bin Y.</value>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         public short MaxBinY => base.Device.MaxBinY;
 
         /// <summary>
@@ -429,7 +438,7 @@ namespace ASCOM.Com.DriverAccess
         /// </remarks>
         /// <value>The num X.</value>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         public int NumX { get => base.Device.NumX; set => base.Device.NumX = value; }
 
         /// <summary>
@@ -442,7 +451,7 @@ namespace ASCOM.Com.DriverAccess
         /// </remarks>
         /// <value>The num Y.</value>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         public int NumY { get => base.Device.NumY; set => base.Device.NumY = value; }
 
         /// <summary>
@@ -450,7 +459,7 @@ namespace ASCOM.Com.DriverAccess
         /// </summary>
         /// <value>The pixel size X.</value>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         public double PixelSizeX => base.Device.PixelSizeX;
 
         /// <summary>
@@ -458,7 +467,7 @@ namespace ASCOM.Com.DriverAccess
         /// </summary>
         /// <value>The pixel size Y.</value>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         public double PixelSizeY => base.Device.PixelSizeY;
 
         /// <summary>
@@ -476,7 +485,7 @@ namespace ASCOM.Com.DriverAccess
         /// camera's valid temperature setpoint range.</exception>
         /// <exception cref="NotImplementedException">Must throw exception if <see cref="CanSetCCDTemperature" /> is <c>false</c>.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         public double SetCCDTemperature { get => base.Device.SetCCDTemperature; set => base.Device.SetCCDTemperature = value; }
         /// <summary>
         /// Sets the subframe start position for the X axis (0 based) and returns the current value.
@@ -487,7 +496,7 @@ namespace ASCOM.Com.DriverAccess
         /// </remarks>
         /// <value>The start X.</value>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         public int StartX { get => base.Device.StartX; set => base.Device.StartX = value; }
 
         /// <summary>
@@ -499,7 +508,7 @@ namespace ASCOM.Com.DriverAccess
         /// </remarks>
         /// <value>The start Y.</value>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         public int StartY { get => base.Device.StartY; set => base.Device.StartY = value; }
 
         /// <summary>
@@ -509,7 +518,7 @@ namespace ASCOM.Com.DriverAccess
         /// <exception cref="NotImplementedException">Monochrome cameras must throw this exception, colour cameras must not.</exception>
         /// <exception cref="InvalidValueException">Must throw an exception if not valid.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks><p style="color:red"><b>Must be implemented by colour cameras, monochrome cameras must throw a NotImplementedException</b></p>
         /// <para>Since monochrome cameras don't have a Bayer colour matrix by definition, such cameras should throw a <see cref="NotImplementedException" />.
         /// Colour cameras should always return a value and must not throw a <see cref="NotImplementedException" /></para>
@@ -538,7 +547,7 @@ namespace ASCOM.Com.DriverAccess
         /// <exception cref="NotImplementedException">Monochrome cameras must throw this exception, colour cameras must not.</exception>
         /// <exception cref="InvalidValueException">Must throw an exception if not valid.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks><p style="color:red"><b>Must be implemented by colour cameras, monochrome cameras must throw a NotImplementedException</b></p>
         /// <para>Since monochrome cameras don't have a Bayer colour matrix by definition, such cameras should throw a <see cref="NotImplementedException" />.
         /// Colour cameras should always return a value and must not throw a <see cref="NotImplementedException" /></para>
@@ -564,7 +573,7 @@ namespace ASCOM.Com.DriverAccess
         /// Camera has a fast readout mode
         /// </summary>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <returns><c>true</c> when the camera supports a fast readout mode</returns>
         /// <remarks><p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
         /// It is recommended that this function be called only after a <see cref="IAscomDevice.Connected">connection</see> is established with the camera hardware, to 
@@ -589,7 +598,7 @@ namespace ASCOM.Com.DriverAccess
         /// <returns>The maximum exposure time, in seconds, that the camera supports</returns>
         /// <exception cref="InvalidValueException">Must throw an exception if not valid.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks><p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
         /// It is recommended that this function be called only after
         /// a <see cref="IAscomDevice.Connected">connection</see> is established with the camera hardware, to ensure that the driver is aware of the capabilities of the 
@@ -614,7 +623,7 @@ namespace ASCOM.Com.DriverAccess
         /// <returns>The minimum exposure time, in seconds, that the camera supports through <see cref="StartExposure">StartExposure</see></returns>
         /// <exception cref="InvalidValueException">Must throw an exception if not valid.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks><p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
         /// This must be a non-zero number representing the shortest possible exposure time supported by the camera model.
         /// <para>Please note that for bias frame acquisition an even shorter exposure may be possible; please see <see cref="StartExposure">StartExposure</see>
@@ -641,7 +650,7 @@ namespace ASCOM.Com.DriverAccess
         /// <returns>The smallest increment in exposure time supported by <see cref="StartExposure">StartExposure</see>.</returns>
         /// <exception cref="InvalidValueException">Must throw an exception if not valid.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks><p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
         /// This can be used, for example, to specify the resolution of a user interface "spin control" used to dial in the exposure time.
         /// <para>Please note that the Duration provided to <see cref="StartExposure">StartExposure</see> does not have to be an exact multiple of this number;
@@ -670,7 +679,7 @@ namespace ASCOM.Com.DriverAccess
         /// <value><c>true</c> for fast readout mode, <c>false</c> for normal mode</value>
         /// <exception cref="NotImplementedException">Thrown if <see cref="CanFastReadout" /> is <c>false</c>.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks><p style="color:red"><b>Must throw a NotImplementedException if CanFastReadout is false or
         /// return a boolean value if CanFastReadout is true.</b></p>
         /// Must thrown an exception if no <see cref="IAscomDevice.Connected">connection</see> is established to the camera. Must throw
@@ -714,7 +723,7 @@ namespace ASCOM.Com.DriverAccess
         /// <exception cref="NotImplementedException">When neither <b>GAINS INDEX</b> mode nor <b>GAIN VALUE</b> mode are supported.</exception>
         /// <exception cref="InvalidValueException">When the supplied value is not valid.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks><p style="color:red"><b>This is an optional property and can throw a NotImplementedException if Gain is not supported by the camera.</b></p>
         /// The <see cref="Gain" /> property is used to adjust the gain setting of the camera and has <b>two modes of operation</b>:
         /// <ul>
@@ -767,7 +776,7 @@ namespace ASCOM.Com.DriverAccess
         /// <returns>The maximum gain value that this camera supports</returns>
         /// <exception cref="NotImplementedException">When the <see cref="Gain"/> property is not implemented or is operating in <b>GAINS INDEX</b> mode.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks><p style="color:red"><b>This is an optional property and can throw a NotImplementedException.</b></p>
         /// When <see cref="Gain"/> is operating in <b><see cref="Gain">GAIN VALUE</see></b> mode:
         /// <ul>
@@ -797,7 +806,7 @@ namespace ASCOM.Com.DriverAccess
         /// <returns>The minimum gain value that this camera supports</returns>
         /// <exception cref="NotImplementedException">When the <see cref="Gain"/> property is not implemented or is operating in <b>GAINS INDEX</b> mode.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks><p style="color:red"><b>This is an optional property and can throw a NotImplementedException.</b></p>
         /// When <see cref="Gain"/> is operating in <b><see cref="Gain">GAIN VALUE</see></b> mode:
         /// <ul>
@@ -827,7 +836,7 @@ namespace ASCOM.Com.DriverAccess
         /// <returns>The list of supported gain names as an ArrayList of strings</returns>
         /// <exception cref="NotImplementedException">When the <see cref="Gain"/> property is not implemented or is operating in <b>GAIN VALUE</b> mode.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks><p style="color:red"><b>This is an optional property and can throw a NotImplementedException.</b></p>
         /// When <see cref="Gain"/> is operating in <b><see cref="Gain">GAINS INDEX</see></b> mode:
         /// <ul>
@@ -858,7 +867,7 @@ namespace ASCOM.Com.DriverAccess
         /// <returns>A value between 0 and 100% indicating the completeness of this operation</returns>
         /// <exception cref="InvalidOperationException">Thrown when it is inappropriate to call <see cref="PercentCompleted" /></exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks><p style="color:red"><b>May throw a NotImplementedException if PercentCompleted is not supported by the camera.</b></p>
         /// If valid, returns an integer between 0 and 100, where 0 indicates 0% progress (function just started) and
         /// 100 indicates 100% progress (i.e. completion).
@@ -892,7 +901,7 @@ namespace ASCOM.Com.DriverAccess
         /// the camera's current readout mode.</returns>
         /// <exception cref="InvalidValueException">Must throw an exception if set to an illegal or unavailable mode.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks><p style="color:red"><b>Must be implemented if CanFastReadout is false, must throw a NotImplementedException if
         /// CanFastReadout is true.</b></p>
         /// <see cref="ReadoutMode" /> is an index into the array <see cref="ReadoutModes" />, and selects the desired readout mode for the camera.
@@ -928,14 +937,14 @@ namespace ASCOM.Com.DriverAccess
         /// </summary>
         /// <returns>An ArrayList of readout mode names</returns>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks><p style="color:red"><b>Must be implemented if CanFastReadout is false, must throw a NotImplementedException if
         /// CanFastReadout is true.</b></p>
         /// This property provides an array of strings, each of which describes an available readout mode of the camera.
         /// At least one string must be present in the list. The user interface of a control application will typically present to the
         /// user a drop-list of modes.  The choice of available modes made available is entirely at the discretion of the driver author.
         /// Please note that if the camera has many different modes of operation, then the most commonly adjusted settings should be in
-        /// <see cref="ReadoutModes" />; additional settings may be provided using <see cref="SetupDialog" />.
+        /// <see cref="ReadoutModes" />; additional settings may be provided using <see cref="ASCOMDevice.SetupDialog" />.
         /// <para>To select a mode, the application will set <see cref="ReadoutMode" /> to the index of the desired mode.  The index is zero-based.</para>
         /// <para>This property should only be read while a <see cref="IAscomDevice.Connected">connection</see> to the camera is actually established.  Drivers often support
         /// multiple cameras with different capabilities, which are not known until the <see cref="IAscomDevice.Connected">connection</see> is made.  If the available readout modes
@@ -967,7 +976,7 @@ namespace ASCOM.Com.DriverAccess
         /// </summary>
         /// <returns>The name of the sensor used within the camera.</returns>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks><p style="color:red"><b>May throw a NotImplementedException if the sensor's name is not known.</b></p>
         /// <para>Returns the name (data sheet part number) of the sensor, e.g. ICX285AL.  The format is to be exactly as shown on
         /// manufacturer data sheet, subject to the following rules:
@@ -1008,9 +1017,9 @@ namespace ASCOM.Com.DriverAccess
         /// Type of colour information returned by the camera sensor, Interface Version 2 only
         /// </summary>
         /// <value></value>
-        /// <returns>The <see cref="ASCOM.DeviceInterface.SensorType" /> enum value of the camera sensor</returns>
+        /// <returns>The <see cref="SensorType" /> enum value of the camera sensor</returns>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks><p style="color:red"><b>May throw a NotImplementedException if the sensor type is not known.</b></p>
         /// <para>This is only available for the Camera Interface Version 2</para>
         /// <para><see cref="SensorType" /> returns a value indicating whether the sensor is monochrome, or what Bayer matrix it encodes. If this value
@@ -1702,7 +1711,7 @@ namespace ASCOM.Com.DriverAccess
         /// </returns>
         /// <exception cref="NotImplementedException">When neither <b>OFFSETS INDEX</b> mode nor <b>OFFSET VALUE</b> mode are supported.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks><p style="color:red"><b>This is an optional property and can throw a NotImplementedException if Offset is not supported by the camera.</b></p>
         /// The <see cref="Offset" /> property is used to adjust the offset setting of the camera and has <b>two modes of operation</b>:
         /// <ul>
@@ -1755,7 +1764,7 @@ namespace ASCOM.Com.DriverAccess
         /// <returns>The maximum offset value that this camera supports</returns>
         /// <exception cref="NotImplementedException">When the <see cref="Offset"/> property is not implemented or is operating in <b>OFFSETS INDEX</b> mode.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks><p style="color:red"><b>This is an optional property and can throw a NotImplementedException.</b></p>
         /// When <see cref="Offset"/> is operating in <b><see cref="Offset">OFFSET VALUE</see></b> mode:
         /// <ul>
@@ -1785,7 +1794,7 @@ namespace ASCOM.Com.DriverAccess
         /// <returns>The minimum offset value that this camera supports</returns>
         /// <exception cref="NotImplementedException">When the <see cref="Offset"/> property is not implemented or is operating in <b>OFFSETS INDEX</b> mode.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks><p style="color:red"><b>This is an optional property and can throw a NotImplementedException.</b></p>
         /// When <see cref="Offset"/> is operating in <b><see cref="Offset">OFFSET VALUE</see></b> mode:
         /// <ul>
@@ -1815,7 +1824,7 @@ namespace ASCOM.Com.DriverAccess
         /// <returns>The list of supported offset names as an ArrayList of strings</returns>
         /// <exception cref="NotImplementedException">When the <see cref="Offset"/> property is not implemented or is operating in <b>OFFSET VALUE</b> mode.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks><p style="color:red"><b>This is an optional property and can throw a NotImplementedException.</b></p>
         /// When <see cref="Offset"/> is operating in <b><see cref="Offset">OFFSETS INDEX</see></b> mode:
         /// <ul>
@@ -1846,7 +1855,7 @@ namespace ASCOM.Com.DriverAccess
         /// <exception cref="NotImplementedException">When the camera does not support sub exposure configuration.</exception>
         /// <exception cref="InvalidValueException">When the supplied value is not valid.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks><p style="color:red"><b>This is an optional property and can throw a NotImplementedException.</b></p>
         /// <para>This is only available in Camera Interface Version 3 and later.</para>
         /// </remarks>
@@ -1915,7 +1924,7 @@ namespace ASCOM.Com.DriverAccess
         /// <param name="Duration">The duration of movement in milli-seconds.</param>
         /// <exception cref="NotImplementedException">PulseGuide command is unsupported</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         public void PulseGuide(GuideDirection Direction, int Duration)
         {
             base.Device.PulseGuide(Direction, Duration);
@@ -1938,7 +1947,7 @@ namespace ASCOM.Com.DriverAccess
         /// <see cref="BinY" />, <see cref="StartX" />, <see cref="StartY" />, or <see cref="StartExposure">Duration</see> parameters are invalid.</exception>
         /// <exception cref=" InvalidOperationException"><see cref="CanAsymmetricBin" /> is <c>false</c> and <see cref="BinX" /> != <see cref="BinY" /></exception>
 		/// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-		/// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+		/// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         public void StartExposure(double Duration, bool Light)
         {
             base.Device.StartExposure(Duration, Light);
@@ -1953,7 +1962,7 @@ namespace ASCOM.Com.DriverAccess
         /// </remarks>
         /// <exception cref="NotImplementedException">Must throw an exception if CanStopExposure is <c>false</c></exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         public void StopExposure()
         {
             base.Device.StopExposure();

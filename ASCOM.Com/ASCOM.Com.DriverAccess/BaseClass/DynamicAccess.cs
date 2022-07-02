@@ -6,6 +6,9 @@ using System.Runtime.InteropServices;
 
 namespace ASCOM.Com.DriverAccess
 {
+    /// <summary>
+    /// Dynamically manipulate a COM object's members
+    /// </summary>
     public class DynamicAccess : DynamicObject
     {
         private readonly object device;
@@ -21,6 +24,11 @@ namespace ASCOM.Com.DriverAccess
             private set;
         }
 
+        /// <summary>
+        /// Initialise the class, binding it to the specified ProgID.
+        /// </summary>
+        /// <param name="ProgID"></param>
+        /// <exception cref="Exception"></exception>
         public DynamicAccess(string ProgID)
         {
             Type type = Type.GetTypeFromProgID(ProgID);
@@ -33,6 +41,14 @@ namespace ASCOM.Com.DriverAccess
             IsComObject = type.IsCOMObject;
         }
 
+        /// <summary>
+        /// Call a COM object method.
+        /// </summary>
+        /// <param name="binder">COM object member reference</param>
+        /// <param name="args">Method arguments</param>
+        /// <param name="result">Method result.</param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
         public override bool TryInvokeMember(InvokeMemberBinder binder, object[] args, out object result)
         {
             try
@@ -64,6 +80,13 @@ namespace ASCOM.Com.DriverAccess
             }
         }
 
+        /// <summary>
+        /// Set a COM object property value
+        /// </summary>
+        /// <param name="binder"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
         public override bool TrySetMember(SetMemberBinder binder, object value)
         {
             try
@@ -95,6 +118,13 @@ namespace ASCOM.Com.DriverAccess
             }
         }
 
+       /// <summary>
+       /// Get a CO object property value.
+       /// </summary>
+       /// <param name="binder"></param>
+       /// <param name="result"></param>
+       /// <returns></returns>
+       /// <exception cref="NotImplementedException"></exception>
         public override bool TryGetMember(GetMemberBinder binder, out object result)
         {
             try

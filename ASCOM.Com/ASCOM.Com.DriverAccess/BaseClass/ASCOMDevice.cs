@@ -7,6 +7,9 @@ using System.Linq;
 using System.Runtime.InteropServices;
 namespace ASCOM.Com.DriverAccess
 {
+    /// <summary>
+    /// Base class for COM DriverAccess devices
+    /// </summary>
     public abstract class ASCOMDevice : IAscomDevice, IDisposable
     {
         private readonly dynamic device;
@@ -17,6 +20,10 @@ namespace ASCOM.Com.DriverAccess
 
         private short? interfaceVersion = null;
 
+        /// <summary>
+        /// Create a new instance
+        /// </summary>
+        /// <param name="progid"></param>
         public ASCOMDevice(string progid)
         {
             device = new DynamicAccess(progid);
@@ -27,7 +34,7 @@ namespace ASCOM.Com.DriverAccess
         /// You can also read the property to check whether it is connected.
         /// </summary>
         /// <value><c>true</c> if connected; otherwise, <c>false</c>.</value>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         public bool Connected { get => Device.Connected; set => Device.Connected = value; }
 
         /// <summary>
@@ -37,7 +44,7 @@ namespace ASCOM.Com.DriverAccess
         /// </summary>
         /// <value>The description.</value>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         public string Description => Device.Description;
 
         /// <summary>
@@ -47,7 +54,7 @@ namespace ASCOM.Com.DriverAccess
         /// See the Description property for descriptive info on the telescope itself.
         /// To get the driver version in a parseable string, use the DriverVersion property.
         /// </summary>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         public string DriverInfo => Device.DriverInfo;
 
         /// <summary>
@@ -55,7 +62,7 @@ namespace ASCOM.Com.DriverAccess
         /// This must be in the form "n.n".
         /// Not to be confused with the InterfaceVersion property, which is the version of this specification supported by the driver (currently 2). 
         /// </summary>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         public string DriverVersion => Device.DriverVersion;
 
         /// <summary>
@@ -64,7 +71,7 @@ namespace ASCOM.Com.DriverAccess
         /// If the driver raises an error, it is a V1 driver. V1 did not specify this property. A driver may also return a value of 1. 
         /// In other words, a raised error or a return value of 1 indicates that the driver is a V1 driver. 
         /// </summary>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         public short InterfaceVersion
         {
             get
@@ -83,7 +90,7 @@ namespace ASCOM.Com.DriverAccess
         /// <summary>
         /// The short name of the driver, for display purposes
         /// </summary>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         public string Name => Device.Name;
 
         /// <summary>
@@ -91,7 +98,7 @@ namespace ASCOM.Com.DriverAccess
         /// </summary>
         /// <value>An ArrayList of strings (SafeArray collection) containing the names of supported actions.</value>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks><p style="color:red"><b>Must be implemented</b></p> This method must return an empty IList object if no actions are supported. Please do not throw a <see cref="NotImplementedException" />.
         /// <para>This is an aid to client authors and testers who would otherwise have to repeatedly poll the driver to determine its capabilities. 
         /// Returned action names may be in mixed case to enhance presentation but  will be recognised case insensitively in 
@@ -128,7 +135,7 @@ namespace ASCOM.Com.DriverAccess
         /// of driver capabilities, but the driver must still throw an ASCOM.ActionNotImplemented exception if it is asked to 
         /// perform an action that it does not support.</exception>
         /// <exception cref="NotConnectedException">If the driver is not connected.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <exception cref="ActionNotImplementedException">It is intended that the <see cref="SupportedActions"/> method will inform clients of driver capabilities, but the driver must still throw 
         /// an <see cref="ASCOM.ActionNotImplementedException"/> exception  if it is asked to perform an action that it does not support.</exception>
         /// <example>Suppose filter wheels start to appear with automatic wheel changers; new actions could 
@@ -166,7 +173,7 @@ namespace ASCOM.Com.DriverAccess
         /// </param>
         /// <exception cref="NotImplementedException">If the method is not implemented</exception>
         /// <exception cref="NotConnectedException">If the driver is not connected.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks><p style="color:red"><b>May throw a NotImplementedException.</b></p> </remarks>
         public void CommandBlind(string Command, bool Raw = false)
         {
@@ -187,7 +194,7 @@ namespace ASCOM.Com.DriverAccess
         /// </returns>
         /// <exception cref="NotImplementedException">If the method is not implemented</exception>
         /// <exception cref="NotConnectedException">If the driver is not connected.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks><p style="color:red"><b>May throw a NotImplementedException.</b></p> </remarks>
         public bool CommandBool(string Command, bool Raw = false)
         {
@@ -208,7 +215,7 @@ namespace ASCOM.Com.DriverAccess
         /// </returns>
         /// <exception cref="NotImplementedException">If the method is not implemented</exception>
         /// <exception cref="NotConnectedException">If the driver is not connected.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks><p style="color:red"><b>May throw a NotImplementedException.</b></p> </remarks>
         public string CommandString(string Command, bool Raw = false)
         {
@@ -260,6 +267,9 @@ namespace ASCOM.Com.DriverAccess
             }
         }
 
+        /// <summary>
+        /// Show the device set-up dialog
+        /// </summary>
         public void SetupDialog()
         {
             Device.SetupDialog();
