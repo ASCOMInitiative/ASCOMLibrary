@@ -137,7 +137,7 @@ namespace ASCOM.Alpaca.Clients
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
-        /// This is only available for telescope InterfaceVersions 2 and 3
+        /// This is only available for telescope Interface Versions 2 and later.
         /// </remarks>
         public AlignmentMode AlignmentMode
         {
@@ -170,7 +170,7 @@ namespace ASCOM.Alpaca.Clients
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
-        /// This is only available for telescope InterfaceVersions 2 and 3
+        /// This is only available for telescope Interface Versions 2 and later.
         /// </remarks>
         public double ApertureArea
         {
@@ -188,7 +188,7 @@ namespace ASCOM.Alpaca.Clients
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
-        /// This is only available for telescope InterfaceVersions 2 and 3
+        /// This is only available for telescope Interface Versions 2 and later.
         /// </remarks>
         public double ApertureDiameter
         {
@@ -207,7 +207,7 @@ namespace ASCOM.Alpaca.Clients
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
         /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
-        /// This is only available for telescope InterfaceVersions 2 and 3
+        /// This is only available for telescope Interface Versions 2 and later.
         /// </remarks>
         public bool AtHome
         {
@@ -230,7 +230,7 @@ namespace ASCOM.Alpaca.Clients
         /// movement (e.g. slewing, changing Tracking state) must not do so, and must raise an error.</para>
         /// <para>The telescope is taken out of parked state by calling the <see cref="Unpark" /> method. If the telescope cannot be parked, 
         /// then AtPark must always return False.</para>
-        /// <para>This is only available for telescope InterfaceVersions 2 and 3</para>
+        /// <para>This is only available for telescope Interface Versions 2 and later.</para>
         /// </remarks>
         public bool AtPark
         {
@@ -252,7 +252,7 @@ namespace ASCOM.Alpaca.Clients
         /// <remarks>
         /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
         /// See the description of <see cref="MoveAxis" /> for more information. This method must return an empty collection if <see cref="MoveAxis" /> is not supported. 
-        /// <para>This is only available for telescope InterfaceVersions 2 and 3</para>
+        /// <para>This is only available for telescope Interface Versions 2 and later.</para>
         /// <para>
         /// Please note that the rate objects must contain absolute non-negative values only. Applications determine the direction by applying a
         /// positive or negative sign to the rates provided. This obviates the need for the driver to to present a duplicate set of negative rates 
@@ -291,7 +291,7 @@ namespace ASCOM.Alpaca.Clients
         /// <remarks>
         /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
         /// May raise an error if the telescope is not connected. 
-        /// <para>This is only available for telescope InterfaceVersions 2 and 3</para>
+        /// <para>This is only available for telescope Interface Versions 2 and later.</para>
         /// </remarks>
         public bool CanFindHome
         {
@@ -312,7 +312,7 @@ namespace ASCOM.Alpaca.Clients
         /// <exception cref="InvalidValueException">If an invalid Axis is specified.</exception>
         /// <remarks>
         /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
-        /// This is only available for telescope InterfaceVersions 2 and 3
+        /// This is only available for telescope Interface Versions 2 and later.
         /// </remarks>
         public bool CanMoveAxis(TelescopeAxis Axis)
         {
@@ -332,7 +332,7 @@ namespace ASCOM.Alpaca.Clients
         /// <remarks>
         /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
         /// May raise an error if the telescope is not connected. 
-        /// <para>This is only available for telescope InterfaceVersions 2 and 3</para>
+        /// <para>This is only available for telescope Interface Versions 2 and later.</para>
         /// </remarks>
         public bool CanPark
         {
@@ -387,7 +387,7 @@ namespace ASCOM.Alpaca.Clients
         /// <remarks>
         /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
         /// May raise an error if the telescope is not connected. 
-        /// <para>This is only available for telescope InterfaceVersions 2 and 3</para>
+        /// <para>This is only available for telescope Interface Versions 2 and later.</para>
         /// </remarks>
         public bool CanSetGuideRates
         {
@@ -406,7 +406,7 @@ namespace ASCOM.Alpaca.Clients
         /// <remarks>
         /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
         /// May raise an error if the telescope is not connected. 
-        /// <para>This is only available for telescope InterfaceVersions 2 and 3</para>
+        /// <para>This is only available for telescope Interface Versions 2 and later.</para>
         /// </remarks>
         public bool CanSetPark
         {
@@ -426,7 +426,7 @@ namespace ASCOM.Alpaca.Clients
         /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
         /// This will always return False for non-German-equatorial mounts that do not have to be flipped. 
         /// May raise an error if the telescope is not connected. 
-        /// <para>This is only available for telescope InterfaceVersions 2 and 3</para>
+        /// <para>This is only available for telescope Interface Versions 2 and later.</para>
         /// </remarks>
         public bool CanSetPierSide
         {
@@ -597,7 +597,7 @@ namespace ASCOM.Alpaca.Clients
         /// <remarks>
         /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
         /// If this is true, then <see cref="CanPark" /> will also be true. May raise an error if the telescope is not connected.
-        /// <para>This is only available for telescope InterfaceVersions 2 and 3</para>
+        /// <para>This is only available for telescope Interface Versions 2 and later.</para>
         /// </remarks>
         public bool CanUnpark
         {
@@ -684,7 +684,7 @@ namespace ASCOM.Alpaca.Clients
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
-        /// This is only available for telescope InterfaceVersions 2 and 3
+        /// This is only available for telescope Interface Versions 2 and later.
         /// </remarks>
         public PointingState DestinationSideOfPier(double RightAscension, double Declination)
         {
@@ -705,7 +705,7 @@ namespace ASCOM.Alpaca.Clients
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
         /// If this property is True, the coordinates sent to, and retrieved from, the telescope are unrefracted. 
-        /// <para>This is only available for telescope InterfaceVersions 2 and 3</para>
+        /// <para>This is only available for telescope Interface Versions 2 and later.</para>
         /// <para>
         /// <b>NOTES:</b>
         /// <list type="bullet">
@@ -747,7 +747,7 @@ namespace ASCOM.Alpaca.Clients
         /// circles and most amateur scopes. More sophisticated telescopes use one of the standard reference systems established by professional astronomers.
         /// The most common is the Julian Epoch 2000 (J2000). These instruments apply corrections for precession,nutation, abberration, etc. to adjust the coordinates 
         /// from the standard system to the pointing direction for the time and location of "here and now". 
-        /// <para>This is only available for telescope InterfaceVersions 2 and 3</para>
+        /// <para>This is only available for telescope Interface Versions 2 and later.</para>
         /// </remarks>
         public EquatorialCoordinateType EquatorialSystem
         {
@@ -769,7 +769,7 @@ namespace ASCOM.Alpaca.Clients
         /// At this point the <see cref="AtHome" /> property will be True.
         /// Raises an error if there is a problem. 
         /// Raises an error if AtPark is true. 
-        /// <para>This is only available for telescope InterfaceVersions 2 and 3</para>
+        /// <para>This is only available for telescope Interface Versions 2 and later.</para>
         /// </remarks>
         public void FindHome()
         {
@@ -786,7 +786,7 @@ namespace ASCOM.Alpaca.Clients
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
         /// This property may be used by clients to calculate telescope field of view and plate scale when combined with detector pixel size and geometry. 
-        /// <para>This is only available for telescope InterfaceVersions 2 and 3</para>
+        /// <para>This is only available for telescope Interface Versions 2 and later.</para>
         /// </remarks>
         public double FocalLength
         {
@@ -806,7 +806,7 @@ namespace ASCOM.Alpaca.Clients
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks> 
         /// This is the rate for both hardware/relay guiding and the PulseGuide() method. 
-        /// <para>This is only available for telescope InterfaceVersions 2 and 3</para>
+        /// <para>This is only available for telescope Interface Versions 2 and later.</para>
         /// <para>
         /// <b>NOTES:</b>
         /// <list type="bullet">
@@ -842,7 +842,7 @@ namespace ASCOM.Alpaca.Clients
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
         /// This is the rate for both hardware/relay guiding and the PulseGuide() method. 
-        /// <para>This is only available for telescope InterfaceVersions 2 and 3</para>
+        /// <para>This is only available for telescope Interface Versions 2 and later.</para>
         /// <para>
         /// <b>NOTES:</b>
         /// <list type="bullet">
@@ -905,7 +905,7 @@ namespace ASCOM.Alpaca.Clients
         /// <para>
         /// Raises an error if <see cref="AtPark" /> is true. 
         /// This must be implemented for the if the <see cref="CanMoveAxis" /> property returns True for the given axis.</para>
-        /// <para>This is only available for telescope InterfaceVersions 2 and 3</para>
+        /// <para>This is only available for telescope Interface Versions 2 and later.</para>
         /// <para>
         /// <b>NOTES:</b>
         /// <list type="bullet">
@@ -1133,7 +1133,7 @@ namespace ASCOM.Alpaca.Clients
         /// </para>
         /// <para>It is allowed (though not required) that this property may be written to force the mount to flip. Doing so, however, may change 
         /// the right ascension of the telescope. During flipping, Telescope.Slewing must return True.</para>
-        /// <para>This property is only available in telescope InterfaceVersions 2 and 3.</para>
+        /// <para>This property is only available in telescope Interface Versions 2 and later.</para>
         /// <para><b>Pointing State and Side of Pier - Help for Driver Developers</b></para>
         /// <para>A further document, "Pointing State and Side of Pier", is installed in the Developer Documentation folder by the ASCOM Developer 
         /// Components installer. This further explains the pointing state concept and includes diagrams illustrating how it relates 
@@ -1190,7 +1190,7 @@ namespace ASCOM.Alpaca.Clients
         /// <remarks>
         /// Setting this property will raise an error if the given value is outside the range -300 through +10000 metres.
         /// Reading the property will raise an error if the value has never been set or is otherwise unavailable. 
-        /// <para>This is only available for telescope InterfaceVersions 2 and 3</para>
+        /// <para>This is only available for telescope Interface Versions 2 and later.</para>
         /// </remarks>
         public double SiteElevation
         {
@@ -1217,7 +1217,7 @@ namespace ASCOM.Alpaca.Clients
         /// <remarks>
         /// Setting this property will raise an error if the given value is outside the range -90 to +90 degrees.
         /// Reading the property will raise an error if the value has never been set or is otherwise unavailable. 
-        /// <para>This is only available for telescope InterfaceVersions 2 and 3</para>
+        /// <para>This is only available for telescope Interface Versions 2 and later.</para>
         /// </remarks>
         public double SiteLatitude
         {
@@ -1245,7 +1245,7 @@ namespace ASCOM.Alpaca.Clients
         /// Setting this property will raise an error if the given value is outside the range -180 to +180 degrees.
         /// Reading the property will raise an error if the value has never been set or is otherwise unavailable.
         /// Note that West is negative! 
-        /// <para>This is only available for telescope InterfaceVersions 2 and 3</para>
+        /// <para>This is only available for telescope Interface Versions 2 and later.</para>
         /// </remarks>
         public double SiteLongitude
         {
@@ -1297,7 +1297,7 @@ namespace ASCOM.Alpaca.Clients
         /// This Method must be implemented if <see cref="CanSlewAltAz" /> returns True. Raises an error if the slew fails. The slew may fail if the target coordinates are beyond limits imposed within the driver component.
         /// Such limits include mechanical constraints imposed by the mount or attached instruments, building or dome enclosure restrictions, etc.
         /// <para>The <see cref="TargetRightAscension" /> and <see cref="TargetDeclination" /> properties are not changed by this method. 
-        /// Raises an error if <see cref="AtPark" /> is True, or if <see cref="Tracking" /> is True. This is only available for telescope InterfaceVersions 2 and 3</para>
+        /// Raises an error if <see cref="AtPark" /> is True, or if <see cref="Tracking" /> is True. This is only available for telescope Interface Versions 2 and later.</para>
         /// </remarks>
         /// <param name="Azimuth">Target azimuth (degrees, North-referenced, positive East/clockwise).</param>
         /// <param name="Altitude">Target altitude (degrees, positive up)</param>
@@ -1328,7 +1328,7 @@ namespace ASCOM.Alpaca.Clients
         /// The slew may fail if the target coordinates are beyond limits imposed within the driver component. Such limits include mechanical constraints imposed by the mount or attached instruments, building or dome enclosure restrictions, etc. 
         /// The <see cref="TargetRightAscension" /> and <see cref="TargetDeclination" /> properties are not changed by this method. 
         /// <para>Raises an error if <see cref="AtPark" /> is True, or if <see cref="Tracking" /> is True.</para>
-        /// <para>This is only available for telescope InterfaceVersions 2 and 3</para>
+        /// <para>This is only available for telescope Interface Versions 2 and later.</para>
         /// </remarks>
         public void SlewToAltAzAsync(double Azimuth, double Altitude)
         {
@@ -1474,7 +1474,7 @@ namespace ASCOM.Alpaca.Clients
         /// <remarks>
         /// This must be implemented if the <see cref="CanSyncAltAz" /> property is True. Raises an error if matching fails. 
         /// <para>Raises an error if <see cref="AtPark" /> is True, or if <see cref="Tracking" /> is True.</para>
-        /// <para>This is only available for telescope InterfaceVersions 2 and 3</para>
+        /// <para>This is only available for telescope Interface Versions 2 and later.</para>
         /// </remarks>
         public void SyncToAltAz(double Azimuth, double Altitude)
         {
@@ -1626,7 +1626,7 @@ namespace ASCOM.Alpaca.Clients
         /// selected tracking rate. Mounts must start up with a known or default tracking rate, and this property must return that known/default tracking rate until changed.
         /// <para>If the mount's current tracking rate cannot be determined (for example, it is a write-only property of the mount's protocol), 
         /// it is permitted for the driver to force and report a default rate on connect. In this case, the preferred default is Sidereal rate.</para>
-        /// <para>This is only available for telescope InterfaceVersions 2 and 3</para>
+        /// <para>This is only available for telescope Interface Versions 2 and later.</para>
         /// </remarks>
         public DriveRate TrackingRate
         {
@@ -1651,7 +1651,7 @@ namespace ASCOM.Alpaca.Clients
         /// <remarks>
         /// <p style="color:red"><b>Must be implemented and must not throw a NotImplementedException.</b></p>
         /// At a minimum, this must contain an item for <see cref="DriveRate.Sidereal" />.
-        /// <para>This is only available for telescope InterfaceVersions 2 and 3</para>
+        /// <para>This is only available for telescope Interface Versions 2 and later.</para>
         /// </remarks>
         public ITrackingRates TrackingRates
         {

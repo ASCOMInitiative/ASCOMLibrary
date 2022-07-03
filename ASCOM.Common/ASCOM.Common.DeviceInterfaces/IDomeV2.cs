@@ -1,16 +1,12 @@
 ﻿namespace ASCOM.Common.DeviceInterfaces
 {
-
-    // -----------------------------------------------------------------------
-    // <summary>Defines the IDome Interface</summary>
-    // -----------------------------------------------------------------------
     /// <summary>
     /// Defines the IDome Interface
     /// </summary>
     /// <remarks>
     /// This interface is used to handle a dome, with or without a controllable shutter, and also a roll off roof.
-    /// <para>The dome implentation should be self explanatory.</para>
-    /// <para>A roll off roof is implemented using the shutter control as the roof.  The properties and methods shoud be implented as follows:
+    /// <para>The dome implantation should be self explanatory.</para>
+    /// <para>A roll off roof is implemented using the shutter control as the roof.  The properties and methods should be implemented as follows:
     /// <list>
     /// <item><description>OpenShutter and CloseShutter open and close the roof.</description></item>
     /// <item><description>CanFindHome, CanPark,CanSetAltitude, CanSetAzimuth, CanSetPark, CanSlave and CanSyncAzimuth all return false.</description></item>

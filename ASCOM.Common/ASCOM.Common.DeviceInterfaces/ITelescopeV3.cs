@@ -27,7 +27,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks>
-        /// This is only available for telescope InterfaceVersions 2 and 3
+        /// This is only available for telescope Interface Versions 2 and later.
         /// </remarks>
         AlignmentMode AlignmentMode { get; }
 
@@ -46,7 +46,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks>
-        /// This is only available for telescope InterfaceVersions 2 and 3
+        /// This is only available for telescope Interface Versions 2 and later.
         /// </remarks>
         double ApertureArea { get; }
 
@@ -57,7 +57,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks>
-        /// This is only available for telescope InterfaceVersions 2 and 3
+        /// This is only available for telescope Interface Versions 2 and later.
         /// </remarks>
         double ApertureDiameter { get; }
 
@@ -69,7 +69,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks>
         /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
-        /// This is only available for telescope InterfaceVersions 2 and 3
+        /// This is only available for telescope Interface Versions 2 and later.
         /// </remarks>
         bool AtHome { get; }
 
@@ -85,7 +85,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// movement (e.g. slewing, changing Tracking state) must not do so, and must raise an error.</para>
         /// <para>The telescope is taken out of parked state by calling the <see cref="Unpark" /> method. If the telescope cannot be parked, 
         /// then AtPark must always return False.</para>
-        /// <para>This is only available for telescope InterfaceVersions 2 and 3</para>
+        /// <para>This is only available for telescope Interface Versions 2 and later.</para>
         /// </remarks>
         bool AtPark { get; }
 
@@ -100,7 +100,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <remarks>
         /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
         /// See the description of <see cref="MoveAxis" /> for more information. This method must return an empty collection if <see cref="MoveAxis" /> is not supported. 
-        /// <para>This is only available for telescope InterfaceVersions 2 and 3</para>
+        /// <para>This is only available for telescope Interface Versions 2 and later.</para>
         /// <para>
         /// Please note that the rate objects must contain absolute non-negative values only. Applications determine the direction by applying a
         /// positive or negative sign to the rates provided. This obviates the need for the driver to to present a duplicate set of negative rates 
@@ -124,7 +124,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <remarks>
         /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
         /// May raise an error if the telescope is not connected. 
-        /// <para>This is only available for telescope InterfaceVersions 2 and 3</para>
+        /// <para>This is only available for telescope Interface Versions 2 and later.</para>
         /// </remarks>
         bool CanFindHome { get; }
 
@@ -138,7 +138,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="InvalidValueException">If an invalid Axis is specified.</exception>
         /// <remarks>
         /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
-        /// This is only available for telescope InterfaceVersions 2 and 3
+        /// This is only available for telescope Interface Versions 2 and later.
         /// </remarks>
         bool CanMoveAxis(TelescopeAxis Axis);
 
@@ -150,7 +150,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <remarks>
         /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
         /// May raise an error if the telescope is not connected. 
-        /// <para>This is only available for telescope InterfaceVersions 2 and 3</para>
+        /// <para>This is only available for telescope Interface Versions 2 and later.</para>
         /// </remarks>
         bool CanPark { get; }
 
@@ -184,7 +184,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <remarks>
         /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
         /// May raise an error if the telescope is not connected. 
-        /// <para>This is only available for telescope InterfaceVersions 2 and 3</para>
+        /// <para>This is only available for telescope Interface Versions 2 and later.</para>
         /// </remarks>
         bool CanSetGuideRates { get; }
 
@@ -196,7 +196,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <remarks>
         /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
         /// May raise an error if the telescope is not connected. 
-        /// <para>This is only available for telescope InterfaceVersions 2 and 3</para>
+        /// <para>This is only available for telescope Interface Versions 2 and later.</para>
         /// </remarks>
         bool CanSetPark { get; }
 
@@ -209,7 +209,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
         /// This will always return False for non-German-equatorial mounts that do not have to be flipped. 
         /// May raise an error if the telescope is not connected. 
-        /// <para>This is only available for telescope InterfaceVersions 2 and 3</para>
+        /// <para>This is only available for telescope Interface Versions 2 and later.</para>
         /// </remarks>
         bool CanSetPierSide { get; }
 
@@ -317,7 +317,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <remarks>
         /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
         /// If this is true, then <see cref="CanPark" /> will also be true. May raise an error if the telescope is not connected.
-        /// <para>This is only available for telescope InterfaceVersions 2 and 3</para>
+        /// <para>This is only available for telescope Interface Versions 2 and later.</para>
         /// </remarks>
         bool CanUnpark { get; }
 
@@ -378,7 +378,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks>
-        /// This is only available for telescope InterfaceVersions 2 and 3
+        /// This is only available for telescope Interface Versions 2 and later.
         /// </remarks>
         PointingState DestinationSideOfPier(double RightAscension, double Declination);
 
@@ -390,7 +390,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks>
         /// If this property is True, the coordinates sent to, and retrieved from, the telescope are unrefracted. 
-        /// <para>This is only available for telescope InterfaceVersions 2 and 3</para>
+        /// <para>This is only available for telescope Interface Versions 2 and later.</para>
         /// <para>
         /// <b>NOTES:</b>
         /// <list type="bullet">
@@ -420,7 +420,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// circles and most amateur scopes. More sophisticated telescopes use one of the standard reference systems established by professional astronomers.
         /// The most common is the Julian Epoch 2000 (J2000). These instruments apply corrections for precession,nutation, abberration, etc. to adjust the coordinates 
         /// from the standard system to the pointing direction for the time and location of "here and now". 
-        /// <para>This is only available for telescope InterfaceVersions 2 and 3</para>
+        /// <para>This is only available for telescope Interface Versions 2 and later.</para>
         /// </remarks>
         EquatorialCoordinateType EquatorialSystem { get; }
 
@@ -435,7 +435,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// At this point the <see cref="AtHome" /> property will be True.
         /// Raises an error if there is a problem. 
         /// Raises an error if AtPark is true. 
-        /// <para>This is only available for telescope InterfaceVersions 2 and 3</para>
+        /// <para>This is only available for telescope Interface Versions 2 and later.</para>
         /// </remarks>
         void FindHome();
 
@@ -447,7 +447,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks>
         /// This property may be used by clients to calculate telescope field of view and plate scale when combined with detector pixel size and geometry. 
-        /// <para>This is only available for telescope InterfaceVersions 2 and 3</para>
+        /// <para>This is only available for telescope Interface Versions 2 and later.</para>
         /// </remarks>
         double FocalLength { get; }
 
@@ -460,7 +460,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks> 
         /// This is the rate for both hardware/relay guiding and the PulseGuide() method. 
-        /// <para>This is only available for telescope InterfaceVersions 2 and 3</para>
+        /// <para>This is only available for telescope Interface Versions 2 and later.</para>
         /// <para>
         /// <b>NOTES:</b>
         /// <list type="bullet">
@@ -484,7 +484,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks>
         /// This is the rate for both hardware/relay guiding and the PulseGuide() method. 
-        /// <para>This is only available for telescope InterfaceVersions 2 and 3</para>
+        /// <para>This is only available for telescope Interface Versions 2 and later.</para>
         /// <para>
         /// <b>NOTES:</b>
         /// <list type="bullet">
@@ -528,7 +528,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <para>
         /// Raises an error if <see cref="AtPark" /> is true. 
         /// This must be implemented for the if the <see cref="CanMoveAxis" /> property returns True for the given axis.</para>
-        /// <para>This is only available for telescope InterfaceVersions 2 and 3</para>
+        /// <para>This is only available for telescope Interface Versions 2 and later.</para>
         /// <para>
         /// <b>NOTES:</b>
         /// <list type="bullet">
@@ -709,7 +709,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// </para>
         /// <para>It is allowed (though not required) that this property may be written to force the mount to flip. Doing so, however, may change 
         /// the right ascension of the telescope. During flipping, Telescope.Slewing must return True.</para>
-        /// <para>This property is only available in telescope InterfaceVersions 2 and 3.</para>
+        /// <para>This property is only available in telescope Interface Versions 2 and later.</para>
         /// <para><b>Pointing State and Side of Pier - Help for Driver Developers</b></para>
         /// <para>A further document, "Pointing State and Side of Pier", is installed in the Developer Documentation folder by the ASCOM Developer 
         /// Components installer. This further explains the pointing state concept and includes diagrams illustrating how it relates 
@@ -743,7 +743,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <remarks>
         /// Setting this property will raise an error if the given value is outside the range -300 through +10000 metres.
         /// Reading the property will raise an error if the value has never been set or is otherwise unavailable. 
-        /// <para>This is only available for telescope InterfaceVersions 2 and 3</para>
+        /// <para>This is only available for telescope Interface Versions 2 and later.</para>
         /// </remarks>
         double SiteElevation { get; set; }
 
@@ -758,7 +758,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <remarks>
         /// Setting this property will raise an error if the given value is outside the range -90 to +90 degrees.
         /// Reading the property will raise an error if the value has never been set or is otherwise unavailable. 
-        /// <para>This is only available for telescope InterfaceVersions 2 and 3</para>
+        /// <para>This is only available for telescope Interface Versions 2 and later.</para>
         /// </remarks>
         double SiteLatitude { get; set; }
 
@@ -774,7 +774,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// Setting this property will raise an error if the given value is outside the range -180 to +180 degrees.
         /// Reading the property will raise an error if the value has never been set or is otherwise unavailable.
         /// Note that West is negative! 
-        /// <para>This is only available for telescope InterfaceVersions 2 and 3</para>
+        /// <para>This is only available for telescope Interface Versions 2 and later.</para>
         /// </remarks>
         double SiteLongitude { get; set; }
 
@@ -817,7 +817,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// This Method must be implemented if <see cref="CanSlewAltAz" /> returns True. Raises an error if the slew fails. The slew may fail if the target coordinates are beyond limits imposed within the driver component.
         /// Such limits include mechanical constraints imposed by the mount or attached instruments, building or dome enclosure restrictions, etc.
         /// <para>The <see cref="TargetRightAscension" /> and <see cref="TargetDeclination" /> properties are not changed by this method. 
-        /// Raises an error if <see cref="AtPark" /> is True, or if <see cref="Tracking" /> is True. This is only available for telescope InterfaceVersions 2 and 3</para>
+        /// Raises an error if <see cref="AtPark" /> is True, or if <see cref="Tracking" /> is True. This is only available for telescope Interface Versions 2 and later.</para>
         /// </remarks>
         /// <param name="Azimuth">Target azimuth (degrees, North-referenced, positive East/clockwise).</param>
         /// <param name="Altitude">Target altitude (degrees, positive up)</param>
@@ -839,7 +839,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// The slew may fail if the target coordinates are beyond limits imposed within the driver component. Such limits include mechanical constraints imposed by the mount or attached instruments, building or dome enclosure restrictions, etc. 
         /// The <see cref="TargetRightAscension" /> and <see cref="TargetDeclination" /> properties are not changed by this method. 
         /// <para>Raises an error if <see cref="AtPark" /> is True, or if <see cref="Tracking" /> is True.</para>
-        /// <para>This is only available for telescope InterfaceVersions 2 and 3</para>
+        /// <para>This is only available for telescope Interface Versions 2 and later.</para>
         /// </remarks>
         void SlewToAltAzAsync(double Azimuth, double Altitude);
 
@@ -927,7 +927,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <remarks>
         /// This must be implemented if the <see cref="CanSyncAltAz" /> property is True. Raises an error if matching fails. 
         /// <para>Raises an error if <see cref="AtPark" /> is True, or if <see cref="Tracking" /> is True.</para>
-        /// <para>This is only available for telescope InterfaceVersions 2 and 3</para>
+        /// <para>This is only available for telescope Interface Versions 2 and later.</para>
         /// </remarks>
         void SyncToAltAz(double Azimuth, double Altitude);
 
@@ -1020,7 +1020,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// selected tracking rate. Mounts must start up with a known or default tracking rate, and this property must return that known/default tracking rate until changed.
         /// <para>If the mount's current tracking rate cannot be determined (for example, it is a write-only property of the mount's protocol), 
         /// it is permitted for the driver to force and report a default rate on connect. In this case, the preferred default is Sidereal rate.</para>
-        /// <para>This is only available for telescope InterfaceVersions 2 and 3</para>
+        /// <para>This is only available for telescope Interface Versions 2 and later.</para>
         /// </remarks>
         DriveRate TrackingRate { get; set; }
 
@@ -1033,7 +1033,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <remarks>
         /// <p style="color:red"><b>Must be implemented and must not throw a NotImplementedException.</b></p>
         /// At a minimum, this must contain an item for <see cref="DriveRate.Sidereal" />.
-        /// <para>This is only available for telescope InterfaceVersions 2 and 3</para>
+        /// <para>This is only available for telescope Interface Versions 2 and later.</para>
         /// </remarks>
         ITrackingRates TrackingRates { get; }
 
