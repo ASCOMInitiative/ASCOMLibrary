@@ -1015,7 +1015,7 @@ namespace ASCOM.Alpaca.Clients
         /// the sensor array, and does not change to reflect subframe settings.</para>
         /// <para>It is recommended that this function be called only after a <see cref="IAscomDevice.Connected">connection</see> is established with 
         /// the camera hardware, to ensure that the driver is aware of the capabilities of the specific camera model.</para>
-        /// <para>This is only available for the Camera Interface Version 2</para>
+        /// <para>This is only available for the Camera Interface Version 2 and later.</para>
         /// </remarks>
         public short BayerOffsetX
         {
@@ -1041,7 +1041,7 @@ namespace ASCOM.Alpaca.Clients
         /// the sensor array, and does not change to reflect subframe settings.</para>
         /// <para>It is recommended that this function be called only after a <see cref="IAscomDevice.Connected">connection</see> is established with 
         /// the camera hardware, to ensure that the driver is aware of the capabilities of the specific camera model.</para>
-        /// <para>This is only available for the Camera Interface Version 2</para>
+        /// <para>This is only available for the Camera Interface Version 2 and later.</para>
         /// </remarks>
         public short BayerOffsetY
         {
@@ -1061,7 +1061,7 @@ namespace ASCOM.Alpaca.Clients
         /// <remarks><p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
         /// It is recommended that this function be called only after a <see cref="IAscomDevice.Connected">connection</see> is established with the camera hardware, to 
         /// ensure that the driver is aware of the capabilities of the specific camera model.
-        /// <para>This is only available for the Camera Interface Version 2</para>
+        /// <para>This is only available for the Camera Interface Version 2 and later.</para>
         /// </remarks>
         public bool CanFastReadout
         {
@@ -1083,7 +1083,7 @@ namespace ASCOM.Alpaca.Clients
         /// It is recommended that this function be called only after
         /// a <see cref="IAscomDevice.Connected">connection</see> is established with the camera hardware, to ensure that the driver is aware of the capabilities of the 
         /// specific camera model.
-        /// <para>This is only available for the Camera Interface Version 2</para>
+        /// <para>This is only available for the Camera Interface Version 2 and later.</para>
         /// </remarks>
         public double ExposureMax
         {
@@ -1107,7 +1107,7 @@ namespace ASCOM.Alpaca.Clients
         /// for more information.</para>
         /// <para>It is recommended that this function be called only after a <see cref="IAscomDevice.Connected">connection</see> is established with the camera hardware, to ensure 
         /// that the driver is aware of the capabilities of the specific camera model.</para>
-        /// <para>This is only available for the Camera Interface Version 2</para>
+        /// <para>This is only available for the Camera Interface Version 2 and later.</para>
         /// </remarks>
         public double ExposureMin
         {
@@ -1133,7 +1133,7 @@ namespace ASCOM.Alpaca.Clients
         /// except that imposed by the resolution of the double value itself.</para>
         /// <para>It is recommended that this function be called only after a <see cref="IAscomDevice.Connected">connection</see> is established with the camera hardware, to ensure 
         /// that the driver is aware of the capabilities of the specific camera model.</para>
-        /// <para>This is only available for the Camera Interface Version 2</para>
+        /// <para>This is only available for the Camera Interface Version 2 and later.</para>
         /// </remarks>
         public double ExposureResolution
         {
@@ -1161,7 +1161,7 @@ namespace ASCOM.Alpaca.Clients
         /// the Fast/Normal switch is meaningless. In this case, it may be preferable to use the <see cref="ReadoutModes" /> function to control
         /// fast/normal switching.</para>
         /// <para>If this feature is not available, then <see cref="CanFastReadout" /> must return <c>false</c>.</para>
-        /// <para>This is only available for the Camera Interface Version 2</para>
+        /// <para>This is only available for the Camera Interface Version 2 and later.</para>
         /// </remarks>
         public bool FastReadout
         {
@@ -1330,7 +1330,7 @@ namespace ASCOM.Alpaca.Clients
         /// <para>Typically the application user interface will show a progress bar based on the <see cref="PercentCompleted" /> value.</para>
         /// <para>Please note that client applications are not required to use this value, and in some cases may display status
         /// information based on other information, such as time elapsed.</para>
-        /// <para>This is only available for the Camera Interface Version 2</para>
+        /// <para>This is only available for the Camera Interface Version 2 and later.</para>
         /// </remarks>
         public short PercentCompleted
         {
@@ -1357,7 +1357,7 @@ namespace ASCOM.Alpaca.Clients
         /// <para>It is strongly recommended, but not required, that driver authors make the 0-index mode suitable for standard imaging operations,
         /// since it is the default.</para>
         /// <para>Please see <see cref="ReadoutModes" /> for additional information.</para>
-        /// <para>This is only available for the Camera Interface Version 2</para>
+        /// <para>This is only available for the Camera Interface Version 2 and later.</para>
         /// </remarks>
         public short ReadoutMode
         {
@@ -1398,7 +1398,7 @@ namespace ASCOM.Alpaca.Clients
         /// may be better to simply list Fast as one of the <see cref="ReadoutModes" />.</para>
         /// <para>It is recommended that this function be called only after a <see cref="IAscomDevice.Connected">connection</see> is established with
         /// the camera hardware, to ensure that the driver is aware of the capabilities of the specific camera model.</para>
-        /// <para>This is only available for the Camera Interface Version 2</para>
+        /// <para>This is only available for the Camera Interface Version 2 and later.</para>
         /// </remarks>
         public IList<string> ReadoutModes
         {
@@ -1441,7 +1441,7 @@ namespace ASCOM.Alpaca.Clients
         /// in place for colour sensors.</para>
         /// <para>It is recommended that this function be called only after a <see cref="IAscomDevice.Connected">connection</see> is established with
         /// the camera hardware, to ensure that the driver is aware of the capabilities of the specific camera model.</para>
-        /// <para>This is only available for the Camera Interface Version 2</para>
+        /// <para>This is only available for the Camera Interface Version 2 and later.</para>
         /// </remarks>
         public string SensorName
         {
@@ -1460,7 +1460,7 @@ namespace ASCOM.Alpaca.Clients
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks><p style="color:red"><b>May throw a NotImplementedException if the sensor type is not known.</b></p>
-        /// <para>This is only available for the Camera Interface Version 2</para>
+        /// <para>This is only available for the Camera Interface Version 2 and later.</para>
         /// <para><see cref="SensorType" /> returns a value indicating whether the sensor is monochrome, or what Bayer matrix it encodes. If this value
         /// cannot be determined by interrogating the camera, the appropriate value may be set through the user set-up dialogue or the property may
         /// return a <see cref="NotImplementedException" />. Please note that for some cameras, changing <see cref="BinX" />,

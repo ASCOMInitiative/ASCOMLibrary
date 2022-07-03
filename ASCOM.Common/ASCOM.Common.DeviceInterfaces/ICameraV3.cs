@@ -542,7 +542,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// the sensor array, and does not change to reflect subframe settings.</para>
         /// <para>It is recommended that this function be called only after a <see cref="IAscomDevice.Connected">connection</see> is established with 
         /// the camera hardware, to ensure that the driver is aware of the capabilities of the specific camera model.</para>
-        /// <para>This is only available for the Camera Interface Version 2</para>
+        /// <para>This is only available for the Camera Interface Version 2 and later.</para>
         /// </remarks>
         short BayerOffsetX { get; }
 
@@ -561,7 +561,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// the sensor array, and does not change to reflect subframe settings.</para>
         /// <para>It is recommended that this function be called only after a <see cref="IAscomDevice.Connected">connection</see> is established with 
         /// the camera hardware, to ensure that the driver is aware of the capabilities of the specific camera model.</para>
-        /// <para>This is only available for the Camera Interface Version 2</para>
+        /// <para>This is only available for the Camera Interface Version 2 and later.</para>
         /// </remarks>
         short BayerOffsetY { get; }
 
@@ -574,7 +574,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <remarks><p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
         /// It is recommended that this function be called only after a <see cref="IAscomDevice.Connected">connection</see> is established with the camera hardware, to 
         /// ensure that the driver is aware of the capabilities of the specific camera model.
-        /// <para>This is only available for the Camera Interface Version 2</para>
+        /// <para>This is only available for the Camera Interface Version 2 and later.</para>
         /// </remarks>
         bool CanFastReadout { get; }
 
@@ -589,7 +589,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// It is recommended that this function be called only after
         /// a <see cref="IAscomDevice.Connected">connection</see> is established with the camera hardware, to ensure that the driver is aware of the capabilities of the 
         /// specific camera model.
-        /// <para>This is only available for the Camera Interface Version 2</para>
+        /// <para>This is only available for the Camera Interface Version 2 and later.</para>
         /// </remarks>
         double ExposureMax { get; }
 
@@ -606,7 +606,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// for more information.</para>
         /// <para>It is recommended that this function be called only after a <see cref="IAscomDevice.Connected">connection</see> is established with the camera hardware, to ensure 
         /// that the driver is aware of the capabilities of the specific camera model.</para>
-        /// <para>This is only available for the Camera Interface Version 2</para>
+        /// <para>This is only available for the Camera Interface Version 2 and later.</para>
         /// </remarks>
         double ExposureMin { get; }
 
@@ -625,7 +625,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// except that imposed by the resolution of the double value itself.</para>
         /// <para>It is recommended that this function be called only after a <see cref="IAscomDevice.Connected">connection</see> is established with the camera hardware, to ensure 
         /// that the driver is aware of the capabilities of the specific camera model.</para>
-        /// <para>This is only available for the Camera Interface Version 2</para>
+        /// <para>This is only available for the Camera Interface Version 2 and later.</para>
         /// </remarks>
         double ExposureResolution { get; }
 
@@ -646,7 +646,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// the Fast/Normal switch is meaningless. In this case, it may be preferable to use the <see cref="ReadoutModes" /> function to control
         /// fast/normal switching.</para>
         /// <para>If this feature is not available, then <see cref="CanFastReadout" /> must return <c>false</c>.</para>
-        /// <para>This is only available for the Camera Interface Version 2</para>
+        /// <para>This is only available for the Camera Interface Version 2 and later.</para>
         /// </remarks>
         bool FastReadout { get; set; }
 
@@ -767,7 +767,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <para>Typically the application user interface will show a progress bar based on the <see cref="PercentCompleted" /> value.</para>
         /// <para>Please note that client applications are not required to use this value, and in some cases may display status
         /// information based on other information, such as time elapsed.</para>
-        /// <para>This is only available for the Camera Interface Version 2</para>
+        /// <para>This is only available for the Camera Interface Version 2 and later.</para>
         /// </remarks>
         short PercentCompleted { get; }
 
@@ -787,7 +787,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <para>It is strongly recommended, but not required, that driver authors make the 0-index mode suitable for standard imaging operations,
         /// since it is the default.</para>
         /// <para>Please see <see cref="ReadoutModes" /> for additional information.</para>
-        /// <para>This is only available for the Camera Interface Version 2</para>
+        /// <para>This is only available for the Camera Interface Version 2 and later.</para>
         /// </remarks>
         short ReadoutMode { get; set; }
 
@@ -815,7 +815,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// may be better to simply list Fast as one of the <see cref="ReadoutModes" />.</para>
         /// <para>It is recommended that this function be called only after a <see cref="IAscomDevice.Connected">connection</see> is established with
         /// the camera hardware, to ensure that the driver is aware of the capabilities of the specific camera model.</para>
-        /// <para>This is only available for the Camera Interface Version 2</para>
+        /// <para>This is only available for the Camera Interface Version 2 and later.</para>
         /// </remarks>
         IList<string> ReadoutModes { get; }
 
@@ -848,7 +848,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// in place for colour sensors.</para>
         /// <para>It is recommended that this function be called only after a <see cref="IAscomDevice.Connected">connection</see> is established with
         /// the camera hardware, to ensure that the driver is aware of the capabilities of the specific camera model.</para>
-        /// <para>This is only available for the Camera Interface Version 2</para>
+        /// <para>This is only available for the Camera Interface Version 2 and later.</para>
         /// </remarks>
         string SensorName { get; }
 
@@ -860,7 +860,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks><p style="color:red"><b>May throw a NotImplementedException if the sensor type is not known.</b></p>
-        /// <para>This is only available for the Camera Interface Version 2</para>
+        /// <para>This is only available for the Camera Interface Version 2 and later.</para>
         /// <para><see cref="SensorType" /> returns a value indicating whether the sensor is monochrome, or what Bayer matrix it encodes. If this value
         /// cannot be determined by interrogating the camera, the appropriate value may be set through the user setup dialogue or the property may
         /// return a <see cref="NotImplementedException" />. Please note that for some cameras, changing <see cref="BinX" />,
