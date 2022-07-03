@@ -99,16 +99,11 @@ namespace ASCOM.Com.DriverAccess
         /// <value>An ArrayList of strings (SafeArray collection) containing the names of supported actions.</value>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
-        /// <remarks><p style="color:red"><b>Must be implemented</b></p> This method must return an empty IList object if no actions are supported. Please do not throw a <see cref="NotImplementedException" />.
-        /// <para>This is an aid to client authors and testers who would otherwise have to repeatedly poll the driver to determine its capabilities. 
-        /// Returned action names may be in mixed case to enhance presentation but  will be recognised case insensitively in 
-        /// the <see cref="Action">Action</see> method.</para>
-        /// <para>An array list collection has been selected as the vehicle for  action names in order to make it easier for clients to
-        /// determine whether a particular action is supported. This is easily done through the Contains method. Since the
-        /// collection is also enumerable it is easy to use constructs such as For Each ... to operate on members without having to be concerned 
-        /// about how many members are in the collection. </para>
-        /// <para>Collections have been used in the Telescope specification for a number of years and are known to be compatible with COM. Within .NET
-        /// the ArrayList is the correct implementation to use as the .NET Generic methods are not compatible with COM.</para>
+        /// <remarks><p style="color:red"><b>Must be implemented</b></p> This method must return an empty <see cref="IList{String}"/> object if no actions are supported. Please do not throw a <see cref="NotImplementedException" />.
+        /// <para>SupportedActions is a "discovery" mechanism that enables clients to know which Actions a device supports without having to exercise the Actions themselves. This mechanism is necessary because there could be
+        /// people / equipment safety issues if actions are called unexpectedly or out of a defined process sequence.
+        /// It follows from this that SupportedActions must return names that match the spelling of Action names exactly, without additional descriptive text. However, returned names may use any casing
+        /// because the <see cref="Action" /> ActionName parameter is case insensitive.</para>
         /// </remarks>
         public IList<string> SupportedActions
         {
