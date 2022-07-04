@@ -102,9 +102,9 @@ namespace ASCOM.Common.DeviceInterfaces
         /// </summary>
         /// <value><c>true</c> if connected; otherwise, <c>false</c>.</value>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        ///<remarks>
+        /// <remarks>
         /// <para>Drivers / Devices must not throw a <see cref="NotConnectedException"/> here, that exception is for use in other methods that require a connection in order to succeed.</para>
-        //</remarks>
+        /// </remarks>
         bool Connected { get; set; }
 
         /// <summary>

@@ -13,6 +13,9 @@ using System.Text;
 
 namespace ASCOM.Alpaca.Discovery
 {
+    /// <summary>
+    /// Enable Alpaca devices to respond to Alpaca discovery broadcasts by returning the Alpaca port number
+    /// </summary>
     public class Responder : IDisposable
     {
         private readonly int port;
@@ -27,18 +30,27 @@ namespace ASCOM.Alpaca.Discovery
             set;
         }
 
+        /// <summary>
+        /// Enable responses to non-local discovery broadcasts
+        /// </summary>
         public bool AllowRemoteAccess
         {
             get;
             set;
         } = true;
 
+        /// <summary>
+        /// Confine responses to localhost broadcasts only
+        /// </summary>
         public bool LocalRespondOnlyToLocalHost
         {
             get;
             set;
         } = true;
 
+        /// <summary>
+        /// Flag whether the object has been disposed
+        /// </summary>
         public bool Disposed
         {
             get;
@@ -49,6 +61,7 @@ namespace ASCOM.Alpaca.Discovery
         /// Create an Alpaca Responder reporting the AlpacaPort. This will use default Discovery Port (32227) and will respond on IPv4 and IPv6.
         /// </summary>
         /// <param name="AlpacaPort">The port the Alpaca REST API is available on</param>
+        /// <param name="Logger">ILogger object to which operational log messages will be sent.</param>
         public Responder(int AlpacaPort, ILogger Logger = null) : this(AlpacaPort, Constants.DiscoveryPort, true, true, Logger)
         {
 
@@ -60,6 +73,7 @@ namespace ASCOM.Alpaca.Discovery
         /// <param name="AlpacaPort">The port the Alpaca REST API is available on</param>
         /// <param name="IPv4">Respond on IPv4</param>
         /// <param name="IPv6">Respond on IPv6</param>
+        /// <param name="Logger">ILogger object to which operational log messages will be sent.</param>
         public Responder(int AlpacaPort, bool IPv4, bool IPv6, ILogger Logger = null) : this(AlpacaPort, Constants.DiscoveryPort, IPv4, IPv6, Logger)
         {
 
@@ -72,6 +86,7 @@ namespace ASCOM.Alpaca.Discovery
         /// <param name="DiscoveryPort">The Discovery Port</param>
         /// <param name="IPv4">Respond on IPv4</param>
         /// <param name="IPv6">Respond on IPv6</param>
+        /// <param name="Logger">ILogger object to which operational log messages will be sent.</param>
         public Responder(int AlpacaPort, int DiscoveryPort, bool IPv4, bool IPv6, ILogger Logger = null)
         {
             this.Logger = Logger;
@@ -283,6 +298,10 @@ namespace ASCOM.Alpaca.Discovery
             return false;
         }
 
+        /// <summary>
+        /// Used by the CLR when disposing of objects. Do not use this method, use <see cref="Dispose()"/> instead.
+        /// </summary>
+        /// <param name="disposing"></param>
         protected virtual void Dispose(bool disposing)
         {
             if (!Disposed)
@@ -307,6 +326,9 @@ namespace ASCOM.Alpaca.Discovery
             }
         }
 
+        /// <summary>
+        /// Dispose of the Responder object.
+        /// </summary>
         public void Dispose()
         {
             // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
