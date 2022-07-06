@@ -134,7 +134,6 @@ namespace ASCOM.Alpaca.Clients
         /// True if the focuser is currently moving to a new position. False if the focuser is stationary.
         /// </summary>
         /// <exception cref="NotConnectedException">If the driver is not connected.</exception>
-        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks><p style="color:red"><b>Must be implemented</b></p></remarks>
         public bool IsMoving

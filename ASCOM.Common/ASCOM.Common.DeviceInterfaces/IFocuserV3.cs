@@ -36,7 +36,6 @@
         /// True if the focuser is currently moving to a new position. False if the focuser is stationary.
         /// </summary>
         /// <exception cref="NotConnectedException">If the driver is not connected.</exception>
-        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks><p style="color:red"><b>Must be implemented</b></p></remarks>
         bool IsMoving { get; }

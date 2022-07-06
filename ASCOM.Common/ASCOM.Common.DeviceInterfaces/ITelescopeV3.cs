@@ -131,6 +131,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <summary>
         /// True if this telescope can move the requested axis
         /// </summary>
+        /// <exception cref="InvalidValueException">If an invalid Axis is specified.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <param name="Axis">Primary, Secondary or Tertiary axis</param>
@@ -336,6 +337,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// The declination tracking rate (arcseconds per SI second, default = 0.0)
         /// </summary>
         /// <exception cref="NotImplementedException">If DeclinationRate Write is not implemented.</exception>
+        /// <exception cref="InvalidValueException">If an invalid DeclinationRate is specified</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks>
@@ -565,6 +567,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <param name="Duration">The duration of the guide-rate motion (milliseconds)</param>
         /// <exception cref="NotImplementedException">If the method is not implemented and <see cref="CanPulseGuide" /> is False</exception>
         /// <exception cref="InvalidValueException">If an invalid direction or duration is given.</exception>
+        /// <exception cref="InvalidOperationException">If the pulse guide cannot be effected e.g. if the telescope is slewing or is not tracking.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks>
@@ -811,6 +814,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// </summary>
         /// <exception cref="NotImplementedException">If the method is not implemented and <see cref="CanSlewAltAz" /> is False</exception>
         /// <exception cref="InvalidValueException">If an invalid azimuth or elevation is given.</exception>
+		/// <exception cref="ParkedException">If the telescope is parked</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks>
@@ -830,6 +834,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <param name="Altitude">Altitude to which to move to</param>
         /// <exception cref="NotImplementedException">If the method is not implemented and <see cref="CanSlewAltAzAsync" /> is False</exception>
         /// <exception cref="InvalidValueException">If an invalid azimuth or elevation is given.</exception>
+        /// <exception cref="ParkedException">If the telescope is parked</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks>
@@ -850,6 +855,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <param name="RightAscension">The destination right ascension (hours). Copied to <see cref="TargetRightAscension" />.</param>
         /// <param name="Declination">The destination declination (degrees, positive North). Copied to <see cref="TargetDeclination" />.</param>
         /// <exception cref="NotImplementedException">If the method is not implemented and <see cref="CanSlew" /> is False</exception>
+		/// <exception cref="ParkedException">If the telescope is parked</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks>
@@ -868,6 +874,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <param name="RightAscension">The destination right ascension (hours). Copied to <see cref="TargetRightAscension" />.</param>
         /// <param name="Declination">The destination declination (degrees, positive North). Copied to <see cref="TargetDeclination" />.</param>
         /// <exception cref="NotImplementedException">If the method is not implemented and <see cref="CanSlewAsync" /> is False</exception>
+        /// <exception cref="ParkedException">If the telescope is parked</exception>
         /// <exception cref="InvalidValueException">If an invalid right ascension or declination is given.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
@@ -888,6 +895,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// Move the telescope to the <see cref="TargetRightAscension" /> and <see cref="TargetDeclination" /> coordinates, return when slew complete.
         /// </summary>
         /// <exception cref="NotImplementedException">If the method is not implemented and <see cref="CanSlew" /> is False</exception>
+        /// <exception cref="ParkedException">If the telescope is parked</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks>
@@ -904,6 +912,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// returns immediately after starting the slew.
         /// </summary>
         /// <exception cref="NotImplementedException">If the method is not implemented and <see cref="CanSlewAsync" /> is False</exception>
+        /// <exception cref="ParkedException">If the telescope is parked</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks>
@@ -922,6 +931,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <param name="Altitude">Target altitude (degrees, positive up)</param>
         /// <exception cref="NotImplementedException">If the method is not implemented and <see cref="CanSyncAltAz" /> is False</exception>
         /// <exception cref="InvalidValueException">If an invalid azimuth or altitude is given.</exception>
+        /// <exception cref="ParkedException">If the telescope is parked</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks>
@@ -938,6 +948,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <param name="Declination">The corrected declination (degrees, positive North). Copied to the <see cref="TargetDeclination" /> property.</param>
         /// <exception cref="NotImplementedException">If the method is not implemented and <see cref="CanSync" /> is False</exception>
         /// <exception cref="InvalidValueException">If an invalid right ascension or declination is given.</exception>
+        /// <exception cref="ParkedException">If the telescope is parked</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks>
@@ -952,6 +963,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// Matches the scope's equatorial coordinates to the given equatorial coordinates.
         /// </summary>
         /// <exception cref="NotImplementedException">If the method is not implemented and <see cref="CanSync" /> is False</exception>
+        /// <exception cref="ParkedException">If the telescope is parked</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks>

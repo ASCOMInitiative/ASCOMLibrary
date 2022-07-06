@@ -382,6 +382,7 @@ namespace ASCOM.Com.DriverAccess
         /// This may differ from the exposure time requested due to shutter latency, camera timing precision, etc.
         /// </remarks>
         /// <value>The last duration of the exposure.</value>
+        /// <exception cref="NotImplementedException">If the property is not implemented</exception>
         /// <exception cref="InvalidOperationException">If called before any exposure has been taken</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
@@ -392,6 +393,7 @@ namespace ASCOM.Com.DriverAccess
         /// The start time must be UTC.
         /// </summary>
         /// <value>The last exposure start time in UTC.</value>
+        /// <exception cref="NotImplementedException">If the property is not implemented</exception>
         /// <exception cref="InvalidOperationException">If called before any exposure has been taken</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
@@ -516,7 +518,6 @@ namespace ASCOM.Com.DriverAccess
         /// </summary>
         /// <returns>The Bayer colour matrix X offset, as defined in <see cref="SensorType" />.</returns>
         /// <exception cref="NotImplementedException">Monochrome cameras must throw this exception, colour cameras must not.</exception>
-        /// <exception cref="InvalidValueException">Must throw an exception if not valid.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks><p style="color:red"><b>Must be implemented by colour cameras, monochrome cameras must throw a NotImplementedException</b></p>
@@ -545,7 +546,6 @@ namespace ASCOM.Com.DriverAccess
         /// </summary>
         /// <returns>The Bayer colour matrix Y offset, as defined in <see cref="SensorType" />.</returns>
         /// <exception cref="NotImplementedException">Monochrome cameras must throw this exception, colour cameras must not.</exception>
-        /// <exception cref="InvalidValueException">Must throw an exception if not valid.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks><p style="color:red"><b>Must be implemented by colour cameras, monochrome cameras must throw a NotImplementedException</b></p>
@@ -596,7 +596,6 @@ namespace ASCOM.Com.DriverAccess
         /// Returns the maximum exposure time supported by <see cref="StartExposure">StartExposure</see>.
         /// </summary>
         /// <returns>The maximum exposure time, in seconds, that the camera supports</returns>
-        /// <exception cref="InvalidValueException">Must throw an exception if not valid.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks><p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
@@ -621,7 +620,6 @@ namespace ASCOM.Com.DriverAccess
         /// Minimum exposure time
         /// </summary>
         /// <returns>The minimum exposure time, in seconds, that the camera supports through <see cref="StartExposure">StartExposure</see></returns>
-        /// <exception cref="InvalidValueException">Must throw an exception if not valid.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks><p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
@@ -648,7 +646,6 @@ namespace ASCOM.Com.DriverAccess
         /// Exposure resolution
         /// </summary>
         /// <returns>The smallest increment in exposure time supported by <see cref="StartExposure">StartExposure</see>.</returns>
-        /// <exception cref="InvalidValueException">Must throw an exception if not valid.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks><p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
@@ -1710,6 +1707,7 @@ namespace ASCOM.Com.DriverAccess
         /// <b>OFFSETS INDEX MODE:</b> Index into the Offsets array for the current camera offset
         /// </returns>
         /// <exception cref="NotImplementedException">When neither <b>OFFSETS INDEX</b> mode nor <b>OFFSET VALUE</b> mode are supported.</exception>
+        /// <exception cref="InvalidValueException">When the supplied value is not valid.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks><p style="color:red"><b>This is an optional property and can throw a NotImplementedException if Offset is not supported by the camera.</b></p>

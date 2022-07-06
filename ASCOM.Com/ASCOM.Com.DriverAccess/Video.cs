@@ -63,6 +63,8 @@ namespace ASCOM.Com.DriverAccess
         /// <summary>
         /// Returns True if the driver supports custom device properties configuration via the <see cref="M:ASCOM.DeviceInterface.IVideo.ConfigureDeviceProperties"/> method.
         /// </summary>
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks><p style="color:red"><b>Must be implemented, must not throw an ASCOM.NotImplementedException.</b></p>
         /// </remarks>
         public bool CanConfigureDeviceProperties => base.Device.CanConfigureDeviceProperties;

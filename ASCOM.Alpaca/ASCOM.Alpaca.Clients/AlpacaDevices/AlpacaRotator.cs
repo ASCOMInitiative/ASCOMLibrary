@@ -123,7 +123,7 @@ namespace ASCOM.Alpaca.Clients
         /// True if the Rotator supports the <see cref="Reverse" /> method.
         /// </returns>
         /// <remarks>
-        /// <p style="color:red;margin-bottom:0"><b>Must be implemented.</b></p>
+        /// <p style="color:red;margin-bottom:0"><b>Must be implemented and must always return True for the IRotatorV3 interface or later.</b></p>
         /// </remarks>
         public bool CanReverse
         {

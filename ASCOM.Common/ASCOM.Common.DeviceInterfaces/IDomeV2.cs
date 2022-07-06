@@ -178,6 +178,7 @@
         /// Start operation to search for the dome home position.
         /// </summary>
         /// <exception cref="NotImplementedException">If the method is not implemented</exception>
+        /// <exception cref="SlavedException">Thrown if <see cref="Slaved"/> is <see langword="true"/>.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks>
@@ -233,6 +234,7 @@
         /// <summary>
         /// True if the dome is slaved to the telescope in its hardware, else False.
         /// </summary>
+        /// <exception cref="NotImplementedException">If Slaved can not be set.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks>
@@ -272,6 +274,7 @@
         /// </summary>
         /// <exception cref="NotImplementedException">If the method is not implemented</exception>
         /// <exception cref="InvalidValueException">If the supplied azimuth is outside the range 0..360 degrees.</exception>
+        /// <exception cref="SlavedException">Thrown if <see cref="Slaved"/> is <see langword="true"/>.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks>
