@@ -18,10 +18,10 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <None Include="..\ASCOMBoarderless.png">
-	    <Pack>True</Pack>
-	    <PackagePath></PackagePath>
-	  </None>
+		<None Include="..\ASCOMBoarderless.png">
+			<Pack>True</Pack>
+			<PackagePath></PackagePath>
+		</None>
 	</ItemGroup>
 
 	<ItemGroup>
@@ -30,12 +30,35 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\ASCOM.Common\ASCOM.Common.csproj" />
+		<ProjectReference Include="..\ASCOM.Common\ASCOM.Common.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <None Include="..\ASCOM.Common\README.md">
+		<None Include="..\ASCOM.Common\README.md">
+			<Pack>True</Pack>
+		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Update="SOFALibraries\linux-arm64\libsofa.so">
 	    <Pack>True</Pack>
+	    <PackagePath>runtimes/linux-arm64/native</PackagePath>
+	  </None>
+	  <None Update="SOFALibraries\linux-arm\libsofa.so">
+	    <Pack>True</Pack>
+	    <PackagePath>runtimes/linux-arm/native</PackagePath>
+	  </None>
+	  <None Update="SOFALibraries\linux-x64\libsofa.so">
+	    <Pack>True</Pack>
+	    <PackagePath>runtimes/linux-x64/native</PackagePath>
+	  </None>
+	  <None Update="SOFALibraries\win-x64\libsofa.dll">
+	    <Pack>True</Pack>
+	    <PackagePath>runtimes/win-x64/native</PackagePath>
+	  </None>
+	  <None Update="SOFALibraries\win-x86\libsofa.dll">
+	    <Pack>True</Pack>
+	    <PackagePath>runtimes/win-x86/native</PackagePath>
 	  </None>
 	</ItemGroup>
 
