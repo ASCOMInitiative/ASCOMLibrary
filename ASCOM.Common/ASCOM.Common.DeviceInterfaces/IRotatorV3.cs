@@ -19,6 +19,7 @@
         /// </returns>
         /// <remarks>
         /// <p style="color:red;margin-bottom:0"><b>Must be implemented and must always return True for the IRotatorV3 interface or later.</b></p>
+        /// </remarks>
         bool CanReverse { get; }
 
         /// <summary>
