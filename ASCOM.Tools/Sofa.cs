@@ -13,6 +13,8 @@ namespace ASCOM.Tools
     /// for each supported OS platform: linux64, arm32, win64 etc.</remarks>
     public class Sofa
     {
+        // Name of the SOFA run-time library on all OS platforms
+        const string SOFA_LIBRARY = "libsofa";
 
         // Release and revision constants
         private const int SOFA_RELEASE_NUMBER = 18;
@@ -65,9 +67,6 @@ namespace ASCOM.Tools
         #endregion
 
         #region Sofa entry points
-
-        // Name of the SOFA run-time library on all platforms
-        const string SOFA_LIBRARY = "libsofa";
 
         /// <summary>
         /// Convert degrees, arcminutes, arcseconds to radians.

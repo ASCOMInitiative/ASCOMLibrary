@@ -2,7 +2,7 @@
 using System.IO;
 using Xunit;
 
-namespace ASCOM.Alpaca.Tests.TraceLogger
+namespace ASCOM.Alpaca.Tests.TraceLoggerTests
 {
     public class TraceLoggerTests
     {
@@ -42,6 +42,8 @@ namespace ASCOM.Alpaca.Tests.TraceLogger
             string[] lines = File.ReadAllLines(logFile);
 
             Assert.Single<string>(lines);
+
+            Console.ReadLine();
 
         }
 
