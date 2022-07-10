@@ -177,11 +177,11 @@ namespace ASCOM.Tools
         }
 
         /// <summary>
-        ///         ''' Gets or sets the site latitude
-        ///         ''' </summary>
-        ///         ''' <value>Site latitude (-90.0 to +90.0)</value>
-        ///         ''' <returns>Latitude in degrees</returns>
-        ///         ''' <remarks>Positive numbers north of the equator, negative numbers south.</remarks>
+        /// Gets or sets the site latitude
+        /// </summary>
+        /// <value>Site latitude (-90.0 to +90.0)</value>
+        /// <returns>Latitude in degrees</returns>
+        /// <remarks>Positive numbers north of the equator, negative numbers south.</remarks>
         public double SiteLatitude
         {
             get
@@ -202,11 +202,11 @@ namespace ASCOM.Tools
         }
 
         /// <summary>
-        ///         ''' Gets or sets the site longitude
-        ///         ''' </summary>
-        ///         ''' <value>Site longitude (-180.0 to +180.0)</value>
-        ///         ''' <returns>Longitude in degrees</returns>
-        ///         ''' <remarks>Positive numbers east of the Greenwich meridian, negative numbers west of the Greenwich meridian.</remarks>
+        /// Gets or sets the site longitude
+        /// </summary>
+        /// <value>Site longitude (-180.0 to +180.0)</value>
+        /// <returns>Longitude in degrees</returns>
+        /// <remarks>Positive numbers east of the Greenwich meridian, negative numbers west of the Greenwich meridian.</remarks>
         public double SiteLongitude
         {
             get
@@ -227,11 +227,11 @@ namespace ASCOM.Tools
         }
 
         /// <summary>
-        ///         ''' Gets or sets the site elevation above sea level
-        ///         ''' </summary>
-        ///         ''' <value>Site elevation (-300.0 to +10,000.0 metres)</value>
-        ///         ''' <returns>Elevation in metres</returns>
-        ///         ''' <remarks></remarks>
+        /// Gets or sets the site elevation above sea level
+        /// </summary>
+        /// <value>Site elevation (-300.0 to +10,000.0 metres)</value>
+        /// <returns>Elevation in metres</returns>
+        /// <remarks></remarks>
         public double SiteElevation
         {
             get
@@ -252,11 +252,11 @@ namespace ASCOM.Tools
         }
 
         /// <summary>
-        ///         ''' Gets or sets the site ambient temperature (not reduced to sea level)
-        ///         ''' </summary>
-        ///         ''' <value>Site ambient temperature (-273.15 to 100.0 Celsius)</value>
-        ///         ''' <returns>Temperature in degrees Celsius</returns>
-        ///         ''' <remarks>This property represents the air temperature as measured by a thermometer at the observing site. It must not be a "reduced to sea level" value.</remarks>
+        /// Gets or sets the site ambient temperature (not reduced to sea level)
+        /// </summary>
+        /// <value>Site ambient temperature (-273.15 to 100.0 Celsius)</value>
+        /// <returns>Temperature in degrees Celsius</returns>
+        /// <remarks>This property represents the air temperature as measured by a thermometer at the observing site. It must not be a "reduced to sea level" value.</remarks>
         public double SiteTemperature
         {
             get
@@ -277,11 +277,11 @@ namespace ASCOM.Tools
         }
 
         /// <summary>
-        ///         ''' Gets or sets the site atmospheric pressure (not reduced to sea level)
-        ///         ''' </summary>
-        ///         ''' <value>Site atmospheric pressure (0.0 to 1200.0 hPa (mbar))</value>
-        ///         ''' <returns>Atmospheric pressure (hPa)</returns>
-        ///         ''' <remarks>This property represents the atmospheric pressure as measured by a barometer at the observing site. It must not be a "reduced to sea level" value.</remarks>
+        /// Gets or sets the site atmospheric pressure (not reduced to sea level)
+        /// </summary>
+        /// <value>Site atmospheric pressure (0.0 to 1200.0 hPa (mbar))</value>
+        /// <returns>Atmospheric pressure (hPa)</returns>
+        /// <remarks>This property represents the atmospheric pressure as measured by a barometer at the observing site. It must not be a "reduced to sea level" value.</remarks>
         public double SitePressure
         {
             get
@@ -302,11 +302,11 @@ namespace ASCOM.Tools
         }
 
         /// <summary>
-        ///         ''' Gets or sets a flag indicating whether refraction is calculated for topocentric co-ordinates
-        ///         ''' </summary>
-        ///         ''' <value>True / false flag indicating refraction is included / omitted from topocentric co-ordinates</value>
-        ///         ''' <returns>Boolean flag</returns>
-        ///         ''' <remarks></remarks>
+        /// Gets or sets a flag indicating whether refraction is calculated for topocentric co-ordinates
+        /// </summary>
+        /// <value>True / false flag indicating refraction is included / omitted from topocentric co-ordinates</value>
+        /// <returns>Boolean flag</returns>
+        /// <remarks></remarks>
         public bool Refraction
         {
             get
@@ -324,11 +324,11 @@ namespace ASCOM.Tools
         }
 
         /// <summary>
-        ///         ''' Causes the transform component to recalculate values derived from the last Set command
-        ///         ''' </summary>
-        ///         ''' <remarks>Use this when you have set J2000 co-ordinates and wish to ensure that the mount points to the same 
-        ///         ''' co-ordinates allowing for local effects that change with time such as refraction.
-        ///         ''' <para><b style="color:red">Note:</b> As of Platform 6 SP2 use of this method is not required, refresh is always performed automatically when required.</para></remarks>
+        /// Causes the transform component to recalculate values derived from the last Set command
+        /// </summary>
+        /// <remarks>Use this when you have set J2000 co-ordinates and wish to ensure that the mount points to the same 
+        /// co-ordinates allowing for local effects that change with time such as refraction.
+        /// <para><b style="color:red">Note:</b> As of Platform 6 SP2 use of this method is not required, refresh is always performed automatically when required.</para></remarks>
         public void Refresh()
         {
             LogMessage("Refresh", "");
@@ -336,11 +336,11 @@ namespace ASCOM.Tools
         }
 
         /// <summary>
-        ///         ''' Sets the known J2000 Right Ascension and Declination coordinates that are to be transformed
-        ///         ''' </summary>
-        ///         ''' <param name="ra">RA in J2000 co-ordinates (0.0 to 23.999 hours)</param>
-        ///         ''' <param name="dec">DEC in J2000 co-ordinates (-90.0 to +90.0)</param>
-        ///         ''' <remarks></remarks>
+        /// Sets the known J2000 Right Ascension and Declination coordinates that are to be transformed
+        /// </summary>
+        /// <param name="ra">RA in J2000 co-ordinates (0.0 to 23.999 hours)</param>
+        /// <param name="dec">DEC in J2000 co-ordinates (-90.0 to +90.0)</param>
+        /// <remarks></remarks>
         public void SetJ2000(double ra, double dec)
         {
             if ((ra != raJ2000Value) | (dec != decJ2000Value))
@@ -355,11 +355,11 @@ namespace ASCOM.Tools
         }
 
         /// <summary>
-        ///         ''' Sets the known apparent Right Ascension and Declination coordinates that are to be transformed
-        ///         ''' </summary>
-        ///         ''' <param name="ra">RA in apparent co-ordinates (0.0 to 23.999 hours)</param>
-        ///         ''' <param name="dec">DEC in apparent co-ordinates (-90.0 to +90.0)</param>
-        ///         ''' <remarks></remarks>
+        /// Sets the known apparent Right Ascension and Declination coordinates that are to be transformed
+        /// </summary>
+        /// <param name="ra">RA in apparent co-ordinates (0.0 to 23.999 hours)</param>
+        /// <param name="dec">DEC in apparent co-ordinates (-90.0 to +90.0)</param>
+        /// <remarks></remarks>
         public void SetApparent(double ra, double dec)
         {
             if ((ra != raApparentValue) | (dec != decApparentValue))
@@ -374,11 +374,11 @@ namespace ASCOM.Tools
         }
 
         /// <summary>
-        ///         ''' Sets the known topocentric Right Ascension and Declination coordinates that are to be transformed
-        ///         ''' </summary>
-        ///         ''' <param name="ra">RA in topocentric co-ordinates (0.0 to 23.999 hours)</param>
-        ///         ''' <param name="dec">DEC in topocentric co-ordinates (-90.0 to +90.0)</param>
-        ///         ''' <remarks></remarks>
+        /// Sets the known topocentric Right Ascension and Declination coordinates that are to be transformed
+        /// </summary>
+        /// <param name="ra">RA in topocentric co-ordinates (0.0 to 23.999 hours)</param>
+        /// <param name="dec">DEC in topocentric co-ordinates (-90.0 to +90.0)</param>
+        /// <remarks></remarks>
         public void SetTopocentric(double ra, double dec)
         {
             if ((ra != raTopoValue) | (dec != decTopoValue))
@@ -393,11 +393,11 @@ namespace ASCOM.Tools
         }
 
         /// <summary>
-        ///         ''' Sets the topocentric azimuth and elevation
-        ///         ''' </summary>
-        ///         ''' <param name="azimuth">Topocentric Azimuth in degrees (0.0 to 359.999999 - north zero, east 90 deg etc.)</param>
-        ///         ''' <param name="elevation">Topocentric elevation in degrees (-90.0 to +90.0)</param>
-        ///         ''' <remarks></remarks>
+        /// Sets the topocentric azimuth and elevation
+        /// </summary>
+        /// <param name="azimuth">Topocentric Azimuth in degrees (0.0 to 359.999999 - north zero, east 90 deg etc.)</param>
+        /// <param name="elevation">Topocentric elevation in degrees (-90.0 to +90.0)</param>
+        /// <remarks></remarks>
         public void SetAzimuthElevation(double azimuth, double elevation)
         {
             if ((azimuth < 0.0) | (azimuth >= 360.0))
@@ -414,16 +414,16 @@ namespace ASCOM.Tools
         }
 
         /// <summary>
-        ///         ''' Returns the Right Ascension in J2000 co-ordinates
-        ///         ''' </summary>
-        ///         ''' <value>J2000 Right Ascension</value>
-        ///         ''' <returns>Right Ascension in hours</returns>
-        ///         ''' <exception cref="TransformUninitialisedException">Exception thrown if an attempt is made
-        ///         ''' to read a value before any of the Set methods has been used or if the value can not be derived from the
-        ///         ''' information in the last Set method used. E.g. topocentric values will be unavailable if the last Set was
-        ///         ''' a SetApparent and one of the Site properties has not been set.</exception>
-        ///         ''' <remarks></remarks>
-        ///         '''
+        /// Returns the Right Ascension in J2000 co-ordinates
+        /// </summary>
+        /// <value>J2000 Right Ascension</value>
+        /// <returns>Right Ascension in hours</returns>
+        /// <exception cref="TransformUninitialisedException">Exception thrown if an attempt is made
+        /// to read a value before any of the Set methods has been used or if the value can not be derived from the
+        /// information in the last Set method used. E.g. topocentric values will be unavailable if the last Set was
+        /// a SetApparent and one of the Site properties has not been set.</exception>
+        /// <remarks></remarks>
+        ///
         public double RAJ2000
         {
             get
@@ -438,15 +438,15 @@ namespace ASCOM.Tools
         }
 
         /// <summary>
-        ///         ''' Returns the Declination in J2000 co-ordinates
-        ///         ''' </summary>
-        ///         ''' <value>J2000 Declination</value>
-        ///         ''' <returns>Declination in degrees</returns>
-        ///         ''' <exception cref="TransformUninitialisedException">Exception thrown if an attempt is made
-        ///         ''' to read a value before any of the Set methods has been used or if the value can not be derived from the
-        ///         ''' information in the last Set method used. E.g. topocentric values will be unavailable if the last Set was
-        ///         ''' a SetApparent and one of the Site properties has not been set.</exception>
-        ///         ''' <remarks></remarks>
+        /// Returns the Declination in J2000 co-ordinates
+        /// </summary>
+        /// <value>J2000 Declination</value>
+        /// <returns>Declination in degrees</returns>
+        /// <exception cref="TransformUninitialisedException">Exception thrown if an attempt is made
+        /// to read a value before any of the Set methods has been used or if the value can not be derived from the
+        /// information in the last Set method used. E.g. topocentric values will be unavailable if the last Set was
+        /// a SetApparent and one of the Site properties has not been set.</exception>
+        /// <remarks></remarks>
         public double DecJ2000
         {
             get
@@ -461,15 +461,15 @@ namespace ASCOM.Tools
         }
 
         /// <summary>
-        ///         ''' Returns the Right Ascension in topocentric co-ordinates
-        ///         ''' </summary>
-        ///         ''' <value>Topocentric Right Ascension</value>
-        ///         ''' <returns>Topocentric Right Ascension in hours</returns>
-        ///         ''' <exception cref="TransformUninitialisedException">Exception thrown if an attempt is made
-        ///         ''' to read a value before any of the Set methods has been used or if the value can not be derived from the
-        ///         ''' information in the last Set method used. E.g. topocentric values will be unavailable if the last Set was
-        ///         ''' a SetApparent and one of the Site properties has not been set.</exception>
-        ///         ''' <remarks></remarks>
+        /// Returns the Right Ascension in topocentric co-ordinates
+        /// </summary>
+        /// <value>Topocentric Right Ascension</value>
+        /// <returns>Topocentric Right Ascension in hours</returns>
+        /// <exception cref="TransformUninitialisedException">Exception thrown if an attempt is made
+        /// to read a value before any of the Set methods has been used or if the value can not be derived from the
+        /// information in the last Set method used. E.g. topocentric values will be unavailable if the last Set was
+        /// a SetApparent and one of the Site properties has not been set.</exception>
+        /// <remarks></remarks>
         public double RATopocentric
         {
             get
@@ -484,15 +484,15 @@ namespace ASCOM.Tools
         }
 
         /// <summary>
-        ///         ''' Returns the Declination in topocentric co-ordinates
-        ///         ''' </summary>
-        ///         ''' <value>Topocentric Declination</value>
-        ///         ''' <returns>Declination in degrees</returns>
-        ///         ''' <exception cref="TransformUninitialisedException">Exception thrown if an attempt is made
-        ///         ''' to read a value before any of the Set methods has been used or if the value can not be derived from the
-        ///         ''' information in the last Set method used. E.g. topocentric values will be unavailable if the last Set was
-        ///         ''' a SetApparent and one of the Site properties has not been set.</exception>
-        ///         ''' <remarks></remarks>
+        /// Returns the Declination in topocentric co-ordinates
+        /// </summary>
+        /// <value>Topocentric Declination</value>
+        /// <returns>Declination in degrees</returns>
+        /// <exception cref="TransformUninitialisedException">Exception thrown if an attempt is made
+        /// to read a value before any of the Set methods has been used or if the value can not be derived from the
+        /// information in the last Set method used. E.g. topocentric values will be unavailable if the last Set was
+        /// a SetApparent and one of the Site properties has not been set.</exception>
+        /// <remarks></remarks>
         public double DECTopocentric
         {
             get
@@ -507,15 +507,15 @@ namespace ASCOM.Tools
         }
 
         /// <summary>
-        ///         ''' Returns the Right Ascension in apparent co-ordinates
-        ///         ''' </summary>
-        ///         ''' <value>Apparent Right Ascension</value>
-        ///         ''' <returns>Right Ascension in hours</returns>
-        ///         ''' <exception cref="TransformUninitialisedException">Exception thrown if an attempt is made
-        ///         ''' to read a value before any of the Set methods has been used or if the value can not be derived from the
-        ///         ''' information in the last Set method used. E.g. topocentric values will be unavailable if the last Set was
-        ///         ''' a SetApparent and one of the Site properties has not been set.</exception>
-        ///         ''' <remarks></remarks>
+        /// Returns the Right Ascension in apparent co-ordinates
+        /// </summary>
+        /// <value>Apparent Right Ascension</value>
+        /// <returns>Right Ascension in hours</returns>
+        /// <exception cref="TransformUninitialisedException">Exception thrown if an attempt is made
+        /// to read a value before any of the Set methods has been used or if the value can not be derived from the
+        /// information in the last Set method used. E.g. topocentric values will be unavailable if the last Set was
+        /// a SetApparent and one of the Site properties has not been set.</exception>
+        /// <remarks></remarks>
         public double RAApparent
         {
             get
@@ -529,15 +529,15 @@ namespace ASCOM.Tools
         }
 
         /// <summary>
-        ///         ''' Returns the Declination in apparent co-ordinates
-        ///         ''' </summary>
-        ///         ''' <value>Apparent Declination</value>
-        ///         ''' <returns>Declination in degrees</returns>
-        ///         ''' <exception cref="TransformUninitialisedException">Exception thrown if an attempt is made
-        ///         ''' to read a value before any of the Set methods has been used or if the value can not be derived from the
-        ///         ''' information in the last Set method used. E.g. topocentric values will be unavailable if the last Set was
-        ///         ''' a SetApparent and one of the Site properties has not been set.</exception>
-        ///         ''' <remarks></remarks>
+        /// Returns the Declination in apparent co-ordinates
+        /// </summary>
+        /// <value>Apparent Declination</value>
+        /// <returns>Declination in degrees</returns>
+        /// <exception cref="TransformUninitialisedException">Exception thrown if an attempt is made
+        /// to read a value before any of the Set methods has been used or if the value can not be derived from the
+        /// information in the last Set method used. E.g. topocentric values will be unavailable if the last Set was
+        /// a SetApparent and one of the Site properties has not been set.</exception>
+        /// <remarks></remarks>
         public double DECApparent
         {
             get
@@ -551,15 +551,15 @@ namespace ASCOM.Tools
         }
 
         /// <summary>
-        ///         ''' Returns the topocentric azimuth angle of the target
-        ///         ''' </summary>
-        ///         ''' <value>Topocentric azimuth angle</value>
-        ///         ''' <returns>Azimuth angle in degrees</returns>
-        ///         ''' <exception cref="TransformUninitialisedException">Exception thrown if an attempt is made
-        ///         ''' to read a value before any of the Set methods has been used or if the value can not be derived from the
-        ///         ''' information in the last Set method used. E.g. topocentric values will be unavailable if the last Set was
-        ///         ''' a SetApparent and one of the Site properties has not been set.</exception>
-        ///         ''' <remarks></remarks>
+        /// Returns the topocentric azimuth angle of the target
+        /// </summary>
+        /// <value>Topocentric azimuth angle</value>
+        /// <returns>Azimuth angle in degrees</returns>
+        /// <exception cref="TransformUninitialisedException">Exception thrown if an attempt is made
+        /// to read a value before any of the Set methods has been used or if the value can not be derived from the
+        /// information in the last Set method used. E.g. topocentric values will be unavailable if the last Set was
+        /// a SetApparent and one of the Site properties has not been set.</exception>
+        /// <remarks></remarks>
         public double AzimuthTopocentric
         {
             get
@@ -575,15 +575,15 @@ namespace ASCOM.Tools
         }
 
         /// <summary>
-        ///         ''' Returns the topocentric elevation of the target
-        ///         ''' </summary>
-        ///         ''' <value>Topocentric elevation angle</value>
-        ///         ''' <returns>Elevation angle in degrees</returns>
-        ///         ''' <exception cref="TransformUninitialisedException">Exception thrown if an attempt is made
-        ///         ''' to read a value before any of the Set methods has been used or if the value can not be derived from the
-        ///         ''' information in the last Set method used. E.g. topocentric values will be unavailable if the last Set was
-        ///         ''' a SetApparent and one of the Site properties has not been set.</exception>
-        ///         ''' <remarks></remarks>
+        /// Returns the topocentric elevation of the target
+        /// </summary>
+        /// <value>Topocentric elevation angle</value>
+        /// <returns>Elevation angle in degrees</returns>
+        /// <exception cref="TransformUninitialisedException">Exception thrown if an attempt is made
+        /// to read a value before any of the Set methods has been used or if the value can not be derived from the
+        /// information in the last Set method used. E.g. topocentric values will be unavailable if the last Set was
+        /// a SetApparent and one of the Site properties has not been set.</exception>
+        /// <remarks></remarks>
         public double ElevationTopocentric
         {
             get
@@ -599,17 +599,17 @@ namespace ASCOM.Tools
         }
 
         /// <summary>
-        ///         ''' Sets or returns the Julian date on the Terrestrial Time timescale for which the transform will be made
-        ///         ''' </summary>
-        ///         ''' <value>Julian date (Terrestrial Time) of the transform (1757583.5 to 5373484.499999 = 00:00:00 1/1/0100 to 23:59:59.999 31/12/9999)</value>
-        ///         ''' <returns>Terrestrial Time Julian date that will be used by Transform or zero if the PC's current clock value will be used to calculate the Julian date.</returns>
-        ///         ''' <remarks>This method was introduced in May 2012. Previously, Transform used the current date-time of the PC when calculating transforms; 
-        ///         ''' this remains the default behaviour for backward compatibility.
-        ///         ''' The initial value of this parameter is 0.0, which is a special value that forces Transform to replicate original behaviour by determining the  
-        ///         ''' Julian date from the PC's current date and time. If this property is non zero, that particular terrestrial time Julian date is used in preference 
-        ///         ''' to the value derived from the PC's clock.
-        ///         ''' <para>Only one of JulianDateTT or JulianDateUTC needs to be set. Use whichever is more readily available, there is no
-        ///         ''' need to set both values. Transform will use the last set value of either JulianDateTT or JulianDateUTC as the basis for its calculations.</para></remarks>
+        /// Sets or returns the Julian date on the Terrestrial Time timescale for which the transform will be made
+        /// </summary>
+        /// <value>Julian date (Terrestrial Time) of the transform (1757583.5 to 5373484.499999 = 00:00:00 1/1/0100 to 23:59:59.999 31/12/9999)</value>
+        /// <returns>Terrestrial Time Julian date that will be used by Transform or zero if the PC's current clock value will be used to calculate the Julian date.</returns>
+        /// <remarks>This method was introduced in May 2012. Previously, Transform used the current date-time of the PC when calculating transforms; 
+        /// this remains the default behaviour for backward compatibility.
+        /// The initial value of this parameter is 0.0, which is a special value that forces Transform to replicate original behaviour by determining the  
+        /// Julian date from the PC's current date and time. If this property is non zero, that particular terrestrial time Julian date is used in preference 
+        /// to the value derived from the PC's clock.
+        /// <para>Only one of JulianDateTT or JulianDateUTC needs to be set. Use whichever is more readily available, there is no
+        /// need to set both values. Transform will use the last set value of either JulianDateTT or JulianDateUTC as the basis for its calculations.</para></remarks>
         public double JulianDateTT
         {
             get
@@ -647,12 +647,12 @@ namespace ASCOM.Tools
         }
 
         /// <summary>
-        ///         ''' Sets or returns the Julian date on the UTC timescale for which the transform will be made
-        ///         ''' </summary>
-        ///         ''' <value>Julian date (UTC) of the transform (1757583.5 to 5373484.499999 = 00:00:00 1/1/0100 to 23:59:59.999 31/12/9999)</value>
-        ///         ''' <returns>UTC Julian date that will be used by Transform or zero if the PC's current clock value will be used to calculate the Julian date.</returns>
-        ///         ''' <remarks>Introduced in April 2014 as an alternative to JulianDateTT. Only one of JulianDateTT or JulianDateUTC needs to be set. Use whichever is more readily available, there is no
-        ///         ''' need to set both values. Transform will use the last set value of either JulianDateTT or JulianDateUTC as the basis for its calculations.</remarks>
+        /// Sets or returns the Julian date on the UTC timescale for which the transform will be made
+        /// </summary>
+        /// <value>Julian date (UTC) of the transform (1757583.5 to 5373484.499999 = 00:00:00 1/1/0100 to 23:59:59.999 31/12/9999)</value>
+        /// <returns>UTC Julian date that will be used by Transform or zero if the PC's current clock value will be used to calculate the Julian date.</returns>
+        /// <remarks>Introduced in April 2014 as an alternative to JulianDateTT. Only one of JulianDateTT or JulianDateUTC needs to be set. Use whichever is more readily available, there is no
+        /// need to set both values. Transform will use the last set value of either JulianDateTT or JulianDateUTC as the basis for its calculations.</remarks>
         public double JulianDateUTC
         {
             get
