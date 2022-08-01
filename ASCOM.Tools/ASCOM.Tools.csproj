@@ -18,6 +18,10 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<None Remove="SOFALibraries\osx-arm64\libsofa_c.a" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<None Include="..\ASCOMBoarderless.png">
 			<Pack>True</Pack>
 			<PackagePath></PackagePath>
@@ -40,26 +44,30 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <None Update="SOFALibraries\linux-arm64\libsofa.so">
-	    <Pack>True</Pack>
-	    <PackagePath>runtimes/linux-arm64/native</PackagePath>
-	  </None>
-	  <None Update="SOFALibraries\linux-arm\libsofa.so">
-	    <Pack>True</Pack>
-	    <PackagePath>runtimes/linux-arm/native</PackagePath>
-	  </None>
-	  <None Update="SOFALibraries\linux-x64\libsofa.so">
-	    <Pack>True</Pack>
-	    <PackagePath>runtimes/linux-x64/native</PackagePath>
-	  </None>
-	  <None Update="SOFALibraries\win-x64\libsofa.dll">
-	    <Pack>True</Pack>
-	    <PackagePath>runtimes/win-x64/native</PackagePath>
-	  </None>
-	  <None Update="SOFALibraries\win-x86\libsofa.dll">
-	    <Pack>True</Pack>
-	    <PackagePath>runtimes/win-x86/native</PackagePath>
-	  </None>
+		<None Update="SOFALibraries\osx-x64\libsofa.dylib">
+			<Pack>True</Pack>
+			<PackagePath>runtimes/osx-x64/native</PackagePath>
+		</None>
+		<None Update="SOFALibraries\osx-arm64\libsofa.dylib">
+			<Pack>True</Pack>
+			<PackagePath>runtimes/osx-arm64/native</PackagePath>
+		</None>
+		<None Update="SOFALibraries\linux-arm\libsofa.so">
+			<Pack>True</Pack>
+			<PackagePath>runtimes/linux-arm/native</PackagePath>
+		</None>
+		<None Update="SOFALibraries\linux-x64\libsofa.so">
+			<Pack>True</Pack>
+			<PackagePath>runtimes/linux-x64/native</PackagePath>
+		</None>
+		<None Update="SOFALibraries\win-x64\libsofa.dll">
+			<Pack>True</Pack>
+			<PackagePath>runtimes/win-x64/native</PackagePath>
+		</None>
+		<None Update="SOFALibraries\win-x86\libsofa.dll">
+			<Pack>True</Pack>
+			<PackagePath>runtimes/win-x86/native</PackagePath>
+		</None>
 	</ItemGroup>
 
 </Project>

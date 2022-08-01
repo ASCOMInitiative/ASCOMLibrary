@@ -1,0 +1,2 @@
+﻿The libraries in these folders are compiled native libraries, which means they must be prepared on their targhet systems and copied here.
+The SOFA component uses the library name "libsofa", which means BBthat all native libraries must be named "libsofa" (MacOS), "libsofa.so" (Linux variants) or "libsofa.dll" (Windows).
