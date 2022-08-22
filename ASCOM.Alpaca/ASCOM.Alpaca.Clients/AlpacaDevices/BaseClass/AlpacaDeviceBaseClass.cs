@@ -1,4 +1,5 @@
-﻿using ASCOM.Common.Interfaces;
+﻿using ASCOM.Common.Alpaca;
+using ASCOM.Common.Interfaces;
 using RestSharp;
 using System;
 using System.Collections.Generic;
