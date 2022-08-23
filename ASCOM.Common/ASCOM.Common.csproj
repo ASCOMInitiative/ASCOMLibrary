@@ -5,11 +5,11 @@
 		<RootNamespace>ASCOM.Common</RootNamespace>
 		<SignAssembly>true</SignAssembly>
 		<AssemblyOriginatorKeyFile>..\ASCOM.snk</AssemblyOriginatorKeyFile>
-		<Copyright>ASCOM Initiative (c) 2019</Copyright>
+		<Copyright>ASCOM Initiative (c) 2022</Copyright>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
-		<Authors>ASCOM Initiative</Authors>
 		<Product>ASCOM NetStandard types</Product>
 		<Description>A .Net Standard library providing common Interfaces, enums and other types for ASCOM projects.</Description>
+		<Authors>Daniel Van Noord and Peter Simpson</Authors>
 		<PackageProjectUrl>https://ascom-standards.org/</PackageProjectUrl>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PackageId>ASCOM.Common.Components</PackageId>
@@ -22,35 +22,35 @@
 		<Optimize>False</Optimize>
 	</PropertyGroup>
 
-  <PropertyGroup>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <NoWarn>$(NoWarn);1591</NoWarn>
-  </PropertyGroup>
+	<PropertyGroup>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<NoWarn>$(NoWarn);1591</NoWarn>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Swashbuckle_Documentation|AnyCPU'">
-    <DefineConstants>TRACE;Swashbuckle_Documentation</DefineConstants>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Swashbuckle_Documentation|AnyCPU'">
+		<DefineConstants>TRACE;Swashbuckle_Documentation</DefineConstants>
+	</PropertyGroup>
 
 	<ItemGroup>
-	  <None Include="..\ASCOMBoarderless.png">
-	    <Pack>True</Pack>
-	    <PackagePath></PackagePath>
-	  </None>
+		<None Include="..\ASCOMBoarderless.png">
+			<Pack>True</Pack>
+			<PackagePath></PackagePath>
+		</None>
 	</ItemGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="ASCOM.Exceptions" Version="6.5.1" />
+		<PackageReference Include="ASCOM.Exceptions" Version="6.5.1" />
 	</ItemGroup>
 
-  <ItemGroup Condition=" '$(Configuration)' == 'Swashbuckle_Documentation' ">
-    <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.2.3" />
-  </ItemGroup>
+	<ItemGroup Condition=" '$(Configuration)' == 'Swashbuckle_Documentation' ">
+		<PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.2.3" />
+	</ItemGroup>
 
 	<ItemGroup>
-	  <None Update="README.md">
-	    <Pack>True</Pack>
-	    <PackagePath></PackagePath>
-	  </None>
+		<None Update="README.md">
+			<Pack>True</Pack>
+			<PackagePath></PackagePath>
+		</None>
 	</ItemGroup>
 
 </Project>

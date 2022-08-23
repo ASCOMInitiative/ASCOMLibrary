@@ -6,8 +6,9 @@
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<SignAssembly>true</SignAssembly>
 		<PackageId>ASCOM.Tools</PackageId>
-		<Authors>Daniel Van Noord, Peter Simpson</Authors>
-		<Description>A set of components to support development of ASCOM clients, drivers and Alapca devices.</Description>
+		<Authors>Daniel Van Noord and Peter Simpson</Authors>
+		<Description>A set of components to support development of ASCOM clients, drivers and Alpaca devices.</Description>
+		<Copyright>ASCOM Initiative (c) 2022</Copyright>
 		<PackageIcon>ASCOMBoarderless.png</PackageIcon>
 		<Configurations>Debug;Release;Swashbuckle_Documentation</Configurations>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>

@@ -1,43 +1,44 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>Library</OutputType>
-    <TargetFramework>netstandard2.0</TargetFramework>
-    <ApplicationIcon />
-    <StartupObject />
-    <RootNamespace>ASCOM.Alpaca</RootNamespace>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Authors>Daniel Van Noord, Peter Simpson</Authors>
-    <Company>ASCOM Initiative</Company>
-    <Description>A .Net Standard library providing ASCOM Alpaca device / driver specific components.</Description>
-    <PackageLicenseExpression></PackageLicenseExpression>
-    <PackageIcon>ASCOMBoarderless.png</PackageIcon>
-    <PackageReleaseNotes>Initial release supporting all device types except Video and targeting .NET Standard 2.0.</PackageReleaseNotes>
-    <PackageId>ASCOM.Alpaca.Device</PackageId>
-    <RepositoryUrl>https://www.myget.org/F/ascom-initiative/api/v3/index.json</RepositoryUrl>
-    <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>..\ASCOM.snk</AssemblyOriginatorKeyFile>
-    <DelaySign>false</DelaySign>
-    <Configurations>Debug;Release;Swashbuckle_Documentation</Configurations>
-    <GenerateDocumentationFile>True</GenerateDocumentationFile>
-  </PropertyGroup>
+	<PropertyGroup>
+		<OutputType>Library</OutputType>
+		<TargetFramework>netstandard2.0</TargetFramework>
+		<ApplicationIcon />
+		<StartupObject />
+		<RootNamespace>ASCOM.Alpaca</RootNamespace>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<Authors>Daniel Van Noord and Peter Simpson</Authors>
+		<Copyright>Copyright ASCOM Initiative 2022</Copyright>
+		<Company>ASCOM Initiative</Company>
+		<Description>A .Net Standard library providing ASCOM Alpaca device / driver specific components.</Description>
+		<PackageLicenseExpression></PackageLicenseExpression>
+		<PackageIcon>ASCOMBoarderless.png</PackageIcon>
+		<PackageReleaseNotes>Initial release supporting all device types except Video and targeting .NET Standard 2.0.</PackageReleaseNotes>
+		<PackageId>ASCOM.Alpaca.Device</PackageId>
+		<RepositoryUrl>https://www.myget.org/F/ascom-initiative/api/v3/index.json</RepositoryUrl>
+		<SignAssembly>true</SignAssembly>
+		<AssemblyOriginatorKeyFile>..\ASCOM.snk</AssemblyOriginatorKeyFile>
+		<DelaySign>false</DelaySign>
+		<Configurations>Debug;Release;Swashbuckle_Documentation</Configurations>
+		<GenerateDocumentationFile>True</GenerateDocumentationFile>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DebugType>embedded</DebugType>
-    <DebugSymbols>true</DebugSymbols>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<DebugType>embedded</DebugType>
+		<DebugSymbols>true</DebugSymbols>
 
-  </PropertyGroup>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <None Include="..\ASCOMBoarderless.png">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
-    </None>
-  </ItemGroup>
+	<ItemGroup>
+		<None Include="..\ASCOMBoarderless.png">
+			<Pack>True</Pack>
+			<PackagePath></PackagePath>
+		</None>
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\ASCOM.Common\ASCOM.Common.csproj" />
-    <ProjectReference Include="..\ASCOM.Tools\ASCOM.Tools.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\ASCOM.Common\ASCOM.Common.csproj" />
+		<ProjectReference Include="..\ASCOM.Tools\ASCOM.Tools.csproj" />
+	</ItemGroup>
 
 </Project>
