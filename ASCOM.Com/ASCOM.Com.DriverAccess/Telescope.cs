@@ -1477,7 +1477,7 @@ namespace ASCOM.Com.DriverAccess
         /// <summary>
         /// Add a new drive rate to the collection
         /// </summary>
-        /// <param name="rate"></param>
+        /// <param name="rate">TrackingRate to add to the TrackingRates collection</param>
         public void Add(DriveRate rate)
         {
             m_TrackingRates.Add((DriveRate)rate);
@@ -1529,7 +1529,7 @@ namespace ASCOM.Com.DriverAccess
         /// <summary>
         /// Move to the next member in the collection
         /// </summary>
-        /// <returns></returns>
+        /// <returns>True if the enumerator was successfully advanced to the next element; False if the enumerator has passed the end of the collection.</returns>
         public bool MoveNext()
         {
             if (++_pos >= m_TrackingRates.Count) return false;
@@ -1625,11 +1625,11 @@ namespace ASCOM.Com.DriverAccess
         #region IAxisRates Members
 
         /// <summary>
-        /// Number of items in the returned collection
+        /// Number of AxisRate items in the returned collection
         /// </summary>
         /// <value>Number of items</value>
         /// <returns>Integer number of items</returns>
-        /// <remarks></remarks>
+        /// <remarks>Number of AxisRate items in the AxisRates collection</remarks>
         public int Count
         {
             get { return m_Rates.Count; }
@@ -1638,7 +1638,7 @@ namespace ASCOM.Com.DriverAccess
         /// <summary>
         /// Returns an enumerator for the AxisRates collection.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>An enumerator for the AxisRates collection</returns>
         public IEnumerator GetEnumerator()
         {
             pos = -1; //Reset pointer as this is assumed by .NET enumeration
@@ -1701,7 +1701,7 @@ namespace ASCOM.Com.DriverAccess
         /// <summary>
         /// Move to the next member of the collection.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>True if the enumerator was successfully advanced to the next element; False if the enumerator has passed the end of the collection.</returns>
         public bool MoveNext()
         {
             if (++pos >= m_Rates.Count) return false;

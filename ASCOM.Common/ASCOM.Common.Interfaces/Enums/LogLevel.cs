@@ -1,5 +1,8 @@
 ﻿namespace ASCOM.Common.Interfaces
 {
+    /// <summary>
+    /// Supported log levels for ILogger devices
+    /// </summary>
     public enum LogLevel
     {
         /// <summary>

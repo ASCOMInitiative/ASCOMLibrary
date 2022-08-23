@@ -27,8 +27,8 @@ namespace ASCOM.Com.DriverAccess
         /// <summary>
         /// Initialise the class, binding it to the specified ProgID.
         /// </summary>
-        /// <param name="ProgID"></param>
-        /// <exception cref="Exception"></exception>
+        /// <param name="ProgID">ProgiId of the driver</param>
+        /// <exception cref="Exception">If unable to load the specified driver</exception>
         public DynamicAccess(string ProgID)
         {
             Type type = Type.GetTypeFromProgID(ProgID);
@@ -47,8 +47,8 @@ namespace ASCOM.Com.DriverAccess
         /// <param name="binder">COM object member reference</param>
         /// <param name="args">Method arguments</param>
         /// <param name="result">Method result.</param>
-        /// <returns></returns>
-        /// <exception cref="NotImplementedException"></exception>
+        /// <returns>True if the call is successful, otherwise false</returns>
+        /// <exception cref="NotImplementedException">If the specified member is not implemented by the driver</exception>
         public override bool TryInvokeMember(InvokeMemberBinder binder, object[] args, out object result)
         {
             try
@@ -83,10 +83,10 @@ namespace ASCOM.Com.DriverAccess
         /// <summary>
         /// Set a COM object property value
         /// </summary>
-        /// <param name="binder"></param>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        /// <exception cref="NotImplementedException"></exception>
+        /// <param name="binder">COM object member reference</param>
+        /// <param name="value">Method arguments</param>
+        /// <returns>True if the call is successful, otherwise false</returns>
+        /// <exception cref="NotImplementedException">If the specified member is not implemented by the driver</exception>
         public override bool TrySetMember(SetMemberBinder binder, object value)
         {
             try
@@ -118,13 +118,13 @@ namespace ASCOM.Com.DriverAccess
             }
         }
 
-       /// <summary>
-       /// Get a CO object property value.
-       /// </summary>
-       /// <param name="binder"></param>
-       /// <param name="result"></param>
-       /// <returns></returns>
-       /// <exception cref="NotImplementedException"></exception>
+        /// <summary>
+        /// Get a COM object property value.
+        /// </summary>
+        /// <param name="binder">COM object member reference</param>
+        /// <param name="result">Response from the member</param>
+        /// <returns>True if the call is successful, otherwise false</returns>
+        /// <exception cref="NotImplementedException">If the specified member is not implemented by the driver</exception>
         public override bool TryGetMember(GetMemberBinder binder, out object result)
         {
             try

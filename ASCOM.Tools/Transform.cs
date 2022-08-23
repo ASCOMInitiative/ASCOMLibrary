@@ -71,7 +71,7 @@ namespace ASCOM.Tools
         /// <summary>
         /// Create a Transform component with an ILogger logger
         /// </summary>
-        /// <param name="logger"></param>
+        /// <param name="logger">Optional ILogger instance that can be used to record operational messages from the Transform component</param>
         public Transform(ILogger logger)
         {
             // Populate an instance variable that we can use later as an ILogger object if the logger is not a TraceLogger

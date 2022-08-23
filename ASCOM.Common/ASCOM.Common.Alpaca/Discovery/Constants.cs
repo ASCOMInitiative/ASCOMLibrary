@@ -2,17 +2,34 @@
 
 namespace ASCOM.Alpaca.Discovery
 {
+    /// <summary>
+    /// Constants related to Alpaca discovery
+    /// </summary>
     public static class Constants
     {
+        /// <summary>
+        /// Discovery broadcast message from an Alpaca client
+        /// </summary>
         public const string DiscoveryMessage = "alpacadiscovery1";
-        public const int DiscoveryPort = 32227;
-        public const string ResponseString = "AlpacaPort";
-        public const string MulticastGroup = "ff12::00a1:9aca";
-        public const string TRYING_TO_CONTACT_MANAGEMENT_API_MESSAGE = "Trying to contact Alpaca management API";
-        public const string FAILED_TO_CONTACT_MANAGEMENT_API_MESSAGE = "The Alpaca management API did not respond within the discovery response time";
-        public const double MINIMUM_TIME_REMAINING_TO_UNDERTAKE_DNS_RESOLUTION = 0.1d; // Minimum discovery time (seconds) that must remain if a DNS IP to host name resolution is to be attempted
-        public const int NUMBER_OF_THREAD_MESSAGE_INDENT_SPACES = 2;
 
+        /// <summary>
+        /// Default Alpaca discovery broadcast / listening port
+        /// </summary>
+        public const int DiscoveryPort = 32227;
+
+        /// <summary>
+        /// JSON Property name for the Alpaca device's listening port
+        /// </summary>
+        public const string ResponseString = "AlpacaPort";
+
+        /// <summary>
+        /// IPv6 multicast group address for discovery over an IPv6 network
+        /// </summary>
+        public const string MulticastGroup = "ff12::00a1:9aca";
+
+        /// <summary>
+        /// Returns the ALpaca discovery message as a byte array
+        /// </summary>
         public static byte[] DiscoveryMessageArray
         {
             get

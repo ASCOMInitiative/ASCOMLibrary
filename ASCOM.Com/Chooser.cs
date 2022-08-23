@@ -98,7 +98,7 @@ namespace ASCOM.Com
         /// <summary>
         /// Select the ASCOM driver to use without pre-selecting one in the drop-down list 
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The ProgID of the selected device or an empty string if no device was chosen</returns>
         public string Choose()
         {
             CheckDisposed("Choose(\"\")");
@@ -106,10 +106,10 @@ namespace ASCOM.Com
         }
 
         /// <summary>
-        /// 
+        /// Display the Chooser dialogue enabling the user to select a driver
         /// </summary>
-        /// <param name="progId"></param>
-        /// <returns></returns>
+        /// <param name="progId">The driver ProgId to pre-select in the Chooser drop-down list</param>
+        /// <returns>The ProgID of the selected device or an empty string if no device was chosen</returns>
         public string Choose(string progId)
         {
             CheckDisposed($"Choose(\"{progId})\"");

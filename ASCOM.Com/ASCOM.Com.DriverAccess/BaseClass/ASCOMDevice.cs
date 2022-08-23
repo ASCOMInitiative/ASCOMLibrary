@@ -23,7 +23,7 @@ namespace ASCOM.Com.DriverAccess
         /// <summary>
         /// Create a new instance
         /// </summary>
-        /// <param name="progid"></param>
+        /// <param name="progid">ProgId of the driver</param>
         public ASCOMDevice(string progid)
         {
             device = new DynamicAccess(progid);

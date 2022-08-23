@@ -21,7 +21,7 @@ namespace ASCOM.Alpaca.Clients
         #region Initialiser
 
         /// <summary>
-        /// Create an Alpaca Focuser device with all values set to default
+        /// Create a client for an Alpaca Focuser device with all parameters set to default values
         /// </summary>
         public AlpacaFocuser()
         {
@@ -31,6 +31,18 @@ namespace ASCOM.Alpaca.Clients
         /// <summary>
         /// Create an Alpaca Focuser device specifying all parameters
         /// </summary>
+        /// <param name="serviceType">HTTP or HTTPS</param>
+        /// <param name="ipAddressString">Alpaca device's IP Address</param>
+        /// <param name="portNumber">Alpaca device's IP Port number</param>
+        /// <param name="remoteDeviceNumber">Alpaca device's device number e.g. Telescope/0</param>
+        /// <param name="establishConnectionTimeout">Timeout to initially connect to the Alpaca device</param>
+        /// <param name="standardDeviceResponseTimeout">Timeout for transactions that are expected to complete quickly e.g. retrieving CanXXX properties</param>
+        /// <param name="longDeviceResponseTimeout">Timeout for transactions that are expected to take a long time to complete e.g. Camera.ImageArray</param>
+        /// <param name="clientNumber">Arbitrary integer that represents this client. (Should be the same for all transactions from this client)</param>
+        /// <param name="userName">Basic authentication user name for the Alpaca device</param>
+        /// <param name="password">basic authentication password for the Alpaca device</param>
+        /// <param name="strictCasing">Tolerate or throw exceptions  if the Alpaca device does not use strictly correct casing for JSON object element names.</param>
+        /// <param name="TL">Optional ILogger instance that can be sued to record operational information during execution</param>
         public AlpacaFocuser(ServiceType serviceType,
                           string ipAddressString,
                           int portNumber,
@@ -41,8 +53,8 @@ namespace ASCOM.Alpaca.Clients
                           uint clientNumber,
                           string userName,
                           string password,
-                           bool strictCasing,
-                         ILogger TL
+                          bool strictCasing,
+                          ILogger TL
             )
         {
             this.serviceType = serviceType;
@@ -62,8 +74,14 @@ namespace ASCOM.Alpaca.Clients
         }
 
         /// <summary>
-        /// Create an Alpaca Focuser device specifying the minimum required parameters, others will have default values
+        /// Create a client for an Alpaca Focuser device specifying the minimum number of parameters
         /// </summary>
+        /// <param name="serviceType">HTTP or HTTPS</param>
+        /// <param name="ipAddressString">Alpaca device's IP Address</param>
+        /// <param name="portNumber">Alpaca device's IP Port number</param>
+        /// <param name="remoteDeviceNumber">Alpaca device's device number e.g. Telescope/0</param>
+        /// <param name="strictCasing">Tolerate or throw exceptions  if the Alpaca device does not use strictly correct casing for JSON object element names.</param>
+        /// <param name="logger">Optional ILogger instance that can be sued to record operational information during execution</param>
         public AlpacaFocuser(ServiceType serviceType,
                          string ipAddressString,
                          int portNumber,

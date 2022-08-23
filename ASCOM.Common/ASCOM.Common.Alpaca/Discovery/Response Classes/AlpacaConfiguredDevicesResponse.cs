@@ -3,6 +3,9 @@ using System.Collections.Generic;
 
 namespace ASCOM.Alpaca.Discovery
 {
+    /// <summary>
+    /// Class representing an Alpaca device's configured devices response
+    /// </summary>
     public class AlpacaConfiguredDevicesResponse : Response, IValueResponse<List<AlpacaConfiguredDevice>>
     {
         /// <summary>

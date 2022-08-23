@@ -1,4 +1,4 @@
-﻿namespace ASCOM.Alpaca
+﻿namespace ASCOM.Common.Alpaca
 {
     /// <summary>
     /// Describes available connection service types used by the Alpaca Clients and by the Discovery component

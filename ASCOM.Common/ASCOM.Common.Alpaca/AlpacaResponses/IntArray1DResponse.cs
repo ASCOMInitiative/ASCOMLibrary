@@ -1,5 +1,8 @@
 ﻿namespace ASCOM.Common.Alpaca
 {
+    /// <summary>
+    /// 1 dimension image array response
+    /// </summary>
     public class IntArray1DResponse : Response, IArrayResponse<int[]>
     {
         /// <summary>

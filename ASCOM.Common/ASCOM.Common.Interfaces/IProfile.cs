@@ -38,7 +38,7 @@ namespace ASCOM.Common.Interfaces
         /// <summary>
         /// This returns a string version of all of the profile settings. If this is passed into SetProfile it will recreate the profile in its current state. This can be used during upgrades to preserve settings or to back them up.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A raw profile string containing all profile settings</returns>
         string GetProfile();
 
         /// <summary>
@@ -50,7 +50,7 @@ namespace ASCOM.Common.Interfaces
         /// <summary>
         /// This sets and saves the profile from the rawProfile string returned from GetProfile. This can be used to restore after an install or from a backup.
         /// </summary>
-        /// <param name="rawProfile"></param>
+        /// <param name="rawProfile">A raw profile string returned by GetProfile</param>
         void SetProfile(string rawProfile);
 
         /// <summary>
@@ -62,7 +62,7 @@ namespace ASCOM.Common.Interfaces
         /// <summary>
         /// Returns all Keys used in the profile
         /// </summary>
-        /// <returns></returns>
+        /// <returns>List of all keys used in the Profile</returns>
         List<string> Keys();
 
         /// <summary>

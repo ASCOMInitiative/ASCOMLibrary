@@ -17,7 +17,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// </summary>
         /// <remarks>
         /// <p style="color:red"><b>Must be implemented, must not throw an ASCOM.NotImplementedException.</b></p>
-        /// <para>The application must inspect the Safearray parameters to determine the dimensions and also the <see cref="P:ASCOM.DeviceInterface.IVideo.SensorType"/> to determine if the image is <b>Color</b> or not.
+        /// <para>The application must inspect the Safearray parameters to determine the dimensions and also the <see cref="SensorType"/> to determine if the image is <b>Color</b> or not.
         /// The following table should be used to determine the format of the data:</para>
         /// <para>
         /// <table style="width:76.24%;" cellspacing="0" width="76.24%">
@@ -35,7 +35,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <tr>
         /// <td>1; int[]</td>
         /// <td><b>Monochrome</b>, <b>RGGB</b>, <b>CMYG</b>, <b>CMYG2</b>, <b>LRGB</b></td>
-        /// <td>A row major <b>ImageArray[Pixels]</b> of <see cref="P:ASCOM.DeviceInterface.IVideo.Height"/> * <see cref="P:ASCOM.DeviceInterface.IVideo.Width"/> elements. The pixels in the array start from the top left part of the image and are listed by horizontal lines/rows. The second pixel in the array is the second pixel from the first horizontal row
+        /// <td>A row major <b>ImageArray[Pixels]</b> of <see cref="IVideo.Height"/> * <see cref="IVideo.Width"/> elements. The pixels in the array start from the top left part of the image and are listed by horizontal lines/rows. The second pixel in the array is the second pixel from the first horizontal row
         /// and the second last pixel in the array is the second last pixels from the last horizontal row.</td>
         /// </tr>
         /// <tr>
@@ -46,12 +46,12 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <tr>
         /// <td>2; int[,]</td>
         /// <td><b>Monochrome</b>, <b>RGGB</b>, <b>CMYG</b>, <b>CMYG2</b>, <b>LRGB</b></td>
-        /// <td><b>ImageArray[Height, Width]</b> of <see cref="P:ASCOM.DeviceInterface.IVideo.Height"/> x <see cref="P:ASCOM.DeviceInterface.IVideo.Width"/> elements.</td>
+        /// <td><b>ImageArray[Height, Width]</b> of <see cref="IVideo.Height"/> x <see cref="IVideo.Width"/> elements.</td>
         /// </tr>
         /// <tr>
         /// <td>2; int[,]</td>
         /// <td><b>Color</b></td>
-        /// <td><b>ImageArray[NumPlane, Pixels]</b> of NumPlanes x <see cref="P:ASCOM.DeviceInterface.IVideo.Height"/> * <see cref="P:ASCOM.DeviceInterface.IVideo.Width"/> elements. The order of the three colour planes is
+        /// <td><b>ImageArray[NumPlane, Pixels]</b> of NumPlanes x <see cref="IVideo.Height"/> * <see cref="IVideo.Width"/> elements. The order of the three colour planes is
         /// first is <b>R</b>, the second is <b>G</b> and third is <b>B</b>. The pixels in second dimension of the array start from the top left part of the image and are listed by horizontal lines/rows. The second pixel is the second pixel from the first horizontal row
         /// and the second last pixel is the second last pixels from the last horizontal row.</td>
         /// </tr>
@@ -63,7 +63,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <tr>
         /// <td>3; int[,,]</td>
         /// <td><b>Color</b></td>
-        /// <td><b>ImageArray[NumPlane, Height, Width]</b> of NumPlanes x <see cref="P:ASCOM.DeviceInterface.IVideo.Height"/> x <see cref="P:ASCOM.DeviceInterface.IVideo.Width"/> elements. The order of the three colour planes is
+        /// <td><b>ImageArray[NumPlane, Height, Width]</b> of NumPlanes x <see cref="IVideo.Height"/> x <see cref="IVideo.Width"/> elements. The order of the three colour planes is
         /// first is <b>R</b>, the second is <b>G</b> and third is <b>B</b>.</td>
         /// </tr>
         /// </table>
@@ -91,7 +91,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// </example>
         /// <remarks>
         /// <p style="color:red"><b>Must be implemented, must not throw an ASCOM.NotImplementedException.</b></p> The application can use this bitmap to show a preview image of the last video frame when required. This is a convenience property for
-        /// those applications that don't require to process the <see cref="P:ASCOM.DeviceInterface.IVideoFrame.ImageArray"/> but usually only adjust the video camera settings and then record a video file.
+        /// those applications that don't require to process the <see cref="ImageArray"/> but usually only adjust the video camera settings and then record a video file.
         /// <para>When a 24bit RGB image can be returned by the driver this should be the preferred format. </para>
         /// </remarks>
         /// <value>The preview bitmap image.</value>

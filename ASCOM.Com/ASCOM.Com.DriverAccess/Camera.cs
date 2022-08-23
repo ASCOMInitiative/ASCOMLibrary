@@ -19,7 +19,7 @@ namespace ASCOM.Com.DriverAccess
         /// <summary>
         /// Initialise Camera device
         /// </summary>
-        /// <param name="ProgID"></param>
+        /// <param name="ProgID">ProgID of the driver</param>
         public Camera(string ProgID) : base(ProgID)
         {
 

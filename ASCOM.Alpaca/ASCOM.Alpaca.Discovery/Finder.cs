@@ -112,13 +112,16 @@ namespace ASCOM.Alpaca.Discovery
         #region Public Events and Methods
 
         /// <summary>
-        /// 
+        /// Event raised each time a discovery response is received from a device
         /// </summary>
         public event EventHandler<IPEndPoint> ResponseReceivedEvent;
 
         /// <summary>
-        /// Resends the search request for IPv4 and IPv6 on the default discovery port
+        /// Resends the search request on the default discovery port
         /// </summary>
+        /// <param name="IPv4">Set true to discover IPv4 Alpaca devices</param>
+        /// <param name="IPv6">Set true to discover IPv6 Alpaca devices</param>
+        /// <exception cref="ArgumentException"></exception>
         public void Search(bool IPv4 = true, bool IPv6 = true)
         {
             if (!IPv4 && !IPv6)
@@ -129,8 +132,12 @@ namespace ASCOM.Alpaca.Discovery
         }
 
         /// <summary>
-        /// Resends the search request for IPv4 and IPv6 on the specified discovery port
+        /// Resends the search request on the specified discovery port
         /// </summary>
+        /// <param name="discoveryPort">IP port number on which to send the IPv4 discovery broadcast / IPv6 multicast</param>
+        /// <param name="IPv4">Set true to discover IPv4 Alpaca devices</param>
+        /// <param name="IPv6">Set true to discover IPv6 Alpaca devices</param>
+        /// <exception cref="ArgumentException"></exception>
         public void Search(int discoveryPort, bool IPv4 = true, bool IPv6 = true)
         {
             if (!IPv4 && !IPv6)

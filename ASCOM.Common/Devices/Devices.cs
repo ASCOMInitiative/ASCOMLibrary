@@ -4,6 +4,9 @@ using System.Linq;
 
 namespace ASCOM.Common
 {
+    /// <summary>
+    /// Device type name functions
+    /// </summary>
     public static class Devices
     {
         /// <summary>

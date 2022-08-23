@@ -15,7 +15,8 @@ namespace ASCOM.Common.Helpers
         /// <param name="ex">The Exception to use</param>
         /// <param name="clientTransactionID">The Client Transaction ID</param>
         /// <param name="serverTransactionID">The Server Transaction ID</param>
-        /// <returns></returns>
+        /// <returns>A populated exception</returns>
+        /// <exception cref="ArgumentException">If the supplied exception is null</exception>
         public static T ExceptionResponseBuilder<T>(Exception ex, uint clientTransactionID = 0, uint serverTransactionID = 0) where T : Response, new()
         {
             if (ex == null)
@@ -34,7 +35,8 @@ namespace ASCOM.Common.Helpers
         /// <param name="message">The message to use</param>
         /// <param name="clientTransactionID">The Client Transaction ID</param>
         /// <param name="serverTransactionID">The Server Transaction ID</param>
-        /// <returns></returns>
+        /// <returns>A populated exception</returns>
+        /// <exception cref="ArgumentException">If the supplied exception is null</exception>
         public static T ExceptionResponseBuilder<T>(Exception ex, string message, uint clientTransactionID = 0, uint serverTransactionID = 0) where T : Response, new()
         {
             if (ex == null)
@@ -53,7 +55,8 @@ namespace ASCOM.Common.Helpers
         /// <param name="message">The message to use</param>
         /// <param name="clientTransactionID">The Client Transaction ID</param>
         /// <param name="serverTransactionID">The Server Transaction ID</param>
-        /// <returns></returns>
+        /// <returns>A populated exception</returns>
+        /// <exception cref="ArgumentException">If the supplied exception is null</exception>
         public static T ExceptionResponseBuilder<T>(AlpacaErrors code, string message, uint clientTransactionID = 0, uint serverTransactionID = 0) where T : Response, new()
         {
             return new T()
@@ -64,7 +67,5 @@ namespace ASCOM.Common.Helpers
                 ErrorMessage = message
             };
         }
-
-
     }
 }
