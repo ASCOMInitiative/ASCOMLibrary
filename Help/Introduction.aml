@@ -4,44 +4,93 @@
     <!--
     <summary>
       <para>Optional summary abstract</para>
+      
+                  <list class="bullet">
+              <listItem>Added U/I support for displaying accumulated move amount for relative and absolute focusers.</listItem>
+
+      
     </summary>
     -->
     <introduction>
-      <!-- Uncomment this to generate an outline of the section and sub-section
-           titles.  Specify a numeric value as the inner text to limit it to
-           a specific number of sub-topics when creating the outline.  Specify
-           zero (0) to limit it to top-level sections only.  -->
-      <!-- <autoOutline /> -->
-      <para>Required introduction</para>
+      <para>The ASCOM Library provides a broad set of enabling components that make it easier to develop ASCOM clients, Alpaca devices and COM drivers . 
+      This cross platform library targets .NET Standard 2.0 for broadest application across .NET frameworks and can be used in projects that target Linux, Raspberry Pi, MacOS and Windows.
+      </para> 
+      <para>The library's capabilities, supported .NET frameworks and supported operating systems are described below.</para>
     </introduction>
-    <!-- Add one or more top-level section elements.  These are collapsible.
-         If using <autoOutline />, add an address attribute to identify it
-         and specify a title so that it can be jumped to with a hyperlink. -->
-    <section address="Section1">
-      <title>Optional section title</title>
+
+    <section address="Capabilities">
+      <title>Capabilities</title>
       <content>
-        <!-- Uncomment this to create a sub-section outline
-        <autoOutline /> -->
-        <para>Add one or more sections with content</para>
+        <para>The ASCOM Library provides the following key components:</para>
+        <list class="bullet">
+	        <listItem>Alpaca Client - Toolkit that encapsulates an Alpaca device and presents it as a stronlgy typed class (conceptually similar to the Platform's DriverAccess component, but for an Alpaca device rather than a COM driver)</listItem>
+	        <listItem>Alpaca Client - Discover available Alapca devices on the network</listItem>
+	        <listItem>COM Client - Toolkit that encapsulates a Windows COM device and presents it as a stronlgy typed class (conceptually similar to the Platform's DriverAccess component - Windows only)</listItem>
+	        <listItem>Cross Platform Utilities
+	             <list class="bullet">
+	        		<listItem>New ILogger logging framework including a built in console logger</listItem>
+			        <listItem>SOFA component, funcitonally equivalent to the Platform's SOFA component</listItem>
+			        <listItem>Transform component, funcitonally equivalent to the Platform's Transform component</listItem>
+			        <listItem>TraceLogger based on the Platform's TraceLogger component.</listItem>
+			        <listItem>ILogger console logger.</listItem>
+		 	        <listItem>Utilities - A range of utility functions that have no counterparts in .NET APIs.</listItem>
+       			</list>
+			</listItem>
+	        <listItem>COM Utilities - Windows only
+		        <list class="bullet">
+			        <listItem>Profile - retrieve and set values in the Platform's ASCOM Profile</listItem>
+			        <listItem>Chooser - Select which driver to use. (Currently this provides a thin wrapper round the Platform's COM Chooser, in future it will be refactored to be independent of the Platform.)</listItem>
+			        <listItem>Whole driver profile load and save as an XML document</listItem>
+		        </list>
+	        </listItem>
+	        <listItem>Developer Support - Of use if you are rolling your own communications rather than using the Client Toolkits.
+	            <list class="bullet">
+	        		<listItem>Alpaca Devices - Detect and respond to client discovery requests.</listItem>
+			        <listItem>Definitions of every ASCOM interface</listItem>
+		 	        <listItem>Alpaca Data Classes - A range of classes representing every Alpaca message transaction defined in the Alpcaa API that wil be of use to both application developers and Alpaca device developers.</listItem>
+			        <listItem>Constants used by Alpaca clients applications and devices.</listItem>
+			        <listItem>A range of enums describing Alpaca error numbers, image array transfer types etc.</listItem>
+			        <listItem>Richly funtional APIs for discovering Alpaca devices on the network.</listItem>
+       			</list>
+			</listItem>
+        </list>
       </content>
-      <!-- If a section contains a sections element, its content creates
-           sub-sections.  These are not collapsible.
-      <sections>
-          <section address="SubSection1">
-              <title>Sub-section 1</title>
-              <content>
-                  <para>Sub-section content.</para>
-              </content>
-          </section>
-          <section address="SubSection2">
-              <title>Sub-section 2</title>
-              <content>
-                  <para>Sub-section content.</para>
-              </content>
-          </section>
-      </sections> -->
     </section>
+
+    <section address="Frameworks">
+      <title>Supported Frameworks</title>
+      <content>
+        <para>The ASCOM Library supports the following .NET framework versions:</para>
+		<list class="bullet">
+	       	<listItem>.NET / .NET Core - 2.0, 2.1, 2.2, 3.0, 3.1, 5.0, 6.0</listItem>
+	       	<listItem>.NET Framework -  4.6.2, 4.7, 4.7.1, 4.7.2, 4.8, 4.8.1</listItem>
+		</list>
+      </content>
+    </section>
+
+    <section address="OperatingSystems">
+      <title>Packaging and Supported Operating Systems</title>
+      <content>
+        <para>The ASCOM Library is available as a NuGet package (search for ASCOM) and is supported on these operating systems:</para>
+		<list class="bullet">
+	       	<listItem>Linux 64bit</listItem>
+	       	<listItem>MacOS - Intel Silicon</listItem>
+	       	<listItem>MacOS - Apple Silicon</listItem>
+	       	<listItem>Raspberry Pi - Arm32bit</listItem>
+	       	<listItem>Raspberry Pi - Arm64bit</listItem>
+	       	<listItem>Windows 7, 8, 10 and 11 - 32bit</listItem>
+	       	<listItem>Windows 7, 8, 10 and 11 - 64bit</listItem>
+		</list>
+      </content>
+    </section>
+
     <relatedTopics>
+      <externalLink>
+          <linkText>ASCOM Library on GitHub</linkText>
+          <linkAlternateText>Go to ASCOM Library on GitHub</linkAlternateText>
+          <linkUri>https://github.com/ASCOMInitiative/ASCOMLibrary</linkUri>
+      </externalLink>
+      
       <!-- One or more of the following:
            - A local link
            - An external link
@@ -62,12 +111,6 @@
 
       <link xlink:href="00e97994-e9e6-46e0-b420-5be86b2f8270" />
       <link xlink:href="00e97994-e9e6-46e0-b420-5be86b2f8278">Some other topic</link>
-
-      <externalLink>
-          <linkText>SHFB on GitHub</linkText>
-          <linkAlternateText>Go to GitHub</linkAlternateText>
-          <linkUri>https://GitHub.com/EWSoftware/SHFB</linkUri>
-      </externalLink>
 
       <codeEntityReference>T:TestDoc.TestClass</codeEntityReference>
       <codeEntityReference>P:TestDoc.TestClass.SomeProperty</codeEntityReference>

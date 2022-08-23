@@ -26,7 +26,7 @@
       <DocumentationSource sourceFile="C:\Program Files (x86)\ASCOM\Platform 6 Developer Components\Components\Platform6\ASCOM.Exceptions.xml" />
       <DocumentationSource sourceFile="C:\Program Files (x86)\ASCOM\Platform 6 Developer Components\Components\Platform6\ASCOM.Exceptions.dll" />
     </DocumentationSources>
-    <HelpFileFormat>HtmlHelp1</HelpFileFormat>
+    <HelpFileFormat>HtmlHelp1, Website</HelpFileFormat>
     <SyntaxFilters>C#, Visual Basic</SyntaxFilters>
     <PresentationStyle>VS2013</PresentationStyle>
     <CleanIntermediates>True</CleanIntermediates>
@@ -49,13 +49,14 @@
     <SdkLinkTarget>Blank</SdkLinkTarget>
     <NamespaceSummaries>
       <NamespaceSummaryItem name="(global)" isDocumented="False">ASCOM Standard Root Global</NamespaceSummaryItem>
-<NamespaceSummaryItem name="ASCOMStandard" isDocumented="True">ASCOM Standard root name space summary</NamespaceSummaryItem>
-<NamespaceSummaryItem name="ASCOM.Alpaca" isDocumented="True">ASCOM Alpaca Components</NamespaceSummaryItem>
-<NamespaceSummaryItem name="ASCOM.AlpacaDifficult" isDocumented="True">These components are difficult because they rely on regularly updated data, leap seconds or DeltaUT1 or make use of the ASCOM SOFA component that is implemented using compiled C DLLs.</NamespaceSummaryItem>
-<NamespaceSummaryItem name="ASCOM.Alpaca.Interfaces" isDocumented="True">ASCOM Alpaca interface definitions</NamespaceSummaryItem>
-<NamespaceSummaryItem name="ASCOM.Alpaca.Responses" isDocumented="True">ASCOM Alpaca response classes</NamespaceSummaryItem>
-<NamespaceSummaryItem name="ASCOM.Alpaca.Utilities" isDocumented="True">Alpaca utility support components.</NamespaceSummaryItem>
-<NamespaceSummaryItem name="ASCOM" isDocumented="True">ASCOM Exceptions Summary</NamespaceSummaryItem></NamespaceSummaries>
+      <NamespaceSummaryItem name="ASCOMStandard" isDocumented="True">ASCOM Standard root name space summary</NamespaceSummaryItem>
+      <NamespaceSummaryItem name="ASCOM.Alpaca" isDocumented="True">ASCOM Alpaca Components</NamespaceSummaryItem>
+      <NamespaceSummaryItem name="ASCOM.AlpacaDifficult" isDocumented="True">These components are difficult because they rely on regularly updated data, leap seconds or DeltaUT1 or make use of the ASCOM SOFA component that is implemented using compiled C DLLs.</NamespaceSummaryItem>
+      <NamespaceSummaryItem name="ASCOM.Alpaca.Interfaces" isDocumented="True">ASCOM Alpaca interface definitions</NamespaceSummaryItem>
+      <NamespaceSummaryItem name="ASCOM.Alpaca.Responses" isDocumented="True">ASCOM Alpaca response classes</NamespaceSummaryItem>
+      <NamespaceSummaryItem name="ASCOM.Alpaca.Utilities" isDocumented="True">Alpaca utility support components.</NamespaceSummaryItem>
+      <NamespaceSummaryItem name="ASCOM" isDocumented="True">ASCOM Exceptions Summary</NamespaceSummaryItem>
+    </NamespaceSummaries>
     <ComponentConfigurations>
     </ComponentConfigurations>
     <PlugInConfigurations>
