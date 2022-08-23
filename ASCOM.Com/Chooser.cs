@@ -1,4 +1,6 @@
-﻿using System;
+﻿using ASCOM.Common;
+using ASCOM.Common.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -18,21 +20,44 @@ namespace ASCOM.Com
 
         private readonly dynamic chooser; // Holds the Chooser COM object reference
         private bool disposedValue; // Indicates whether the object has been Disposed
+        private readonly ILogger log;
 
         #region New and Dispose
 
         /// <summary>
-        /// Creates a new Chooser object
+        /// Creates a new Chooser object with no logger
         /// </summary>
-        public Chooser()
+        public Chooser() : this(null)
         {
-            // Get the Chooser's Type from its ProgID
-            Type chooserType = Type.GetTypeFromProgID(CHOOSER_PROGID);
-
-            // Create a Chooser COM object and save the reference to the chooser variable
-            chooser = Activator.CreateInstance(chooserType);
         }
 
+        /// <summary>
+        /// Creates a new Chooser object with a logger
+        /// </summary>
+        /// <param name="logger">Optional ILogger object to which operational messages will be sent by the Chooser component.</param>
+        /// <exception cref="InvalidOperationException"></exception>
+        public Chooser(ILogger logger)
+        {
+            // SAve the supplied logger (if any)
+            this.log = logger;
+
+            // This will only work on Windows so validate the OS here
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                LogMessage(LogLevel.Error, "Initialise", $"Chooser is only supported on Windows, throwing InvalidOperationException. This OS is: {RuntimeInformation.OSDescription}");
+                throw new InvalidOperationException($"Chooser.Initialiser - Chooser is only supported on Windows. This OS is: {RuntimeInformation.OSDescription}");
+            }
+
+            // Get the Chooser's Type from its ProgID
+            LogMessage(LogLevel.Debug, "Initialise", $"About to get Chooser type");
+            Type chooserType = Type.GetTypeFromProgID(CHOOSER_PROGID);
+
+
+            // Create a Chooser COM object and save the reference to the chooser variable
+            LogMessage(LogLevel.Debug, "Initialise", $"FOund type {chooserType.FullName}.");
+            chooser = Activator.CreateInstance(chooserType);
+            LogMessage(LogLevel.Debug, "Initialise", $"Created Chooser OK.");
+        }
         /// <summary>
         /// Chooser destructor, called by the runtime during garbage collection
         /// </summary>
@@ -54,6 +79,7 @@ namespace ASCOM.Com
                 if (disposing)
                 {
                     // No objects to dispose here.
+                    // The logger will be released by the calling application rather than us
                 }
 
                 // Dispose of the Chooser COM object, ensuring that no exception is thrown
@@ -81,17 +107,32 @@ namespace ASCOM.Com
         /// <summary>
         /// The type of device from which the Chooser will select a driver. (default = "Telescope") 
         /// </summary>
-        public string DeviceType
+        public DeviceTypes DeviceType
         {
             get
             {
-                CheckDisposed("DeviceType Get");
-                return chooser.DeviceType;
+                CheckOK("DeviceType Get");
+
+                // Get the current device type from the Chooser as a string
+                string deviceTypeString = chooser.DeviceType;
+
+                // Convert the string to its equivalent DeviceTypes enum value
+                DeviceTypes deviceTypeEnum = Devices.StringToDeviceType(deviceTypeString);
+
+
+                LogMessage(LogLevel.Debug, "DeviceType", $"Returning Enum: {deviceTypeEnum}, String: {deviceTypeString}");
+                return deviceTypeEnum;
             }
             set
             {
-                CheckDisposed("DeviceType Set");
-                chooser.DeviceType = value;
+                CheckOK("DeviceType Set");
+
+                // Convert the supplied device type to its string value
+
+                string deviceTypeString = Devices.DeviceTypeToString(value);
+                LogMessage(LogLevel.Debug, "DeviceType", $"Setting string value: {deviceTypeString}, Enum: {value}");
+
+                chooser.DeviceType = deviceTypeString;
             }
         }
 
@@ -101,8 +142,11 @@ namespace ASCOM.Com
         /// <returns>The ProgID of the selected device or an empty string if no device was chosen</returns>
         public string Choose()
         {
-            CheckDisposed("Choose(\"\")");
-            return chooser.Choose("Telescope");
+            CheckOK("Choose(\"\")");
+
+            string progId = chooser.Choose("Telescope");
+            LogMessage(LogLevel.Debug, "Choose", $"Returning: {((progId == null) ? "Null - No device selected" : progId)}.");
+            return progId;
         }
 
         /// <summary>
@@ -112,8 +156,10 @@ namespace ASCOM.Com
         /// <returns>The ProgID of the selected device or an empty string if no device was chosen</returns>
         public string Choose(string progId)
         {
-            CheckDisposed($"Choose(\"{progId})\"");
-            return chooser.Choose(progId);
+            CheckOK($"Choose(\"{progId})\"");
+            string newProgId = chooser.Choose(progId);
+            LogMessage(LogLevel.Debug, "Choose", $"Returning: {((newProgId == null) ? "Null - No device selected" : newProgId)}.");
+            return newProgId;
         }
 
         #endregion
@@ -124,12 +170,29 @@ namespace ASCOM.Com
         /// </summary>
         /// <param name="method">Name of the called method</param>
         /// <exception cref="InvalidOperationException">When the Chooser has already been disposed.</exception>
-        private void CheckDisposed(string method)
+        private void CheckOK(string method)
         {
-            if(disposedValue)
+            if (disposedValue)
             {
                 throw new InvalidOperationException($"Cannot call Chooser.{method} because it has been disposed.");
             }
+
+            if (chooser == null)
+            {
+                throw new InvalidOperationException($"Cannot call Chooser.{method} because the Chooser object is null.");
+            }
+
+        }
+
+        /// <summary>
+        /// Log a message, dealing with the possibility that the logger is null
+        /// </summary>
+        /// <param name="level">Log level</param>
+        /// <param name="method">Calling method name</param>
+        /// <param name="message">Message</param>
+        private void LogMessage(LogLevel level, string method, string message)
+        {
+            log?.Log(level, $"Chooser.{method} - {message}");
         }
 
         #endregion

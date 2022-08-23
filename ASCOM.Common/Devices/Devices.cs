@@ -33,5 +33,39 @@ namespace ASCOM.Common
         {
             return Enum.IsDefined(typeof(DeviceTypes), deviceType);
         }
+
+        /// <summary>
+        /// Convert a string device name to a <see cref="DeviceTypes"/> enum value.
+        /// </summary>
+        /// <param name="device"></param>
+        /// <returns></returns>
+        /// <exception cref="InvalidValueException"></exception>
+        public static DeviceTypes StringToDeviceType(string device)
+        {
+            // Validate the supplied string device name
+            if (Enum.TryParse<DeviceTypes>(device, true, out DeviceTypes deviceType))
+            {
+                return deviceType; // OK
+            }
+
+            // Bad value to return an exception
+            throw new InvalidValueException($"Devices.StringToDeviceType - Device type: {device} is not an ASCOM device type.");
+        }
+
+        /// <summary>
+        /// Convert a <see cref="DeviceTypes"/> enum value to a string
+        /// </summary>
+        /// <param name="deviceType"></param>
+        /// <returns></returns>
+        public static string DeviceTypeToString(DeviceTypes deviceType)
+        {
+            string deviceTypeString= Enum.GetName(typeof(DeviceTypes), deviceType);
+
+            // Validate the supplied DeviceTypes enum value
+            if (deviceTypeString != null) return deviceTypeString; // OK
+
+            // Bad value to return an exception
+            throw new InvalidValueException($"Devices.DeviceTypeToString - Supplied DeviceTypes enum value {(int) deviceType} is not a valid member of the DeviceTypes enum.");
+        }
     }
 }
