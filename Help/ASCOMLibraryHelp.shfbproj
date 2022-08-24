@@ -26,7 +26,7 @@
       <DocumentationSource sourceFile="C:\Program Files (x86)\ASCOM\Platform 6 Developer Components\Components\Platform6\ASCOM.Exceptions.xml" />
       <DocumentationSource sourceFile="C:\Program Files (x86)\ASCOM\Platform 6 Developer Components\Components\Platform6\ASCOM.Exceptions.dll" />
     </DocumentationSources>
-    <HelpFileFormat>HtmlHelp1, Website</HelpFileFormat>
+    <HelpFileFormat>HtmlHelp1</HelpFileFormat>
     <SyntaxFilters>C#, Visual Basic</SyntaxFilters>
     <PresentationStyle>VS2013</PresentationStyle>
     <CleanIntermediates>True</CleanIntermediates>
@@ -40,8 +40,8 @@
     <NamingMethod>MemberName</NamingMethod>
     <ContentPlacement>AboveNamespaces</ContentPlacement>
     <RootNamespaceContainer>True</RootNamespaceContainer>
-    <RootNamespaceTitle>ASCOM Library</RootNamespaceTitle>
-    <NamespaceGrouping>False</NamespaceGrouping>
+    <RootNamespaceTitle>ASCOM Library APIs</RootNamespaceTitle>
+    <NamespaceGrouping>True</NamespaceGrouping>
     <MaximumGroupParts>2</MaximumGroupParts>
     <Preliminary>True</Preliminary>
     <CopyrightHref>www.ascom-standards.org</CopyrightHref>
@@ -50,20 +50,34 @@
     <NamespaceSummaries>
       <NamespaceSummaryItem name="(global)" isDocumented="False">ASCOM Standard Root Global</NamespaceSummaryItem>
       <NamespaceSummaryItem name="ASCOMStandard" isDocumented="True">ASCOM Standard root name space summary</NamespaceSummaryItem>
-      <NamespaceSummaryItem name="ASCOM.Alpaca" isDocumented="True">ASCOM Alpaca Components</NamespaceSummaryItem>
-      <NamespaceSummaryItem name="ASCOM.AlpacaDifficult" isDocumented="True">These components are difficult because they rely on regularly updated data, leap seconds or DeltaUT1 or make use of the ASCOM SOFA component that is implemented using compiled C DLLs.</NamespaceSummaryItem>
-      <NamespaceSummaryItem name="ASCOM.Alpaca.Interfaces" isDocumented="True">ASCOM Alpaca interface definitions</NamespaceSummaryItem>
-      <NamespaceSummaryItem name="ASCOM.Alpaca.Responses" isDocumented="True">ASCOM Alpaca response classes</NamespaceSummaryItem>
-      <NamespaceSummaryItem name="ASCOM.Alpaca.Utilities" isDocumented="True">Alpaca utility support components.</NamespaceSummaryItem>
-      <NamespaceSummaryItem name="ASCOM" isDocumented="True">ASCOM Exceptions Summary</NamespaceSummaryItem>
+      <NamespaceSummaryItem name="ASCOM.Alpaca" isDocumented="True" />
+      <NamespaceSummaryItem name="ASCOM.AlpacaDifficult" isDocumented="False">These components are difficult because they rely on regularly updated data, leap seconds or DeltaUT1 or make use of the ASCOM SOFA component that is implemented using compiled C DLLs.</NamespaceSummaryItem>
+      <NamespaceSummaryItem name="ASCOM.Alpaca.Interfaces" isDocumented="True" />
+      <NamespaceSummaryItem name="ASCOM.Alpaca.Responses" isDocumented="True" />
+      <NamespaceSummaryItem name="ASCOM.Alpaca.Utilities" isDocumented="True" />
+      <NamespaceSummaryItem name="ASCOM" isDocumented="True">ASCOM Exceptions that can be thrown by the ASCOM Library</NamespaceSummaryItem>
+      <NamespaceSummaryItem name="ASCOM.Alpaca (Group)" isGroup="True" isDocumented="True">Components for Alpaca clients and devices. This namespace is delivered as two packages: &lt;b&gt;ASCOM.Alpaca.Components&lt;/b&gt; and &lt;b&gt;ASCOM.Alpaca.Device&lt;/b&gt; so that Alpaca devices, which only require discovery support, have a smaller file size footprint and a less complex runtime environment.</NamespaceSummaryItem>
+      <NamespaceSummaryItem name="ASCOM.Alpaca.Clients" isDocumented="True" />
+      <NamespaceSummaryItem name="ASCOM.Com (Group)" isGroup="True" isDocumented="True">Components for COM clients. This namespace is delivered in NuGet package: &lt;b&gt;ASCOM.Com.Components&lt;/b&gt;.</NamespaceSummaryItem>
+      <NamespaceSummaryItem name="ASCOM.Com" isDocumented="True" />
+      <NamespaceSummaryItem name="ASCOM.Common (Group)" isGroup="True" isDocumented="True">Alpaca and COM elements that are shared by both applications, drivers and devices. This namespace is delivered in NuGet package: &lt;b&gt;ASCOM.Common.Components&lt;/b&gt;.</NamespaceSummaryItem>
+      <NamespaceSummaryItem name="ASCOM.Alpaca.Discovery" isDocumented="True" />
     </NamespaceSummaries>
     <ComponentConfigurations>
+      <ComponentConfig id="Code Block Component" enabled="True">
+        <component id="Code Block Component">
+  <basePath value="{@HtmlEncProjectFolder}" />
+  <outputPaths>{@HelpFormatOutputPaths}</outputPaths>
+  <allowMissingSource value="false" />
+  <removeRegionMarkers value="false" />
+  <colorizer syntaxFile="{@CoreComponentsFolder}Colorizer\highlight.xml" styleFile="{@CoreComponentsFolder}Colorizer\highlight.xsl" stylesheet="{@CoreComponentsFolder}Colorizer\highlight.css" scriptFile="{@CoreComponentsFolder}Colorizer\highlight.js" disabled="{@DisableCodeBlockComponent}" language="cs" tabSize="0" numberLines="true" outlining="false" keepSeeTags="false" defaultTitle="true" />
+</component>
+      </ComponentConfig>
     </ComponentConfigurations>
     <PlugInConfigurations>
     </PlugInConfigurations>
     <VisibleItems>ExplicitInterfaceImplementations, InheritedMembers, Protected, ProtectedInternalAsProtected, NonBrowsable</VisibleItems>
     <ApiFilter>
-      <Filter entryType="Namespace" fullName="ASCOM" isExposed="False" />
     </ApiFilter>
     <ProjectSummary>
     </ProjectSummary>
@@ -99,6 +113,11 @@
   </PropertyGroup>
   <ItemGroup>
     <None Include="Introduction.aml" />
+    <None Include="DeviceDriverPointers.aml" />
+    <None Include="ApplicationDeveloperPointers.aml" />
+    <None Include="example.cs" />
+    <None Include="SeamlessAlpacaAndCom.aml" />
+    <None Include="PackageMapping.aml" />
   </ItemGroup>
   <ItemGroup>
     <ContentLayout Include="ASCOMLibrary.content" />

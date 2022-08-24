@@ -1,4 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Topics>
   <Topic id="3e0a4970-b422-4427-bb1e-789bb79e1b4f" visible="True" isSelected="true" />
+  <Topic id="448ecc79-4087-401f-97ca-3e2af8022a62" visible="True" title="What is in each ASCOM Library package" />
+  <Topic id="1F10A6D1-2BD4-4570-8465-74FEC23F7AE2" visible="True" title="How to make Alpaca devices and COM drivers appear the same" />
 </Topics>

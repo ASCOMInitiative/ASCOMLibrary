@@ -1,16 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <topic id="3e0a4970-b422-4427-bb1e-789bb79e1b4f" revisionNumber="1">
   <developerConceptualDocument xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <!--
-    <summary>
-      <para>Optional summary abstract</para>
-      
-                  <list class="bullet">
-              <listItem>Added U/I support for displaying accumulated move amount for relative and absolute focusers.</listItem>
-
-      
-    </summary>
-    -->
     <introduction>
       <para>The ASCOM Library provides a broad set of enabling components that make it easier to develop ASCOM clients, Alpaca devices and COM drivers . 
       This cross platform library targets .NET Standard 2.0 for broadest application across .NET frameworks and can be used in projects that target Linux, Raspberry Pi, MacOS and Windows.
@@ -23,10 +13,10 @@
       <content>
         <para>The ASCOM Library provides the following key components:</para>
         <list class="bullet">
-	        <listItem>Alpaca Client - Toolkit that encapsulates an Alpaca device and presents it as a stronlgy typed class (conceptually similar to the Platform's DriverAccess component, but for an Alpaca device rather than a COM driver)</listItem>
-	        <listItem>Alpaca Client - Discover available Alapca devices on the network</listItem>
-	        <listItem>COM Client - Toolkit that encapsulates a Windows COM device and presents it as a stronlgy typed class (conceptually similar to the Platform's DriverAccess component - Windows only)</listItem>
-	        <listItem>Cross Platform Utilities
+	        <listItem><legacyBold>Alpaca Client</legacyBold> - Toolkit that encapsulates an Alpaca device and presents it as a stronlgy typed class (conceptually similar to the Platform's DriverAccess component, but for an Alpaca device rather than a COM driver)</listItem>
+	        <listItem><legacyBold>Alpaca Client</legacyBold> - Discover available Alapca devices on the network</listItem>
+	        <listItem><legacyBold>COM Client</legacyBold> - Toolkit that encapsulates a Windows COM device and presents it as a stronlgy typed class (conceptually similar to the Platform's DriverAccess component - Windows only)</listItem>
+	        <listItem><legacyBold>Cross Platform Utilities</legacyBold>
 	             <list class="bullet">
 	        		<listItem>New ILogger logging framework including a built in console logger</listItem>
 			        <listItem>SOFA component, funcitonally equivalent to the Platform's SOFA component</listItem>
@@ -36,14 +26,14 @@
 		 	        <listItem>Utilities - A range of utility functions that have no counterparts in .NET APIs.</listItem>
        			</list>
 			</listItem>
-	        <listItem>COM Utilities - Windows only
+	        <listItem><legacyBold>COM Utilities</legacyBold> - Windows only
 		        <list class="bullet">
 			        <listItem>Profile - retrieve and set values in the Platform's ASCOM Profile</listItem>
 			        <listItem>Chooser - Select which driver to use. (Currently this provides a thin wrapper round the Platform's COM Chooser, in future it will be refactored to be independent of the Platform.)</listItem>
 			        <listItem>Whole driver profile load and save as an XML document</listItem>
 		        </list>
 	        </listItem>
-	        <listItem>Developer Support - Of use if you are rolling your own communications rather than using the Client Toolkits.
+	        <listItem><legacyBold>Developer Support</legacyBold> - Of use if you are rolling your own communications rather than using the Client Toolkits.
 	            <list class="bullet">
 	        		<listItem>Alpaca Devices - Detect and respond to client discovery requests.</listItem>
 			        <listItem>Definitions of every ASCOM interface</listItem>
@@ -57,10 +47,24 @@
       </content>
     </section>
 
-    <section address="Frameworks">
-      <title>Supported Frameworks</title>
+    <section address="Packages">
+      <title>Package Overview</title>
       <content>
-        <para>The ASCOM Library supports the following .NET framework versions:</para>
+        <para>The ASCOM Library comprises the following packages:</para>
+		<list class="bullet">
+	       	<listItem><legacyBold>ASCOM.Alpaca.Components</legacyBold> - The Alpaca client toolkit and device discovery support for use in Alpaca client applications.</listItem>
+	       	<listItem><legacyBold>ASCOM.Alpaca.Device</legacyBold> - A Discovery responder tool for use by Alpaca devices.</listItem>
+	       	<listItem><legacyBold>ASCOM.Com.Components</legacyBold> - The COM client toolkit, Profile and Chooser components to support clients and drivers on Windows platforms.</listItem>
+	       	<listItem><legacyBold>ASCOM.Common.Components</legacyBold> - Common Interfaces, enums and other types shared by ASCOM Alpaca and COM projects.</listItem>
+	       	<listItem><legacyBold>ASCOM.Tools</legacyBold> - A set of support components to aid development of clients, drivers and Alpaca devices.</listItem>
+		</list>
+      </content>
+    </section>
+
+    <section address="Frameworks">
+      <title>Supported .NET Implementations</title>
+      <content>
+        <para>The ASCOM Library targets .NET Standard 2.0 and supports the following .NET implementations:</para>
 		<list class="bullet">
 	       	<listItem>.NET / .NET Core - 2.0, 2.1, 2.2, 3.0, 3.1, 5.0, 6.0</listItem>
 	       	<listItem>.NET Framework -  4.6.2, 4.7, 4.7.1, 4.7.2, 4.8, 4.8.1</listItem>
@@ -69,7 +73,7 @@
     </section>
 
     <section address="OperatingSystems">
-      <title>Packaging and Supported Operating Systems</title>
+      <title>Supported Operating Systems</title>
       <content>
         <para>The ASCOM Library is available as a NuGet package (search for ASCOM) and is supported on these operating systems:</para>
 		<list class="bullet">
@@ -90,36 +94,6 @@
           <linkAlternateText>Go to ASCOM Library on GitHub</linkAlternateText>
           <linkUri>https://github.com/ASCOMInitiative/ASCOMLibrary</linkUri>
       </externalLink>
-      
-      <!-- One or more of the following:
-           - A local link
-           - An external link
-           - A code entity reference
-
-      <link xlink:href="Other Topic's ID"/>
-      <link xlink:href="Other Topic's ID">Link inner text</link>
-
-      <externalLink>
-          <linkText>Link text</linkText>
-          <linkAlternateText>Optional alternate link text</linkAlternateText>
-          <linkUri>URI</linkUri>
-      </externalLink>
-
-      <codeEntityReference>API member ID</codeEntityReference>
-
-      Examples:
-
-      <link xlink:href="00e97994-e9e6-46e0-b420-5be86b2f8270" />
-      <link xlink:href="00e97994-e9e6-46e0-b420-5be86b2f8278">Some other topic</link>
-
-      <codeEntityReference>T:TestDoc.TestClass</codeEntityReference>
-      <codeEntityReference>P:TestDoc.TestClass.SomeProperty</codeEntityReference>
-      <codeEntityReference>M:TestDoc.TestClass.#ctor</codeEntityReference>
-      <codeEntityReference>M:TestDoc.TestClass.#ctor(System.String,System.Int32)</codeEntityReference>
-      <codeEntityReference>M:TestDoc.TestClass.ToString</codeEntityReference>
-      <codeEntityReference>M:TestDoc.TestClass.FirstMethod</codeEntityReference>
-      <codeEntityReference>M:TestDoc.TestClass.SecondMethod(System.Int32,System.String)</codeEntityReference>
-      -->
     </relatedTopics>
   </developerConceptualDocument>
 </topic>
