@@ -14,7 +14,7 @@ using System.Text;
 namespace ASCOM.Alpaca.Discovery
 {
     /// <summary>
-    /// Enable Alpaca devices to respond to Alpaca discovery broadcasts by returning the Alpaca port number
+    /// Enable Alpaca devices to respond to Alpaca discovery broadcasts by returning the Alpaca port number. This component is delivered in NuGet package: <b>ASCOM.Alpaca.Device</b> to minimise its footprint.
     /// </summary>
     public class Responder : IDisposable
     {

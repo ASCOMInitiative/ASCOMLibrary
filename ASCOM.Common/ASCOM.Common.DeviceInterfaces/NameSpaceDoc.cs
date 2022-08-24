@@ -14,17 +14,3 @@ namespace ASCOM.Common.DeviceInterfaces
     {
     }
 }
-
-
-namespace ASCOM
-{
-    // Dummy class to hold comments that appear at the namespace level in the compiled Help file
-
-    /// <summary>
-    /// ASCOM Exceptions in namespace docs file.
-    /// </summary>
-    [System.Runtime.CompilerServices.CompilerGenerated()]
-    class NamespaceDoc
-    {
-    }
-}
