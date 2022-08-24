@@ -1516,7 +1516,7 @@ namespace ASCOM.Alpaca.Clients
                     try
                     {
                         AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "Connect", "This is the first connection so set Connected to True");
-                        SetBool(clientNumber, client, URIBase, strictCasing, TL, "IAscomDevice.Connected", true, MemberTypes.Property);
+                        SetBool(clientNumber, client, URIBase, strictCasing, TL, "Connected", true, MemberTypes.Property);
                         bool notAlreadyPresent = connectStates.TryAdd(clientNumber, true);
                         AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "Connect", "Successfully connected, AlreadyConnected: " + (!notAlreadyPresent).ToString() + ", number of connections: " + connectStates.Count);
                     }
@@ -1540,7 +1540,7 @@ namespace ASCOM.Alpaca.Clients
             if (IsClientConnected(clientNumber, TL)) // If we are already connected then disconnect, otherwise ignore disconnect 
             {
                 AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "Disconnect", "We are connected, setting Connected to False on remote driver");
-                SetBool(clientNumber, client, URIBase, strictCasing, TL, "IAscomDevice.Connected", false, MemberTypes.Property);
+                SetBool(clientNumber, client, URIBase, strictCasing, TL, "Connected", false, MemberTypes.Property);
                 bool successfullyRemoved = connectStates.TryRemove(clientNumber, out bool lastValue);
                 AlpacaDeviceBaseClass.LogMessage(TL, 0, "Disconnect", $"Set Connected to: False, Successfully removed: {successfullyRemoved}, previous value: {lastValue}");
             }
