@@ -30,6 +30,12 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Compile Remove="ASCOM.Alpaca.Discovery\Response Classes\**" />
+	  <EmbeddedResource Remove="ASCOM.Alpaca.Discovery\Response Classes\**" />
+	  <None Remove="ASCOM.Alpaca.Discovery\Response Classes\**" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<None Include="..\ASCOMBoarderless.png">
 			<Pack>True</Pack>
 			<PackagePath></PackagePath>
@@ -37,7 +43,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="ASCOM.Exceptions" Version="6.5.1" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
 		<PackageReference Include="RestSharp" Version="106.12.0" />
 		<PackageReference Include="System.Text.Json" Version="4.7.2" />
@@ -46,10 +51,6 @@
 	<ItemGroup>
 		<ProjectReference Include="..\ASCOM.Common\ASCOM.Common.csproj" />
 		<ProjectReference Include="..\ASCOM.Tools\ASCOM.Tools.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<Folder Include="ASCOM.Alpaca.Discovery\Response Classes\" />
 	</ItemGroup>
 
 </Project>

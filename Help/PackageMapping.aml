@@ -33,7 +33,7 @@
         <list class="bullet">
 	        <listItem>COM client toolkit</listItem>
 	        <listItem>Profile tool to query and manipulate the ASCOM Profile store</listItem>
-	        <listItem>Chooser tool to enable users to select a spoecific COM driver.</listItem>
+	        <listItem>Chooser tool to enable users to select a specific COM driver.</listItem>
 
         </list>
       </content>
@@ -49,7 +49,7 @@
 	        <listItem>Class definitions for Alpaca discovery responses.</listItem>
 	        <listItem>Enums for Alpaca protocol options (such as how to return data from Camera.ImageArray) and Alpaca error numbers.</listItem>
 	        <listItem>COM error number special values such as minimum and maximum values that define the valid range.</listItem>
-	        <listItem>Helper funtions to make handling Exceptions from Alpaca devices easier</listItem>
+	        <listItem>Helper functions to make handling Exceptions from Alpaca devices easier</listItem>
 	        <listItem>ILogger and IProfile interface definitions</listItem>
 	        <listItem>Functions to list, manipulate and validate ASCOM device type names.</listItem>
 
@@ -65,7 +65,7 @@
 	        <listItem>Cross Platform Transform component with the same functionality as the Platform's Transform component.</listItem>
 	        <listItem>Console logger component that exposes the ILogger interface.</listItem>
 	        <listItem>TraceLogger component that exposes the ILogger interface, with functionality similar to the Platform's TraceLogger component.</listItem>
-	        <listItem>Utilities component that provides capabilities that are not straightforwardly avaiable from .NET APIs. These capabilities include:
+	        <listItem>Utilities component that provides capabilities that are not straightforwardly available from .NET APIs. These capabilities include:
 	        	<list class="bullet">
 	        		<listItem>Sexagesimal Conversions</listItem>
 	        		<listItem>Degrees to degree:minute:second conversions</listItem>

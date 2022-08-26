@@ -38,12 +38,12 @@
 		</None>
 	</ItemGroup>
 
-	<ItemGroup>
-		<PackageReference Include="ASCOM.Exceptions" Version="6.5.1" />
-	</ItemGroup>
-
 	<ItemGroup Condition=" '$(Configuration)' == 'Swashbuckle_Documentation' ">
 		<PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.2.3" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="ASCOM.Exception.Library" Version="6.6.1" />
 	</ItemGroup>
 
 	<ItemGroup>

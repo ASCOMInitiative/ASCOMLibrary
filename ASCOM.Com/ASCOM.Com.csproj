@@ -29,13 +29,13 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="ASCOM.Exceptions" Version="6.5.1" />
 		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
 		<PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\ASCOM.Common\ASCOM.Common.csproj" />
+		<ProjectReference Include="..\ASCOM.Tools\ASCOM.Tools.csproj" />
 	</ItemGroup>
 
 </Project>

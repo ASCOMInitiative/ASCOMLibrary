@@ -13,14 +13,14 @@
       <content>
         <para>The ASCOM Library provides the following key components:</para>
         <list class="bullet">
-	        <listItem><legacyBold>Alpaca Client</legacyBold> - Toolkit that encapsulates an Alpaca device and presents it as a stronlgy typed class (conceptually similar to the Platform's DriverAccess component, but for an Alpaca device rather than a COM driver)</listItem>
-	        <listItem><legacyBold>Alpaca Client</legacyBold> - Discover available Alapca devices on the network</listItem>
-	        <listItem><legacyBold>COM Client</legacyBold> - Toolkit that encapsulates a Windows COM device and presents it as a stronlgy typed class (conceptually similar to the Platform's DriverAccess component - Windows only)</listItem>
+	        <listItem><legacyBold>Alpaca Client</legacyBold> - Toolkit that encapsulates an Alpaca device and presents it as a strongly typed class (conceptually similar to the Platform's DriverAccess component, but for an Alpaca device rather than a COM driver)</listItem>
+	        <listItem><legacyBold>Alpaca Client</legacyBold> - Discover available Alpaca devices on the network</listItem>
+	        <listItem><legacyBold>COM Client</legacyBold> - Toolkit that encapsulates a Windows COM device and presents it as a strongly typed class (conceptually similar to the Platform's DriverAccess component - Windows only)</listItem>
 	        <listItem><legacyBold>Cross Platform Utilities</legacyBold>
 	             <list class="bullet">
 	        		<listItem>New ILogger logging framework including a built in console logger</listItem>
-			        <listItem>SOFA component, funcitonally equivalent to the Platform's SOFA component</listItem>
-			        <listItem>Transform component, funcitonally equivalent to the Platform's Transform component</listItem>
+			        <listItem>SOFA component, functionally equivalent to the Platform's SOFA component</listItem>
+			        <listItem>Transform component, functionally equivalent to the Platform's Transform component</listItem>
 			        <listItem>TraceLogger based on the Platform's TraceLogger component.</listItem>
 			        <listItem>ILogger console logger.</listItem>
 		 	        <listItem>Utilities - A range of utility functions that have no counterparts in .NET APIs.</listItem>
@@ -37,10 +37,10 @@
 	            <list class="bullet">
 	        		<listItem>Alpaca Devices - Detect and respond to client discovery requests.</listItem>
 			        <listItem>Definitions of every ASCOM interface</listItem>
-		 	        <listItem>Alpaca Data Classes - A range of classes representing every Alpaca message transaction defined in the Alpcaa API that wil be of use to both application developers and Alpaca device developers.</listItem>
+		 	        <listItem>Alpaca Data Classes - A range of classes representing every Alpaca message transaction defined in the Alpaca API that will be of use to both application developers and Alpaca device developers.</listItem>
 			        <listItem>Constants used by Alpaca clients applications and devices.</listItem>
 			        <listItem>A range of enums describing Alpaca error numbers, image array transfer types etc.</listItem>
-			        <listItem>Richly funtional APIs for discovering Alpaca devices on the network.</listItem>
+			        <listItem>Richly functional APIs for discovering Alpaca devices on the network.</listItem>
        			</list>
 			</listItem>
         </list>

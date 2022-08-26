@@ -7,24 +7,24 @@
     </introduction>
 
     <section address="WorkingWithDevices">
-      <title>Working with Alpaca devices and ASCOM COM Drivers in the same appliaction.</title>
+      <title>Working with Alpaca devices and ASCOM COM Drivers in the same application.</title>
       <content>
 		<para>
-			Alpaca devices and COM drivers will always need to be identified independently because they have very different discovery mecahnics: Profile/COM for COM drivers and
+			Alpaca devices and COM drivers will always need to be identified independently because they have very different discovery mechanics: Profile/COM for COM drivers and
 			Alpaca Discovery for Alpaca devices. 
 		</para>
 		<para>
 			However, once a required device is identified, the question becomes "how do I wrap up this object so that I can have a single path
 			through my application that doesn't care whether the user selected an Alpaca device or a COM driver. The answer to this question is to use the Library's Alpaca client and COM client toolkits to wrap 
-			the Alapca device or COM driver.
+			the Alpaca device or COM driver.
 		</para>
 		<para>
 			The following section uses the ASCOM Rotator device type as an example.
 		</para>
 		<para>
-			Both of the toolkits Rotator classes implement the IRotatorV3 interface.
+			Both of the toolkits' Rotator classes implement the IRotatorV3 interface.
 			So, if you define an application variable of type IRotatorV3, you can store either an Alpaca client instance or a COM client instance in that variable. 
-			This will give you have a strongly typed variable that exposes all of the rotator's properties and methods and which your applciation can use as necessary. 
+			This will give you have a strongly typed variable that exposes all of the rotator's properties and methods and which your application can use as necessary. 
 		</para>
 		<para>
 			From this point on the application will never need to know whether it is working with an Alpaca device or a COM device. 
