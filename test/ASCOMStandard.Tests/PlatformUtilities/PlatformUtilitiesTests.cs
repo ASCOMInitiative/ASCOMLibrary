@@ -95,5 +95,16 @@ namespace ASCOM.Alpaca.Tests.PlatformUtilities
         {
             Assert.True(Com.PlatformUtilities.BuildNumber > 3000);
         }
+
+        [Fact]
+        public void CreateAlpacaDevice()
+        {
+            string uniqueIdGuid = Guid.NewGuid().ToString();
+            string progId = Com.PlatformUtilities.CreateDynamicDriver(DeviceTypes.SafetyMonitor, 0, "Unit test Safety Monitor description", "127.0.0.1", 11111, uniqueIdGuid);
+
+            Assert.Contains("SafetyMonitor", progId,StringComparison.CurrentCultureIgnoreCase);
+        }
+
+
     }
 }

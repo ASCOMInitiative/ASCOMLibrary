@@ -1,8 +1,17 @@
-﻿using ASCOM.Tools;
+﻿using ASCOM.Common.Interfaces;
+using ASCOM.Tools;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.Text;
+using static System.Net.Mime.MediaTypeNames;
+using System.Threading;
+using System.Runtime.CompilerServices;
+using System.IO;
+using static System.Environment;
+using ASCOM.Common;
 
 namespace ASCOM.Com
 {
@@ -11,19 +20,33 @@ namespace ASCOM.Com
     /// </summary>
     public static class PlatformUtilities
     {
+        // Constants for Version functions
         const int MINIMUM_VALID_PLATFORM_VERSION = 1;
         const int MAXIMUM_VALID_PLATFORM_VERSION = 6;
         const int MINIMUM_VALID_MINOR_VERSION = 0;
         const int MAXIMUM_VALID_MINOR_VERSION = 6;
         const int MINIMUM_VALID_SERVICEPACK_VERSION = 0;
         const int MAXIMUM_VALID_SERVICEPACK_VERSION = 3;
-        const int MINIMUM_BUILD_NUMBER = 3000;
+        const int MINIMUM_BUILD_NUMBER = 0;
         const int MAXIMUM_BUILD_NUMBER = 65535;
 
         const string PROFILE_ROOT_KEY = "SOFTWARE\\ASCOM";
 
+        // Constants for CreateDynamicDriver method
+        private const string DRIVER_PROGID_BASE = "ASCOM.AlpacaDynamic";
+        private const string ALPACA_DYNAMIC_CLIENT_MANAGER_RELATIVE_PATH = "ASCOM\\Platform 6\\Tools\\AlpacaDynamicClientManager";
+        private const string ALPACA_DYNAMIC_CLIENT_MANAGER_EXE_NAME = "ASCOM.AlpacaDynamicClientManager.exe";
+
+        // Alpaca driver Profile store value names
+        private const string PROFILE_VALUE_NAME_UNIQUEID = "UniqueID"; // Prefix applied to all COM drivers created to front Alpaca devices
+        private const string PROFILE_VALUE_NAME_IP_ADDRESS = "IP Address";
+        private const string PROFILE_VALUE_NAME_PORT_NUMBER = "Port Number";
+        private const string PROFILE_VALUE_NAME_REMOTE_DEVICER_NUMBER = "Remote Device Number";
+
+        // Variables
         private static Version platformVersion = null;
         private static readonly TraceLogger TL;
+        private static bool driverGenerationComplete;
 
         #region Initialise
 
@@ -204,7 +227,165 @@ namespace ASCOM.Com
 
         #region CreateDynamicDriver
 
+        /// <summary>
+        /// Create an Alpaca Dynamic Driver to present an Alpaca device as a COM device. (Platform 6.5 or later)
+        /// </summary>
+        /// <param name="deviceType">ASCOM device type</param>
+        /// <param name="deviceNumber">ALpaca device number of this device</param>
+        /// <param name="description">Text description of the Alpaca device that will appear in the Chooser.</param>
+        /// <param name="hostName">Host-name or IP address of the Alpaca device</param>
+        /// <param name="ipPort">IP port of the Alpaca device</param>
+        /// <param name="deviceUniqueId">The Alpaca device's unique ID.</param>
+        /// <exception cref="InvalidOperationException">If the installed Platform version is earlier that 6.5.</exception>
+        /// <exception cref="InvalidValueException">When supplied parameters are outside valid ranges.</exception>
+        /// <returns>The COM ProgID of the created dynamic driver.</returns>
+        /// <remarks>
+        /// The Dynamic driver functionality was introduced in Platform 6.5, consequently, this method will throw an InvalidOperationException if invoked on previous platforms.
+        /// <para>
+        /// Microsoft security requires that the user provides Administrator level access in order to create and register the dynamic driver. The Platform's Dynamic Client Manager 
+        /// will trigger the UAC request process automatically and will, or will not, run depending on whether permission is granted. As an application developer, you are not directly involved in 
+        /// this automatic process. However, you should make your customers aware that the security dialogue will appear when creating the driver, and check that the modal UAC dialogue does not disrupt your application 
+        /// or UI while displayed.
+        /// /// </para>
+        /// </remarks>
+        public static string CreateDynamicDriver(DeviceTypes deviceType, int deviceNumber, string description, string hostName, int ipPort, string deviceUniqueId)
+        {
+            string newProgId = ""; // Holds the ProgID of the dynamically created driver
 
+            // Validate the Platform level: Must be 6.5 or later
+            if (!IsMinimumRequiredVersion(6, 5, 0, 0)) throw new InvalidOperationException($"CreateDynamicDriver - This method requires Platform 6.5 or later. Installed Platform version: {PlatformVersion}");
+
+            // Validate input parameters
+            if (deviceNumber < 0) throw new InvalidValueException("CreateDynamicDriver - Device number", deviceNumber.ToString(), "0", int.MaxValue.ToString());
+            if (description is null) throw new InvalidValueException("CreateDynamicDriver - Description must not be null.");
+            if (description == "") throw new InvalidValueException("CreateDynamicDriver - Description must not be an empty string.");
+            if (string.IsNullOrEmpty(hostName)) throw new InvalidValueException("CreateDynamicDriver - HostName must not be null or an empty string.");
+            if ((ipPort < 1) | (ipPort > 65535)) throw new InvalidValueException("CreateDynamicDriver - IPPort", ipPort.ToString(), "1", "65535");
+            if (string.IsNullOrEmpty(deviceUniqueId)) throw new InvalidValueException("CreateDynamicDriver - DeviceUniqueId must not be null or an empty string.");
+
+            try
+            {
+                // Create a new Alpaca driver of the current ASCOM device type
+                newProgId = CreateNewAlpacaDriver(deviceType, description);
+                TL.LogMessage("CreateDynamicDriver", $"Device type: {deviceType}, newProgId: {newProgId}");
+
+                // Configure the IP address, port number and Alpaca device number in the newly registered driver
+                Profile.SetValue(deviceType, newProgId, PROFILE_VALUE_NAME_IP_ADDRESS, hostName);
+                Profile.SetValue(deviceType, newProgId, PROFILE_VALUE_NAME_PORT_NUMBER, ipPort.ToString());
+                Profile.SetValue(deviceType, newProgId, PROFILE_VALUE_NAME_REMOTE_DEVICER_NUMBER, deviceNumber.ToString());
+                Profile.SetValue(deviceType, newProgId, PROFILE_VALUE_NAME_UNIQUEID, deviceUniqueId);
+
+                // Flag the driver as being already configured so that it can be used immediately
+                using (RegistryKey localmachine32 = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry32))
+                {
+                    RegistryKey driverKey = localmachine32.CreateSubKey($"{PROFILE_ROOT_KEY}\\Chooser", true);
+                    driverKey.SetValue($"{newProgId} Init", "True");
+                }
+
+                TL.LogMessage("OK Click", $"Returning ProgID: '{newProgId}'");
+            }
+            catch (Win32Exception ex) when ((uint)ex.ErrorCode == 0x80004005)
+            {
+                // Security approval was not given by the user
+                return "";
+            }
+            catch (Exception ex)
+            {
+                TL.LogMessage("CreateDynamicDriver", $"Exception: \r\n{ex}");
+            }
+            return newProgId;
+        }
+
+        private static string CreateNewAlpacaDriver(DeviceTypes deviceType, string deviceDescription)
+        {
+            string newProgId;
+            int deviceNumber;
+            Type typeFromProgId;
+
+            // Initialise to a starting value
+            deviceNumber = 0;
+
+            // Try successive ProgIDs until one is found that is not COM registered
+            do
+            {
+                deviceNumber += 1;
+                newProgId = $"{DRIVER_PROGID_BASE}{deviceNumber}.{Devices.DeviceTypeToString(deviceType)}";
+                typeFromProgId = Type.GetTypeFromProgID(newProgId);
+                TL.LogMessage("CreateAlpacaClient", $"Testing ProgID: {newProgId} Type name: {typeFromProgId?.Name}");
+            }
+            while ((!(typeFromProgId == null)))// Increment the device number// Create the new ProgID to be tested// Try to get the type with the new ProgID
+        ; // Loop until the returned type is null indicating that this type is not COM registered
+
+            TL.LogMessage("CreateAlpacaClient", $"Creating new ProgID: {newProgId}");
+
+            RunDynamicClientManager($@"\CreateAlpacaClient {deviceType} {deviceNumber} {newProgId} ""{deviceDescription}""");
+
+            return newProgId; // Return the new ProgID
+        }
+
+        /// <summary>
+        /// Run the Alpaca dynamic client manager application with the supplied parameters
+        /// </summary>
+        /// <param name="parameterString">Parameter string to pass to the application</param>
+        private static void RunDynamicClientManager(string parameterString)
+        {
+            string clientManagerWorkingDirectory, clientManagerExeFile;
+            ProcessStartInfo clientManagerProcessStartInfo;
+            Process clientManagerProcess;
+
+            // Construct path to the executable that will dynamically create a new Alpaca COM client
+            clientManagerWorkingDirectory = $@"{Environment.GetFolderPath(SpecialFolder.ProgramFilesX86)}\{ALPACA_DYNAMIC_CLIENT_MANAGER_RELATIVE_PATH}";
+            clientManagerExeFile = $@"{clientManagerWorkingDirectory}\{ALPACA_DYNAMIC_CLIENT_MANAGER_EXE_NAME}";
+
+            TL.LogMessage("RunDynamicClientManager", $"Generator parameters: '{parameterString}'");
+            TL.LogMessage("RunDynamicClientManager", $"Managing drivers using the {clientManagerExeFile} executable in working directory {clientManagerWorkingDirectory}");
+
+            if (!File.Exists(clientManagerExeFile))
+            {
+                TL.LogMessage("RunDynamicClientManager", $"ERROR - Unable to find the client generator executable at {clientManagerExeFile}, cannot create a new Alpaca client.");
+                throw new InvalidOperationException($"RunDynamicClientManager - Unable to find the client generator executable at {clientManagerExeFile}, cannot create a new Alpaca client.");
+            }
+
+            // Initialise the process complete flag to false
+            driverGenerationComplete = false;
+
+            // Set the process run time environment and parameters
+            clientManagerProcessStartInfo = new ProcessStartInfo(clientManagerExeFile, parameterString); // Run the executable with no parameters in order to show the management GUI
+            clientManagerProcessStartInfo.WorkingDirectory = clientManagerWorkingDirectory;
+            clientManagerProcessStartInfo.UseShellExecute = true;
+            clientManagerProcessStartInfo.Verb = "runas";
+
+            // Create the management process
+            clientManagerProcess = new Process();
+            clientManagerProcess.StartInfo = clientManagerProcessStartInfo;
+            clientManagerProcess.EnableRaisingEvents = true;
+            clientManagerProcess.Exited += new EventHandler(DriverGeneration_Complete);
+
+            // Run the process
+            TL.LogMessage("RunDynamicClientManager", $"Starting driver management process");
+            clientManagerProcess.Start();
+
+            // Wait for the process to complete at which point the process complete event will fire and driverGenerationComplete will be set true
+            do
+            {
+                Thread.Sleep(10);
+            }
+            while (!driverGenerationComplete);
+
+            TL.LogMessage("RunDynamicClientManager", $"Completed driver management process");
+
+            clientManagerProcess.Dispose();
+        }
+
+        /// <summary>
+        /// Driver generation completion event handler
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private static void DriverGeneration_Complete(object sender, System.EventArgs e)
+        {
+            driverGenerationComplete = true; // Flag that driver generation is complete
+        }
 
         #endregion
 
