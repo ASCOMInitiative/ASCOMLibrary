@@ -37,7 +37,6 @@
 
 	<ItemGroup>
 		<PackageReference Include="ASCOM.Exceptions" Version="6.5.1" />
-		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
 		<PackageReference Include="RestSharp" Version="106.12.0" />
 		<PackageReference Include="System.Text.Json" Version="4.7.2" />
 	</ItemGroup>

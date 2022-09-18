@@ -1172,20 +1172,59 @@ namespace ASCOM.Alpaca.Clients
                                             switch (arrayRank)
                                             {
                                                 case 2:
-                                                    //IntArray2DResponse intArray2DResponse = JsonSerializer.Deserialize<IntArray2DResponse>(deviceJsonResponse.Content, new JsonSerializerOptions { PropertyNameCaseInsensitive = !strictCasing });
-                                                    IntArray2DResponse intArray2DResponse = Newtonsoft.Json.JsonConvert.DeserializeObject<IntArray2DResponse>(deviceJsonResponse.Content);
+                                                    IntJaggedArray2DResponse intArray2DResponse = JsonSerializer.Deserialize<IntJaggedArray2DResponse>(deviceJsonResponse.Content, new JsonSerializerOptions { PropertyNameCaseInsensitive = !strictCasing });
                                                     AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, string.Format(LOG_FORMAT_STRING, intArray2DResponse.ClientTransactionID, intArray2DResponse.ServerTransactionID, intArray2DResponse.Rank.ToString())); //, intArray2DResponse.Method));
-                                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Array was deserialised in {sw.ElapsedMilliseconds} ms, Type: {(ImageArrayElementTypes)intArray2DResponse.Type}, Rank: {intArray2DResponse.Rank}");
-                                                    if (CallWasSuccessful(TL, intArray2DResponse)) return (T)((object)intArray2DResponse.Value);
+
+                                                    // Get the array dimensions
+                                                    int dimension0Length = intArray2DResponse.Value.GetLength(0);
+                                                    int dimension1Length = intArray2DResponse.Value[0].GetLength(0);
+
+                                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Array was deserialised in {sw.ElapsedMilliseconds} ms, Type: {(ImageArrayElementTypes)intArray2DResponse.Type}, Rank: {intArray2DResponse.Rank}, Dimension 1 Length: {dimension0Length}, Dimension 2 Length: {dimension1Length}");
+
+                                                    sw.Restart();
+                                                    int[,] intArray2D = new int[dimension0Length, dimension1Length];
+
+                                                    // Calculate the number of bytes in dimension 1
+                                                    int bytesPerDimension1 = dimension1Length * sizeof(int);
+
+                                                    // Convert the jagged array into a rectabgular array
+                                                    Parallel.For(0, dimension0Length, i =>
+                                                    {
+                                                        Buffer.BlockCopy(intArray2DResponse.Value[i], 0, intArray2D, i * bytesPerDimension1, bytesPerDimension1);
+                                                    });
+                                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Array was coped in {sw.ElapsedMilliseconds} ms");
+
+                                                    if (CallWasSuccessful(TL, intArray2DResponse)) return (T)(object)intArray2D;
                                                     restResponseBase = (Response)intArray2DResponse;
                                                     break;
 
                                                 case 3:
-                                                    //IntArray3DResponse intArray3DResponse = JsonSerializer.Deserialize<IntArray3DResponse>(deviceJsonResponse.Content, new JsonSerializerOptions { PropertyNameCaseInsensitive = !strictCasing });
-                                                    IntArray3DResponse intArray3DResponse = Newtonsoft.Json.JsonConvert.DeserializeObject<IntArray3DResponse>(deviceJsonResponse.Content);
+                                                    IntJaggedArray3DResponse intArray3DResponse = JsonSerializer.Deserialize<IntJaggedArray3DResponse>(deviceJsonResponse.Content, new JsonSerializerOptions { PropertyNameCaseInsensitive = !strictCasing });
                                                     AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, string.Format(LOG_FORMAT_STRING, intArray3DResponse.ClientTransactionID, intArray3DResponse.ServerTransactionID, intArray3DResponse.Rank.ToString())); //, intArray3DResponse.Method));
-                                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Array was deserialised in {sw.ElapsedMilliseconds} ms, Type: {(ImageArrayElementTypes)intArray3DResponse.Type}, Rank: {intArray3DResponse.Rank}");
-                                                    if (CallWasSuccessful(TL, intArray3DResponse)) return (T)((object)intArray3DResponse.Value);
+                                                                                                                                                                                                                                                                      // Get the array dimensions
+                                                    dimension0Length = intArray3DResponse.Value.GetLength(0);
+                                                    dimension1Length = intArray3DResponse.Value[0].GetLength(0);
+                                                    int dimension2Length = intArray3DResponse.Value[0][0].GetLength(0);
+
+                                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Array was deserialised in {sw.ElapsedMilliseconds} ms, Type: {(ImageArrayElementTypes)intArray3DResponse.Type}, Rank: {intArray3DResponse.Rank}, Dimension 1 Length: {dimension0Length}, Dimension 2 Length: {dimension1Length}, Dimension 3 Length: {dimension2Length}");
+
+                                                    sw.Restart();
+                                                    int[,,] intArray3D = new int[dimension0Length, dimension1Length, dimension2Length];
+
+                                                    // Calculate the number of bytes in dimension 1
+                                                    int bytesPerDimension2 = dimension2Length * sizeof(int);
+
+                                                    // Convert the jagged array into a rectabgular array
+                                                    Parallel.For(0, dimension0Length, i =>
+                                                    {
+                                                        for (int j = 0; j < dimension1Length; j++)
+                                                        {
+                                                            Buffer.BlockCopy(intArray3DResponse.Value[i][j], 0, intArray3D, i * bytesPerDimension2, bytesPerDimension2);
+                                                        }
+                                                    });
+                                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Array was coped in {sw.ElapsedMilliseconds} ms");
+
+                                                    if (CallWasSuccessful(TL, intArray3DResponse)) return (T)((object)intArray3D);
                                                     restResponseBase = (Response)intArray3DResponse;
                                                     break;
 
@@ -1198,20 +1237,60 @@ namespace ASCOM.Alpaca.Clients
                                             switch (arrayRank)
                                             {
                                                 case 2:
-                                                    //ShortArray2DResponse shortArray2DResponse = JsonSerializer.Deserialize<ShortArray2DResponse>(deviceJsonResponse.Content, new JsonSerializerOptions { PropertyNameCaseInsensitive = !strictCasing });
-                                                    ShortArray2DResponse shortArray2DResponse = Newtonsoft.Json.JsonConvert.DeserializeObject<ShortArray2DResponse>(deviceJsonResponse.Content);
+                                                    ShortJaggedArray2DResponse shortArray2DResponse = JsonSerializer.Deserialize<ShortJaggedArray2DResponse>(deviceJsonResponse.Content, new JsonSerializerOptions { PropertyNameCaseInsensitive = !strictCasing });
                                                     AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, string.Format(LOG_FORMAT_STRING, shortArray2DResponse.ClientTransactionID, shortArray2DResponse.ServerTransactionID, shortArray2DResponse.Rank.ToString())); //, shortArray2DResponse.Method));
-                                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Array was deserialised in {sw.ElapsedMilliseconds} ms, Type: {(ImageArrayElementTypes)shortArray2DResponse.Type}, Rank: {shortArray2DResponse.Rank}");
-                                                    if (CallWasSuccessful(TL, shortArray2DResponse)) return (T)((object)shortArray2DResponse.Value);
+
+                                                    // Get the array dimensions
+                                                    int dimension0Length = shortArray2DResponse.Value.GetLength(0);
+                                                    int dimension1Length = shortArray2DResponse.Value[0].GetLength(0);
+
+                                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Array was deserialised in {sw.ElapsedMilliseconds} ms, Type: {(ImageArrayElementTypes)shortArray2DResponse.Type}, Rank: {shortArray2DResponse.Rank}, Dimension 1 Length: {dimension0Length}, Dimension 2 Length: {dimension1Length}");
+
+                                                    sw.Restart();
+                                                    short[,] shortArray2D = new short[dimension0Length, dimension1Length];
+
+                                                    // Calculate the number of bytes in dimension 1
+                                                    int bytesPerDimension1 = dimension1Length * sizeof(short);
+
+                                                    // Convert the jagged array into a rectabgular array
+                                                    Parallel.For(0, dimension0Length, i =>
+                                                    {
+                                                        Buffer.BlockCopy(shortArray2DResponse.Value[i], 0, shortArray2D, i * bytesPerDimension1, bytesPerDimension1);
+                                                    });
+
+                                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Array was coped in {sw.ElapsedMilliseconds} ms");
+
+                                                    if (CallWasSuccessful(TL, shortArray2DResponse)) return (T)((object)shortArray2D);
                                                     restResponseBase = (Response)shortArray2DResponse;
                                                     break;
 
                                                 case 3:
-                                                    //ShortArray3DResponse shortArray3DResponse = JsonSerializer.Deserialize<ShortArray3DResponse>(deviceJsonResponse.Content, new JsonSerializerOptions { PropertyNameCaseInsensitive = !strictCasing });
-                                                    ShortArray3DResponse shortArray3DResponse = Newtonsoft.Json.JsonConvert.DeserializeObject<ShortArray3DResponse>(deviceJsonResponse.Content);
+                                                    ShortJaggedArray3DResponse shortArray3DResponse = JsonSerializer.Deserialize<ShortJaggedArray3DResponse>(deviceJsonResponse.Content, new JsonSerializerOptions { PropertyNameCaseInsensitive = !strictCasing });
                                                     AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, string.Format(LOG_FORMAT_STRING, shortArray3DResponse.ClientTransactionID, shortArray3DResponse.ServerTransactionID, shortArray3DResponse.Rank.ToString())); //, shortArray3DResponse.Method));
-                                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Array was deserialised in {sw.ElapsedMilliseconds} ms, Type: {(ImageArrayElementTypes)shortArray3DResponse.Type}, Rank: {shortArray3DResponse.Rank}");
-                                                    if (CallWasSuccessful(TL, shortArray3DResponse)) return (T)((object)shortArray3DResponse.Value);
+
+                                                    dimension0Length = shortArray3DResponse.Value.GetLength(0);
+                                                    dimension1Length = shortArray3DResponse.Value[0].GetLength(0);
+                                                    int dimension2Length = shortArray3DResponse.Value[0][0].GetLength(0);
+
+                                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Array was deserialised in {sw.ElapsedMilliseconds} ms, Type: {(ImageArrayElementTypes)shortArray3DResponse.Type}, Rank: {shortArray3DResponse.Rank}, Dimension 1 Length: {dimension0Length}, Dimension 2 Length: {dimension1Length}, Dimension 3 Length: {dimension2Length}");
+
+                                                    sw.Restart();
+                                                    short[,,] shortArray3D = new short[dimension0Length, dimension1Length, dimension2Length];
+
+                                                    // Calculate the number of bytes in dimension 1
+                                                    int bytesPerDimension2 = dimension2Length * sizeof(short);
+
+                                                    // Convert the jagged array into a rectabgular array
+                                                    Parallel.For(0, dimension0Length, i =>
+                                                    {
+                                                        for (int j = 0; j < dimension1Length; j++)
+                                                        {
+                                                            Buffer.BlockCopy(shortArray3DResponse.Value[i][j], 0, shortArray3D, i * bytesPerDimension2, bytesPerDimension2);
+                                                        }
+                                                    });
+                                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Array was coped in {sw.ElapsedMilliseconds} ms");
+
+                                                    if (CallWasSuccessful(TL, shortArray3DResponse)) return (T)(object)shortArray3D;
                                                     restResponseBase = (Response)shortArray3DResponse;
                                                     break;
 
@@ -1224,20 +1303,60 @@ namespace ASCOM.Alpaca.Clients
                                             switch (arrayRank)
                                             {
                                                 case 2:
-                                                    // DoubleArray2DResponse doubleArray2DResponse = JsonSerializer.Deserialize<DoubleArray2DResponse>(deviceJsonResponse.Content, new JsonSerializerOptions { PropertyNameCaseInsensitive = !strictCasing });
-                                                    DoubleArray2DResponse doubleArray2DResponse = Newtonsoft.Json.JsonConvert.DeserializeObject<DoubleArray2DResponse>(deviceJsonResponse.Content);
+                                                    DoubleJaggedArray2DResponse doubleArray2DResponse = JsonSerializer.Deserialize<DoubleJaggedArray2DResponse>(deviceJsonResponse.Content, new JsonSerializerOptions { PropertyNameCaseInsensitive = !strictCasing });
                                                     AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, string.Format(LOG_FORMAT_STRING, doubleArray2DResponse.ClientTransactionID, doubleArray2DResponse.ServerTransactionID, doubleArray2DResponse.Rank.ToString())); //, doubleArray2DResponse.Method));
-                                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Array was deserialised in {sw.ElapsedMilliseconds} ms, Type: {(ImageArrayElementTypes)doubleArray2DResponse.Type}, Rank: {doubleArray2DResponse.Rank}");
-                                                    if (CallWasSuccessful(TL, doubleArray2DResponse)) return (T)((object)doubleArray2DResponse.Value);
+              
+                                                    // Get the array dimensions
+                                                    int dimension0Length = doubleArray2DResponse.Value.GetLength(0);
+                                                    int dimension1Length = doubleArray2DResponse.Value[0].GetLength(0);
+
+                                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Array was deserialised in {sw.ElapsedMilliseconds} ms, Type: {(ImageArrayElementTypes)doubleArray2DResponse.Type}, Rank: {doubleArray2DResponse.Rank}, Dimension 1 Length: {dimension0Length}, Dimension 2 Length: {dimension1Length}");
+
+                                                    sw.Restart();
+                                                    double[,] doubleArray2D = new double[dimension0Length, dimension1Length];
+
+                                                    // Calculate the number of bytes in dimension 1
+                                                    int bytesPerDimension1 = dimension1Length * sizeof(double);
+
+                                                    // Convert the jagged array into a rectabgular array
+                                                    Parallel.For(0, dimension0Length, i =>
+                                                    {
+                                                        Buffer.BlockCopy(doubleArray2DResponse.Value[i], 0, doubleArray2D, i * bytesPerDimension1, bytesPerDimension1);
+                                                    });
+
+                                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Array was coped in {sw.ElapsedMilliseconds} ms");
+
+                                                    if (CallWasSuccessful(TL, doubleArray2DResponse)) return (T)(object)doubleArray2D;
                                                     restResponseBase = (Response)doubleArray2DResponse;
                                                     break;
 
                                                 case 3:
-                                                    //DoubleArray3DResponse doubleArray3DResponse = JsonSerializer.Deserialize<DoubleArray3DResponse>(deviceJsonResponse.Content, new JsonSerializerOptions { PropertyNameCaseInsensitive = !strictCasing });
-                                                    DoubleArray3DResponse doubleArray3DResponse = Newtonsoft.Json.JsonConvert.DeserializeObject<DoubleArray3DResponse>(deviceJsonResponse.Content);
+                                                    DoubleJaggedArray3DResponse doubleArray3DResponse = JsonSerializer.Deserialize<DoubleJaggedArray3DResponse>(deviceJsonResponse.Content, new JsonSerializerOptions { PropertyNameCaseInsensitive = !strictCasing });
                                                     AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, string.Format(LOG_FORMAT_STRING, doubleArray3DResponse.ClientTransactionID, doubleArray3DResponse.ServerTransactionID, doubleArray3DResponse.Rank.ToString())); //, doubleArray3DResponse.Method));
-                                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Array was deserialised in {sw.ElapsedMilliseconds} ms, Type: {(ImageArrayElementTypes)doubleArray3DResponse.Type}, Rank: {doubleArray3DResponse.Rank}");
-                                                    if (CallWasSuccessful(TL, doubleArray3DResponse)) return (T)((object)doubleArray3DResponse.Value);
+
+                                                    dimension0Length = doubleArray3DResponse.Value.GetLength(0);
+                                                    dimension1Length = doubleArray3DResponse.Value[0].GetLength(0);
+                                                    int dimension2Length = doubleArray3DResponse.Value[0][0].GetLength(0);
+
+                                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Array was deserialised in {sw.ElapsedMilliseconds} ms, Type: {(ImageArrayElementTypes)doubleArray3DResponse.Type}, Rank: {doubleArray3DResponse.Rank}, Dimension 1 Length: {dimension0Length}, Dimension 2 Length: {dimension1Length}, Dimension 3 Length: {dimension2Length}");
+
+                                                    sw.Restart();
+                                                    double[,,] doubleArray3D = new double [dimension0Length, dimension1Length, dimension2Length];
+
+                                                    // Calculate the number of bytes in dimension 1
+                                                    int bytesPerDimension2 = dimension2Length * sizeof(double);
+
+                                                    // Convert the jagged array into a rectabgular array
+                                                    Parallel.For(0, dimension0Length, i =>
+                                                    {
+                                                        for (int j = 0; j < dimension1Length; j++)
+                                                        {
+                                                            Buffer.BlockCopy(doubleArray3DResponse.Value[i][j], 0, doubleArray3D, i * bytesPerDimension2, bytesPerDimension2);
+                                                        }
+                                                    });
+                                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Array was coped in {sw.ElapsedMilliseconds} ms");
+
+                                                    if (CallWasSuccessful(TL, doubleArray3DResponse)) return (T)(object)doubleArray3D;
                                                     restResponseBase = (Response)doubleArray3DResponse;
                                                     break;
 
