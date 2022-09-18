@@ -33,14 +33,28 @@ namespace ASCOM.Alpaca.Clients
         // Private constants
         private const int DYNAMIC_DRIVER_ERROR_NUMBER = 4095; // Alpaca error number that will be returned when a required JSON "Value" element is either absent from the response or is set to "null"
 
+        // Default image array transfer constants
+        private const ImageArrayCompression IMAGE_ARRAY_COMPRESSION_DEFAULT = ImageArrayCompression.None;
+        private const ImageArrayTransferType IMAGE_ARRAY_TRANSFER_TYPE_DEFAULT = ImageArrayTransferType.Base64HandOff;
+
+        // Dynamic client configuration constants
+        private const int SOCKET_ERROR_MAXIMUM_RETRIES = 2; // The number of retries that the client will make when it receives a socket actively refused error from the remote device
+        private const int SOCKET_ERROR_RETRY_DELAY_TIME = 1000; // The delay time (milliseconds) between socket actively refused retries
+        private const string ACCEPT_HEADER_NAME = "Accept"; // Name of HTTP header used to affirm ImageBytes support for image array data
+        private const string CONTENT_TYPE_HEADER_NAME = "Content-Type"; // Name of HTTP header used to affirm the type of data returned by the device
+
+        // Image array ImageBytes - combined mime-type values
+        private const string JSON_MIME_TYPES = AlpacaConstants.APPLICATION_JSON_MIME_TYPE + ", " + AlpacaConstants.TEXT_JSON_MIME_TYPE; // JSON mime types
+        private const string IMAGE_BYTES_ACCEPT_HEADER = AlpacaConstants.IMAGE_BYTES_MIME_TYPE + ", " + JSON_MIME_TYPES; // Value of HTTP header to indicate support for the GetImageBytes mechanic
+
         //Private variables
         private static uint uniqueTransactionNumber = 0; // Unique number that increments on each call to TransactionNumber
+        private static readonly ConcurrentDictionary<long, bool> connectStates;
+
 
         // Lock objects
         private readonly static object connectLockObject = new object();
         private readonly static object transactionCountlockObject = new object();
-
-        private static readonly ConcurrentDictionary<long, bool> connectStates;
 
         #endregion
 
@@ -452,7 +466,7 @@ namespace ASCOM.Alpaca.Clients
         /// <returns></returns>
         internal static T GetValue<T>(uint clientNumber, RestClient client, string URIBase, bool strictCasing, ILogger TL, string method, MemberTypes memberType)
         {
-            return GetValue<T>(clientNumber, client, URIBase, strictCasing, TL, method, AlpacaConstants.IMAGE_ARRAY_TRANSFER_TYPE_DEFAULT, AlpacaConstants.IMAGE_ARRAY_COMPRESSION_DEFAULT, memberType); // Set an arbitrary value for ImageArrayTransferType
+            return GetValue<T>(clientNumber, client, URIBase, strictCasing, TL, method, IMAGE_ARRAY_TRANSFER_TYPE_DEFAULT, IMAGE_ARRAY_COMPRESSION_DEFAULT, memberType); // Set an arbitrary value for ImageArrayTransferType
         }
 
         /// <summary>
@@ -602,7 +616,7 @@ namespace ASCOM.Alpaca.Clients
         /// <returns></returns>
         internal static T SendToRemoteDevice<T>(uint clientNumber, RestClient client, string URIBase, bool strictCasing, ILogger TL, string method, Dictionary<string, string> Parameters, Method HttpMethod, MemberTypes memberType)
         {
-            return SendToRemoteDevice<T>(clientNumber, client, URIBase, strictCasing, TL, method, Parameters, HttpMethod, AlpacaConstants.IMAGE_ARRAY_TRANSFER_TYPE_DEFAULT, AlpacaConstants.IMAGE_ARRAY_COMPRESSION_DEFAULT, memberType);
+            return SendToRemoteDevice<T>(clientNumber, client, URIBase, strictCasing, TL, method, Parameters, HttpMethod, IMAGE_ARRAY_TRANSFER_TYPE_DEFAULT, IMAGE_ARRAY_COMPRESSION_DEFAULT, memberType);
         }
 
         /// <summary>
@@ -677,12 +691,12 @@ namespace ASCOM.Alpaca.Clients
                                 break;
 
                             case ImageArrayTransferType.ImageBytes:
-                                request.AddHeader(AlpacaConstants.ACCEPT_HEADER_NAME, AlpacaConstants.IMAGE_BYTES_ACCEPT_HEADER);
+                                request.AddHeader(ACCEPT_HEADER_NAME, IMAGE_BYTES_ACCEPT_HEADER);
                                 break;
 
                             case ImageArrayTransferType.BestAvailable:
                                 request.AddHeader(AlpacaConstants.BASE64_HANDOFF_HEADER, AlpacaConstants.BASE64_HANDOFF_SUPPORTED);
-                                request.AddHeader(AlpacaConstants.ACCEPT_HEADER_NAME, AlpacaConstants.IMAGE_BYTES_ACCEPT_HEADER);
+                                request.AddHeader(ACCEPT_HEADER_NAME, IMAGE_BYTES_ACCEPT_HEADER);
                                 break;
 
                             default:
@@ -710,7 +724,7 @@ namespace ASCOM.Alpaca.Clients
                     // Use the more efficient .NET HttpClient to get the large image array as a byte[] for the ImageBytes mechanic
                     if ((typeof(T) == typeof(Array)) & ((imageArrayTransferType == ImageArrayTransferType.ImageBytes) | (imageArrayTransferType == ImageArrayTransferType.BestAvailable)))
                     {
-                        deviceJsonResponse = GetResponse($"{client.BaseUrl}{uriBase}{method}".ToLowerInvariant(), AlpacaConstants.IMAGE_BYTES_ACCEPT_HEADER, clientNumber, transaction, TL);
+                        deviceJsonResponse = GetResponse($"{client.BaseUrl}{uriBase}{method}".ToLowerInvariant(), IMAGE_BYTES_ACCEPT_HEADER, clientNumber, transaction, TL);
                     }
                     else // Use the RestSharp client for everything else
                     {
@@ -1481,14 +1495,14 @@ namespace ASCOM.Alpaca.Clients
                             if (ex.InnerException is System.Net.Sockets.SocketException) // There is an inner exception and it is a SocketException so apply the retry logic
                             {
                                 retryCounter += 1; // Increment the retry counter
-                                if (retryCounter <= AlpacaConstants.SOCKET_ERROR_MAXIMUM_RETRIES) // The retry count is less than or equal to the maximum allowed so retry the command
+                                if (retryCounter <= SOCKET_ERROR_MAXIMUM_RETRIES) // The retry count is less than or equal to the maximum allowed so retry the command
                                 {
                                     AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, typeof(T).Name + " " + ex.Message);
                                     AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, "SocketException: " + ex.ToString());
 
                                     // Log that we are retrying the command and wait a short time in the hope that the transient condition clears
-                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Socket exception, retrying command - retry-count {retryCounter}/{AlpacaConstants.SOCKET_ERROR_MAXIMUM_RETRIES}");
-                                    Thread.Sleep(AlpacaConstants.SOCKET_ERROR_RETRY_DELAY_TIME);
+                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Socket exception, retrying command - retry-count {retryCounter}/{SOCKET_ERROR_MAXIMUM_RETRIES}");
+                                    Thread.Sleep(SOCKET_ERROR_RETRY_DELAY_TIME);
                                 }
                                 else // The retry count exceeds the maximum allowed so throw the exception to the client
                                 {
@@ -2097,7 +2111,7 @@ namespace ASCOM.Alpaca.Clients
                 }
 
                 // Extract the content type from the headers
-                if (headers.TryGetValues(AlpacaConstants.CONTENT_TYPE_HEADER_NAME, out contentTypeValues))
+                if (headers.TryGetValues(CONTENT_TYPE_HEADER_NAME, out contentTypeValues))
                 {
                     contentType = contentTypeValues.First().ToLowerInvariant();
                 }

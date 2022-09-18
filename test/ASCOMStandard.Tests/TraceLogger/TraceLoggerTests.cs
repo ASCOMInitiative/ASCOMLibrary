@@ -32,7 +32,7 @@ namespace ASCOM.Alpaca.Tests.TraceLoggerTests
 
             Assert.False(TL.Enabled);
 
-            TL.LogMessage("CreateLog", FIRST_LOG_LINE);
+            TL.LogMessage("CreateLog", SECOND_LOG_LINE_PART1);
 
             string logFile = Path.Combine(TL.LogFilePath, TL.LogFileName);
 
@@ -42,9 +42,6 @@ namespace ASCOM.Alpaca.Tests.TraceLoggerTests
             string[] lines = File.ReadAllLines(logFile);
 
             Assert.Single<string>(lines);
-
-            Console.ReadLine();
-
         }
 
         [Fact]

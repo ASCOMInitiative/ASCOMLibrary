@@ -13,6 +13,42 @@ namespace ASCOM.Alpaca.Tests.Devices
     public class DeviceTypeTests
     {
         [Fact]
+        public void StrToDeviceTypeCorrectCase()
+        {
+            Assert.True(StringToDeviceType("Telescope") == DeviceTypes.Telescope);
+        }
+
+        [Fact]
+        public void StrToDeviceTypeWrongCase()
+        {
+            Assert.True(StringToDeviceType("cAMERA") == DeviceTypes.Camera);
+        }
+
+        [Fact]
+        public void StrToDeviceTypeBadValue()
+        {
+            Assert.Throws<InvalidValueException>(() => StringToDeviceType( "InvalidDeviceName"));
+        }
+
+        [Fact]
+        public void DeviceTypeToStrCorrectCase1()
+        {
+            Assert.True(DeviceTypeToString(DeviceTypes.Telescope) == "Telescope");
+        }
+
+        [Fact]
+        public void DeviceTypeToStrCorrectCase2()
+        {
+            Assert.True(DeviceTypeToString(DeviceTypes.Camera) == "Camera");
+        }
+
+        [Fact]
+        public void DeviceTypeToStrBadValue()
+        {
+            Assert.Throws<InvalidValueException>(() => DeviceTypeToString((DeviceTypes) 9999));
+        }
+
+        [Fact]
         public void IsValidDeviceTypeCamera()
         {
             Assert.True(IsValidDeviceType(DeviceTypes.Camera));

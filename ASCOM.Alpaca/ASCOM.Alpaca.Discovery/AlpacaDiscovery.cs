@@ -36,7 +36,13 @@ namespace ASCOM.Alpaca.Discovery
     public class AlpacaDiscovery : IDisposable
     {
 
-        #region Variables
+        #region Variables and Constants
+
+        // Constants to support discovery
+        internal const string TRYING_TO_CONTACT_MANAGEMENT_API_MESSAGE = "Trying to contact Alpaca management API";
+        internal const string FAILED_TO_CONTACT_MANAGEMENT_API_MESSAGE = "The Alpaca management API did not respond within the discovery response time";
+        internal const double MINIMUM_TIME_REMAINING_TO_UNDERTAKE_DNS_RESOLUTION = 0.1d; // Minimum discovery time (seconds) that must remain if a DNS IP to host name resolution is to be attempted
+        internal const int NUMBER_OF_THREAD_MESSAGE_INDENT_SPACES = 2;
 
         // Utility objects
         private readonly TraceLogger TL;
@@ -381,9 +387,9 @@ namespace ASCOM.Alpaca.Discovery
             {
                 foreach (KeyValuePair<IPEndPoint, AlpacaDevice> alpacaDevice in alpacaDeviceList)
                 {
-                    if (ReferenceEquals(alpacaDevice.Value.StatusMessage, Constants.TRYING_TO_CONTACT_MANAGEMENT_API_MESSAGE))
+                    if (ReferenceEquals(alpacaDevice.Value.StatusMessage, TRYING_TO_CONTACT_MANAGEMENT_API_MESSAGE))
                     {
-                        alpacaDevice.Value.StatusMessage = Constants.FAILED_TO_CONTACT_MANAGEMENT_API_MESSAGE;
+                        alpacaDevice.Value.StatusMessage = FAILED_TO_CONTACT_MANAGEMENT_API_MESSAGE;
                         statusMessagesUpdated = true;
                     }
                 }
@@ -410,7 +416,7 @@ namespace ASCOM.Alpaca.Discovery
                 {
                     if (!alpacaDeviceList.ContainsKey(responderIPEndPoint))
                     {
-                        alpacaDeviceList.Add(responderIPEndPoint, new AlpacaDevice(responderIPEndPoint, Constants.TRYING_TO_CONTACT_MANAGEMENT_API_MESSAGE));
+                        alpacaDeviceList.Add(responderIPEndPoint, new AlpacaDevice(responderIPEndPoint, TRYING_TO_CONTACT_MANAGEMENT_API_MESSAGE));
                         RaiseAnAlpacaDevicesChangedEvent(); // Device was added so set the changed flag
                     }
                 }
@@ -553,7 +559,7 @@ namespace ASCOM.Alpaca.Discovery
 
                     // Calculate the remaining time before this discovery needs to finish and only undertake DNS resolution if sufficient time remains
                     var timeOutTime = TimeSpan.FromSeconds(discoveryTime).Subtract(DateTime.Now - discoveryStartTime).Subtract(TimeSpan.FromSeconds(0.2d));
-                    if (timeOutTime.TotalSeconds > Constants.MINIMUM_TIME_REMAINING_TO_UNDERTAKE_DNS_RESOLUTION) // We have more than the configured time left so we will attempt a reverse DNS name resolution
+                    if (timeOutTime.TotalSeconds > MINIMUM_TIME_REMAINING_TO_UNDERTAKE_DNS_RESOLUTION) // We have more than the configured time left so we will attempt a reverse DNS name resolution
                     {
                         LogMessage("ResolveIpAddressToHostName", $"Resolving IP address: {deviceIpEndPoint.Address}, Timeout: {timeOutTime}");
                         Dns.BeginGetHostEntry(deviceIpEndPoint.Address.ToString(), new AsyncCallback(GetHostEntryCallback), dnsResponse);

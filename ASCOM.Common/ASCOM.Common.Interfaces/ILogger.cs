@@ -16,7 +16,7 @@
         /// <summary>
         /// Set the current minimum logging level. The logger should write out at this level and higher and not write out lower level events. This method should never throw.
         /// </summary>
-        /// <param name="level"></param>
+        /// <param name="level">Required logging level.</param>
         void SetMinimumLoggingLevel(LogLevel level);
 
         /// <summary>

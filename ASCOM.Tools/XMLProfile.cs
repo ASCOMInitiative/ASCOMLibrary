@@ -159,7 +159,7 @@ namespace ASCOM.Tools
         /// Determines whether a settings key already exists
         /// </summary>
         /// <param name="key">Name of the key</param>
-        /// <returns></returns>
+        /// <returns>True if the settings key already exists, otherwise false</returns>
         public bool ContainsKey(string key)
         {
             return Settings.Any(s => s.Key == key);
@@ -170,7 +170,7 @@ namespace ASCOM.Tools
         /// </summary>
         /// <param name="key">Key name</param>
         /// <returns>String key value.</returns>
-        /// <exception cref="KeyNotFoundException"></exception>
+        /// <exception cref="KeyNotFoundException">If the specified key does not exist</exception>
         public string GetValue(string key)
         {
             if (ContainsKey(key))
@@ -236,7 +236,7 @@ namespace ASCOM.Tools
         /// <summary>
         /// Deletes a key from the Profile
         /// </summary>
-        /// <param name="key"></param>
+        /// <param name="key">Key name to delete</param>
         public void DeleteValue(string key)
         {
             try
@@ -251,10 +251,10 @@ namespace ASCOM.Tools
         }
 
         /// <summary>
-        /// Loads a profile from an XML document
+        /// Sets a profile from an XML document
         /// </summary>
-        /// <param name="rawProfile"></param>
-        /// <exception cref="ArgumentNullException"></exception>
+        /// <param name="rawProfile">A raw XML profile string returned by <see cref="GetProfile"/></param>
+        /// <exception cref="ArgumentNullException">If the supplied profile string is null or empty</exception>
         public void SetProfile(string rawProfile)
         {
             if (string.IsNullOrEmpty(rawProfile))
@@ -432,8 +432,8 @@ namespace ASCOM.Tools
             /// <summary>
             /// Initialise the SettingsPair with the supplied key name and value.
             /// </summary>
-            /// <param name="key"></param>
-            /// <param name="value"></param>
+            /// <param name="key">The key name for this setting</param>
+            /// <param name="value">The value of this setting</param>
             public SettingsPair(string key, string value)
             {
                 Key = key;

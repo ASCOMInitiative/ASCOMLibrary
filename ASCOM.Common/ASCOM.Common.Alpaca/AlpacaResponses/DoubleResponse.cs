@@ -41,7 +41,7 @@
         }
 
         /// <summary>
-        /// double value returned by the device
+        /// Double value returned by the device
         /// </summary>
         public double Value { get; set; }
 

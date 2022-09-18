@@ -81,7 +81,7 @@
         /// are expected to execute Move requests when temperature compensation is active and to hide any specific actions required by the hardware from the client. For example this could be achieved by disabling temperature compensation, moving the focuser and re-enabling 
         /// temperature compensation or simply by moving the focuser with compensation enabled if the hardware supports this.</para>
         /// <para>Conform will continue to pass IFocuserV2 drivers that throw InvalidOperationException exceptions. However, Conform will now fail IFocuserV3 drivers that throw InvalidOperationException exceptions, in line with this revised specification.</para>
-        ///     '''</remarks>
+        /// </remarks>
         void Move(int Position);
 
         /// <summary>

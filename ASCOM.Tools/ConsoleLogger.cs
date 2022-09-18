@@ -61,7 +61,7 @@ namespace ASCOM.Tools
         /// <summary>
         /// Minimum logging level to display.
         /// </summary>
-        /// <param name="level"></param>
+        /// <param name="level">Required logging level.</param>
         public void SetMinimumLoggingLevel(LogLevel level)
         {
             LoggingLevel = level;

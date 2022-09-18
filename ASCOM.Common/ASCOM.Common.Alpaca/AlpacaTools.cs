@@ -42,7 +42,7 @@ namespace ASCOM.Common.Alpaca
         /// <param name="serverTransactionID">Device's transaction ID.r</param>
         /// <param name="alpacaErrorNumber">Alpaca error number</param> 
         /// <param name="errorMessage">Error message to encode.</param>
-        /// <returns></returns>
+        /// <returns>The error message as a byte array</returns>
         /// <exception cref="InvalidValueException"></exception>
         public static byte[] ErrorMessageToByteArray(int metadataVersion, uint clientTransactionID, uint serverTransactionID, AlpacaErrors alpacaErrorNumber, string errorMessage)
         {

@@ -7,9 +7,10 @@
 		<StartupObject />
 		<RootNamespace>ASCOM.Alpaca</RootNamespace>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-		<Authors>Daniel Van Noord, Peter Simpson</Authors>
+		<Authors>Daniel Van Noord and Peter Simpson</Authors>
 		<Company>ASCOM Initiative</Company>
 		<Description>A .Net Standard library providing ASCOM Alpaca client and discovery components.</Description>
+		<Copyright>Copyright ASCOM Initiative 2022</Copyright>
 		<PackageLicenseExpression></PackageLicenseExpression>
 		<PackageIcon>ASCOMBoarderless.png</PackageIcon>
 		<PackageReleaseNotes>Initial release supporting all device types except Video and targeting .NET Standard 2.0.</PackageReleaseNotes>
@@ -29,10 +30,16 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <None Include="..\ASCOMBoarderless.png">
-	    <Pack>True</Pack>
-	    <PackagePath></PackagePath>
-	  </None>
+	  <Compile Remove="ASCOM.Alpaca.Discovery\Response Classes\**" />
+	  <EmbeddedResource Remove="ASCOM.Alpaca.Discovery\Response Classes\**" />
+	  <None Remove="ASCOM.Alpaca.Discovery\Response Classes\**" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="..\ASCOMBoarderless.png">
+			<Pack>True</Pack>
+			<PackagePath></PackagePath>
+		</None>
 	</ItemGroup>
 
 	<ItemGroup>
@@ -42,12 +49,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\ASCOM.Common\ASCOM.Common.csproj" />
-	  <ProjectReference Include="..\ASCOM.Tools\ASCOM.Tools.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Folder Include="ASCOM.Alpaca.Discovery\Response Classes\" />
+		<ProjectReference Include="..\ASCOM.Common\ASCOM.Common.csproj" />
+		<ProjectReference Include="..\ASCOM.Tools\ASCOM.Tools.csproj" />
 	</ItemGroup>
 
 </Project>

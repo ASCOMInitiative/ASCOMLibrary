@@ -1,5 +1,8 @@
 ﻿namespace ASCOM.Common.DeviceInterfaces
 {
+    /// <summary>
+    /// The CoverCalibrator device's cover state
+    /// </summary>
     public enum CoverStatus
     {
         /// <summary>

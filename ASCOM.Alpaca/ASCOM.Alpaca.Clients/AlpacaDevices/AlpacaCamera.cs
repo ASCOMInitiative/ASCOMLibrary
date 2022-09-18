@@ -31,7 +31,7 @@ namespace ASCOM.Alpaca.Clients
         #region Initialiser
 
         /// <summary>
-        /// Create an Alpaca Camera device with all values set to default
+        /// Create a client for an Alpaca Camera device with all parameters set to default values
         /// </summary>
         public AlpacaCamera()
         {
@@ -39,8 +39,22 @@ namespace ASCOM.Alpaca.Clients
         }
 
         /// <summary>
-        /// Create an Alpaca Camera device specifying all parameters
+        /// Create a client for an Alpaca Camera device specifying all parameters
         /// </summary>
+        /// <param name="serviceType">HTTP or HTTPS</param>
+        /// <param name="ipAddressString">Alpaca device's IP Address</param>
+        /// <param name="portNumber">Alpaca device's IP Port number</param>
+        /// <param name="remoteDeviceNumber">Alpaca device's device number e.g. Telescope/0</param>
+        /// <param name="establishConnectionTimeout">Timeout to initially connect to the Alpaca device</param>
+        /// <param name="standardDeviceResponseTimeout">Timeout for transactions that are expected to complete quickly e.g. retrieving CanXXX properties</param>
+        /// <param name="longDeviceResponseTimeout">Timeout for transactions that are expected to take a long time to complete e.g. Camera.ImageArray</param>
+        /// <param name="clientNumber">Arbitrary integer that represents this client. (Should be the same for all transactions from this client)</param>
+        /// <param name="imageArrayTransferType">Specifies the method to be used to retrieve the ImageArray property value.</param>
+        /// <param name="imageArrayCompression">Extent to which the ImageArray data stream should be compressed.</param>
+        /// <param name="userName">Basic authentication user name for the Alpaca device</param>
+        /// <param name="password">basic authentication password for the Alpaca device</param>
+        /// <param name="strictCasing">Tolerate or throw exceptions  if the Alpaca device does not use strictly correct casing for JSON object element names.</param>
+        /// <param name="TL">Optional ILogger instance that can be sued to record operational information during execution</param>
         public AlpacaCamera(ServiceType serviceType,
                           string ipAddressString,
                           int portNumber,
@@ -76,8 +90,14 @@ namespace ASCOM.Alpaca.Clients
         }
 
         /// <summary>
-        /// Create an Alpaca Camera device specifying the minimum required parameters, others will have default values
+        /// Create a client for an Alpaca Camera device specifying the minimum number of parameters
         /// </summary>
+        /// <param name="serviceType">HTTP or HTTPS</param>
+        /// <param name="ipAddressString">Alpaca device's IP Address</param>
+        /// <param name="portNumber">Alpaca device's IP Port number</param>
+        /// <param name="remoteDeviceNumber">Alpaca device's device number e.g. Telescope/0</param>
+        /// <param name="strictCasing">Tolerate or throw exceptions  if the Alpaca device does not use strictly correct casing for JSON object element names.</param>
+        /// <param name="logger">Optional ILogger instance that can be sued to record operational information during execution</param>
         public AlpacaCamera(ServiceType serviceType,
                          string ipAddressString,
                          int portNumber,
@@ -129,20 +149,20 @@ namespace ASCOM.Alpaca.Clients
         /// <summary>
         /// Configure the device and establish an HTTP connection
         /// </summary>
-        /// <param name="serviceType"></param>
-        /// <param name="ipAddressString"></param>
-        /// <param name="portNumber"></param>
-        /// <param name="remoteDeviceNumber"></param>
-        /// <param name="establishConnectionTimeout"></param>
-        /// <param name="standardDeviceResponseTimeout"></param>
-        /// <param name="longDeviceResponseTimeout"></param>
-        /// <param name="clientNumber"></param>
-        /// <param name="imageArrayTransferType"></param>
-        /// <param name="imageArrayCompression"></param>
-        /// <param name="userName"></param>
-        /// <param name="password"></param>
-        /// <param name="strictCasing"></param>
-        /// <param name="TL"></param>
+        /// <param name="serviceType">HTTP or HTTPS</param>
+        /// <param name="ipAddressString">Alpaca device's IP Address</param>
+        /// <param name="portNumber">Alpaca device's IP Port number</param>
+        /// <param name="remoteDeviceNumber">Alpaca device's device number e.g. Telescope/0</param>
+        /// <param name="establishConnectionTimeout">Timeout to initially connect to the Alpaca device</param>
+        /// <param name="standardDeviceResponseTimeout">Timeout for transactions that are expected to complete quickly e.g. retrieving CanXXX properties</param>
+        /// <param name="longDeviceResponseTimeout">Timeout for transactions that are expected to take a long time to complete e.g. Camera.ImageArray</param>
+        /// <param name="clientNumber">Arbitrary integer that represents this client. (Should be the same for all transactions from this client)</param>
+        /// <param name="imageArrayTransferType">Specifies the method to be used to retrieve the ImageArray property value.</param>
+        /// <param name="imageArrayCompression">Extent to which the ImageArray data stream should be compressed.</param>
+        /// <param name="userName">Basic authentication user name for the Alpaca device</param>
+        /// <param name="password">basic authentication password for the Alpaca device</param>
+        /// <param name="strictCasing">Tolerate or throw exceptions  if the Alpaca device does not use strictly correct casing for JSON object element names.</param>
+        /// <param name="TL">Optional ILogger instance that can be sued to record operational information during execution</param>
         public void ConfigureAndConnect(ServiceType serviceType,
                           string ipAddressString,
                           int portNumber,
@@ -678,7 +698,7 @@ namespace ASCOM.Alpaca.Clients
             get
             {
                 DynamicClientDriver.SetClientTimeout(client, longDeviceResponseTimeout);
-                return DynamicClientDriver.GetValue<Array>(clientNumber, client, URIBase, strictCasing, TL, AlpacaConstants.IMAGE_ARRAY_METHOD_NAME, imageArrayTransferType, imageArrayCompression, MemberTypes.Property);
+                return DynamicClientDriver.GetValue<Array>(clientNumber, client, URIBase, strictCasing, TL, "ImageArray", imageArrayTransferType, imageArrayCompression, MemberTypes.Property);
             }
         }
 

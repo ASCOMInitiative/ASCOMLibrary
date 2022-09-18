@@ -1,0 +1,88 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<topic id="448ecc79-4087-401f-97ca-3e2af8022a62" revisionNumber="1">
+  <developerConceptualDocument xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <introduction>
+      <para>ASCOM Library functionality is delivered in five packages to minimise the file size footprint and to ensure that only required functionality is compiled into applications, drivers and devices.</para> 
+      <para>The following sections describe the contents of each library package.</para>
+    </introduction>
+
+    <section address="ASCOM.Alpaca.Components">
+      <title>ASCOM.Alpaca.Components Package</title>
+      <content>
+        <list class="bullet">
+	        <listItem>Alpaca client toolkit</listItem>
+	        <listItem>Alpaca client discovery support</listItem>
+
+        </list>
+      </content>
+    </section>
+
+    <section address="ASCOM.Alpaca.Device">
+      <title>ASCOM.Alpaca.Device Package</title>
+      <content>
+        <list class="bullet">
+	        <listItem>Discovery response support for Alpaca devices.</listItem>
+        </list>
+      </content>
+    </section>
+
+    <section address="ASCOM.Com.Components">
+      <title>ASCOM.Com.Components Package</title>
+      <content>
+      <para>These components will only work on Windows OS</para>
+        <list class="bullet">
+	        <listItem>COM client toolkit</listItem>
+	        <listItem>Profile tool to query and manipulate the ASCOM Profile store</listItem>
+	        <listItem>Chooser tool to enable users to select a specific COM driver.</listItem>
+
+        </list>
+      </content>
+    </section>
+
+    <section address="ASCOM.Common.Components">
+      <title>ASCOM.Common.Components Package</title>
+      <content>
+        <list class="bullet">
+	        <listItem>ASCOM device interface definitions</listItem>
+	        <listItem>Class definitions for all Alpaca JSON responses</listItem>
+	        <listItem>Constants for defined Alpaca protocol element names e.g. parameter names for HTTP PUT operations</listItem>
+	        <listItem>Class definitions for Alpaca discovery responses.</listItem>
+	        <listItem>Enums for Alpaca protocol options (such as how to return data from Camera.ImageArray) and Alpaca error numbers.</listItem>
+	        <listItem>COM error number special values such as minimum and maximum values that define the valid range.</listItem>
+	        <listItem>Helper functions to make handling Exceptions from Alpaca devices easier</listItem>
+	        <listItem>ILogger and IProfile interface definitions</listItem>
+	        <listItem>Functions to list, manipulate and validate ASCOM device type names.</listItem>
+
+        </list>
+      </content>
+    </section>
+
+    <section address="ASCOM.Tools">
+      <title>ASCOM.Tools Package</title>
+      <content>
+        <list class="bullet">
+	        <listItem>Cross platform SOFA library with the same functionality as the Platform's SOFA component.</listItem>
+	        <listItem>Cross Platform Transform component with the same functionality as the Platform's Transform component.</listItem>
+	        <listItem>Console logger component that exposes the ILogger interface.</listItem>
+	        <listItem>TraceLogger component that exposes the ILogger interface, with functionality similar to the Platform's TraceLogger component.</listItem>
+	        <listItem>Utilities component that provides capabilities that are not straightforwardly available from .NET APIs. These capabilities include:
+	        	<list class="bullet">
+	        		<listItem>Sexagesimal Conversions</listItem>
+	        		<listItem>Degrees to degree:minute:second conversions</listItem>
+	        		<listItem>Degrees to degree:minute conversions</listItem>
+	        		<listItem>Degrees to hour:minute:second conversions</listItem>
+	        		<listItem>Degrees to hour:minute conversions</listItem>
+	        		<listItem>Hours to hour:minute:second conversions</listItem>
+	        		<listItem>Hours to hour:minute conversions</listItem>
+	        		<listItem>Julian date functions</listItem>
+	        		<listItem>ObservingConditions property conversions</listItem>
+	        		<listItem>Coordinate validation and management functions</listItem>
+	        	</list>
+	        </listItem>
+        </list>
+      </content>
+    </section>
+
+
+  </developerConceptualDocument>
+</topic>
