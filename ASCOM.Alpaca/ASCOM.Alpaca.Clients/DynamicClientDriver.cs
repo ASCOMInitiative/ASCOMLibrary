@@ -388,6 +388,10 @@ namespace ASCOM.Alpaca.Clients
             // Set the base URI for the device
             client.BaseAddress = new Uri(clientHostAddress);
 
+            // Add accept headers for JSON
+            client.DefaultRequestHeaders.Accept.Clear();
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(AlpacaConstants.APPLICATION_JSON_MIME_TYPE));
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(AlpacaConstants.TEXT_JSON_MIME_TYPE));
         }
 
         // /// <summary>
