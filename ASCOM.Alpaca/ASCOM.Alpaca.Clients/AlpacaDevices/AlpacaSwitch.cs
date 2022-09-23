@@ -117,7 +117,7 @@ namespace ASCOM.Alpaca.Clients
                 AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, clientDeviceType, $"Password is Null or Empty: {string.IsNullOrEmpty(password)}, Password is Null or White Space: {string.IsNullOrWhiteSpace(password)}");
                 AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, clientDeviceType, $"Password length: {password.Length}");
 
-                DynamicClientDriver.ConnectToRemoteDevice(ref client, serviceType, ipAddressString, portNumber, clientNumber, clientDeviceType, standardDeviceResponseTimeout, userName, password, TL);
+                DynamicClientDriver.ConnectToRemoteDevice(ref client, serviceType, ipAddressString, portNumber, clientNumber, clientDeviceType, standardDeviceResponseTimeout, userName, password, ImageArrayCompression.None, TL);
                 AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, clientDeviceType, "Completed initialisation");
             }
             catch (Exception ex)
@@ -147,8 +147,7 @@ namespace ASCOM.Alpaca.Clients
         /// </remarks>
         public bool CanWrite(short id)
         {
-            DynamicClientDriver.SetClientTimeout(client, standardDeviceResponseTimeout);
-            return DynamicClientDriver.GetShortIndexedBool(clientNumber, client, URIBase, strictCasing, TL, "CanWrite", id, MemberTypes.Method);
+            return DynamicClientDriver.GetShortIndexedBool(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing,TL, "CanWrite", id, MemberTypes.Method);
         }
 
         /// <summary>
@@ -173,8 +172,7 @@ namespace ASCOM.Alpaca.Clients
         /// <para>Devices are numbered from 0 to <see cref="MaxSwitch"/> - 1</para></remarks>
         public bool GetSwitch(short id)
         {
-            DynamicClientDriver.SetClientTimeout(client, standardDeviceResponseTimeout);
-            return DynamicClientDriver.GetShortIndexedBool(clientNumber, client, URIBase, strictCasing, TL, "GetSwitch", id, MemberTypes.Method);
+            return DynamicClientDriver.GetShortIndexedBool(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing,TL, "GetSwitch", id, MemberTypes.Method);
         }
 
         /// <summary>
@@ -194,8 +192,7 @@ namespace ASCOM.Alpaca.Clients
         /// </remarks>
         public string GetSwitchDescription(short id)
         {
-            DynamicClientDriver.SetClientTimeout(client, standardDeviceResponseTimeout);
-            return DynamicClientDriver.GetShortIndexedString(clientNumber, client, URIBase, strictCasing, TL, "GetSwitchDescription", id, MemberTypes.Method);
+            return DynamicClientDriver.GetShortIndexedString(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing,TL, "GetSwitchDescription", id, MemberTypes.Method);
         }
 
         /// <summary>
@@ -210,8 +207,7 @@ namespace ASCOM.Alpaca.Clients
         /// <para>Devices are numbered from 0 to <see cref="MaxSwitch"/> - 1</para></remarks>
         public string GetSwitchName(short id)
         {
-            DynamicClientDriver.SetClientTimeout(client, standardDeviceResponseTimeout);
-            return DynamicClientDriver.GetShortIndexedString(clientNumber, client, URIBase, strictCasing, TL, "GetSwitchName", id, MemberTypes.Method);
+            return DynamicClientDriver.GetShortIndexedString(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing,TL, "GetSwitchName", id, MemberTypes.Method);
         }
 
         /// <summary>
@@ -237,8 +233,7 @@ namespace ASCOM.Alpaca.Clients
         /// </remarks>
         public double GetSwitchValue(short id)
         {
-            DynamicClientDriver.SetClientTimeout(client, standardDeviceResponseTimeout);
-            return DynamicClientDriver.GetShortIndexedDouble(clientNumber, client, URIBase, strictCasing, TL, "GetSwitchValue", id, MemberTypes.Method);
+            return DynamicClientDriver.GetShortIndexedDouble(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing,TL, "GetSwitchValue", id, MemberTypes.Method);
         }
 
         /// <summary>
@@ -253,8 +248,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                DynamicClientDriver.SetClientTimeout(client, standardDeviceResponseTimeout);
-                return DynamicClientDriver.GetValue<short>(clientNumber, client, URIBase, strictCasing, TL, "MaxSwitch", MemberTypes.Property);
+                    return DynamicClientDriver.GetValue<short>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing,TL, "MaxSwitch", MemberTypes.Property);
             }
         }
 
@@ -273,8 +267,7 @@ namespace ASCOM.Alpaca.Clients
         /// </remarks>
         public double MaxSwitchValue(short id)
         {
-            DynamicClientDriver.SetClientTimeout(client, standardDeviceResponseTimeout);
-            return DynamicClientDriver.GetShortIndexedDouble(clientNumber, client, URIBase, strictCasing, TL, "MaxSwitchValue", id, MemberTypes.Method);
+            return DynamicClientDriver.GetShortIndexedDouble(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing,TL, "MaxSwitchValue", id, MemberTypes.Method);
         }
 
         /// <summary>
@@ -292,8 +285,7 @@ namespace ASCOM.Alpaca.Clients
         /// </remarks>
         public double MinSwitchValue(short id)
         {
-            DynamicClientDriver.SetClientTimeout(client, standardDeviceResponseTimeout);
-            return DynamicClientDriver.GetShortIndexedDouble(clientNumber, client, URIBase, strictCasing, TL, "MinSwitchValue", id, MemberTypes.Method);
+            return DynamicClientDriver.GetShortIndexedDouble(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing,TL, "MinSwitchValue", id, MemberTypes.Method);
         }
 
         /// <summary>
@@ -316,8 +308,7 @@ namespace ASCOM.Alpaca.Clients
         /// </remarks>
         public double SwitchStep(short id)
         {
-            DynamicClientDriver.SetClientTimeout(client, standardDeviceResponseTimeout);
-            return DynamicClientDriver.GetShortIndexedDouble(clientNumber, client, URIBase, strictCasing, TL, "SwitchStep", id, MemberTypes.Method);
+            return DynamicClientDriver.GetShortIndexedDouble(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing,TL, "SwitchStep", id, MemberTypes.Method);
         }
 
         /// <summary>
@@ -334,8 +325,7 @@ namespace ASCOM.Alpaca.Clients
         /// </remarks>
         public void SetSwitchName(short id, string name)
         {
-            DynamicClientDriver.SetClientTimeout(client, standardDeviceResponseTimeout);
-            DynamicClientDriver.SetStringWithShortParameter(clientNumber, client, URIBase, strictCasing, TL, "SetSwitchName", id, name, MemberTypes.Method);
+            DynamicClientDriver.SetStringWithShortParameter(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing,TL, "SetSwitchName", id, name, MemberTypes.Method);
         }
 
         /// <summary>
@@ -352,8 +342,7 @@ namespace ASCOM.Alpaca.Clients
         /// <para>Devices are numbered from 0 to <see cref="MaxSwitch"/> - 1</para></remarks>
         public void SetSwitch(short id, bool state)
         {
-            DynamicClientDriver.SetClientTimeout(client, standardDeviceResponseTimeout);
-            DynamicClientDriver.SetBoolWithShortParameter(clientNumber, client, URIBase, strictCasing, TL, "SetSwitch", id, state, MemberTypes.Method);
+            DynamicClientDriver.SetBoolWithShortParameter(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing,TL, "SetSwitch", id, state, MemberTypes.Method);
         }
 
         /// <summary>
@@ -375,8 +364,7 @@ namespace ASCOM.Alpaca.Clients
         /// </remarks>
         public void SetSwitchValue(short id, double value)
         {
-            DynamicClientDriver.SetClientTimeout(client, standardDeviceResponseTimeout);
-            DynamicClientDriver.SetDoubleWithShortParameter(clientNumber, client, URIBase, strictCasing, TL, "SetSwitchValue", id, value, MemberTypes.Method);
+            DynamicClientDriver.SetDoubleWithShortParameter(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing,TL, "SetSwitchValue", id, value, MemberTypes.Method);
         }
 
         #endregion
