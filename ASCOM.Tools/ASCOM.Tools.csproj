@@ -12,6 +12,7 @@
 		<PackageIcon>ASCOMBoarderless.png</PackageIcon>
 		<Configurations>Debug;Release;Swashbuckle_Documentation</Configurations>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

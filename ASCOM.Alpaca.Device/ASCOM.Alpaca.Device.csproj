@@ -11,7 +11,7 @@
 		<Copyright>Copyright ASCOM Initiative 2022</Copyright>
 		<Company>ASCOM Initiative</Company>
 		<Description>A .Net Standard library providing ASCOM Alpaca device / driver specific components.</Description>
-		<PackageLicenseExpression></PackageLicenseExpression>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageIcon>ASCOMBoarderless.png</PackageIcon>
 		<PackageReleaseNotes>Initial release supporting all device types except Video and targeting .NET Standard 2.0.</PackageReleaseNotes>
 		<PackageId>ASCOM.Alpaca.Device</PackageId>

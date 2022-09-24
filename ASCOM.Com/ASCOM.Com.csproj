@@ -15,6 +15,7 @@
 		<Product>ASCOM COM Components</Product>
 		<Configurations>Debug;Release;Swashbuckle_Documentation</Configurations>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 	</PropertyGroup>
 
 	<ItemGroup>

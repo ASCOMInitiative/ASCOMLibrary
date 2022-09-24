@@ -11,7 +11,7 @@
 		<Company>ASCOM Initiative</Company>
 		<Description>A .Net Standard library providing ASCOM Alpaca client and discovery components.</Description>
 		<Copyright>Copyright ASCOM Initiative 2022</Copyright>
-		<PackageLicenseExpression></PackageLicenseExpression>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageIcon>ASCOMBoarderless.png</PackageIcon>
 		<PackageReleaseNotes>Initial release supporting all device types except Video and targeting .NET Standard 2.0.</PackageReleaseNotes>
 		<PackageId>ASCOM.Alpaca.Components</PackageId>
@@ -21,6 +21,8 @@
 		<DelaySign>false</DelaySign>
 		<Configurations>Debug;Release;Swashbuckle_Documentation</Configurations>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
+		<FileVersion>0.9.0.1</FileVersion>
+		<AssemblyVersion>0.9.0.1</AssemblyVersion>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
