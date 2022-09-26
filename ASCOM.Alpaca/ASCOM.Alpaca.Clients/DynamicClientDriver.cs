@@ -1438,13 +1438,23 @@ namespace ASCOM.Alpaca.Clients
                         // HANDLE COM EXCEPTIONS THROWN BY WINDOWS BASED DRIVERS RUNNING IN THE REMOTE DEVICE
                         if (restResponseBase.DriverException != null)
                         {
-                            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Exception Message: \"{restResponseBase.ErrorMessage}\", Exception Number: 0x{restResponseBase.DriverException.HResult:X8}");
+                            try
+                            {
+                                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"JSON Exception Message: \"{restResponseBase.ErrorMessage}\", Exception Number: {restResponseBase.DriverException.HResult}");
+                                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Exception Message: \"{restResponseBase.ErrorMessage}\", Exception Number: 0x{(int)restResponseBase.DriverException.HResult:X8}");
+                                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Exception returned by device: {restResponseBase.DriverException}");
+                            }
+                            catch (Exception ex1)
+                            {
+                                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Exception logging error message! : {ex1}");
+                            }
                             throw restResponseBase.DriverException;
                         }
 
                         // HANDLE ERRORS REPORTED BY ALPACA DEVICES THAT USE THE ERROR NUMBER AND ERROR MESSAGE FIELDS
                         if ((restResponseBase.ErrorMessage != "") || (restResponseBase.ErrorNumber != 0))
                         {
+                            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Received an Alpaca error - ErrorNumber: {restResponseBase.ErrorNumber}");
                             AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Received an Alpaca error - ErrorMessage: \"{restResponseBase.ErrorMessage}\", ErrorNumber: 0x{(int)restResponseBase.ErrorNumber:X8}");
 
                             // Handle ASCOM Alpaca reserved error numbers between 0x400 and 0xFFF by translating these to the COM HResult error number range: 0x80040400 to 0x80040FFF and throwing the translated value as an exception
@@ -1512,7 +1522,7 @@ namespace ASCOM.Alpaca.Clients
                             }
                             else // An exception has been thrown with an error number outside the ASCOM Alpaca reserved range, so wrap it in a DriverException and throw this to the client.
                             {
-                                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Alpaca error outside ASCOM reserved range, throwing DriverException - ErrorMessage: \"{restResponseBase.ErrorMessage}\", ErrorNumber: 0x{restResponseBase.ErrorNumber:X8}");
+                                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Alpaca error outside ASCOM reserved range, throwing DriverException - ErrorMessage: \"{restResponseBase.ErrorMessage}\", ErrorNumber: 0x{(int)restResponseBase.ErrorNumber:X8}");
                                 throw new DriverException(restResponseBase.ErrorMessage, (int)restResponseBase.ErrorNumber);
                             }
                         }
