@@ -679,6 +679,7 @@ namespace ASCOM.Alpaca.Clients
             Array remoteArray = null;
             string responseContentType = "NoContentTypeProvided";
             string responseJson = "";
+            HttpRequestMessage request; // HTTP request definition
 
             sw.Start();
             swOverall.Start();
@@ -695,61 +696,83 @@ namespace ASCOM.Alpaca.Clients
                     uint transactionId = GetNextTransactionNumber();
 
                     // Create the URI for this transaction and apply it to the request, adding "client id" and "transaction number" query paramerters
-                    UriBuilder transactionUri = new UriBuilder($"{client.BaseAddress}/{uriBase}{method}".ToLowerInvariant())
-                    {
-                        Query = $"{AlpacaConstants.CLIENTID_PARAMETER_NAME}={clientNumber}&{AlpacaConstants.CLIENTTRANSACTION_PARAMETER_NAME}={transactionId}"
-                    };
-
-                    // Add to the query string any further required parameters for HTTP GET methods
-                    if ((httpMethod == HttpMethod.Get) & (parameters.Count > 0))
-                    {
-                        foreach (KeyValuePair<string, string> parameter in parameters)
-                        {
-                            transactionUri.Query = $"{transactionUri.Query}&{parameter.Key}={parameter.Value}";
-                        }
-                    }
-                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"UriBase: '{uriBase}', Device URI: {transactionUri.Uri}");
+                    UriBuilder transactionUri = new UriBuilder($"{client.BaseAddress}{uriBase}{method}".ToLowerInvariant());
 
                     // Create a new request message to be sent to the device
-                    HttpRequestMessage request = new HttpRequestMessage(httpMethod, transactionUri.Uri);
+                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"UriBase: '{uriBase}', Device URI: {transactionUri.Uri}");
 
-                    // If required, apply headers to control camera image array transfer
-                    if (typeof(T) == typeof(Array))
+                    // Process HTTP GET and PUT methods
+                    if (httpMethod == HttpMethod.Get) // HTTP GET methods
                     {
-                        switch (imageArrayTransferType)
+                        // Add client id and transactikon id query parameters
+                        transactionUri.Query = $"{AlpacaConstants.CLIENTID_PARAMETER_NAME}={clientNumber}&{AlpacaConstants.CLIENTTRANSACTION_PARAMETER_NAME}={transactionId}";
+
+                        // Add to the query string any further required parameters for HTTP GET methods
+                        if (parameters.Count > 0)
                         {
-                            case ImageArrayTransferType.JSON:
-                                // No extra action because "accepts = application/json" will be applied automatically by the client
-                                break;
+                            foreach (KeyValuePair<string, string> parameter in parameters)
+                            {
+                                transactionUri.Query = $"{transactionUri.Query}&{parameter.Key}={parameter.Value}";
+                            }
+                        }
 
-                            case ImageArrayTransferType.Base64HandOff:
-                                request.Headers.Add(AlpacaConstants.BASE64_HANDOFF_HEADER, AlpacaConstants.BASE64_HANDOFF_SUPPORTED);
-                                break;
+                        // Create a new request based on the transaction Uri
+                        request = new HttpRequestMessage(HttpMethod.Get, transactionUri.Uri);
 
-                            case ImageArrayTransferType.ImageBytes:
-                                request.Headers.Add(ACCEPT_HEADER_NAME, IMAGE_BYTES_ACCEPT_HEADER);
-                                break;
+                        // If required, apply headers to control camera image array retrieval
+                        if (typeof(T) == typeof(Array))
+                        {
+                            switch (imageArrayTransferType)
+                            {
+                                case ImageArrayTransferType.JSON:
+                                    // No extra action because "accepts = application/json" will be applied automatically by the client
+                                    break;
 
-                            case ImageArrayTransferType.BestAvailable:
-                                request.Headers.Add(AlpacaConstants.BASE64_HANDOFF_HEADER, AlpacaConstants.BASE64_HANDOFF_SUPPORTED);
-                                request.Headers.Add(ACCEPT_HEADER_NAME, IMAGE_BYTES_ACCEPT_HEADER);
-                                break;
+                                case ImageArrayTransferType.Base64HandOff:
+                                    request.Headers.Add(AlpacaConstants.BASE64_HANDOFF_HEADER, AlpacaConstants.BASE64_HANDOFF_SUPPORTED);
+                                    break;
 
-                            default:
-                                throw new InvalidValueException($"Invalid image array transfer type: {imageArrayTransferType} - Correct this in the Dynamic Client setup dialogue.");
+                                case ImageArrayTransferType.ImageBytes:
+                                    request.Headers.Add(ACCEPT_HEADER_NAME, IMAGE_BYTES_ACCEPT_HEADER);
+                                    break;
+
+                                case ImageArrayTransferType.BestAvailable:
+                                    request.Headers.Add(AlpacaConstants.BASE64_HANDOFF_HEADER, AlpacaConstants.BASE64_HANDOFF_SUPPORTED);
+                                    request.Headers.Add(ACCEPT_HEADER_NAME, IMAGE_BYTES_ACCEPT_HEADER);
+                                    break;
+
+                                default:
+                                    throw new InvalidValueException($"Invalid image array transfer type: {imageArrayTransferType} - Correct this in the Dynamic Client setup dialogue.");
+                            }
                         }
                     }
-
-                    // Add any supplied PUT parameters to the request body as form url encoded content
-                    if ((httpMethod == HttpMethod.Put) & (parameters.Count > 0))
+                    else if (httpMethod == HttpMethod.Put) // HTTP Put methods
                     {
-                        FormUrlEncodedContent formParameters = new FormUrlEncodedContent(parameters);
-                        request.Content = formParameters;
+                        // Add client id and client transaction ids to the query string
+                        transactionUri.Query = $"{AlpacaConstants.CLIENTID_PARAMETER_NAME}={clientNumber}&{AlpacaConstants.CLIENTTRANSACTION_PARAMETER_NAME}={transactionId}";
+
+                        // Create a new request based on the transaction Uri
+                        request = new HttpRequestMessage(HttpMethod.Put, transactionUri.Uri);
+
+                        // Add the client id and transaction id parameters to the body parameter list as well (belt and braces!)
+                        parameters.Add(AlpacaConstants.CLIENTID_PARAMETER_NAME, clientNumber.ToString());
+                        parameters.Add(AlpacaConstants.CLIENTTRANSACTION_PARAMETER_NAME, transactionId.ToString());
+
+                        // Add the parameters to the request body as form url encoded content
+                        if (parameters.Count > 0)
+                        {
+                            FormUrlEncodedContent formParameters = new FormUrlEncodedContent(parameters);
+                            request.Content = formParameters;
+                        }
+                    }
+                    else
+                    {
+                        throw new InvalidValueException($"DynamicClientDriver only supports the GET and PUT methods. It does not suport the {httpMethod} method.");
                     }
 
                     // Log the request URI
                     lastTime = sw.ElapsedMilliseconds;
-                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Client Txn ID: {transactionId}, Sending command to remote device: {client.BaseAddress} - {request.RequestUri}");
+                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Client Txn ID: {transactionId}, Sending command to remote device: {client.BaseAddress} - {request.RequestUri}\r\nRequest: {request}");
 
                     // Create a cancellation token that will time out after the required retry interval
                     CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
