@@ -748,17 +748,14 @@ namespace ASCOM.Alpaca.Clients
                     }
                     else if (httpMethod == HttpMethod.Put) // HTTP Put methods
                     {
-                        // Add client id and client transaction ids to the query string
-                        transactionUri.Query = $"{AlpacaConstants.CLIENTID_PARAMETER_NAME}={clientNumber}&{AlpacaConstants.CLIENTTRANSACTION_PARAMETER_NAME}={transactionId}";
-
                         // Create a new request based on the transaction Uri
                         request = new HttpRequestMessage(HttpMethod.Put, transactionUri.Uri);
 
-                        // Add the client id and transaction id parameters to the body parameter list as well (belt and braces!)
+                        // Add the client id and transaction id parameters to the body parameter list
                         parameters.Add(AlpacaConstants.CLIENTID_PARAMETER_NAME, clientNumber.ToString());
                         parameters.Add(AlpacaConstants.CLIENTTRANSACTION_PARAMETER_NAME, transactionId.ToString());
 
-                        // Add the parameters to the request body as form url encoded content
+                        // Add all parameters to the request body as form url encoded content
                         if (parameters.Count > 0)
                         {
                             FormUrlEncodedContent formParameters = new FormUrlEncodedContent(parameters);
