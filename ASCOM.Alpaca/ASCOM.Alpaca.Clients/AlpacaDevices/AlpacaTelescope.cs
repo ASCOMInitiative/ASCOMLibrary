@@ -1,4 +1,5 @@
-﻿using ASCOM.Common.Alpaca;
+﻿using ASCOM.Common;
+using ASCOM.Common.Alpaca;
 using ASCOM.Common.DeviceInterfaces;
 using ASCOM.Common.Interfaces;
 
@@ -87,8 +88,8 @@ namespace ASCOM.Alpaca.Clients
                          string ipAddressString,
                          int portNumber,
                          int remoteDeviceNumber,
-                               bool strictCasing,
-                    ILogger logger)
+                         bool strictCasing,
+                         ILogger logger)
         {
             this.serviceType = serviceType;
             this.ipAddressString = ipAddressString;
@@ -104,28 +105,28 @@ namespace ASCOM.Alpaca.Clients
             try
             {
                 // Set the device type
-                clientDeviceType = "Telescope";
+                clientDeviceType = DeviceTypes.Telescope;
 
                 URIBase = $"{AlpacaConstants.API_URL_BASE}{AlpacaConstants.API_VERSION_V1}/{clientDeviceType}/{remoteDeviceNumber}/";
                 Version version = Assembly.GetEntryAssembly().GetName().Version;
 
-                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, clientDeviceType, "Starting initialisation, Version: " + version.ToString());
-                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, clientDeviceType, "This instance's unique client number: " + clientNumber);
-                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, clientDeviceType, "This devices's base URI: " + URIBase);
-                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, clientDeviceType, "Establish communications timeout: " + establishConnectionTimeout.ToString());
-                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, clientDeviceType, "Standard device response timeout: " + standardDeviceResponseTimeout.ToString());
-                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, clientDeviceType, "Long device response timeout: " + longDeviceResponseTimeout.ToString());
-                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, clientDeviceType, $"User name is Null or Empty: {string.IsNullOrEmpty(userName)}, User name is Null or White Space: {string.IsNullOrWhiteSpace(userName)}");
-                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, clientDeviceType, $"User name length: {password.Length}");
-                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, clientDeviceType, $"Password is Null or Empty: {string.IsNullOrEmpty(password)}, Password is Null or White Space: {string.IsNullOrWhiteSpace(password)}");
-                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, clientDeviceType, $"Password length: {password.Length}");
+                LogMessage(TL, clientNumber, Devices.DeviceTypeToString(clientDeviceType), "Starting initialisation, Version: " + version.ToString());
+                LogMessage(TL, clientNumber, Devices.DeviceTypeToString(clientDeviceType), "This instance's unique client number: " + clientNumber);
+                LogMessage(TL, clientNumber, Devices.DeviceTypeToString(clientDeviceType), "This devices's base URI: " + URIBase);
+                LogMessage(TL, clientNumber, Devices.DeviceTypeToString(clientDeviceType), "Establish communications timeout: " + establishConnectionTimeout.ToString());
+                LogMessage(TL, clientNumber, Devices.DeviceTypeToString(clientDeviceType), "Standard device response timeout: " + standardDeviceResponseTimeout.ToString());
+                LogMessage(TL, clientNumber, Devices.DeviceTypeToString(clientDeviceType), "Long device response timeout: " + longDeviceResponseTimeout.ToString());
+                LogMessage(TL, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"User name is Null or Empty: {string.IsNullOrEmpty(userName)}, User name is Null or White Space: {string.IsNullOrWhiteSpace(userName)}");
+                LogMessage(TL, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"User name length: {password.Length}");
+                LogMessage(TL, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"Password is Null or Empty: {string.IsNullOrEmpty(password)}, Password is Null or White Space: {string.IsNullOrWhiteSpace(password)}");
+                LogMessage(TL, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"Password length: {password.Length}");
 
                 DynamicClientDriver.ConnectToRemoteDevice(ref client, serviceType, ipAddressString, portNumber, clientNumber, clientDeviceType, standardDeviceResponseTimeout, userName, password, ImageArrayCompression.None, TL);
-                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, clientDeviceType, "Completed initialisation");
+                LogMessage(TL, clientNumber, Devices.DeviceTypeToString(clientDeviceType), "Completed initialisation");
             }
             catch (Exception ex)
             {
-                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, clientDeviceType, ex.ToString());
+                LogMessage(TL, clientNumber, Devices.DeviceTypeToString(clientDeviceType), ex.ToString());
             }
         }
 
@@ -145,7 +146,7 @@ namespace ASCOM.Alpaca.Clients
         public void AbortSlew()
         {
             DynamicClientDriver.CallMethodWithNoParameters(clientNumber, client, longDeviceResponseTimeout, URIBase, strictCasing, TL, "AbortSlew", MemberTypes.Method);
-            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "AbortSlew", "Slew aborted OK");
+            LogMessage(TL, clientNumber, "AbortSlew", "Slew aborted OK");
         }
 
         /// <summary>
@@ -762,7 +763,7 @@ namespace ASCOM.Alpaca.Clients
         public void FindHome()
         {
             DynamicClientDriver.CallMethodWithNoParameters(clientNumber, client, longDeviceResponseTimeout, URIBase, strictCasing, TL, "FindHome", MemberTypes.Method);
-            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "FindHome", "Home found OK");
+            LogMessage(TL, clientNumber, "FindHome", "Home found OK");
         }
 
         /// <summary>
@@ -924,7 +925,7 @@ namespace ASCOM.Alpaca.Clients
         public void Park()
         {
             DynamicClientDriver.CallMethodWithNoParameters(clientNumber, client, longDeviceResponseTimeout, URIBase, strictCasing, TL, "Park", MemberTypes.Method);
-            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "Park", "Parked OK");
+            LogMessage(TL, clientNumber, "Park", "Parked OK");
         }
 
         /// <summary>
@@ -1039,7 +1040,7 @@ namespace ASCOM.Alpaca.Clients
         public void SetPark()
         {
             DynamicClientDriver.CallMethodWithNoParameters(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, TL, "SetPark", MemberTypes.Method);
-            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "SetPark", "Park set OK");
+            LogMessage(TL, clientNumber, "SetPark", "Park set OK");
         }
 
         /// <summary>
@@ -1381,7 +1382,7 @@ namespace ASCOM.Alpaca.Clients
         public void SlewToTarget()
         {
             DynamicClientDriver.CallMethodWithNoParameters(clientNumber, client, longDeviceResponseTimeout, URIBase, strictCasing, TL, "SlewToTarget", MemberTypes.Method);
-            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "SlewToTarget", "Slew completed OK");
+            LogMessage(TL, clientNumber, "SlewToTarget", "Slew completed OK");
         }
 
         /// <summary>
@@ -1402,7 +1403,7 @@ namespace ASCOM.Alpaca.Clients
         public void SlewToTargetAsync()
         {
             DynamicClientDriver.CallMethodWithNoParameters(clientNumber, client, longDeviceResponseTimeout, URIBase, strictCasing, TL, "SlewToTargetAsync", MemberTypes.Method);
-            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "SlewToTargetAsync", "Slew completed OK");
+            LogMessage(TL, clientNumber, "SlewToTargetAsync", "Slew completed OK");
         }
 
         /// <summary>
@@ -1493,7 +1494,7 @@ namespace ASCOM.Alpaca.Clients
         public void SyncToTarget()
         {
             DynamicClientDriver.CallMethodWithNoParameters(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, TL, "SyncToTarget", MemberTypes.Method);
-            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "SyncToTarget", "Slew completed OK");
+            LogMessage(TL, clientNumber, "SyncToTarget", "Slew completed OK");
         }
 
         /// <summary>
@@ -1643,7 +1644,7 @@ namespace ASCOM.Alpaca.Clients
                 Dictionary<string, string> Parameters = new Dictionary<string, string>();
                 string utcDateString = value.ToString(AlpacaConstants.ISO8601_DATE_FORMAT_STRING) + "Z";
                 Parameters.Add(AlpacaConstants.UTCDATE_PARAMETER_NAME, utcDateString);
-                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "UTCDate", "Sending date string: " + utcDateString);
+                LogMessage(TL, clientNumber, "UTCDate", "Sending date string: " + utcDateString);
                 DynamicClientDriver.SendToRemoteDevice<NoReturnValue>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, TL, "UTCDate", Parameters, HttpMethod.Put, MemberTypes.Property);
             }
         }
@@ -1661,7 +1662,7 @@ namespace ASCOM.Alpaca.Clients
         public void Unpark()
         {
             DynamicClientDriver.CallMethodWithNoParameters(clientNumber, client, longDeviceResponseTimeout, URIBase, strictCasing, TL, "UnPark", MemberTypes.Method);
-            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "UnPark", "Unparked OK");
+            LogMessage(TL, clientNumber, "UnPark", "Unparked OK");
         }
 
         #endregion

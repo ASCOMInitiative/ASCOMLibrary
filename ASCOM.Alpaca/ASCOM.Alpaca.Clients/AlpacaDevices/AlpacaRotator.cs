@@ -1,4 +1,5 @@
-﻿using ASCOM.Common.Alpaca;
+﻿using ASCOM.Common;
+using ASCOM.Common.Alpaca;
 using ASCOM.Common.DeviceInterfaces;
 using ASCOM.Common.Interfaces;
 
@@ -104,28 +105,28 @@ namespace ASCOM.Alpaca.Clients
             try
             {
                 // Set the device type
-                clientDeviceType = "Rotator";
+                clientDeviceType = DeviceTypes.Rotator;
 
                 URIBase = $"{AlpacaConstants.API_URL_BASE}{AlpacaConstants.API_VERSION_V1}/{clientDeviceType}/{remoteDeviceNumber}/";
                 Version version = Assembly.GetEntryAssembly().GetName().Version;
 
-                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, clientDeviceType, "Starting initialisation, Version: " + version.ToString());
-                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, clientDeviceType, "This instance's unique client number: " + clientNumber);
-                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, clientDeviceType, "This devices's base URI: " + URIBase);
-                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, clientDeviceType, "Establish communications timeout: " + establishConnectionTimeout.ToString());
-                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, clientDeviceType, "Standard device response timeout: " + standardDeviceResponseTimeout.ToString());
-                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, clientDeviceType, "Long device response timeout: " + longDeviceResponseTimeout.ToString());
-                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, clientDeviceType, $"User name is Null or Empty: {string.IsNullOrEmpty(userName)}, User name is Null or White Space: {string.IsNullOrWhiteSpace(userName)}");
-                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, clientDeviceType, $"User name length: {password.Length}");
-                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, clientDeviceType, $"Password is Null or Empty: {string.IsNullOrEmpty(password)}, Password is Null or White Space: {string.IsNullOrWhiteSpace(password)}");
-                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, clientDeviceType, $"Password length: {password.Length}");
+                LogMessage(TL, clientNumber, Devices.DeviceTypeToString(clientDeviceType), "Starting initialisation, Version: " + version.ToString());
+                LogMessage(TL, clientNumber, Devices.DeviceTypeToString(clientDeviceType), "This instance's unique client number: " + clientNumber);
+                LogMessage(TL, clientNumber, Devices.DeviceTypeToString(clientDeviceType), "This devices's base URI: " + URIBase);
+                LogMessage(TL, clientNumber, Devices.DeviceTypeToString(clientDeviceType), "Establish communications timeout: " + establishConnectionTimeout.ToString());
+                LogMessage(TL, clientNumber, Devices.DeviceTypeToString(clientDeviceType), "Standard device response timeout: " + standardDeviceResponseTimeout.ToString());
+                LogMessage(TL, clientNumber, Devices.DeviceTypeToString(clientDeviceType), "Long device response timeout: " + longDeviceResponseTimeout.ToString());
+                LogMessage(TL, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"User name is Null or Empty: {string.IsNullOrEmpty(userName)}, User name is Null or White Space: {string.IsNullOrWhiteSpace(userName)}");
+                LogMessage(TL, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"User name length: {password.Length}");
+                LogMessage(TL, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"Password is Null or Empty: {string.IsNullOrEmpty(password)}, Password is Null or White Space: {string.IsNullOrWhiteSpace(password)}");
+                LogMessage(TL, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"Password length: {password.Length}");
 
                 DynamicClientDriver.ConnectToRemoteDevice(ref client, serviceType, ipAddressString, portNumber, clientNumber, clientDeviceType, standardDeviceResponseTimeout, userName, password, ImageArrayCompression.None, TL);
-                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, clientDeviceType, "Completed initialisation");
+                LogMessage(TL, clientNumber, Devices.DeviceTypeToString(clientDeviceType), "Completed initialisation");
             }
             catch (Exception ex)
             {
-                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, clientDeviceType, ex.ToString());
+                LogMessage(TL, clientNumber, Devices.DeviceTypeToString(clientDeviceType), ex.ToString());
             }
         }
 
@@ -148,7 +149,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<bool>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing,TL, "CanReverse", MemberTypes.Property);
+                return DynamicClientDriver.GetValue<bool>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, TL, "CanReverse", MemberTypes.Property);
             }
         }
 
@@ -168,7 +169,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<bool>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing,TL, "IsMoving", MemberTypes.Property);
+                return DynamicClientDriver.GetValue<bool>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, TL, "IsMoving", MemberTypes.Property);
             }
         }
 
@@ -204,7 +205,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<float>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing,TL, "Position", MemberTypes.Property);
+                return DynamicClientDriver.GetValue<float>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, TL, "Position", MemberTypes.Property);
             }
         }
 
@@ -224,12 +225,12 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<bool>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing,TL, "Reverse", MemberTypes.Property);
+                return DynamicClientDriver.GetValue<bool>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, TL, "Reverse", MemberTypes.Property);
             }
 
             set
             {
-                DynamicClientDriver.SetBool(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing,TL, "Reverse", value, MemberTypes.Property);
+                DynamicClientDriver.SetBool(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, TL, "Reverse", value, MemberTypes.Property);
             }
         }
 
@@ -247,7 +248,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<float>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing,TL, "StepSize", MemberTypes.Property);
+                return DynamicClientDriver.GetValue<float>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, TL, "StepSize", MemberTypes.Property);
             }
         }
 
@@ -268,7 +269,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<float>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing,TL, "TargetPosition", MemberTypes.Property);
+                return DynamicClientDriver.GetValue<float>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, TL, "TargetPosition", MemberTypes.Property);
             }
         }
 
@@ -281,8 +282,8 @@ namespace ASCOM.Alpaca.Clients
         /// <remarks><p style="color:red"><b>Optional - can throw a not implemented exception</b></p> </remarks>
         public void Halt()
         {
-            DynamicClientDriver.CallMethodWithNoParameters(clientNumber, client, longDeviceResponseTimeout, URIBase, strictCasing,TL, "Halt", MemberTypes.Method);
-            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "Halt", "Rotator halted OK");
+            DynamicClientDriver.CallMethodWithNoParameters(clientNumber, client, longDeviceResponseTimeout, URIBase, strictCasing, TL, "Halt", MemberTypes.Method);
+            LogMessage(TL, clientNumber, "Halt", "Rotator halted OK");
         }
 
         /// <summary>
@@ -305,8 +306,8 @@ namespace ASCOM.Alpaca.Clients
             {
                 { AlpacaConstants.POSITION_PARAMETER_NAME, Position.ToString(CultureInfo.InvariantCulture) }
             };
-            DynamicClientDriver.SendToRemoteDevice<NoReturnValue>(clientNumber, client, longDeviceResponseTimeout, URIBase, strictCasing,TL, "Move", Parameters, HttpMethod.Put, MemberTypes.Method);
-            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "Move", $"Rotator moved to relative position {Position} OK");
+            DynamicClientDriver.SendToRemoteDevice<NoReturnValue>(clientNumber, client, longDeviceResponseTimeout, URIBase, strictCasing, TL, "Move", Parameters, HttpMethod.Put, MemberTypes.Method);
+            LogMessage(TL, clientNumber, "Move", $"Rotator moved to relative position {Position} OK");
         }
 
         /// <summary>
@@ -332,8 +333,8 @@ namespace ASCOM.Alpaca.Clients
             {
                 { AlpacaConstants.POSITION_PARAMETER_NAME, Position.ToString(CultureInfo.InvariantCulture) }
             };
-            DynamicClientDriver.SendToRemoteDevice<NoReturnValue>(clientNumber, client, longDeviceResponseTimeout, URIBase, strictCasing,TL, "MoveAbsolute", Parameters, HttpMethod.Put, MemberTypes.Method);
-            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "MoveAbsolute", $"Rotator moved to absolute position {Position} OK");
+            DynamicClientDriver.SendToRemoteDevice<NoReturnValue>(clientNumber, client, longDeviceResponseTimeout, URIBase, strictCasing, TL, "MoveAbsolute", Parameters, HttpMethod.Put, MemberTypes.Method);
+            LogMessage(TL, clientNumber, "MoveAbsolute", $"Rotator moved to absolute position {Position} OK");
         }
 
         #endregion
@@ -355,7 +356,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<float>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing,TL, "MechanicalPosition", MemberTypes.Property);
+                return DynamicClientDriver.GetValue<float>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, TL, "MechanicalPosition", MemberTypes.Property);
             }
         }
 
@@ -378,8 +379,8 @@ namespace ASCOM.Alpaca.Clients
             {
                 { AlpacaConstants.POSITION_PARAMETER_NAME, Position.ToString(CultureInfo.InvariantCulture) }
             };
-            DynamicClientDriver.SendToRemoteDevice<NoReturnValue>(clientNumber, client, longDeviceResponseTimeout, URIBase, strictCasing,TL, "Sync", Parameters, HttpMethod.Put, MemberTypes.Method);
-            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "Sync", $"Rotator synced to sky position {Position} OK");
+            DynamicClientDriver.SendToRemoteDevice<NoReturnValue>(clientNumber, client, longDeviceResponseTimeout, URIBase, strictCasing, TL, "Sync", Parameters, HttpMethod.Put, MemberTypes.Method);
+            LogMessage(TL, clientNumber, "Sync", $"Rotator synced to sky position {Position} OK");
         }
 
         /// <summary>
@@ -402,8 +403,8 @@ namespace ASCOM.Alpaca.Clients
             {
                 { AlpacaConstants.POSITION_PARAMETER_NAME, Position.ToString(CultureInfo.InvariantCulture) }
             };
-            DynamicClientDriver.SendToRemoteDevice<NoReturnValue>(clientNumber, client, longDeviceResponseTimeout, URIBase, strictCasing,TL, "MoveMechanical", Parameters, HttpMethod.Put, MemberTypes.Method);
-            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "MoveMechanical", $"Rotator moved to mechanical position {Position} OK");
+            DynamicClientDriver.SendToRemoteDevice<NoReturnValue>(clientNumber, client, longDeviceResponseTimeout, URIBase, strictCasing, TL, "MoveMechanical", Parameters, HttpMethod.Put, MemberTypes.Method);
+            LogMessage(TL, clientNumber, "MoveMechanical", $"Rotator moved to mechanical position {Position} OK");
         }
 
         #endregion

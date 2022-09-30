@@ -1,4 +1,5 @@
-﻿using ASCOM.Common.Alpaca;
+﻿using ASCOM.Common;
+using ASCOM.Common.Alpaca;
 using ASCOM.Common.Interfaces;
 
 using System;
@@ -26,7 +27,7 @@ namespace ASCOM.Alpaca.Clients
         internal string password = "";
         internal bool manageConnectLocally = false;
         internal bool strictCasing = true; // Strict or flexible interpretation of casing in device JSON responses
-        internal string clientDeviceType = "UNINITIALISED_VALUE"; // Variable to hold the device type, which is set in each device type class
+        internal DeviceTypes clientDeviceType = DeviceTypes.Telescope; // Variable to hold the device type, which is set in each device type class
 
         internal ILogger TL; // Private variable to hold the trace logger object
 
@@ -34,6 +35,29 @@ namespace ASCOM.Alpaca.Clients
         internal bool clientIsConnected;  // Connection state of this driver
         internal string URIBase; // URI base unique to this driver
         private bool disposedValue;
+        
+        readonly ClientConfiguration clientConfiguration;
+
+        /// <summary>
+        /// Create a new instance of the AlpacaDeviceBaseClass passing the instance to the client configuration class
+        /// </summary>
+        public AlpacaDeviceBaseClass()
+        {
+            clientConfiguration = new ClientConfiguration(this);
+        }
+        
+        #region Configuration properties
+
+        /// <summary>
+        /// Proivide access to the client configuration
+        /// </summary>
+        public ClientConfiguration ClientConfiguration
+        {
+            get { return clientConfiguration; }
+
+        }
+
+        #endregion
 
         #region Common properties and methods.
 
@@ -74,9 +98,9 @@ namespace ASCOM.Alpaca.Clients
         /// </remarks>
         public string Action(string actionName, string actionParameters)
         {
-            LogMessage(TL, clientNumber, clientDeviceType, $"ACTION: About to submit Action: {actionName}");
+            LogMessage(TL, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"ACTION: About to submit Action: {actionName}");
             string response = DynamicClientDriver.Action(clientNumber, client, longDeviceResponseTimeout, URIBase, strictCasing, TL, actionName, actionParameters);
-            LogMessage(TL, clientNumber, clientDeviceType, $"ACTION: Received response of length: {response.Length}");
+            LogMessage(TL, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"ACTION: Received response of length: {response.Length}");
             return response;
         }
 
@@ -157,7 +181,7 @@ namespace ASCOM.Alpaca.Clients
                 clientIsConnected = value;
                 if (manageConnectLocally)
                 {
-                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, clientDeviceType, $"The Connected property is being managed locally so the new value '{value}' will not be sent to the remote device");
+                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"The Connected property is being managed locally so the new value '{value}' will not be sent to the remote device");
                 }
                 else // Send the command to the remote device
                 {

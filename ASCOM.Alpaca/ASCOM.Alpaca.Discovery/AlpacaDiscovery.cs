@@ -1,4 +1,6 @@
-﻿using ASCOM.Common.Alpaca;
+﻿using ASCOM.Alpaca.Clients;
+using ASCOM.Common;
+using ASCOM.Common.Alpaca;
 using ASCOM.Common.Interfaces;
 using ASCOM.Tools;
 using System;
@@ -28,9 +30,9 @@ namespace ASCOM.Alpaca.Discovery
     /// After the specified discovery duration, the <see cref="DiscoveryComplete"/> event fires and the <see cref="DiscoveryCompleted"/> property returns True.
     /// </para>
     /// <para>
-    /// Once discovery is complete, .NET clients can retrieve details of discovered Alpaca devices and associated ASCOM interface devices through the <see cref="GetAlpacaDevices"/> and <see cref="GetAscomDevices(string)"/> methods.
-    /// COM clients must use the <see cref="GetAlpacaDevicesAsArrayList"/> and <see cref="GetAscomDevicesAsArrayList(string)"/> properties because COM does not support the generic classes used 
-    /// in the <see cref="GetAlpacaDevices"/> and <see cref="GetAscomDevices(string)"/> methods. 
+    /// Once discovery is complete, .NET clients can retrieve details of discovered Alpaca devices and associated ASCOM interface devices through the <see cref="GetAlpacaDevices"/> and <see cref="GetAscomDevices(DeviceTypes?)"/> methods.
+    /// COM clients must use the <see cref="GetAlpacaDevicesAsArrayList"/> and <see cref="GetAscomDevicesAsArrayList(DeviceTypes?)"/> properties because COM does not support the generic classes used 
+    /// in the <see cref="GetAlpacaDevices"/> and <see cref="GetAscomDevices(DeviceTypes?)"/> methods. 
     /// </para>
     /// </remarks>
     public class AlpacaDiscovery : IDisposable
@@ -216,18 +218,18 @@ namespace ASCOM.Alpaca.Discovery
         /// <summary>
         /// Returns an ArrayList of discovered ASCOM devices, of the specified device type, for use by COM clients
         /// </summary>
-        /// <param name="deviceType">The device type for which to search e.g. Telescope, Focuser. An empty string will return devices of all types.</param>
+        /// <param name="deviceType">The device type for which to search e.g. Telescope, Use <see langword="null"/> to return devices of all types.</param>
         /// <returns>ArrayList of <see cref="AscomDevice"/>classes</returns>
         /// <remarks>
         /// <para>
-        /// This method is for use by COM clients because it is not possible to return a generic list, as used in <see cref="GetAscomDevices(String)"/>, through a COM interface. 
-        /// .NET clients should use <see cref="GetAscomDevices(String)"/> instead of this method.
+        /// This method is for use by COM clients because it is not possible to return a generic list, as used in <see cref="GetAscomDevices(DeviceTypes?)"/>, through a COM interface. 
+        /// .NET clients should use <see cref="GetAscomDevices(DeviceTypes?)"/> instead of this method.
         /// </para>
         /// <para>
-        /// This method will return every discovered device, regardless of device type, if the supplied "deviceType" parameter is an empty string.
+        /// This method will return every discovered device, regardless of device type, if the supplied "deviceType" parameter is null.
         /// </para>
         /// </remarks>
-        public ArrayList GetAscomDevicesAsArrayList(string deviceType)
+        public ArrayList GetAscomDevicesAsArrayList(DeviceTypes? deviceType)
         {
             return new ArrayList(GetAscomDevices(deviceType)); // Return the ASCOM devices list as an ArrayList
         }
@@ -246,17 +248,17 @@ namespace ASCOM.Alpaca.Discovery
         /// <summary>
         /// Returns a generic list of discovered ASCOM devices of the specified device type.
         /// </summary>
-        /// <param name="deviceType">The device type for which to search e.g. Telescope, Focuser. An empty string will return devices of all types.</param>
+        /// <param name="deviceType">The device type for which to search e.g. Telescope, Focuser. Use <see langword="null"/> to return devices of all types.</param>
         /// <returns>List of AscomDevice classes</returns>
         /// <remarks>
         /// <para>
         /// This method is only available to .NET clients because COM cannot handle generic types. COM clients should use <see cref="GetAlpacaDevicesAsArrayList()"/>.
         /// </para>
         /// <para>
-        /// This method will return every discovered device, regardless of device type, if the supplied "deviceType" parameter is an empty string.
+        /// This method will return every discovered device, regardless of device type, if the supplied "deviceType" parameter is null.
         /// </para>
         /// </remarks>
-        public List<AscomDevice> GetAscomDevices(string deviceType)
+        public List<AscomDevice> GetAscomDevices(DeviceTypes? deviceType)
         {
             var ascomDeviceList = new List<AscomDevice>(); // List of discovered ASCOM devices to support Chooser-like functionality
             lock (deviceListLockObject) // Make sure that the device list dictionary can't change while processing this command
@@ -275,13 +277,16 @@ namespace ASCOM.Alpaca.Discovery
                         {
 
                             // Test whether all devices or only devices of a specific device type are required
-                            if (string.IsNullOrEmpty(deviceType)) // Return a full list of every discovered device regardless of device type 
+                            if (!deviceType.HasValue) // Return a full list of every discovered device regardless of device type 
                             {
-                                ascomDeviceList.Add(new AscomDevice(ascomDevice.DeviceName, ascomDevice.DeviceType, ascomDevice.DeviceNumber, ascomDevice.UniqueID, alpacaDevice.Value.IPEndPoint, alpacaDevice.Value.HostName, alpacaDeviceInterfaceVersion, alpacaDevice.Value.StatusMessage)); // ASCOM device information 
+                                ascomDeviceList.Add(new AscomDevice(ascomDevice.DeviceName, Devices.StringToDeviceType(ascomDevice.DeviceType), ascomDevice.DeviceNumber, ascomDevice.UniqueID, alpacaDevice.Value.ServiceType, alpacaDevice.Value.IPEndPoint, alpacaDevice.Value.HostName, alpacaDeviceInterfaceVersion, alpacaDevice.Value.StatusMessage)); // ASCOM device information 
                             }
-                            else if ((ascomDevice.DeviceType.ToLowerInvariant() ?? "") == (deviceType.ToLowerInvariant() ?? "")) // Return only devices of the specified type
+                            else
                             {
-                                ascomDeviceList.Add(new AscomDevice(ascomDevice.DeviceName, ascomDevice.DeviceType, ascomDevice.DeviceNumber, ascomDevice.UniqueID, alpacaDevice.Value.IPEndPoint, alpacaDevice.Value.HostName, alpacaDeviceInterfaceVersion, alpacaDevice.Value.StatusMessage)); // ASCOM device information 
+                                if (Devices.StringToDeviceType(ascomDevice.DeviceType) == deviceType.Value) // Return only devices of the specified type
+                                {
+                                    ascomDeviceList.Add(new AscomDevice(ascomDevice.DeviceName, Devices.StringToDeviceType(ascomDevice.DeviceType), ascomDevice.DeviceNumber, ascomDevice.UniqueID, alpacaDevice.Value.ServiceType, alpacaDevice.Value.IPEndPoint, alpacaDevice.Value.HostName, alpacaDeviceInterfaceVersion, alpacaDevice.Value.StatusMessage)); // ASCOM device information 
+                                }
                             }
                         } // Next Ascom Device
                     } // Next interface version
@@ -416,7 +421,7 @@ namespace ASCOM.Alpaca.Discovery
                 {
                     if (!alpacaDeviceList.ContainsKey(responderIPEndPoint))
                     {
-                        alpacaDeviceList.Add(responderIPEndPoint, new AlpacaDevice(responderIPEndPoint, TRYING_TO_CONTACT_MANAGEMENT_API_MESSAGE));
+                        alpacaDeviceList.Add(responderIPEndPoint, new AlpacaDevice(serviceType, responderIPEndPoint, TRYING_TO_CONTACT_MANAGEMENT_API_MESSAGE));
                         RaiseAnAlpacaDevicesChangedEvent(); // Device was added so set the changed flag
                     }
                 }

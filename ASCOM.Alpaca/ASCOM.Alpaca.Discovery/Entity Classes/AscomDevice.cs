@@ -1,4 +1,6 @@
-﻿using System.Net;
+﻿using ASCOM.Common;
+using ASCOM.Common.Alpaca;
+using System.Net;
 using System.Net.Sockets;
 
 namespace ASCOM.Alpaca.Discovery
@@ -16,22 +18,24 @@ namespace ASCOM.Alpaca.Discovery
         /// <remarks>COM clients should use this initialiser and set the properties individually because COM only supports parameterless initialisers.</remarks>
         public AscomDevice()
         {
+            AscomDeviceType = null;
         }
 
         /// <summary>
         /// Initialise the ASCOM device name, ASCOM device type and ASCOM device unique ID, plus
-        /// the Alpaca API device number, unique ID, device IP endpoint, Alpaca unique ID, interface version and status message
+        /// the Alpaca API device number, unique ID, service type, device IP endpoint, Alpaca unique ID, interface version and status message
         /// </summary>
         /// <param name="ascomDdeviceName">ASCOM device name</param>
         /// <param name="ascomDeviceType">ASCOM device type</param>
         /// <param name="alpacaDeviceNumber">Alpaca API device number</param>
         /// <param name="uniqueId">ASCOM device unique ID</param>
+        /// <param name="serviceType">HTTP or HTTPS service type</param>
         /// <param name="ipEndPoint">Alpaca device IP endpoint</param>
         /// <param name="hostName">ALapca device host name</param>
         /// <param name="interfaceVersion">Supported Alpaca interface version</param>
         /// <param name="statusMessage">Alpaca device status message</param>
         /// <remarks>This can only be used by .NET clients because COM only supports parameterless initialisers.</remarks>
-        public AscomDevice(string ascomDdeviceName, string ascomDeviceType, int alpacaDeviceNumber, string uniqueId, IPEndPoint ipEndPoint, string hostName, int interfaceVersion, string statusMessage)
+        public AscomDevice(string ascomDdeviceName, DeviceTypes ascomDeviceType, int alpacaDeviceNumber, string uniqueId, ServiceType serviceType, IPEndPoint ipEndPoint, string hostName, int interfaceVersion, string statusMessage)
         {
             AscomDeviceName = ascomDdeviceName;
             AscomDeviceType = ascomDeviceType;
@@ -41,6 +45,7 @@ namespace ASCOM.Alpaca.Discovery
             HostName = hostName;
             InterfaceVersion = interfaceVersion;
             StatusMessage = statusMessage;
+            ServiceType = serviceType;
 
             // Populate the IP address based on the supplied IPEndPoint value and address type
             if (ipEndPoint.AddressFamily == AddressFamily.InterNetwork) // IPv4 address
@@ -60,6 +65,12 @@ namespace ASCOM.Alpaca.Discovery
             IpPort = ipEndPoint.Port;
         }
 
+
+        /// <summary>
+        /// HTTP or HTTP service type
+        /// </summary>
+        public ServiceType ServiceType { get; set; }
+
         /// <summary>
         /// ASCOM device name
         /// </summary>
@@ -68,7 +79,7 @@ namespace ASCOM.Alpaca.Discovery
         /// <summary>
         /// ASCOM device type
         /// </summary>
-        public string AscomDeviceType { get; set; }
+        public DeviceTypes ?AscomDeviceType { get; set; }
 
         /// <summary>
         /// Alpaca API device number

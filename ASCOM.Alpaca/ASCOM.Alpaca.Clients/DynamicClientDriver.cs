@@ -1,4 +1,5 @@
-﻿using ASCOM.Common.Alpaca;
+﻿using ASCOM.Common;
+using ASCOM.Common.Alpaca;
 using ASCOM.Common.Com;
 using ASCOM.Common.DeviceInterfaces;
 using ASCOM.Common.Interfaces;
@@ -160,11 +161,11 @@ namespace ASCOM.Alpaca.Clients
         /// <param name="imageArrayCompression"></param>
         /// <remarks>This method will attempt to re-discover the Alpaca device if it is not possible to establish a TCP connection with the device at the specified address and port.</remarks>
         internal static void ConnectToRemoteDevice(ref HttpClient client, ServiceType serviceType, string ipAddressString, decimal portNumber,
-                                                 uint clientNumber, string deviceType, int deviceResponseTimeout, string userName, string password, ImageArrayCompression imageArrayCompression, ILogger TL)
+                                                 uint clientNumber, DeviceTypes deviceType, int deviceResponseTimeout, string userName, string password, ImageArrayCompression imageArrayCompression, ILogger TL)
         {
             string clientHostAddress = $"{serviceType.ToString().ToLowerInvariant()}://{ipAddressString}:{portNumber}";
 
-            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, deviceType, $"Connecting to device: {ipAddressString}:{portNumber} through URL: {clientHostAddress}");
+            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, Devices.DeviceTypeToString(deviceType), $"Connecting to device: {ipAddressString}:{portNumber} through URL: {clientHostAddress}");
 
             #region Commented automatic Alpaca device rediscovery code
             // Test whether automatic Alpaca device rediscovery is enabled for this device

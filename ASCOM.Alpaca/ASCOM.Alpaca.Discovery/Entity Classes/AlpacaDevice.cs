@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using ASCOM.Common.Alpaca;
+using System.Collections;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
@@ -14,20 +15,24 @@ namespace ASCOM.Alpaca.Discovery
         private List<AlpacaConfiguredDevice> configuredDevicesValue;
         private readonly ArrayList configuredDevicesAsArrayListValue;
         private string hostNameValue, ipAddressValue, serverNameValue, manufacturerValue, manufacturerVersionValue, locationValue;
+        private ServiceType serviceType;
 
         /// <summary>
         /// Initialises the class with default values
         /// </summary>
-        public AlpacaDevice() : this(new IPEndPoint(0L, 0), "")
+        /// <remarks>COM clients should use this initialiser and set the properties individually because COM only supports parameterless initialisers.</remarks>
+        public AlpacaDevice() : this(ServiceType.Http, new IPEndPoint(0L, 0), "")
         {
         }
 
         /// <summary>
-        /// Initialise IP end point, Alpaca unique ID and Status message - Can only be used from .NET clients
+        /// Initialise the service type, IP end point and status message - Can only be used from .NET clients
         /// </summary>
+        /// <param name="serviceType">HTTP or HTTPS service type</param>
         /// <param name="ipEndPoint">Alpaca device IP endpoint</param>
         /// <param name="statusMessage">Device status message</param>
-        internal AlpacaDevice(IPEndPoint ipEndPoint, string statusMessage)
+        /// <remarks>This can only be used by .NET clients because COM only supports parameterless initialisers.</remarks>
+        internal AlpacaDevice(ServiceType serviceType, IPEndPoint ipEndPoint, string statusMessage)
         {
             // Initialise internal storage variables
             configuredDevicesValue = new List<AlpacaConfiguredDevice>();
@@ -42,6 +47,9 @@ namespace ASCOM.Alpaca.Discovery
             manufacturerVersionValue = "";
             locationValue = "";
             IPEndPoint = ipEndPoint; // Set the IPEndpoint to the supplied value
+
+            // Save the service type
+            this.serviceType = serviceType;
 
             // Initialise the Host name to the IP address using the normal ToString version if IPv4 or the canonical form if IPv6
             if (ipEndPoint.AddressFamily == AddressFamily.InterNetworkV6)
@@ -60,6 +68,15 @@ namespace ASCOM.Alpaca.Discovery
         }
 
         #region Public Properties
+
+        /// <summary>
+        /// HTTP or HTTPS service type used to communicate with the Alpaca device
+        /// </summary>
+        public ServiceType ServiceType
+        {
+            get { return serviceType; }
+            set { serviceType = value; }
+        }
 
         /// <summary>
         /// The Alpaca device's DNS host name, if available, otherwise its IP address. IPv6 addresses will be in canonical form.
@@ -245,7 +262,7 @@ namespace ASCOM.Alpaca.Discovery
                 // Save the supplied list of configured devices 
                 configuredDevicesValue = value;
 
-                // Populate the read-only arraylist with the same data
+                // Populate the read-only ArrayList with the same data
                 configuredDevicesAsArrayListValue.Clear();
                 foreach (AlpacaConfiguredDevice configuredDevice in configuredDevicesValue)
                     configuredDevicesAsArrayListValue.Add(configuredDevice);

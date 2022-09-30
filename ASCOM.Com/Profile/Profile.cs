@@ -25,22 +25,12 @@ namespace ASCOM.Com
         /// <returns>Returns a list of found ASCOM Devices, this includes ProgID and the friendly Name</returns>
         public static List<ASCOMRegistration> GetDrivers(DeviceTypes deviceType)
         {
-            return GetDrivers(deviceType.ToString());
-        }
-
-        /// <summary>
-        /// Searches the ASCOM Registry for all drivers of a specified driver type
-        /// </summary>
-        /// <param name="deviceTypeName">The driver type to search for as a string.</param>
-        /// <returns>Returns a list of found ASCOM Devices, this includes ProgID and the friendly Name</returns>
-        public static List<ASCOMRegistration> GetDrivers(string deviceTypeName)
-        {
             List<ASCOMRegistration> Drivers = new List<ASCOMRegistration>();
 
             using (var localmachine32 = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine,
                                             RegistryView.Registry32))
             {
-                using (var ASCOMKeys = localmachine32.OpenSubKey($"SOFTWARE\\ASCOM\\{deviceTypeName} Drivers", false))
+                using (var ASCOMKeys = localmachine32.OpenSubKey($"SOFTWARE\\ASCOM\\{Devices.DeviceTypeToString(deviceType)} Drivers", false))
                 {
                     foreach (var key in ASCOMKeys.GetSubKeyNames())
                     {

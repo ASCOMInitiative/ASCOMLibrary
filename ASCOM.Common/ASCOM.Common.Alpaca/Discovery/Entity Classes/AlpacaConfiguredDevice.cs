@@ -1,4 +1,6 @@
-﻿namespace ASCOM.Alpaca.Discovery
+﻿using ASCOM.Common;
+
+namespace ASCOM.Alpaca.Discovery
 {
     /// <summary>
     /// Returns an array of device description objects, providing unique information for each served device, enabling them to be accessed through the Alpaca Device API.
