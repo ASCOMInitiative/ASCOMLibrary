@@ -336,7 +336,7 @@ namespace ASCOM.Alpaca.Clients
                 client.Dispose();
             }
 
-            // Convert from the Alpaca decpmpression enum to the HttpClient decompression enum
+            // Convert from the Alpaca decompression enum to the HttpClient decompression enum
             DecompressionMethods decompressionMethods;
             switch (imageArrayCompression)
             {
@@ -382,14 +382,14 @@ namespace ASCOM.Alpaca.Clients
                     authenticationBytes = Encoding.ASCII.GetBytes($"{userName}:{password}");
                 }
 
-                // Set the authetication header for all requests
+                // Set the authentication header for all requests
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(authenticationBytes));
             }
 
             // Set the base URI for the device
             client.BaseAddress = new Uri(clientHostAddress);
 
-            // Get the assembbly's file version
+            // Get the assembly's file version
             Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
             FileVersionInfo assemblyFileVersionInfo = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location);
 
@@ -689,14 +689,14 @@ namespace ASCOM.Alpaca.Clients
             {
                 try
                 {
-                    const string LOG_FORMAT_STRING = "Client Txn ID: {0}, Server Txn ID: {1}, Value: {2}";
+                    const string LOG_FORMAT_STRING = "Client Transaction ID: {0}, Server Transaction ID: {1}, Value: {2}";
 
                     Response restResponseBase = null; // This has to be the base class of the data type classes in order for exception and error responses to be handled generically
 
                     // Create a new transaction number
                     uint transactionId = GetNextTransactionNumber();
 
-                    // Create the URI for this transaction and apply it to the request, adding "client id" and "transaction number" query paramerters
+                    // Create the URI for this transaction and apply it to the request, adding "client id" and "transaction number" query parameters
                     UriBuilder transactionUri = new UriBuilder($"{client.BaseAddress}{uriBase}{method}".ToLowerInvariant());
 
                     // Create a new request message to be sent to the device
@@ -705,7 +705,7 @@ namespace ASCOM.Alpaca.Clients
                     // Process HTTP GET and PUT methods
                     if (httpMethod == HttpMethod.Get) // HTTP GET methods
                     {
-                        // Add client id and transactikon id query parameters
+                        // Add client id and transaction id query parameters
                         transactionUri.Query = $"{AlpacaConstants.CLIENTID_PARAMETER_NAME}={clientNumber}&{AlpacaConstants.CLIENTTRANSACTION_PARAMETER_NAME}={transactionId}";
 
                         // Add to the query string any further required parameters for HTTP GET methods
@@ -765,12 +765,12 @@ namespace ASCOM.Alpaca.Clients
                     }
                     else
                     {
-                        throw new InvalidValueException($"DynamicClientDriver only supports the GET and PUT methods. It does not suport the {httpMethod} method.");
+                        throw new InvalidValueException($"DynamicClientDriver only supports the GET and PUT methods. It does not support the {httpMethod} method.");
                     }
 
                     // Log the request URI
                     lastTime = sw.ElapsedMilliseconds;
-                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Client Txn ID: {transactionId}, Sending command to remote device: {client.BaseAddress} - {request.RequestUri}\r\nRequest: {request}");
+                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Client Transaction ID: {transactionId}, Sending command to remote device: {client.BaseAddress} - {request.RequestUri}\r\nRequest: {request}");
 
                     // Create a cancellation token that will time out after the required retry interval
                     CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
@@ -780,12 +780,12 @@ namespace ASCOM.Alpaca.Clients
                     HttpResponseMessage deviceJsonResponse = client.SendAsync(request, HttpCompletionOption.ResponseContentRead, cancellationTokenSource.Token).Result;
 
                     // Assess success at the HTTP status level and handle accordingly 
-                    if (deviceJsonResponse.IsSuccessStatusCode) // Success - HTTP stattus is in the range 200::299
+                    if (deviceJsonResponse.IsSuccessStatusCode) // Success - HTTP status is in the range 200::299
                     {
                         // Get the response headers
                         HttpContentHeaders responseHeaders = deviceJsonResponse.Content.Headers;
 
-                        // Throw an exception if there is no contenmt-type header indicating what has been returned
+                        // Throw an exception if there is no content-type header indicating what has been returned
                         if (responseHeaders is null) throw new InvalidValueException("The device did not return any headers. Expected a Content-Type header with a value of 'application/json' or 'text/json' or 'application/imagebytes'.");
 
                         // List the headers received
@@ -1262,7 +1262,7 @@ namespace ASCOM.Alpaca.Clients
                                                     int dimension0Length = intArray2DResponse.Value.GetLength(0);
                                                     int dimension1Length = intArray2DResponse.Value[0].GetLength(0);
 
-                                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Array was deserialised in {sw.ElapsedMilliseconds} ms, Type: {(ImageArrayElementTypes)intArray2DResponse.Type}, Rank: {intArray2DResponse.Rank}, Dimension 1 Length: {dimension0Length}, Dimension 2 Length: {dimension1Length}");
+                                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Array was de serialised in {sw.ElapsedMilliseconds} ms, Type: {(ImageArrayElementTypes)intArray2DResponse.Type}, Rank: {intArray2DResponse.Rank}, Dimension 1 Length: {dimension0Length}, Dimension 2 Length: {dimension1Length}");
 
                                                     sw.Restart();
                                                     int[,] intArray2D = new int[dimension0Length, dimension1Length];
@@ -1270,7 +1270,7 @@ namespace ASCOM.Alpaca.Clients
                                                     // Calculate the number of bytes in dimension 1
                                                     int bytesPerDimension1 = dimension1Length * sizeof(int);
 
-                                                    // Convert the jagged array into a rectabgular array
+                                                    // Convert the jagged array into a rectangular array
                                                     Parallel.For(0, dimension0Length, i =>
                                                     {
                                                         Buffer.BlockCopy(intArray2DResponse.Value[i], 0, intArray2D, i * bytesPerDimension1, bytesPerDimension1);
@@ -1289,7 +1289,7 @@ namespace ASCOM.Alpaca.Clients
                                                     dimension1Length = intArray3DResponse.Value[0].GetLength(0);
                                                     int dimension2Length = intArray3DResponse.Value[0][0].GetLength(0);
 
-                                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Array was deserialised in {sw.ElapsedMilliseconds} ms, Type: {(ImageArrayElementTypes)intArray3DResponse.Type}, Rank: {intArray3DResponse.Rank}, Dimension 1 Length: {dimension0Length}, Dimension 2 Length: {dimension1Length}, Dimension 3 Length: {dimension2Length}");
+                                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Array was de serialised in {sw.ElapsedMilliseconds} ms, Type: {(ImageArrayElementTypes)intArray3DResponse.Type}, Rank: {intArray3DResponse.Rank}, Dimension 1 Length: {dimension0Length}, Dimension 2 Length: {dimension1Length}, Dimension 3 Length: {dimension2Length}");
 
                                                     sw.Restart();
                                                     int[,,] intArray3D = new int[dimension0Length, dimension1Length, dimension2Length];
@@ -1297,7 +1297,7 @@ namespace ASCOM.Alpaca.Clients
                                                     // Calculate the number of bytes in dimension 1
                                                     int bytesPerDimension2 = dimension2Length * sizeof(int);
 
-                                                    // Convert the jagged array into a rectabgular array
+                                                    // Convert the jagged array into a rectangular array
                                                     Parallel.For(0, dimension0Length, i =>
                                                     {
                                                         for (int j = 0; j < dimension1Length; j++)
@@ -1327,7 +1327,7 @@ namespace ASCOM.Alpaca.Clients
                                                     int dimension0Length = shortArray2DResponse.Value.GetLength(0);
                                                     int dimension1Length = shortArray2DResponse.Value[0].GetLength(0);
 
-                                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Array was deserialised in {sw.ElapsedMilliseconds} ms, Type: {(ImageArrayElementTypes)shortArray2DResponse.Type}, Rank: {shortArray2DResponse.Rank}, Dimension 1 Length: {dimension0Length}, Dimension 2 Length: {dimension1Length}");
+                                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Array was de serialised in {sw.ElapsedMilliseconds} ms, Type: {(ImageArrayElementTypes)shortArray2DResponse.Type}, Rank: {shortArray2DResponse.Rank}, Dimension 1 Length: {dimension0Length}, Dimension 2 Length: {dimension1Length}");
 
                                                     sw.Restart();
                                                     short[,] shortArray2D = new short[dimension0Length, dimension1Length];
@@ -1335,7 +1335,7 @@ namespace ASCOM.Alpaca.Clients
                                                     // Calculate the number of bytes in dimension 1
                                                     int bytesPerDimension1 = dimension1Length * sizeof(short);
 
-                                                    // Convert the jagged array into a rectabgular array
+                                                    // Convert the jagged array into a rectangular array
                                                     Parallel.For(0, dimension0Length, i =>
                                                     {
                                                         Buffer.BlockCopy(shortArray2DResponse.Value[i], 0, shortArray2D, i * bytesPerDimension1, bytesPerDimension1);
@@ -1355,7 +1355,7 @@ namespace ASCOM.Alpaca.Clients
                                                     dimension1Length = shortArray3DResponse.Value[0].GetLength(0);
                                                     int dimension2Length = shortArray3DResponse.Value[0][0].GetLength(0);
 
-                                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Array was deserialised in {sw.ElapsedMilliseconds} ms, Type: {(ImageArrayElementTypes)shortArray3DResponse.Type}, Rank: {shortArray3DResponse.Rank}, Dimension 1 Length: {dimension0Length}, Dimension 2 Length: {dimension1Length}, Dimension 3 Length: {dimension2Length}");
+                                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Array was de-serialised in {sw.ElapsedMilliseconds} ms, Type: {(ImageArrayElementTypes)shortArray3DResponse.Type}, Rank: {shortArray3DResponse.Rank}, Dimension 1 Length: {dimension0Length}, Dimension 2 Length: {dimension1Length}, Dimension 3 Length: {dimension2Length}");
 
                                                     sw.Restart();
                                                     short[,,] shortArray3D = new short[dimension0Length, dimension1Length, dimension2Length];
@@ -1363,7 +1363,7 @@ namespace ASCOM.Alpaca.Clients
                                                     // Calculate the number of bytes in dimension 1
                                                     int bytesPerDimension2 = dimension2Length * sizeof(short);
 
-                                                    // Convert the jagged array into a rectabgular array
+                                                    // Convert the jagged array into a rectangular array
                                                     Parallel.For(0, dimension0Length, i =>
                                                     {
                                                         for (int j = 0; j < dimension1Length; j++)
@@ -1393,7 +1393,7 @@ namespace ASCOM.Alpaca.Clients
                                                     int dimension0Length = doubleArray2DResponse.Value.GetLength(0);
                                                     int dimension1Length = doubleArray2DResponse.Value[0].GetLength(0);
 
-                                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Array was deserialised in {sw.ElapsedMilliseconds} ms, Type: {(ImageArrayElementTypes)doubleArray2DResponse.Type}, Rank: {doubleArray2DResponse.Rank}, Dimension 1 Length: {dimension0Length}, Dimension 2 Length: {dimension1Length}");
+                                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Array was de-serialised in {sw.ElapsedMilliseconds} ms, Type: {(ImageArrayElementTypes)doubleArray2DResponse.Type}, Rank: {doubleArray2DResponse.Rank}, Dimension 1 Length: {dimension0Length}, Dimension 2 Length: {dimension1Length}");
 
                                                     sw.Restart();
                                                     double[,] doubleArray2D = new double[dimension0Length, dimension1Length];
@@ -1401,7 +1401,7 @@ namespace ASCOM.Alpaca.Clients
                                                     // Calculate the number of bytes in dimension 1
                                                     int bytesPerDimension1 = dimension1Length * sizeof(double);
 
-                                                    // Convert the jagged array into a rectabgular array
+                                                    // Convert the jagged array into a rectangular array
                                                     Parallel.For(0, dimension0Length, i =>
                                                     {
                                                         Buffer.BlockCopy(doubleArray2DResponse.Value[i], 0, doubleArray2D, i * bytesPerDimension1, bytesPerDimension1);
@@ -1421,7 +1421,7 @@ namespace ASCOM.Alpaca.Clients
                                                     dimension1Length = doubleArray3DResponse.Value[0].GetLength(0);
                                                     int dimension2Length = doubleArray3DResponse.Value[0][0].GetLength(0);
 
-                                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Array was deserialised in {sw.ElapsedMilliseconds} ms, Type: {(ImageArrayElementTypes)doubleArray3DResponse.Type}, Rank: {doubleArray3DResponse.Rank}, Dimension 1 Length: {dimension0Length}, Dimension 2 Length: {dimension1Length}, Dimension 3 Length: {dimension2Length}");
+                                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Array was de-serialised in {sw.ElapsedMilliseconds} ms, Type: {(ImageArrayElementTypes)doubleArray3DResponse.Type}, Rank: {doubleArray3DResponse.Rank}, Dimension 1 Length: {dimension0Length}, Dimension 2 Length: {dimension1Length}, Dimension 3 Length: {dimension2Length}");
 
                                                     sw.Restart();
                                                     double[,,] doubleArray3D = new double[dimension0Length, dimension1Length, dimension2Length];
@@ -1429,7 +1429,7 @@ namespace ASCOM.Alpaca.Clients
                                                     // Calculate the number of bytes in dimension 1
                                                     int bytesPerDimension2 = dimension2Length * sizeof(double);
 
-                                                    // Convert the jagged array into a rectabgular array
+                                                    // Convert the jagged array into a rectangular array
                                                     Parallel.For(0, dimension0Length, i =>
                                                     {
                                                         for (int j = 0; j < dimension1Length; j++)
@@ -1559,7 +1559,7 @@ namespace ASCOM.Alpaca.Clients
                         // Log the error
                         AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method + " Error", $"RestRequest response status: {deviceJsonResponse.ReasonPhrase}, HTTP response code: {deviceJsonResponse.StatusCode}, Error message: {errorMessage}");
 
-                        // Throw an exception back to the client descriing the error
+                        // Throw an exception back to the client describing the error
                         throw new DriverException($"Error calling method: {method}, HTTP Completion Status: {deviceJsonResponse.StatusCode}, Error Message:\r\n{errorMessage}");
                     }
                 }
@@ -1588,7 +1588,7 @@ namespace ASCOM.Alpaca.Clients
                                 else // The retry count exceeds the maximum allowed so throw the exception to the client
                                 {
                                     AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, typeof(T).Name + " " + ex1.Message);
-                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, "Timout exception: " + ex1.ToString());
+                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, "Timeout exception: " + ex1.ToString());
                                     throw new TimeoutException($"Dynamic client timeout for method {typeof(T).Name}: {client.BaseAddress}");
                                 }
                             }

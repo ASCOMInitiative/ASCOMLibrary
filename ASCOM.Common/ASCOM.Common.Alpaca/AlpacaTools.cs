@@ -26,7 +26,7 @@ namespace ASCOM.Common.Alpaca
         public const int ARRAY_METADATAV1_LENGTH = 44; // Length of the array metadata version 1 structure
 
         /// <summary>
-        /// Latest verison number of the ImageBytes metadata array
+        /// Latest version number of the ImageBytes metadata array
         /// </summary>
         public const int ARRAY_METADATA_VERSION = 1;
 
@@ -103,10 +103,10 @@ namespace ASCOM.Common.Alpaca
         /// <exception cref="InvalidValueException">The array element type is not supported.</exception>
         /// <remarks>
         /// Int32 source arrays where all elements have Int16, UInt16 or Byte values will automatically be converted to the smaller 
-        /// data size for transmission in order to improve performance and reduce network trafic. 
+        /// data size for transmission in order to improve performance and reduce network traffic. 
         /// Int16 and UInt16 source arrays that only have Byte values will similarly be converted to the smaller 
         /// data size for transmission. 
-        /// All other element types are transmited as supplied.
+        /// All other element types are transmitted as supplied.
         /// </remarks>
         public static byte[] ToByteArray(this Array imageArray, int metadataVersion, uint clientTransactionID, uint serverTransactionID, AlpacaErrors errorNumber, string errorMessage)
         {
@@ -644,7 +644,7 @@ namespace ASCOM.Common.Alpaca
                 case TypeCode.Object:
                     intendedElementType = ImageArrayElementTypes.Object;
 
-                    // Get the type name of the elements within the objectt array
+                    // Get the type name of the elements within the object array
                     string elementTypeName = "";
 
                     switch (imageArray.Rank)
@@ -1766,7 +1766,7 @@ namespace ASCOM.Common.Alpaca
         /// Alpaca Extension - Returns the image data from an ImageBytes byte array.
         /// </summary>
         /// <param name="imageBytes">ImageVBytes array containing the image data.</param>
-        /// <returns>Byte array continaing the image data</returns>
+        /// <returns>Byte array containing the image data</returns>
         /// <exception cref="InvalidValueException">The ImageArray data contains an unsupported metadata version.</exception>
         public static byte[] GetImageData(this byte[] imageBytes)
         {

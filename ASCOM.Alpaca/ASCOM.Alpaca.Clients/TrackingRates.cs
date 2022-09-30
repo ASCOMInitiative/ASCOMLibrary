@@ -10,7 +10,7 @@ namespace ASCOM.Alpaca.Clients
     // both COM and .NET. The ITrackingRates and IEnumerable interfaces provide
     // this polymorphism. 
     //
-    // The Guid attribute sets the CLSID for ASCOM.Telescope.TrackingRates
+    // The GUID attribute sets the CLSID for ASCOM.Telescope.TrackingRates
     // The ClassInterface/None attribute prevents an empty interface called
     // _TrackingRates from being created and used as the [default] interface
     //

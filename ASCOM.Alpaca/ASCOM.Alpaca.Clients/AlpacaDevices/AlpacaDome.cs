@@ -301,7 +301,7 @@ namespace ASCOM.Alpaca.Clients
         /// This is normally used following a <see cref="FindHome" /> operation. The value is reset with any azimuth slew operation that moves the dome away from the home position.
         /// </para>
         /// <para>
-        /// <see cref="AtHome" /> may also become true durng normal slew operations, if the dome passes through the home position and the dome controller hardware is capable of detecting that; 
+        /// <see cref="AtHome" /> may also become true during normal slew operations, if the dome passes through the home position and the dome controller hardware is capable of detecting that; 
         /// or at the end of a slew operation if the dome comes to rest at the home position.
         /// </para>
         /// </summary>

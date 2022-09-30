@@ -144,7 +144,7 @@ namespace ASCOM.Alpaca.Clients
         /// <exception cref="InvalidValueException">If id is outside the range 0 to <see cref="MaxSwitch"/> - 1</exception>
         /// <remarks><p style="color:red"><b>Must be implemented, must not throw an ASCOM.NotImplementedException</b></p>
         /// <para>Devices are numbered from 0 to <see cref="MaxSwitch"/> - 1</para>
-        /// <para>This is a Version 2 method, version 1 switch devices can be assumed to be writable.</para>
+        /// <para>This is a Version 2 method, version 1 switch devices can be assumed to be writeable.</para>
         /// </remarks>
         public bool CanWrite(short id)
         {
@@ -161,9 +161,9 @@ namespace ASCOM.Alpaca.Clients
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks><p style="color:red"><b>Must be implemented, must not throw a <see cref="NotImplementedException"/>.</b></p> 
-        /// <para>All devices must implement this. A multi-state device will return true if the device is at the maximum value, false if the value is at the minumum
+        /// <para>All devices must implement this. A multi-state device will return true if the device is at the maximum value, false if the value is at the minimum
         /// and either true or false as specified by the driver developer for intermediate values.</para>
-        /// <para>Some devices do not support reading their state although they do allow state to be set. In these cases, on startup, the driver can not know the hardware state and it is recommended that the 
+        /// <para>Some devices do not support reading their state although they do allow state to be set. In these cases, on start-up, the driver can not know the hardware state and it is recommended that the 
         /// driver either:</para>
         /// <list type="bullet">
         /// <item><description>Sets the device to a known state on connection</description></item>
@@ -222,7 +222,7 @@ namespace ASCOM.Alpaca.Clients
         /// <exception cref="InvalidOperationException">If there is a temporary condition that prevents the device value being returned.</exception>
         /// <exception cref="InvalidValueException">If id is outside the range 0 to <see cref="MaxSwitch"/> - 1</exception>
         /// <remarks><p style="color:red"><b>Must be implemented, must not throw a <see cref="NotImplementedException"/>.</b></p> 
-        /// <para>Some devices do not support reading their state although they do allow state to be set. In these cases, on startup, the driver can not know the hardware state and it is recommended that the 
+        /// <para>Some devices do not support reading their state although they do allow state to be set. In these cases, on start-up, the driver can not know the hardware state and it is recommended that the 
         /// driver either:</para>
         /// <list type="bullet">
         /// <item><description>Sets the device to a known state on connection</description></item>

@@ -115,7 +115,7 @@ namespace ASCOM.Com.DriverAccess
         /// <p style="color:red"><b>Optional property, can throw a NotImplementedException</b></p>
         /// <para>The units of this property are millimetres per hour. Client and driver authors can use the methodASCOM.Tools.Utilities.ConvertUnits
         /// to convert these units to and from inches per hour.</para>
-        /// <para>This property can be interpreted as 0.0 = Dry any positive nonzero value = wet.</para>
+        /// <para>This property can be interpreted as 0.0 = Dry any positive non-zero value = wet.</para>
         /// <para>Rainfall intensity is classified according to the rate of precipitation:</para>
         /// <list type="bullet">
         /// <item><description>Light rain — when the precipitation rate is less than 2.5 mm (0.098 in) per hour</description></item>
@@ -168,7 +168,7 @@ namespace ASCOM.Com.DriverAccess
         /// <p style="color:red"><b>Optional property, can throw a NotImplementedException</b></p>
         /// <para>Sky quality is typically measured in units of magnitudes per square arc second. A sky quality of 20 magnitudes per square arc second means that the
         /// overall sky appears with a brightness equivalent to having 1 magnitude 20 star in each square arc second of sky.</para>
-        /// <para >Examples of typical sky quality values were published by Sky and Telescope (<a href="http://www.skyandtelescope.com/astronomy-resources/rate-your-skyglow/">http://www.skyandtelescope.com/astronomy-resources/rate-your-skyglow/</a>) and, in slightly adpated form, are reproduced below:</para>
+        /// <para >Examples of typical sky quality values were published by Sky and Telescope (<a href="http://www.skyandtelescope.com/astronomy-resources/rate-your-skyglow/">http://www.skyandtelescope.com/astronomy-resources/rate-your-skyglow/</a>) and, in slightly adapted form, are reproduced below:</para>
         /// <para>
         /// <table style="width:80.0%;" cellspacing="0" width="80.0%">
         /// <col style="width: 20.0%;"></col>
@@ -331,7 +331,7 @@ namespace ASCOM.Com.DriverAccess
         /// <remarks>
         /// <p style="color:red"><b>Optional property, can throw a NotImplementedException</b></p>
         /// <para>The units of this property are degrees Celsius. Driver and application authors can use the ASCOM.Tools.Utilities.ConvertUnits method
-        /// to convert these units to and from degrees Farenhheit.</para>
+        /// to convert these units to and from degrees Fahrenheit.</para>
         /// <para>This is expected to be returned by an infra-red sensor looking at the sky. The lower the temperature the more the sky is likely to be clear.</para>
         /// </remarks>
         public double SkyTemperature => base.Device.SkyTemperature;
@@ -346,7 +346,7 @@ namespace ASCOM.Com.DriverAccess
         /// <remarks>
         /// <p style="color:red"><b>Optional property, can throw a NotImplementedException</b></p>
         /// <para>The units of this property are degrees Celsius. Driver and application authors can use the ASCOM.Tools.Utilities.ConvertUnits method
-        /// to convert these units to and from degrees Farenhheit.</para>
+        /// to convert these units to and from degrees Fahrenheit.</para>
         /// <para>This is expected to be the ambient temperature at the observatory.</para>
         /// </remarks>
         public double Temperature => base.Device.Temperature;
@@ -360,7 +360,7 @@ namespace ASCOM.Com.DriverAccess
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
         /// <p style="color:red"><b>Optional property, can throw a NotImplementedException</b></p>
-        /// The returned value must be between 0.0 and 360.0, interpreted according to the metereological standard, where a special value of 0.0 is returned when the wind speed is 0.0. 
+        /// The returned value must be between 0.0 and 360.0, interpreted according to the meteorological standard, where a special value of 0.0 is returned when the wind speed is 0.0. 
         /// Wind direction is measured clockwise from north, through east, where East=90.0, South=180.0, West=270.0 and North=360.0.
         /// </remarks>
         public double WindDirection => base.Device.WindDirection;

@@ -1751,7 +1751,7 @@ namespace ASCOM.Alpaca.Tests.ImageArray
             }
             if (sourceArray.Rank != responseArray.Rank)
             {
-                output.WriteLine($"Array ranksare not equal. Source: {sourceArray.Rank}, Response: {responseArray.Rank}");
+                output.WriteLine($"Array ranks are not equal. Source: {sourceArray.Rank}, Response: {responseArray.Rank}");
                 return false;
             }
 

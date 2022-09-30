@@ -44,7 +44,7 @@ namespace ASCOM.Tools
         private const double STANDARD_PRESSURE = 1013.25; // Standard atmospheric pressure (hPa)
         private const double ABSOLUTE_ZERO_CELSIUS = -273.15; // Absolute zero expressed in Celsius
 
-        // Constants defining the minimum and maxium supported values for Julian dates: 1/1/100 to 31/12/9999
+        // Constants defining the minimum and maximum supported values for Julian dates: 1/1/100 to 31/12/9999
         private const double OLE_AUTOMATION_JULIAN_DATE_OFFSET = 2415018.5; // Offset of OLE automation dates from Julian dates
         private const double JULIAN_DATE_MINIMUM_VALUE = -657435.0 + OLE_AUTOMATION_JULIAN_DATE_OFFSET; // Minimum valid Julian date value (1/1/0100 00:00:00) - because DateTime.FromOADate has this limit
         private const double JULIAN_DATE_MAXIMUM_VALUE = 2958465.99999999 + OLE_AUTOMATION_JULIAN_DATE_OFFSET; // Maximum valid Julian date value (31/12/9999 23:59:59.999) - because DateTime.FromOADate has this limit

@@ -10,7 +10,7 @@
     /// <para>The Switch interface is used to define a number of 'switch devices'. A switch device can be used to control something, such as a power switch
     /// or may be used to sense the state of something, such as a limit switch.</para>
     /// <para>This SwitchV2 interface is an extension of the original Switch interface.  The changes allow devices to have more than two states and
-    /// to distinguish between devices that are writable and those that are read only.</para>
+    /// to distinguish between devices that are writeable and those that are read only.</para>
     /// <para><b>Compatibility between Switch and SwitchV2 interfaces:</b></para>
     /// <list type="bullet"><item>Switch devices that implemented the original Switch interface and
     /// client applications that use the original interface will still work together.</item>
@@ -100,7 +100,7 @@
         /// <exception cref="InvalidValueException">If id is outside the range 0 to <see cref="MaxSwitch"/> - 1</exception>
         /// <remarks><p style="color:red"><b>Must be implemented, must not throw an ASCOM.NotImplementedException</b></p>
         /// <para>Devices are numbered from 0 to <see cref="MaxSwitch"/> - 1</para>
-        /// <para>This is a Version 2 method, version 1 switch devices can be assumed to be writable.</para>
+        /// <para>This is a Version 2 method, version 1 switch devices can be assumed to be writeable.</para>
         /// </remarks>
         bool CanWrite(short id);
 
@@ -114,9 +114,9 @@
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks><p style="color:red"><b>Must be implemented, must not throw a <see cref="NotImplementedException"/>.</b></p> 
-        /// <para>All devices must implement this. A multi-state device will return true if the device is at the maximum value, false if the value is at the minumum
+        /// <para>All devices must implement this. A multi-state device will return true if the device is at the maximum value, false if the value is at the minimum
         /// and either true or false as specified by the driver developer for intermediate values.</para>
-        /// <para>Some devices do not support reading their state although they do allow state to be set. In these cases, on startup, the driver can not know the hardware state and it is recommended that the 
+        /// <para>Some devices do not support reading their state although they do allow state to be set. In these cases, on start-up, the driver can not know the hardware state and it is recommended that the 
         /// driver either:</para>
         /// <list type="bullet">
         /// <item><description>Sets the device to a known state on connection</description></item>

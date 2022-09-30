@@ -206,7 +206,7 @@ namespace ASCOM.Alpaca.Discovery
         /// .NET clients should use <see cref="GetAlpacaDevices()"/> instead of this method.</remarks>
         public ArrayList GetAlpacaDevicesAsArrayList()
         {
-            ArrayList alpacaDevicesAsArrayList; // Variable to hold the arraylist analogue of the generic list of Alpaca devices
+            ArrayList alpacaDevicesAsArrayList; // Variable to hold the ArrayList analogue of the generic list of Alpaca devices
             alpacaDevicesAsArrayList = new ArrayList(); // Create a new array-list
 
             // populate the array-list with data from the generic list

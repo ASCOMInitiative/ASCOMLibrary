@@ -5,7 +5,7 @@
     /// </summary>
     /// <remarks>
     /// <para><b>SPECIFICATION REVISION - Platform 6.4</b></para>
-    /// <para>The method signatures in the revised interface specification are identical to the preceeding IFocuserV2, however, the IFocuserV3.Move command must
+    /// <para>The method signatures in the revised interface specification are identical to the preceding IFocuserV2, however, the IFocuserV3.Move command must
     /// no longer throw an InvalidOperationException exception if a Move is attempted when temperature compensation is enabled.</para>
     /// </remarks>
     public interface IFocuserV3 : IAscomDevice
@@ -77,7 +77,7 @@
         /// <para><b>BEHAVIOURAL CHANGE - Platform 6.4</b></para>
         /// <para>Prior to Platform 6.4, the interface specification mandated that drivers must throw an <see cref="InvalidOperationException"/> if a move was attempted when <see cref="TempComp"/> was True, even if the focuser 
         /// was able to execute the move safely without disrupting temperature compensation.</para>
-        /// <para>Following discussion on ASCOM-Talk in January 2018, the Focuser interface specification has been revised to IFocuserV3, removing the requrement to throw the InvalidOperationException exception. IFocuserV3 compliant drivers 
+        /// <para>Following discussion on ASCOM-Talk in January 2018, the Focuser interface specification has been revised to IFocuserV3, removing the requirement to throw the InvalidOperationException exception. IFocuserV3 compliant drivers 
         /// are expected to execute Move requests when temperature compensation is active and to hide any specific actions required by the hardware from the client. For example this could be achieved by disabling temperature compensation, moving the focuser and re-enabling 
         /// temperature compensation or simply by moving the focuser with compensation enabled if the hardware supports this.</para>
         /// <para>Conform will continue to pass IFocuserV2 drivers that throw InvalidOperationException exceptions. However, Conform will now fail IFocuserV3 drivers that throw InvalidOperationException exceptions, in line with this revised specification.</para>
@@ -120,7 +120,7 @@
         /// <para><b>BEHAVIOURAL CHANGE - Platform 6.4</b></para>
         /// <para>Prior to Platform 6.4, the interface specification mandated that drivers must throw an <see cref="InvalidOperationException"/> if a move was attempted when <see cref="TempComp"/> was True, even if the focuser 
         /// was able to execute the move safely without disrupting temperature compensation.</para>
-        /// <para>Following discussion on ASCOM-Talk in January 2018, the Focuser interface specification has been revised to IFocuserV3, removing the requrement to throw the InvalidOperationException exception. IFocuserV3 compliant drivers 
+        /// <para>Following discussion on ASCOM-Talk in January 2018, the Focuser interface specification has been revised to IFocuserV3, removing the requirement to throw the InvalidOperationException exception. IFocuserV3 compliant drivers 
         /// are expected to execute Move requests when temperature compensation is active and to hide any specific actions required by the hardware from the client. For example this could be achieved by disabling temperature compensation, moving the focuser and re-enabling 
         /// temperature compensation or simply by moving the focuser with compensation enabled if the hardware supports this.</para>
         /// <para>Conform will continue to pass IFocuserV2 drivers that throw InvalidOperationException exceptions. However, Conform will now fail IFocuserV3 drivers that throw InvalidOperationException exceptions, in line with this revised specification.</para>

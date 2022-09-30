@@ -49,7 +49,7 @@ namespace ASCOM.Alpaca.Clients
         #region Configuration properties
 
         /// <summary>
-        /// Proivide access to the client configuration
+        /// Provide access to the client configuration
         /// </summary>
         public ClientConfiguration ClientConfiguration
         {

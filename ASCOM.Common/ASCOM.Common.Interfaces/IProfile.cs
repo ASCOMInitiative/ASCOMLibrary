@@ -8,7 +8,7 @@ namespace ASCOM.Common.Interfaces
     public interface IProfile
     {
         /// <summary>
-        /// This will clear all settings. In addition it should remove any artifacts from the computer. For example it should delete any created files, database, or registry keys.
+        /// This will clear all settings. In addition it should remove any artefacts from the computer. For example it should delete any created files, database, or registry keys.
         /// This is useful for a clean uninstall.
         /// </summary>
         void Clear();

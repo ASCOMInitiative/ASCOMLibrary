@@ -41,7 +41,7 @@ namespace ASCOM.Alpaca.Discovery
         }
 
         /// <summary>
-        /// The The discovery's ManualResetEvent
+        /// The discovery's ManualResetEvent
         /// </summary>
         public ManualResetEvent CallComplete { get; set; }
 

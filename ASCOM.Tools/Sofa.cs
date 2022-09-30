@@ -223,7 +223,7 @@ namespace ASCOM.Tools
         /// <para>TT can be used instead of TDB without any significant impact on accuracy.</para>
         /// </description></item>
         /// <item><description>The available accuracy is better than 1 milliarcsecond, limited mainly by the precession-nutation model that is used, namely IAU 2000A/2006.  Very close to solar system bodies, additional 
-        /// errors of up to several milliarcseconds can occur because of unmodeled light deflection;  however, the Sun's contribution is taken into account, to first order.The accuracy limitations of 
+        /// errors of up to several milliarcseconds can occur because of unmodelled light deflection;  however, the Sun's contribution is taken into account, to first order.The accuracy limitations of 
         /// the SOFA function iauEpv00 (used to compute Earth position and velocity) can contribute aberration errors of up to 5 microarcseconds.  Light deflection at the Sun's limb is uncertain at the 0.4 mas level.</description></item>
         /// <item><description>Should the transformation to (equinox based) apparent place be required rather than (CIO based) intermediate place, subtract the equation of the origins from the returned right ascension:
         /// RA = RI - EO. (The Anp function can then be applied, as required, to keep the result in the conventional 0-2pi range.)</description></item>
@@ -240,16 +240,16 @@ namespace ASCOM.Tools
         /// <param name="pr">RA Proper motion (radians/year)</param>
         /// <param name="pd">Dec Proper motion (radians/year</param>
         /// <param name="px">Parallax (arcsec)</param>
-        /// <param name="rv">Radial veolcity (Km/s, +ve if receding</param>
+        /// <param name="rv">Radial velocity (Km/s, +ve if receding</param>
         /// <param name="utc1">UTC Julian date (part 1, notes 3,4)</param>
         /// <param name="utc2">UTC Julian date (part 2, notes 3,4)</param>
-        /// <param name="dut1">UT1 - UTC (seonds, note 5)</param>
+        /// <param name="dut1">UT1 - UTC (seconds, note 5)</param>
         /// <param name="elong">Site longitude (radians, note 6)</param>
         /// <param name="phi">Site Latitude (radians, note 6)</param>
         /// <param name="hm">Site Height (meters, notes 6,8)</param>
         /// <param name="xp">Polar motion co-ordinate (radians, note 7)</param>
         /// <param name="yp">Polar motion co-ordinate (radians,note 7)</param>
-        /// <param name="phpa">Site Presure (hPa = mB, note 8)</param>
+        /// <param name="phpa">Site Pressure (hPa = mB, note 8)</param>
         /// <param name="tc">Site Temperature (C)</param>
         /// <param name="rh">Site relative humidity (fraction in the range: 0.0 to 1.0)</param>
         /// <param name="wl">Observation wavem=length (micrometres, note 9)</param>
@@ -409,7 +409,7 @@ namespace ASCOM.Tools
         /// <item><description>Iterative techniques are used for the aberration and light deflection corrections so that the functions Atic13 and Atci13 are accurate inverses; 
         /// even at the edge of the Sun's disk the discrepancy is only about 1 nanoarcsecond.</description></item>
         /// <item><description>The available accuracy is better than 1 milliarcsecond, limited mainly by the precession-nutation model that is used, namely IAU 2000A/2006.  Very close to solar system bodies, additional 
-        /// errors of up to several milliarcseconds can occur because of unmodeled light deflection;  however, the Sun's contribution is taken into account, to first order.The accuracy limitations of 
+        /// errors of up to several milliarcseconds can occur because of unmodelled light deflection;  however, the Sun's contribution is taken into account, to first order.The accuracy limitations of 
         /// the SOFA function iauEpv00 (used to compute Earth position and velocity) can contribute aberration errors of up to 5 microarcseconds.  Light deflection at the Sun's limb is uncertain at the 0.4 mas level.</description></item>
         /// <item><description>Should the transformation to (equinox based) J2000.0 mean place be required rather than (CIO based) ICRS coordinates, subtract the equation of the origins from the returned right ascension:
         /// RA = RI - EO.  (The Anp function can then be applied, as required, to keep the result in the conventional 0-2pi range.)</description></item>
@@ -419,7 +419,7 @@ namespace ASCOM.Tools
         public static extern void Atic13(double ri, double di, double date1, double date2, ref double rc, ref double dc, ref double eo);
 
         /// <summary>
-        /// Observed place at a groundbased site to to ICRS astrometric RA,Dec using the SOFA Atoc13 function.
+        /// Observed place at a ground based site to ICRS astrometric RA,Dec using the SOFA Atoc13 function.
         /// </summary>
         /// <param name="type">type of coordinates - "R", "H" or "A" (Notes 1,2)</param>
         /// <param name="ob1">observed Az, HA or RA (radians; Az is N=0,E=90)</param>

@@ -233,7 +233,7 @@ namespace ASCOM.Alpaca.Clients
         }
 
         /// <summary>
-        /// True if the telescope has been put into the parked state by the seee <see cref="Park" /> method. Set False by calling the Unpark() method.
+        /// True if the telescope has been put into the parked state by the see <see cref="Park" /> method. Set False by calling the Unpark() method.
         /// </summary>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
@@ -268,7 +268,7 @@ namespace ASCOM.Alpaca.Clients
         /// <para>This is only available for telescope Interface Versions 2 and later.</para>
         /// <para>
         /// Please note that the rate objects must contain absolute non-negative values only. Applications determine the direction by applying a
-        /// positive or negative sign to the rates provided. This obviates the need for the driver to to present a duplicate set of negative rates 
+        /// positive or negative sign to the rates provided. This obviates the need for the driver to present a duplicate set of negative rates 
         /// as well as the positive rates.</para>
         /// </remarks>
         public IAxisRates AxisRates(TelescopeAxis Axis)
@@ -387,7 +387,7 @@ namespace ASCOM.Alpaca.Clients
         }
 
         /// <summary>
-        /// True if the guide rate properties used for <see cref="PulseGuide" /> can ba adjusted.
+        /// True if the guide rate properties used for <see cref="PulseGuide" /> can be adjusted.
         /// </summary>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
@@ -520,7 +520,7 @@ namespace ASCOM.Alpaca.Clients
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
         /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
-        /// This indicates the the asynchronous local horizontal slewing methods are supported.
+        /// This indicates the asynchronous local horizontal slewing methods are supported.
         /// If this is True, then <see cref="CanSlewAltAz" /> will also be true. 
         /// May raise an error if the telescope is not connected. 
         /// </remarks>
@@ -539,7 +539,7 @@ namespace ASCOM.Alpaca.Clients
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
         /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
-        /// This indicates the the asynchronous equatorial slewing methods are supported.
+        /// This indicates the asynchronous equatorial slewing methods are supported.
         /// If this is True, then <see cref="CanSlew" /> will also be true.
         /// May raise an error if the telescope is not connected. 
         /// </remarks>
@@ -735,7 +735,7 @@ namespace ASCOM.Alpaca.Clients
         /// Most amateur telescopes use topocentric coordinates. This coordinate system is simply the apparent position in the sky
         /// (possibly uncorrected for atmospheric refraction) for "here and now", thus these are the coordinates that one would use with digital setting
         /// circles and most amateur scopes. More sophisticated telescopes use one of the standard reference systems established by professional astronomers.
-        /// The most common is the Julian Epoch 2000 (J2000). These instruments apply corrections for precession,nutation, abberration, etc. to adjust the coordinates 
+        /// The most common is the Julian Epoch 2000 (J2000). These instruments apply corrections for precession,nutation, aberration, etc. to adjust the coordinates 
         /// from the standard system to the pointing direction for the time and location of "here and now". 
         /// <para>This is only available for telescope Interface Versions 2 and later.</para>
         /// </remarks>
@@ -892,7 +892,7 @@ namespace ASCOM.Alpaca.Clients
         /// <b>NOTES:</b>
         /// <list type="bullet">
         /// <item><description>The movement rate must be within the value(s) obtained from a <see cref="IRate" /> object in the 
-        /// the <see cref="AxisRates" /> collection. This is a signed value with negative rates moving in the oposite direction to positive rates.</description></item>
+        /// the <see cref="AxisRates" /> collection. This is a signed value with negative rates moving in the opposite direction to positive rates.</description></item>
         /// <item><description>The values specified in <see cref="AxisRates" /> are absolute, unsigned values and apply to both directions, determined by the sign used in this command.</description></item>
         /// <item><description>The value of <see cref="Slewing" /> must be True if the telescope is moving about any of its axes as a result of this method being called. 
         /// This can be used to simulate a handbox by initiating motion with the MouseDown event and stopping the motion with the MouseUp event.</description></item>
@@ -947,7 +947,7 @@ namespace ASCOM.Alpaca.Clients
         /// <b>NOTES:</b>
         /// <list type="bullet">
         /// <item><description>Raises an error if <see cref="AtPark" /> is true.</description></item>
-        /// <item><description>The <see cref="IsPulseGuiding" /> property must be be True during pulse-guiding.</description></item>
+        /// <item><description>The <see cref="IsPulseGuiding" /> property must be True during pulse-guiding.</description></item>
         /// <item><description>The rate of motion for movements about the right ascension axis is 
         /// specified by the <see cref="GuideRateRightAscension" /> property. The rate of motion
         /// for movements about the declination axis is specified by the 
@@ -1092,7 +1092,7 @@ namespace ASCOM.Alpaca.Clients
         /// <item><description>Dec_sky = 180d - Dec_mech, expressed in range ± 90d</description></item>
         /// </list>
         /// </para>
-        /// <para>Astronomy software often needs to know which which pointing state the mount is in. Examples include setting guiding polarities 
+        /// <para>Astronomy software often needs to know which pointing state the mount is in. Examples include setting guiding polarities 
         /// and calculating dome opening azimuth/altitude. The meaning of the SideOfPier property, then is:
         /// <list type="table">
         /// <item><term><b>pierEast</b></term><description>Normal pointing state</description></item>

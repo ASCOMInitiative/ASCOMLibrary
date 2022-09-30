@@ -137,7 +137,7 @@ namespace ASCOM.Common.DeviceInterfaces
 
         /// <summary>
         /// The version of this interface. Will return 2 for this version.
-        /// Clients can detect legacy V1 drivers by trying to read ths property.
+        /// Clients can detect legacy V1 drivers by trying to read this property.
         /// If the driver raises an error, it is a V1 driver. V1 did not specify this property. A driver may also return a value of 1. 
         /// In other words, a raised error or a return value of 1 indicates that the driver is a V1 driver. 
         /// </summary>
