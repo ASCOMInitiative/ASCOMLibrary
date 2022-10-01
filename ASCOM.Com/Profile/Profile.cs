@@ -1,13 +1,7 @@
-﻿using ASCOM.Com.DriverAccess;
-using Microsoft.Win32;
+﻿using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text.RegularExpressions;
-using System.Threading;
 using ASCOM.Common;
-using System.Xml.Linq;
 
 namespace ASCOM.Com
 {

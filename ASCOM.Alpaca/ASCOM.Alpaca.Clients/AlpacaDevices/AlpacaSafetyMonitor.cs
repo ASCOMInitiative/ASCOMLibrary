@@ -3,7 +3,6 @@ using ASCOM.Common.Alpaca;
 using ASCOM.Common.DeviceInterfaces;
 using ASCOM.Common.Interfaces;
 using System;
-using System.Collections.Generic;
 using System.Reflection;
 
 namespace ASCOM.Alpaca.Clients

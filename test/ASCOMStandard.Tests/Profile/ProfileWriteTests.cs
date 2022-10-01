@@ -1,7 +1,4 @@
 ﻿using ASCOM.Common;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using Xunit;
 
 namespace ASCOM.Alpaca.Tests.Profile

@@ -2,8 +2,6 @@
 using ASCOM.Common.Interfaces;
 using ASCOM.Common;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace ASCOM.Alpaca.Clients
 {

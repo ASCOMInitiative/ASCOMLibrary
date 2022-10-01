@@ -1,18 +1,13 @@
 ﻿using ASCOM.Common;
 using ASCOM.Common.Alpaca;
 using ASCOM.Common.DeviceInterfaces;
-using ASCOM.Common.Helpers;
 using ASCOM.Common.Interfaces;
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
-using System.Net;
 using System.Net.Http;
 using System.Reflection;
-using System.Threading.Tasks;
 
 namespace ASCOM.Alpaca.Clients
 {

@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using Xunit;
 using ASCOM.Common.Alpaca;
 using Xunit.Abstractions;
-using System.Runtime.InteropServices;
 using System.Diagnostics;
 using System.Threading.Tasks;
 

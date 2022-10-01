@@ -3,14 +3,8 @@ using ASCOM.Alpaca.Discovery;
 using ASCOM.Common;
 using ASCOM.Common.Alpaca;
 using ASCOM.Tools;
-using Microsoft.Win32;
-using System;
-using System.Collections.Generic;
-using System.Security.Cryptography;
-using System.Text;
 using System.Threading;
 using Xunit;
-using static ASCOM.Common.Devices;
 
 namespace ASCOM.Alpaca.Tests.Alpaca
 {

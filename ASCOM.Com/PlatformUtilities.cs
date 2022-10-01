@@ -1,17 +1,12 @@
-﻿using ASCOM.Common.Interfaces;
-using ASCOM.Tools;
-using Microsoft.Win32;
+﻿using Microsoft.Win32;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Text;
-using static System.Net.Mime.MediaTypeNames;
 using System.Threading;
-using System.Runtime.CompilerServices;
 using System.IO;
 using static System.Environment;
 using ASCOM.Common;
+using ASCOM.Common.Interfaces;
 
 namespace ASCOM.Com
 {
@@ -45,15 +40,18 @@ namespace ASCOM.Com
 
         // Variables
         private static Version platformVersion = null;
-        private static readonly TraceLogger TL;
         private static bool driverGenerationComplete;
+
+        /// <summary>
+        /// Static field (locator pattern) that assigns an ITraceLogger for use in PlatformUtilities.
+        /// </summary>
+        public static ITraceLogger TraceLogger = new NullLogger();
 
         #region Initialise
 
         static PlatformUtilities()
         {
             string platformVersionString;
-            TL = new TraceLogger("PlatformUtilities", true);
 
             // Populate the Platform version variable when the class is initialised
 
@@ -214,7 +212,7 @@ namespace ASCOM.Com
             // Create a version object from the supplied major and minor required version numbers
             requiredVersion = new Version(requiredMajorVersion, requiredMinorVersion, requiredServicePack, requiredBuild);
 
-            TL.LogMessage("IsMinimumRequiredVersion", $"platformVersion: {platformVersion}, Required version: {requiredVersion}");
+            TraceLogger.LogMessage("IsMinimumRequiredVersion", $"platformVersion: {platformVersion}, Required version: {requiredVersion}");
 
             // Compare the two versions and respond accordingly
             if (platformVersion >= requiredVersion)
@@ -267,7 +265,7 @@ namespace ASCOM.Com
             {
                 // Create a new Alpaca driver of the current ASCOM device type
                 newProgId = CreateNewAlpacaDriver(deviceType, description);
-                TL.LogMessage("CreateDynamicDriver", $"Device type: {deviceType}, newProgId: {newProgId}");
+                TraceLogger.LogMessage("CreateDynamicDriver", $"Device type: {deviceType}, newProgId: {newProgId}");
 
                 // Configure the IP address, port number and Alpaca device number in the newly registered driver
                 Profile.SetValue(deviceType, newProgId, PROFILE_VALUE_NAME_IP_ADDRESS, hostName);
@@ -282,7 +280,7 @@ namespace ASCOM.Com
                     driverKey.SetValue($"{newProgId} Init", "True");
                 }
 
-                TL.LogMessage("OK Click", $"Returning ProgID: '{newProgId}'");
+                TraceLogger.LogMessage("OK Click", $"Returning ProgID: '{newProgId}'");
             }
             catch (Win32Exception ex) when ((uint)ex.ErrorCode == 0x80004005)
             {
@@ -291,7 +289,7 @@ namespace ASCOM.Com
             }
             catch (Exception ex)
             {
-                TL.LogMessage("CreateDynamicDriver", $"Exception: \r\n{ex}");
+                TraceLogger.LogMessage("CreateDynamicDriver", $"Exception: \r\n{ex}");
             }
             return newProgId;
         }
@@ -311,12 +309,12 @@ namespace ASCOM.Com
                 deviceNumber += 1;
                 newProgId = $"{DRIVER_PROGID_BASE}{deviceNumber}.{Devices.DeviceTypeToString(deviceType)}";
                 typeFromProgId = Type.GetTypeFromProgID(newProgId);
-                TL.LogMessage("CreateAlpacaClient", $"Testing ProgID: {newProgId} Type name: {typeFromProgId?.Name}");
+                TraceLogger.LogMessage("CreateAlpacaClient", $"Testing ProgID: {newProgId} Type name: {typeFromProgId?.Name}");
             }
             while ((!(typeFromProgId == null)))// Increment the device number// Create the new ProgID to be tested// Try to get the type with the new ProgID
         ; // Loop until the returned type is null indicating that this type is not COM registered
 
-            TL.LogMessage("CreateAlpacaClient", $"Creating new ProgID: {newProgId}");
+            TraceLogger.LogMessage("CreateAlpacaClient", $"Creating new ProgID: {newProgId}");
 
             RunDynamicClientManager($@"\CreateAlpacaClient {deviceType} {deviceNumber} {newProgId} ""{deviceDescription}""");
 
@@ -337,12 +335,12 @@ namespace ASCOM.Com
             clientManagerWorkingDirectory = $@"{Environment.GetFolderPath(SpecialFolder.ProgramFilesX86)}\{ALPACA_DYNAMIC_CLIENT_MANAGER_RELATIVE_PATH}";
             clientManagerExeFile = $@"{clientManagerWorkingDirectory}\{ALPACA_DYNAMIC_CLIENT_MANAGER_EXE_NAME}";
 
-            TL.LogMessage("RunDynamicClientManager", $"Generator parameters: '{parameterString}'");
-            TL.LogMessage("RunDynamicClientManager", $"Managing drivers using the {clientManagerExeFile} executable in working directory {clientManagerWorkingDirectory}");
+            TraceLogger.LogMessage("RunDynamicClientManager", $"Generator parameters: '{parameterString}'");
+            TraceLogger.LogMessage("RunDynamicClientManager", $"Managing drivers using the {clientManagerExeFile} executable in working directory {clientManagerWorkingDirectory}");
 
             if (!File.Exists(clientManagerExeFile))
             {
-                TL.LogMessage("RunDynamicClientManager", $"ERROR - Unable to find the client generator executable at {clientManagerExeFile}, cannot create a new Alpaca client.");
+                TraceLogger.LogMessage("RunDynamicClientManager", $"ERROR - Unable to find the client generator executable at {clientManagerExeFile}, cannot create a new Alpaca client.");
                 throw new InvalidOperationException($"RunDynamicClientManager - Unable to find the client generator executable at {clientManagerExeFile}, cannot create a new Alpaca client.");
             }
 
@@ -362,7 +360,7 @@ namespace ASCOM.Com
             clientManagerProcess.Exited += new EventHandler(DriverGeneration_Complete);
 
             // Run the process
-            TL.LogMessage("RunDynamicClientManager", $"Starting driver management process");
+            TraceLogger.LogMessage("RunDynamicClientManager", $"Starting driver management process");
             clientManagerProcess.Start();
 
             // Wait for the process to complete at which point the process complete event will fire and driverGenerationComplete will be set true
@@ -372,7 +370,7 @@ namespace ASCOM.Com
             }
             while (!driverGenerationComplete);
 
-            TL.LogMessage("RunDynamicClientManager", $"Completed driver management process");
+            TraceLogger.LogMessage("RunDynamicClientManager", $"Completed driver management process");
 
             clientManagerProcess.Dispose();
         }

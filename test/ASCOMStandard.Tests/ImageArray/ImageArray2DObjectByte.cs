@@ -1,8 +1,6 @@
 ﻿using ASCOM.Common.Alpaca;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Text;
 using Xunit;
 using Xunit.Abstractions;
 

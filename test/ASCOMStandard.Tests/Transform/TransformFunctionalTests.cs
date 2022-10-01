@@ -1,6 +1,5 @@
 ﻿using ASCOM.Tools;
 using System;
-using System.IO;
 using Xunit;
 
 namespace ASCOM.Alpaca.Tests.TransformTests

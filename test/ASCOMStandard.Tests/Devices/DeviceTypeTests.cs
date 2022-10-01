@@ -1,9 +1,4 @@
 ﻿using ASCOM.Common;
-using ASCOM.Common.Alpaca;
-using Microsoft.Win32;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using Xunit;
 using static ASCOM.Common.Devices;
 

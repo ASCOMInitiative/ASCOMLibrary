@@ -1,8 +1,6 @@
-﻿using ASCOM.Alpaca.Clients;
-using ASCOM.Common;
+﻿using ASCOM.Common;
 using ASCOM.Common.Alpaca;
 using ASCOM.Common.Interfaces;
-using ASCOM.Tools;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -47,7 +45,7 @@ namespace ASCOM.Alpaca.Discovery
         internal const int NUMBER_OF_THREAD_MESSAGE_INDENT_SPACES = 2;
 
         // Utility objects
-        private readonly TraceLogger TL;
+        private readonly ITraceLogger traceLogger;
         private Finder finder;
         private Timer discoveryCompleteTimer;
         private HttpClient httpClient;
@@ -81,9 +79,9 @@ namespace ASCOM.Alpaca.Discovery
         /// </summary>
         /// <param name="strictCasing">Trace logger instance to use for activity logging</param>
         /// <param name="traceLogger">Trace logger instance to use for activity logging</param>
-        public AlpacaDiscovery(bool strictCasing, TraceLogger traceLogger)
+        public AlpacaDiscovery(bool strictCasing, ITraceLogger traceLogger)
         {
-            TL = traceLogger; // Save the supplied trace logger object
+            this.traceLogger = traceLogger; // Save the supplied trace logger object
             this.strictCasing = strictCasing;
             InitialiseClass(); // Initialise using the trace logger
         }
@@ -105,8 +103,8 @@ namespace ASCOM.Alpaca.Discovery
                 }
 
                 // Get a new broadcast response finder
-                //finder = new Finder(FoundDeviceEventHandler, strictCasing,TL);
-                finder = new Finder(strictCasing, TL);
+                //finder = new Finder(FoundDeviceEventHandler, strictCasing,traceLogger);
+                finder = new Finder(strictCasing, traceLogger);
                 finder.ResponseReceivedEvent += FoundDeviceEventHandler;
 
                 LogMessage("AlpacaDiscoveryInitialise", $"Complete - Running on thread {Thread.CurrentThread.ManagedThreadId}");
@@ -654,7 +652,7 @@ namespace ASCOM.Alpaca.Discovery
         /// <param name="message"></param>
         private void LogMessage(string methodName, string message)
         {
-            TL?.Log(LogLevel.Information, $"AlpacaDiscovery - {methodName} - {Thread.CurrentThread.ManagedThreadId,2} {message}");
+            traceLogger?.Log(LogLevel.Information, $"AlpacaDiscovery - {methodName} - {Thread.CurrentThread.ManagedThreadId,2} {message}");
         }
 
         #endregion

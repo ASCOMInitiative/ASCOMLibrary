@@ -3,7 +3,6 @@ using ASCOM.Common.Alpaca;
 using ASCOM.Common.Com;
 using ASCOM.Common.DeviceInterfaces;
 using ASCOM.Common.Interfaces;
-using ASCOM.Tools;
 
 using System;
 using System.Collections.Concurrent;
@@ -15,7 +14,6 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Net.Mime;
 using System.Net.Sockets;
 using System.Reflection;
 using System.Runtime.CompilerServices;
