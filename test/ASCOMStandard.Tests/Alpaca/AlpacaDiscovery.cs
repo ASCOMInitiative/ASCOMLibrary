@@ -32,7 +32,7 @@ namespace ASCOM.Alpaca.Tests.Alpaca
 
             Assert.NotEmpty(alpacaDisocvery.GetAscomDevices(DeviceTypes.Camera));
 
-            AlpacaCamera camera = AlpacaClient.GetDevice<AlpacaCamera>(alpacaDisocvery.GetAscomDevices(DeviceTypes.Camera)[0], true, 100, 100, 100, 333, null, null, null);
+            AlpacaCamera camera = AlpacaClient.GetDevice<AlpacaCamera>(alpacaDisocvery.GetAscomDevices(DeviceTypes.Camera)[0], 100, 100, 100, 333, null, null, true, null);
             Assert.IsType<AlpacaCamera>(camera);
             camera.Dispose();
         }
@@ -49,7 +49,7 @@ namespace ASCOM.Alpaca.Tests.Alpaca
 
             Assert.NotEmpty(alpacaDisocvery.GetAscomDevices(DeviceTypes.Telescope));
 
-            AlpacaTelescope telescope = AlpacaClient.GetDevice<AlpacaTelescope>(alpacaDisocvery.GetAscomDevices(DeviceTypes.Telescope)[0], true, 100, 100, 100, 333, null, null, null);
+            AlpacaTelescope telescope = AlpacaClient.GetDevice<AlpacaTelescope>(alpacaDisocvery.GetAscomDevices(DeviceTypes.Telescope)[0], 100, 100, 100, 333, null, null, true, null);
             Assert.IsType<AlpacaTelescope>(telescope);
             telescope.Dispose();
         }
@@ -64,7 +64,7 @@ namespace ASCOM.Alpaca.Tests.Alpaca
                 Thread.Sleep(50);
             } while (!alpacaDisocvery.DiscoveryComplete);
 
-            Assert.Throws<InvalidValueException>(() => AlpacaClient.GetDevice<AlpacaCamera>(null, true, 100, 100, 100, 333, null, null, null));
+            Assert.Throws<InvalidValueException>(() => AlpacaClient.GetDevice<AlpacaCamera>(null, 100, 100, 100, 333, null, null, true, null));
         }
 
         [Fact]
@@ -84,7 +84,7 @@ namespace ASCOM.Alpaca.Tests.Alpaca
 
             Assert.NotEmpty(alpacaDisocvery.GetAscomDevices(DeviceTypes.Camera));
 
-            AlpacaCamera camera = AlpacaClient.GetDevice<AlpacaCamera>(alpacaDisocvery.GetAscomDevices(DeviceTypes.Camera)[0], true, CONNECTION_TIMEOUT, SHORT_TIMEOUT, LONG_TIMEOUT, CLIENT_NUMBER, null, null, null);
+            AlpacaCamera camera = AlpacaClient.GetDevice<AlpacaCamera>(alpacaDisocvery.GetAscomDevices(DeviceTypes.Camera)[0], CONNECTION_TIMEOUT, SHORT_TIMEOUT, LONG_TIMEOUT, CLIENT_NUMBER, null, null, true, null);
 
             Assert.Equal(CONNECTION_TIMEOUT, camera.ClientConfiguration.EstablishConnectionTimeout);
             Assert.Equal(SHORT_TIMEOUT, camera.ClientConfiguration.StandardDeviceResponseTimeout);
@@ -121,7 +121,7 @@ namespace ASCOM.Alpaca.Tests.Alpaca
 
             Assert.NotEmpty(alpacaDisocvery.GetAscomDevices(DeviceTypes.Camera));
 
-            AlpacaCamera camera = AlpacaClient.GetDevice<AlpacaCamera>(alpacaDisocvery.GetAscomDevices(DeviceTypes.Camera)[0], true, CONNECTION_TIMEOUT, SHORT_TIMEOUT, LONG_TIMEOUT, CLIENT_NUMBER, USER_NAME, USER_PASSWORD, TL);
+            AlpacaCamera camera = AlpacaClient.GetDevice<AlpacaCamera>(alpacaDisocvery.GetAscomDevices(DeviceTypes.Camera)[0], CONNECTION_TIMEOUT, SHORT_TIMEOUT, LONG_TIMEOUT, CLIENT_NUMBER, USER_NAME, USER_PASSWORD, true, TL);
 
             Assert.Equal(CONNECTION_TIMEOUT, camera.ClientConfiguration.EstablishConnectionTimeout);
             Assert.Equal(SHORT_TIMEOUT, camera.ClientConfiguration.StandardDeviceResponseTimeout);
@@ -195,7 +195,7 @@ namespace ASCOM.Alpaca.Tests.Alpaca
 
             Assert.NotEmpty(alpacaDisocvery.GetAscomDevices(DeviceTypes.Telescope));
 
-            AlpacaTelescope telescope= AlpacaClient.GetDevice<AlpacaTelescope>(alpacaDisocvery.GetAscomDevices(DeviceTypes.Camera)[0]);
+            AlpacaTelescope telescope = AlpacaClient.GetDevice<AlpacaTelescope>(alpacaDisocvery.GetAscomDevices(DeviceTypes.Camera)[0]);
 
             Assert.Equal(CONNECTION_TIMEOUT, telescope.ClientConfiguration.EstablishConnectionTimeout);
             Assert.Equal(SHORT_TIMEOUT, telescope.ClientConfiguration.StandardDeviceResponseTimeout);

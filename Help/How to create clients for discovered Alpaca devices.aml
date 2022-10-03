@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<topic id="12148518-094b-48a0-a947-05b4d987c037" revisionNumber="1">
+   <developerConceptualDocument xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <introduction>
+      <para>This topic describes how to create Alpaca clients for discovered ASCOM devices .</para>
+    </introduction>
+
+    <section address="WorkingWithDevices">
+      <title>Terminology.</title>
+      <content>
+		<para>
+			Within this topic the term "Alpaca Device" refers to a network device or software service that is running on a particular IP address and IP port. 
+			The Alpaca device may serve one or more "ASCOM Devices", which provide capbilites as defined in the <codeEntityReference linkText="DeviceInterfaces">N:ASCOM.Common.DeviceInterfaces</codeEntityReference>
+			namespace, e.g. ICamera and IFocuser etc.
+		</para>
+      </content>
+    </section>
+    <section address="WorkingWithDevices">
+      <title>How to create Alpaca clients for discovered Alpaca devices.</title>
+      <content>
+		<para>
+			The <codeEntityReference linkText="AlpacaClient Class">T:ASCOM.Alpaca.Clients.AlpacaClient</codeEntityReference> priovdes several static generic methods enabling simple or complex 
+			client creation.
+			The following example illustrates a simple scenario where client creation just requires an <codeEntityReference linkText="AscomDevice">T:ASCOM.Alpaca.Discovery.AscomDevice</codeEntityReference> 
+			instance provided by the
+			<codeEntityReference linkText="AlpacaDiscovery.GetAscomDevices(DeviceTypes)">M:ASCOM.Alpaca.Discovery.AlpacaDiscovery.GetAscomDevices(System.Nullable{ASCOM.Common.DeviceTypes})</codeEntityReference> method.
+			If required, default parameter values can be changed after the device has been created through the 
+			<codeEntityReference linkText="AlpacaDevice.ClientConfiguration">P:ASCOM.Alpaca.Clients.AlpacaDeviceBaseClass.ClientConfiguration</codeEntityReference> property.
+		</para>
+		<para>
+			<code source="CodeExamples.cs" region="Simple client creation using a discovered AscomDevice" language="csharp" title="Simple client creation from a discovered ASCOM device." />
+		</para>
+		<para>
+			This example illustrates a detailed scenario that requires an an <codeEntityReference linkText="AscomDevice">T:ASCOM.Alpaca.Discovery.AscomDevice</codeEntityReference> instance together with other configuration values.
+		</para>
+		<para>
+			<code source="CodeExamples.cs" region="Detailed client creation using a discovered AscomDevice" language="csharp" title="Simple client creation from a discovered ASCOM device." />
+		</para>      
+		<para>
+			Finally, this example illustrates creating a manual xreation scenario where all parameters are supplied individually.
+		</para>
+		<para>
+			<code source="CodeExamples.cs" region="Detailed manual client creation" language="csharp" title="Detailed manual client creation." />
+		</para>      
+	  </content>
+    </section>
+  </developerConceptualDocument>
+</topic>

@@ -31,7 +31,7 @@
 		</para>
 		<para>
 			The following example shows this approach in practice.
-			<code lang="cs" title="ASCOM NOVASCOM Examples" source="example.cs" />
+			<code source="CodeExamples.cs" region="Seamless client access" language="csharp" title="Seamless client access" />
 		</para>
       </content>
     </section>

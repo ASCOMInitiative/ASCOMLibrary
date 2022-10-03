@@ -80,13 +80,13 @@ namespace ASCOM.Alpaca.Clients
         /// <param name="portNumber">Alpaca device's IP Port number</param>
         /// <param name="remoteDeviceNumber">Alpaca device's device number e.g. Telescope/0</param>
         /// <param name="strictCasing">Tolerate or throw exceptions  if the Alpaca device does not use strictly correct casing for JSON object element names.</param>
-        /// <param name="logger">Optional ILogger instance that can be sued to record operational information during execution</param>
+        /// <param name="logger">Optional ILogger instance that can be used to record operational information during execution</param>
         public AlpacaFilterWheel(ServiceType serviceType,
                          string ipAddressString,
                          int portNumber,
                          int remoteDeviceNumber,
-                             bool strictCasing,
-                      ILogger logger)
+                         bool strictCasing,
+                         ILogger logger)
         {
             this.serviceType = serviceType;
             this.ipAddressString = ipAddressString;
