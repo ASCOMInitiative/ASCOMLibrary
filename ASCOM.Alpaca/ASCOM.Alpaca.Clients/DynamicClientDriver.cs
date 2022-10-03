@@ -3,7 +3,6 @@ using ASCOM.Common.Alpaca;
 using ASCOM.Common.Com;
 using ASCOM.Common.DeviceInterfaces;
 using ASCOM.Common.Interfaces;
-using ASCOM.Tools;
 
 using System;
 using System.Collections.Concurrent;

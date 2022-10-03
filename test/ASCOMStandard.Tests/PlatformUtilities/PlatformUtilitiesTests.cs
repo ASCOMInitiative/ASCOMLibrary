@@ -1,4 +1,5 @@
 ﻿using ASCOM.Common;
+using ASCOM.Tools;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -100,7 +101,12 @@ namespace ASCOM.Alpaca.Tests.PlatformUtilities
         public void CreateAlpacaDevice()
         {
             string uniqueIdGuid = Guid.NewGuid().ToString();
+            TraceLogger TL = new TraceLogger("PlatformUtilities", true);
+            TL.LogMessage("CreateAlpacaDevice", "Before SetLogger");
+            Com.PlatformUtilities.SetLogger(TL);
+            TL.LogMessage("CreateAlpacaDevice", "Before CreateDynamicDriver");
             string progId = Com.PlatformUtilities.CreateDynamicDriver(DeviceTypes.SafetyMonitor, 0, "Unit test Safety Monitor description", "127.0.0.1", 11111, uniqueIdGuid);
+            TL.LogMessage("CreateAlpacaDevice", $"After CreateDynamicDriver - ProgId: '{progId}'");
 
             Assert.Contains("SafetyMonitor", progId,StringComparison.CurrentCultureIgnoreCase);
         }

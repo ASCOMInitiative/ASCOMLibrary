@@ -2,7 +2,6 @@
 using ASCOM.Common;
 using ASCOM.Common.Alpaca;
 using ASCOM.Common.Interfaces;
-using ASCOM.Tools;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -47,7 +46,7 @@ namespace ASCOM.Alpaca.Discovery
         internal const int NUMBER_OF_THREAD_MESSAGE_INDENT_SPACES = 2;
 
         // Utility objects
-        private readonly TraceLogger TL;
+        private readonly ILogger TL;
         private Finder finder;
         private Timer discoveryCompleteTimer;
         private HttpClient httpClient;
@@ -81,7 +80,7 @@ namespace ASCOM.Alpaca.Discovery
         /// </summary>
         /// <param name="strictCasing">Trace logger instance to use for activity logging</param>
         /// <param name="traceLogger">Trace logger instance to use for activity logging</param>
-        public AlpacaDiscovery(bool strictCasing, TraceLogger traceLogger)
+        public AlpacaDiscovery(bool strictCasing, ILogger traceLogger)
         {
             TL = traceLogger; // Save the supplied trace logger object
             this.strictCasing = strictCasing;
