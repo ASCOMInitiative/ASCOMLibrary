@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ASCOM.Common.Components" Version="1.0.1-beta2" />
+    <PackageReference Include="ASCOM.Tools" Version="1.0.1-beta2" />
+  </ItemGroup>
+
+</Project>
