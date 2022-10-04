@@ -44,7 +44,7 @@ namespace ASCOM.Com
 
         // Variables
         private static Version platformVersion = null;
-        private static ILogger TL;
+        private static ILogger logger;
         private static bool driverGenerationComplete;
 
         #region Initialise
@@ -96,7 +96,7 @@ namespace ASCOM.Com
         /// <param name="logger"></param>
         public static void SetLogger(ILogger logger)
         {
-            TL=logger;
+            PlatformUtilities.logger = logger;
         }
 
         #endregion
@@ -414,7 +414,7 @@ namespace ASCOM.Com
         /// <param name="message"></param>
         private static void LogMessage(string methodName, string message)
         {
-            TL?.Log(LogLevel.Information, $"PlatformUtilities - {methodName} - {message}");
+            logger.LogMessage(LogLevel.Information, $"PlatformUtilities - {methodName}", message);
         }
 
         #endregion

@@ -20,7 +20,7 @@ namespace ASCOM.Common
             // Use a log format depending on whether the supplied logger is an ITraceLogger instance or just a plain ILogger instance
             if (logger is ITraceLogger traceLogger) // The logger is an ITraceLogger instance so use the ITraceLogger.LogMessage method to log the message
             {
-                traceLogger.LogMessage(method, message); // Use the ITraceLogger.LogMessage method
+                traceLogger.LogMessage($"[Lib] {method}", message); // Use the ITraceLogger.LogMessage method
             }
             else // The logger is null or an ILogger instance so use the ILogger.Log method 
             {

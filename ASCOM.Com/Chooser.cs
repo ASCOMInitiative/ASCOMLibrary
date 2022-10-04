@@ -2,8 +2,10 @@
 using ASCOM.Common.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 
 namespace ASCOM.Com
 {
@@ -20,7 +22,7 @@ namespace ASCOM.Com
 
         private readonly dynamic chooser; // Holds the Chooser COM object reference
         private bool disposedValue; // Indicates whether the object has been Disposed
-        private readonly ILogger log;
+        private readonly ILogger logger;
 
         #region New and Dispose
 
@@ -39,7 +41,7 @@ namespace ASCOM.Com
         public Chooser(ILogger logger)
         {
             // SAve the supplied logger (if any)
-            this.log = logger;
+            this.logger = logger;
 
             // This will only work on Windows so validate the OS here
             if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -192,7 +194,7 @@ namespace ASCOM.Com
         /// <param name="message">Message</param>
         private void LogMessage(LogLevel level, string method, string message)
         {
-            log?.Log(level, $"Chooser.{method} - {message}");
+            logger.LogMessage(level, $"Chooser - {method}", message);
         }
 
         #endregion

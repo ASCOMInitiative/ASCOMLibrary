@@ -46,7 +46,7 @@ namespace ASCOM.Alpaca.Discovery
         internal const int NUMBER_OF_THREAD_MESSAGE_INDENT_SPACES = 2;
 
         // Utility objects
-        private readonly ILogger TL;
+        private readonly ILogger logger;
         private Finder finder;
         private Timer discoveryCompleteTimer;
         private HttpClient httpClient;
@@ -82,7 +82,7 @@ namespace ASCOM.Alpaca.Discovery
         /// <param name="traceLogger">Trace logger instance to use for activity logging</param>
         public AlpacaDiscovery(bool strictCasing, ILogger traceLogger)
         {
-            TL = traceLogger; // Save the supplied trace logger object
+            logger = traceLogger; // Save the supplied trace logger object
             this.strictCasing = strictCasing;
             InitialiseClass(); // Initialise using the trace logger
         }
@@ -105,7 +105,7 @@ namespace ASCOM.Alpaca.Discovery
 
                 // Get a new broadcast response finder
                 //finder = new Finder(FoundDeviceEventHandler, strictCasing,TL);
-                finder = new Finder(strictCasing, TL);
+                finder = new Finder(strictCasing, logger);
                 finder.ResponseReceivedEvent += FoundDeviceEventHandler;
 
                 LogMessage("AlpacaDiscoveryInitialise", $"Complete - Running on thread {Thread.CurrentThread.ManagedThreadId}");
@@ -653,7 +653,7 @@ namespace ASCOM.Alpaca.Discovery
         /// <param name="message"></param>
         private void LogMessage(string methodName, string message)
         {
-            TL?.Log(LogLevel.Information, $"AlpacaDiscovery - {methodName} - {Thread.CurrentThread.ManagedThreadId,2} {message}");
+            logger.LogMessage(LogLevel.Information, $"AlpacaDiscovery - {methodName}", $"{Thread.CurrentThread.ManagedThreadId,2} {message}");
         }
 
         #endregion

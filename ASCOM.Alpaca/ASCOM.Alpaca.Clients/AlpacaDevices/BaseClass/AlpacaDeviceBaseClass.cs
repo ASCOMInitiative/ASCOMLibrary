@@ -294,12 +294,12 @@ namespace ASCOM.Alpaca.Clients
 
         internal static void LogMessage(ILogger logger, uint instance, string prefix, string message)
         {
-            if (logger != null) logger.Log(LogLevel.Information, $"{prefix} {instance}".PadRight(30) + message);
+            logger.LogMessage(LogLevel.Information, $"{prefix} {instance}",message);
         }
 
         internal static void LogBlankLine(ILogger logger)
         {
-            if (logger != null) logger.Log(LogLevel.Information, $" ");
+            logger.BlankLine(LogLevel.Information);
         }
 
         #endregion
