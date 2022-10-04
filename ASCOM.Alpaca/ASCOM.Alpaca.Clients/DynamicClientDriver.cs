@@ -108,16 +108,16 @@ namespace ASCOM.Alpaca.Clients
         /// Test whether a particular client is already connected
         /// </summary>
         /// <param name="clientNumber">Number of the calling client</param>
-        /// <param name="TL">ILogger device to which to send runtime diagnostic information</param>
+        /// <param name="logger">ILogger device to which to send runtime diagnostic information</param>
         /// <returns></returns>
-        internal static bool IsClientConnected(uint clientNumber, ILogger TL)
+        internal static bool IsClientConnected(uint clientNumber, ILogger logger)
         {
             foreach (KeyValuePair<long, bool> kvp in connectStates)
             {
-                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "IsClientConnected", $"This device ClientID is in the ConnectedStates list: {kvp.Key}, Value: {kvp.Value}");
+                AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "IsClientConnected", $"This device ClientID is in the ConnectedStates list: {kvp.Key}, Value: {kvp.Value}");
             }
 
-            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "IsClientConnected", "Number of connected devices: " + connectStates.Count + ", Returning: " + connectStates.ContainsKey(clientNumber).ToString());
+            AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "IsClientConnected", "Number of connected devices: " + connectStates.Count + ", Returning: " + connectStates.ContainsKey(clientNumber).ToString());
 
             return connectStates.ContainsKey(clientNumber);
         }
@@ -125,9 +125,9 @@ namespace ASCOM.Alpaca.Clients
         /// <summary>
         /// Returns the number of connected clients
         /// </summary>
-        internal static uint ConnectionCount(ILogger TL)
+        internal static uint ConnectionCount(ILogger logger)
         {
-            AlpacaDeviceBaseClass.LogMessage(TL, 0, "ConnectionCount", connectStates.Count.ToString());
+            AlpacaDeviceBaseClass.LogMessage(logger, 0, "ConnectionCount", connectStates.Count.ToString());
             return (uint)connectStates.Count;
         }
 
@@ -151,7 +151,7 @@ namespace ASCOM.Alpaca.Clients
         /// <param name="ipAddressString"></param>
         /// <param name="portNumber"></param>
         /// <param name="serviceType"></param>
-        /// <param name="TL"></param>
+        /// <param name="logger"></param>
         /// <param name="clientNumber"></param>
         /// <param name="deviceType"></param>
         /// <param name="deviceResponseTimeout"></param>
@@ -160,23 +160,23 @@ namespace ASCOM.Alpaca.Clients
         /// <param name="imageArrayCompression"></param>
         /// <remarks>This method will attempt to re-discover the Alpaca device if it is not possible to establish a TCP connection with the device at the specified address and port.</remarks>
         internal static void ConnectToRemoteDevice(ref HttpClient client, ServiceType serviceType, string ipAddressString, decimal portNumber,
-                                                 uint clientNumber, DeviceTypes deviceType, int deviceResponseTimeout, string userName, string password, ImageArrayCompression imageArrayCompression, ILogger TL)
+                                                 uint clientNumber, DeviceTypes deviceType, int deviceResponseTimeout, string userName, string password, ImageArrayCompression imageArrayCompression, ILogger logger)
         {
             string clientHostAddress = $"{serviceType.ToString().ToLowerInvariant()}://{ipAddressString}:{portNumber}";
 
-            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, Devices.DeviceTypeToString(deviceType), $"Connecting to device: {ipAddressString}:{portNumber} through URL: {clientHostAddress}");
+            AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, Devices.DeviceTypeToString(deviceType), $"Connecting to device: {ipAddressString}:{portNumber} through URL: {clientHostAddress}");
 
             #region Commented automatic Alpaca device rediscovery code
             // Test whether automatic Alpaca device rediscovery is enabled for this device
             //if (enableRediscovery) // Automatic rediscovery is enabled
             //{
-            //    AlpacaDeviceBaseClass.LogMessage(TL,clientNumber, deviceType, $"Testing whether client at address {clientHostAddress} can be contacted.");
+            //    AlpacaDeviceBaseClass.LogMessage(,clientNumber, deviceType, $"Testing whether client at address {clientHostAddress} can be contacted.");
 
             //    // Test whether there is a device at the configured IP address and port by trying to open a TCP connection to it
-            //    if (!ClientIsUp(ipAddressString, portNumber, connectionTimeout, TL, clientNumber)) // It was not possible to establish TCP communication with a device at the IP address provided
+            //    if (!ClientIsUp(ipAddressString, portNumber, connectionTimeout, , clientNumber)) // It was not possible to establish TCP communication with a device at the IP address provided
             //    {
             //        // Attempt to "re-discover" the device and use it's new address and / or port
-            //        AlpacaDeviceBaseClass.LogMessage(TL,clientNumber, deviceType, $"The device at the configured IP address and port {ipAddressString} cannot be contacted, attempting to re-discover it");
+            //        AlpacaDeviceBaseClass.LogMessage(,clientNumber, deviceType, $"The device at the configured IP address and port {ipAddressString} cannot be contacted, attempting to re-discover it");
 
             //        // Create an AlapcaDiscovery component to conduct the search
             //        using (AlpacaDiscovery alpacaDiscovery = new AlpacaDiscovery())
@@ -196,17 +196,17 @@ namespace ASCOM.Alpaca.Clients
             //            // Iterate over these to find which ASCOM devices are served by them
             //            foreach (AlpacaDevice alpacaDevice in discoveredDevices)
             //            {
-            //                AlpacaDeviceBaseClass.LogMessage(TL,clientNumber, deviceType, $"Found Alpaca device {alpacaDevice.HostName}:{alpacaDevice.Port} - {alpacaDevice.ServerName}");
+            //                AlpacaDeviceBaseClass.LogMessage(,clientNumber, deviceType, $"Found Alpaca device {alpacaDevice.HostName}:{alpacaDevice.Port} - {alpacaDevice.ServerName}");
 
             //                // Iterate over the devices served by the Alpaca device
             //                foreach (ConfiguredDevice ascomDevice in alpacaDevice.ConfiguredDevices)
             //                {
-            //                    AlpacaDeviceBaseClass.LogMessage(TL,clientNumber, deviceType, $"Found ASCOM device {ascomDevice.DeviceName}:{ascomDevice.DeviceType} - {ascomDevice.UniqueID} at {alpacaDevice.HostName}:{alpacaDevice.Port}");
+            //                    AlpacaDeviceBaseClass.LogMessage(,clientNumber, deviceType, $"Found ASCOM device {ascomDevice.DeviceName}:{ascomDevice.DeviceType} - {ascomDevice.UniqueID} at {alpacaDevice.HostName}:{alpacaDevice.Port}");
 
             //                    // Test whether the found ASCOM device has the same unique ID as the device for which we are looking
             //                    if (ascomDevice.UniqueID.ToLowerInvariant() == uniqueId.ToLowerInvariant()) // We have a match so we can use this address and port instead of the configured values that no longer work
             //                    {
-            //                        AlpacaDeviceBaseClass.LogMessage(TL,clientNumber, deviceType, $"  *** Found REQUIRED ASCOM device ***");
+            //                        AlpacaDeviceBaseClass.LogMessage(,clientNumber, deviceType, $"  *** Found REQUIRED ASCOM device ***");
 
             //                        // Get the IP address as a big endian byte array
             //                        byte[] addressBytes = IPAddress.Parse(alpacaDevice.HostName).GetAddressBytes();
@@ -230,7 +230,7 @@ namespace ASCOM.Alpaca.Clients
 
             //                    }
             //                }
-            //                TL.BlankLine();
+            //                logger.BlankLine();
             //            }
 
             //        }
@@ -240,14 +240,14 @@ namespace ASCOM.Alpaca.Clients
             //        switch (availableInterfaces.Count)
             //        {
             //            case 0:
-            //                AlpacaDeviceBaseClass.LogMessage(TL,clientNumber, deviceType, $"No ASCOM device was discovered that had a UniqueD of {uniqueId}");
-            //                TL.BlankLine();
+            //                AlpacaDeviceBaseClass.LogMessage(,clientNumber, deviceType, $"No ASCOM device was discovered that had a UniqueD of {uniqueId}");
+            //                logger.BlankLine();
             //                break;
 
             //            case 1:
             //                // Update the client host address with the newly discovered address and port
             //                clientHostAddress = $"{serviceType}://{availableInterfaces[0].HostName}:{availableInterfaces[0].Port}";
-            //                AlpacaDeviceBaseClass.LogMessage(TL,clientNumber, deviceType, $"One ASCOM device was discovered that had a UniqueD of {uniqueId}. Now using URL: {clientHostAddress}");
+            //                AlpacaDeviceBaseClass.LogMessage(,clientNumber, deviceType, $"One ASCOM device was discovered that had a UniqueD of {uniqueId}. Now using URL: {clientHostAddress}");
 
             //                // Write the new value to the driver's Profile so it is found immediately in future
             //                using (Profile profile = new Profile())
@@ -255,14 +255,14 @@ namespace ASCOM.Alpaca.Clients
             //                    profile.DeviceType = deviceType;
             //                    profile.WriteValue(driverProgId, SharedConstants.IPADDRESS_PROFILENAME, availableInterfaces[0].HostName);
             //                    profile.WriteValue(driverProgId, SharedConstants.PORTNUMBER_PROFILENAME, availableInterfaces[0].Port.ToString());
-            //                    AlpacaDeviceBaseClass.LogMessage(TL,clientNumber, deviceType, $"Written new values {availableInterfaces[0].HostName} and {availableInterfaces[0].Port} to profile {driverProgId}");
+            //                    AlpacaDeviceBaseClass.LogMessage(,clientNumber, deviceType, $"Written new values {availableInterfaces[0].HostName} and {availableInterfaces[0].Port} to profile {driverProgId}");
             //                }
 
-            //                TL.BlankLine();
+            //                logger.BlankLine();
             //                break;
 
             //            default:
-            //                AlpacaDeviceBaseClass.LogMessage(TL,clientNumber, deviceType, $"{availableInterfaces.Count} ASCOM devices were discovered that had a UniqueD of {uniqueId}.");
+            //                AlpacaDeviceBaseClass.LogMessage(,clientNumber, deviceType, $"{availableInterfaces.Count} ASCOM devices were discovered that had a UniqueD of {uniqueId}.");
 
             //                // Get the original IP address as a big endian byte array
             //                byte[] addressBytes = new byte[0]; // Create a zero length array in case its not possible to parse the IP address string (it may be a host name or may just be corrupted)
@@ -298,7 +298,7 @@ namespace ASCOM.Alpaca.Clients
             //                // The following number requires a leading zero to ensure that it is not interpreted as a negative number because its most significant bit is set
             //                // Hex number character count                    1234567890123456789012345678901234 = 34 hex characters = 17 bytes = a leading 0 byte plus 16 bytes of value 255
             //                BigInteger largestDifference = BigInteger.Parse("00FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", NumberStyles.HexNumber, CultureInfo.InvariantCulture);
-            //                AlpacaDeviceBaseClass.LogMessage(TL,clientNumber, deviceType, $"Initialised largest value: {largestDifference} = {largestDifference:X34}");
+            //                AlpacaDeviceBaseClass.LogMessage(,clientNumber, deviceType, $"Initialised largest value: {largestDifference} = {largestDifference:X34}");
 
             //                // Now iterate over the values and pick the entry with the smallest difference in IP address
             //                foreach (AvailableInterface availableInterface in availableInterfaces)
@@ -308,7 +308,7 @@ namespace ASCOM.Alpaca.Clients
             //                        largestDifference = availableInterface.AddressDistance;
             //                        clientHostAddress = $"{serviceType}://{availableInterface.HostName}:{availableInterface.Port}";
 
-            //                        AlpacaDeviceBaseClass.LogMessage(TL,clientNumber, deviceType, $"New lowest address difference found: {availableInterface.AddressDistance} ({availableInterface.AddressDistance:X32}) for UniqueD {uniqueId}. Now using URL: {clientHostAddress}");
+            //                        AlpacaDeviceBaseClass.LogMessage(,clientNumber, deviceType, $"New lowest address difference found: {availableInterface.AddressDistance} ({availableInterface.AddressDistance:X32}) for UniqueD {uniqueId}. Now using URL: {clientHostAddress}");
 
             //                        // Write the new value to the driver's Profile so it is found immediately in future
             //                        using (Profile profile = new Profile())
@@ -316,13 +316,13 @@ namespace ASCOM.Alpaca.Clients
             //                            profile.DeviceType = deviceType;
             //                            profile.WriteValue(driverProgId, SharedConstants.IPADDRESS_PROFILENAME, availableInterface.HostName);
             //                            profile.WriteValue(driverProgId, SharedConstants.PORTNUMBER_PROFILENAME, availableInterface.Port.ToString());
-            //                            AlpacaDeviceBaseClass.LogMessage(TL,clientNumber, deviceType, $"Written new values {availableInterface.HostName} and {availableInterface.Port} to profile {driverProgId}");
+            //                            AlpacaDeviceBaseClass.LogMessage(,clientNumber, deviceType, $"Written new values {availableInterface.HostName} and {availableInterface.Port} to profile {driverProgId}");
             //                        }
             //                    }
             //                }
 
 
-            //                TL.BlankLine();
+            //                logger.BlankLine();
             //                break;
             //        }
             //    }
@@ -410,7 +410,7 @@ namespace ASCOM.Alpaca.Clients
         // /// <param name="TL">Trace logger in which to report progress</param>
         // /// <param name="clientNumber">The client's number</param>
         // /// <returns></returns>
-        //private static bool ClientIsUp(string ipAddressString, decimal portNumber, int connectionTimeout, ILogger TL, uint clientNumber)
+        //private static bool ClientIsUp(string ipAddressString, decimal portNumber, int connectionTimeout, ILogger logger, uint clientNumber)
         //{
         //    TcpClient tcpClient = null;
 
@@ -424,7 +424,7 @@ namespace ASCOM.Alpaca.Clients
         //            // Create an IPv4 or IPv6 TCP client as required
         //            if (ipAddress.AddressFamily == AddressFamily.InterNetwork) tcpClient = new TcpClient(AddressFamily.InterNetwork); // Test IPv4 addresses
         //            else tcpClient = new TcpClient(AddressFamily.InterNetworkV6);
-        //            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "ClientIsUp", $"Created an {ipAddress.AddressFamily} TCP client");
+        //            AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "ClientIsUp", $"Created an {ipAddress.AddressFamily} TCP client");
         //        }
         //        else
         //        {
@@ -433,37 +433,37 @@ namespace ASCOM.Alpaca.Clients
 
         //        // Create a task that will return True if a connection to the device can be established or False if the connection is rejected or not possible
         //        Task<bool> connectionTask = tcpClient.ConnectAsync(ipAddressString, (int)portNumber).ContinueWith(task => { return !task.IsFaulted; }, TaskContinuationOptions.ExecuteSynchronously);
-        //        AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "ClientIsUp", $"Created connection task");
+        //        AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "ClientIsUp", $"Created connection task");
 
         //        // Create a task that will time out after the specified time and return a value of False
         //        Task<bool> timeoutTask = Task.Delay(connectionTimeout * 1000).ContinueWith<bool>(task => false, TaskContinuationOptions.ExecuteSynchronously);
-        //        AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "ClientIsUp", $"Created timeout task");
+        //        AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "ClientIsUp", $"Created timeout task");
 
         //        // Create a task that will wait until either of the two preceding tasks completes
         //        Task<bool> resultTask = Task.WhenAny(connectionTask, timeoutTask).Unwrap();
-        //        AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "ClientIsUp", $"Waiting for a task to complete");
+        //        AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "ClientIsUp", $"Waiting for a task to complete");
 
         //        // Wait for one of the tasks to complete
         //        resultTask.Wait();
-        //        AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "ClientIsUp", $"A task has completed");
+        //        AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "ClientIsUp", $"A task has completed");
 
         //        // Test whether or not we connected OK within the timeout period
         //        if (resultTask.Result) // We did connect OK within the timeout period
         //        {
-        //            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "ClientIsUp", $"Contacted client OK!");
+        //            AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "ClientIsUp", $"Contacted client OK!");
         //            tcpClient.Close();
         //            returnValue = true;
         //        }
         //        else // We did not connect successfully within the timeout period
         //        {
-        //            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "ClientIsUp", $"Unable to contact client....");
+        //            AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "ClientIsUp", $"Unable to contact client....");
         //            returnValue = false;
         //        }
         //    }
 
         //    catch (Exception ex)
         //    {
-        //        AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "ClientIsUp", $"Exception: {ex}");
+        //        AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "ClientIsUp", $"Exception: {ex}");
 
         //    }
         //    finally
@@ -477,10 +477,10 @@ namespace ASCOM.Alpaca.Clients
 
         #region Remote access methods
 
-        internal static void CallMethodWithNoParameters(uint clientNumber, HttpClient client, int timeout, string URIBase, bool strictCasing, ILogger TL, string method, MemberTypes memberType)
+        internal static void CallMethodWithNoParameters(uint clientNumber, HttpClient client, int timeout, string URIBase, bool strictCasing, ILogger logger, string method, MemberTypes memberType)
         {
             Dictionary<string, string> Parameters = new Dictionary<string, string>();
-            SendToRemoteDevice<NoReturnValue>(clientNumber, client, timeout, URIBase, strictCasing, TL, method, Parameters, HttpMethod.Put, memberType);
+            SendToRemoteDevice<NoReturnValue>(clientNumber, client, timeout, URIBase, strictCasing, logger, method, Parameters, HttpMethod.Put, memberType);
         }
 
         /// <summary>
@@ -492,13 +492,13 @@ namespace ASCOM.Alpaca.Clients
         /// <param name="timeout"></param>
         /// <param name="URIBase"></param>
         /// <param name="strictCasing"></param>
-        /// <param name="TL"></param>
+        /// <param name="logger"></param>
         /// <param name="method"></param>
         /// <param name="memberType"></param>
         /// <returns></returns>
-        internal static T GetValue<T>(uint clientNumber, HttpClient client, int timeout, string URIBase, bool strictCasing, ILogger TL, string method, MemberTypes memberType)
+        internal static T GetValue<T>(uint clientNumber, HttpClient client, int timeout, string URIBase, bool strictCasing, ILogger logger, string method, MemberTypes memberType)
         {
-            return GetValue<T>(clientNumber, client, timeout, URIBase, strictCasing, TL, method, IMAGE_ARRAY_TRANSFER_TYPE_DEFAULT, IMAGE_ARRAY_COMPRESSION_DEFAULT, memberType); // Set an arbitrary value for ImageArrayTransferType
+            return GetValue<T>(clientNumber, client, timeout, URIBase, strictCasing, logger, method, IMAGE_ARRAY_TRANSFER_TYPE_DEFAULT, IMAGE_ARRAY_COMPRESSION_DEFAULT, memberType); // Set an arbitrary value for ImageArrayTransferType
         }
 
         /// <summary>
@@ -510,127 +510,127 @@ namespace ASCOM.Alpaca.Clients
         /// <param name="timeout"></param>
         /// <param name="URIBase"></param>
         /// <param name="strictCasing"></param>
-        /// <param name="TL"></param>
+        /// <param name="logger"></param>
         /// <param name="method"></param>
         /// <param name="imageArrayTransferType"></param>
         /// <param name="imageArrayCompression"></param>
         /// <param name="memberType"></param>
         /// <returns></returns>
-        internal static T GetValue<T>(uint clientNumber, HttpClient client, int timeout, string URIBase, bool strictCasing, ILogger TL, string method, ImageArrayTransferType imageArrayTransferType, ImageArrayCompression imageArrayCompression, MemberTypes memberType)
+        internal static T GetValue<T>(uint clientNumber, HttpClient client, int timeout, string URIBase, bool strictCasing, ILogger logger, string method, ImageArrayTransferType imageArrayTransferType, ImageArrayCompression imageArrayCompression, MemberTypes memberType)
         {
             Dictionary<string, string> Parameters = new Dictionary<string, string>();
-            return SendToRemoteDevice<T>(clientNumber, client, timeout, URIBase, strictCasing, TL, method, Parameters, HttpMethod.Get, imageArrayTransferType, imageArrayCompression, memberType);
+            return SendToRemoteDevice<T>(clientNumber, client, timeout, URIBase, strictCasing, logger, method, Parameters, HttpMethod.Get, imageArrayTransferType, imageArrayCompression, memberType);
         }
 
-        internal static void SetBool(uint clientNumber, HttpClient client, int timeout, string URIBase, bool strictCasing, ILogger TL, string method, bool parmeterValue, MemberTypes memberType)
+        internal static void SetBool(uint clientNumber, HttpClient client, int timeout, string URIBase, bool strictCasing, ILogger logger, string method, bool parmeterValue, MemberTypes memberType)
         {
             Dictionary<string, string> Parameters = new Dictionary<string, string>
             {
                 { method, parmeterValue.ToString(CultureInfo.InvariantCulture) }
             };
-            SendToRemoteDevice<NoReturnValue>(clientNumber, client, timeout, URIBase, strictCasing, TL, method, Parameters, HttpMethod.Put, memberType);
+            SendToRemoteDevice<NoReturnValue>(clientNumber, client, timeout, URIBase, strictCasing, logger, method, Parameters, HttpMethod.Put, memberType);
         }
 
-        internal static void SetInt(uint clientNumber, HttpClient client, int timeout, string URIBase, bool strictCasing, ILogger TL, string method, int parmeterValue, MemberTypes memberType)
+        internal static void SetInt(uint clientNumber, HttpClient client, int timeout, string URIBase, bool strictCasing, ILogger logger, string method, int parmeterValue, MemberTypes memberType)
         {
             Dictionary<string, string> Parameters = new Dictionary<string, string>
             {
                 { method, parmeterValue.ToString(CultureInfo.InvariantCulture) }
             };
-            SendToRemoteDevice<NoReturnValue>(clientNumber, client, timeout, URIBase, strictCasing, TL, method, Parameters, HttpMethod.Put, memberType);
+            SendToRemoteDevice<NoReturnValue>(clientNumber, client, timeout, URIBase, strictCasing, logger, method, Parameters, HttpMethod.Put, memberType);
         }
 
-        internal static void SetShort(uint clientNumber, HttpClient client, int timeout, string URIBase, bool strictCasing, ILogger TL, string method, short parmeterValue, MemberTypes memberType)
+        internal static void SetShort(uint clientNumber, HttpClient client, int timeout, string URIBase, bool strictCasing, ILogger logger, string method, short parmeterValue, MemberTypes memberType)
         {
             Dictionary<string, string> Parameters = new Dictionary<string, string>
             {
                 { method, parmeterValue.ToString(CultureInfo.InvariantCulture) }
             };
-            SendToRemoteDevice<NoReturnValue>(clientNumber, client, timeout, URIBase, strictCasing, TL, method, Parameters, HttpMethod.Put, memberType);
+            SendToRemoteDevice<NoReturnValue>(clientNumber, client, timeout, URIBase, strictCasing, logger, method, Parameters, HttpMethod.Put, memberType);
         }
 
-        internal static void SetDouble(uint clientNumber, HttpClient client, int timeout, string URIBase, bool strictCasing, ILogger TL, string method, double parmeterValue, MemberTypes memberType)
+        internal static void SetDouble(uint clientNumber, HttpClient client, int timeout, string URIBase, bool strictCasing, ILogger logger, string method, double parmeterValue, MemberTypes memberType)
         {
             Dictionary<string, string> Parameters = new Dictionary<string, string>
             {
                 { method, parmeterValue.ToString(CultureInfo.InvariantCulture) }
             };
-            SendToRemoteDevice<NoReturnValue>(clientNumber, client, timeout, URIBase, strictCasing, TL, method, Parameters, HttpMethod.Put, memberType);
+            SendToRemoteDevice<NoReturnValue>(clientNumber, client, timeout, URIBase, strictCasing, logger, method, Parameters, HttpMethod.Put, memberType);
         }
 
-        internal static void SetDoubleWithShortParameter(uint clientNumber, HttpClient client, int timeout, string URIBase, bool strictCasing, ILogger TL, string method, short index, double parmeterValue, MemberTypes memberType)
+        internal static void SetDoubleWithShortParameter(uint clientNumber, HttpClient client, int timeout, string URIBase, bool strictCasing, ILogger logger, string method, short index, double parmeterValue, MemberTypes memberType)
         {
             Dictionary<string, string> Parameters = new Dictionary<string, string>
             {
                 { AlpacaConstants.ID_PARAMETER_NAME, index.ToString(CultureInfo.InvariantCulture) },
                 { AlpacaConstants.VALUE_PARAMETER_NAME, parmeterValue.ToString(CultureInfo.InvariantCulture) }
             };
-            SendToRemoteDevice<NoReturnValue>(clientNumber, client, timeout, URIBase, strictCasing, TL, method, Parameters, HttpMethod.Put, memberType);
+            SendToRemoteDevice<NoReturnValue>(clientNumber, client, timeout, URIBase, strictCasing, logger, method, Parameters, HttpMethod.Put, memberType);
         }
 
-        internal static void SetBoolWithShortParameter(uint clientNumber, HttpClient client, int timeout, string URIBase, bool strictCasing, ILogger TL, string method, short index, bool parmeterValue, MemberTypes memberType)
+        internal static void SetBoolWithShortParameter(uint clientNumber, HttpClient client, int timeout, string URIBase, bool strictCasing, ILogger logger, string method, short index, bool parmeterValue, MemberTypes memberType)
         {
             Dictionary<string, string> Parameters = new Dictionary<string, string>
             {
                 { AlpacaConstants.ID_PARAMETER_NAME, index.ToString(CultureInfo.InvariantCulture) },
                 { AlpacaConstants.STATE_PARAMETER_NAME, parmeterValue.ToString(CultureInfo.InvariantCulture) }
             };
-            SendToRemoteDevice<NoReturnValue>(clientNumber, client, timeout, URIBase, strictCasing, TL, method, Parameters, HttpMethod.Put, memberType);
+            SendToRemoteDevice<NoReturnValue>(clientNumber, client, timeout, URIBase, strictCasing, logger, method, Parameters, HttpMethod.Put, memberType);
         }
 
-        internal static void SetStringWithShortParameter(uint clientNumber, HttpClient client, int timeout, string URIBase, bool strictCasing, ILogger TL, string method, short index, string parmeterValue, MemberTypes memberType)
+        internal static void SetStringWithShortParameter(uint clientNumber, HttpClient client, int timeout, string URIBase, bool strictCasing, ILogger logger, string method, short index, string parmeterValue, MemberTypes memberType)
         {
             Dictionary<string, string> Parameters = new Dictionary<string, string>
             {
                 { AlpacaConstants.ID_PARAMETER_NAME, index.ToString(CultureInfo.InvariantCulture) },
                 { AlpacaConstants.NAME_PARAMETER_NAME, parmeterValue.ToString(CultureInfo.InvariantCulture) }
             };
-            SendToRemoteDevice<NoReturnValue>(clientNumber, client, timeout, URIBase, strictCasing, TL, method, Parameters, HttpMethod.Put, memberType);
+            SendToRemoteDevice<NoReturnValue>(clientNumber, client, timeout, URIBase, strictCasing, logger, method, Parameters, HttpMethod.Put, memberType);
         }
 
-        internal static string GetStringIndexedString(uint clientNumber, HttpClient client, int timeout, string URIBase, bool strictCasing, ILogger TL, string method, string parameterValue, MemberTypes memberType)
+        internal static string GetStringIndexedString(uint clientNumber, HttpClient client, int timeout, string URIBase, bool strictCasing, ILogger logger, string method, string parameterValue, MemberTypes memberType)
         {
             Dictionary<string, string> Parameters = new Dictionary<string, string>
             {
                 { AlpacaConstants.SENSORNAME_PARAMETER_NAME, parameterValue }
             };
-            return SendToRemoteDevice<string>(clientNumber, client, timeout, URIBase, strictCasing, TL, method, Parameters, HttpMethod.Get, memberType);
+            return SendToRemoteDevice<string>(clientNumber, client, timeout, URIBase, strictCasing, logger, method, Parameters, HttpMethod.Get, memberType);
         }
 
-        internal static double GetStringIndexedDouble(uint clientNumber, HttpClient client, int timeout, string URIBase, bool strictCasing, ILogger TL, string method, string parameterValue, MemberTypes memberType)
+        internal static double GetStringIndexedDouble(uint clientNumber, HttpClient client, int timeout, string URIBase, bool strictCasing, ILogger logger, string method, string parameterValue, MemberTypes memberType)
         {
             Dictionary<string, string> Parameters = new Dictionary<string, string>
             {
                 { AlpacaConstants.SENSORNAME_PARAMETER_NAME, parameterValue }
             };
-            return SendToRemoteDevice<double>(clientNumber, client, timeout, URIBase, strictCasing, TL, method, Parameters, HttpMethod.Get, memberType);
+            return SendToRemoteDevice<double>(clientNumber, client, timeout, URIBase, strictCasing, logger, method, Parameters, HttpMethod.Get, memberType);
         }
 
-        internal static double GetShortIndexedDouble(uint clientNumber, HttpClient client, int timeout, string URIBase, bool strictCasing, ILogger TL, string method, short parameterValue, MemberTypes memberType)
+        internal static double GetShortIndexedDouble(uint clientNumber, HttpClient client, int timeout, string URIBase, bool strictCasing, ILogger logger, string method, short parameterValue, MemberTypes memberType)
         {
             Dictionary<string, string> Parameters = new Dictionary<string, string>
             {
                 { AlpacaConstants.ID_PARAMETER_NAME, parameterValue.ToString(CultureInfo.InvariantCulture) }
             };
-            return SendToRemoteDevice<double>(clientNumber, client, timeout, URIBase, strictCasing, TL, method, Parameters, HttpMethod.Get, memberType);
+            return SendToRemoteDevice<double>(clientNumber, client, timeout, URIBase, strictCasing, logger, method, Parameters, HttpMethod.Get, memberType);
         }
 
-        internal static bool GetShortIndexedBool(uint clientNumber, HttpClient client, int timeout, string URIBase, bool strictCasing, ILogger TL, string method, short parameterValue, MemberTypes memberType)
+        internal static bool GetShortIndexedBool(uint clientNumber, HttpClient client, int timeout, string URIBase, bool strictCasing, ILogger logger, string method, short parameterValue, MemberTypes memberType)
         {
             Dictionary<string, string> Parameters = new Dictionary<string, string>
             {
                 { AlpacaConstants.ID_PARAMETER_NAME, parameterValue.ToString(CultureInfo.InvariantCulture) }
             };
-            return SendToRemoteDevice<bool>(clientNumber, client, timeout, URIBase, strictCasing, TL, method, Parameters, HttpMethod.Get, memberType);
+            return SendToRemoteDevice<bool>(clientNumber, client, timeout, URIBase, strictCasing, logger, method, Parameters, HttpMethod.Get, memberType);
         }
 
-        internal static string GetShortIndexedString(uint clientNumber, HttpClient client, int timeout, string URIBase, bool strictCasing, ILogger TL, string method, short parameterValue, MemberTypes memberType)
+        internal static string GetShortIndexedString(uint clientNumber, HttpClient client, int timeout, string URIBase, bool strictCasing, ILogger logger, string method, short parameterValue, MemberTypes memberType)
         {
             Dictionary<string, string> Parameters = new Dictionary<string, string>
             {
                 { AlpacaConstants.ID_PARAMETER_NAME, parameterValue.ToString(CultureInfo.InvariantCulture) }
             };
-            return SendToRemoteDevice<string>(clientNumber, client, timeout, URIBase, strictCasing, TL, method, Parameters, HttpMethod.Get, memberType);
+            return SendToRemoteDevice<string>(clientNumber, client, timeout, URIBase, strictCasing, logger, method, Parameters, HttpMethod.Get, memberType);
         }
 
         /// <summary>
@@ -642,15 +642,15 @@ namespace ASCOM.Alpaca.Clients
         /// <param name="timeout"></param>
         /// <param name="URIBase"></param>
         /// <param name="strictCasing"></param>
-        /// <param name="TL"></param>
+        /// <param name="logger"></param>
         /// <param name="method"></param>
         /// <param name="Parameters"></param>
         /// <param name="HttpMethod"></param>
         /// <param name="memberType"></param>
         /// <returns></returns>
-        internal static T SendToRemoteDevice<T>(uint clientNumber, HttpClient client, int timeout, string URIBase, bool strictCasing, ILogger TL, string method, Dictionary<string, string> Parameters, HttpMethod HttpMethod, MemberTypes memberType)
+        internal static T SendToRemoteDevice<T>(uint clientNumber, HttpClient client, int timeout, string URIBase, bool strictCasing, ILogger logger, string method, Dictionary<string, string> Parameters, HttpMethod HttpMethod, MemberTypes memberType)
         {
-            return SendToRemoteDevice<T>(clientNumber, client, timeout, URIBase, strictCasing, TL, method, Parameters, HttpMethod, IMAGE_ARRAY_TRANSFER_TYPE_DEFAULT, IMAGE_ARRAY_COMPRESSION_DEFAULT, memberType);
+            return SendToRemoteDevice<T>(clientNumber, client, timeout, URIBase, strictCasing, logger, method, Parameters, HttpMethod, IMAGE_ARRAY_TRANSFER_TYPE_DEFAULT, IMAGE_ARRAY_COMPRESSION_DEFAULT, memberType);
         }
 
         /// <summary>
@@ -662,7 +662,7 @@ namespace ASCOM.Alpaca.Clients
         /// <param name="timeout">Timeout in seconds</param>
         /// <param name="uriBase"></param>
         /// <param name="strictCasing"></param>
-        /// <param name="TL"></param>
+        /// <param name="logger"></param>
         /// <param name="method"></param>
         /// <param name="parameters"></param>
         /// <param name="httpMethod"></param>
@@ -670,7 +670,7 @@ namespace ASCOM.Alpaca.Clients
         /// <param name="imageArrayCompression"></param>
         /// <param name="memberType"></param>
         /// <returns></returns>
-        internal static T SendToRemoteDevice<T>(uint clientNumber, HttpClient client, int timeout, string uriBase, bool strictCasing, ILogger TL, string method, Dictionary<string, string> parameters, HttpMethod httpMethod, ImageArrayTransferType imageArrayTransferType, ImageArrayCompression imageArrayCompression, MemberTypes memberType)
+        internal static T SendToRemoteDevice<T>(uint clientNumber, HttpClient client, int timeout, string uriBase, bool strictCasing, ILogger logger, string method, Dictionary<string, string> parameters, HttpMethod httpMethod, ImageArrayTransferType imageArrayTransferType, ImageArrayCompression imageArrayCompression, MemberTypes memberType)
         {
             int retryCounter = 0; // Initialise the socket error retry counter
             Stopwatch sw = new Stopwatch(); // Stopwatch to time activities
@@ -699,7 +699,7 @@ namespace ASCOM.Alpaca.Clients
                     UriBuilder transactionUri = new UriBuilder($"{client.BaseAddress}{uriBase}{method}".ToLowerInvariant());
 
                     // Create a new request message to be sent to the device
-                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"UriBase: '{uriBase}', Device URI: {transactionUri.Uri}");
+                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"UriBase: '{uriBase}', Device URI: {transactionUri.Uri}");
 
                     // Process HTTP GET and PUT methods
                     if (httpMethod == HttpMethod.Get) // HTTP GET methods
@@ -769,7 +769,7 @@ namespace ASCOM.Alpaca.Clients
 
                     // Log the request URI
                     lastTime = sw.ElapsedMilliseconds;
-                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Client Transaction ID: {transactionId}, Sending command to remote device: {client.BaseAddress} - {request.RequestUri}\r\nRequest: {request}");
+                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"Client Transaction ID: {transactionId}, Sending command to remote device: {client.BaseAddress} - {request.RequestUri}\r\nRequest: {request}");
 
                     // Create a cancellation token that will time out after the required retry interval
                     CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
@@ -790,7 +790,7 @@ namespace ASCOM.Alpaca.Clients
                         // List the headers received
                         foreach (var header in responseHeaders)
                         {
-                            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Received header {header.Key} = {header.Value.FirstOrDefault()}.");
+                            AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"Received header {header.Key} = {header.Value.FirstOrDefault()}.");
                         }
 
                         // Extract the content type from the returned headers
@@ -798,19 +798,19 @@ namespace ASCOM.Alpaca.Clients
                         {
                             responseContentType = contentTypeValues.First().ToLowerInvariant();
                         }
-                        AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Returned data content type: '{responseContentType}'");
+                        AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"Returned data content type: '{responseContentType}'");
 
                         long timeDeviceResponse = sw.ElapsedMilliseconds - lastTime;
 
                         // Get the returned data as a byte[] (could be JSON text or ImageBytes image data)
                         sw.Restart();
                         byte[] rawBytes = deviceJsonResponse.Content.ReadAsByteArrayAsync().Result;
-                        AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"ReadAsByteArrayAsync time: {sw.ElapsedMilliseconds}ms, Overall time: {swOverall.ElapsedMilliseconds}ms.");
+                        AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"ReadAsByteArrayAsync time: {sw.ElapsedMilliseconds}ms, Overall time: {swOverall.ElapsedMilliseconds}ms.");
 
                         // Log the device's response
                         if (responseContentType.ToLowerInvariant().Contains(AlpacaConstants.IMAGE_BYTES_MIME_TYPE)) // Image bytes response
                         {
-                            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Received an ImageBytes response: '{deviceJsonResponse.ReasonPhrase}', Content type: {responseContentType}");
+                            AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"Received an ImageBytes response: '{deviceJsonResponse.ReasonPhrase}', Content type: {responseContentType}");
                         }
                         else if ((responseContentType.ToLowerInvariant().Contains(AlpacaConstants.APPLICATION_JSON_MIME_TYPE)) | (responseContentType.ToLowerInvariant().Contains(AlpacaConstants.TEXT_JSON_MIME_TYPE))) // JSON response
                         {
@@ -819,7 +819,7 @@ namespace ASCOM.Alpaca.Clients
                         }
                         else // We didn't receive a content type header or received an unsupported content type, so assume that the response is JSON throw an exception to indicate the problem.
                         {
-                            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "GetResponse", $"Did not find expected content type of 'application.json' or 'application/imagebytes'. Found: {responseContentType}");
+                            AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "GetResponse", $"Did not find expected content type of 'application.json' or 'application/imagebytes'. Found: {responseContentType}");
                             throw new InvalidValueException($"The device did not return a content type or returned an unsupported content type: '{responseContentType}'");
                         }
 
@@ -827,80 +827,80 @@ namespace ASCOM.Alpaca.Clients
                         if (typeof(T) == typeof(bool))
                         {
                             BoolResponse boolResponse = JsonSerializer.Deserialize<BoolResponse>(responseJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = !strictCasing });// JsonSerializer.Deserialize<BoolResponse>(responseJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = !strictCasing });
-                            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, string.Format(LOG_FORMAT_STRING, boolResponse.ClientTransactionID, boolResponse.ServerTransactionID, boolResponse.Value.ToString()));
-                            if (CallWasSuccessful(TL, boolResponse)) return (T)((object)boolResponse.Value);
+                            AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, string.Format(LOG_FORMAT_STRING, boolResponse.ClientTransactionID, boolResponse.ServerTransactionID, boolResponse.Value.ToString()));
+                            if (CallWasSuccessful(logger, boolResponse)) return (T)((object)boolResponse.Value);
                             restResponseBase = (Response)boolResponse;
                         }
                         if (typeof(T) == typeof(float))
                         {
                             // Handle float as double over the web, remembering to convert the returned value to float
                             DoubleResponse doubleResponse = JsonSerializer.Deserialize<DoubleResponse>(responseJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = !strictCasing });
-                            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, string.Format(LOG_FORMAT_STRING, doubleResponse.ClientTransactionID, doubleResponse.ServerTransactionID, doubleResponse.Value.ToString()));
+                            AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, string.Format(LOG_FORMAT_STRING, doubleResponse.ClientTransactionID, doubleResponse.ServerTransactionID, doubleResponse.Value.ToString()));
                             float floatValue = (float)doubleResponse.Value;
-                            if (CallWasSuccessful(TL, doubleResponse)) return (T)((object)floatValue);
+                            if (CallWasSuccessful(logger, doubleResponse)) return (T)((object)floatValue);
                             restResponseBase = (Response)doubleResponse;
                         }
                         if (typeof(T) == typeof(double))
                         {
                             DoubleResponse doubleResponse = JsonSerializer.Deserialize<DoubleResponse>(responseJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = !strictCasing });
-                            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, string.Format(LOG_FORMAT_STRING, doubleResponse.ClientTransactionID, doubleResponse.ServerTransactionID, doubleResponse.Value.ToString()));
-                            if (CallWasSuccessful(TL, doubleResponse)) return (T)((object)doubleResponse.Value);
+                            AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, string.Format(LOG_FORMAT_STRING, doubleResponse.ClientTransactionID, doubleResponse.ServerTransactionID, doubleResponse.Value.ToString()));
+                            if (CallWasSuccessful(logger, doubleResponse)) return (T)((object)doubleResponse.Value);
                             restResponseBase = (Response)doubleResponse;
                         }
                         if (typeof(T) == typeof(string))
                         {
                             StringResponse stringResponse = JsonSerializer.Deserialize<StringResponse>(responseJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = !strictCasing });
-                            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, string.Format(LOG_FORMAT_STRING, stringResponse.ClientTransactionID, stringResponse.ServerTransactionID, (stringResponse.Value is null) ? "NO VALUE OR NULL VALUE RETURNED" : (stringResponse.Value.Length <= 500 ? stringResponse.Value : stringResponse.Value.Substring(0, 500))));
-                            if (CallWasSuccessful(TL, stringResponse)) return (T)((object)stringResponse.Value);
+                            AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, string.Format(LOG_FORMAT_STRING, stringResponse.ClientTransactionID, stringResponse.ServerTransactionID, (stringResponse.Value is null) ? "NO VALUE OR NULL VALUE RETURNED" : (stringResponse.Value.Length <= 500 ? stringResponse.Value : stringResponse.Value.Substring(0, 500))));
+                            if (CallWasSuccessful(logger, stringResponse)) return (T)((object)stringResponse.Value);
                             restResponseBase = (Response)stringResponse;
                         }
                         if (typeof(T) == typeof(string[]))
                         {
                             StringArrayResponse stringArrayResponse = JsonSerializer.Deserialize<StringArrayResponse>(responseJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = !strictCasing });
-                            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, string.Format(LOG_FORMAT_STRING, stringArrayResponse.ClientTransactionID, stringArrayResponse.ServerTransactionID, (stringArrayResponse.Value is null) ? "NO VALUE OR NULL VALUE RETURNED" : stringArrayResponse.Value.Count().ToString()));
-                            if (CallWasSuccessful(TL, stringArrayResponse)) return (T)((object)stringArrayResponse.Value);
+                            AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, string.Format(LOG_FORMAT_STRING, stringArrayResponse.ClientTransactionID, stringArrayResponse.ServerTransactionID, (stringArrayResponse.Value is null) ? "NO VALUE OR NULL VALUE RETURNED" : stringArrayResponse.Value.Count().ToString()));
+                            if (CallWasSuccessful(logger, stringArrayResponse)) return (T)((object)stringArrayResponse.Value);
                             restResponseBase = (Response)stringArrayResponse;
                         }
                         if (typeof(T) == typeof(short))
                         {
                             ShortResponse shortResponse = JsonSerializer.Deserialize<ShortResponse>(responseJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = !strictCasing });
-                            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, string.Format(LOG_FORMAT_STRING, shortResponse.ClientTransactionID, shortResponse.ServerTransactionID, shortResponse.Value.ToString()));
-                            if (CallWasSuccessful(TL, shortResponse)) return (T)((object)shortResponse.Value);
+                            AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, string.Format(LOG_FORMAT_STRING, shortResponse.ClientTransactionID, shortResponse.ServerTransactionID, shortResponse.Value.ToString()));
+                            if (CallWasSuccessful(logger, shortResponse)) return (T)((object)shortResponse.Value);
                             restResponseBase = (Response)shortResponse;
                         }
                         if (typeof(T) == typeof(int))
                         {
                             IntResponse intResponse = JsonSerializer.Deserialize<IntResponse>(responseJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = !strictCasing });
-                            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, string.Format(LOG_FORMAT_STRING, intResponse.ClientTransactionID, intResponse.ServerTransactionID, intResponse.Value.ToString()));
-                            if (CallWasSuccessful(TL, intResponse)) return (T)((object)intResponse.Value);
+                            AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, string.Format(LOG_FORMAT_STRING, intResponse.ClientTransactionID, intResponse.ServerTransactionID, intResponse.Value.ToString()));
+                            if (CallWasSuccessful(logger, intResponse)) return (T)((object)intResponse.Value);
                             restResponseBase = (Response)intResponse;
                         }
                         if (typeof(T) == typeof(int[]))
                         {
                             IntArray1DResponse intArrayResponse = JsonSerializer.Deserialize<IntArray1DResponse>(responseJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = !strictCasing });
-                            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, string.Format(LOG_FORMAT_STRING, intArrayResponse.ClientTransactionID, intArrayResponse.ServerTransactionID, (intArrayResponse.Value is null) ? "NO VALUE OR NULL VALUE RETURNED" : intArrayResponse.Value.Count().ToString()));
-                            if (CallWasSuccessful(TL, intArrayResponse)) return (T)((object)intArrayResponse.Value);
+                            AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, string.Format(LOG_FORMAT_STRING, intArrayResponse.ClientTransactionID, intArrayResponse.ServerTransactionID, (intArrayResponse.Value is null) ? "NO VALUE OR NULL VALUE RETURNED" : intArrayResponse.Value.Count().ToString()));
+                            if (CallWasSuccessful(logger, intArrayResponse)) return (T)((object)intArrayResponse.Value);
                             restResponseBase = (Response)intArrayResponse;
                         }
                         if (typeof(T) == typeof(DateTime))
                         {
                             DateTimeResponse dateTimeResponse = JsonSerializer.Deserialize<DateTimeResponse>(responseJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = !strictCasing });
-                            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, string.Format(LOG_FORMAT_STRING, dateTimeResponse.ClientTransactionID, dateTimeResponse.ServerTransactionID, dateTimeResponse.Value.ToString()));
-                            if (CallWasSuccessful(TL, dateTimeResponse)) return (T)((object)dateTimeResponse.Value);
+                            AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, string.Format(LOG_FORMAT_STRING, dateTimeResponse.ClientTransactionID, dateTimeResponse.ServerTransactionID, dateTimeResponse.Value.ToString()));
+                            if (CallWasSuccessful(logger, dateTimeResponse)) return (T)((object)dateTimeResponse.Value);
                             restResponseBase = (Response)dateTimeResponse;
                         }
                         if (typeof(T) == typeof(List<string>)) // Used for ArrayLists of string
                         {
                             StringListResponse stringListResponse = JsonSerializer.Deserialize<StringListResponse>(responseJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = !strictCasing });
-                            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, string.Format(LOG_FORMAT_STRING, stringListResponse.ClientTransactionID, stringListResponse.ServerTransactionID, (stringListResponse.Value is null) ? "NO VALUE OR NULL VALUE RETURNED" : stringListResponse.Value.Count.ToString()));
-                            if (CallWasSuccessful(TL, stringListResponse)) return (T)((object)stringListResponse.Value);
+                            AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, string.Format(LOG_FORMAT_STRING, stringListResponse.ClientTransactionID, stringListResponse.ServerTransactionID, (stringListResponse.Value is null) ? "NO VALUE OR NULL VALUE RETURNED" : stringListResponse.Value.Count.ToString()));
+                            if (CallWasSuccessful(logger, stringListResponse)) return (T)((object)stringListResponse.Value);
                             restResponseBase = (Response)stringListResponse;
                         }
                         if (typeof(T) == typeof(NoReturnValue)) // Used for Methods that have no response and Property Set members
                         {
                             MethodResponse deviceResponse = JsonSerializer.Deserialize<MethodResponse>(responseJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = !strictCasing });
-                            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, string.Format(LOG_FORMAT_STRING, deviceResponse.ClientTransactionID.ToString(), deviceResponse.ServerTransactionID.ToString(), "No response"));
-                            if (CallWasSuccessful(TL, deviceResponse)) return (T)((object)new NoReturnValue());
+                            AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, string.Format(LOG_FORMAT_STRING, deviceResponse.ClientTransactionID.ToString(), deviceResponse.ServerTransactionID.ToString(), "No response"));
+                            if (CallWasSuccessful(logger, deviceResponse)) return (T)((object)new NoReturnValue());
                             restResponseBase = (Response)deviceResponse;
                         }
 
@@ -908,8 +908,8 @@ namespace ASCOM.Alpaca.Clients
                         if (typeof(T) == typeof(PointingState))
                         {
                             IntResponse PointingStateResponse = JsonSerializer.Deserialize<IntResponse>(responseJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = !strictCasing });
-                            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, string.Format(LOG_FORMAT_STRING, PointingStateResponse.ClientTransactionID, PointingStateResponse.ServerTransactionID, PointingStateResponse.Value.ToString()));
-                            if (CallWasSuccessful(TL, PointingStateResponse)) return (T)((object)PointingStateResponse.Value);
+                            AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, string.Format(LOG_FORMAT_STRING, PointingStateResponse.ClientTransactionID, PointingStateResponse.ServerTransactionID, PointingStateResponse.Value.ToString()));
+                            if (CallWasSuccessful(logger, PointingStateResponse)) return (T)((object)PointingStateResponse.Value);
                             restResponseBase = (Response)PointingStateResponse;
                         }
                         if (typeof(T) == typeof(ITrackingRates))
@@ -917,28 +917,28 @@ namespace ASCOM.Alpaca.Clients
                             TrackingRatesResponse trackingRatesResponse = JsonSerializer.Deserialize<TrackingRatesResponse>(responseJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = !strictCasing });
                             if (trackingRatesResponse.Value != null) // A TrackingRates object was returned so process the response normally
                             {
-                                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, string.Format(LOG_FORMAT_STRING, trackingRatesResponse.ClientTransactionID, trackingRatesResponse.ServerTransactionID, trackingRatesResponse.Value.Count));
+                                AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, string.Format(LOG_FORMAT_STRING, trackingRatesResponse.ClientTransactionID, trackingRatesResponse.ServerTransactionID, trackingRatesResponse.Value.Count));
                                 List<DriveRate> rates = new List<DriveRate>();
                                 DriveRate[] ratesArray = new DriveRate[trackingRatesResponse.Value.Count];
                                 int i = 0;
                                 foreach (DriveRate rate in trackingRatesResponse.Value)
                                 {
-                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Rate: {rate}");
+                                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"Rate: {rate}");
                                     ratesArray[i] = rate;
                                     i++;
                                 }
 
                                 TrackingRates trackingRates = new TrackingRates();
                                 trackingRates.SetRates(ratesArray);
-                                if (CallWasSuccessful(TL, trackingRatesResponse))
+                                if (CallWasSuccessful(logger, trackingRatesResponse))
                                 {
-                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Returning {trackingRates.Count} tracking rates to the client - now measured from trackingRates");
+                                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"Returning {trackingRates.Count} tracking rates to the client - now measured from trackingRates");
                                     return (T)((object)trackingRates);
                                 }
                             }
                             else // No TrackingRates object was returned so handle this as an error
                             {
-                                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, string.Format(LOG_FORMAT_STRING, trackingRatesResponse.ClientTransactionID, trackingRatesResponse.ServerTransactionID, "NO VALUE OR NULL VALUE RETURNED"));
+                                AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, string.Format(LOG_FORMAT_STRING, trackingRatesResponse.ClientTransactionID, trackingRatesResponse.ServerTransactionID, "NO VALUE OR NULL VALUE RETURNED"));
 
                                 // Now force an error return
                                 trackingRatesResponse = new TrackingRatesResponse();
@@ -950,57 +950,57 @@ namespace ASCOM.Alpaca.Clients
                         if (typeof(T) == typeof(EquatorialCoordinateType))
                         {
                             IntResponse equatorialCoordinateResponse = JsonSerializer.Deserialize<IntResponse>(responseJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = !strictCasing });
-                            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, string.Format(LOG_FORMAT_STRING, equatorialCoordinateResponse.ClientTransactionID, equatorialCoordinateResponse.ServerTransactionID, equatorialCoordinateResponse.Value.ToString()));
-                            if (CallWasSuccessful(TL, equatorialCoordinateResponse)) return (T)((object)equatorialCoordinateResponse.Value);
+                            AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, string.Format(LOG_FORMAT_STRING, equatorialCoordinateResponse.ClientTransactionID, equatorialCoordinateResponse.ServerTransactionID, equatorialCoordinateResponse.Value.ToString()));
+                            if (CallWasSuccessful(logger, equatorialCoordinateResponse)) return (T)((object)equatorialCoordinateResponse.Value);
                             restResponseBase = (Response)equatorialCoordinateResponse;
                         }
                         if (typeof(T) == typeof(AlignmentMode))
                         {
                             IntResponse alignmentModesResponse = JsonSerializer.Deserialize<IntResponse>(responseJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = !strictCasing });
-                            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, string.Format(LOG_FORMAT_STRING, alignmentModesResponse.ClientTransactionID, alignmentModesResponse.ServerTransactionID, alignmentModesResponse.Value.ToString()));
-                            if (CallWasSuccessful(TL, alignmentModesResponse)) return (T)((object)alignmentModesResponse.Value);
+                            AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, string.Format(LOG_FORMAT_STRING, alignmentModesResponse.ClientTransactionID, alignmentModesResponse.ServerTransactionID, alignmentModesResponse.Value.ToString()));
+                            if (CallWasSuccessful(logger, alignmentModesResponse)) return (T)((object)alignmentModesResponse.Value);
                             restResponseBase = (Response)alignmentModesResponse;
                         }
                         if (typeof(T) == typeof(DriveRate))
                         {
                             IntResponse DriveRateResponse = JsonSerializer.Deserialize<IntResponse>(responseJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = !strictCasing });
-                            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, string.Format(LOG_FORMAT_STRING, DriveRateResponse.ClientTransactionID, DriveRateResponse.ServerTransactionID, DriveRateResponse.Value.ToString()));
-                            if (CallWasSuccessful(TL, DriveRateResponse)) return (T)((object)DriveRateResponse.Value);
+                            AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, string.Format(LOG_FORMAT_STRING, DriveRateResponse.ClientTransactionID, DriveRateResponse.ServerTransactionID, DriveRateResponse.Value.ToString()));
+                            if (CallWasSuccessful(logger, DriveRateResponse)) return (T)((object)DriveRateResponse.Value);
                             restResponseBase = (Response)DriveRateResponse;
                         }
                         if (typeof(T) == typeof(SensorType))
                         {
                             IntResponse sensorTypeResponse = JsonSerializer.Deserialize<IntResponse>(responseJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = !strictCasing });
-                            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, string.Format(LOG_FORMAT_STRING, sensorTypeResponse.ClientTransactionID, sensorTypeResponse.ServerTransactionID, sensorTypeResponse.Value.ToString()));
-                            if (CallWasSuccessful(TL, sensorTypeResponse)) return (T)((object)sensorTypeResponse.Value);
+                            AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, string.Format(LOG_FORMAT_STRING, sensorTypeResponse.ClientTransactionID, sensorTypeResponse.ServerTransactionID, sensorTypeResponse.Value.ToString()));
+                            if (CallWasSuccessful(logger, sensorTypeResponse)) return (T)((object)sensorTypeResponse.Value);
                             restResponseBase = (Response)sensorTypeResponse;
                         }
                         if (typeof(T) == typeof(CameraState))
                         {
                             IntResponse cameraStatesResponse = JsonSerializer.Deserialize<IntResponse>(responseJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = !strictCasing });
-                            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, string.Format(LOG_FORMAT_STRING, cameraStatesResponse.ClientTransactionID, cameraStatesResponse.ServerTransactionID, cameraStatesResponse.Value.ToString()));
-                            if (CallWasSuccessful(TL, cameraStatesResponse)) return (T)((object)cameraStatesResponse.Value);
+                            AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, string.Format(LOG_FORMAT_STRING, cameraStatesResponse.ClientTransactionID, cameraStatesResponse.ServerTransactionID, cameraStatesResponse.Value.ToString()));
+                            if (CallWasSuccessful(logger, cameraStatesResponse)) return (T)((object)cameraStatesResponse.Value);
                             restResponseBase = (Response)cameraStatesResponse;
                         }
                         if (typeof(T) == typeof(ShutterState))
                         {
                             IntResponse domeShutterStateResponse = JsonSerializer.Deserialize<IntResponse>(responseJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = !strictCasing });
-                            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, string.Format(LOG_FORMAT_STRING, domeShutterStateResponse.ClientTransactionID, domeShutterStateResponse.ServerTransactionID, domeShutterStateResponse.Value.ToString()));
-                            if (CallWasSuccessful(TL, domeShutterStateResponse)) return (T)((object)domeShutterStateResponse.Value);
+                            AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, string.Format(LOG_FORMAT_STRING, domeShutterStateResponse.ClientTransactionID, domeShutterStateResponse.ServerTransactionID, domeShutterStateResponse.Value.ToString()));
+                            if (CallWasSuccessful(logger, domeShutterStateResponse)) return (T)((object)domeShutterStateResponse.Value);
                             restResponseBase = (Response)domeShutterStateResponse;
                         }
                         if (typeof(T) == typeof(CoverStatus))
                         {
                             IntResponse coverStatusResponse = JsonSerializer.Deserialize<IntResponse>(responseJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = !strictCasing });
-                            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, string.Format(LOG_FORMAT_STRING, coverStatusResponse.ClientTransactionID, coverStatusResponse.ServerTransactionID, coverStatusResponse.Value.ToString()));
-                            if (CallWasSuccessful(TL, coverStatusResponse)) return (T)((object)coverStatusResponse.Value);
+                            AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, string.Format(LOG_FORMAT_STRING, coverStatusResponse.ClientTransactionID, coverStatusResponse.ServerTransactionID, coverStatusResponse.Value.ToString()));
+                            if (CallWasSuccessful(logger, coverStatusResponse)) return (T)((object)coverStatusResponse.Value);
                             restResponseBase = (Response)coverStatusResponse;
                         }
                         if (typeof(T) == typeof(CalibratorStatus))
                         {
                             IntResponse calibratorStatusResponse = JsonSerializer.Deserialize<IntResponse>(responseJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = !strictCasing });
-                            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, string.Format(LOG_FORMAT_STRING, calibratorStatusResponse.ClientTransactionID, calibratorStatusResponse.ServerTransactionID, calibratorStatusResponse.Value.ToString()));
-                            if (CallWasSuccessful(TL, calibratorStatusResponse)) return (T)((object)calibratorStatusResponse.Value);
+                            AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, string.Format(LOG_FORMAT_STRING, calibratorStatusResponse.ClientTransactionID, calibratorStatusResponse.ServerTransactionID, calibratorStatusResponse.Value.ToString()));
+                            if (CallWasSuccessful(logger, calibratorStatusResponse)) return (T)((object)calibratorStatusResponse.Value);
                             restResponseBase = (Response)calibratorStatusResponse;
                         }
                         if (typeof(T) == typeof(IAxisRates))
@@ -1008,19 +1008,19 @@ namespace ASCOM.Alpaca.Clients
                             AxisRatesResponse axisRatesResponse = JsonSerializer.Deserialize<AxisRatesResponse>(responseJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = !strictCasing });
                             if (axisRatesResponse.Value != null) // A AxisRates object was returned so process the response normally
                             {
-                                AxisRates axisRates = new AxisRates((TelescopeAxis)(Convert.ToInt32(parameters[AlpacaConstants.AXIS_PARAMETER_NAME])), TL);
-                                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, string.Format(LOG_FORMAT_STRING, axisRatesResponse.ClientTransactionID.ToString(), axisRatesResponse.ServerTransactionID.ToString(), axisRatesResponse.Value.Count.ToString()));
+                                AxisRates axisRates = new AxisRates((TelescopeAxis)(Convert.ToInt32(parameters[AlpacaConstants.AXIS_PARAMETER_NAME])), logger);
+                                AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, string.Format(LOG_FORMAT_STRING, axisRatesResponse.ClientTransactionID.ToString(), axisRatesResponse.ServerTransactionID.ToString(), axisRatesResponse.Value.Count.ToString()));
                                 foreach (AxisRate rr in axisRatesResponse.Value)
                                 {
-                                    axisRates.Add(rr.Minimum, rr.Maximum, TL);
-                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Found rate: {rr.Minimum} - {rr.Maximum}");
+                                    axisRates.Add(rr.Minimum, rr.Maximum, logger);
+                                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"Found rate: {rr.Minimum} - {rr.Maximum}");
                                 }
 
-                                if (CallWasSuccessful(TL, axisRatesResponse)) return (T)((object)axisRates);
+                                if (CallWasSuccessful(logger, axisRatesResponse)) return (T)((object)axisRates);
                             }
                             else // No AxisRates object was returned so handle this as an error
                             {
-                                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, string.Format(LOG_FORMAT_STRING, axisRatesResponse.ClientTransactionID, axisRatesResponse.ServerTransactionID, "NO VALUE OR NULL VALUE RETURNED"));
+                                AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, string.Format(LOG_FORMAT_STRING, axisRatesResponse.ClientTransactionID, axisRatesResponse.ServerTransactionID, "NO VALUE OR NULL VALUE RETURNED"));
 
                                 // Now force an error return
                                 axisRatesResponse = new AxisRatesResponse();
@@ -1035,16 +1035,16 @@ namespace ASCOM.Alpaca.Clients
                             // Include some debug logging
                             foreach (var header in deviceJsonResponse.Headers)
                             {
-                                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Response header {header.Key} = {header.Value}");
+                                AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"Response header {header.Key} = {header.Value}");
                             }
 
                             // Handle the ImageBytes image transfer mechanic (data is in the rawBytes array)
                             if (responseContentType.ToLowerInvariant().Contains(AlpacaConstants.IMAGE_BYTES_MIME_TYPE)) // Image bytes have been returned so the server supports raw array data transfer
                             {
                                 sw.Stop();
-                                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "ImageBytes", $"Downloaded {rawBytes.Length} bytes in {sw.ElapsedMilliseconds}ms.");
+                                AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "ImageBytes", $"Downloaded {rawBytes.Length} bytes in {sw.ElapsedMilliseconds}ms.");
 
-                                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "ImageBytes", $"Metadata bytes: " +
+                                AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "ImageBytes", $"Metadata bytes: " +
                                     $"[ {rawBytes[0]:X2} {rawBytes[1]:X2} {rawBytes[2]:X2} {rawBytes[3]:X2} ] [ {rawBytes[4]:X2} {rawBytes[5]:X2} {rawBytes[6]:X2} {rawBytes[7]:X2} ] " +
                                     $"[ {rawBytes[8]:X2} {rawBytes[9]:X2} {rawBytes[10]:X2} {rawBytes[11]:X2} ] [ {rawBytes[12]:X2} {rawBytes[13]:X2} {rawBytes[14]:X2} {rawBytes[15]:X2} ] " +
                                     $"[ {rawBytes[16]:X2} {rawBytes[17]:X2} {rawBytes[18]:X2} {rawBytes[19]:X2} ] [ {rawBytes[20]:X2} {rawBytes[21]:X2} {rawBytes[22]:X2} {rawBytes[23]:X2} ] " +
@@ -1053,14 +1053,14 @@ namespace ASCOM.Alpaca.Clients
                                     $"[ {rawBytes[40]:X2} {rawBytes[41]:X2} {rawBytes[42]:X2} {rawBytes[43]:X2} ]");
 
                                 int metadataVersion = rawBytes.GetMetadataVersion();
-                                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "ImageBytes", $"Metadata version: {metadataVersion}");
+                                AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "ImageBytes", $"Metadata version: {metadataVersion}");
 
                                 AlpacaErrors errorNumber;
                                 switch (metadataVersion)
                                 {
                                     case 1:
                                         ArrayMetadataV1 metadataV1 = rawBytes.GetMetadataV1();
-                                        AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "ImageArrayBytes", $"Received array: Metadata version: {metadataV1.MetadataVersion}, " +
+                                        AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "ImageArrayBytes", $"Received array: Metadata version: {metadataV1.MetadataVersion}, " +
                                                                                                               $"Error number: {metadataV1.ErrorNumber}, " +
                                                                                                               $"Client transaction ID: {metadataV1.ClientTransactionID}, " +
                                                                                                               $"Server transaction ID: {metadataV1.ServerTransactionID}, " +
@@ -1081,8 +1081,8 @@ namespace ASCOM.Alpaca.Clients
                                 // Convert the byte[] back to an image array
                                 sw.Restart();
                                 Array returnArray = rawBytes.ToImageArray();
-                                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "ImageBytes", $"Converted byte[] to image array in {sw.ElapsedMilliseconds}ms. Overall time: {swOverall.ElapsedMilliseconds}ms.");
-                                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "", $"");
+                                AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "ImageBytes", $"Converted byte[] to image array in {sw.ElapsedMilliseconds}ms. Overall time: {swOverall.ElapsedMilliseconds}ms.");
+                                AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "", $"");
 
                                 return (T)(Object)returnArray;
 
@@ -1095,19 +1095,19 @@ namespace ASCOM.Alpaca.Clients
                                 // De-serialise the JSON image array hand-off response 
                                 sw.Restart(); // Clear and start the stopwatch
                                 Base64ArrayHandOffResponse base64HandOffresponse = JsonSerializer.Deserialize<Base64ArrayHandOffResponse>(responseJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = !strictCasing });
-                                if (CallWasSuccessful(TL, base64HandOffresponse))
+                                if (CallWasSuccessful(logger, base64HandOffresponse))
                                 {
 
                                     ImageArrayElementTypes arrayType = (ImageArrayElementTypes)base64HandOffresponse.Type; // Extract the array type from the JSON response
 
-                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Base64 - Extracted array information in {sw.ElapsedMilliseconds}ms. Array Type: {arrayType}, Rank: {base64HandOffresponse.Rank}, Dimension 0 length: {base64HandOffresponse.Dimension0Length}, Dimension 1 length: {base64HandOffresponse.Dimension1Length}, Dimension 2 length: {base64HandOffresponse.Dimension2Length}");
+                                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"Base64 - Extracted array information in {sw.ElapsedMilliseconds}ms. Array Type: {arrayType}, Rank: {base64HandOffresponse.Rank}, Dimension 0 length: {base64HandOffresponse.Dimension0Length}, Dimension 1 length: {base64HandOffresponse.Dimension1Length}, Dimension 2 length: {base64HandOffresponse.Dimension2Length}");
                                     sw.Restart();
 
-                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Base64 - Downloading base64 serialised image");
+                                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"Base64 - Downloading base64 serialised image");
 
                                     // Construct an HTTP request to get the base 64 encoded image
                                     string base64Uri = (client.BaseAddress + uriBase.TrimStart('/') + method.ToLowerInvariant() + AlpacaConstants.BASE64_HANDOFF_FILE_DOWNLOAD_URI_EXTENSION).ToLowerInvariant(); // Create the download URI from the REST client elements
-                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Base64 URI: {base64Uri}");
+                                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"Base64 URI: {base64Uri}");
 
                                     // Create a variable to hold the returned base 64 string
                                     string base64ArrayString = "";
@@ -1138,7 +1138,7 @@ namespace ASCOM.Alpaca.Clients
                                         {
                                             // Get the async stream from the HTTPClient
                                             Stream base64ArrayStream = httpClient.GetStreamAsync(base64Uri).Result;
-                                            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Downloaded base64 stream obtained in {sw.ElapsedMilliseconds}ms"); sw.Restart();
+                                            AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"Downloaded base64 stream obtained in {sw.ElapsedMilliseconds}ms"); sw.Restart();
 
                                             // Read the stream contents into the string variable ready for further processing
                                             using (StreamReader sr = new StreamReader(base64ArrayStream, System.Text.Encoding.ASCII, false))
@@ -1148,13 +1148,13 @@ namespace ASCOM.Alpaca.Clients
                                         }
                                     }
 
-                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Read base64 string from stream ({base64ArrayString.Length} bytes) in {sw.ElapsedMilliseconds}ms"); sw.Restart();
-                                    try { AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Base64 string start: {base64ArrayString.Substring(0, 300)}"); } catch { }
-                                    try { AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Base64 string end: {base64ArrayString.Substring(60000000, 300)}"); } catch { }
+                                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"Read base64 string from stream ({base64ArrayString.Length} bytes) in {sw.ElapsedMilliseconds}ms"); sw.Restart();
+                                    try { AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"Base64 string start: {base64ArrayString.Substring(0, 300)}"); } catch { }
+                                    try { AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"Base64 string end: {base64ArrayString.Substring(60000000, 300)}"); } catch { }
 
                                     // Convert the array from base64 encoding to a byte array
                                     byte[] base64ArrayByteArray = Convert.FromBase64String(base64ArrayString);
-                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Converted base64 string of length {base64ArrayString.Length} to byte array of length {base64ArrayByteArray.Length} in {sw.ElapsedMilliseconds}ms"); sw.Restart();
+                                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"Converted base64 string of length {base64ArrayString.Length} to byte array of length {base64ArrayByteArray.Length} in {sw.ElapsedMilliseconds}ms"); sw.Restart();
                                     string byteLine = "";
                                     try
                                     {
@@ -1162,7 +1162,7 @@ namespace ASCOM.Alpaca.Clients
                                         {
                                             byteLine += base64ArrayByteArray[i].ToString() + " ";
                                         }
-                                        AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Converted base64 bytes: {byteLine}");
+                                        AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"Converted base64 bytes: {byteLine}");
                                     }
                                     catch { }
 
@@ -1226,7 +1226,7 @@ namespace ASCOM.Alpaca.Clients
                                             throw new InvalidOperationException($"SendToRemoteDevice Base64HandOff - Image array element type {arrayType} is not supported. The device returned this value: {base64HandOffresponse.Type}");
                                     }
 
-                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Created and copied the array in {sw.ElapsedMilliseconds}ms"); sw.Restart();
+                                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"Created and copied the array in {sw.ElapsedMilliseconds}ms"); sw.Restart();
 
                                     return (T)(object)remoteArray;
                                 }
@@ -1238,14 +1238,14 @@ namespace ASCOM.Alpaca.Clients
                             {
                                 sw.Restart(); // Clear and start the stopwatch
                                 ImageArrayResponseBase responseBase = JsonSerializer.Deserialize<ImageArrayResponseBase>(responseJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = !strictCasing });
-                                if (CallWasSuccessful(TL, responseBase))
+                                if (CallWasSuccessful(logger, responseBase))
                                 {
 
                                     ImageArrayElementTypes arrayType = (ImageArrayElementTypes)responseBase.Type;
                                     int arrayRank = responseBase.Rank;
 
                                     // Include some debug logging
-                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Extracted array type and rank by JsonSerializer.Deserialize in {sw.ElapsedMilliseconds}ms. Type: {arrayType}, Rank: {arrayRank}, Response values - Type: {responseBase.Type}, Rank: {responseBase.Rank}");
+                                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"Extracted array type and rank by JsonSerializer.Deserialize in {sw.ElapsedMilliseconds}ms. Type: {arrayType}, Rank: {arrayRank}, Response values - Type: {responseBase.Type}, Rank: {responseBase.Rank}");
 
                                     sw.Restart(); // Clear and start the stopwatch
                                     switch (arrayType) // Handle the different return types that may come from ImageArrayVariant
@@ -1255,13 +1255,13 @@ namespace ASCOM.Alpaca.Clients
                                             {
                                                 case 2:
                                                     IntJaggedArray2DResponse intArray2DResponse = JsonSerializer.Deserialize<IntJaggedArray2DResponse>(responseJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = !strictCasing });
-                                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, string.Format(LOG_FORMAT_STRING, intArray2DResponse.ClientTransactionID, intArray2DResponse.ServerTransactionID, intArray2DResponse.Rank.ToString())); //, intArray2DResponse.Method));
+                                                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, string.Format(LOG_FORMAT_STRING, intArray2DResponse.ClientTransactionID, intArray2DResponse.ServerTransactionID, intArray2DResponse.Rank.ToString())); //, intArray2DResponse.Method));
 
                                                     // Get the array dimensions
                                                     int dimension0Length = intArray2DResponse.Value.GetLength(0);
                                                     int dimension1Length = intArray2DResponse.Value[0].GetLength(0);
 
-                                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Array was de serialised in {sw.ElapsedMilliseconds} ms, Type: {(ImageArrayElementTypes)intArray2DResponse.Type}, Rank: {intArray2DResponse.Rank}, Dimension 1 Length: {dimension0Length}, Dimension 2 Length: {dimension1Length}");
+                                                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"Array was de serialised in {sw.ElapsedMilliseconds} ms, Type: {(ImageArrayElementTypes)intArray2DResponse.Type}, Rank: {intArray2DResponse.Rank}, Dimension 1 Length: {dimension0Length}, Dimension 2 Length: {dimension1Length}");
 
                                                     sw.Restart();
                                                     int[,] intArray2D = new int[dimension0Length, dimension1Length];
@@ -1274,21 +1274,21 @@ namespace ASCOM.Alpaca.Clients
                                                     {
                                                         Buffer.BlockCopy(intArray2DResponse.Value[i], 0, intArray2D, i * bytesPerDimension1, bytesPerDimension1);
                                                     });
-                                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Array was coped in {sw.ElapsedMilliseconds} ms");
+                                                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"Array was coped in {sw.ElapsedMilliseconds} ms");
 
-                                                    if (CallWasSuccessful(TL, intArray2DResponse)) return (T)(object)intArray2D;
+                                                    if (CallWasSuccessful(logger, intArray2DResponse)) return (T)(object)intArray2D;
                                                     restResponseBase = (Response)intArray2DResponse;
                                                     break;
 
                                                 case 3:
                                                     IntJaggedArray3DResponse intArray3DResponse = JsonSerializer.Deserialize<IntJaggedArray3DResponse>(responseJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = !strictCasing });
-                                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, string.Format(LOG_FORMAT_STRING, intArray3DResponse.ClientTransactionID, intArray3DResponse.ServerTransactionID, intArray3DResponse.Rank.ToString())); //, intArray3DResponse.Method));
+                                                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, string.Format(LOG_FORMAT_STRING, intArray3DResponse.ClientTransactionID, intArray3DResponse.ServerTransactionID, intArray3DResponse.Rank.ToString())); //, intArray3DResponse.Method));
                                                                                                                                                                                                                                                                       // Get the array dimensions
                                                     dimension0Length = intArray3DResponse.Value.GetLength(0);
                                                     dimension1Length = intArray3DResponse.Value[0].GetLength(0);
                                                     int dimension2Length = intArray3DResponse.Value[0][0].GetLength(0);
 
-                                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Array was de serialised in {sw.ElapsedMilliseconds} ms, Type: {(ImageArrayElementTypes)intArray3DResponse.Type}, Rank: {intArray3DResponse.Rank}, Dimension 1 Length: {dimension0Length}, Dimension 2 Length: {dimension1Length}, Dimension 3 Length: {dimension2Length}");
+                                                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"Array was de serialised in {sw.ElapsedMilliseconds} ms, Type: {(ImageArrayElementTypes)intArray3DResponse.Type}, Rank: {intArray3DResponse.Rank}, Dimension 1 Length: {dimension0Length}, Dimension 2 Length: {dimension1Length}, Dimension 3 Length: {dimension2Length}");
 
                                                     sw.Restart();
                                                     int[,,] intArray3D = new int[dimension0Length, dimension1Length, dimension2Length];
@@ -1304,9 +1304,9 @@ namespace ASCOM.Alpaca.Clients
                                                             Buffer.BlockCopy(intArray3DResponse.Value[i][j], 0, intArray3D, i * bytesPerDimension2, bytesPerDimension2);
                                                         }
                                                     });
-                                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Array was coped in {sw.ElapsedMilliseconds} ms");
+                                                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"Array was coped in {sw.ElapsedMilliseconds} ms");
 
-                                                    if (CallWasSuccessful(TL, intArray3DResponse)) return (T)((object)intArray3D);
+                                                    if (CallWasSuccessful(logger, intArray3DResponse)) return (T)((object)intArray3D);
                                                     restResponseBase = (Response)intArray3DResponse;
                                                     break;
 
@@ -1320,13 +1320,13 @@ namespace ASCOM.Alpaca.Clients
                                             {
                                                 case 2:
                                                     ShortJaggedArray2DResponse shortArray2DResponse = JsonSerializer.Deserialize<ShortJaggedArray2DResponse>(responseJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = !strictCasing });
-                                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, string.Format(LOG_FORMAT_STRING, shortArray2DResponse.ClientTransactionID, shortArray2DResponse.ServerTransactionID, shortArray2DResponse.Rank.ToString())); //, shortArray2DResponse.Method));
+                                                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, string.Format(LOG_FORMAT_STRING, shortArray2DResponse.ClientTransactionID, shortArray2DResponse.ServerTransactionID, shortArray2DResponse.Rank.ToString())); //, shortArray2DResponse.Method));
 
                                                     // Get the array dimensions
                                                     int dimension0Length = shortArray2DResponse.Value.GetLength(0);
                                                     int dimension1Length = shortArray2DResponse.Value[0].GetLength(0);
 
-                                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Array was de serialised in {sw.ElapsedMilliseconds} ms, Type: {(ImageArrayElementTypes)shortArray2DResponse.Type}, Rank: {shortArray2DResponse.Rank}, Dimension 1 Length: {dimension0Length}, Dimension 2 Length: {dimension1Length}");
+                                                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"Array was de serialised in {sw.ElapsedMilliseconds} ms, Type: {(ImageArrayElementTypes)shortArray2DResponse.Type}, Rank: {shortArray2DResponse.Rank}, Dimension 1 Length: {dimension0Length}, Dimension 2 Length: {dimension1Length}");
 
                                                     sw.Restart();
                                                     short[,] shortArray2D = new short[dimension0Length, dimension1Length];
@@ -1340,21 +1340,21 @@ namespace ASCOM.Alpaca.Clients
                                                         Buffer.BlockCopy(shortArray2DResponse.Value[i], 0, shortArray2D, i * bytesPerDimension1, bytesPerDimension1);
                                                     });
 
-                                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Array was coped in {sw.ElapsedMilliseconds} ms");
+                                                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"Array was coped in {sw.ElapsedMilliseconds} ms");
 
-                                                    if (CallWasSuccessful(TL, shortArray2DResponse)) return (T)((object)shortArray2D);
+                                                    if (CallWasSuccessful(logger, shortArray2DResponse)) return (T)((object)shortArray2D);
                                                     restResponseBase = (Response)shortArray2DResponse;
                                                     break;
 
                                                 case 3:
                                                     ShortJaggedArray3DResponse shortArray3DResponse = JsonSerializer.Deserialize<ShortJaggedArray3DResponse>(responseJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = !strictCasing });
-                                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, string.Format(LOG_FORMAT_STRING, shortArray3DResponse.ClientTransactionID, shortArray3DResponse.ServerTransactionID, shortArray3DResponse.Rank.ToString())); //, shortArray3DResponse.Method));
+                                                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, string.Format(LOG_FORMAT_STRING, shortArray3DResponse.ClientTransactionID, shortArray3DResponse.ServerTransactionID, shortArray3DResponse.Rank.ToString())); //, shortArray3DResponse.Method));
 
                                                     dimension0Length = shortArray3DResponse.Value.GetLength(0);
                                                     dimension1Length = shortArray3DResponse.Value[0].GetLength(0);
                                                     int dimension2Length = shortArray3DResponse.Value[0][0].GetLength(0);
 
-                                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Array was de-serialised in {sw.ElapsedMilliseconds} ms, Type: {(ImageArrayElementTypes)shortArray3DResponse.Type}, Rank: {shortArray3DResponse.Rank}, Dimension 1 Length: {dimension0Length}, Dimension 2 Length: {dimension1Length}, Dimension 3 Length: {dimension2Length}");
+                                                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"Array was de-serialised in {sw.ElapsedMilliseconds} ms, Type: {(ImageArrayElementTypes)shortArray3DResponse.Type}, Rank: {shortArray3DResponse.Rank}, Dimension 1 Length: {dimension0Length}, Dimension 2 Length: {dimension1Length}, Dimension 3 Length: {dimension2Length}");
 
                                                     sw.Restart();
                                                     short[,,] shortArray3D = new short[dimension0Length, dimension1Length, dimension2Length];
@@ -1370,9 +1370,9 @@ namespace ASCOM.Alpaca.Clients
                                                             Buffer.BlockCopy(shortArray3DResponse.Value[i][j], 0, shortArray3D, i * bytesPerDimension2, bytesPerDimension2);
                                                         }
                                                     });
-                                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Array was coped in {sw.ElapsedMilliseconds} ms");
+                                                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"Array was coped in {sw.ElapsedMilliseconds} ms");
 
-                                                    if (CallWasSuccessful(TL, shortArray3DResponse)) return (T)(object)shortArray3D;
+                                                    if (CallWasSuccessful(logger, shortArray3DResponse)) return (T)(object)shortArray3D;
                                                     restResponseBase = (Response)shortArray3DResponse;
                                                     break;
 
@@ -1386,13 +1386,13 @@ namespace ASCOM.Alpaca.Clients
                                             {
                                                 case 2:
                                                     DoubleJaggedArray2DResponse doubleArray2DResponse = JsonSerializer.Deserialize<DoubleJaggedArray2DResponse>(responseJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = !strictCasing });
-                                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, string.Format(LOG_FORMAT_STRING, doubleArray2DResponse.ClientTransactionID, doubleArray2DResponse.ServerTransactionID, doubleArray2DResponse.Rank.ToString())); //, doubleArray2DResponse.Method));
+                                                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, string.Format(LOG_FORMAT_STRING, doubleArray2DResponse.ClientTransactionID, doubleArray2DResponse.ServerTransactionID, doubleArray2DResponse.Rank.ToString())); //, doubleArray2DResponse.Method));
 
                                                     // Get the array dimensions
                                                     int dimension0Length = doubleArray2DResponse.Value.GetLength(0);
                                                     int dimension1Length = doubleArray2DResponse.Value[0].GetLength(0);
 
-                                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Array was de-serialised in {sw.ElapsedMilliseconds} ms, Type: {(ImageArrayElementTypes)doubleArray2DResponse.Type}, Rank: {doubleArray2DResponse.Rank}, Dimension 1 Length: {dimension0Length}, Dimension 2 Length: {dimension1Length}");
+                                                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"Array was de-serialised in {sw.ElapsedMilliseconds} ms, Type: {(ImageArrayElementTypes)doubleArray2DResponse.Type}, Rank: {doubleArray2DResponse.Rank}, Dimension 1 Length: {dimension0Length}, Dimension 2 Length: {dimension1Length}");
 
                                                     sw.Restart();
                                                     double[,] doubleArray2D = new double[dimension0Length, dimension1Length];
@@ -1406,21 +1406,21 @@ namespace ASCOM.Alpaca.Clients
                                                         Buffer.BlockCopy(doubleArray2DResponse.Value[i], 0, doubleArray2D, i * bytesPerDimension1, bytesPerDimension1);
                                                     });
 
-                                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Array was coped in {sw.ElapsedMilliseconds} ms");
+                                                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"Array was coped in {sw.ElapsedMilliseconds} ms");
 
-                                                    if (CallWasSuccessful(TL, doubleArray2DResponse)) return (T)(object)doubleArray2D;
+                                                    if (CallWasSuccessful(logger, doubleArray2DResponse)) return (T)(object)doubleArray2D;
                                                     restResponseBase = (Response)doubleArray2DResponse;
                                                     break;
 
                                                 case 3:
                                                     DoubleJaggedArray3DResponse doubleArray3DResponse = JsonSerializer.Deserialize<DoubleJaggedArray3DResponse>(responseJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = !strictCasing });
-                                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, string.Format(LOG_FORMAT_STRING, doubleArray3DResponse.ClientTransactionID, doubleArray3DResponse.ServerTransactionID, doubleArray3DResponse.Rank.ToString())); //, doubleArray3DResponse.Method));
+                                                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, string.Format(LOG_FORMAT_STRING, doubleArray3DResponse.ClientTransactionID, doubleArray3DResponse.ServerTransactionID, doubleArray3DResponse.Rank.ToString())); //, doubleArray3DResponse.Method));
 
                                                     dimension0Length = doubleArray3DResponse.Value.GetLength(0);
                                                     dimension1Length = doubleArray3DResponse.Value[0].GetLength(0);
                                                     int dimension2Length = doubleArray3DResponse.Value[0][0].GetLength(0);
 
-                                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Array was de-serialised in {sw.ElapsedMilliseconds} ms, Type: {(ImageArrayElementTypes)doubleArray3DResponse.Type}, Rank: {doubleArray3DResponse.Rank}, Dimension 1 Length: {dimension0Length}, Dimension 2 Length: {dimension1Length}, Dimension 3 Length: {dimension2Length}");
+                                                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"Array was de-serialised in {sw.ElapsedMilliseconds} ms, Type: {(ImageArrayElementTypes)doubleArray3DResponse.Type}, Rank: {doubleArray3DResponse.Rank}, Dimension 1 Length: {dimension0Length}, Dimension 2 Length: {dimension1Length}, Dimension 3 Length: {dimension2Length}");
 
                                                     sw.Restart();
                                                     double[,,] doubleArray3D = new double[dimension0Length, dimension1Length, dimension2Length];
@@ -1436,9 +1436,9 @@ namespace ASCOM.Alpaca.Clients
                                                             Buffer.BlockCopy(doubleArray3DResponse.Value[i][j], 0, doubleArray3D, i * bytesPerDimension2, bytesPerDimension2);
                                                         }
                                                     });
-                                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Array was coped in {sw.ElapsedMilliseconds} ms");
+                                                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"Array was coped in {sw.ElapsedMilliseconds} ms");
 
-                                                    if (CallWasSuccessful(TL, doubleArray3DResponse)) return (T)(object)doubleArray3D;
+                                                    if (CallWasSuccessful(logger, doubleArray3DResponse)) return (T)(object)doubleArray3D;
                                                     restResponseBase = (Response)doubleArray3DResponse;
                                                     break;
 
@@ -1460,13 +1460,13 @@ namespace ASCOM.Alpaca.Clients
                         {
                             try
                             {
-                                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"JSON Exception Message: \"{restResponseBase.ErrorMessage}\", Exception Number: {restResponseBase.DriverException.HResult}");
-                                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Exception Message: \"{restResponseBase.ErrorMessage}\", Exception Number: 0x{(int)restResponseBase.DriverException.HResult:X8}");
-                                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Exception returned by device: {restResponseBase.DriverException}");
+                                AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"JSON Exception Message: \"{restResponseBase.ErrorMessage}\", Exception Number: {restResponseBase.DriverException.HResult}");
+                                AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"Exception Message: \"{restResponseBase.ErrorMessage}\", Exception Number: 0x{(int)restResponseBase.DriverException.HResult:X8}");
+                                AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"Exception returned by device: {restResponseBase.DriverException}");
                             }
                             catch (Exception ex1)
                             {
-                                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Exception logging error message! : {ex1}");
+                                AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"Exception logging error message! : {ex1}");
                             }
                             throw restResponseBase.DriverException;
                         }
@@ -1474,45 +1474,45 @@ namespace ASCOM.Alpaca.Clients
                         // HANDLE ERRORS REPORTED BY ALPACA DEVICES THAT USE THE ERROR NUMBER AND ERROR MESSAGE FIELDS
                         if ((restResponseBase.ErrorMessage != "") || (restResponseBase.ErrorNumber != 0))
                         {
-                            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Received an Alpaca error - ErrorNumber: {restResponseBase.ErrorNumber}");
-                            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Received an Alpaca error - ErrorMessage: \"{restResponseBase.ErrorMessage}\", ErrorNumber: 0x{(int)restResponseBase.ErrorNumber:X8}");
+                            AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"Received an Alpaca error - ErrorNumber: {restResponseBase.ErrorNumber}");
+                            AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"Received an Alpaca error - ErrorMessage: \"{restResponseBase.ErrorMessage}\", ErrorNumber: 0x{(int)restResponseBase.ErrorNumber:X8}");
 
                             // Handle ASCOM Alpaca reserved error numbers between 0x400 and 0xFFF by translating these to the COM HResult error number range: 0x80040400 to 0x80040FFF and throwing the translated value as an exception
                             if ((restResponseBase.ErrorNumber >= AlpacaErrors.AlpacaErrorCodeBase) & (restResponseBase.ErrorNumber <= AlpacaErrors.AlpacaErrorCodeMax)) // This error is within the ASCOM Alpaca reserved error number range
                             {
                                 // Calculate the equivalent COM HResult error number from the supplied Alpaca error number so that comparison can be made with the original ASCOM COM exception HResult numbers that Windows clients expect in their exceptions
                                 int ascomCOMErrorNumber = (int)(restResponseBase.ErrorNumber + (int)ComErrorCodes.ComErrorNumberOffset);
-                                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Received Alpaca error code: {restResponseBase.ErrorNumber} (0x{(int)restResponseBase.ErrorNumber:X4}), the equivalent COM error HResult error code is {ascomCOMErrorNumber} (0x{ascomCOMErrorNumber:X8})");
+                                AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"Received Alpaca error code: {restResponseBase.ErrorNumber} (0x{(int)restResponseBase.ErrorNumber:X4}), the equivalent COM error HResult error code is {ascomCOMErrorNumber} (0x{ascomCOMErrorNumber:X8})");
 
                                 // Now check whether the COM HResult matches any of the built-in ASCOM exception types. If so, we throw that exception type otherwise we throw a generic DriverException
                                 if (ascomCOMErrorNumber == ASCOM.ErrorCodes.ActionNotImplementedException) // Handle ActionNotImplementedException
                                 {
-                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Alpaca action not implemented error, throwing ActionNotImplementedException - ErrorMessage: \"{restResponseBase.ErrorMessage}\", ErrorNumber: 0x{ascomCOMErrorNumber:X8}");
+                                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"Alpaca action not implemented error, throwing ActionNotImplementedException - ErrorMessage: \"{restResponseBase.ErrorMessage}\", ErrorNumber: 0x{ascomCOMErrorNumber:X8}");
                                     throw new ActionNotImplementedException(restResponseBase.ErrorMessage);
                                 }
                                 else if (ascomCOMErrorNumber == ASCOM.ErrorCodes.InvalidOperationException) // Handle InvalidOperationException
                                 {
-                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Alpaca invalid operation error, throwing InvalidOperationException - ErrorMessage: \"{restResponseBase.ErrorMessage}\", ErrorNumber: 0x{ascomCOMErrorNumber:X8}");
+                                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"Alpaca invalid operation error, throwing InvalidOperationException - ErrorMessage: \"{restResponseBase.ErrorMessage}\", ErrorNumber: 0x{ascomCOMErrorNumber:X8}");
                                     throw new InvalidOperationException(restResponseBase.ErrorMessage);
                                 }
                                 else if (ascomCOMErrorNumber == ASCOM.ErrorCodes.InvalidValue) // Handle InvalidValueException
                                 {
-                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Alpaca invalid value error, throwing InvalidValueException - ErrorMessage: \"{restResponseBase.ErrorMessage}\", ErrorNumber: 0x{ascomCOMErrorNumber:X8}");
+                                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"Alpaca invalid value error, throwing InvalidValueException - ErrorMessage: \"{restResponseBase.ErrorMessage}\", ErrorNumber: 0x{ascomCOMErrorNumber:X8}");
                                     throw new InvalidValueException(restResponseBase.ErrorMessage);
                                 }
                                 else if (ascomCOMErrorNumber == ASCOM.ErrorCodes.InvalidWhileParked) // Handle ParkedException
                                 {
-                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Alpaca invalid while parked error, throwing ParkedException - ErrorMessage: \"{restResponseBase.ErrorMessage}\", ErrorNumber: 0x{ascomCOMErrorNumber:X8}");
+                                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"Alpaca invalid while parked error, throwing ParkedException - ErrorMessage: \"{restResponseBase.ErrorMessage}\", ErrorNumber: 0x{ascomCOMErrorNumber:X8}");
                                     throw new ParkedException(restResponseBase.ErrorMessage);
                                 }
                                 else if (ascomCOMErrorNumber == ASCOM.ErrorCodes.InvalidWhileSlaved) // Handle SlavedException
                                 {
-                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $" Alpaca invalid while slaved error, throwing SlavedException - ErrorMessage: \"{restResponseBase.ErrorMessage}\", ErrorNumber: 0x{ascomCOMErrorNumber:X8}");
+                                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $" Alpaca invalid while slaved error, throwing SlavedException - ErrorMessage: \"{restResponseBase.ErrorMessage}\", ErrorNumber: 0x{ascomCOMErrorNumber:X8}");
                                     throw new SlavedException(restResponseBase.ErrorMessage);
                                 }
                                 else if (ascomCOMErrorNumber == ASCOM.ErrorCodes.NotConnected) // Handle NotConnectedException
                                 {
-                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $" Alpaca not connected error, throwing NotConnectedException - ErrorMessage: \"{restResponseBase.ErrorMessage}\", ErrorNumber: 0x{ascomCOMErrorNumber:X8}");
+                                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $" Alpaca not connected error, throwing NotConnectedException - ErrorMessage: \"{restResponseBase.ErrorMessage}\", ErrorNumber: 0x{ascomCOMErrorNumber:X8}");
                                     throw new NotConnectedException(restResponseBase.ErrorMessage);
                                 }
                                 else if (ascomCOMErrorNumber == ASCOM.ErrorCodes.NotImplemented) // Handle PropertyNotImplementedException and MethodNotImplementedException (both have the same error code)
@@ -1520,29 +1520,29 @@ namespace ASCOM.Alpaca.Clients
                                     // Throw the relevant exception depending on whether this is a property or a method
                                     if (memberType == MemberTypes.Property) // Calling member is a property so throw a PropertyNotImplementedException
                                     {
-                                        AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Alpaca property not implemented error, throwing PropertyNotImplementedException - ErrorMessage: \"{restResponseBase.ErrorMessage}\", ErrorNumber: 0x{ascomCOMErrorNumber:X8}");
+                                        AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"Alpaca property not implemented error, throwing PropertyNotImplementedException - ErrorMessage: \"{restResponseBase.ErrorMessage}\", ErrorNumber: 0x{ascomCOMErrorNumber:X8}");
                                         throw new PropertyNotImplementedException(CultureInfo.CurrentCulture.TextInfo.ToTitleCase(method), httpMethod == HttpMethod.Put, restResponseBase.ErrorMessage);
                                     }
                                     else // Calling member is a method so throw a MethodNotImplementedException
                                     {
-                                        AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $" Alpaca method not implemented error, throwing MethodNotImplementedException - ErrorMessage: \"{restResponseBase.ErrorMessage}\", ErrorNumber: 0x{ascomCOMErrorNumber:X8}");
+                                        AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $" Alpaca method not implemented error, throwing MethodNotImplementedException - ErrorMessage: \"{restResponseBase.ErrorMessage}\", ErrorNumber: 0x{ascomCOMErrorNumber:X8}");
                                         throw new MethodNotImplementedException(CultureInfo.CurrentCulture.TextInfo.ToTitleCase(method), restResponseBase.ErrorMessage);
                                     }
                                 }
                                 else if (ascomCOMErrorNumber == ASCOM.ErrorCodes.ValueNotSet) // Handle ValueNotSetException
                                 {
-                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $" Alpaca value not set error, throwing ValueNotSetException - ErrorMessage: \"{restResponseBase.ErrorMessage}\", ErrorNumber: 0x{ascomCOMErrorNumber:X8}");
+                                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $" Alpaca value not set error, throwing ValueNotSetException - ErrorMessage: \"{restResponseBase.ErrorMessage}\", ErrorNumber: 0x{ascomCOMErrorNumber:X8}");
                                     throw new ValueNotSetException(restResponseBase.ErrorMessage);
                                 }
                                 else // The exception is inside the ASCOM Alpaca reserved range but is not one of those with their own specific exception types above, so wrap it in a DriverException and throw this to the client
                                 {
-                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Alpaca undefined ASCOM error, throwing DriverException - ErrorMessage: \"{restResponseBase.ErrorMessage}\", ErrorNumber: 0x{ascomCOMErrorNumber:X8}");
+                                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"Alpaca undefined ASCOM error, throwing DriverException - ErrorMessage: \"{restResponseBase.ErrorMessage}\", ErrorNumber: 0x{ascomCOMErrorNumber:X8}");
                                     throw new DriverException(restResponseBase.ErrorMessage, ascomCOMErrorNumber);
                                 }
                             }
                             else // An exception has been thrown with an error number outside the ASCOM Alpaca reserved range, so wrap it in a DriverException and throw this to the client.
                             {
-                                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Alpaca error outside ASCOM reserved range, throwing DriverException - ErrorMessage: \"{restResponseBase.ErrorMessage}\", ErrorNumber: 0x{(int)restResponseBase.ErrorNumber:X8}");
+                                AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"Alpaca error outside ASCOM reserved range, throwing DriverException - ErrorMessage: \"{restResponseBase.ErrorMessage}\", ErrorNumber: 0x{(int)restResponseBase.ErrorNumber:X8}");
                                 throw new DriverException(restResponseBase.ErrorMessage, (int)restResponseBase.ErrorNumber);
                             }
                         }
@@ -1556,7 +1556,7 @@ namespace ASCOM.Alpaca.Clients
                         string errorMessage = deviceJsonResponse.Content.ReadAsStringAsync().Result;
 
                         // Log the error
-                        AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method + " Error", $"RestRequest response status: {deviceJsonResponse.ReasonPhrase}, HTTP response code: {deviceJsonResponse.StatusCode}, Error message: {errorMessage}");
+                        AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method + " Error", $"RestRequest response status: {deviceJsonResponse.ReasonPhrase}, HTTP response code: {deviceJsonResponse.StatusCode}, Error message: {errorMessage}");
 
                         // Throw an exception back to the client describing the error
                         throw new DriverException($"Error calling method: {method}, HTTP Completion Status: {deviceJsonResponse.StatusCode}, Error Message:\r\n{errorMessage}");
@@ -1567,27 +1567,27 @@ namespace ASCOM.Alpaca.Clients
                     if (ex is AggregateException) // Received a WebException, this could indicate that the remote device actively refused the connection so test for this and retry if appropriate
                     {
                         AggregateException aggregateException = (AggregateException)ex;
-                        AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"{typeof(T).Name} - AggregateException - Number of exceptions: {aggregateException.InnerExceptions.Count}");
+                        AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"{typeof(T).Name} - AggregateException - Number of exceptions: {aggregateException.InnerExceptions.Count}");
                         foreach (Exception ex1 in aggregateException.InnerExceptions)
                         {
-                            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"{typeof(T).Name} - AggregateException - Found exception: {ex1.GetType().Name}, Message: {ex1.Message}");
+                            AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"{typeof(T).Name} - AggregateException - Found exception: {ex1.GetType().Name}, Message: {ex1.Message}");
 
                             if (ex1 is TaskCanceledException) // Handle communications timeout exceptions using retries
                             {
                                 retryCounter += 1; // Increment the retry counter
                                 if (retryCounter <= SOCKET_ERROR_MAXIMUM_RETRIES) // The retry count is less than or equal to the maximum allowed so retry the command
                                 {
-                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, typeof(T).Name + " " + ex1.Message);
-                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, "Timeout exception: " + ex1.ToString());
+                                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, typeof(T).Name + " " + ex1.Message);
+                                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, "Timeout exception: " + ex1.ToString());
 
                                     // Log that we are retrying the command and wait a short time in the hope that the transient condition clears
-                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Timeout exception - retry-count {retryCounter}/{SOCKET_ERROR_MAXIMUM_RETRIES}");
+                                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"Timeout exception - retry-count {retryCounter}/{SOCKET_ERROR_MAXIMUM_RETRIES}");
                                     Thread.Sleep(SOCKET_ERROR_RETRY_DELAY_TIME);
                                 }
                                 else // The retry count exceeds the maximum allowed so throw the exception to the client
                                 {
-                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, typeof(T).Name + " " + ex1.Message);
-                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, "Timeout exception: " + ex1.ToString());
+                                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, typeof(T).Name + " " + ex1.Message);
+                                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, "Timeout exception: " + ex1.ToString());
                                     throw new TimeoutException($"Dynamic client timeout for method {typeof(T).Name}: {client.BaseAddress}");
                                 }
                             }
@@ -1598,39 +1598,39 @@ namespace ASCOM.Alpaca.Clients
                                     retryCounter += 1; // Increment the retry counter
                                     if (retryCounter <= SOCKET_ERROR_MAXIMUM_RETRIES) // The retry count is less than or equal to the maximum allowed so retry the command
                                     {
-                                        AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, typeof(T).Name + " " + ex1.Message);
-                                        AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, "SocketException: " + ex1.ToString());
+                                        AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, typeof(T).Name + " " + ex1.Message);
+                                        AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, "SocketException: " + ex1.ToString());
 
                                         // Log that we are retrying the command and wait a short time in the hope that the transient condition clears
-                                        AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, $"Socket exception, retrying command - retry-count {retryCounter}/{SOCKET_ERROR_MAXIMUM_RETRIES}");
+                                        AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"Socket exception, retrying command - retry-count {retryCounter}/{SOCKET_ERROR_MAXIMUM_RETRIES}");
                                         Thread.Sleep(SOCKET_ERROR_RETRY_DELAY_TIME);
                                     }
                                     else // The retry count exceeds the maximum allowed so throw the exception to the client
                                     {
-                                        AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, typeof(T).Name + " " + ex1.Message);
-                                        AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, "SocketException: " + ex1.ToString());
+                                        AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, typeof(T).Name + " " + ex1.Message);
+                                        AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, "SocketException: " + ex1.ToString());
                                         throw ex1.InnerException;
                                     }
                                 }
                                 else  // There is an inner exception but it is not a SocketException so log it and throw it  to the client
                                 {
-                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, typeof(T).Name + " " + ex1.Message);
-                                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, "WebException: " + ex1.ToString());
+                                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, typeof(T).Name + " " + ex1.Message);
+                                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, "WebException: " + ex1.ToString());
                                     throw ex1.InnerException;
                                 }
                             }
                             else
                             {
-                                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, typeof(T).Name + " " + ex1.Message);
-                                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, "WebException: " + ex1.ToString());
+                                AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, typeof(T).Name + " " + ex1.Message);
+                                AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, "WebException: " + ex1.ToString());
                                 throw ex1.InnerException;
                             }
                         }
                     }
                     else // Some other type of exception that isn't an AggregateException so log it and throw it to the client
                     {
-                        AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, typeof(T).Name + " " + ex.Message);
-                        AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, method, "Exception: " + ex.ToString());
+                        AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, typeof(T).Name + " " + ex.Message);
+                        AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, "Exception: " + ex.ToString());
                         throw;
                     }
                 }
@@ -1642,31 +1642,31 @@ namespace ASCOM.Alpaca.Clients
         /// <summary>
         /// Test whether an error occurred in the driver
         /// </summary>
-        /// <param name="TL">ILogger to which runtime diagnostic information will be sent.</param>
+        /// <param name="logger">ILogger to which runtime diagnostic information will be sent.</param>
         /// <param name="response">The driver's response </param>
         /// <returns>True if the call was successful otherwise returns false.</returns>
-        private static bool CallWasSuccessful(ILogger TL, Response response)
+        private static bool CallWasSuccessful(ILogger logger, Response response)
         {
             if (response is null)
             {
-                AlpacaDeviceBaseClass.LogMessage(TL, 0, "CallWasNotSuccessful", "No response from device - Returning False");
-                AlpacaDeviceBaseClass.LogBlankLine(TL);
+                AlpacaDeviceBaseClass.LogMessage(logger, 0, "CallWasNotSuccessful", "No response from device - Returning False");
+                AlpacaDeviceBaseClass.LogBlankLine(logger);
                 return false; // No response so return false
 
             }
 
-            AlpacaDeviceBaseClass.LogMessage(TL, 0, "CallWasSuccessful", $"DriverException == null: {response.DriverException == null}, ErrorMessage: '{response.ErrorMessage}', ErrorNumber: 0x{(int)response.ErrorNumber:X8}");
-            if (response.DriverException != null) AlpacaDeviceBaseClass.LogMessage(TL, 0, "CallWasSuccessfulEx", response.DriverException.ToString());
+            AlpacaDeviceBaseClass.LogMessage(logger, 0, "CallWasSuccessful", $"DriverException == null: {response.DriverException == null}, ErrorMessage: '{response.ErrorMessage}', ErrorNumber: 0x{(int)response.ErrorNumber:X8}");
+            if (response.DriverException != null) AlpacaDeviceBaseClass.LogMessage(logger, 0, "CallWasSuccessfulEx", response.DriverException.ToString());
             if ((response.DriverException == null) & (response.ErrorMessage == "") & (response.ErrorNumber == AlpacaErrors.AlpacaNoError))
             {
-                AlpacaDeviceBaseClass.LogMessage(TL, 0, "CallWasSuccessful", "Returning True");
-                AlpacaDeviceBaseClass.LogBlankLine(TL);
+                AlpacaDeviceBaseClass.LogMessage(logger, 0, "CallWasSuccessful", "Returning True");
+                AlpacaDeviceBaseClass.LogBlankLine(logger);
                 return true; // All was OK so return true
             }
             else
             {
-                AlpacaDeviceBaseClass.LogMessage(TL, 0, "CallWasNotSuccessful", "Returning False");
-                AlpacaDeviceBaseClass.LogBlankLine(TL);
+                AlpacaDeviceBaseClass.LogMessage(logger, 0, "CallWasNotSuccessful", "Returning False");
+                AlpacaDeviceBaseClass.LogBlankLine(logger);
                 return false; // Some sort of issue so return false
             }
         }
@@ -1675,135 +1675,135 @@ namespace ASCOM.Alpaca.Clients
 
         #region ASCOM Common members
 
-        internal static string Action(uint clientNumber, HttpClient client, int timeout, string URIBase, bool strictCasing, ILogger TL, string actionName, string actionParameters)
+        internal static string Action(uint clientNumber, HttpClient client, int timeout, string URIBase, bool strictCasing, ILogger logger, string actionName, string actionParameters)
         {
             Dictionary<string, string> Parameters = new Dictionary<string, string>
             {
                 { AlpacaConstants.ACTION_COMMAND_PARAMETER_NAME, actionName },
                 { AlpacaConstants.ACTION_PARAMETERS_PARAMETER_NAME, actionParameters }
             };
-            string remoteString = SendToRemoteDevice<string>(clientNumber, client, timeout, URIBase, strictCasing, TL, "Action", Parameters, HttpMethod.Put, MemberTypes.Method);
-            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "Action", $"Response length: {remoteString.Length}");
-            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "Action", $"Response: {((remoteString.Length <= 100) ? remoteString : remoteString.Substring(0, 100))}");
-            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "Action", $"Returning response length: {remoteString.Length}");
+            string remoteString = SendToRemoteDevice<string>(clientNumber, client, timeout, URIBase, strictCasing, logger, "Action", Parameters, HttpMethod.Put, MemberTypes.Method);
+            AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "Action", $"Response length: {remoteString.Length}");
+            AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "Action", $"Response: {((remoteString.Length <= 100) ? remoteString : remoteString.Substring(0, 100))}");
+            AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "Action", $"Returning response length: {remoteString.Length}");
             return remoteString;
         }
 
-        internal static void CommandBlind(uint clientNumber, HttpClient client, int timeout, string URIBase, bool strictCasing, ILogger TL, string command, bool raw)
+        internal static void CommandBlind(uint clientNumber, HttpClient client, int timeout, string URIBase, bool strictCasing, ILogger logger, string command, bool raw)
         {
             Dictionary<string, string> Parameters = new Dictionary<string, string>
             {
                 { AlpacaConstants.COMMAND_PARAMETER_NAME, command },
                 { AlpacaConstants.RAW_PARAMETER_NAME, raw.ToString() }
             };
-            SendToRemoteDevice<NoReturnValue>(clientNumber, client, timeout, URIBase, strictCasing, TL, "CommandBlind", Parameters, HttpMethod.Put, MemberTypes.Method);
-            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "CommandBlind", "Completed OK");
+            SendToRemoteDevice<NoReturnValue>(clientNumber, client, timeout, URIBase, strictCasing, logger, "CommandBlind", Parameters, HttpMethod.Put, MemberTypes.Method);
+            AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "CommandBlind", "Completed OK");
         }
 
-        internal static bool CommandBool(uint clientNumber, HttpClient client, int timeout, string URIBase, bool strictCasing, ILogger TL, string command, bool raw)
+        internal static bool CommandBool(uint clientNumber, HttpClient client, int timeout, string URIBase, bool strictCasing, ILogger logger, string command, bool raw)
         {
             Dictionary<string, string> Parameters = new Dictionary<string, string>
             {
                 { AlpacaConstants.COMMAND_PARAMETER_NAME, command },
                 { AlpacaConstants.RAW_PARAMETER_NAME, raw.ToString() }
             };
-            bool remoteBool = SendToRemoteDevice<bool>(clientNumber, client, timeout, URIBase, strictCasing, TL, "CommandBool", Parameters, HttpMethod.Put, MemberTypes.Method);
+            bool remoteBool = SendToRemoteDevice<bool>(clientNumber, client, timeout, URIBase, strictCasing, logger, "CommandBool", Parameters, HttpMethod.Put, MemberTypes.Method);
 
-            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "CommandBool", remoteBool.ToString());
+            AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "CommandBool", remoteBool.ToString());
             return remoteBool;
         }
 
-        internal static string CommandString(uint clientNumber, HttpClient client, int timeout, string URIBase, bool strictCasing, ILogger TL, string command, bool raw)
+        internal static string CommandString(uint clientNumber, HttpClient client, int timeout, string URIBase, bool strictCasing, ILogger logger, string command, bool raw)
         {
             Dictionary<string, string> Parameters = new Dictionary<string, string>
             {
                 { AlpacaConstants.COMMAND_PARAMETER_NAME, command },
                 { AlpacaConstants.RAW_PARAMETER_NAME, raw.ToString() }
             };
-            string remoteString = SendToRemoteDevice<string>(clientNumber, client, timeout, URIBase, strictCasing, TL, "CommandString", Parameters, HttpMethod.Put, MemberTypes.Method);
+            string remoteString = SendToRemoteDevice<string>(clientNumber, client, timeout, URIBase, strictCasing, logger, "CommandString", Parameters, HttpMethod.Put, MemberTypes.Method);
 
-            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "CommandString", remoteString);
+            AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "CommandString", remoteString);
             return remoteString;
         }
 
-        internal static void Connect(uint clientNumber, HttpClient client, int timeout, string URIBase, bool strictCasing, ILogger TL)
+        internal static void Connect(uint clientNumber, HttpClient client, int timeout, string URIBase, bool strictCasing, ILogger logger)
         {
-            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "Connect", "Acquiring connection lock");
+            AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "Connect", "Acquiring connection lock");
             lock (connectLockObject) // Ensure that only one connection attempt can happen at a time
             {
-                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "Connect", "Has connection lock");
-                if (IsClientConnected(clientNumber, TL)) // If we are already connected then just log this 
+                AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "Connect", "Has connection lock");
+                if (IsClientConnected(clientNumber, logger)) // If we are already connected then just log this 
                 {
-                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "Connect", "Already connected, just incrementing connection count.");
+                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "Connect", "Already connected, just incrementing connection count.");
                 }
                 else // We are not connected so connect now
                 {
                     try
                     {
-                        AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "Connect", "This is the first connection so set Connected to True");
-                        SetBool(clientNumber, client, timeout, URIBase, strictCasing, TL, "Connected", true, MemberTypes.Property);
+                        AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "Connect", "This is the first connection so set Connected to True");
+                        SetBool(clientNumber, client, timeout, URIBase, strictCasing, logger, "Connected", true, MemberTypes.Property);
                         bool notAlreadyPresent = connectStates.TryAdd(clientNumber, true);
-                        AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "Connect", "Successfully connected, AlreadyConnected: " + (!notAlreadyPresent).ToString() + ", number of connections: " + connectStates.Count);
+                        AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "Connect", "Successfully connected, AlreadyConnected: " + (!notAlreadyPresent).ToString() + ", number of connections: " + connectStates.Count);
                     }
                     catch (Exception ex)
                     {
-                        AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "Connect", "Exception: " + ex.ToString());
+                        AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "Connect", "Exception: " + ex.ToString());
                         throw;
                     }
                 }
             }
         }
 
-        internal static string Description(uint clientNumber, HttpClient client, int timeout, string URIBase, bool strictCasing, ILogger TL)
+        internal static string Description(uint clientNumber, HttpClient client, int timeout, string URIBase, bool strictCasing, ILogger logger)
         {
-            return GetValue<string>(clientNumber, client, timeout, URIBase, strictCasing, TL, "Description", MemberTypes.Property);
+            return GetValue<string>(clientNumber, client, timeout, URIBase, strictCasing, logger, "Description", MemberTypes.Property);
         }
 
-        internal static void Disconnect(uint clientNumber, HttpClient client, int timeout, string URIBase, bool strictCasing, ILogger TL)
+        internal static void Disconnect(uint clientNumber, HttpClient client, int timeout, string URIBase, bool strictCasing, ILogger logger)
         {
 
-            if (IsClientConnected(clientNumber, TL)) // If we are already connected then disconnect, otherwise ignore disconnect 
+            if (IsClientConnected(clientNumber, logger)) // If we are already connected then disconnect, otherwise ignore disconnect 
             {
-                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "Disconnect", "We are connected, setting Connected to False on remote driver");
-                SetBool(clientNumber, client, timeout, URIBase, strictCasing, TL, "Connected", false, MemberTypes.Property);
+                AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "Disconnect", "We are connected, setting Connected to False on remote driver");
+                SetBool(clientNumber, client, timeout, URIBase, strictCasing, logger, "Connected", false, MemberTypes.Property);
                 bool successfullyRemoved = connectStates.TryRemove(clientNumber, out bool lastValue);
-                AlpacaDeviceBaseClass.LogMessage(TL, 0, "Disconnect", $"Set Connected to: False, Successfully removed: {successfullyRemoved}, previous value: {lastValue}");
+                AlpacaDeviceBaseClass.LogMessage(logger, 0, "Disconnect", $"Set Connected to: False, Successfully removed: {successfullyRemoved}, previous value: {lastValue}");
             }
             else
             {
-                AlpacaDeviceBaseClass.LogMessage(TL, 0, "Disconnect", "Already disconnected, not sending command to driver");
+                AlpacaDeviceBaseClass.LogMessage(logger, 0, "Disconnect", "Already disconnected, not sending command to driver");
             }
         }
 
-        internal static string DriverInfo(uint clientNumber, HttpClient client, int timeout, string URIBase, bool strictCasing, ILogger TL)
+        internal static string DriverInfo(uint clientNumber, HttpClient client, int timeout, string URIBase, bool strictCasing, ILogger logger)
         {
-            return GetValue<string>(clientNumber, client, timeout, URIBase, strictCasing, TL, "DriverInfo", MemberTypes.Property);
+            return GetValue<string>(clientNumber, client, timeout, URIBase, strictCasing, logger, "DriverInfo", MemberTypes.Property);
         }
 
-        internal static string DriverVersion(uint clientNumber, HttpClient client, int timeout, string URIBase, bool strictCasing, ILogger TL)
+        internal static string DriverVersion(uint clientNumber, HttpClient client, int timeout, string URIBase, bool strictCasing, ILogger logger)
         {
-            string remoteString = GetValue<string>(clientNumber, client, timeout, URIBase, strictCasing, TL, "DriverVersion", MemberTypes.Property);
-            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "DriverVersion", remoteString);
+            string remoteString = GetValue<string>(clientNumber, client, timeout, URIBase, strictCasing, logger, "DriverVersion", MemberTypes.Property);
+            AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "DriverVersion", remoteString);
             return remoteString;
         }
 
-        internal static short InterfaceVersion(uint clientNumber, HttpClient client, int timeout, string URIBase, bool strictCasing, ILogger TL)
+        internal static short InterfaceVersion(uint clientNumber, HttpClient client, int timeout, string URIBase, bool strictCasing, ILogger logger)
         {
-            short interfaceVersion = GetValue<short>(clientNumber, client, timeout, URIBase, strictCasing, TL, "InterfaceVersion", MemberTypes.Property);
-            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "InterfaceVersion", interfaceVersion.ToString());
+            short interfaceVersion = GetValue<short>(clientNumber, client, timeout, URIBase, strictCasing, logger, "InterfaceVersion", MemberTypes.Property);
+            AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "InterfaceVersion", interfaceVersion.ToString());
             return interfaceVersion;
         }
 
-        internal static IList<string> SupportedActions(uint clientNumber, HttpClient client, int timeout, string URIBase, bool strictCasing, ILogger TL)
+        internal static IList<string> SupportedActions(uint clientNumber, HttpClient client, int timeout, string URIBase, bool strictCasing, ILogger logger)
         {
-            List<string> supportedActions = GetValue<List<string>>(clientNumber, client, timeout, URIBase, strictCasing, TL, "SupportedActions", MemberTypes.Property);
-            AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "SupportedActions", $"Returning {supportedActions.Count} actions");
+            List<string> supportedActions = GetValue<List<string>>(clientNumber, client, timeout, URIBase, strictCasing, logger, "SupportedActions", MemberTypes.Property);
+            AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "SupportedActions", $"Returning {supportedActions.Count} actions");
 
             List<string> returnValues = new List<string>();
             foreach (string action in supportedActions)
             {
                 returnValues.Add(action);
-                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "SupportedActions", $"Returning action: {action}");
+                AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "SupportedActions", $"Returning action: {action}");
             }
 
             return returnValues;
@@ -1813,14 +1813,14 @@ namespace ASCOM.Alpaca.Clients
 
         #region Complex Camera Properties
 
-        internal static object ImageArrayVariant(uint clientNumber, HttpClient client, int timeout, string URIBase, bool strictCasing, ILogger TL, ImageArrayTransferType imageArrayTransferType, ImageArrayCompression imageArrayCompression)
+        internal static object ImageArrayVariant(uint clientNumber, HttpClient client, int timeout, string URIBase, bool strictCasing, ILogger logger, ImageArrayTransferType imageArrayTransferType, ImageArrayCompression imageArrayCompression)
         {
             Array returnArray;
             object[,] objectArray2D;
             object[,,] objectArray3D;
             Stopwatch sw = new Stopwatch();
 
-            returnArray = GetValue<Array>(clientNumber, client, timeout, URIBase, strictCasing, TL, "ImageArrayVariant", imageArrayTransferType, imageArrayCompression, MemberTypes.Property);
+            returnArray = GetValue<Array>(clientNumber, client, timeout, URIBase, strictCasing, logger, "ImageArrayVariant", imageArrayTransferType, imageArrayCompression, MemberTypes.Property);
 
             try
             {
@@ -1838,7 +1838,7 @@ namespace ASCOM.Alpaca.Clients
                         throw new InvalidValueException("ReturnImageArray: Received an unsupported return array rank: " + returnArray.Rank);
                 }
 
-                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "ImageArrayVariant", $"Received {variantType} array of Rank {returnArray.Rank} with Length {returnArray.Length} and element type {elementType}");
+                AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "ImageArrayVariant", $"Received {variantType} array of Rank {returnArray.Rank} with Length {returnArray.Length} and element type {elementType}");
 
                 // convert to variant
 
@@ -1860,7 +1860,7 @@ namespace ASCOM.Alpaca.Clients
                                     }
                                 });
 
-                                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "ImageArrayVariant", $"Finished copying Byte[,] array in {sw.ElapsedMilliseconds}ms.");
+                                AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "ImageArrayVariant", $"Finished copying Byte[,] array in {sw.ElapsedMilliseconds}ms.");
                                 return objectArray2D;
 
                             case "Int16[,]":
@@ -1875,7 +1875,7 @@ namespace ASCOM.Alpaca.Clients
                                     }
                                 });
 
-                                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "ImageArrayVariant", $"Finished copying Int16[,] array in {sw.ElapsedMilliseconds}ms.");
+                                AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "ImageArrayVariant", $"Finished copying Int16[,] array in {sw.ElapsedMilliseconds}ms.");
                                 return objectArray2D;
 
                             case "UInt16[,]":
@@ -1890,7 +1890,7 @@ namespace ASCOM.Alpaca.Clients
                                     }
                                 });
 
-                                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "ImageArrayVariant", $"Finished copying UInt16[,] array in {sw.ElapsedMilliseconds}ms.");
+                                AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "ImageArrayVariant", $"Finished copying UInt16[,] array in {sw.ElapsedMilliseconds}ms.");
                                 return objectArray2D;
 
                             case "Int32[,]":
@@ -1905,7 +1905,7 @@ namespace ASCOM.Alpaca.Clients
                                     }
                                 });
 
-                                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "ImageArrayVariant", $"Finished copying Int32[,] array in {sw.ElapsedMilliseconds}ms.");
+                                AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "ImageArrayVariant", $"Finished copying Int32[,] array in {sw.ElapsedMilliseconds}ms.");
                                 return objectArray2D;
 
                             case "UInt32[,]":
@@ -1920,7 +1920,7 @@ namespace ASCOM.Alpaca.Clients
                                     }
                                 });
 
-                                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "ImageArrayVariant", $"Finished copying UInt32[,] array in {sw.ElapsedMilliseconds}ms.");
+                                AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "ImageArrayVariant", $"Finished copying UInt32[,] array in {sw.ElapsedMilliseconds}ms.");
                                 return objectArray2D;
 
                             case "Int64[,]":
@@ -1935,7 +1935,7 @@ namespace ASCOM.Alpaca.Clients
                                     }
                                 });
 
-                                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "ImageArrayVariant", $"Finished copying Int64[,] array in {sw.ElapsedMilliseconds}ms.");
+                                AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "ImageArrayVariant", $"Finished copying Int64[,] array in {sw.ElapsedMilliseconds}ms.");
                                 return objectArray2D;
 
                             case "UInt64[,]":
@@ -1950,7 +1950,7 @@ namespace ASCOM.Alpaca.Clients
                                     }
                                 });
 
-                                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "ImageArrayVariant", $"Finished copying UInt64[,] array in {sw.ElapsedMilliseconds}ms.");
+                                AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "ImageArrayVariant", $"Finished copying UInt64[,] array in {sw.ElapsedMilliseconds}ms.");
                                 return objectArray2D;
 
                             case "Single[,]":
@@ -1965,7 +1965,7 @@ namespace ASCOM.Alpaca.Clients
                                     }
                                 });
 
-                                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "ImageArrayVariant", $"Finished copying Single[,] array in {sw.ElapsedMilliseconds}ms.");
+                                AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "ImageArrayVariant", $"Finished copying Single[,] array in {sw.ElapsedMilliseconds}ms.");
                                 return objectArray2D;
 
                             case "Double[,]":
@@ -1980,11 +1980,11 @@ namespace ASCOM.Alpaca.Clients
                                     }
                                 });
 
-                                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "ImageArrayVariant", $"Finished copying Double[,] array in {sw.ElapsedMilliseconds}ms.");
+                                AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "ImageArrayVariant", $"Finished copying Double[,] array in {sw.ElapsedMilliseconds}ms.");
                                 return objectArray2D;
 
                             case "Object[,]":
-                                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "ImageArrayVariant", $"Received an Object[,] array, returning it directly to the client without further processing.");
+                                AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "ImageArrayVariant", $"Received an Object[,] array, returning it directly to the client without further processing.");
                                 return returnArray;
 
                             default:
@@ -2007,7 +2007,7 @@ namespace ASCOM.Alpaca.Clients
                                     }
                                 });
 
-                                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "ImageArrayVariant", $"Finished copying Byte[,,] array in {sw.ElapsedMilliseconds}ms.");
+                                AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "ImageArrayVariant", $"Finished copying Byte[,,] array in {sw.ElapsedMilliseconds}ms.");
                                 return objectArray3D;
 
                             case "Int16[,,]":
@@ -2023,7 +2023,7 @@ namespace ASCOM.Alpaca.Clients
                                     }
                                 });
 
-                                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "ImageArrayVariant", $"Finished copying Int16[,,] array in {sw.ElapsedMilliseconds}ms.");
+                                AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "ImageArrayVariant", $"Finished copying Int16[,,] array in {sw.ElapsedMilliseconds}ms.");
                                 return objectArray3D;
 
                             case "UInt16[,,]":
@@ -2039,7 +2039,7 @@ namespace ASCOM.Alpaca.Clients
                                     }
                                 });
 
-                                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "ImageArrayVariant", $"Finished copying UInt16[,,] array in {sw.ElapsedMilliseconds}ms.");
+                                AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "ImageArrayVariant", $"Finished copying UInt16[,,] array in {sw.ElapsedMilliseconds}ms.");
                                 return objectArray3D;
 
                             case "Int32[,,]":
@@ -2057,7 +2057,7 @@ namespace ASCOM.Alpaca.Clients
                                     }
                                 });
 
-                                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "ImageArrayVariant", $"Finished copying Int32[,,] array in {sw.ElapsedMilliseconds}ms.");
+                                AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "ImageArrayVariant", $"Finished copying Int32[,,] array in {sw.ElapsedMilliseconds}ms.");
                                 return objectArray3D;
 
                             case "UInt32[,,]":
@@ -2075,7 +2075,7 @@ namespace ASCOM.Alpaca.Clients
                                     }
                                 });
 
-                                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "ImageArrayVariant", $"Finished copying UInt32[,,] array in {sw.ElapsedMilliseconds}ms.");
+                                AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "ImageArrayVariant", $"Finished copying UInt32[,,] array in {sw.ElapsedMilliseconds}ms.");
                                 return objectArray3D;
 
                             case "Int64[,,]":
@@ -2093,7 +2093,7 @@ namespace ASCOM.Alpaca.Clients
                                     }
                                 });
 
-                                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "ImageArrayVariant", $"Finished copying Int64[,,] array in {sw.ElapsedMilliseconds}ms.");
+                                AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "ImageArrayVariant", $"Finished copying Int64[,,] array in {sw.ElapsedMilliseconds}ms.");
                                 return objectArray3D;
 
                             case "UInt64[,,]":
@@ -2111,7 +2111,7 @@ namespace ASCOM.Alpaca.Clients
                                     }
                                 });
 
-                                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "ImageArrayVariant", $"Finished copying UInt64[,,] array in {sw.ElapsedMilliseconds}ms.");
+                                AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "ImageArrayVariant", $"Finished copying UInt64[,,] array in {sw.ElapsedMilliseconds}ms.");
                                 return objectArray3D;
 
                             case "Single[,,]":
@@ -2127,7 +2127,7 @@ namespace ASCOM.Alpaca.Clients
                                     }
                                 });
 
-                                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "ImageArrayVariant", $"Finished copying Single[,,] array in {sw.ElapsedMilliseconds}ms.");
+                                AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "ImageArrayVariant", $"Finished copying Single[,,] array in {sw.ElapsedMilliseconds}ms.");
                                 return objectArray3D;
 
                             case "Double[,,]":
@@ -2143,11 +2143,11 @@ namespace ASCOM.Alpaca.Clients
                                     }
                                 });
 
-                                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "ImageArrayVariant", $"Finished copying Double[,,] array in {sw.ElapsedMilliseconds}ms.");
+                                AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "ImageArrayVariant", $"Finished copying Double[,,] array in {sw.ElapsedMilliseconds}ms.");
                                 return objectArray3D;
 
                             case "Object[,,]":
-                                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "ImageArrayVariant", $"Received an Object[,,] array, returning it directly to the client without further processing.");
+                                AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "ImageArrayVariant", $"Received an Object[,,] array, returning it directly to the client without further processing.");
                                 return returnArray;
 
                             default:
@@ -2160,7 +2160,7 @@ namespace ASCOM.Alpaca.Clients
             }
             catch (Exception ex)
             {
-                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "ImageArrayVariant", $"Exception: \r\n{ex}");
+                AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "ImageArrayVariant", $"Exception: \r\n{ex}");
                 throw;
             }
         }
@@ -2202,7 +2202,7 @@ namespace ASCOM.Alpaca.Clients
         //    // Get the data from the Alpaca device
         //    using (HttpResponseMessage response = wClient.GetAsync(builder.Uri, HttpCompletionOption.ResponseContentRead).Result)
         //    {
-        //        AlpacaDeviceBaseClass.LogMessage(TL, 0, "GetResponse", $"GetAsync time: {sw.ElapsedMilliseconds}ms, Overall time: {swOverall.ElapsedMilliseconds}ms.");
+        //        AlpacaDeviceBaseClass.LogMessage(logger, 0, "GetResponse", $"GetAsync time: {sw.ElapsedMilliseconds}ms, Overall time: {swOverall.ElapsedMilliseconds}ms.");
 
         //        // Get the response CONTENT headers (different to response TRANSPORT headers, hard won knowledge!)
         //        sw.Restart();
@@ -2213,7 +2213,7 @@ namespace ASCOM.Alpaca.Clients
         //        // List the headers received
         //        foreach (var header in headers)
         //        {
-        //            AlpacaDeviceBaseClass.LogMessage(TL, clientId, "GetResponse", $"Received header {header.Key} = {header.Value.FirstOrDefault()}.");
+        //            AlpacaDeviceBaseClass.LogMessage(logger, clientId, "GetResponse", $"Received header {header.Key} = {header.Value.FirstOrDefault()}.");
         //        }
 
         //        // Extract the content type from the headers
@@ -2225,7 +2225,7 @@ namespace ASCOM.Alpaca.Clients
         //        // Get the returned data as a byte[] (could be JSON or ImageBytes image data)
         //        sw.Restart();
         //        byte[] rawbytes = response.Content.ReadAsByteArrayAsync().Result;
-        //        AlpacaDeviceBaseClass.LogMessage(TL, clientId, "GetResponse", $"ReadAsByteArrayAsync time: {sw.ElapsedMilliseconds}ms, Overall time: {swOverall.ElapsedMilliseconds}ms.");
+        //        AlpacaDeviceBaseClass.LogMessage(logger, clientId, "GetResponse", $"ReadAsByteArrayAsync time: {sw.ElapsedMilliseconds}ms, Overall time: {swOverall.ElapsedMilliseconds}ms.");
 
         //        // If the content type is ImageBytes - Assign the byte[] to the rawBytes property 
         //        if (contentType.ToLowerInvariant().Contains(AlpacaConstants.IMAGE_BYTES_MIME_TYPE))
@@ -2239,7 +2239,7 @@ namespace ASCOM.Alpaca.Clients
         //                StatusCode = response.StatusCode,
         //                StatusDescription = response.ReasonPhrase
         //            };
-        //            AlpacaDeviceBaseClass.LogMessage(TL, clientId, "GetResponse", $"GetByteArrayAsync time: {sw.ElapsedMilliseconds}ms, Overall time: {swOverall.ElapsedMilliseconds}ms.");
+        //            AlpacaDeviceBaseClass.LogMessage(logger, clientId, "GetResponse", $"GetByteArrayAsync time: {sw.ElapsedMilliseconds}ms, Overall time: {swOverall.ElapsedMilliseconds}ms.");
 
         //            return restResponse;
         //        }
@@ -2256,7 +2256,7 @@ namespace ASCOM.Alpaca.Clients
         //                StatusCode = response.StatusCode,
         //                StatusDescription = response.ReasonPhrase
         //            };
-        //            AlpacaDeviceBaseClass.LogMessage(TL, clientId, "GetResponse", $"GetStringAsync time: {sw.ElapsedMilliseconds}ms, Overall time: {swOverall.ElapsedMilliseconds}ms.");
+        //            AlpacaDeviceBaseClass.LogMessage(logger, clientId, "GetResponse", $"GetStringAsync time: {sw.ElapsedMilliseconds}ms, Overall time: {swOverall.ElapsedMilliseconds}ms.");
 
         //            return restResponse;
         //        }
@@ -2264,7 +2264,7 @@ namespace ASCOM.Alpaca.Clients
         //        // Otherwise we didn't receive a content type header or received an unsupported content type, so throw an exception to indicate the problem.
         //        else
         //        {
-        //            AlpacaDeviceBaseClass.LogMessage(TL, clientId, "GetResponse", $"Did not find expected content type of 'application.json' or 'application/imagebytes'. Found: {contentType}");
+        //            AlpacaDeviceBaseClass.LogMessage(logger, clientId, "GetResponse", $"Did not find expected content type of 'application.json' or 'application/imagebytes'. Found: {contentType}");
         //            throw new InvalidValueException($"The device did not return a content type or returned an unsupported content type: '{contentType}'");
         //        }
         //    }

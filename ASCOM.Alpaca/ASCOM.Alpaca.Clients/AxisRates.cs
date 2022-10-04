@@ -21,11 +21,11 @@ namespace ASCOM.Alpaca.Clients
         // Constructor - Internal prevents public creation
         // of instances. Returned by Telescope.AxisRates.
         //
-        internal AxisRates(TelescopeAxis Axis, ILogger TL)
+        internal AxisRates(TelescopeAxis Axis, ILogger logger)
         {
             m_axis = Axis;
-            logger = TL;
-            AlpacaDeviceBaseClass.LogMessage(TL, 0, "AlpacaClients.AxisRates Init", $"Supplied axis: {Axis}");
+            this.logger = logger;
+            AlpacaDeviceBaseClass.LogMessage(logger, 0, "AlpacaClients.AxisRates Init", $"Supplied axis: {Axis}");
 
             //
             // This collection must hold zero or more Rate objects describing the 
@@ -46,19 +46,19 @@ namespace ASCOM.Alpaca.Clients
                     break;
             }
             pos = -1;
-            AlpacaDeviceBaseClass.LogMessage(TL, 0, "AlpacaClients.AxisRates Init", $"Number of Rates: {m_Rates.Length}");
+            AlpacaDeviceBaseClass.LogMessage(logger, 0, "AlpacaClients.AxisRates Init", $"Number of Rates: {m_Rates.Length}");
         }
 
-        internal void Add(double Minium, double Maximum, ILogger TL)
+        internal void Add(double Minium, double Maximum, ILogger logger)
         {
-            AlpacaDeviceBaseClass.LogMessage(TL, 0, "AlpacaClients.AxisRates.Add", "Before m_Rates.Length: " + m_Rates.Length);
+            AlpacaDeviceBaseClass.LogMessage(logger, 0, "AlpacaClients.AxisRates.Add", "Before m_Rates.Length: " + m_Rates.Length);
             Rate r = new Rate(Minium, Maximum); // Create a new rate to add to the new array
             Rate[] NewRateArray = new Rate[m_Rates.Length + 1]; // Create a new Rate array to replace the current one
-            AlpacaDeviceBaseClass.LogMessage(TL, 0, "AlpacaClients.AxisRates.Add", "NewRateArray.Length: " + NewRateArray.Length);
+            AlpacaDeviceBaseClass.LogMessage(logger, 0, "AlpacaClients.AxisRates.Add", "NewRateArray.Length: " + NewRateArray.Length);
             Array.Copy(m_Rates, NewRateArray, m_Rates.Length); // Copy the current contents of the m_Rated array to the new array
             NewRateArray[m_Rates.Length] = r; // Add the new rate the new Rates array.
             m_Rates = NewRateArray; // Make m_Rates point at the new larger array
-            AlpacaDeviceBaseClass.LogMessage(TL, 0, "AlpacaClients.AxisRates.Add", "After m_Rates.Length: " + m_Rates.Length);
+            AlpacaDeviceBaseClass.LogMessage(logger, 0, "AlpacaClients.AxisRates.Add", "After m_Rates.Length: " + m_Rates.Length);
         }
         #region IAxisRates Members
 

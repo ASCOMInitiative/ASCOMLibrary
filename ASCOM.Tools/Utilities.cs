@@ -1000,7 +1000,6 @@ namespace ASCOM.Tools
             double ReturnValue;
 
             ReturnValue = Range(HA, -12.0, true, +12.0, true);
-            //TL.LogMessage("ConditionHA", "Conditioned HA: " + Utl.HoursToHMS(HA, ":", ":", "", 3) + " to: " + Utl.HoursToHMS(ReturnValue, ":", ":", "", 3));
 
             return ReturnValue;
         }
@@ -1016,7 +1015,6 @@ namespace ASCOM.Tools
             double ReturnValue;
 
             ReturnValue = Range(RA, 0.0, true, 24.0, false);
-            //TL.LogMessage("ConditionRA", "Conditioned RA: " + Utl.HoursToHMS(RA, ":", ":", "", 3) + " to: " + Utl.HoursToHMS(ReturnValue, ":", ":", "", 3));
 
             return ReturnValue;
         }

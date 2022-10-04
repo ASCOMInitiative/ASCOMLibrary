@@ -44,7 +44,7 @@ namespace ASCOM.Alpaca.Clients
         /// <param name="userName">Basic authentication user name for the Alpaca device</param>
         /// <param name="password">basic authentication password for the Alpaca device</param>
         /// <param name="strictCasing">Tolerate or throw exceptions  if the Alpaca device does not use strictly correct casing for JSON object element names.</param>
-        /// <param name="TL">Optional ILogger instance that can be sued to record operational information during execution</param>
+        /// <param name="logger">Optional ILogger instance that can be sued to record operational information during execution</param>
         public AlpacaCoverCalibrator(ServiceType serviceType,
                           string ipAddressString,
                           int portNumber,
@@ -56,7 +56,7 @@ namespace ASCOM.Alpaca.Clients
                           string userName,
                           string password,
                           bool strictCasing,
-                          ILogger TL
+                          ILogger logger
             )
         {
             this.serviceType = serviceType;
@@ -70,7 +70,7 @@ namespace ASCOM.Alpaca.Clients
             this.userName = userName;
             this.password = password;
             this.strictCasing = strictCasing;
-            this.TL = TL;
+            this.logger = logger;
 
             Initialise();
         }
@@ -96,7 +96,7 @@ namespace ASCOM.Alpaca.Clients
             this.portNumber = portNumber;
             this.remoteDeviceNumber = remoteDeviceNumber;
             this.strictCasing = strictCasing;
-            TL = logger;
+            base.logger = logger;
             clientNumber = DynamicClientDriver.GetUniqueClientNumber();
             Initialise();
         }
@@ -110,23 +110,23 @@ namespace ASCOM.Alpaca.Clients
                 URIBase = $"{AlpacaConstants.API_URL_BASE}{AlpacaConstants.API_VERSION_V1}/{clientDeviceType}/{remoteDeviceNumber}/";
                 Version version = Assembly.GetEntryAssembly().GetName().Version;
 
-                LogMessage(TL, clientNumber, Devices.DeviceTypeToString(clientDeviceType), "Starting initialisation, Version: " + version.ToString());
-                LogMessage(TL, clientNumber, Devices.DeviceTypeToString(clientDeviceType), "This instance's unique client number: " + clientNumber);
-                LogMessage(TL, clientNumber, Devices.DeviceTypeToString(clientDeviceType), "This devices's base URI: " + URIBase);
-                LogMessage(TL, clientNumber, Devices.DeviceTypeToString(clientDeviceType), "Establish communications timeout: " + establishConnectionTimeout.ToString());
-                LogMessage(TL, clientNumber, Devices.DeviceTypeToString(clientDeviceType), "Standard device response timeout: " + standardDeviceResponseTimeout.ToString());
-                LogMessage(TL, clientNumber, Devices.DeviceTypeToString(clientDeviceType), "Long device response timeout: " + longDeviceResponseTimeout.ToString());
-                LogMessage(TL, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"User name is Null or Empty: {string.IsNullOrEmpty(userName)}, User name is Null or White Space: {string.IsNullOrWhiteSpace(userName)}");
-                LogMessage(TL, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"User name length: {password.Length}");
-                LogMessage(TL, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"Password is Null or Empty: {string.IsNullOrEmpty(password)}, Password is Null or White Space: {string.IsNullOrWhiteSpace(password)}");
-                LogMessage(TL, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"Password length: {password.Length}");
+                LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), "Starting initialisation, Version: " + version.ToString());
+                LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), "This instance's unique client number: " + clientNumber);
+                LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), "This devices's base URI: " + URIBase);
+                LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), "Establish communications timeout: " + establishConnectionTimeout.ToString());
+                LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), "Standard device response timeout: " + standardDeviceResponseTimeout.ToString());
+                LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), "Long device response timeout: " + longDeviceResponseTimeout.ToString());
+                LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"User name is Null or Empty: {string.IsNullOrEmpty(userName)}, User name is Null or White Space: {string.IsNullOrWhiteSpace(userName)}");
+                LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"User name length: {password.Length}");
+                LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"Password is Null or Empty: {string.IsNullOrEmpty(password)}, Password is Null or White Space: {string.IsNullOrWhiteSpace(password)}");
+                LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"Password length: {password.Length}");
 
-                DynamicClientDriver.ConnectToRemoteDevice(ref client, serviceType, ipAddressString, portNumber, clientNumber, clientDeviceType, standardDeviceResponseTimeout, userName, password, ImageArrayCompression.None, TL);
-                LogMessage(TL, clientNumber, Devices.DeviceTypeToString(clientDeviceType), "Completed initialisation");
+                DynamicClientDriver.ConnectToRemoteDevice(ref client, serviceType, ipAddressString, portNumber, clientNumber, clientDeviceType, standardDeviceResponseTimeout, userName, password, ImageArrayCompression.None, logger);
+                LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), "Completed initialisation");
             }
             catch (Exception ex)
             {
-                LogMessage(TL, clientNumber, Devices.DeviceTypeToString(clientDeviceType), ex.ToString());
+                LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), ex.ToString());
             }
         }
 
@@ -148,7 +148,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<CoverStatus>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, TL, "CoverState", MemberTypes.Property);
+                return DynamicClientDriver.GetValue<CoverStatus>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "CoverState", MemberTypes.Property);
             }
         }
 
@@ -167,7 +167,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<CalibratorStatus>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, TL, "CalibratorState", MemberTypes.Property);
+                return DynamicClientDriver.GetValue<CalibratorStatus>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "CalibratorState", MemberTypes.Property);
             }
         }
 
@@ -185,7 +185,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<int>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, TL, "Brightness", MemberTypes.Property);
+                return DynamicClientDriver.GetValue<int>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "Brightness", MemberTypes.Property);
             }
         }
 
@@ -205,7 +205,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<int>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, TL, "MaxBrightness", MemberTypes.Property);
+                return DynamicClientDriver.GetValue<int>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "MaxBrightness", MemberTypes.Property);
             }
         }
 
@@ -222,8 +222,8 @@ namespace ASCOM.Alpaca.Clients
         /// </remarks>
         public void OpenCover()
         {
-            DynamicClientDriver.CallMethodWithNoParameters(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, TL, "OpenCover", MemberTypes.Method);
-            LogMessage(TL, clientNumber, "AbortSlew", "Cover opened OK");
+            DynamicClientDriver.CallMethodWithNoParameters(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "OpenCover", MemberTypes.Method);
+            LogMessage(logger, clientNumber, "AbortSlew", "Cover opened OK");
         }
 
         /// <summary>
@@ -239,8 +239,8 @@ namespace ASCOM.Alpaca.Clients
         /// </remarks>
         public void CloseCover()
         {
-            DynamicClientDriver.CallMethodWithNoParameters(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, TL, "CloseCover", MemberTypes.Method);
-            LogMessage(TL, clientNumber, "AbortSlew", "Cover closed OK");
+            DynamicClientDriver.CallMethodWithNoParameters(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "CloseCover", MemberTypes.Method);
+            LogMessage(logger, clientNumber, "AbortSlew", "Cover closed OK");
         }
 
         /// <summary>
@@ -256,8 +256,8 @@ namespace ASCOM.Alpaca.Clients
         /// </remarks>
         public void HaltCover()
         {
-            DynamicClientDriver.CallMethodWithNoParameters(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, TL, "HaltCover", MemberTypes.Method);
-            LogMessage(TL, clientNumber, "AbortSlew", "Cover halted OK");
+            DynamicClientDriver.CallMethodWithNoParameters(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "HaltCover", MemberTypes.Method);
+            LogMessage(logger, clientNumber, "AbortSlew", "Cover halted OK");
         }
 
         /// <summary>
@@ -281,7 +281,7 @@ namespace ASCOM.Alpaca.Clients
             {
                 { AlpacaConstants.BRIGHTNESS_PARAMETER_NAME, Brightness.ToString(CultureInfo.InvariantCulture) }
             };
-            DynamicClientDriver.SendToRemoteDevice<NoReturnValue>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, TL, "CalibratorOn", Parameters, HttpMethod.Put, MemberTypes.Method);
+            DynamicClientDriver.SendToRemoteDevice<NoReturnValue>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "CalibratorOn", Parameters, HttpMethod.Put, MemberTypes.Method);
         }
 
         /// <summary>
@@ -299,8 +299,8 @@ namespace ASCOM.Alpaca.Clients
         /// </remarks>
         public void CalibratorOff()
         {
-            DynamicClientDriver.CallMethodWithNoParameters(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, TL, "CalibratorOff", MemberTypes.Method);
-            LogMessage(TL, clientNumber, "AbortSlew", $"Calibrator off OK");
+            DynamicClientDriver.CallMethodWithNoParameters(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "CalibratorOff", MemberTypes.Method);
+            LogMessage(logger, clientNumber, "AbortSlew", $"Calibrator off OK");
         }
 
         #endregion

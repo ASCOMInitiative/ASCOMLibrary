@@ -29,7 +29,7 @@ namespace ASCOM.Alpaca.Clients
         internal bool strictCasing = true; // Strict or flexible interpretation of casing in device JSON responses
         internal DeviceTypes clientDeviceType = DeviceTypes.Telescope; // Variable to hold the device type, which is set in each device type class
 
-        internal ILogger TL; // Private variable to hold the trace logger object
+        internal ILogger logger; // Private variable to hold the trace logger object
 
         internal HttpClient client; // Client to send and receive REST style messages to / from the remote device
         internal bool clientIsConnected;  // Connection state of this driver
@@ -98,9 +98,9 @@ namespace ASCOM.Alpaca.Clients
         /// </remarks>
         public string Action(string actionName, string actionParameters)
         {
-            LogMessage(TL, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"ACTION: About to submit Action: {actionName}");
-            string response = DynamicClientDriver.Action(clientNumber, client, longDeviceResponseTimeout, URIBase, strictCasing, TL, actionName, actionParameters);
-            LogMessage(TL, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"ACTION: Received response of length: {response.Length}");
+            LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"ACTION: About to submit Action: {actionName}");
+            string response = DynamicClientDriver.Action(clientNumber, client, longDeviceResponseTimeout, URIBase, strictCasing, logger, actionName, actionParameters);
+            LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"ACTION: Received response of length: {response.Length}");
             return response;
         }
 
@@ -119,7 +119,7 @@ namespace ASCOM.Alpaca.Clients
         /// <remarks><p style="color:red"><b>May throw a NotImplementedException.</b></p> </remarks>
         public void CommandBlind(string command, bool raw = false)
         {
-            DynamicClientDriver.CommandBlind(clientNumber, client, longDeviceResponseTimeout, URIBase, strictCasing, TL, command, raw);
+            DynamicClientDriver.CommandBlind(clientNumber, client, longDeviceResponseTimeout, URIBase, strictCasing, logger, command, raw);
         }
 
         /// <summary>
@@ -140,7 +140,7 @@ namespace ASCOM.Alpaca.Clients
         /// <remarks><p style="color:red"><b>May throw a NotImplementedException.</b></p> </remarks>
         public bool CommandBool(string command, bool raw = false)
         {
-            return DynamicClientDriver.CommandBool(clientNumber, client, longDeviceResponseTimeout, URIBase, strictCasing, TL, command, raw);
+            return DynamicClientDriver.CommandBool(clientNumber, client, longDeviceResponseTimeout, URIBase, strictCasing, logger, command, raw);
         }
 
         /// <summary>
@@ -161,7 +161,7 @@ namespace ASCOM.Alpaca.Clients
         /// <remarks><p style="color:red"><b>May throw a NotImplementedException.</b></p> </remarks>
         public string CommandString(string command, bool raw = false)
         {
-            return DynamicClientDriver.CommandString(clientNumber, client, longDeviceResponseTimeout, URIBase, strictCasing, TL, command, raw);
+            return DynamicClientDriver.CommandString(clientNumber, client, longDeviceResponseTimeout, URIBase, strictCasing, logger, command, raw);
         }
 
         /// <summary>
@@ -181,12 +181,12 @@ namespace ASCOM.Alpaca.Clients
                 clientIsConnected = value;
                 if (manageConnectLocally)
                 {
-                    AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"The Connected property is being managed locally so the new value '{value}' will not be sent to the remote device");
+                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"The Connected property is being managed locally so the new value '{value}' will not be sent to the remote device");
                 }
                 else // Send the command to the remote device
                 {
-                    if (value) DynamicClientDriver.Connect(clientNumber, client, establishConnectionTimeout, URIBase, strictCasing, TL);
-                    else DynamicClientDriver.Disconnect(clientNumber, client, establishConnectionTimeout, URIBase, strictCasing, TL);
+                    if (value) DynamicClientDriver.Connect(clientNumber, client, establishConnectionTimeout, URIBase, strictCasing, logger);
+                    else DynamicClientDriver.Disconnect(clientNumber, client, establishConnectionTimeout, URIBase, strictCasing, logger);
                 }
             }
         }
@@ -203,8 +203,8 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                string response = DynamicClientDriver.Description(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, TL);
-                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "Description", response);
+                string response = DynamicClientDriver.Description(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger);
+                AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "Description", response);
                 return response;
             }
         }
@@ -221,7 +221,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.DriverInfo(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, TL);
+                return DynamicClientDriver.DriverInfo(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger);
             }
         }
 
@@ -235,7 +235,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.DriverVersion(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, TL);
+                return DynamicClientDriver.DriverVersion(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger);
             }
         }
 
@@ -250,7 +250,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.InterfaceVersion(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, TL);
+                return DynamicClientDriver.InterfaceVersion(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger);
             }
         }
 
@@ -262,8 +262,8 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                string response = DynamicClientDriver.GetValue<string>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, TL, "Name", MemberTypes.Property);
-                AlpacaDeviceBaseClass.LogMessage(TL, clientNumber, "Name", response);
+                string response = DynamicClientDriver.GetValue<string>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "Name", MemberTypes.Property);
+                AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "Name", response);
                 return response;
             }
         }
@@ -284,7 +284,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.SupportedActions(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, TL);
+                return DynamicClientDriver.SupportedActions(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger);
             }
         }
 

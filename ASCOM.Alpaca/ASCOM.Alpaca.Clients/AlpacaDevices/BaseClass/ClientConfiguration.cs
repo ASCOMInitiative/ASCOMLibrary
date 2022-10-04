@@ -138,8 +138,8 @@ namespace ASCOM.Alpaca.Clients
         /// <remarks>Supply a <see langword="null"/> value to suppress operational logging.</remarks>
         public ILogger Logger
         {
-            get { return baseClass.TL; }
-            set { baseClass.TL = value; }
+            get { return baseClass.logger; }
+            set { baseClass.logger = value; }
         }
 
     }
