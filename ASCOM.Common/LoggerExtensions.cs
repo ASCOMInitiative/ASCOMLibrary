@@ -8,6 +8,43 @@ namespace ASCOM.Common
     /// </summary>
     public static class LoggerExtensions
     {
+        /// <summary>
+        /// Log a message in TraceLogger format if the logging device is a TraceLogger, otherwise use the ILogger.Log format
+        /// </summary>
+        /// <param name="logger">ILogger device instance</param>
+        /// <param name="logLevel">ILogger LogLevel to use if the logger is not a TraceLogger.</param>
+        /// <param name="method">Calling method name</param>
+        /// <param name="message">Log message</param>
+        public static void LogMessage(this ILogger logger, LogLevel logLevel, string method, string message)
+        {
+            // Use a log format depending on whether the supplied logger is an ITraceLogger instance or just a plain ILogger instance
+            if (logger is ITraceLogger traceLogger) // The logger is an ITraceLogger instance so use the ITraceLogger.LogMessage method to log the message
+            {
+                traceLogger.LogMessage(method, message); // Use the ITraceLogger.LogMessage method
+            }
+            else // The logger is null or an ILogger instance so use the ILogger.Log method 
+            {
+                logger?.Log(logLevel, $"{method} - {message}"); // Use the ILogger.Log method
+            }
+        }
+
+        /// <summary>
+        /// Create a blank line in a log
+        /// </summary>
+        /// <param name="logger">ILogger device instance</param>
+        /// <param name="logLevel">ILogger LogLevel to use if the logger is not an ITraceLogger instance.</param>
+        public static void BlankLine(this ILogger logger, LogLevel logLevel)
+        {
+            // Use a log format depending on whether the supplied logger is a ITraceLogger instance or an ILogger instance
+            if (logger is ITraceLogger traceLogger) // The logger is an ITraceLogger instance so use the ITraceLogger.BlankLine method to create the blank line
+            {
+                traceLogger.BlankLine(); // Use the ITraceLogger.LogMessage method
+            }
+            else // The logger is null or an ILogger instance so use the ILogger.Log method 
+            {
+                logger?.Log(logLevel, $""); // Use the ILogger.Log method to create a blank line or ignore if the logger instance is null
+            }
+        }
 
         /// <summary>
         /// Log a message at verbose level

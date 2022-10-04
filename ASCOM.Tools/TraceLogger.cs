@@ -21,7 +21,7 @@ namespace ASCOM.Tools
     /// and fractional second at the time that the message was logged, Identifier is the supplied identifier (usually the subroutine,
     /// function, property or method from which the message is sent) and Message is the message to be logged.</para>
     ///</remarks>
-    public class TraceLogger : IDisposable, ILogger
+    public class TraceLogger : IDisposable, ITraceLogger
     {
         // Configuration constants
         private const int IDENTIFIER_WIDTH_DEFAULT = 25;
@@ -183,7 +183,7 @@ namespace ASCOM.Tools
 
         #endregion
 
-        #region Public members
+        #region ITraceLogger implementation
 
         /// <summary>
         /// Write a message to the trace log
@@ -307,6 +307,41 @@ namespace ASCOM.Tools
         /// Set True to retain carriage return and line feed as control characters. Set false to translate these to [XX] format (default true)
         /// </summary>
         public bool RespectCrLf { get; set; }
+
+        #endregion
+
+        #region ILogger implementation
+
+        /// <summary>
+        /// Return the current log level.
+        /// </summary>
+        public LogLevel LoggingLevel
+        {
+            get;
+            private set;
+        } = LogLevel.Information;
+
+        /// <summary>
+        /// Write a message to the log.
+        /// </summary>
+        /// <param name="level">Logging level of this message.</param>
+        /// <param name="message">Message text.</param>
+        public void Log(LogLevel level, string message)
+        {
+            if (this.IsLevelActive(level))
+            {
+                LogMessage($"[{level}]", message);
+            }
+        }
+
+        /// <summary>
+        /// Set the minimum log level to display.
+        /// </summary>
+        /// <param name="level">Required logging level.</param>
+        public void SetMinimumLoggingLevel(LogLevel level)
+        {
+            LoggingLevel = level;
+        }
 
         #endregion
 
@@ -476,39 +511,5 @@ namespace ASCOM.Tools
 
         #endregion
 
-        #region ILogger implementation
-
-        /// <summary>
-        /// Return the current log level.
-        /// </summary>
-        public LogLevel LoggingLevel
-        {
-            get;
-            private set;
-        } = LogLevel.Information;
-
-        /// <summary>
-        /// Write a message to the log.
-        /// </summary>
-        /// <param name="level">Logging level of this message.</param>
-        /// <param name="message">Message text.</param>
-        public void Log(LogLevel level, string message)
-        {
-            if (this.IsLevelActive(level))
-            {
-                LogMessage($"[{level}]", message);
-            }
-        }
-
-        /// <summary>
-        /// Set the minimum log level to display.
-        /// </summary>
-        /// <param name="level">Required logging level.</param>
-        public void SetMinimumLoggingLevel(LogLevel level)
-        {
-            LoggingLevel = level;
-        }
-
-        #endregion
     }
 }
