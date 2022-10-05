@@ -86,7 +86,7 @@ namespace ASCOM.Alpaca.Clients
         /// <param name="serviceType">HTTP or HTTPS as a ServiceType</param>
         /// <param name="ipAddressString">The device's IP address.</param>
         /// <param name="portNumber">The device's IP port number.</param>
-        /// <param name="remoteDeviceNumber">The Alpaca device number of this ASCOM device within the overall Alpaca server.</param>
+        /// <param name="remoteDeviceNumber">The Alpaca device number of this ASCOM device.</param>
         /// <param name="establishConnectionTimeout">Timeout for initial connection</param>
         /// <param name="standardDeviceResponseTimeout">Timeout for short lived methods (sec)</param>
         /// <param name="longDeviceResponseTimeout">Timeout for long lived methods (sec.)</param>
