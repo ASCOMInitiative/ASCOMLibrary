@@ -12,6 +12,8 @@ namespace ASCOM.Alpaca.Discovery
     public class AscomDevice
     {
 
+        #region Initialisers
+
         /// <summary>
         /// Initialises the class with default values
         /// </summary>
@@ -65,11 +67,9 @@ namespace ASCOM.Alpaca.Discovery
             IpPort = ipEndPoint.Port;
         }
 
+        #endregion
 
-        /// <summary>
-        /// HTTP or HTTP service type
-        /// </summary>
-        public ServiceType ServiceType { get; set; }
+        #region Public members
 
         /// <summary>
         /// ASCOM device name
@@ -79,12 +79,17 @@ namespace ASCOM.Alpaca.Discovery
         /// <summary>
         /// ASCOM device type
         /// </summary>
-        public DeviceTypes ?AscomDeviceType { get; set; }
+        public DeviceTypes? AscomDeviceType { get; set; }
 
         /// <summary>
         /// Alpaca API device number
         /// </summary>
         public int AlpacaDeviceNumber { get; set; }
+
+        /// <summary>
+        /// HTTP or HTTP service type
+        /// </summary>
+        public ServiceType ServiceType { get; set; }
 
         /// <summary>
         /// ASCOM device unique ID
@@ -116,9 +121,15 @@ namespace ASCOM.Alpaca.Discovery
         /// </summary>
         public string StatusMessage { get; set; }
 
+        #endregion
+
+        #region Private members
+
         /// <summary>
         /// Alpaca device IP endpoint
         /// </summary>
         internal IPEndPoint IPEndPoint { get; set; }
+
+        #endregion
     }
 }

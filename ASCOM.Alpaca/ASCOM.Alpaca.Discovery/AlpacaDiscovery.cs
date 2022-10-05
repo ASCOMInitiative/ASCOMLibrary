@@ -299,15 +299,15 @@ namespace ASCOM.Alpaca.Discovery
         /// <summary>
         /// Start an Alpaca device discovery based on the supplied parameters
         /// </summary>
-        /// <param name="numberOfPolls">Number of polls to send in the range 1 to 5</param>
-        /// <param name="pollInterval">Interval between each poll in the range 10 to 5000 milliseconds</param>
-        /// <param name="discoveryPort">Discovery port on which to send the broadcast (normally 32227) in the range 1025 to 65535</param>
-        /// <param name="discoveryDuration">Length of time (seconds) to wait for devices to respond</param>
-        /// <param name="resolveDnsName">Attempt to resolve host IP addresses to DNS names</param>
-        /// <param name="useIpV4">Search for Alpaca devices that use IPv4 addresses. (One or both of useIpV4 and useIpV6 must be True.)</param>
-        /// <param name="useIpV6">Search for Alpaca devices that use IPv6 addresses. (One or both of useIpV4 and useIpV6 must be True.)</param>
+        /// <param name="numberOfPolls">Number of polls to send in the range 1 to 5 (Default 1)</param>
+        /// <param name="pollInterval">Interval between each poll in the range 10 to 5000 milliseconds (Default 100ms) </param>
+        /// <param name="discoveryPort">Discovery port on which to send the broadcast (normally 32227) in the range 1025 to 65535 (Default 32227)</param>
+        /// <param name="discoveryDuration">Length of time (seconds) to wait for devices to respond (Default 1.0 seconds)</param>
+        /// <param name="resolveDnsName">Attempt to resolve host IP addresses to DNS names (Default <see langword="true"/>)</param>
+        /// <param name="useIpV4">Search for Alpaca devices that use IPv4 addresses. One or both of useIpV4 and useIpV6 must be True. (Default <see langword="true"/>)</param>
+        /// <param name="useIpV6">Search for Alpaca devices that use IPv6 addresses. One or both of useIpV4 and useIpV6 must be True. (Default <see langword="false"/>)</param>
         /// <param name="serviceType"><see cref="ServiceType.Http"/> or <see cref="ServiceType.Https"/></param>
-        public void StartDiscovery(int numberOfPolls, int pollInterval, int discoveryPort, double discoveryDuration, bool resolveDnsName, bool useIpV4, bool useIpV6, ServiceType serviceType)
+        public void StartDiscovery(int numberOfPolls = 1, int pollInterval = 100, int discoveryPort = 32227, double discoveryDuration = 1.0, bool resolveDnsName = false, bool useIpV4 = true, bool useIpV6 = false, ServiceType serviceType = ServiceType.Http)
         {
 
             // Validate parameters
