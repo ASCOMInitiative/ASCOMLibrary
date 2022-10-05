@@ -72,7 +72,7 @@ namespace ASCOM.Alpaca.Clients
         /// <param name="serviceType">HTTP or HTTPS as a ServiceType</param>
         /// <param name="ipAddressString">The device's IP address.</param>
         /// <param name="portNumber">The device's IP port number.</param>
-        /// <param name="remoteDeviceNumber">The Alpaca device number of this ASCOM device within the overall Alpaca server.</param>
+        /// <param name="remoteDeviceNumber">The Alpaca device number of this ASCOM device.</param>
         /// <returns>An Alpaca client of the specified type</returns>
         public static T GetDevice<T>(ServiceType serviceType, string ipAddressString, int portNumber, int remoteDeviceNumber) where T : AlpacaDeviceBaseClass, new()
         {
