@@ -223,10 +223,14 @@ namespace ASCOM.Alpaca.Discovery
                     // Configure the UdpClient class to accept more messages, if they arrive
                     udpClient?.BeginReceive(new AsyncCallback(ReceiveCallback), udpClient);
                 }
+                catch (ObjectDisposedException)
+                {
+                    // Also ignore these here because they occur naturally when the current BeginReceiveAsync is terminated because the UdpClient is closed or disposed.
+                }
                 catch (Exception ex)
                 {
                     logger?.LogError($"Error restarting search: {ex.Message}");
-                    LogMessage("ReceiveCallback", $"Error restarting search: {ex.Message}");
+                    LogMessage("ReceiveCallback", $"Error restarting search: {ex}");
                 }
             }
         }
