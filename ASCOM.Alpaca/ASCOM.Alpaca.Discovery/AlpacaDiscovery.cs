@@ -39,6 +39,17 @@ namespace ASCOM.Alpaca.Discovery
 
         #region Variables and Constants
 
+        // Constants for discovery default values
+
+        const int NUMBER_OF_POLLS_DEFAULT = 1;
+        const int DISCOVERY_POLL_INTERVAL_DEFAULT = 100;
+        const int DISCOVERY_PORT_DEFAULT = 32227;
+        const double DISCOVERY_DURATION_DEFAULT = 1.0;
+        const bool RESOLVE_DNS_NAME_DEFAULT = false;
+        const bool USE_IP_V4_DEFAULT = true;
+        const bool USE_IP_V6_DEFAULT = false;
+        const ServiceType SERVICE_TYPE_DEFAULT = ServiceType.Http;
+
         // Constants to support discovery
         internal const string TRYING_TO_CONTACT_MANAGEMENT_API_MESSAGE = "Trying to contact Alpaca management API";
         internal const string FAILED_TO_CONTACT_MANAGEMENT_API_MESSAGE = "The Alpaca management API did not respond within the discovery response time";
@@ -62,6 +73,9 @@ namespace ASCOM.Alpaca.Discovery
         private readonly bool strictCasing; // Flag indicating whether case sensitive or case insensitive de-serialisation will be used.
 
         private ServiceType serviceType; // Holds the service type for management API calls: HTTP or HTTPS
+
+
+        internal static ILogger iLogger;
 
         #endregion
 
@@ -278,13 +292,13 @@ namespace ASCOM.Alpaca.Discovery
                             // Test whether all devices or only devices of a specific device type are required
                             if (!deviceType.HasValue) // Return a full list of every discovered device regardless of device type 
                             {
-                                ascomDeviceList.Add(new AscomDevice(ascomDevice.DeviceName, Devices.StringToDeviceType(ascomDevice.DeviceType), ascomDevice.DeviceNumber, ascomDevice.UniqueID, alpacaDevice.Value.ServiceType, alpacaDevice.Value.IPEndPoint, alpacaDevice.Value.HostName, alpacaDeviceInterfaceVersion, alpacaDevice.Value.StatusMessage)); // ASCOM device information 
+                                ascomDeviceList.Add(new AscomDevice(ascomDevice.DeviceName, Devices.StringToDeviceType(ascomDevice.DeviceType), ascomDevice.DeviceNumber, ascomDevice.UniqueID, alpacaDevice.Value.ServiceType, alpacaDevice.Value.IPEndPoint, alpacaDevice.Value.HostName, alpacaDeviceInterfaceVersion)); // ASCOM device information 
                             }
                             else
                             {
                                 if (Devices.StringToDeviceType(ascomDevice.DeviceType) == deviceType.Value) // Return only devices of the specified type
                                 {
-                                    ascomDeviceList.Add(new AscomDevice(ascomDevice.DeviceName, Devices.StringToDeviceType(ascomDevice.DeviceType), ascomDevice.DeviceNumber, ascomDevice.UniqueID, alpacaDevice.Value.ServiceType, alpacaDevice.Value.IPEndPoint, alpacaDevice.Value.HostName, alpacaDeviceInterfaceVersion, alpacaDevice.Value.StatusMessage)); // ASCOM device information 
+                                    ascomDeviceList.Add(new AscomDevice(ascomDevice.DeviceName, Devices.StringToDeviceType(ascomDevice.DeviceType), ascomDevice.DeviceNumber, ascomDevice.UniqueID, alpacaDevice.Value.ServiceType, alpacaDevice.Value.IPEndPoint, alpacaDevice.Value.HostName, alpacaDeviceInterfaceVersion)); // ASCOM device information 
                                 }
                             }
                         } // Next Ascom Device
@@ -307,7 +321,14 @@ namespace ASCOM.Alpaca.Discovery
         /// <param name="useIpV4">Search for Alpaca devices that use IPv4 addresses. One or both of useIpV4 and useIpV6 must be True. (Default <see langword="true"/>)</param>
         /// <param name="useIpV6">Search for Alpaca devices that use IPv6 addresses. One or both of useIpV4 and useIpV6 must be True. (Default <see langword="false"/>)</param>
         /// <param name="serviceType"><see cref="ServiceType.Http"/> or <see cref="ServiceType.Https"/></param>
-        public void StartDiscovery(int numberOfPolls = 1, int pollInterval = 100, int discoveryPort = 32227, double discoveryDuration = 1.0, bool resolveDnsName = false, bool useIpV4 = true, bool useIpV6 = false, ServiceType serviceType = ServiceType.Http)
+        public void StartDiscovery(int numberOfPolls = NUMBER_OF_POLLS_DEFAULT,
+            int pollInterval = DISCOVERY_POLL_INTERVAL_DEFAULT,
+            int discoveryPort = DISCOVERY_PORT_DEFAULT,
+            double discoveryDuration = DISCOVERY_DURATION_DEFAULT,
+            bool resolveDnsName = RESOLVE_DNS_NAME_DEFAULT,
+            bool useIpV4 = USE_IP_V4_DEFAULT,
+            bool useIpV6 = USE_IP_V6_DEFAULT,
+            ServiceType serviceType = SERVICE_TYPE_DEFAULT)
         {
 
             // Validate parameters
@@ -362,6 +383,187 @@ namespace ASCOM.Alpaca.Discovery
             }
 
             LogMessage("StartDiscovery", "Alpaca device broadcast polls completed, discovery started");
+        }
+
+        #endregion
+
+        #region Asynchronous methods
+
+        /// <summary>
+        /// Returns an awaitable Task that provides a list of discovered ASCOM devices of the specified device type 
+        /// </summary>
+        /// <param name="deviceTypes">ASCOM device type to discover e.g. <see cref="DeviceTypes.Telescope"/> or <see cref="DeviceTypes.Camera"/> </param>
+        /// <param name="numberOfPolls">Number of polls to send in the range 1 to 5</param>
+        /// <param name="pollInterval">Interval between each poll in the range 10 to 5000 milliseconds.</param>
+        /// <param name="discoveryPort">Discovery port on which to send the broadcast (normally 32227) in the range 1025 to 65535.</param>
+        /// <param name="discoveryDuration">Length of time (seconds) to wait for devices to respond.</param>
+        /// <param name="resolveDnsName">Attempt to resolve host IP addresses to DNS names</param>
+        /// <param name="useIpV4">Search for Alpaca devices that use IPv4 addresses. One or both of useIpV4 and useIpV6 must be True.</param>
+        /// <param name="useIpV6">Search for Alpaca devices that use IPv6 addresses. One or both of useIpV4 and useIpV6 must be True.</param>
+        /// <param name="serviceType"><see cref="ServiceType.Http"/> or <see cref="ServiceType.Https"/></param>
+        /// <param name="logger"></param>
+        /// <returns>Returns an awaitable Task</returns>
+        public static async Task<List<AscomDevice>> GetAscomDevicesAsync(DeviceTypes deviceTypes,
+            int numberOfPolls = NUMBER_OF_POLLS_DEFAULT,
+            int pollInterval = DISCOVERY_POLL_INTERVAL_DEFAULT,
+            int discoveryPort = DISCOVERY_PORT_DEFAULT,
+            double discoveryDuration = DISCOVERY_DURATION_DEFAULT,
+            bool resolveDnsName = RESOLVE_DNS_NAME_DEFAULT,
+            bool useIpV4 = USE_IP_V4_DEFAULT,
+            bool useIpV6 = USE_IP_V6_DEFAULT,
+            ServiceType serviceType = SERVICE_TYPE_DEFAULT,
+            ILogger logger = null)
+        {
+            try
+            {
+                logger.LogMessage(LogLevel.Information, "GetAscomDevicesAsync", $"Parameters - DeviceType: {deviceTypes}, Number of polls: {numberOfPolls}, Poll interval: {pollInterval}, Discovery port: {discoveryPort}");
+                logger.LogMessage(LogLevel.Information, "GetAscomDevicesAsync", $"Parameters - Discovery duration: {discoveryDuration}, Resolve DNS names: {resolveDnsName}, Use IPv4: {useIpV4}, Use IP v6: {useIpV6}, Service type: {serviceType}");
+
+                iLogger = logger;
+                logger.LogMessage(LogLevel.Information, "GetAscomDevicesAsync", $"Entered method");
+
+                // Create and use a discovery instance to look for ALpaca devices
+                using (AlpacaDiscovery discovery = new AlpacaDiscovery(true, logger))
+                {
+                    logger.LogMessage(LogLevel.Information, "GetAscomDevicesAsync", $"Created discovery device");
+
+                    // Create and run an async task to effect the discovery
+                    await Task.Run(async () =>
+                    {
+                        logger.LogMessage(LogLevel.Information, "GetAscomDevicesAsync", $"About to start discovery");
+
+                        // Start discovery using the AlpacaDiscovery instance
+                        discovery.StartDiscovery(numberOfPolls, pollInterval, discoveryPort, discoveryDuration, resolveDnsName, useIpV4, useIpV6, serviceType);
+                        logger.LogMessage(LogLevel.Information, "GetAscomDevicesAsync", $"Discovery started");
+
+                        // Run the DiscoveryCompletedTask task and wait for it to be marked complete when the DiscoveryCompleted fires
+                        await DiscoveryCompletedTask(discovery);
+                        logger.LogMessage(LogLevel.Information, "GetAscomDevicesAsync", $"Discovery Completed Task has fired");
+
+                        // Remove event handlers attached to the event
+                        foreach (Delegate discoveryCompletedDelegate in discovery.DiscoveryCompleted.GetInvocationList())
+                        {
+                            discovery.DiscoveryCompleted -= (EventHandler)discoveryCompletedDelegate;
+                            logger.LogMessage(LogLevel.Information, "GetAscomDevicesAsync", $"Removing event handler: {discoveryCompletedDelegate.Method.Name}");
+                        }
+
+                    });
+
+                    // Log the outcome
+                    logger.LogMessage(LogLevel.Information, "GetAscomDevicesAsync", $"Returning {discovery.GetAscomDevices(deviceTypes).Count} devices.");
+
+                    // Return the discovered device list to the caller
+                    return discovery.GetAscomDevices(deviceTypes);
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogMessage(LogLevel.Error, "GetAscomDevicesAsync", $"Exception: {ex}");
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Returns an awaitable Task that provides a list of discovered ASCOM devices of the specified device type 
+        /// </summary>
+        /// <param name="numberOfPolls">Number of polls to send in the range 1 to 5</param>
+        /// <param name="pollInterval">Interval between each poll in the range 10 to 5000 milliseconds.</param>
+        /// <param name="discoveryPort">Discovery port on which to send the broadcast (normally 32227) in the range 1025 to 65535.</param>
+        /// <param name="discoveryDuration">Length of time (seconds) to wait for devices to respond.</param>
+        /// <param name="resolveDnsName">Attempt to resolve host IP addresses to DNS names</param>
+        /// <param name="useIpV4">Search for Alpaca devices that use IPv4 addresses. One or both of useIpV4 and useIpV6 must be True.</param>
+        /// <param name="useIpV6">Search for Alpaca devices that use IPv6 addresses. One or both of useIpV4 and useIpV6 must be True.</param>
+        /// <param name="serviceType"><see cref="ServiceType.Http"/> or <see cref="ServiceType.Https"/></param>
+        /// <param name="logger"></param>
+        /// <returns>Returns an awaitable Task</returns>
+        public static async Task<List<AlpacaDevice>> GetAlpacaDevicesAsync(int numberOfPolls = NUMBER_OF_POLLS_DEFAULT,
+            int pollInterval = DISCOVERY_POLL_INTERVAL_DEFAULT,
+            int discoveryPort = DISCOVERY_PORT_DEFAULT,
+            double discoveryDuration = DISCOVERY_DURATION_DEFAULT,
+            bool resolveDnsName = RESOLVE_DNS_NAME_DEFAULT,
+            bool useIpV4 = USE_IP_V4_DEFAULT,
+            bool useIpV6 = USE_IP_V6_DEFAULT,
+            ServiceType serviceType = SERVICE_TYPE_DEFAULT,
+            ILogger logger = null)
+        {
+            try
+            {
+                logger.LogMessage(LogLevel.Information, "GetAlpacaDevicesAsync", $"Parameters - Number of polls: {numberOfPolls}, Poll interval: {pollInterval}, Discovery port: {discoveryPort}");
+                logger.LogMessage(LogLevel.Information, "GetAlpacaDevicesAsync", $"Parameters - Discovery duration: {discoveryDuration}, Resolve DNS names: {resolveDnsName}, Use IPv4: {useIpV4}, Use IP v6: {useIpV6}, Service type: {serviceType}");
+
+                iLogger = logger;
+                logger.LogMessage(LogLevel.Information, "GetAlpacaDevicesAsync", $"Entered method");
+
+                // Create and use a discovery instance to look for ALpaca devices
+                using (AlpacaDiscovery discovery = new AlpacaDiscovery(true, logger))
+                {
+                    logger.LogMessage(LogLevel.Information, "GetAlpacaDevicesAsync", $"Created discovery device");
+
+                    // Create and run an async task to effect the discovery
+                    await Task.Run(async () =>
+                    {
+                        logger.LogMessage(LogLevel.Information, "GetAlpacaDevicesAsync", $"About to start discovery");
+
+                        // Start discovery using the AlpacaDiscovery instance
+                        discovery.StartDiscovery(numberOfPolls, pollInterval, discoveryPort, discoveryDuration, resolveDnsName, useIpV4, useIpV6, serviceType);
+                        logger.LogMessage(LogLevel.Information, "GetAlpacaDevicesAsync", $"Discovery started");
+
+                        // Run the DiscoveryCompletedTask task and wait for it to be marked complete when the DiscoveryCompleted fires
+                        await DiscoveryCompletedTask(discovery);
+                        logger.LogMessage(LogLevel.Information, "GetAlpacaDevicesAsync", $"Discovery Completed Task has fired");
+
+                        // Remove event handlers attached to the event
+                        foreach (Delegate discoveryCompletedDelegate in discovery.DiscoveryCompleted.GetInvocationList())
+                        {
+                            discovery.DiscoveryCompleted -= (EventHandler)discoveryCompletedDelegate;
+                            logger.LogMessage(LogLevel.Information, "GetAlpacaDevicesAsync", $"Removing event handler: {discoveryCompletedDelegate.Method.Name}");
+                        }
+
+                    });
+
+                    // Log the outcome
+                    logger.LogMessage(LogLevel.Information, "GetAlpacaDevicesAsync", $"Returning {discovery.GetAlpacaDevices().Count} devices.");
+
+                    // Return the discovered device list to the caller
+                    return discovery.GetAlpacaDevices();
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogMessage(LogLevel.Error, "GetAlpacaDevicesAsync", $"Exception: {ex}");
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="alpacaDiscovery"></param>
+        /// <returns></returns>
+        private static Task DiscoveryCompletedTask(AlpacaDiscovery alpacaDiscovery)
+        {
+            try
+            {
+                iLogger.LogMessage(LogLevel.Information, "DiscoveryCompletedTask", $"Creating TaskCompletionSource");
+
+                TaskCompletionSource<object> tcs = new TaskCompletionSource<object>();
+                iLogger.LogMessage(LogLevel.Information, "DiscoveryCompletedTask", $"Adding DiscoveryCompleted event handler.");
+
+                alpacaDiscovery.DiscoveryCompleted += (sender, eventArgs) =>
+                {
+                    iLogger.LogMessage(LogLevel.Information, "DiscoveryCompletedTask", "Setting TaskCompletionSource task result.");
+                    tcs.SetResult(null);
+                };
+                iLogger.LogMessage(LogLevel.Information, "DiscoveryCompletedTask", $"Returning TaskCompletionSource task.");
+
+                return tcs.Task;
+            }
+            catch (Exception ex)
+            {
+                iLogger.LogMessage(LogLevel.Error, "DiscoveryCompletedTask", $"Exception: {ex}");
+
+                throw;
+            }
         }
 
         #endregion

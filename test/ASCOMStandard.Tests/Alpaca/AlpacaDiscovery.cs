@@ -6,9 +6,11 @@ using ASCOM.Tools;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using Xunit;
 using static ASCOM.Common.Devices;
 
@@ -208,5 +210,89 @@ namespace ASCOM.Alpaca.Tests.Alpaca
 
             telescope.Dispose();
         }
+
+        #region Async tests
+
+        [Fact]
+        public void GetAscomDevicesAsync()
+        {
+            TraceLogger TL = new TraceLogger("GetAscomDevicesAsync", true);
+            TL.LogMessage("Test", $"About to call GetAscomDevices");
+
+            List<AscomDevice> ascomDevices = GetAscomDevices(DeviceTypes.Camera, TL);
+            Assert.NotEmpty(ascomDevices);
+            TL.LogMessage("Test", $"Returned from GetAscomDevices");
+            TL.LogMessage("Test", $"Found: {ascomDevices[0].AscomDeviceName}");
+        }
+
+        [Fact]
+        public void GetAlpacaDevicesAsync()
+        {
+            TraceLogger TL = new TraceLogger("GetAlpacaDevicesAsync", true);
+
+            TL.LogMessage("Test", $"About to call GetAlpacaDevices");
+            List<AlpacaDevice> alpacaDevices = GetAlpacaDevices(TL);
+            Assert.NotEmpty(alpacaDevices);
+            TL.LogMessage("Test", $"Returned from GetAlpacaDevices");
+            TL.LogMessage("Test", $"Found: {alpacaDevices[0].ServerName} - {alpacaDevices[0].Manufacturer} {alpacaDevices[0].ManufacturerVersion}");
+        }
+
+        [Fact]
+        public void ConcurrentDiscoveriesAsync()
+        {
+            TraceLogger TL = new TraceLogger("ConcurrentDiscoveriesAsync", true);
+            TL.LogMessage("Test", $"About to create async discovery methods");
+            Task<List<AscomDevice>> focuserDevices = AlpacaDiscovery.GetAscomDevicesAsync(DeviceTypes.Focuser, 2, 100, 32227, 2.0, false, true, false, ServiceType.Http, TL);
+            TL.LogMessage("Test", $"Created focuser devices task");
+
+            Task<List<AscomDevice>> telescopeDevices = AlpacaDiscovery.GetAscomDevicesAsync(DeviceTypes.Telescope, 2, 100, 32227, 2.0, false, true, false, ServiceType.Http, TL);
+            TL.LogMessage("Test", $"Created telescope devices task");
+
+            Task<List<AscomDevice>> cameramDevices = AlpacaDiscovery.GetAscomDevicesAsync(DeviceTypes.Camera, 2, 100, 32227, 2.0, false, true, false, ServiceType.Http, TL);
+            TL.LogMessage("Test", $"Created camera devices task");
+
+            TL.LogMessage("Test", $"Waiting for tasks to complete...");
+            Task.WaitAll(focuserDevices, telescopeDevices, cameramDevices);
+
+            TL.LogMessage("Test", $"Tasks completed: {focuserDevices.Status}");
+
+            Assert.Equal(TaskStatus.RanToCompletion, focuserDevices.Status);
+            Assert.Equal(TaskStatus.RanToCompletion, telescopeDevices.Status);
+            Assert.Equal(TaskStatus.RanToCompletion, cameramDevices.Status);
+
+            Assert.NotEmpty(focuserDevices.Result);
+            Assert.NotEmpty(telescopeDevices.Result);
+            Assert.NotEmpty(cameramDevices.Result);
+
+            if (focuserDevices.Status == TaskStatus.RanToCompletion)
+            {
+                TL.LogMessage("Test", $"Returned {focuserDevices.Result.Count} Focuser devices. Found: {focuserDevices.Result[0].AscomDeviceName}");
+            }
+
+            if (telescopeDevices.Status == TaskStatus.RanToCompletion)
+            {
+                TL.LogMessage("Test", $"Returned {telescopeDevices.Result.Count} Telescope devices. Found: {telescopeDevices.Result[0].AscomDeviceName}");
+            }
+
+            if (cameramDevices.Status == TaskStatus.RanToCompletion)
+            {
+                TL.LogMessage("Test", $"Returned {cameramDevices.Result.Count} Camera devices. Found: {cameramDevices.Result[0].AscomDeviceName}");
+            }
+
+        }
+
+        #endregion 
+
+        #region Support code
+        static List<AscomDevice> GetAscomDevices(DeviceTypes deviceTypes, TraceLogger TL)
+        {
+            return AlpacaDiscovery.GetAscomDevicesAsync(deviceTypes, 1, 100, 32227, 2.0, false, true, false, ServiceType.Http, TL).Result;
+        }
+
+        static List<AlpacaDevice> GetAlpacaDevices(TraceLogger TL)
+        {
+            return AlpacaDiscovery.GetAlpacaDevicesAsync(1, 100, 32227, 2.0, false, true, false, ServiceType.Http, TL).Result;
+        }
+        #endregion
     }
 }
