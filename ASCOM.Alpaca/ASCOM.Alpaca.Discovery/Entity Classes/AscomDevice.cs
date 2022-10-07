@@ -35,9 +35,8 @@ namespace ASCOM.Alpaca.Discovery
         /// <param name="ipEndPoint">Alpaca device IP endpoint</param>
         /// <param name="hostName">ALapca device host name</param>
         /// <param name="interfaceVersion">Supported Alpaca interface version</param>
-        /// <param name="statusMessage">Alpaca device status message</param>
         /// <remarks>This can only be used by .NET clients because COM only supports parameterless initialisers.</remarks>
-        public AscomDevice(string ascomDdeviceName, DeviceTypes ascomDeviceType, int alpacaDeviceNumber, string uniqueId, ServiceType serviceType, IPEndPoint ipEndPoint, string hostName, int interfaceVersion, string statusMessage)
+        public AscomDevice(string ascomDdeviceName, DeviceTypes ascomDeviceType, int alpacaDeviceNumber, string uniqueId, ServiceType serviceType, IPEndPoint ipEndPoint, string hostName, int interfaceVersion)
         {
             AscomDeviceName = ascomDdeviceName;
             AscomDeviceType = ascomDeviceType;
@@ -46,7 +45,6 @@ namespace ASCOM.Alpaca.Discovery
             IPEndPoint = ipEndPoint;
             HostName = hostName;
             InterfaceVersion = interfaceVersion;
-            StatusMessage = statusMessage;
             ServiceType = serviceType;
 
             // Populate the IP address based on the supplied IPEndPoint value and address type
@@ -115,11 +113,6 @@ namespace ASCOM.Alpaca.Discovery
         /// Supported Alpaca interface version
         /// </summary>
         public int InterfaceVersion { get; set; }
-
-        /// <summary>
-        /// Alpaca device status message
-        /// </summary>
-        public string StatusMessage { get; set; }
 
         #endregion
 
