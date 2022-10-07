@@ -93,7 +93,7 @@ namespace ASCOM.Com
         /// <summary>
         /// Set a logger instance that will receive runtime diagnostic information
         /// </summary>
-        /// <param name="logger"></param>
+        /// <param name="logger">Optional ILogger instance to which operational / debug messages will be sent.</param>
         public static void SetLogger(ILogger logger)
         {
             PlatformUtilities.logger = logger;
