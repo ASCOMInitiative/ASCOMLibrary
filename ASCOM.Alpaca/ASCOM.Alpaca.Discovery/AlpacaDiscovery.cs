@@ -403,7 +403,7 @@ namespace ASCOM.Alpaca.Discovery
         /// <param name="serviceType"><see cref="ServiceType.Http"/> or <see cref="ServiceType.Https"/></param>
         /// <param name="logger"></param>
         /// <returns>Returns an awaitable Task</returns>
-        public static async Task<List<AscomDevice>> GetAscomDevicesAsync(DeviceTypes deviceTypes,
+        public static async Task<List<AscomDevice>> GetAscomDevicesAsync(DeviceTypes ?deviceTypes,
             int numberOfPolls = NUMBER_OF_POLLS_DEFAULT,
             int pollInterval = DISCOVERY_POLL_INTERVAL_DEFAULT,
             int discoveryPort = DISCOVERY_PORT_DEFAULT,
