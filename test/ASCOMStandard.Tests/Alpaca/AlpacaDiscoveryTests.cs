@@ -252,18 +252,6 @@ namespace ASCOM.Alpaca.Tests.Alpaca
         }
 
         [Fact]
-        public void GetAlpacaDevicesAsync()
-        {
-            TraceLogger TL = new TraceLogger("GetAlpacaDevicesAsync", true);
-
-            TL.LogMessage("Test", $"About to call GetAlpacaDevices");
-            List<AlpacaDevice> alpacaDevices = GetAlpacaDevices(TL);
-            Assert.NotEmpty(alpacaDevices);
-            TL.LogMessage("Test", $"Returned from GetAlpacaDevices");
-            TL.LogMessage("Test", $"Found: {alpacaDevices[0].ServerName} - {alpacaDevices[0].Manufacturer} {alpacaDevices[0].ManufacturerVersion}");
-        }
-
-        [Fact]
         public void ConcurrentDiscoveriesAsync()
         {
             TraceLogger TL = new TraceLogger("ConcurrentDiscoveriesAsync", true);
@@ -312,13 +300,9 @@ namespace ASCOM.Alpaca.Tests.Alpaca
         #region Support code
         static List<AscomDevice> GetAscomDevices(DeviceTypes ?deviceTypes, TraceLogger TL)
         {
-            return AlpacaDiscovery.GetAscomDevicesAsync(deviceTypes, 1, 100, 32227, 2.0, false, true, false, ServiceType.Http, TL).Result;
+            return AlpacaDiscovery.GetAscomDevicesAsync(deviceTypes, 1, 100, 32227, 4.0, false, true, false, ServiceType.Http, TL).Result;
         }
 
-        static List<AlpacaDevice> GetAlpacaDevices(TraceLogger TL)
-        {
-            return AlpacaDiscovery.GetAlpacaDevicesAsync(1, 100, 32227, 2.0, false, true, false, ServiceType.Http, TL).Result;
-        }
         #endregion
     }
 }
