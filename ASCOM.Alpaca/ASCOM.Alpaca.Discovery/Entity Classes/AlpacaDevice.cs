@@ -1,6 +1,9 @@
-﻿using ASCOM.Common.Alpaca;
+﻿using ASCOM.Common;
+using ASCOM.Common.Alpaca;
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 
@@ -13,6 +16,7 @@ namespace ASCOM.Alpaca.Discovery
     public class AlpacaDevice
     {
         private List<AlpacaConfiguredDevice> configuredDevicesValue;
+        private List<AscomDevice> ascomDevicesValue;
         private readonly ArrayList configuredDevicesAsArrayListValue;
         private string hostNameValue, ipAddressValue, serverNameValue, manufacturerValue, manufacturerVersionValue, locationValue;
         private ServiceType serviceType;
@@ -36,6 +40,7 @@ namespace ASCOM.Alpaca.Discovery
         {
             // Initialise internal storage variables
             configuredDevicesValue = new List<AlpacaConfiguredDevice>();
+            ascomDevicesValue = new List<AscomDevice>();
             configuredDevicesAsArrayListValue = new ArrayList();
             SupportedInterfaceVersions = new int[] { };
 
@@ -135,6 +140,7 @@ namespace ASCOM.Alpaca.Discovery
         /// <remarks>
         /// This method is primarily to support COM clients because COM does not support generic lists. .NET clients should use the <see cref="ConfiguredDevices"/> property instead.
         /// </remarks>
+        [Obsolete("Use AscomDevicesAsArrayList(null) instead. This member will be removed in a future release.", false)]
         public ArrayList ConfiguredDevicesAsArrayList
         {
             get
@@ -250,6 +256,7 @@ namespace ASCOM.Alpaca.Discovery
         /// <remarks>
         /// This method can only be used by .NET clients. COM clients should use the <see cref="ConfiguredDevicesAsArrayList"/> property.
         /// </remarks>
+        [Obsolete("Use AscomDevices(null) instead. This member will be removed in a future release.", false)]
         public List<AlpacaConfiguredDevice> ConfiguredDevices
         {
             get
@@ -268,9 +275,47 @@ namespace ASCOM.Alpaca.Discovery
                     configuredDevicesAsArrayListValue.Add(configuredDevice);
             }
         }
+
+        /// <summary>
+        /// Return a list of AscomDevices of a given device type that are served by this AlpacaDevice
+        /// </summary>
+        /// <param name="deviceType">Required device type or null for all device types</param>
+        /// <returns>List of AscomDevice</returns>
+        public List<AscomDevice> AscomDevices(DeviceTypes? deviceType)
+        {
+            if (deviceType.HasValue)
+            {
+                return ascomDevicesValue.Where(ascomDevice => ascomDevice.AscomDeviceType == deviceType).ToList<AscomDevice>();
+            }
+            else // Return all values
+            {
+                return ascomDevicesValue;
+
+            }
+        }
+
+        /// <summary>
+        /// List of ASCOM devices available on this Alpaca device as an ArrayList for COM clients
+        /// </summary>
+        /// <param name="deviceType">Required device type or null for all device types</param>
+        /// <returns>ArrayList of AscomDevice</returns>
+        /// <remarks>
+        /// This method is primarily to support COM clients because COM does not support generic lists. .NET clients should use the <see cref="ConfiguredDevices"/> property instead.
+        /// </remarks>
+        public ArrayList AscomDevicesAsArrayList(DeviceTypes? deviceType)
+        {
+            return new ArrayList(AscomDevices(deviceType)); // Return the device list as an array-list
+        }
+
         #endregion
 
         #region Internal Properties
+
+        internal void SetAscomDevices(List<AscomDevice> ascomDevices)
+        {
+            // Populate the AscomDevices backing variable with the AscomDevice data
+            ascomDevicesValue = ascomDevices;
+        }
 
         /// <summary>
         /// Alpaca device's status message
