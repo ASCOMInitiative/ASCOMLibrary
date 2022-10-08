@@ -371,6 +371,78 @@ namespace ASCOM.Alpaca.Discovery
         #region Asynchronous methods
 
         /// <summary>
+        /// Returns an awaitable Task that provides a list of discovered Alpaca devices
+        /// </summary>
+        /// <param name="numberOfPolls">Number of polls to send in the range 1 to 5</param>
+        /// <param name="pollInterval">Interval between each poll in the range 10 to 5000 milliseconds.</param>
+        /// <param name="discoveryPort">Discovery port on which to send the broadcast (normally 32227) in the range 1025 to 65535.</param>
+        /// <param name="discoveryDuration">Length of time (seconds) to wait for devices to respond.</param>
+        /// <param name="resolveDnsName">Attempt to resolve host IP addresses to DNS names</param>
+        /// <param name="useIpV4">Search for Alpaca devices that use IPv4 addresses. One or both of useIpV4 and useIpV6 must be True.</param>
+        /// <param name="useIpV6">Search for Alpaca devices that use IPv6 addresses. One or both of useIpV4 and useIpV6 must be True.</param>
+        /// <param name="serviceType"><see cref="ServiceType.Http"/> or <see cref="ServiceType.Https"/></param>
+        /// <param name="logger"></param>
+        /// <returns>Returns an awaitable Task</returns>
+        public static async Task<List<AlpacaDevice>> GetAlpacaDevicesAsync(int numberOfPolls = NUMBER_OF_POLLS_DEFAULT,
+            int pollInterval = DISCOVERY_POLL_INTERVAL_MILLISECONDS_DEFAULT,
+            int discoveryPort = DISCOVERY_PORT_DEFAULT,
+            double discoveryDuration = DISCOVERY_DURATION_DEFAULT,
+            bool resolveDnsName = RESOLVE_DNS_NAME_DEFAULT,
+            bool useIpV4 = USE_IP_V4_DEFAULT,
+            bool useIpV6 = USE_IP_V6_DEFAULT,
+            ServiceType serviceType = SERVICE_TYPE_DEFAULT,
+            ILogger logger = null)
+        {
+            try
+            {
+                logger.LogMessage(LogLevel.Information, "GetAlpacaDevicesAsync", $"Parameters - Number of polls: {numberOfPolls}, Poll interval: {pollInterval}, Discovery port: {discoveryPort}");
+                logger.LogMessage(LogLevel.Information, "GetAlpacaDevicesAsync", $"Parameters - Discovery duration: {discoveryDuration}, Resolve DNS names: {resolveDnsName}, Use IPv4: {useIpV4}, Use IP v6: {useIpV6}, Service type: {serviceType}");
+
+                iLogger = logger;
+                logger.LogMessage(LogLevel.Information, "GetAlpacaDevicesAsync", $"Entered method");
+
+                // Create and use a discovery instance to look for ALpaca devices
+                using (AlpacaDiscovery discovery = new AlpacaDiscovery(true, logger))
+                {
+                    logger.LogMessage(LogLevel.Information, "GetAlpacaDevicesAsync", $"Created discovery device");
+
+                    // Create and run an async task to effect the discovery
+                    await Task.Run(async () =>
+                    {
+                        logger.LogMessage(LogLevel.Information, "GetAlpacaDevicesAsync", $"About to start discovery");
+
+                        // Start discovery using the AlpacaDiscovery instance
+                        discovery.StartDiscovery(numberOfPolls, pollInterval, discoveryPort, discoveryDuration, resolveDnsName, useIpV4, useIpV6, serviceType);
+                        logger.LogMessage(LogLevel.Information, "GetAlpacaDevicesAsync", $"Discovery started");
+
+                        // Run the DiscoveryCompletedTask task and wait for it to be marked complete when the DiscoveryCompleted fires
+                        await DiscoveryCompletedTask(discovery);
+                        logger.LogMessage(LogLevel.Information, "GetAlpacaDevicesAsync", $"Discovery Completed Task has fired");
+
+                        // Remove event handlers attached to the event
+                        foreach (Delegate discoveryCompletedDelegate in discovery.DiscoveryCompleted.GetInvocationList())
+                        {
+                            discovery.DiscoveryCompleted -= (EventHandler)discoveryCompletedDelegate;
+                            logger.LogMessage(LogLevel.Information, "GetAlpacaDevicesAsync", $"Removing event handler: {discoveryCompletedDelegate.Method.Name}");
+                        }
+
+                    });
+
+                    // Log the outcome
+                    logger.LogMessage(LogLevel.Information, "GetAlpacaDevicesAsync", $"Returning {discovery.GetAlpacaDevices().Count} Alpaca devices.");
+
+                    // Return the discovered device list to the caller
+                    return discovery.GetAlpacaDevices();
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogMessage(LogLevel.Error, "GetAscomDevicesAsync", $"Exception: {ex}");
+                throw;
+            }
+        }
+
+        /// <summary>
         /// Returns an awaitable Task that provides a list of discovered ASCOM devices of the specified device type 
         /// </summary>
         /// <param name="deviceTypes">ASCOM device type to discover e.g. <see cref="DeviceTypes.Telescope"/> or <see cref="DeviceTypes.Camera"/> </param>
@@ -444,11 +516,15 @@ namespace ASCOM.Alpaca.Discovery
             }
         }
 
+        #endregion
+
+        #region Private methods
+
         /// <summary>
-        /// 
+        /// Return a Task that is hooked to the AlpacaDiscovery.DiscoveryCompleted event and whose task result will be set when the event fires, thus completing the task.
         /// </summary>
-        /// <param name="alpacaDiscovery"></param>
-        /// <returns></returns>
+        /// <param name="alpacaDiscovery">The current discovery instance</param>
+        /// <returns>An awaitable task that completes when the AlpacaDiscovery.DiscoveryCompleted event fires.</returns>
         private static Task DiscoveryCompletedTask(AlpacaDiscovery alpacaDiscovery)
         {
             try
@@ -474,10 +550,6 @@ namespace ASCOM.Alpaca.Discovery
                 throw;
             }
         }
-
-        #endregion
-
-        #region Private methods
 
         /// <summary>
         /// Raise an Alpaca devices updated event

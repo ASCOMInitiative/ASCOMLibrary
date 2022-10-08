@@ -218,12 +218,32 @@ namespace ASCOM.Alpaca.Tests.Alpaca
         #region Async methods
 
         [Fact]
+        public void GetAlpacaDevicesAsync()
+        {
+            TraceLogger TL = new TraceLogger("GetAlpacaDevicesAsync", true);
+            TL.LogMessage("Test", $"About to call GetAlpacaDevicesAsync");
+
+            List<AlpacaDevice> alpacaDevices = FetchAlpacaDevices(TL);
+            Assert.NotEmpty(alpacaDevices);
+            TL.LogMessage("Test", $"Returned from GetAlpacaDevicesAsync");
+            TL.LogMessage("Test", $"Found {alpacaDevices.Count} camera devices");
+            foreach (AlpacaDevice alpacaDevice in alpacaDevices)
+            {
+                TL.LogMessage("Test", $"Found {alpacaDevice.ServerName} - {alpacaDevice.Manufacturer} {alpacaDevice.ManufacturerVersion}");
+                foreach (AscomDevice ascomDevice in alpacaDevice.AscomDevices(null))
+                {
+                    TL.LogMessage("Test", $"Found {ascomDevice.AscomDeviceType} device: {ascomDevice.AscomDeviceName} devices");
+                }
+            }
+        }
+
+        [Fact]
         public void GetAscomDevicesAsync()
         {
             TraceLogger TL = new TraceLogger("GetAscomDevicesAsync", true);
             TL.LogMessage("Test", $"About to call GetAscomDevices");
 
-            List<AscomDevice> ascomDevices = GetAscomDevices(DeviceTypes.Camera, TL);
+            List<AscomDevice> ascomDevices = FetchAscomDevices(DeviceTypes.Camera, TL);
             Assert.NotEmpty(ascomDevices);
             TL.LogMessage("Test", $"Returned from GetAscomDevices");
             TL.LogMessage("Test", $"Found: {ascomDevices[0].AscomDeviceName}");
@@ -240,11 +260,11 @@ namespace ASCOM.Alpaca.Tests.Alpaca
             TraceLogger TL = new TraceLogger("GetAscomDevicesNullAsync", true);
             TL.LogMessage("Test", $"About to call GetAscomDevices");
 
-            List<AscomDevice> ascomDevices = GetAscomDevices(null, TL);
+            List<AscomDevice> ascomDevices = FetchAscomDevices(null, TL);
             Assert.NotEmpty(ascomDevices);
             TL.LogMessage("Test", $"Returned from GetAscomDevices");
             TL.LogMessage("Test", $"Found {ascomDevices.Count} devices");
-            foreach(AscomDevice ascomDevice in ascomDevices)
+            foreach (AscomDevice ascomDevice in ascomDevices)
             {
                 TL.LogMessage("Test", $"Found {ascomDevice.AscomDeviceType} device: {ascomDevice.AscomDeviceName} devices");
             }
@@ -298,9 +318,14 @@ namespace ASCOM.Alpaca.Tests.Alpaca
         #endregion 
 
         #region Support code
-        static List<AscomDevice> GetAscomDevices(DeviceTypes ?deviceTypes, TraceLogger TL)
+        static List<AscomDevice> FetchAscomDevices(DeviceTypes? deviceTypes, TraceLogger TL)
         {
             return AlpacaDiscovery.GetAscomDevicesAsync(deviceTypes, 1, 100, 32227, 4.0, false, true, false, ServiceType.Http, TL).Result;
+        }
+
+        static List<AlpacaDevice> FetchAlpacaDevices(TraceLogger TL)
+        {
+            return AlpacaDiscovery.GetAlpacaDevicesAsync(1, 100, 32227, 4.0, false, true, false, ServiceType.Http, TL).Result;
         }
 
         #endregion
