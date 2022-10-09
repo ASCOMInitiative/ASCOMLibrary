@@ -288,7 +288,7 @@ namespace ASCOM.Com.DriverAccess
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
         /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
-        /// This will always return False for non-German-equatorial mounts that do not have to be flipped. 
+        /// This will always return False for mounts that do not have to be flipped. 
         /// May raise an error if the telescope is not connected. 
         /// <para>This is only available for telescope Interface Versions 2 and later.</para>
         /// </remarks>
