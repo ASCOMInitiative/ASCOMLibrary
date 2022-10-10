@@ -24,6 +24,21 @@ namespace ASCOM.Alpaca.Discovery
         }
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="ascomDdeviceName">ASCOM device name</param>
+        /// <param name="ascomDeviceType">ASCOM device type</param>
+        /// <param name="alpacaDeviceNumber">Alpaca API device number</param>
+        /// <param name="uniqueId">ASCOM device unique ID</param>
+        /// <param name="alpacaDevice">AlpacaDevice instance that servers this ASCOM device.</param>
+        /// <param name="interfaceVersion">Supported Alpaca interface version</param>
+        public AscomDevice(string ascomDdeviceName, DeviceTypes ascomDeviceType, int alpacaDeviceNumber, string uniqueId, AlpacaDevice alpacaDevice, int interfaceVersion) :
+            this(ascomDdeviceName, ascomDeviceType, alpacaDeviceNumber, uniqueId, alpacaDevice.ServiceType, alpacaDevice.IPEndPoint, alpacaDevice.HostName, interfaceVersion,
+                alpacaDevice.ServerName, alpacaDevice.Manufacturer, alpacaDevice.ManufacturerVersion, alpacaDevice.Location)
+        { }
+
+
+        /// <summary>
         /// Initialise the ASCOM device name, ASCOM device type and ASCOM device unique ID, plus
         /// the Alpaca API device number, unique ID, service type, device IP endpoint, Alpaca unique ID, interface version and status message
         /// </summary>
@@ -35,8 +50,12 @@ namespace ASCOM.Alpaca.Discovery
         /// <param name="ipEndPoint">Alpaca device IP endpoint</param>
         /// <param name="hostName">ALapca device host name</param>
         /// <param name="interfaceVersion">Supported Alpaca interface version</param>
+        /// <param name="serverName">ALapca device host name</param>
+        /// <param name="manufacturer">ALapca device host name</param>
+        /// <param name="manufacturerVersion">ALapca device host name</param>
+        /// <param name="location">ALapca device host name</param>
         /// <remarks>This can only be used by .NET clients because COM only supports parameterless initialisers.</remarks>
-        public AscomDevice(string ascomDdeviceName, DeviceTypes ascomDeviceType, int alpacaDeviceNumber, string uniqueId, ServiceType serviceType, IPEndPoint ipEndPoint, string hostName, int interfaceVersion)
+        public AscomDevice(string ascomDdeviceName, DeviceTypes ascomDeviceType, int alpacaDeviceNumber, string uniqueId, ServiceType serviceType, IPEndPoint ipEndPoint, string hostName, int interfaceVersion, string serverName, string manufacturer, string manufacturerVersion, string location)
         {
             AscomDeviceName = ascomDdeviceName;
             AscomDeviceType = ascomDeviceType;
@@ -46,6 +65,10 @@ namespace ASCOM.Alpaca.Discovery
             HostName = hostName;
             InterfaceVersion = interfaceVersion;
             ServiceType = serviceType;
+            ServerName = serverName;
+            Manufacturer = manufacturer;
+            ManufacturerVersion = manufacturerVersion;
+            Location = location;
 
             // Populate the IP address based on the supplied IPEndPoint value and address type
             if (ipEndPoint.AddressFamily == AddressFamily.InterNetwork) // IPv4 address
@@ -113,6 +136,30 @@ namespace ASCOM.Alpaca.Discovery
         /// Supported Alpaca interface version
         /// </summary>
         public int InterfaceVersion { get; set; }
+
+        /// <summary>
+        /// The Alpaca device's configured name
+        /// </summary>
+        /// <returns>String server name</returns>
+        public string ServerName { get; set; }
+
+        /// <summary>
+        /// The device manufacturer's name
+        /// </summary>
+        /// <returns>String manufacturer name</returns>
+        public string Manufacturer { get; set; }
+
+        /// <summary>
+        /// The device's version as set by the manufacturer
+        /// </summary>
+        /// <returns>String server version</returns>
+        public string ManufacturerVersion { get; set; }
+
+        /// <summary>
+        /// The Alpaca device's configured location
+        /// </summary>
+        /// <returns>String location</returns>
+        public string Location { get; set; }
 
         #endregion
 

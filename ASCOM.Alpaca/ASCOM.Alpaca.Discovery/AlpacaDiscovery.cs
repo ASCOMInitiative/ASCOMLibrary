@@ -698,9 +698,6 @@ namespace ASCOM.Alpaca.Discovery
                 AlpacaConfiguredDevicesResponse configuredDevicesResponse = JsonSerializer.Deserialize<AlpacaConfiguredDevicesResponse>(configuredDevicesJsonResponse, new JsonSerializerOptions { PropertyNameCaseInsensitive = strictCasing });
                 lock (deviceListLockObject) // Make sure that only one thread can update the device list dictionary at a time
                 {
-                    // Add the configured devices information to the AlpacaDevice instance
-                    alpacaDeviceList[deviceIpEndPoint].ConfiguredDevices = configuredDevicesResponse.Value;
-
                     // Add a list of available AscomDevices to the AlpacaDevice instance
                     List<AscomDevice> ascomDevices = new List<AscomDevice>();
 
@@ -710,7 +707,8 @@ namespace ASCOM.Alpaca.Discovery
                         // Iterate over the ASCOM devices presented by this Alpaca device adding them to the return List
                         foreach (AlpacaConfiguredDevice ascomDevice in configuredDevicesResponse.Value)
                         {
-                            ascomDevices.Add(new AscomDevice(ascomDevice.DeviceName, Devices.StringToDeviceType(ascomDevice.DeviceType), ascomDevice.DeviceNumber, ascomDevice.UniqueID, serviceType, deviceIpEndPoint, alpacaDeviceList[deviceIpEndPoint].HostName, alpacaDeviceInterfaceVersion)); // ASCOM device information 
+                            ascomDevices.Add(new AscomDevice(ascomDevice.DeviceName, Devices.StringToDeviceType(ascomDevice.DeviceType), ascomDevice.DeviceNumber, ascomDevice.UniqueID, alpacaDeviceList[deviceIpEndPoint], alpacaDeviceInterfaceVersion)); // ASCOM device information 
+
                         } // Next Ascom Device
                     } // Next interface version
 

@@ -215,6 +215,70 @@ namespace ASCOM.Alpaca.Tests.Alpaca
 
         #endregion
 
+        #region AscomDevice filtering and ordering
+
+        [Fact]
+        public async void GetAscomDevicesSelectDeviceType()
+        {
+            TraceLogger TL = new TraceLogger("GetAscomDevicesSelectDeviceType", true);
+            TL.LogMessage("Test", $"About to call GetAscomDevicesAsync");
+
+            // Get every ASCOM device from all Alpaca discovered devices into a List
+            List<AscomDevice> allAscomDevices = await AlpacaDiscovery.GetAscomDevicesAsync(null); // Or use a discovery instance and the GetAscomDevices method
+
+            // Create a single device subset of Telescope devices (Could be achieved more simply by supplying a DeviceTypes parameter value in place of the null parameter in the command above)
+            var ascomDevices = allAscomDevices.Where(info => info.AscomDeviceType == DeviceTypes.Telescope);
+            TL.LogMessage("Test", $"Returned from GetAscomDevicesAsync");
+
+            Assert.NotEmpty(ascomDevices);
+            TL.LogMessage("Test", $"Found {ascomDevices.Count()} Telescope devices");
+            foreach (AscomDevice ascomDevice in ascomDevices)
+            {
+                Assert.False(String.IsNullOrEmpty(ascomDevice.ServerName));
+                Assert.False(String.IsNullOrEmpty(ascomDevice.Manufacturer));
+                Assert.False(String.IsNullOrEmpty(ascomDevice.ManufacturerVersion));
+                Assert.False(String.IsNullOrEmpty(ascomDevice.Location));
+                TL.LogMessage("Test", $"Found {ascomDevice.ServerName} - {ascomDevice.Manufacturer} {ascomDevice.ManufacturerVersion} - Located at {ascomDevice.Location} - On IP Address: {ascomDevice.IpAddress}");
+            }
+        }
+
+        [Fact]
+        public async void GetAscomDevicesGroupBy()
+        {
+            TraceLogger TL = new TraceLogger("GetAscomDevicesGroupBy", true);
+            TL.LogMessage("Test", $"About to call GetAscomDevicesAsync");
+
+            // Get every ASCOM device from all Alpaca discovered devices into a List
+            List<AscomDevice> ascomDevices = await AlpacaDiscovery.GetAscomDevicesAsync(DeviceTypes.CoverCalibrator); // Or use a discovery instance and the GetAscomDevices method
+            TL.LogMessage("Test", $"Returned from GetAscomDevicesAsync");
+
+            var groupedDevices = ascomDevices.GroupBy(info => info.Location, info => info);
+
+            Assert.NotEmpty(groupedDevices);
+            TL.LogMessage("Test", $"Found {groupedDevices.Count()} CoverCalibrator locations");
+            TL.BlankLine();
+            foreach (var group in groupedDevices)
+            {
+                TL.LogMessage("Test", $"Group {group.Key}");
+                Assert.False(String.IsNullOrEmpty(group.Key));
+                Assert.True(group.Count<AscomDevice>() > 0);
+                List<AscomDevice> ascomDevices1 = group.ToList<AscomDevice>();
+                foreach (AscomDevice ascomDevice in ascomDevices1)
+                {
+                    Assert.False(String.IsNullOrEmpty(ascomDevice.ServerName));
+                    Assert.False(String.IsNullOrEmpty(ascomDevice.Manufacturer));
+                    Assert.False(String.IsNullOrEmpty(ascomDevice.ManufacturerVersion));
+                    Assert.False(String.IsNullOrEmpty(ascomDevice.Location));
+                    TL.LogMessage("Test", $"  Found {ascomDevice.ServerName} - {ascomDevice.Manufacturer} {ascomDevice.ManufacturerVersion} - Located at {ascomDevice.Location} - On IP Address: {ascomDevice.IpAddress}");
+
+                }
+
+            }
+        }
+
+        #endregion
+
+
         #region Async methods
 
         [Fact]
