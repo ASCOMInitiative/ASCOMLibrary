@@ -705,9 +705,9 @@ namespace ASCOM.Alpaca.Discovery
                     foreach (int alpacaDeviceInterfaceVersion in alpacaDeviceList[deviceIpEndPoint].SupportedInterfaceVersions)
                     {
                         // Iterate over the ASCOM devices presented by this Alpaca device adding them to the return List
-                        foreach (AlpacaConfiguredDevice ascomDevice in configuredDevicesResponse.Value)
+                        foreach (AlpacaConfiguredDevice alpacaConfiguredDevice in configuredDevicesResponse.Value)
                         {
-                            ascomDevices.Add(new AscomDevice(ascomDevice.DeviceName, Devices.StringToDeviceType(ascomDevice.DeviceType), ascomDevice.DeviceNumber, ascomDevice.UniqueID, alpacaDeviceList[deviceIpEndPoint], alpacaDeviceInterfaceVersion)); // ASCOM device information 
+                            ascomDevices.Add(new AscomDevice(alpacaConfiguredDevice.DeviceName, Devices.StringToDeviceType(alpacaConfiguredDevice.DeviceType), alpacaConfiguredDevice.DeviceNumber, alpacaConfiguredDevice.UniqueID, alpacaDeviceList[deviceIpEndPoint], alpacaDeviceInterfaceVersion)); // ASCOM device information 
 
                         } // Next Ascom Device
                     } // Next interface version
