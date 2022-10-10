@@ -140,7 +140,7 @@ namespace ASCOM.Alpaca.Discovery
         /// <remarks>
         /// This method is primarily to support COM clients because COM does not support generic lists. .NET clients should use the <see cref="ConfiguredDevices"/> property instead.
         /// </remarks>
-        [Obsolete("Use AscomDevicesAsArrayList(null) instead. This member will be removed in a future release.", false)]
+        [Obsolete("Use AscomDevicesAsArrayList(null) instead. This member will be removed in a future release.", true)]
         public ArrayList ConfiguredDevicesAsArrayList
         {
             get
@@ -157,7 +157,7 @@ namespace ASCOM.Alpaca.Discovery
         /// <summary>
         /// The Alpaca device's configured name
         /// </summary>
-        /// <returns></returns>
+        /// <returns>String server name</returns>
         public string ServerName
         {
             get
@@ -181,7 +181,7 @@ namespace ASCOM.Alpaca.Discovery
         /// <summary>
         /// The device manufacturer's name
         /// </summary>
-        /// <returns></returns>
+        /// <returns>String manufacturer name</returns>
         public string Manufacturer
         {
             get
@@ -205,7 +205,7 @@ namespace ASCOM.Alpaca.Discovery
         /// <summary>
         /// The device's version as set by the manufacturer
         /// </summary>
-        /// <returns></returns>
+        /// <returns>String server version</returns>
         public string ManufacturerVersion
         {
             get
@@ -229,7 +229,7 @@ namespace ASCOM.Alpaca.Discovery
         /// <summary>
         /// The Alpaca device's configured location
         /// </summary>
-        /// <returns></returns>
+        /// <returns>String location</returns>
         public string Location
         {
             get
@@ -256,7 +256,7 @@ namespace ASCOM.Alpaca.Discovery
         /// <remarks>
         /// This method can only be used by .NET clients. COM clients should use the <see cref="ConfiguredDevicesAsArrayList"/> property.
         /// </remarks>
-        [Obsolete("Use AscomDevices(null) instead. This member will be removed in a future release.", false)]
+        [Obsolete("Use AscomDevices(null) instead. This member will be removed in a future release.", true)]
         public List<AlpacaConfiguredDevice> ConfiguredDevices
         {
             get
