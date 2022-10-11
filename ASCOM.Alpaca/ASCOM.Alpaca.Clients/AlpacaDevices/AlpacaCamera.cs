@@ -46,9 +46,9 @@ namespace ASCOM.Alpaca.Clients
         /// <param name="ipAddressString">Alpaca device's IP Address</param>
         /// <param name="portNumber">Alpaca device's IP Port number</param>
         /// <param name="remoteDeviceNumber">Alpaca device's device number e.g. Telescope/0</param>
-        /// <param name="establishConnectionTimeout">Timeout to initially connect to the Alpaca device</param>
-        /// <param name="standardDeviceResponseTimeout">Timeout for transactions that are expected to complete quickly e.g. retrieving CanXXX properties</param>
-        /// <param name="longDeviceResponseTimeout">Timeout for transactions that are expected to take a long time to complete e.g. Camera.ImageArray</param>
+        /// <param name="establishConnectionTimeout">Timeout (seconds) to initially connect to the Alpaca device</param>
+        /// <param name="standardDeviceResponseTimeout">Timeout (seconds) for transactions that are expected to complete quickly e.g. retrieving CanXXX properties</param>
+        /// <param name="longDeviceResponseTimeout">Timeout (seconds) for transactions that are expected to take a long time to complete e.g. Camera.ImageArray</param>
         /// <param name="clientNumber">Arbitrary integer that represents this client. (Should be the same for all transactions from this client)</param>
         /// <param name="imageArrayTransferType">Specifies the method to be used to retrieve the ImageArray property value.</param>
         /// <param name="imageArrayCompression">Extent to which the ImageArray data stream should be compressed.</param>
@@ -154,9 +154,9 @@ namespace ASCOM.Alpaca.Clients
         /// <param name="ipAddressString">Alpaca device's IP Address</param>
         /// <param name="portNumber">Alpaca device's IP Port number</param>
         /// <param name="remoteDeviceNumber">Alpaca device's device number e.g. Telescope/0</param>
-        /// <param name="establishConnectionTimeout">Timeout to initially connect to the Alpaca device</param>
-        /// <param name="standardDeviceResponseTimeout">Timeout for transactions that are expected to complete quickly e.g. retrieving CanXXX properties</param>
-        /// <param name="longDeviceResponseTimeout">Timeout for transactions that are expected to take a long time to complete e.g. Camera.ImageArray</param>
+        /// <param name="establishConnectionTimeout">Timeout (seconds) to initially connect to the Alpaca device</param>
+        /// <param name="standardDeviceResponseTimeout">Timeout (seconds) for transactions that are expected to complete quickly e.g. retrieving CanXXX properties</param>
+        /// <param name="longDeviceResponseTimeout">Timeout (seconds) for transactions that are expected to take a long time to complete e.g. Camera.ImageArray</param>
         /// <param name="clientNumber">Arbitrary integer that represents this client. (Should be the same for all transactions from this client)</param>
         /// <param name="imageArrayTransferType">Specifies the method to be used to retrieve the ImageArray property value.</param>
         /// <param name="imageArrayCompression">Extent to which the ImageArray data stream should be compressed.</param>

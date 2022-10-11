@@ -35,9 +35,9 @@ namespace ASCOM.Alpaca.Clients
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="ascomDevice">An AscomDevice instance representing the device to use.</param>
-        /// <param name="establishConnectionTimeout">Communications timeout when initially connecting to the client</param>
-        /// <param name="standardDeviceResponseTimeout">Communications timeout for commands that are expected to complete quickly</param>
-        /// <param name="longDeviceResponseTimeout">Communications timeout for commands that are expected to take a long time such as synchronous telescope slews</param>
+        /// <param name="establishConnectionTimeout">Communications timeout (seconds) when initially connecting to the client</param>
+        /// <param name="standardDeviceResponseTimeout">Communications timeout (seconds) for commands that are expected to complete quickly</param>
+        /// <param name="longDeviceResponseTimeout">Communications timeout (seconds) for commands that are expected to take a long time such as synchronous telescope slews</param>
         /// <param name="clientNumber">Arbitrary number identifying this particular client</param>
         /// <param name="userName">Basic authentication user name. Supply a <see langword="null"/> or empty string if basic authentication is not required</param>
         /// <param name="password"> Basic authentication password. Ignored if password is <see langword="null"/> or an empty string</param>
@@ -87,9 +87,9 @@ namespace ASCOM.Alpaca.Clients
         /// <param name="ipAddressString">The device's IP address.</param>
         /// <param name="portNumber">The device's IP port number.</param>
         /// <param name="remoteDeviceNumber">The Alpaca device number of this ASCOM device.</param>
-        /// <param name="establishConnectionTimeout">Timeout for initial connection</param>
-        /// <param name="standardDeviceResponseTimeout">Timeout for short lived methods (sec)</param>
-        /// <param name="longDeviceResponseTimeout">Timeout for long lived methods (sec.)</param>
+        /// <param name="establishConnectionTimeout">Timeout (seconds) for initial connection</param>
+        /// <param name="standardDeviceResponseTimeout">Timeout (seconds) for short lived methods</param>
+        /// <param name="longDeviceResponseTimeout">Timeout (seconds) for long lived methods</param>
         /// <param name="clientNumber">Arbitrary unique number used to identify transactions from this client instance.</param>
         /// <param name="userName">Basic authentication user name if required</param>
         /// <param name="password">Basic authentication password if required</param>

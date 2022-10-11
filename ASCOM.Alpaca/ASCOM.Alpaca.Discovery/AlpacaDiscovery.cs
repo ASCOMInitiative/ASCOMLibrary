@@ -295,7 +295,7 @@ namespace ASCOM.Alpaca.Discovery
         /// Start an Alpaca device discovery based on the supplied parameters
         /// </summary>
         /// <param name="numberOfPolls">Number of polls to send in the range 1 to 5 (Default 1)</param>
-        /// <param name="pollInterval">Interval between each poll in the range 10 to 5000 milliseconds (Default 100ms) </param>
+        /// <param name="pollInterval">Interval (milliseconds) between each poll in the range 10 to 5000 milliseconds (Default 100ms) </param>
         /// <param name="discoveryPort">Discovery port on which to send the broadcast (normally 32227) in the range 1025 to 65535 (Default 32227)</param>
         /// <param name="discoveryDuration">Length of time (seconds) to wait for devices to respond (Default 1.0 seconds)</param>
         /// <param name="resolveDnsName">Attempt to resolve host IP addresses to DNS names (Default <see langword="true"/>)</param>
@@ -374,7 +374,7 @@ namespace ASCOM.Alpaca.Discovery
         /// Returns an awaitable Task that provides a list of discovered Alpaca devices
         /// </summary>
         /// <param name="numberOfPolls">Number of polls to send in the range 1 to 5</param>
-        /// <param name="pollInterval">Interval between each poll in the range 10 to 5000 milliseconds.</param>
+        /// <param name="pollInterval">Interval (milliseconds) between each poll in the range 10 to 5000 milliseconds.</param>
         /// <param name="discoveryPort">Discovery port on which to send the broadcast (normally 32227) in the range 1025 to 65535.</param>
         /// <param name="discoveryDuration">Length of time (seconds) to wait for devices to respond.</param>
         /// <param name="resolveDnsName">Attempt to resolve host IP addresses to DNS names</param>
@@ -447,7 +447,7 @@ namespace ASCOM.Alpaca.Discovery
         /// </summary>
         /// <param name="deviceTypes">ASCOM device type to discover e.g. <see cref="DeviceTypes.Telescope"/> or <see cref="DeviceTypes.Camera"/> </param>
         /// <param name="numberOfPolls">Number of polls to send in the range 1 to 5</param>
-        /// <param name="pollInterval">Interval between each poll in the range 10 to 5000 milliseconds.</param>
+        /// <param name="pollInterval">Interval (milliseconds) between each poll in the range 10 to 5000 milliseconds.</param>
         /// <param name="discoveryPort">Discovery port on which to send the broadcast (normally 32227) in the range 1025 to 65535.</param>
         /// <param name="discoveryDuration">Length of time (seconds) to wait for devices to respond.</param>
         /// <param name="resolveDnsName">Attempt to resolve host IP addresses to DNS names</param>

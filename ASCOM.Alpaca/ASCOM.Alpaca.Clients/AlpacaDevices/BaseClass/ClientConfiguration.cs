@@ -60,7 +60,7 @@ namespace ASCOM.Alpaca.Clients
         }
 
         /// <summary>
-        /// Communications timeout when initially connecting to the client
+        /// Communications timeout (seconds) when initially connecting to the client
         /// </summary>
         public int EstablishConnectionTimeout
         {
@@ -69,7 +69,7 @@ namespace ASCOM.Alpaca.Clients
         }
 
         /// <summary>
-        /// Communications timeout for commands that are expected to complete quickly
+        /// Communications timeout (seconds) for commands that are expected to complete quickly
         /// </summary>
         public int StandardDeviceResponseTimeout
         {
@@ -78,7 +78,7 @@ namespace ASCOM.Alpaca.Clients
         }
 
         /// <summary>
-        /// Communications timeout for commands that are expected to take a long time such as synchronous telescope slews.
+        /// Communications timeout (seconds) for commands that are expected to take a long time such as synchronous telescope slews.
         /// </summary>
         public int LongDeviceResponseTimeout
         {
