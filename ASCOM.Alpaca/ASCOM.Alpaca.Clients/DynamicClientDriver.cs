@@ -752,8 +752,14 @@ namespace ASCOM.Alpaca.Clients
                         request = new HttpRequestMessage(HttpMethod.Put, transactionUri.Uri);
 
                         // Add the client id and transaction id parameters to the body parameter list
-                        parameters.Add(AlpacaConstants.CLIENTID_PARAMETER_NAME, clientNumber.ToString());
-                        parameters.Add(AlpacaConstants.CLIENTTRANSACTION_PARAMETER_NAME, transactionId.ToString());
+                        if (!parameters.ContainsKey(AlpacaConstants.CLIENTID_PARAMETER_NAME)) // The key may already be present in the dictionary from a previous retry loop, hence this conditional test to avoid an exception being thrown
+                        {
+                            parameters.Add(AlpacaConstants.CLIENTID_PARAMETER_NAME, clientNumber.ToString());
+                        }
+                        if (!parameters.ContainsKey(AlpacaConstants.CLIENTTRANSACTION_PARAMETER_NAME)) // The key may already be present in the dictionary from a previous retry loop, hence this conditional test to avoid an exception being thrown
+                        {
+                            parameters.Add(AlpacaConstants.CLIENTTRANSACTION_PARAMETER_NAME, transactionId.ToString());
+                        }
 
                         // Add all parameters to the request body as form url encoded content
                         if (parameters.Count > 0)
