@@ -1,0 +1,56 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<topic id="d0969e72-58ac-4f66-b725-8147769b8c5f">
+	<developerConceptualDocument xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5" xmlns:xlink="http://www.w3.org/1999/xlink">
+		<introduction>
+			<para>
+				This topic describes the asynchronous methods that the library provides. Please see <link xlink:href="833dd117-2e34-412d-8d52-4f3fd2dee3b1">Alpaca devices and ASCOM devices</link> for information on the Alpaca device / ASCOM device terminology.
+			</para>
+		</introduction>
+
+		<section address="TaskBasedMethods">
+			<title>Task Based Asynchronous Methods</title>
+			<content>
+				<para>
+					The purpose of discovery is to identify devices that can be controlled through the Alpaca protocol and the library provides this information as generic lists of <codeEntityReference linkText="AlpacaDevices">T:ASCOM.Alpaca.Discovery.AlpacaDevice</codeEntityReference>
+					and <codeEntityReference linkText="AscomDevices">T:ASCOM.Alpaca.Discovery.AscomDevice</codeEntityReference>
+				</para>
+				<para>
+					These two static async methods return .NET Tasks that can be awaited or manipulated with Task methods:
+					<list class="bullet">
+						<listItem>
+							<legacyBold>Alpaca devices</legacyBold>: <codeEntityReference linkText="AlpacaDiscovery.GetAlpacaDevicesAsync()">M:ASCOM.Alpaca.Discovery.AlpacaDiscovery.GetAlpacaDevicesAsync(System.Int32,System.Int32,System.Int32,System.Double,System.Boolean,System.Boolean,System.Boolean,ASCOM.Common.Alpaca.ServiceType,ASCOM.Common.Interfaces.ILogger)</codeEntityReference>
+						</listItem>
+						<listItem>
+							<legacyBold>ASCOM devices</legacyBold>: <codeEntityReference linkText="AlpacaDiscovery.GetAscomDevicesAsync(DeviceTypes? deviceType)">M:ASCOM.Alpaca.Discovery.AlpacaDiscovery.GetAscomDevicesAsync(System.Nullable{ASCOM.Common.DeviceTypes},System.Int32,System.Int32,System.Int32,System.Double,System.Boolean,System.Boolean,System.Boolean,ASCOM.Common.Alpaca.ServiceType,ASCOM.Common.Interfaces.ILogger)</codeEntityReference>
+						</listItem>
+					</list>
+				</para>
+				<para>
+					Each method initiates a discovery when called and immediately returns an awaitable Task, enabling the calling method to continue processing while the discovery process runs. When discovery completes, the Task result is updated with a generic
+					list of <codeEntityReference>T:ASCOM.Alpaca.Discovery.AlpacaDevice</codeEntityReference> or <codeEntityReference>T:ASCOM.Alpaca.Discovery.AscomDevice</codeEntityReference> as appropriate.
+				</para>
+				<para>
+					Both asynchronous methods have parameters to customise discovery, however, all of these are optional and have default values, except for the <codeEntityReference>T:ASCOM.Common.DeviceTypes</codeEntityReference> parameter in the 
+					<codeEntityReference linkText="AlpacaDiscovery.GetAscomDevicesAsync(DeviceTypes? deviceType)">M:ASCOM.Alpaca.Discovery.AlpacaDiscovery.GetAscomDevicesAsync(System.Nullable{ASCOM.Common.DeviceTypes},System.Int32,System.Int32,System.Int32,System.Double,System.Boolean,System.Boolean,System.Boolean,ASCOM.Common.Alpaca.ServiceType,ASCOM.Common.Interfaces.ILogger)</codeEntityReference>
+					method, which is a required parameter.
+				</para>
+				<para>
+					These examples show how to use the static asynchronous methods:
+					<code source="HelpExamples\AsyncMethodsAwait.cs" region="AsynchronousMethodsAwait1" language="csharp" title="Using the asynchronous methods" />
+				</para>
+				<para>
+					Named parameters are helpful when only a few parameters require non-default values:
+					<code source="HelpExamples\AsyncMethodsAwait.cs" region="AsynchronousMethodsAwait2" language="csharp" title="Using named parameters" />
+				</para>
+				<para>
+					If required, you can also work directly with the tasks returned by these methods:
+					<code source="HelpExamples\AsyncMethodsTask.cs" region="AsynchronousMethodsTask" language="csharp" title="Working with discovery tasks" />
+				</para>
+			</content>
+		</section>
+		<bibliography></bibliography>
+		<relatedTopics>
+			<link xlink:href="833dd117-2e34-412d-8d52-4f3fd2dee3b1"/>
+		</relatedTopics>
+	</developerConceptualDocument>
+</topic>

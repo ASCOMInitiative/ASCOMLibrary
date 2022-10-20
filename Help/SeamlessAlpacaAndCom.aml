@@ -1,40 +1,46 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<topic id="1F10A6D1-2BD4-4570-8465-74FEC23F7AE2" revisionNumber="1">
-  <developerConceptualDocument xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <introduction>
-      <para>This topic addresses the requirement that "client applications are able to support use of both Alpaca devices and COM drivers through a single application code path". i.e. that, after
-      selection, the application is unaware of whether it is working with an Alpaca device or a COM driver.</para>
-    </introduction>
+<topic id="1F10A6D1-2BD4-4570-8465-74FEC23F7AE2">
+	<developerConceptualDocument xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5" xmlns:xlink="http://www.w3.org/1999/xlink">
+		<introduction>
+			<para>
+				This topic addresses the requirement that "client applications are able to support use of both Alpaca devices and COM drivers through a single application code path". i.e. that, after
+				selection, the application is unaware of whether it is working with an Alpaca device or a COM driver.
+			</para>
+		</introduction>
 
-    <section address="WorkingWithDevices">
-      <title>Working with Alpaca devices and ASCOM COM Drivers in the same application.</title>
-      <content>
-		<para>
-			Alpaca devices and COM drivers will always need to be identified independently because they have very different discovery mechanics: Profile/COM for COM drivers and
-			Alpaca Discovery for Alpaca devices. 
-		</para>
-		<para>
-			However, once a required device is identified, the question becomes "how do I wrap up this object so that I can have a single path
-			through my application that doesn't care whether the user selected an Alpaca device or a COM driver. The answer to this question is to use the Library's Alpaca client and COM client toolkits to wrap 
-			the Alpaca device or COM driver.
-		</para>
-		<para>
-			The following section uses the ASCOM Rotator device type as an example.
-		</para>
-		<para>
-			Both of the toolkits' Rotator classes implement the IRotatorV3 interface.
-			So, if you define an application variable of type IRotatorV3, you can store either an Alpaca client instance or a COM client instance in that variable. 
-			This will give you have a strongly typed variable that exposes all of the rotator's properties and methods and which your application can use as necessary. 
-		</para>
-		<para>
-			From this point on the application will never need to know whether it is working with an Alpaca device or a COM device. 
-		</para>
-		<para>
-			The following example shows this approach in practice.
-			<code source="CodeExamples.cs" region="Seamless client access" language="csharp" title="Seamless client access" />
-		</para>
-      </content>
-    </section>
+		<section address="WorkingWithDevices">
+			<title>Working with Alpaca devices and ASCOM COM Drivers in the same application.</title>
+			<content>
+				<para>
+					Alpaca devices and COM drivers will always need to be identified independently because they have very different discovery mechanics: Profile/COM for COM drivers and
+					Alpaca Discovery for Alpaca devices.
+				</para>
+				<para>
+					However, once a required device is identified, the question becomes "how do I wrap up this object so that I can have a single path
+					through my application that doesn't care whether the user selected an Alpaca device or a COM driver. The answer to this question is to use the Library's Alpaca client and COM client toolkits to wrap
+					the Alpaca device or COM driver.
+				</para>
+				<para>
+					The following section uses the ASCOM Rotator device type as an example.
+				</para>
+				<para>
+					Both of the toolkits' Rotator classes implement the IRotatorV3 interface.
+					So, if you define an application variable of type IRotatorV3, you can store either an Alpaca client instance or a COM client instance in that variable.
+					This will give you have a strongly typed variable that exposes all of the rotator's properties and methods and which your application can use as necessary.
+				</para>
+				<para>
+					From this point on the application will never need to know whether it is working with an Alpaca device or a COM device.
+				</para>
+				<para>
+					The following example shows this approach in practice.
+					<code source="HelpExamples\SeamlessClientAccess.cs" region="SeamlessClientAccess" language="csharp" title="Seamless client access" />
+				</para>
+			</content>
+		</section>
 
-  </developerConceptualDocument>
+		<bibliography></bibliography>
+		<relatedTopics>
+			<link xlink:href="833dd117-2e34-412d-8d52-4f3fd2dee3b1"/>
+		</relatedTopics>
+	</developerConceptualDocument>
 </topic>

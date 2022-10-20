@@ -5,15 +5,14 @@
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <StartupObject></StartupObject>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\CodeExamples.cs" Link="CodeExamples.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="ASCOM.Alpaca.Components" Version="1.0.0-beta8f" />
-    <PackageReference Include="ASCOM.Com.Components" Version="1.0.0-beta8f" />
+    <PackageReference Include="ASCOM.Alpaca.Components" Version="1.0.36-beta" />
+    <PackageReference Include="ASCOM.Com.Components" Version="1.0.36-beta" />
+    <PackageReference Include="ASCOM.Tools" Version="1.0.36-beta" />
   </ItemGroup>
 
 </Project>

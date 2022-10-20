@@ -1,0 +1,87 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<topic id="12358d8f-2ed9-4144-95a1-f23df8b29ab5">
+	<developerConceptualDocument xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5" xmlns:xlink="http://www.w3.org/1999/xlink">
+		<introduction>
+			<para>
+				This topic describes how to create Alpaca clients for discovered ASCOM devices.
+				Please see <link xlink:href="833dd117-2e34-412d-8d52-4f3fd2dee3b1">Alpaca devices and ASCOM devices</link> for information on the Alpaca device / ASCOM device terminology.
+			</para>
+		</introduction>
+
+		<section address="SelectingDevices">
+			<title>Selecting an Alpaca device.</title>
+			<content>
+				<para>
+					From an application perspective, enabling the user to select an available Alpaca device proceeds in three steps:
+					<list class="bullet">
+						<listItem>Get a list of available devices</listItem>
+						<listItem>Present the list to the user, recording which device they select.</listItem>
+						<listItem>Create an Alpaca client for the chosen device</listItem>
+					</list>
+					These steps are discussed in more detail below.
+				</para>
+			</content>
+		</section>
+		<section address="GettingAListOfDevices">
+			<title>Getting a list of devices</title>
+			<content>
+				<para>
+					The easiest way to get a list of ASCOM devices, of a specific device type, from discoverable Alpaca devices is to use the asynchronous
+					<codeEntityReference linkText="AlpacaDiscovery.GetAscomDevicesAsync(DeviceTypes)">M:ASCOM.Alpaca.Discovery.AlpacaDiscovery.GetAscomDevicesAsync(System.Nullable{ASCOM.Common.DeviceTypes},System.Int32,System.Int32,System.Int32,System.Double,System.Boolean,System.Boolean,System.Boolean,ASCOM.Common.Alpaca.ServiceType,ASCOM.Common.Interfaces.ILogger)</codeEntityReference>
+					method:
+					<code source="HelpExamples\DeviceSelection.cs" region="AscomDeviceSelectionOption1" language="csharp" title="Get a list of ASCOM devices asynchronously" />
+				</para>
+				<para>
+					Alternatively, if the supplied device type is null, devices of all types will be returned and LINQ can be used to subset them as needed:
+					<code source="HelpExamples\DeviceSelection.cs" region="AscomDeviceSelectionOption2" language="csharp" title="Get a list of all ASCOM devices asynchronously" />
+				</para>
+				<para>
+					The returned list of devices can be manipulated using LINQ if required to improve presentation to the user. E.g. in this case the devices are ordered by location:
+					<code source="HelpExamples\DeviceSelection.cs" region="AscomDeviceGroupExample" language="csharp" title="Order the list of ASCOM devices" />
+				</para>
+				<para>
+					If you wish to display ASCOM devices hierarchically by Alpaca device, it may be easier to get a list of
+					<codeEntityReference linkText="AlpacaDevices">T:ASCOM.Alpaca.Discovery.AlpacaDevice</codeEntityReference>
+					rather than
+					<codeEntityReference linkText="AscomDevices">T:ASCOM.Alpaca.Discovery.AscomDevice</codeEntityReference>.
+					Each <codeEntityReference>T:ASCOM.Alpaca.Discovery.AlpacaDevice</codeEntityReference> has an
+					<codeEntityReference>M:ASCOM.Alpaca.Discovery.AlpacaDevice.AscomDevices(System.Nullable{ASCOM.Common.DeviceTypes})</codeEntityReference>
+					property that provides details of available ASCOM devices:
+					<code source="HelpExamples\DeviceSelection.cs" region="AlpacaDeviceSelection" language="csharp" title="Get a list of Alpaca devices asynchronously" />
+				</para>
+			</content>
+		</section>
+		<section address="PresentingTheList">
+			<title>Presenting the list to the user</title>
+			<content>
+				<para>
+					When presenting a list of devices to the user, so that they can select a device from those discovered, two pieces of information are required:
+					<list class="bullet">
+						<listItem>A text description of the device that the user sees that enables them to recognise the device they want</listItem>
+						<listItem>
+							An associated <codeEntityReference>T:ASCOM.Alpaca.Discovery.AscomDevice</codeEntityReference> instance that can be used to create an Alpaca client after the device is selected.
+						</listItem>
+					</list>
+					One approach to meeting this requirement is to create a dictionary of Description:AscomDevice key:value pairs where the descriptions are presented to the user and the selected description is used as the key to retrieve the associated
+					<codeEntityReference>T:ASCOM.Alpaca.Discovery.AscomDevice</codeEntityReference> as illustrated here:
+					<code source="HelpExamples\DeviceSelection.cs" region="AscomDeviceChooseExample" language="csharp" title="Presenting ASCOM device information to the user" />
+				</para>
+			</content>
+		</section>
+		<section address="CreatingAClient">
+			<title>Creating a client</title>
+			<content>
+				<para>
+					Once an <codeEntityReference>T:ASCOM.Alpaca.Discovery.AscomDevice</codeEntityReference> is available, it can be used to create an Alpaca client of the required type with the
+					<codeEntityReference linkText="AlpacaClient.GetDevice&lt;T&gt;(AscomDevice ascomDevice)">M:ASCOM.Alpaca.Clients.AlpacaClient.GetDevice``1(ASCOM.Alpaca.Discovery.AscomDevice,System.Int32,System.Int32,System.Int32,System.UInt32,System.String,System.String,System.Boolean,ASCOM.Common.Interfaces.ILogger,ASCOM.Common.Alpaca.ImageArrayTransferType,ASCOM.Common.Alpaca.ImageArrayCompression)</codeEntityReference>
+					method:
+					<code source="HelpExamples\DeviceSelection.cs" region="CreateAlpacaDevice" language="csharp" title="Create an Alpaca Telescope client from a supplied AscomDevice instance" />
+				</para>
+			</content>
+		</section>
+		<bibliography></bibliography>
+		<relatedTopics>
+			<link xlink:href="833dd117-2e34-412d-8d52-4f3fd2dee3b1"/>
+		</relatedTopics>
+	</developerConceptualDocument>
+</topic>

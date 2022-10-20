@@ -107,17 +107,18 @@
   <PropertyGroup>
     <PreBuildEvent>
     </PreBuildEvent>
-    <PostBuildEvent>
-    </PostBuildEvent>
+    <PostBuildEvent>"$(OutputPath)ASCOMLibrary.chm"</PostBuildEvent>
     <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
   </PropertyGroup>
   <ItemGroup>
+    <None Include="Async Methods.aml" />
+    <None Include="AlpacaAndAscomDevices.aml" />
     <None Include="Introduction.aml" />
     <None Include="DeviceDriverPointers.aml" />
     <None Include="ApplicationDeveloperPointers.aml" />
     <None Include="How to discover Alpaca devices.aml" />
-    <None Include="CodeExamples.cs" />
     <None Include="How to create clients for discovered Alpaca devices.aml" />
+    <None Include="How to select an Alpaca device.aml" />
     <None Include="SeamlessAlpacaAndCom.aml" />
     <None Include="PackageMapping.aml" />
   </ItemGroup>

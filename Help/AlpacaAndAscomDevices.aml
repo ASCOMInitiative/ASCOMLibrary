@@ -1,0 +1,88 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<topic id="833dd117-2e34-412d-8d52-4f3fd2dee3b1" revisionNumber="1">
+	<developerConceptualDocument
+	  xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5"
+	  xmlns:xlink="http://www.w3.org/1999/xlink">
+
+		<introduction>
+			<para>This topic explores the differences between Alpaca Devices and ASCOM Devices.</para>
+		</introduction>
+
+		<section address="Section1">
+			<title>Alpaca devices and ASCOM devices</title>
+			<content>
+				<para>
+					Within the library Alpaca device and ASCOM device have these meanings:
+					<list class="bullet">
+						<listItem>
+							<legacyBold>Alpaca Device</legacyBold>
+							- A network device or software service that runs on a particular IP address and IP port and which exposes one or more "ASCOM Devices" through the Alpaca protocol.
+						</listItem>
+						<listItem>
+							<legacyBold>ASCOM Device</legacyBold>
+							- A REST endpoint provided by an "Alpaca Device" that exposes the capabilities of one of the ASCOM device interfaces defined in the <codeEntityReference linkText="DeviceInterfaces">N:ASCOM.Common.DeviceInterfaces</codeEntityReference> namespace,
+							such as ICamera or ITelescope, and that enables the user to manipulate the hardware controlled by the device.
+						</listItem>
+					</list>
+				</para>
+				<para>
+					From the user's and marketing perspectives it is an easy shorthand to refer to a single purpose device as an Alpaca device. However, as developers, it is important to be mindful of the difference
+					between the <codeEntityReference>T:ASCOM.Alpaca.Discovery.AlpacaDevice</codeEntityReference> class, which provides an overview of the whole Alpaca device including all of its ASCOM devices, and
+					the <codeEntityReference>T:ASCOM.Alpaca.Discovery.AscomDevice</codeEntityReference> class, which provides information about a realisation of an ASCOM device interface.
+				</para>
+				<para>
+					You can construct an Alpaca client directly from an <codeEntityReference>T:ASCOM.Alpaca.Discovery.AscomDevice</codeEntityReference> but you cannot construct it directly from an
+					<codeEntityReference>T:ASCOM.Alpaca.Discovery.AlpacaDevice</codeEntityReference> because information required by the client is not present in this class.
+				</para>
+			</content>
+		</section>
+
+		<section address="Usecases">
+			<title>Primary Use Cases</title>
+			<content>
+				<para>
+					The <codeEntityReference>T:ASCOM.Alpaca.Discovery.AlpacaDevice</codeEntityReference> and <codeEntityReference>T:ASCOM.Alpaca.Discovery.AscomDevice</codeEntityReference> classes have different primary use cases although, of course, they
+					can be turned to many other purposes:
+					<list class="bullet">
+						<listItem>
+							<legacyBold>Alpaca Device</legacyBold>
+							- Displaying maps and information about discovered Alpaca devices, including the ASCOM devices available from each Alpaca device.
+						</listItem>
+						<listItem>
+							<legacyBold>ASCOM Device</legacyBold>
+							- Creating Alpaca client instances.
+						</listItem>
+					</list>
+				</para>
+			</content>
+		</section>
+
+		<section address="DataNormalisation">
+			<title>Data Normalisation</title>
+			<content>
+				<para>
+					Data falls into three categories within the <codeEntityReference>T:ASCOM.Alpaca.Discovery.AlpacaDevice</codeEntityReference> and <codeEntityReference>T:ASCOM.Alpaca.Discovery.AscomDevice</codeEntityReference> classes:
+					<list class="bullet">
+						<listItem>
+							Information that is common to all ASCOM devices such as location, Alpaca server name and manufacturer, except for network information, is only available in the <codeEntityReference>T:ASCOM.Alpaca.Discovery.AlpacaDevice</codeEntityReference> class
+						</listItem>
+						<listItem>
+							Information that is unique to each ASCOM device such as ASCOM device type, Alpaca device number and unique id is only available in the <codeEntityReference>T:ASCOM.Alpaca.Discovery.AscomDevice</codeEntityReference> class
+						</listItem>
+						<listItem>Network information that is common to all ASCOM devices such as service type, IP address, IP port and host name is replicated in both classes</listItem>
+					</list>
+				</para>
+				<para>
+					This partial de-normalisation has been implemented so that an Alpaca client can be created directly from an <codeEntityReference>T:ASCOM.Alpaca.Discovery.AscomDevice</codeEntityReference> instance. If fully normalised, the developer
+					would need to use information from both an <codeEntityReference>T:ASCOM.Alpaca.Discovery.AlpacaDevice</codeEntityReference> instance and an <codeEntityReference>T:ASCOM.Alpaca.Discovery.AscomDevice</codeEntityReference> instance in order to create a client,
+					and methods such the straightforward 
+					<codeEntityReference linkText=" AlpacaClient.GetDevice&lt;T&gt;(AscomDevice ascomDevice)">M:ASCOM.Alpaca.Clients.AlpacaClient.GetDevice``1(ASCOM.Alpaca.Discovery.AscomDevice,System.Int32,System.Int32,System.Int32,System.UInt32,System.String,System.String,System.Boolean,ASCOM.Common.Interfaces.ILogger,ASCOM.Common.Alpaca.ImageArrayTransferType,ASCOM.Common.Alpaca.ImageArrayCompression)</codeEntityReference>
+					method would not be available.
+				</para>
+			</content>
+		</section>
+		<bibliography></bibliography>
+		<relatedTopics>
+		</relatedTopics>
+	</developerConceptualDocument>
+</topic>
