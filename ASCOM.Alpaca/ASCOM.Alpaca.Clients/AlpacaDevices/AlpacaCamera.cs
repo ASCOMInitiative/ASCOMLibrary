@@ -24,8 +24,8 @@ namespace ASCOM.Alpaca.Clients
         #region Variables and Constants
 
         // Variables specific to this device type
-        private ImageArrayTransferType imageArrayTransferType = ImageArrayTransferType.JSON;
-        private ImageArrayCompression imageArrayCompression = ImageArrayCompression.None;
+        private ImageArrayTransferType imageArrayTransferType = AlpacaClient.CLIENT_IMAGEARRAYTRANSFERTYPE_DEFAULT;
+        private ImageArrayCompression imageArrayCompression = AlpacaClient.CLIENT_IMAGEARRAYCOMPRESSION_DEFAULT;
 
         #endregion
 

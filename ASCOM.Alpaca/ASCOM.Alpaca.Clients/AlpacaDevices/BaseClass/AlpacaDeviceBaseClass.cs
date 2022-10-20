@@ -1,4 +1,5 @@
-﻿using ASCOM.Common;
+﻿using ASCOM.Alpaca.Discovery;
+using ASCOM.Common;
 using ASCOM.Common.Alpaca;
 using ASCOM.Common.Interfaces;
 
@@ -15,27 +16,26 @@ namespace ASCOM.Alpaca.Clients
     public abstract class AlpacaDeviceBaseClass : IDisposable
     {
         // Variables common to all instances
-        internal ServiceType serviceType = ServiceType.Http;
-        internal string ipAddressString = "127.0.0.1";
-        internal decimal portNumber = 11111;
-        internal decimal remoteDeviceNumber = 0; // Device number in the URI on the remote Alpaca device
-        internal int establishConnectionTimeout = 3;
-        internal int standardDeviceResponseTimeout = 3;
-        internal int longDeviceResponseTimeout = 100;
-        internal uint clientNumber; // Unique number for this driver within the locaL server, i.e. across all drivers that the local server is serving
-        internal string userName = "";
-        internal string password = "";
-        internal bool manageConnectLocally = false;
+        internal ServiceType serviceType = AlpacaClient.CLIENT_SERVICETYPE_DEFAULT;
+        internal string ipAddressString = AlpacaClient.CLIENT_IPADDRESS_DEFAULT;
+        internal decimal portNumber = AlpacaClient.CLIENT_IPPORT_DEFAULT;
+        internal decimal remoteDeviceNumber = AlpacaClient.CLIENT_REMOTEDEVICENUMBER_DEFAULT; // Device number in the URI on the remote Alpaca device
+        internal int establishConnectionTimeout = AlpacaClient.CLIENT_ESTABLISHCONNECTIONTIMEOUT_DEFAULT;
+        internal int standardDeviceResponseTimeout = AlpacaClient.CLIENT_STANDARDCONNECTIONTIMEOUT_DEFAULT;
+        internal int longDeviceResponseTimeout = AlpacaClient.CLIENT_LONGCONNECTIONTIMEOUT_DEFAULT;
+        internal string userName = AlpacaClient.CLIENT_USERNAME_DEFAULT;
+        internal string password = AlpacaClient.CLIENT_PASSWORD_DEFAULT;
         internal bool strictCasing = true; // Strict or flexible interpretation of casing in device JSON responses
-        internal DeviceTypes clientDeviceType = DeviceTypes.Telescope; // Variable to hold the device type, which is set in each device type class
 
         internal ILogger logger; // Private variable to hold the trace logger object
-
+        internal bool manageConnectLocally = false;
+        internal DeviceTypes clientDeviceType = DeviceTypes.Telescope; // Variable to hold the device type, which is set in each device type class
+        internal uint clientNumber; // Unique number for this driver within the locaL server, i.e. across all drivers that the local server is serving
         internal HttpClient client; // Client to send and receive REST style messages to / from the remote device
         internal bool clientIsConnected;  // Connection state of this driver
         internal string URIBase; // URI base unique to this driver
         private bool disposedValue;
-        
+
         readonly ClientConfiguration clientConfiguration;
 
         /// <summary>
@@ -45,7 +45,7 @@ namespace ASCOM.Alpaca.Clients
         {
             clientConfiguration = new ClientConfiguration(this);
         }
-        
+
         #region Configuration properties
 
         /// <summary>
@@ -294,7 +294,7 @@ namespace ASCOM.Alpaca.Clients
 
         internal static void LogMessage(ILogger logger, uint instance, string prefix, string message)
         {
-            logger.LogMessage(LogLevel.Information, $"{prefix} {instance}",message);
+            logger.LogMessage(LogLevel.Information, $"{prefix} {instance}", message);
         }
 
         internal static void LogBlankLine(ILogger logger)
