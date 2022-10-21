@@ -382,6 +382,7 @@ namespace ASCOM.Alpaca.Discovery
         /// <param name="useIpV6">Search for Alpaca devices that use IPv6 addresses. One or both of useIpV4 and useIpV6 must be True.</param>
         /// <param name="serviceType"><see cref="ServiceType.Http"/> or <see cref="ServiceType.Https"/></param>
         /// <param name="logger"></param>
+        /// <param name="cancellationToken">Cancellation token to cancel the discovery</param>
         /// <returns>Returns an awaitable Task</returns>
         public static async Task<List<AlpacaDevice>> GetAlpacaDevicesAsync(int numberOfPolls = NUMBER_OF_POLLS_DEFAULT,
             int pollInterval = DISCOVERY_POLL_INTERVAL_MILLISECONDS_DEFAULT,
@@ -391,7 +392,8 @@ namespace ASCOM.Alpaca.Discovery
             bool useIpV4 = USE_IP_V4_DEFAULT,
             bool useIpV6 = USE_IP_V6_DEFAULT,
             ServiceType serviceType = SERVICE_TYPE_DEFAULT,
-            ILogger logger = null)
+            ILogger logger = null,
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             try
             {
@@ -455,6 +457,7 @@ namespace ASCOM.Alpaca.Discovery
         /// <param name="useIpV6">Search for Alpaca devices that use IPv6 addresses. One or both of useIpV4 and useIpV6 must be True.</param>
         /// <param name="serviceType"><see cref="ServiceType.Http"/> or <see cref="ServiceType.Https"/></param>
         /// <param name="logger"></param>
+        /// <param name="cancellationToken">Cancellation token to cancel the discovery</param>
         /// <returns>Returns an awaitable Task</returns>
         public static async Task<List<AscomDevice>> GetAscomDevicesAsync(DeviceTypes? deviceTypes,
             int numberOfPolls = NUMBER_OF_POLLS_DEFAULT,
@@ -465,7 +468,8 @@ namespace ASCOM.Alpaca.Discovery
             bool useIpV4 = USE_IP_V4_DEFAULT,
             bool useIpV6 = USE_IP_V6_DEFAULT,
             ServiceType serviceType = SERVICE_TYPE_DEFAULT,
-            ILogger logger = null)
+            ILogger logger = null,
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             try
             {
@@ -480,6 +484,28 @@ namespace ASCOM.Alpaca.Discovery
                 {
                     logger.LogMessage(LogLevel.Information, "GetAscomDevicesAsync", $"Created discovery device");
 
+                    // Create a cancellation token for the cancellation task
+                    CancellationTokenSource cts = new CancellationTokenSource();
+                    CancellationToken cancelTaskCancellationToken = cts.Token;
+
+                    // Create a test for discovery cancelled task
+                    Task cancellAtionTask = new Task(async () =>
+                    {
+                        logger.LogMessage(LogLevel.Information, "CancellationTask", $"Started");
+                        do
+                        {
+                            logger.LogMessage(LogLevel.Information, "CancellationTask", $"Starting wait");
+                            Task.Delay(50).Wait();
+                            logger.LogMessage(LogLevel.Information, "CancellationTask", $"Cancel requested: {cancellationToken.IsCancellationRequested}, Cancel task requested: {cancelTaskCancellationToken.IsCancellationRequested}");
+                        } while ((!cancellationToken.IsCancellationRequested) & (!cancelTaskCancellationToken.IsCancellationRequested));
+                        logger.LogMessage(LogLevel.Information, "CancellationTask", $"Finished");
+                    });
+                    logger.LogMessage(LogLevel.Information, "GetAscomDevicesAsync", $"Created cancellation task");
+
+                    // Create a discovery complete task
+                    Task discoveryCompleteTask = DiscoveryCompletedTask(discovery);
+                    logger.LogMessage(LogLevel.Information, "GetAscomDevicesAsync", $"Created discovery task");
+
                     // Create and run an async task to effect the discovery
                     await Task.Run(async () =>
                     {
@@ -490,8 +516,20 @@ namespace ASCOM.Alpaca.Discovery
                         logger.LogMessage(LogLevel.Information, "GetAscomDevicesAsync", $"Discovery started");
 
                         // Run the DiscoveryCompletedTask task and wait for it to be marked complete when the DiscoveryCompleted fires
-                        await DiscoveryCompletedTask(discovery);
-                        logger.LogMessage(LogLevel.Information, "GetAscomDevicesAsync", $"Discovery Completed Task has fired");
+                        // await DiscoveryCompletedTask(discovery);
+
+                        // Run the discovery and the cancellation check tasks
+                        cancellAtionTask.Start();
+                        //discoveryCompleteTask.Start();
+
+                        await Task.WhenAny(discoveryCompleteTask, cancellAtionTask);
+                        logger.LogMessage(LogLevel.Information, "GetAscomDevicesAsync", $"A task has finished: Discovery status: {discoveryCompleteTask.Status}, Cancellation status: {cancellAtionTask.Status}");
+                        cts.Cancel();
+                        logger.LogMessage(LogLevel.Information, "GetAscomDevicesAsync", $"Cancel task has been cancelled");
+
+
+
+                        // logger.LogMessage(LogLevel.Information, "GetAscomDevicesAsync", $"Discovery Completed Task has fired");
 
                         // Remove event handlers attached to the event
                         foreach (Delegate discoveryCompletedDelegate in discovery.DiscoveryCompleted.GetInvocationList())
@@ -499,6 +537,7 @@ namespace ASCOM.Alpaca.Discovery
                             discovery.DiscoveryCompleted -= (EventHandler)discoveryCompletedDelegate;
                             logger.LogMessage(LogLevel.Information, "GetAscomDevicesAsync", $"Removing event handler: {discoveryCompletedDelegate.Method.Name}");
                         }
+                        cancellationToken.ThrowIfCancellationRequested();
 
                     });
 

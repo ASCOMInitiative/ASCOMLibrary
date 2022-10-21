@@ -169,7 +169,7 @@ namespace ASCOM.Alpaca.Tests.Alpaca
             Assert.Equal(LONG_TIMEOUT, camera.ClientConfiguration.LongDeviceResponseTimeout);
             Assert.True(camera.ClientConfiguration.ClientNumber > 0);
             Assert.Equal(DeviceTypes.Camera, camera.ClientConfiguration.DeviceType);
-            Assert.Equal(ImageArrayTransferType.JSON, camera.ImageArrayTransferType);
+            Assert.Equal(ImageArrayTransferType.BestAvailable, camera.ImageArrayTransferType);
             Assert.Equal(ImageArrayCompression.None, camera.ImageArrayCompression);
             Assert.Equal(USER_NAME, camera.ClientConfiguration.UserName);
             Assert.Equal(USER_PASSWORD, camera.ClientConfiguration.Password);
@@ -278,7 +278,6 @@ namespace ASCOM.Alpaca.Tests.Alpaca
 
         #endregion
 
-
         #region Async methods
 
         [Fact]
@@ -316,6 +315,45 @@ namespace ASCOM.Alpaca.Tests.Alpaca
             {
                 TL.LogMessage("Test", $"Found {ascomDevice.AscomDeviceType} device: {ascomDevice.AscomDeviceName} devices");
             }
+        }
+
+        [Fact]
+        public async void GetAscomDevicesAsyncCancel()
+        {
+            // Define test parameters
+            const double DISCOVERY_DURATION = 4.0; // Run the discovery for this number of seconds. Must be at least two
+            const double CANCEL_AFTER = 2.0; // Cancel the discovery after this number of seconds. Must be less than DISCOVERY_DURATION otherwise the discovery will be successful and this test will fail
+
+            TraceLogger TL = new TraceLogger("GetAscomDevicesAsyncCancel", true);
+            TL.LogMessage("Test", $"About to call GetAscomDevices");
+
+            // Create a cancellation token that can be used to cancel the discovery
+            CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+            CancellationToken cancellationToken = cancellationTokenSource.Token;
+            TL.LogMessage("Test", $"Created cancellation token");
+
+            // Run a task to wait for a period of period of time before cancelling the discovery
+            TL.LogMessage("Test", $"Starting cancel task");
+            var unused = Task.Run(async () =>
+            {
+                TL.LogMessage("CancelTask", $"Task started");
+                //Thread.Sleep(Convert.ToInt32(CANCEL_AFTER * 1000.0));
+                await Task.Delay(Convert.ToInt32(CANCEL_AFTER * 1000.0));
+                TL.LogMessage("CancelTask", $"Cancelling task");
+                cancellationTokenSource.Cancel();
+                TL.LogMessage("CancelTask", $"Task completed");
+            });
+            TL.LogMessage("Test", $"Cancel task running");
+
+            // Confirm that an OperationCancelledException is thrown when the discovery is cancelled
+            await Assert.ThrowsAsync<OperationCanceledException>(async () =>
+            {
+                // Wait for discovery to complete
+                TL.LogMessage("Test", $"Awaiting discovery");
+                await AlpacaDiscovery.GetAscomDevicesAsync(DeviceTypes.Camera, discoveryDuration: DISCOVERY_DURATION, logger: TL, cancellationToken: cancellationToken);
+            });
+
+            TL.LogMessage("Test", $"Test completed");
         }
 
         [Fact]
