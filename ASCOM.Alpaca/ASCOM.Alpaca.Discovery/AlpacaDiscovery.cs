@@ -482,50 +482,56 @@ namespace ASCOM.Alpaca.Discovery
                 // Create and use a discovery instance to look for ALpaca devices
                 using (AlpacaDiscovery discovery = new AlpacaDiscovery(true, logger))
                 {
-                    logger.LogMessage(LogLevel.Information, "GetAscomDevicesAsync", $"Created discovery device");
+                    logger.LogMessage(LogLevel.Information, "GetAscomDevicesAsync", $"{Thread.CurrentThread.ManagedThreadId} Created discovery device");
 
                     // Create a cancellation token for the cancellation task
                     CancellationTokenSource cts = new CancellationTokenSource();
                     CancellationToken cancelTaskCancellationToken = cts.Token;
 
-                    // Create a test for discovery cancelled task
-                    Task cancellAtionTask = new Task(async () =>
-                    {
-                        logger.LogMessage(LogLevel.Information, "CancellationTask", $"Started");
-                        do
-                        {
-                            logger.LogMessage(LogLevel.Information, "CancellationTask", $"Starting wait");
-                            Task.Delay(50).Wait();
-                            logger.LogMessage(LogLevel.Information, "CancellationTask", $"Cancel requested: {cancellationToken.IsCancellationRequested}, Cancel task requested: {cancelTaskCancellationToken.IsCancellationRequested}");
-                        } while ((!cancellationToken.IsCancellationRequested) & (!cancelTaskCancellationToken.IsCancellationRequested));
-                        logger.LogMessage(LogLevel.Information, "CancellationTask", $"Finished");
-                    });
-                    logger.LogMessage(LogLevel.Information, "GetAscomDevicesAsync", $"Created cancellation task");
 
                     // Create a discovery complete task
                     Task discoveryCompleteTask = DiscoveryCompletedTask(discovery);
-                    logger.LogMessage(LogLevel.Information, "GetAscomDevicesAsync", $"Created discovery task");
+                    logger.LogMessage(LogLevel.Information, "GetAscomDevicesAsync", $"{Thread.CurrentThread.ManagedThreadId} Created discovery task");
 
                     // Create and run an async task to effect the discovery
                     await Task.Run(async () =>
                     {
-                        logger.LogMessage(LogLevel.Information, "GetAscomDevicesAsync", $"About to start discovery");
+                        logger.LogMessage(LogLevel.Information, "GetAscomDevicesAsync", $"{Thread.CurrentThread.ManagedThreadId} About to start discovery");
 
                         // Start discovery using the AlpacaDiscovery instance
                         discovery.StartDiscovery(numberOfPolls, pollInterval, discoveryPort, discoveryDuration, resolveDnsName, useIpV4, useIpV6, serviceType);
-                        logger.LogMessage(LogLevel.Information, "GetAscomDevicesAsync", $"Discovery started");
+                        logger.LogMessage(LogLevel.Information, "GetAscomDevicesAsync", $"{Thread.CurrentThread.ManagedThreadId} Discovery started");
 
                         // Run the DiscoveryCompletedTask task and wait for it to be marked complete when the DiscoveryCompleted fires
                         // await DiscoveryCompletedTask(discovery);
 
                         // Run the discovery and the cancellation check tasks
-                        cancellAtionTask.Start();
+
+                        // Create a test for discovery cancelled task
+                        Task cancellationTask = Task.Run(() =>
+                        {
+                            logger.LogMessage(LogLevel.Information, "CancellationTask", $"{Thread.CurrentThread.ManagedThreadId} Started");
+                            do
+                            {
+                                logger.LogMessage(LogLevel.Information, "CancellationTask", $"{Thread.CurrentThread.ManagedThreadId} Starting wait");
+                                Thread.Sleep(50);
+                                logger.LogMessage(LogLevel.Information, "CancellationTask", $"{Thread.CurrentThread.ManagedThreadId} Cancel requested: {cancellationToken.IsCancellationRequested}, Cancel task requested: {cancelTaskCancellationToken.IsCancellationRequested}");
+                            } while ((!cancellationToken.IsCancellationRequested) & (!cancelTaskCancellationToken.IsCancellationRequested));
+                            logger.LogMessage(LogLevel.Information, "CancellationTask", $"{Thread.CurrentThread.ManagedThreadId} Finished");
+                        });
+                        logger.LogMessage(LogLevel.Information, "GetAscomDevicesAsync", $"{Thread.CurrentThread.ManagedThreadId} Created cancellation task");
+
+
+
+
+
+                        //cancellationTask.Start();
                         //discoveryCompleteTask.Start();
 
-                        await Task.WhenAny(discoveryCompleteTask, cancellAtionTask);
-                        logger.LogMessage(LogLevel.Information, "GetAscomDevicesAsync", $"A task has finished: Discovery status: {discoveryCompleteTask.Status}, Cancellation status: {cancellAtionTask.Status}");
+                        await Task.WhenAny(discoveryCompleteTask, cancellationTask);
+                        logger.LogMessage(LogLevel.Information, "GetAscomDevicesAsync", $"{Thread.CurrentThread.ManagedThreadId} A task has finished: Discovery status: {discoveryCompleteTask.Status}, Cancellation status: {cancellationTask.Status}");
                         cts.Cancel();
-                        logger.LogMessage(LogLevel.Information, "GetAscomDevicesAsync", $"Cancel task has been cancelled");
+                        logger.LogMessage(LogLevel.Information, "GetAscomDevicesAsync", $"{Thread.CurrentThread.ManagedThreadId} Cancel task has been cancelled");
 
 
 
@@ -535,14 +541,14 @@ namespace ASCOM.Alpaca.Discovery
                         foreach (Delegate discoveryCompletedDelegate in discovery.DiscoveryCompleted.GetInvocationList())
                         {
                             discovery.DiscoveryCompleted -= (EventHandler)discoveryCompletedDelegate;
-                            logger.LogMessage(LogLevel.Information, "GetAscomDevicesAsync", $"Removing event handler: {discoveryCompletedDelegate.Method.Name}");
+                            logger.LogMessage(LogLevel.Information, "GetAscomDevicesAsync", $"{Thread.CurrentThread.ManagedThreadId} Removing event handler: {discoveryCompletedDelegate.Method.Name}");
                         }
                         cancellationToken.ThrowIfCancellationRequested();
 
                     });
 
                     // Log the outcome
-                    logger.LogMessage(LogLevel.Information, "GetAscomDevicesAsync", $"Returning {discovery.GetAscomDevices(deviceTypes).Count} devices.");
+                    logger.LogMessage(LogLevel.Information, "GetAscomDevicesAsync", $"{Thread.CurrentThread.ManagedThreadId} Returning {discovery.GetAscomDevices(deviceTypes).Count} devices.");
 
                     // Return the discovered device list to the caller
                     return discovery.GetAscomDevices(deviceTypes);

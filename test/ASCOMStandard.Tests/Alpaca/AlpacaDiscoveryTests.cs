@@ -427,7 +427,10 @@ namespace ASCOM.Alpaca.Tests.Alpaca
 
         static List<AlpacaDevice> FetchAlpacaDevices(TraceLogger TL)
         {
-            return AlpacaDiscovery.GetAlpacaDevicesAsync(1, 100, 32227, 4.0, false, true, false, ServiceType.Http, TL).Result;
+            Task<List<AlpacaDevice>> alpacaDevicesAlpacaDiscovery = AlpacaDiscovery.GetAlpacaDevicesAsync(1, 100, 32227, 4.0, false, true, false, ServiceType.Http, TL);
+            Task.WaitAll(alpacaDevicesAlpacaDiscovery);
+            return alpacaDevicesAlpacaDiscovery.Result;
+            //return AlpacaDiscovery.GetAlpacaDevicesAsync(1, 100, 32227, 4.0, false, true, false, ServiceType.Http, TL).Result;
         }
 
         #endregion
