@@ -283,7 +283,7 @@ namespace ASCOM.Alpaca.Tests.Alpaca
         [Fact]
         public void GetAlpacaDevicesAsync()
         {
-            TraceLogger TL = new TraceLogger("GetAlpacaDevicesAsync", true);
+            TraceLogger TL = new TraceLogger("GetAlpacaDevicesAsync", true, 60);
             TL.LogMessage("Test", $"About to call GetAlpacaDevicesAsync");
 
             List<AlpacaDevice> alpacaDevices = FetchAlpacaDevices(TL);
@@ -303,7 +303,7 @@ namespace ASCOM.Alpaca.Tests.Alpaca
         [Fact]
         public void GetAscomDevicesAsync()
         {
-            TraceLogger TL = new TraceLogger("GetAscomDevicesAsync", true);
+            TraceLogger TL = new TraceLogger("GetAscomDevicesAsync", true, 60);
             TL.LogMessage("Test", $"About to call GetAscomDevices");
 
             List<AscomDevice> ascomDevices = FetchAscomDevices(DeviceTypes.Camera, TL);
@@ -321,10 +321,10 @@ namespace ASCOM.Alpaca.Tests.Alpaca
         public async void GetAscomDevicesAsyncCancel()
         {
             // Define test parameters
-            const double DISCOVERY_DURATION = 4.0; // Run the discovery for this number of seconds. Must be at least two
-            const double CANCEL_AFTER = 2.0; // Cancel the discovery after this number of seconds. Must be less than DISCOVERY_DURATION otherwise the discovery will be successful and this test will fail
+            const double DISCOVERY_DURATION = 2.0; // Run the discovery for this number of seconds. Must be at least two
+            const double CANCEL_AFTER = 1.0; // Cancel the discovery after this number of seconds. Must be less than DISCOVERY_DURATION otherwise the discovery will be successful and this test will fail
 
-            TraceLogger TL = new TraceLogger("GetAscomDevicesAsyncCancel", true);
+            TraceLogger TL = new TraceLogger("GetAscomDevicesAsyncCancel", true, 60);
             TL.LogMessage("Test", $"About to call GetAscomDevices");
 
             // Create a cancellation token that can be used to cancel the discovery
@@ -422,12 +422,12 @@ namespace ASCOM.Alpaca.Tests.Alpaca
         #region Support code
         static List<AscomDevice> FetchAscomDevices(DeviceTypes? deviceTypes, TraceLogger TL)
         {
-            return AlpacaDiscovery.GetAscomDevicesAsync(deviceTypes, 1, 100, 32227, 4.0, false, true, false, ServiceType.Http, TL).Result;
+            return AlpacaDiscovery.GetAscomDevicesAsync(deviceTypes, 1, 100, 32227, 1.0, false, true, false, ServiceType.Http, TL).Result;
         }
 
         static List<AlpacaDevice> FetchAlpacaDevices(TraceLogger TL)
         {
-            Task<List<AlpacaDevice>> alpacaDevicesAlpacaDiscovery = AlpacaDiscovery.GetAlpacaDevicesAsync(1, 100, 32227, 4.0, false, true, false, ServiceType.Http, TL);
+            Task<List<AlpacaDevice>> alpacaDevicesAlpacaDiscovery = AlpacaDiscovery.GetAlpacaDevicesAsync(1, 100, 32227, 1.0, false, true, false, ServiceType.Http, TL);
             Task.WaitAll(alpacaDevicesAlpacaDiscovery);
             return alpacaDevicesAlpacaDiscovery.Result;
             //return AlpacaDiscovery.GetAlpacaDevicesAsync(1, 100, 32227, 4.0, false, true, false, ServiceType.Http, TL).Result;

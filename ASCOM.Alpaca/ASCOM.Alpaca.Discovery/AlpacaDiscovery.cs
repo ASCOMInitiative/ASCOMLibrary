@@ -1,5 +1,4 @@
-﻿using ASCOM.Alpaca.Clients;
-using ASCOM.Common;
+﻿using ASCOM.Common;
 using ASCOM.Common.Alpaca;
 using ASCOM.Common.Interfaces;
 using System;
@@ -15,7 +14,6 @@ using System.Threading.Tasks;
 
 namespace ASCOM.Alpaca.Discovery
 {
-
     /// <summary>
     /// Enables clients to discover Alpaca devices by sending one or more discovery polls. Returns information on discovered <see cref="AlpacaDevice">Alpaca devices</see> and the <see cref="AscomDevice">ASCOM devices</see> that are available.
     /// </summary>
@@ -73,9 +71,6 @@ namespace ASCOM.Alpaca.Discovery
         private readonly bool strictCasing; // Flag indicating whether case sensitive or case insensitive de-serialisation will be used.
 
         private ServiceType serviceType; // Holds the service type for management API calls: HTTP or HTTPS
-
-
-        internal static ILogger iLogger;
 
         #endregion
 
@@ -400,35 +395,17 @@ namespace ASCOM.Alpaca.Discovery
                 logger.LogMessage(LogLevel.Information, "GetAlpacaDevicesAsync", $"Parameters - Number of polls: {numberOfPolls}, Poll interval: {pollInterval}, Discovery port: {discoveryPort}");
                 logger.LogMessage(LogLevel.Information, "GetAlpacaDevicesAsync", $"Parameters - Discovery duration: {discoveryDuration}, Resolve DNS names: {resolveDnsName}, Use IPv4: {useIpV4}, Use IP v6: {useIpV6}, Service type: {serviceType}");
 
-                iLogger = logger;
-                logger.LogMessage(LogLevel.Information, "GetAlpacaDevicesAsync", $"Entered method");
+                TaskCompletionSource<object> tcs = new TaskCompletionSource<object>();
 
                 // Create and use a discovery instance to look for ALpaca devices
+                logger.LogMessage(LogLevel.Debug, "GetAlpacaDevicesAsync", $"Creating AlpacaDiscovery object...");
                 using (AlpacaDiscovery discovery = new AlpacaDiscovery(true, logger))
                 {
-                    logger.LogMessage(LogLevel.Information, "GetAlpacaDevicesAsync", $"Created discovery device");
+                    logger.LogMessage(LogLevel.Debug, "GetAlpacaDevicesAsync", $"{Thread.CurrentThread.ManagedThreadId} Created discovery object");
+                    await AsynchronousDiscovery("GetAlpacaDevicesAsync", numberOfPolls, pollInterval, discoveryPort, discoveryDuration, resolveDnsName, useIpV4, useIpV6, serviceType, logger, discovery, cancellationToken);
 
-                    // Create and run an async task to effect the discovery
-                    await Task.Run(async () =>
-                    {
-                        logger.LogMessage(LogLevel.Information, "GetAlpacaDevicesAsync", $"About to start discovery");
-
-                        // Start discovery using the AlpacaDiscovery instance
-                        discovery.StartDiscovery(numberOfPolls, pollInterval, discoveryPort, discoveryDuration, resolveDnsName, useIpV4, useIpV6, serviceType);
-                        logger.LogMessage(LogLevel.Information, "GetAlpacaDevicesAsync", $"Discovery started");
-
-                        // Run the DiscoveryCompletedTask task and wait for it to be marked complete when the DiscoveryCompleted fires
-                        await DiscoveryCompletedTask(discovery);
-                        logger.LogMessage(LogLevel.Information, "GetAlpacaDevicesAsync", $"Discovery Completed Task has fired");
-
-                        // Remove event handlers attached to the event
-                        foreach (Delegate discoveryCompletedDelegate in discovery.DiscoveryCompleted.GetInvocationList())
-                        {
-                            discovery.DiscoveryCompleted -= (EventHandler)discoveryCompletedDelegate;
-                            logger.LogMessage(LogLevel.Information, "GetAlpacaDevicesAsync", $"Removing event handler: {discoveryCompletedDelegate.Method.Name}");
-                        }
-
-                    });
+                    // Throw an operation cancelled exception if appropriate
+                    cancellationToken.ThrowIfCancellationRequested();
 
                     // Log the outcome
                     logger.LogMessage(LogLevel.Information, "GetAlpacaDevicesAsync", $"Returning {discovery.GetAlpacaDevices().Count} Alpaca devices.");
@@ -469,83 +446,22 @@ namespace ASCOM.Alpaca.Discovery
             bool useIpV6 = USE_IP_V6_DEFAULT,
             ServiceType serviceType = SERVICE_TYPE_DEFAULT,
             ILogger logger = null,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             try
             {
                 logger.LogMessage(LogLevel.Information, "GetAscomDevicesAsync", $"Parameters - DeviceType: {deviceTypes}, Number of polls: {numberOfPolls}, Poll interval: {pollInterval}, Discovery port: {discoveryPort}");
                 logger.LogMessage(LogLevel.Information, "GetAscomDevicesAsync", $"Parameters - Discovery duration: {discoveryDuration}, Resolve DNS names: {resolveDnsName}, Use IPv4: {useIpV4}, Use IP v6: {useIpV6}, Service type: {serviceType}");
 
-                iLogger = logger;
-                logger.LogMessage(LogLevel.Information, "GetAscomDevicesAsync", $"Entered method");
-
-                // Create and use a discovery instance to look for ALpaca devices
+                // Create and use a discovery instance to look for Alpaca devices
+                logger.LogMessage(LogLevel.Debug, "GetAscomDevicesAsync", $"Creating AlpacaDiscovery object...");
                 using (AlpacaDiscovery discovery = new AlpacaDiscovery(true, logger))
                 {
-                    logger.LogMessage(LogLevel.Information, "GetAscomDevicesAsync", $"{Thread.CurrentThread.ManagedThreadId} Created discovery device");
+                    logger.LogMessage(LogLevel.Debug, "GetAscomDevicesAsync", $"{Thread.CurrentThread.ManagedThreadId} Created discovery object");
+                    await AsynchronousDiscovery("GetAscomDevicesAsync", numberOfPolls, pollInterval, discoveryPort, discoveryDuration, resolveDnsName, useIpV4, useIpV6, serviceType, logger, discovery, cancellationToken);
 
-                    // Create a cancellation token for the cancellation task
-                    CancellationTokenSource cts = new CancellationTokenSource();
-                    CancellationToken cancelTaskCancellationToken = cts.Token;
-
-
-                    // Create a discovery complete task
-                    Task discoveryCompleteTask = DiscoveryCompletedTask(discovery);
-                    logger.LogMessage(LogLevel.Information, "GetAscomDevicesAsync", $"{Thread.CurrentThread.ManagedThreadId} Created discovery task");
-
-                    // Create and run an async task to effect the discovery
-                    await Task.Run(async () =>
-                    {
-                        logger.LogMessage(LogLevel.Information, "GetAscomDevicesAsync", $"{Thread.CurrentThread.ManagedThreadId} About to start discovery");
-
-                        // Start discovery using the AlpacaDiscovery instance
-                        discovery.StartDiscovery(numberOfPolls, pollInterval, discoveryPort, discoveryDuration, resolveDnsName, useIpV4, useIpV6, serviceType);
-                        logger.LogMessage(LogLevel.Information, "GetAscomDevicesAsync", $"{Thread.CurrentThread.ManagedThreadId} Discovery started");
-
-                        // Run the DiscoveryCompletedTask task and wait for it to be marked complete when the DiscoveryCompleted fires
-                        // await DiscoveryCompletedTask(discovery);
-
-                        // Run the discovery and the cancellation check tasks
-
-                        // Create a test for discovery cancelled task
-                        Task cancellationTask = Task.Run(() =>
-                        {
-                            logger.LogMessage(LogLevel.Information, "CancellationTask", $"{Thread.CurrentThread.ManagedThreadId} Started");
-                            do
-                            {
-                                logger.LogMessage(LogLevel.Information, "CancellationTask", $"{Thread.CurrentThread.ManagedThreadId} Starting wait");
-                                Thread.Sleep(50);
-                                logger.LogMessage(LogLevel.Information, "CancellationTask", $"{Thread.CurrentThread.ManagedThreadId} Cancel requested: {cancellationToken.IsCancellationRequested}, Cancel task requested: {cancelTaskCancellationToken.IsCancellationRequested}");
-                            } while ((!cancellationToken.IsCancellationRequested) & (!cancelTaskCancellationToken.IsCancellationRequested));
-                            logger.LogMessage(LogLevel.Information, "CancellationTask", $"{Thread.CurrentThread.ManagedThreadId} Finished");
-                        });
-                        logger.LogMessage(LogLevel.Information, "GetAscomDevicesAsync", $"{Thread.CurrentThread.ManagedThreadId} Created cancellation task");
-
-
-
-
-
-                        //cancellationTask.Start();
-                        //discoveryCompleteTask.Start();
-
-                        await Task.WhenAny(discoveryCompleteTask, cancellationTask);
-                        logger.LogMessage(LogLevel.Information, "GetAscomDevicesAsync", $"{Thread.CurrentThread.ManagedThreadId} A task has finished: Discovery status: {discoveryCompleteTask.Status}, Cancellation status: {cancellationTask.Status}");
-                        cts.Cancel();
-                        logger.LogMessage(LogLevel.Information, "GetAscomDevicesAsync", $"{Thread.CurrentThread.ManagedThreadId} Cancel task has been cancelled");
-
-
-
-                        // logger.LogMessage(LogLevel.Information, "GetAscomDevicesAsync", $"Discovery Completed Task has fired");
-
-                        // Remove event handlers attached to the event
-                        foreach (Delegate discoveryCompletedDelegate in discovery.DiscoveryCompleted.GetInvocationList())
-                        {
-                            discovery.DiscoveryCompleted -= (EventHandler)discoveryCompletedDelegate;
-                            logger.LogMessage(LogLevel.Information, "GetAscomDevicesAsync", $"{Thread.CurrentThread.ManagedThreadId} Removing event handler: {discoveryCompletedDelegate.Method.Name}");
-                        }
-                        cancellationToken.ThrowIfCancellationRequested();
-
-                    });
+                    // Throw an operation cancelled exception if appropriate
+                    cancellationToken.ThrowIfCancellationRequested();
 
                     // Log the outcome
                     logger.LogMessage(LogLevel.Information, "GetAscomDevicesAsync", $"{Thread.CurrentThread.ManagedThreadId} Returning {discovery.GetAscomDevices(deviceTypes).Count} devices.");
@@ -566,33 +482,81 @@ namespace ASCOM.Alpaca.Discovery
         #region Private methods
 
         /// <summary>
-        /// Return a Task that is hooked to the AlpacaDiscovery.DiscoveryCompleted event and whose task result will be set when the event fires, thus completing the task.
+        /// Effect an asynchronous discovery, using events to detect discovery completion and task cancellation
         /// </summary>
-        /// <param name="alpacaDiscovery">The current discovery instance</param>
-        /// <returns>An awaitable task that completes when the AlpacaDiscovery.DiscoveryCompleted event fires.</returns>
-        private static Task DiscoveryCompletedTask(AlpacaDiscovery alpacaDiscovery)
+        /// <param name="methodName"></param>
+        /// <param name="numberOfPolls"></param>
+        /// <param name="pollInterval"></param>
+        /// <param name="discoveryPort"></param>
+        /// <param name="discoveryDuration"></param>
+        /// <param name="resolveDnsName"></param>
+        /// <param name="useIpV4"></param>
+        /// <param name="useIpV6"></param>
+        /// <param name="serviceType"></param>
+        /// <param name="logger"></param>
+        /// <param name="discovery"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        private static async Task AsynchronousDiscovery(string methodName, int numberOfPolls, int pollInterval, int discoveryPort, double discoveryDuration, bool resolveDnsName, bool useIpV4, bool useIpV6, ServiceType serviceType, ILogger logger, AlpacaDiscovery discovery, CancellationToken cancellationToken)
         {
+            CancellationTokenRegistration cancellationTokenRegistration;
+
             try
             {
-                iLogger.LogMessage(LogLevel.Information, "DiscoveryCompletedTask", $"Creating TaskCompletionSource");
+                // Create a completion source that enables the task to be set to a complete status
+                TaskCompletionSource<object> taskCompletionSource = new TaskCompletionSource<object>();
 
-                TaskCompletionSource<object> tcs = new TaskCompletionSource<object>();
-                iLogger.LogMessage(LogLevel.Information, "DiscoveryCompletedTask", $"Adding DiscoveryCompleted event handler.");
-
-                alpacaDiscovery.DiscoveryCompleted += (sender, eventArgs) =>
+                // Add an event handler to the cancellation token that will fire when the task is cancelled. When the event fires the handler will set the task result and so end the task
+                cancellationTokenRegistration = cancellationToken.Register(() =>
                 {
-                    iLogger.LogMessage(LogLevel.Information, "DiscoveryCompletedTask", "Setting TaskCompletionSource task result.");
-                    tcs.SetResult(null);
-                };
-                iLogger.LogMessage(LogLevel.Information, "DiscoveryCompletedTask", $"Returning TaskCompletionSource task.");
+                    logger.LogMessage(LogLevel.Debug, $"{methodName}Cancelled", $"{Thread.CurrentThread.ManagedThreadId} Setting task result...");
+                    taskCompletionSource.SetResult(null);
+                    logger.LogMessage(LogLevel.Debug, $"{methodName}Cancelled", $"{Thread.CurrentThread.ManagedThreadId} Result set");
+                });
 
-                return tcs.Task;
+                // Create and run an async task to effect the discovery
+                await Task.Run(async () =>
+                {
+                    try
+                    {
+                        // Add an event handler to the discovery object's DiscoveryCompleted event. When the event fires the handler will set the task result and so end the task
+                        await Task.Run(() =>
+                        {
+                            logger.LogMessage(LogLevel.Debug, methodName, $"Adding DiscoveryCompleted event handler.");
+                            discovery.DiscoveryCompleted += (sender, eventArgs) =>
+                            {
+                                logger.LogMessage(LogLevel.Debug, $"{methodName}Completed", "Setting TaskCompletionSource task result.");
+                                taskCompletionSource.SetResult(null);
+                                logger.LogMessage(LogLevel.Debug, $"{methodName}Completed", "Task status set to completed.");
+                            };
+
+                            // Start discovery using the AlpacaDiscovery instance
+                            logger.LogMessage(LogLevel.Debug, methodName, $"{Thread.CurrentThread.ManagedThreadId} Starting discovery...");
+                            discovery.StartDiscovery(numberOfPolls, pollInterval, discoveryPort, discoveryDuration, resolveDnsName, useIpV4, useIpV6, serviceType);
+                            logger.LogMessage(LogLevel.Debug, methodName, $"{Thread.CurrentThread.ManagedThreadId} Discovery started, waiting for discovery to complete");
+
+                            return taskCompletionSource.Task;
+
+                        }, cancellationToken);
+                        logger.LogMessage(LogLevel.Debug, methodName, $"{Thread.CurrentThread.ManagedThreadId} Discovery has completed");
+                    }
+                    finally
+                    {
+                        // The Discovery task has completed so ensure that all event handlers attached to the DiscoveryCompleted event are removed
+                        foreach (Delegate discoveryCompletedDelegate in discovery.DiscoveryCompleted.GetInvocationList())
+                        {
+                            discovery.DiscoveryCompleted -= (EventHandler)discoveryCompletedDelegate;
+                            logger.LogMessage(LogLevel.Debug, methodName, $"{Thread.CurrentThread.ManagedThreadId} Removing event handler: {discoveryCompletedDelegate.Method.Name}");
+                        }
+                    }
+                }, cancellationToken);
+
             }
-            catch (Exception ex)
+            finally
             {
-                iLogger.LogMessage(LogLevel.Error, "DiscoveryCompletedTask", $"Exception: {ex}");
-
-                throw;
+                // Ensure that the cancellation token event handler is removed
+                logger.LogMessage(LogLevel.Information, methodName, $"{Thread.CurrentThread.ManagedThreadId} Removing cancellation token event handler");
+                cancellationTokenRegistration.Dispose();
             }
         }
 
