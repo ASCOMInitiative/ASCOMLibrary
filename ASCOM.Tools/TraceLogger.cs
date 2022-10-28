@@ -86,10 +86,11 @@ namespace ASCOM.Tools
         /// </summary>
         /// <param name="logFileType">A short name to identify the contents of the log.</param>
         /// <param name="enabled">Initial state of the trace logger - Enabled or Disabled.</param>
-        /// <param name="identifierWidth">Width of the identifier field in the log message</param>
+        /// <param name="identifierWidth">Width of the identifier field in the log message (Optional parameter, default: 25)</param>
+        /// <param name="logLevel">Log level of the trace logger (Debug, Information, Warning etc.) (Optional parameter, default: LogLevel.Information)</param>
         /// <remarks>Automatically generated directory names will be of the form: <c>"Documents\ASCOM\Logs {CurrentDate:yyyymmdd}"</c> on Windows and <c>"HOME/ASCOM/Logs{CurrentDate:yyyymmdd}"</c> on Linux
         /// Automatically generated file names will be of the form: <c>"ASCOM.{LogFileType}.{CurrentTime:HHmm.ssfff}{1 or 2 Digits, usually 0}.txt"</c>.</remarks>
-        public TraceLogger(string logFileType, bool enabled, int identifierWidth = IDENTIFIER_WIDTH_DEFAULT)
+        public TraceLogger(string logFileType, bool enabled, int identifierWidth = IDENTIFIER_WIDTH_DEFAULT, LogLevel logLevel = LogLevel.Information)
         {
             // Validate the log file type
             if (string.IsNullOrEmpty(logFileType)) throw new InvalidValueException("TraceLogger Initialisation - Supplied log file type is null or empty");
@@ -100,7 +101,9 @@ namespace ASCOM.Tools
             LogFilePath = "";
             this.logFileType = logFileType;
             Enabled = enabled;
-            identifierWidthValue=identifierWidth;
+            identifierWidthValue = identifierWidth;
+
+            SetMinimumLoggingLevel(logLevel);
 
             autoGenerateFileName = AUTO_GENERATE_FILENAME_DEFAULT;
             autoGenerateFilePath = AUTO_GENERATE_FILEPATH__DEFAULT;
