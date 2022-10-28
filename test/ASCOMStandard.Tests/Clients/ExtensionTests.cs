@@ -4,24 +4,1213 @@ using System.Collections.Generic;
 using System.Text;
 using Xunit;
 using ASCOM.Common;
-using ASCOM.Alpaca.Clients;
 using System.Threading.Tasks;
 using ASCOM.Tools;
+using ASCOM.Com.DriverAccess;
+using ASCOM.Common.Interfaces;
+using System.Threading;
+using System.Diagnostics;
+using ASCOM.Alpaca.Clients;
+using System.Dynamic;
 
 namespace ASCOM.Alpaca.Tests.Clients
 {
-    public static class ExtensionTests
+
+    public static class CameraTests
     {
         [Fact]
-        public static async Task  AsyncAltAz()
+        public static async Task CameraStartExposureTest()
         {
-            TraceLogger TL = new TraceLogger("AsyncAltAz",true);
-            AlpacaTelescope client = new AlpacaTelescope();
-            client.Connected = true;
-            await client.AsyncSlewToAltAz(0, 0,logger:TL);
-            client.Connected = false;
+            // Create a TraceLogger to record activity
+            TraceLogger TL = new TraceLogger("CameraStartExposure", true, 64, LogLevel.Debug);
+
+            // Create a COM client
+            TL.LogMessage("Main", $"About to create device");
+            Camera client = new Camera("ASCOM.Simulator.Camera");
+            TL.LogMessage("Main", $"Device created");
             Assert.NotNull(client);
+
+            // Set connected to true
+            client.Connected = true;
+            TL.LogMessage("Main", $"Connected set true");
+
+            // Test the client
+            TL.LogMessage("Main", $"About to await method");
+            await client.StartExposureAsync(1.0, true, pollInterval: 100, logger: TL);
+            TL.LogMessage("Main", $"Await complete");
+            Assert.NotEqual(CameraState.Exposing, client.CameraState);
+
+            // Disconnect from the client and dispose
+            client.Connected = false;
             client.Dispose();
+            TL.LogMessage("Main", $"Finished");
+        }
+
+        [Fact]
+        public static async Task CameraStopExposureTest()
+        {
+            Stopwatch sw = new Stopwatch();
+            // Create a TraceLogger to record activity
+            TraceLogger TL = new TraceLogger("CameraStopExposure", true, 64, LogLevel.Debug);
+
+            // Create a COM client
+            TL.LogMessage("Main", $"About to create device");
+            Camera client = new Camera("ASCOM.Simulator.Camera");
+            TL.LogMessage("Main", $"Device created");
+            Assert.NotNull(client);
+
+            // Set connected to true
+            client.Connected = true;
+            TL.LogMessage("Main", $"Connected set true");
+
+            // Start a task that will stop the exposure after 1 second
+            Task stopExposureTask = new Task(() =>
+            {
+                TL.LogMessage("StopExposureTask", $"Starting thread sleep");
+                Thread.Sleep(1000);
+                TL.LogMessage("StopExposureTask", $"Sleep completed, stopping exposure.");
+                client.StopExposure();
+                TL.LogMessage("StopExposureTask", $"Exposure stopped.");
+            });
+            stopExposureTask.Start();
+
+            // Test the client
+            TL.LogMessage("Main", $"About to await method");
+            sw.Start();
+            await client.StartExposureAsync(5.0, true, pollInterval: 100, logger: TL);
+            sw.Stop();
+            TL.LogMessage("Main", $"Await complete");
+            Assert.NotEqual(CameraState.Exposing, client.CameraState);
+            Assert.True(sw.Elapsed.TotalSeconds < 2.0);
+
+            // Disconnect from the client and dispose
+            client.Connected = false;
+            client.Dispose();
+            TL.LogMessage("Main", $"Finished");
         }
     }
+
+    public static class CoverCalibratorCalibratorTests
+    {
+        [Fact]
+        public static async Task CoverCalibratorCalibratorOnTest()
+        {
+            // Create a TraceLogger to record activity
+            TraceLogger TL = new TraceLogger("CoverCalibratorCalibratorOn", true, 64, LogLevel.Debug);
+
+            // Create a COM client
+            TL.LogMessage("Main", $"About to create device");
+            CoverCalibrator client = new CoverCalibrator("ASCOM.Simulator.CoverCalibrator");
+            TL.LogMessage("Main", $"Device created");
+            Assert.NotNull(client);
+
+            // Set connected to true
+            client.Connected = true;
+            TL.LogMessage("Main", $"Connected set true");
+
+            // Test the client
+            TL.LogMessage("Main", $"About to await method");
+            await client.CalibratorOnAsync(100, pollInterval: 100, logger: TL);
+            TL.LogMessage("Main", $"Await complete");
+            Assert.Equal(CalibratorStatus.Ready, client.CalibratorState);
+
+            // Disconnect from the client and dispose
+            client.Connected = false;
+            client.Dispose();
+            TL.LogMessage("Main", $"Finished");
+        }
+
+        [Fact]
+        public static async Task CoverCalibratorCalibratorOffTest()
+        {
+            // Create a TraceLogger to record activity
+            TraceLogger TL = new TraceLogger("CoverCalibratorCalibratorOff", true, 64, LogLevel.Debug);
+
+            // Create a COM client
+            TL.LogMessage("Main", $"About to create device");
+            CoverCalibrator client = new CoverCalibrator("ASCOM.Simulator.CoverCalibrator");
+            TL.LogMessage("Main", $"Device created");
+            Assert.NotNull(client);
+
+            // Set connected to true
+            client.Connected = true;
+            TL.LogMessage("Main", $"Connected set true");
+
+            // Test the client - turn the calibrator on first
+            TL.LogMessage("Main", $"About to start calibrator on await");
+            await client.CalibratorOnAsync(100, pollInterval: 100, logger: TL);
+            TL.LogMessage("Main", $"On await complete");
+            Assert.Equal(CalibratorStatus.Ready, client.CalibratorState);
+
+            // Test the client- turn off the calibrator
+            TL.LogMessage("Main", $"About to start calibrator off await method");
+            await client.CalibratorOffAsync(pollInterval: 100, logger: TL);
+            TL.LogMessage("Main", $"Off await complete");
+            Assert.Equal(CalibratorStatus.Off, client.CalibratorState);
+
+            // Disconnect from the client and dispose
+            client.Connected = false;
+            client.Dispose();
+            TL.LogMessage("Main", $"Finished");
+        }
+    }
+
+    public static class CoverCalibratorCoverTests
+    {
+        [Fact]
+        public static async Task CoverCalibratorOpenCoverTest()
+        {
+            // Create a TraceLogger to record activity
+            TraceLogger TL = new TraceLogger("CoverCalibratorOpenCover", true, 64, LogLevel.Information);
+
+            // Create a COM client
+            TL.LogMessage("Main", $"About to create device");
+            CoverCalibrator client = new CoverCalibrator("ASCOM.Simulator.CoverCalibrator");
+            TL.LogMessage("Main", $"Device created");
+            Assert.NotNull(client);
+
+            // Set connected to true
+            client.Connected = true;
+            TL.LogMessage("Main", $"Connected set true");
+
+            // Test the client
+            TL.LogMessage("Main", $"About to await method");
+            await client.OpenCoverAsync(pollInterval: 100, logger: TL);
+            TL.LogMessage("Main", $"Await complete");
+            Assert.Equal(CoverStatus.Open, client.CoverState);
+
+            // Disconnect from the client and dispose
+            client.Connected = false;
+            client.Dispose();
+            TL.LogMessage("Main", $"Finished");
+        }
+
+        [Fact]
+        public static async Task CoverCalibratorHaltCoverTest()
+        {
+            // Create a TraceLogger to record activity
+            TraceLogger TL = new TraceLogger("CoverCalibratorHaltCover", true, 64, LogLevel.Debug);
+
+            // Create a COM client
+            TL.LogMessage("Main", $"About to create device");
+            CoverCalibrator client = new CoverCalibrator("ASCOM.Simulator.CoverCalibrator");
+            TL.LogMessage("Main", $"Device created");
+            Assert.NotNull(client);
+
+            // Set connected to true
+            client.Connected = true;
+            TL.LogMessage("Main", $"Connected set true");
+
+            // Start a task that will halt the open after 1 second
+            Task stopOpenTask = new Task(() =>
+            {
+                TL.LogMessage("StopOpenTask", $"Starting thread sleep");
+                Thread.Sleep(1000);
+                TL.LogMessage("StopOpenTask", $"Sleep completed, stopping open.");
+                client.HaltCover();
+                TL.LogMessage("StopOpenTask", $"Open halted.");
+            });
+            stopOpenTask.Start();
+
+            // Test the client
+            TL.LogMessage("Main", $"About to await method");
+            await client.OpenCoverAsync(pollInterval: 100, logger: TL);
+            TL.LogMessage("Main", $"Await complete. Cover state: {client.CoverState}");
+            Assert.Equal(CoverStatus.Unknown, client.CoverState);
+
+            // Disconnect from the client and dispose
+            client.Connected = false;
+            client.Dispose();
+            TL.LogMessage("Main", $"Finished");
+        }
+
+        [Fact]
+        public static async Task CoverCalibratorCloseCoverTest()
+        {
+            // Create a TraceLogger to record activity
+            TraceLogger TL = new TraceLogger("CoverCalibratorCloseCover", true, 64, LogLevel.Debug);
+
+            // Create a COM client
+            TL.LogMessage("Main", $"About to create device");
+            CoverCalibrator client = new CoverCalibrator("ASCOM.Simulator.CoverCalibrator");
+            TL.LogMessage("Main", $"Device created");
+            Assert.NotNull(client);
+
+            // Set connected to true
+            client.Connected = true;
+            TL.LogMessage("Main", $"Connected set true");
+
+            // Test the client - open the cover first
+            TL.LogMessage("Main", $"About to start open cover await");
+            await client.OpenCoverAsync(pollInterval: 100, logger: TL);
+            TL.LogMessage("Main", $"Await complete");
+            Assert.Equal(CoverStatus.Open, client.CoverState);
+
+            // Test the client- turn off the calibrator
+            TL.LogMessage("Main", $"About to start close cover await");
+            await client.CloseCoverAsync(pollInterval: 100, logger: TL);
+            TL.LogMessage("Main", $"Close await complete");
+            Assert.Equal(CoverStatus.Closed, client.CoverState);
+
+            // Disconnect from the client and dispose
+            client.Connected = false;
+            client.Dispose();
+            TL.LogMessage("Main", $"Finished");
+        }
+    }
+
+    public static class DomeTests
+    {
+        [Fact]
+        public static async Task DomeSlewToAzimuthTest()
+        {
+            // Arbitrary azimuth to which to slew before the Park() test
+            const double SLEW_AZIMUTH = 296.4;
+
+            // Create a TraceLogger to record activity
+            TraceLogger TL = new TraceLogger("DomeSlewToAzimuth", true, 64, LogLevel.Debug);
+
+            // Create a COM client
+            TL.LogMessage("Main", $"About to create device");
+            Dome client = new Dome("ASCOM.Simulator.Dome");
+            TL.LogMessage("Main", $"Device created");
+            Assert.NotNull(client);
+
+            // Set connected to true
+            client.Connected = true;
+            TL.LogMessage("Main", $"Connected set true");
+
+            // Slew somewhere that is not likely to be the park position
+            TL.LogMessage("Main", $"Slewing to somewhere that is not likely to be the home or park positions");
+            await client.SlewToAzimuthAsync(SLEW_AZIMUTH, pollInterval: 100, logger: TL);
+            TL.LogMessage("Main", $"Slew await complete, Is parked: {client.AtPark}, Is at home: {client.AtHome}, Azimuth: {client.Azimuth}");
+            Assert.False(client.AtHome);
+            Assert.False(client.AtPark);
+            Assert.Equal(SLEW_AZIMUTH, client.Azimuth);
+
+            // Disconnect from the client and dispose
+            client.Connected = false;
+            client.Dispose();
+            TL.LogMessage("Main", $"Finished");
+        }
+
+        [Fact]
+        public static async Task DomeSlewToAltitude()
+        {
+            // Arbitrary azimuth to which to slew before the Park() test
+            const double SLEW_ALTITUDE = 76.4;
+
+            // Create a TraceLogger to record activity
+            TraceLogger TL = new TraceLogger("DomeSlewToAzimuth", true, 64, LogLevel.Debug);
+
+            // Create a COM client
+            TL.LogMessage("Main", $"About to create device");
+            Dome client = new Dome("ASCOM.Simulator.Dome");
+            TL.LogMessage("Main", $"Device created");
+            Assert.NotNull(client);
+
+            // Set connected to true
+            client.Connected = true;
+            TL.LogMessage("Main", $"Connected set true");
+
+            // Open the shutter first otherwise the slew will fail
+            TL.LogMessage("Main", $"About to await OpenShutter method");
+            await client.OpenShutterAsync(pollInterval: 100, logger: TL);
+            TL.LogMessage("Main", $"Await complete, shutter state: {client.ShutterStatus}");
+            Assert.Equal(ShutterState.Open, client.ShutterStatus);
+
+            // Slew somewhere that is not likely to be the current altitude
+            TL.LogMessage("Main", $"Slewing to altitude {SLEW_ALTITUDE} degrees");
+            await client.SlewToAltitudeAsync(SLEW_ALTITUDE, pollInterval: 100, logger: TL);
+            TL.LogMessage("Main", $"Slew await complete, Altitude: {client.Altitude}");
+            Assert.Equal(SLEW_ALTITUDE, client.Altitude);
+
+            // Disconnect from the client and dispose
+            client.Connected = false;
+            client.Dispose();
+            TL.LogMessage("Main", $"Finished");
+        }
+
+        [Fact]
+        public static async Task DomeOpenShutterTest()
+        {
+            // Create a TraceLogger to record activity
+            TraceLogger TL = new TraceLogger("DomeOpenShutter", true, 64, LogLevel.Debug);
+
+            // Create a COM client
+            TL.LogMessage("Main", $"About to create device");
+            Dome client = new Dome("ASCOM.Simulator.Dome");
+            TL.LogMessage("Main", $"Device created");
+            Assert.NotNull(client);
+
+            // Set connected to true
+            client.Connected = true;
+            TL.LogMessage("Main", $"Connected set true");
+
+            // Test the client
+            TL.LogMessage("Main", $"About to await method");
+            await client.OpenShutterAsync(pollInterval: 100, logger: TL);
+            TL.LogMessage("Main", $"Await complete, shutter state: {client.ShutterStatus}");
+            Assert.Equal(ShutterState.Open, client.ShutterStatus);
+
+            // Disconnect from the client and dispose
+            client.Connected = false;
+            client.Dispose();
+            TL.LogMessage("Main", $"Finished");
+        }
+
+        [Fact]
+        public static async Task DomeCloseShutterTest()
+        {
+            // Create a TraceLogger to record activity
+            TraceLogger TL = new TraceLogger("DomeCloseShutter", true, 64, LogLevel.Debug);
+
+            // Create a COM client
+            TL.LogMessage("Main", $"About to create device");
+            Dome client = new Dome("ASCOM.Simulator.Dome");
+            TL.LogMessage("Main", $"Device created");
+            Assert.NotNull(client);
+
+            // Set connected to true
+            client.Connected = true;
+            TL.LogMessage("Main", $"Connected set true");
+
+            // Test the client
+            TL.LogMessage("Main", $"About to await open shutter method");
+            await client.OpenShutterAsync(pollInterval: 100, logger: TL);
+            TL.LogMessage("Main", $"Await complete, shutter state: {client.ShutterStatus}");
+            Assert.Equal(ShutterState.Open, client.ShutterStatus);
+
+            // Test the client
+            TL.LogMessage("Main", $"About to await close shutter method");
+            await client.CloseShutterAsync(pollInterval: 100, logger: TL);
+            TL.LogMessage("Main", $"Await complete, shutter state: {client.ShutterStatus}");
+            Assert.Equal(ShutterState.Closed, client.ShutterStatus);
+
+            // Disconnect from the client and dispose
+            client.Connected = false;
+            client.Dispose();
+            TL.LogMessage("Main", $"Finished");
+        }
+
+        [Fact]
+        public static async Task DomeAbortShutterOpenTest()
+        {
+            // Create a TraceLogger to record activity
+            TraceLogger TL = new TraceLogger("DomeAbortShutterOpen", true, 64, LogLevel.Debug);
+
+            // Create a COM client
+            TL.LogMessage("Main", $"About to create device");
+            Dome client = new Dome("ASCOM.Simulator.Dome");
+            TL.LogMessage("Main", $"Device created");
+            Assert.NotNull(client);
+
+            // Set connected to true
+            client.Connected = true;
+            TL.LogMessage("Main", $"Connected set true");
+
+            // Start a task that will abort the open after 1 second
+            Task abortOpenTask = new Task(async () =>
+            {
+                TL.LogMessage("AbortOpenTask", $"Starting thread sleep");
+                await Task.Delay(1000);
+                TL.LogMessage("AbortOpenTask", $"Sleep completed, aborting open.");
+                await client.AbortSlewAsync(pollInterval: 100, logger: TL);
+                TL.LogMessage("AbortOpenTask", $"Open aborted.");
+            });
+            abortOpenTask.Start();
+
+            // Test the client
+            TL.LogMessage("Main", $"About to await method");
+            await client.OpenShutterAsync(pollInterval: 100, logger: TL);
+            TL.LogMessage("Main", $"Await complete, shutter state: {client.ShutterStatus}");
+            Assert.Equal(ShutterState.Error, client.ShutterStatus);
+
+            // Disconnect from the client and dispose
+            client.Connected = false;
+            client.Dispose();
+            TL.LogMessage("Main", $"Finished");
+        }
+
+        [Fact]
+        public static async Task DomeParkTest()
+        {
+            // Arbitrary azimuth to which to slew before the Park() test
+            const double SLEW_AZIMUTH = 297.6;
+
+            // Create a TraceLogger to record activity
+            TraceLogger TL = new TraceLogger("DomePark", true, 64, LogLevel.Debug);
+
+            // Create a COM client
+            TL.LogMessage("Main", $"About to create device");
+            Dome client = new Dome("ASCOM.Simulator.Dome");
+            TL.LogMessage("Main", $"Device created");
+            Assert.NotNull(client);
+
+            // Set connected to true
+            client.Connected = true;
+            TL.LogMessage("Main", $"Connected set true");
+
+            // Slew somewhere that is not likely to be the park position
+            TL.LogMessage("Main", $"Slewing to somewhere that is not likely to be the park position");
+            await client.SlewToAzimuthAsync(SLEW_AZIMUTH, pollInterval: 100, logger: TL);
+            TL.LogMessage("Main", $"Slew await complete, Is parked: {client.AtPark}, Is at home: {client.AtHome}, Azimuth: {client.Azimuth}");
+            Assert.False(client.AtPark);
+            Assert.Equal(SLEW_AZIMUTH, client.Azimuth);
+
+            // Test Park()
+            TL.LogMessage("Main", $"About to await Park method");
+            await client.ParkAsync(pollInterval: 100, logger: TL);
+            TL.LogMessage("Main", $"Await complete, Is parked: {client.AtPark}, Is at home: {client.AtHome}");
+            Assert.True(client.AtPark);
+
+            // Disconnect from the client and dispose
+            client.Connected = false;
+            client.Dispose();
+            TL.LogMessage("Main", $"Finished");
+        }
+
+        [Fact]
+        public static async Task DomeFindHomeTest()
+        {
+            // Arbitrary azimuth to which to slew before the Park() test
+            const double SLEW_AZIMUTH = 248.5;
+
+            // Create a TraceLogger to record activity
+            TraceLogger TL = new TraceLogger("DomeFindHome", true, 64, LogLevel.Debug);
+
+            // Create a COM client
+            TL.LogMessage("Main", $"About to create device");
+            Dome client = new Dome("ASCOM.Simulator.Dome");
+            TL.LogMessage("Main", $"Device created");
+            Assert.NotNull(client);
+
+            // Set connected to true
+            client.Connected = true;
+            TL.LogMessage("Main", $"Connected set true");
+
+            // Slew somewhere that is not likely to be the park position
+            TL.LogMessage("Main", $"Slewing to somewhere that is not likely to be the home position");
+            await client.SlewToAzimuthAsync(SLEW_AZIMUTH, pollInterval: 100, logger: TL);
+            TL.LogMessage("Main", $"Slew await complete, Is parked: {client.AtPark}, Is at home: {client.AtHome}, Azimuth: {client.Azimuth}");
+            Assert.False(client.AtHome);
+            Assert.Equal(SLEW_AZIMUTH, client.Azimuth);
+
+            // Test FindHome()
+            TL.LogMessage("Main", $"About to await FindHome method");
+            await client.FindHomeAsync(pollInterval: 100, logger: TL);
+            TL.LogMessage("Main", $"Await complete, Is parked: {client.AtPark}, Is at home: {client.AtHome}");
+            Assert.True(client.AtHome);
+
+            // Disconnect from the client and dispose
+            client.Connected = false;
+            client.Dispose();
+            TL.LogMessage("Main", $"Finished");
+        }
+    }
+
+    public static class FilterWheelTests
+    {
+        [Fact]
+        public static async Task FilterWheelPositionTest()
+        {
+            // Create a TraceLogger to record activity
+            TraceLogger TL = new TraceLogger("FilterWheelPosition", true, 64, LogLevel.Debug);
+
+            // Create a COM client
+            TL.LogMessage("Main", $"About to create device");
+            FilterWheel client = new FilterWheel("ASCOM.Simulator.FilterWheel");
+            TL.LogMessage("Main", $"Device created");
+            Assert.NotNull(client);
+
+            // Set connected to true
+            client.Connected = true;
+            TL.LogMessage("Main", $"Connected set true");
+
+            // Move to the first filter
+
+            // Test Position Set 0
+            TL.LogMessage("Main", $"About to await setting Position 0 ");
+            await client.PositionSetAsync(0, pollInterval: 100, logger: TL);
+            TL.LogMessage("Main", $"Await complete, Position: {client.Position}");
+            Assert.Equal(0, client.Position);
+
+
+            // Get the number of configured filters
+            int highestFilterNumber = client.FocusOffsets.Length - 1; // Filter numbers start at 0
+            // Test Position highest filter wheel position
+            TL.LogMessage("Main", $"About to await setting Position {highestFilterNumber} ");
+            await client.PositionSetAsync(highestFilterNumber, pollInterval: 100, logger: TL);
+            TL.LogMessage("Main", $"Await complete, Position: {client.Position}");
+            Assert.Equal(highestFilterNumber, client.Position);
+
+            // Disconnect from the client and dispose
+            client.Connected = false;
+            client.Dispose();
+            TL.LogMessage("Main", $"Finished");
+        }
+    }
+
+    public static class FocuserTests
+    {
+        [Fact]
+        public static async Task FocuserMoveTest()
+        {
+            // Plus/minus tolerance on position that will be accept4ed as a pass
+            const int POSITION_TOLERANCE = 10;
+
+            int testPosition;
+
+            // Create a TraceLogger to record activity
+            TraceLogger TL = new TraceLogger("FocuserMove", true, 64, LogLevel.Debug);
+
+            // Create a COM client
+            TL.LogMessage("Main", $"About to create device");
+            Focuser client = new Focuser("ASCOM.Simulator.Focuser");
+            //AlpacaFocuser client = new AlpacaFocuser();
+            TL.LogMessage("Main", $"Device created");
+            Assert.NotNull(client);
+
+            // Set connected to true
+            client.Connected = true;
+            TL.LogMessage("Main", $"Connected set true, Position: {client.Position}");
+
+            // Find a target position to which the focuser will be commanded
+            if (client.Position < client.MaxIncrement / 2) // Focuser is in the lower half of its range
+            {
+                testPosition = Math.Abs(client.Position + 2000);
+            }
+            else // Focuser is in the upper half of its range
+            {
+                testPosition = Math.Abs(client.Position - 2000);
+            }
+            Assert.NotEqual(testPosition, client.Position);
+
+            // Test Position Set
+            TL.LogMessage("Main", $"About to await setting Position property");
+            await client.MoveAsync(testPosition, pollInterval: 100, logger: TL);
+            TL.LogMessage("Main", $"Await complete, Position: {client.Position}, Target: {testPosition}");
+            Assert.True((client.Position > testPosition - POSITION_TOLERANCE) & (client.Position < testPosition + POSITION_TOLERANCE)); // Allow a position tolerance
+
+            // Disconnect from the client and dispose
+            //client.Connected = false;
+            //client.Dispose();
+            GC.Collect();
+            TL.LogMessage("Main", $"Finished");
+        }
+
+        [Fact]
+        public static async Task FocuserAbortMoveTest()
+        {
+            // Create a TraceLogger to record activity
+            TraceLogger TL = new TraceLogger("FocuserAbortMove", true, 64, LogLevel.Debug);
+
+            try
+            {
+
+                // Plus/minus tolerance on position that will be accept4ed as a pass
+                const int POSITION_TOLERANCE = 10;
+
+                int testPosition;
+
+                // Create a COM client
+                TL.LogMessage("Main", $"About to create device");
+                Focuser client = new Focuser("ASCOM.Simulator.Focuser");
+
+                //AlpacaFocuser client = new AlpacaFocuser();
+                TL.LogMessage("Main", $"Device created");
+                Assert.NotNull(client);
+
+                // Set connected to true
+                client.Connected = true;
+                TL.LogMessage("Main", $"Connected set true, Position: {client.Position}");
+
+                // Start a task that will halt the move after 1 second
+                Task haltMoveTask = new Task(async () =>
+                {
+                    TL.LogMessage("HaltMoveTask", $"Starting thread sleep");
+                    await Task.Delay(1000);
+                    TL.LogMessage("HaltMoveTask", $"Sleep completed, halting move.");
+                    await client.HaltAsync(pollInterval: 100, logger: TL);
+                    TL.LogMessage("HaltMoveTask", $"Move halted.");
+                });
+                haltMoveTask.Start();
+
+                // Find a target position to which the focuser will be commanded
+                if (client.Position < client.MaxIncrement / 2) // Focuser is in the lower half of its range
+                {
+                    testPosition = Math.Abs(client.Position + 2000);
+                }
+                else // Focuser is in the upper half of its range
+                {
+                    testPosition = Math.Abs(client.Position - 2000);
+                }
+                Assert.NotEqual(testPosition, client.Position);
+
+                // Test Position Set
+                TL.LogMessage("Main", $"About to await setting Position property");
+                await client.MoveAsync(testPosition, pollInterval: 100, logger: TL);
+                TL.LogMessage("Main", $"Await complete, Position: {client.Position}, Target: {testPosition}");
+                Assert.True((client.Position <= testPosition - POSITION_TOLERANCE) | (client.Position >= testPosition + POSITION_TOLERANCE)); // Allow a position tolerance
+
+                // Disconnect from the client and dispose
+                //client.Connected = false;
+                //client.Dispose();
+                GC.Collect();
+
+                TL.LogMessage("Main", $"Finished");
+            }
+            catch (Exception ex)
+            {
+                TL.LogMessage("Exception", ex.ToString());
+            }
+        }
+    }
+
+    public static class RotatorTests
+    {
+        [Fact]
+        public static async Task RotatorMoveTest()
+        {
+            const double RELATIVE_MOVE = 45.0;
+
+            // Create a TraceLogger to record activity
+            TraceLogger TL = new TraceLogger("RotatorMove", true, 64, LogLevel.Debug);
+
+            // Create a COM client
+            TL.LogMessage("Main", $"About to create device");
+            Rotator client = new Rotator("ASCOM.Simulator.Rotator");
+            TL.LogMessage("Main", $"Device created");
+            Assert.NotNull(client);
+
+            // Set connected to true
+            client.Connected = true;
+            TL.LogMessage("Main", $"Connected set true");
+
+            // Find a target position to which the focuser will be commanded
+
+            double startPosition = client.Position;
+            double expectedPosition = (client.Position + RELATIVE_MOVE) % 360.0;
+            Assert.NotEqual(expectedPosition, startPosition);
+
+            // Slew somewhere that is not likely to be the park position
+            TL.LogMessage("Main", $"Moving to {expectedPosition} degrees");
+            await client.MoveAsync(RELATIVE_MOVE, pollInterval: 100, logger: TL);
+            TL.LogMessage("Main", $"Move await complete, Position: {client.Position}, Is moving: {client.IsMoving}");
+            Assert.Equal(expectedPosition, client.Position);
+
+            // Disconnect from the client and dispose
+            client.Connected = false;
+            client.Dispose();
+            TL.LogMessage("Main", $"Finished");
+        }
+
+        [Fact]
+        public static async Task RotatorMoveAbsoluteTest()
+        {
+            const double RELATIVE_MOVE = 27.0;
+
+            // Create a TraceLogger to record activity
+            TraceLogger TL = new TraceLogger("RotatorMoveAbsolute", true, 64, LogLevel.Debug);
+
+            // Create a COM client
+            TL.LogMessage("Main", $"About to create device");
+            Rotator client = new Rotator("ASCOM.Simulator.Rotator");
+            TL.LogMessage("Main", $"Device created");
+            Assert.NotNull(client);
+
+            // Set connected to true
+            client.Connected = true;
+            TL.LogMessage("Main", $"Connected set true");
+
+            // Find a target position to which the focuser will be commanded
+
+            double startPosition = client.Position;
+            double expectedPosition = (client.Position + RELATIVE_MOVE) % 360.0;
+            Assert.NotEqual(expectedPosition, startPosition);
+
+            // Slew somewhere that is not likely to be the park position
+            TL.LogMessage("Main", $"Moving to {expectedPosition} degrees");
+            await client.MoveAbsoluteAsync(expectedPosition, pollInterval: 100, logger: TL);
+            TL.LogMessage("Main", $"Move await complete, Position: {client.Position}, Target position: {expectedPosition}, Is moving: {client.IsMoving}");
+            Assert.Equal(expectedPosition, client.Position);
+
+            // Disconnect from the client and dispose
+            client.Connected = false;
+            client.Dispose();
+            TL.LogMessage("Main", $"Finished");
+        }
+
+        [Fact]
+        public static async Task RotatorMoveMechanicalTest()
+        {
+            const double RELATIVE_MOVE = 59.0;
+
+            // Create a TraceLogger to record activity
+            TraceLogger TL = new TraceLogger("RotatorMoveMechanical", true, 64, LogLevel.Debug);
+
+            // Create a COM client
+            TL.LogMessage("Main", $"About to create device");
+            Rotator client = new Rotator("ASCOM.Simulator.Rotator");
+            TL.LogMessage("Main", $"Device created");
+            Assert.NotNull(client);
+
+            // Set connected to true
+            client.Connected = true;
+            TL.LogMessage("Main", $"Connected set true");
+
+            // Find a target position to which the focuser will be commanded
+
+            double startPosition = client.MechanicalPosition;
+            double expectedPosition = (client.MechanicalPosition + RELATIVE_MOVE) % 360.0;
+            Assert.NotEqual(expectedPosition, startPosition);
+
+            // Slew somewhere that is not likely to be the park position
+            TL.LogMessage("Main", $"Moving to mechanical {expectedPosition} degrees");
+            await client.MoveMechanicalAsync(expectedPosition, pollInterval: 100, logger: TL);
+            TL.LogMessage("Main", $"Move await complete, Mechanical position: {client.MechanicalPosition}, Target position: {expectedPosition}, Is moving: {client.IsMoving}, Position: {client.Position}");
+            Assert.Equal(expectedPosition, client.MechanicalPosition);
+
+            // Disconnect from the client and dispose
+            client.Connected = false;
+            client.Dispose();
+            TL.LogMessage("Main", $"Finished");
+        }
+
+        [Fact]
+        public static async Task RotatorHaltTest()
+        {
+            const double RELATIVE_MOVE = 170.0;
+
+            // Create a TraceLogger to record activity
+            TraceLogger TL = new TraceLogger("RotatorHalt", true, 64, LogLevel.Debug);
+
+            // Create a COM client
+            TL.LogMessage("Main", $"About to create device");
+            Rotator client = new Rotator("ASCOM.Simulator.Rotator");
+            TL.LogMessage("Main", $"Device created");
+            Assert.NotNull(client);
+
+            // Set connected to true
+            client.Connected = true;
+            TL.LogMessage("Main", $"Connected set true");
+
+            // Find a target position to which the focuser will be commanded
+
+            double startPosition = client.MechanicalPosition;
+            double expectedPosition = (client.MechanicalPosition + RELATIVE_MOVE) % 360.0;
+            Assert.NotEqual(expectedPosition, startPosition);
+
+            // Start a task that will halt the move after 500ms
+            Task haltMoveTask = new Task(async () =>
+            {
+                TL.LogMessage("HaltMoveTask", $"Starting thread sleep");
+                await Task.Delay(250);
+                TL.LogMessage("HaltMoveTask", $"Sleep completed, halting move.");
+                await client.HaltAsync(pollInterval: 100, logger: TL);
+                TL.LogMessage("HaltMoveTask", $"Move halted.");
+            });
+            haltMoveTask.Start();
+
+            // Move to new position
+            TL.LogMessage("Main", $"Moving to mechanical {expectedPosition} degrees");
+            await client.MoveMechanicalAsync(expectedPosition, pollInterval: 100, logger: TL);
+            TL.LogMessage("Main", $"Move await complete, Mechanical position: {client.MechanicalPosition}, Target position: {expectedPosition}, Is moving: {client.IsMoving}, Position: {client.Position}");
+            Assert.NotEqual(expectedPosition, client.MechanicalPosition);
+
+            // Disconnect from the client and dispose
+            client.Connected = false;
+            client.Dispose();
+            TL.LogMessage("Main", $"Finished");
+        }
+    }
+
+    public static class TelescopeTests
+    {
+        [Fact]
+        public static async Task TelescopeSlewToAltAzTest()
+        {
+            // Create a TraceLogger to record activity
+            TraceLogger TL = new TraceLogger("TelescopeSlewToAltAz", true, 64, LogLevel.Debug);
+
+            // Create a COM client
+            TL.LogMessage("Main", $"About to create device");
+            Telescope client = new Telescope("ASCOM.Simulator.Telescope");
+            TL.LogMessage("Main", $"Device created");
+            Assert.NotNull(client);
+
+            // Set connected to true
+            client.Connected = true;
+            TL.LogMessage("Main", $"Connected set true");
+
+            // Unpark
+            TL.LogMessage("Main", $"Unparking scope");
+            await client.UnparkAsync(pollInterval: 100, logger: TL);
+            TL.LogMessage("Main", $"Scope un-parked- Is parked: {client.AtPark}, Is at home: {client.AtHome}");
+
+            client.Tracking = false;
+            TL.LogMessage("Main", $"Tracking set false");
+
+            // Slew somewhere that is not likely to be the test position
+            TL.LogMessage("Main", $"Slewing to somewhere that is not likely to be the test position");
+            await client.SlewToAltAzTaskAsync(15.0, 7.0, pollInterval: 100, logger: TL);
+            TL.LogMessage("Main", $"Slew await complete, Is parked: {client.AtPark}, Is at home: {client.AtHome}, Azimuth: {client.Azimuth}, Altitude: {client.Altitude}");
+
+            // Slew to the target 
+            TL.LogMessage("Main", $"Slewing to the target ALt/Az (0.0, 0.0)");
+            await client.SlewToAltAzTaskAsync(0.0, 0.0, pollInterval: 100, logger: TL);
+            TL.LogMessage("Main", $"Slew await complete, Is parked: {client.AtPark}, Is at home: {client.AtHome}, Azimuth: {client.Azimuth}, Altitude: {client.Altitude}");
+            Assert.False(client.AtHome);
+            Assert.False(client.AtPark);
+            Assert.Equal(0.0, Math.Round(client.Azimuth, 1));
+            Assert.Equal(0.0, Math.Round(client.Altitude, 1));
+
+            // Disconnect from the client and dispose
+            client.Connected = false;
+            client.Dispose();
+            TL.LogMessage("Main", $"Finished");
+        }
+
+        [Fact]
+        public static async Task TelescopeSlewToCoordinatesTest()
+        {
+            // Create a TraceLogger to record activity
+            TraceLogger TL = new TraceLogger("TelescopeSlewToCoordinates", true, 64, LogLevel.Debug);
+
+            // Create a COM client
+            TL.LogMessage("Main", $"About to create device");
+            Telescope client = new Telescope("ASCOM.Simulator.Telescope");
+            TL.LogMessage("Main", $"Device created");
+            Assert.NotNull(client);
+
+            // Set connected to true
+            client.Connected = true;
+            TL.LogMessage("Main", $"Connected set true");
+
+            // Unpark
+            TL.LogMessage("Main", $"Unparking scope");
+            await client.UnparkAsync(pollInterval: 100, logger: TL);
+            TL.LogMessage("Main", $"Scope un-parked- Is parked: {client.AtPark}, Is at home: {client.AtHome}");
+
+            client.Tracking = true;
+            TL.LogMessage("Main", $"Tracking set true");
+
+            double targetRa = client.SiderealTime - 2.456;
+
+            // Slew somewhere that is not likely to be the test position
+            TL.LogMessage("Main", $"Slewing to somewhere that is not likely to be the test position");
+            await client.SlewToCoordinatesTaskAsync(targetRa - 1.0, 5.0, pollInterval: 100, logger: TL);
+            TL.LogMessage("Main", $"Slew await complete, Is parked: {client.AtPark}, Is at home: {client.AtHome}, RA: {client.RightAscension}, Declination: {client.Declination}");
+
+            // Slew to the target 
+            TL.LogMessage("Main", $"Slewing to the target ALt/Az (0.0, 0.0)");
+            await client.SlewToCoordinatesTaskAsync(targetRa, 0.0, pollInterval: 100, logger: TL);
+            TL.LogMessage("Main", $"Slew await complete, Is parked: {client.AtPark}, Is at home: {client.AtHome}, RA: {client.RightAscension}, Declination: {client.Declination}");
+            Assert.False(client.AtHome);
+            Assert.False(client.AtPark);
+            Assert.Equal(Math.Round(targetRa, 3), Math.Round(client.RightAscension, 3));
+            Assert.Equal(0.0, Math.Round(client.Declination, 3));
+
+            // Disconnect from the client and dispose
+            client.Connected = false;
+            client.Dispose();
+            TL.LogMessage("Main", $"Finished");
+        }
+
+        [Fact]
+        public static async Task TelescopeSlewToTargetTest()
+        {
+            // Create a TraceLogger to record activity
+            TraceLogger TL = new TraceLogger("TelescopeSlewToTarget", true, 64, LogLevel.Debug);
+
+            // Create a COM client
+            TL.LogMessage("Main", $"About to create device");
+            Telescope client = new Telescope("ASCOM.Simulator.Telescope");
+            TL.LogMessage("Main", $"Device created");
+            Assert.NotNull(client);
+
+            // Set connected to true
+            client.Connected = true;
+            TL.LogMessage("Main", $"Connected set true");
+
+            // Unpark
+            TL.LogMessage("Main", $"Unparking scope");
+            await client.UnparkAsync(pollInterval: 100, logger: TL);
+            TL.LogMessage("Main", $"Scope un-parked- Is parked: {client.AtPark}, Is at home: {client.AtHome}");
+
+            client.Tracking = true;
+            TL.LogMessage("Main", $"Tracking set true");
+
+            double targetRa = (client.SiderealTime - 2.456 + 24.0) % 24.0;
+
+            // Slew somewhere that is not likely to be the test position
+            TL.LogMessage("Main", $"Slewing to somewhere that is not likely to be the test position");
+            await client.SlewToCoordinatesTaskAsync(targetRa, 3.0, pollInterval: 100, logger: TL);
+            TL.LogMessage("Main", $"Slew await complete, Is parked: {client.AtPark}, Is at home: {client.AtHome}, RA: {client.RightAscension}, Declination: {client.Declination}");
+
+            client.TargetRightAscension = targetRa;
+            client.TargetDeclination = 1.0;
+
+            // Slew to the target 
+            TL.LogMessage("Main", $"Slewing to the target RA/Dec ({client.TargetRightAscension}, {client.TargetDeclination})");
+            await client.SlewToCoordinatesTaskAsync(targetRa, 0.0, pollInterval: 100, logger: TL);
+            TL.LogMessage("Main", $"Slew await complete, Is parked: {client.AtPark}, Is at home: {client.AtHome}, RA: {client.RightAscension}, Declination: {client.Declination}");
+            Assert.False(client.AtHome);
+            Assert.False(client.AtPark);
+            Assert.Equal(Math.Round(targetRa, 3), Math.Round(client.RightAscension, 3));
+            Assert.Equal(client.TargetDeclination, Math.Round(client.Declination, 3));
+
+            // Disconnect from the client and dispose
+            client.Connected = false;
+            client.Dispose();
+            TL.LogMessage("Main", $"Finished");
+        }
+
+        [Fact]
+        public static async Task TelescopeFindHomeTest()
+        {
+            // Create a TraceLogger to record activity
+            TraceLogger TL = new TraceLogger("TelescopeFindHome", true, 64, LogLevel.Debug);
+
+            // Create a COM client
+            TL.LogMessage("Main", $"About to create device");
+            Telescope client = new Telescope("ASCOM.Simulator.Telescope");
+            TL.LogMessage("Main", $"Device created");
+            Assert.NotNull(client);
+
+            // Set connected to true
+            client.Connected = true;
+            TL.LogMessage("Main", $"Connected set true");
+
+            // Unpark
+            TL.LogMessage("Main", $"Unparking scope");
+            await client.UnparkAsync(pollInterval: 100, logger: TL);
+            TL.LogMessage("Main", $"Scope un-parked- Is parked: {client.AtPark}, Is at home: {client.AtHome}");
+
+            client.Tracking = true;
+            TL.LogMessage("Main", $"Tracking set true");
+
+            double targetRa = (client.SiderealTime - 2.456 + 24.0) % 24.0;
+
+            // Slew somewhere that is not likely to be the home position
+            TL.LogMessage("Main", $"Slewing to somewhere that is not likely to be the test position");
+            await client.SlewToCoordinatesTaskAsync(targetRa, 3.0, pollInterval: 100, logger: TL);
+            TL.LogMessage("Main", $"Slew await complete, Is parked: {client.AtPark}, Is at home: {client.AtHome}, RA: {client.RightAscension}, Declination: {client.Declination}");
+
+            // Slew to the target 
+            TL.LogMessage("Main", $"finding home");
+            await client.FindHomeAsync(pollInterval: 100, logger: TL);
+            TL.LogMessage("Main", $"Slew await complete, Is parked: {client.AtPark}, Is at home: {client.AtHome}, RA: {client.RightAscension}, Declination: {client.Declination}");
+            Assert.True(client.AtHome);
+
+            // Disconnect from the client and dispose
+            client.Connected = false;
+            client.Dispose();
+            TL.LogMessage("Main", $"Finished");
+        }
+
+        [Fact]
+        public static async Task TelescopeParkTest()
+        {
+            // Create a TraceLogger to record activity
+            TraceLogger TL = new TraceLogger("TelescopePark", true, 64, LogLevel.Debug);
+
+            // Create a COM client
+            TL.LogMessage("Main", $"About to create device");
+            Telescope client = new Telescope("ASCOM.Simulator.Telescope");
+            TL.LogMessage("Main", $"Device created");
+            Assert.NotNull(client);
+
+            // Set connected to true
+            client.Connected = true;
+            TL.LogMessage("Main", $"Connected set true");
+
+            // Unpark
+            TL.LogMessage("Main", $"Unparking scope");
+            await client.UnparkAsync(pollInterval: 100, logger: TL);
+            TL.LogMessage("Main", $"Scope un-parked- Is parked: {client.AtPark}, Is at home: {client.AtHome}");
+
+            client.Tracking = true;
+            TL.LogMessage("Main", $"Tracking set true");
+
+            double targetRa = (client.SiderealTime - 2.456 + 24.0) % 24.0;
+
+            // Slew somewhere that is not likely to be the park position
+            TL.LogMessage("Main", $"Slewing to somewhere that is not likely to be the test position");
+            await client.SlewToCoordinatesTaskAsync(targetRa, 3.0, pollInterval: 100, logger: TL);
+            TL.LogMessage("Main", $"Slew await complete, Is parked: {client.AtPark}, Is at home: {client.AtHome}, RA: {client.RightAscension}, Declination: {client.Declination}");
+
+            // Park the scope
+            TL.LogMessage("Main", $"Parking scope");
+            await client.ParkAsync(pollInterval: 100, logger: TL);
+            TL.LogMessage("Main", $"Park await complete, Is parked: {client.AtPark}, Is at home: {client.AtHome}, RA: {client.RightAscension}, Declination: {client.Declination}");
+            Assert.True(client.AtPark);
+
+            // Disconnect from the client and dispose
+            client.Connected = false;
+            client.Dispose();
+            TL.LogMessage("Main", $"Finished");
+        }
+
+        [Fact]
+        public static async Task TelescopeUnParkTest()
+        {
+            // Create a TraceLogger to record activity
+            TraceLogger TL = new TraceLogger("TelescopeUnPark", true, 64, LogLevel.Debug);
+
+            // Create a COM client
+            TL.LogMessage("Main", $"About to create device");
+            Telescope client = new Telescope("ASCOM.Simulator.Telescope");
+            TL.LogMessage("Main", $"Device created");
+            Assert.NotNull(client);
+
+            // Set connected to true
+            client.Connected = true;
+            TL.LogMessage("Main", $"Connected set true");
+
+            // Unpark
+            TL.LogMessage("Main", $"Unparking scope");
+            await client.UnparkAsync(pollInterval: 100, logger: TL);
+            TL.LogMessage("Main", $"Scope un-parked- Is parked: {client.AtPark}, Is at home: {client.AtHome}");
+
+            client.Tracking = true;
+            TL.LogMessage("Main", $"Tracking set true");
+
+            double targetRa = (client.SiderealTime - 2.456 + 24.0) % 24.0;
+
+            // Slew somewhere that is not likely to be the park position
+            TL.LogMessage("Main", $"Slewing to somewhere that is not likely to be the test position");
+            await client.SlewToCoordinatesTaskAsync(targetRa, 3.0, pollInterval: 100, logger: TL);
+            TL.LogMessage("Main", $"Slew await complete, Is parked: {client.AtPark}, Is at home: {client.AtHome}, RA: {client.RightAscension}, Declination: {client.Declination}");
+
+            // Park the scope
+            TL.LogMessage("Main", $"Parking scope");
+            await client.ParkAsync(pollInterval: 100, logger: TL);
+            TL.LogMessage("Main", $"Park await complete, Is parked: {client.AtPark}, Is at home: {client.AtHome}, RA: {client.RightAscension}, Declination: {client.Declination}");
+            Assert.True(client.AtPark);
+
+            // Unpark the scope
+            TL.LogMessage("Main", $"Unparking scope");
+            await client.UnparkAsync(pollInterval: 100, logger: TL);
+            TL.LogMessage("Main", $"Unpark await complete, Is parked: {client.AtPark}, Is at home: {client.AtHome}, RA: {client.RightAscension}, Declination: {client.Declination}");
+            Assert.False(client.AtPark);
+
+            // Disconnect from the client and dispose
+            client.Connected = false;
+            client.Dispose();
+            TL.LogMessage("Main", $"Finished");
+        }
+
+        [Fact]
+        public static async Task TelescopeAbortSlewTest()
+        {
+            // Create a TraceLogger to record activity
+            TraceLogger TL = new TraceLogger("TelescopeAbortSlew", true, 64, LogLevel.Debug);
+
+            // Create a COM client
+            TL.LogMessage("Main", $"About to create device");
+            Telescope client = new Telescope("ASCOM.Simulator.Telescope");
+            TL.LogMessage("Main", $"Device created");
+            Assert.NotNull(client);
+
+            // Set connected to true
+            client.Connected = true;
+            TL.LogMessage("Main", $"Connected set true");
+
+            // Unpark
+            TL.LogMessage("Main", $"Unparking scope");
+            await client.UnparkAsync(pollInterval: 100, logger: TL);
+            TL.LogMessage("Main", $"Scope un-parked- Is parked: {client.AtPark}, Is at home: {client.AtHome}");
+
+            client.Tracking = true;
+            TL.LogMessage("Main", $"Tracking set true");
+
+            double targetRa = (client.SiderealTime - 3.771 + 24.0) % 24.0;
+
+            // Slew somewhere that is the test position
+            TL.LogMessage("Main", $"Slewing to somewhere that is not likely to be the test position");
+            await client.SlewToCoordinatesTaskAsync(targetRa - 3.0, 5.0, pollInterval: 100, logger: TL);
+            TL.LogMessage("Main", $"Slew await complete, Is parked: {client.AtPark}, Is at home: {client.AtHome}, RA: {client.RightAscension}, Declination: {client.Declination}");
+
+            // Start a task that will halt the slew after 1 second
+            Task abortSlewTask = new Task(async () =>
+            {
+                TL.LogMessage("AbortSlewTask", $"Starting thread sleep");
+                await Task.Delay(1000);
+                TL.LogMessage("AbortSlewTask", $"Sleep completed, aborting slew.");
+                await client.AbortSlewAsync(pollInterval: 100, logger: TL);
+                TL.LogMessage("AbortSlewTask", $"Slew aborted.");
+            });
+            abortSlewTask.Start();
+
+            // Slew to the target 
+            TL.LogMessage("Main", $"Slewing to the target ALt/Az (0.0, 0.0)");
+            await client.SlewToCoordinatesTaskAsync(targetRa, 0.0, pollInterval: 100, logger: TL);
+            TL.LogMessage("Main", $"Slew await complete, Is parked: {client.AtPark}, Is at home: {client.AtHome}, RA: {client.RightAscension}, Declination: {client.Declination}");
+            Assert.False(client.AtHome);
+            Assert.False(client.AtPark);
+            Assert.NotEqual(Math.Round(targetRa, 3), Math.Round(client.RightAscension, 3));
+            Assert.NotEqual(0.0, Math.Round(client.Declination, 3));
+
+            // Disconnect from the client and dispose
+            client.Connected = false;
+            client.Dispose();
+            TL.LogMessage("Main", $"Finished");
+        }
+    }
+
+    public static class CancelTests
+    {
+        [Fact]
+        public static async Task CancelTaskTest()
+        {
+            // Create a TraceLogger to record activity
+            TraceLogger TL = new TraceLogger("CancelTask", true, 64, LogLevel.Debug);
+
+            // Create a task completion source and token so that the task can be cancelled
+            CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+            CancellationToken cancellationToken = cancellationTokenSource.Token;
+
+            // Create a COM client
+            TL.LogMessage("Main", $"About to create device");
+            CoverCalibrator client = new CoverCalibrator("ASCOM.Simulator.CoverCalibrator");
+            TL.LogMessage("Main", $"Device created");
+            Assert.NotNull(client);
+
+            // Set connected to true
+            client.Connected = true;
+            TL.LogMessage("Main", $"Connected set true");
+
+            // Ensure that the cover is in the closed state
+            await client.CloseCoverAsync(pollInterval: 100, logger: TL);
+
+            // Start a task that will cancel the cover open after 1 second
+            Task cancelOpenTask = new Task(async () =>
+            {
+                TL.LogMessage("CancelOpenTask", $"Starting thread sleep");
+                await Task.Delay(1050);
+                TL.LogMessage("CancelOpenTask", $"Sleep completed, cancelling open.");
+                cancellationTokenSource.Cancel();
+                TL.LogMessage("CancelOpenTask", $"Open cancelled.");
+            });
+            cancelOpenTask.Start();
+
+            // Test the cancel
+            await Assert.ThrowsAsync<OperationCanceledException>(async () =>
+            {
+                TL.LogMessage("Main", $"About to await method");
+                await client.OpenCoverAsync(cancellationToken, 100, TL);
+                TL.LogMessage("Main", $"Await complete - should never get here...");
+
+            });
+            TL.LogMessage("Main", $"Await complete, Cover state: {client.CoverState}");
+            Assert.NotEqual(CoverStatus.Open, client.CoverState);
+
+            // Disconnect from the client and dispose
+            client.Connected = false;
+            client.Dispose();
+            TL.LogMessage("Main", $"Finished");
+        }
+    }
+
 }
