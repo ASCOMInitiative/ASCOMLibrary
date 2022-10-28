@@ -8,12 +8,15 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
 using System.Xml;
+using ASCOM.Common.Alpaca;
+using System.Reflection;
+using System.Linq;
 
 namespace ASCOM.Common
 {
-   /// <summary>
-   /// Asynchronous extensions for the Alpaca clients and COM clients that return awaitable tasks for long running methods.
-   /// </summary>
+    /// <summary>
+    /// Asynchronous extensions for the Alpaca clients and COM clients that return awaitable tasks for long running methods.
+    /// </summary>
     public static class ClientExtensions
     {
 
@@ -26,7 +29,7 @@ namespace ASCOM.Common
         #region Camera extensions
 
         /// <summary>
-        ///  Returns an awaitable <see cref="Task"/> that takes a camera image
+        /// Returns an awaitable, running, <see cref="Task"/> that takes a camera image
         /// </summary>
         /// <param name="device">The Camera device</param>
         /// <param name="duration">Length of exposure</param>
@@ -44,11 +47,11 @@ namespace ASCOM.Common
                     (device.CameraState == CameraState.Exposing) |
                     (device.CameraState == CameraState.Reading);
                 },
-                pollInterval, cancellationToken, logger, nameof(StartExposureAsync));
+                pollInterval, cancellationToken, logger, $"{nameof(ICameraV3)}.{nameof(StartExposureAsync)}");
         }
 
         /// <summary>
-        ///  Returns an awaitable <see cref="Task"/> that stops the current camera exposure
+        /// Returns an awaitable, running, <see cref="Task"/> that stops the current camera exposure
         /// </summary>
         /// <param name="device">The Camera device</param>
         /// <param name="cancellationToken">Cancellation token - Default: No cancellation token</param>
@@ -57,7 +60,7 @@ namespace ASCOM.Common
         /// <returns>Awaitable task that ends when the exposure is has stopped</returns>
         public static async Task StopExposureAsync(this ICameraV3 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
-            await ProcessTask(() => { device.StopExposure(); }, () => { return device.CameraState == CameraState.Reading; }, pollInterval, cancellationToken, logger, nameof(StopExposureAsync));
+            await ProcessTask(() => { device.StopExposure(); }, () => { return device.CameraState == CameraState.Reading; }, pollInterval, cancellationToken, logger, $"{nameof(ICameraV3)}.{nameof(StopExposureAsync)}");
         }
 
         #endregion
@@ -65,7 +68,7 @@ namespace ASCOM.Common
         #region CoverCalibrator extensions
 
         /// <summary>
-        ///  Returns an awaitable <see cref="Task"/> that turns the calibrator off
+        /// Returns an awaitable, running, <see cref="Task"/> that turns the calibrator off
         /// </summary>
         /// <param name="device">The CoverCalibrator device</param>
         /// <param name="cancellationToken">Cancellation token - Default: No cancellation token</param>
@@ -74,11 +77,11 @@ namespace ASCOM.Common
         /// <returns>Awaitable task that ends when the calibrator is off</returns>
         public static async Task CalibratorOffAsync(this ICoverCalibratorV1 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
-            await ProcessTask(() => { device.CalibratorOff(); }, () => { return device.CalibratorState == CalibratorStatus.NotReady; }, pollInterval, cancellationToken, logger, nameof(CalibratorOffAsync));
+            await ProcessTask(() => { device.CalibratorOff(); }, () => { return device.CalibratorState == CalibratorStatus.NotReady; }, pollInterval, cancellationToken, logger, $"{nameof(ICoverCalibratorV1)}.{nameof(CalibratorOffAsync)}");
         }
 
         /// <summary>
-        ///  Returns an awaitable <see cref="Task"/> that turns the calibrator on
+        /// Returns an awaitable, running, <see cref="Task"/> that turns the calibrator on
         /// </summary>
         /// <param name="device">The CoverCalibrator device</param>
         /// <param name="brightness">Required brightness level</param>
@@ -88,11 +91,11 @@ namespace ASCOM.Common
         /// <returns>Awaitable task that ends when the calibrator is on</returns>
         public static async Task CalibratorOnAsync(this ICoverCalibratorV1 device, int brightness, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
-            await ProcessTask(() => { device.CalibratorOn(brightness); }, () => { return device.CalibratorState == CalibratorStatus.NotReady; }, pollInterval, cancellationToken, logger, nameof(CalibratorOnAsync));
+            await ProcessTask(() => { device.CalibratorOn(brightness); }, () => { return device.CalibratorState == CalibratorStatus.NotReady; }, pollInterval, cancellationToken, logger, $"{nameof(ICoverCalibratorV1)}.{nameof(CalibratorOnAsync)}");
         }
 
         /// <summary>
-        ///  Returns an awaitable <see cref="Task"/> that closes the cover
+        /// Returns an awaitable, running, <see cref="Task"/> that closes the cover
         /// </summary>
         /// <param name="device">The CoverCalibrator device</param>
         /// <param name="cancellationToken">Cancellation token - Default: No cancellation token</param>
@@ -101,11 +104,11 @@ namespace ASCOM.Common
         /// <returns>Awaitable task that ends when the cover is closed</returns>
         public static async Task CloseCoverAsync(this ICoverCalibratorV1 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
-            await ProcessTask(() => { device.CloseCover(); }, () => { return device.CoverState == CoverStatus.Moving; }, pollInterval, cancellationToken, logger, nameof(CloseCoverAsync));
+            await ProcessTask(() => { device.CloseCover(); }, () => { return device.CoverState == CoverStatus.Moving; }, pollInterval, cancellationToken, logger, $"{nameof(ICoverCalibratorV1)}.{nameof(CloseCoverAsync)}");
         }
 
         /// <summary>
-        ///  Returns an awaitable <see cref="Task"/> that halts cover movement
+        /// Returns an awaitable, running, <see cref="Task"/> that halts cover movement
         /// </summary>
         /// <param name="device">The CoverCalibrator device</param>
         /// <param name="cancellationToken">Cancellation token - Default: No cancellation token</param>
@@ -114,11 +117,11 @@ namespace ASCOM.Common
         /// <returns>Awaitable task that ends when cover movement has stopped</returns>
         public static async Task HaltCoverAsync(this ICoverCalibratorV1 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
-            await ProcessTask(() => { device.HaltCover(); }, () => { return device.CoverState == CoverStatus.Moving; }, pollInterval, cancellationToken, logger, nameof(HaltCoverAsync));
+            await ProcessTask(() => { device.HaltCover(); }, () => { return device.CoverState == CoverStatus.Moving; }, pollInterval, cancellationToken, logger, $"{nameof(ICoverCalibratorV1)}.{nameof(HaltCoverAsync)}");
         }
 
         /// <summary>
-        ///  Returns an awaitable <see cref="Task"/> that opens the cover
+        /// Returns an awaitable, running, <see cref="Task"/> that opens the cover
         /// </summary>
         /// <param name="device">The CoverCalibrator device</param>
         /// <param name="cancellationToken">Cancellation token - Default: No cancellation token</param>
@@ -127,7 +130,7 @@ namespace ASCOM.Common
         /// <returns>Awaitable task that ends when the cover is open</returns>
         public static async Task OpenCoverAsync(this ICoverCalibratorV1 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
-            await ProcessTask(() => { device.OpenCover(); }, () => { return device.CoverState == CoverStatus.Moving; }, pollInterval, cancellationToken, logger, nameof(OpenCoverAsync));
+            await ProcessTask(() => { device.OpenCover(); }, () => { return device.CoverState == CoverStatus.Moving; }, pollInterval, cancellationToken, logger, $"{nameof(ICoverCalibratorV1)}.{nameof(OpenCoverAsync)}");
         }
 
         #endregion
@@ -135,7 +138,7 @@ namespace ASCOM.Common
         #region Dome extensions
 
         /// <summary>
-        ///  Returns an awaitable <see cref="Task"/> that halts all dome movement
+        /// Returns an awaitable, running, <see cref="Task"/> that halts all dome movement
         /// </summary>
         /// <param name="device">The Dome device</param>
         /// <param name="cancellationToken">Cancellation token - Default: No cancellation token</param>
@@ -145,11 +148,11 @@ namespace ASCOM.Common
 
         public static async Task AbortSlewAsync(this IDomeV2 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
-            await ProcessTask(() => { device.AbortSlew(); }, () => { return device.Slewing | (device.ShutterStatus == ShutterState.Opening) | (device.ShutterStatus == ShutterState.Closing); }, pollInterval, cancellationToken, logger, nameof(AbortSlewAsync));
+            await ProcessTask(() => { device.AbortSlew(); }, () => { return device.Slewing | (device.ShutterStatus == ShutterState.Opening) | (device.ShutterStatus == ShutterState.Closing); }, pollInterval, cancellationToken, logger, $"{nameof(IDomeV2)}.{nameof(AbortSlewAsync)}");
         }
 
         /// <summary>
-        ///  Returns an awaitable <see cref="Task"/> that closes the dome shutter
+        /// Returns an awaitable, running, <see cref="Task"/> that closes the dome shutter
         /// </summary>
         /// <param name="device">The Dome device</param>
         /// <param name="cancellationToken">Cancellation token - Default: No cancellation token</param>
@@ -158,11 +161,11 @@ namespace ASCOM.Common
         /// <returns>Awaitable task that ends when cover is closed</returns>
         public static async Task CloseShutterAsync(this IDomeV2 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
-            await ProcessTask(() => { device.CloseShutter(); }, () => { return device.ShutterStatus == ShutterState.Closing; }, pollInterval, cancellationToken, logger, nameof(CloseShutterAsync));
+            await ProcessTask(() => { device.CloseShutter(); }, () => { return device.ShutterStatus == ShutterState.Closing; }, pollInterval, cancellationToken, logger, $"{nameof(IDomeV2)}.{nameof(CloseShutterAsync)}");
         }
 
         /// <summary>
-        ///  Returns an awaitable <see cref="Task"/> that moves the dome to the home position
+        /// Returns an awaitable, running, <see cref="Task"/> that moves the dome to the home position
         /// </summary>
         /// <param name="device">The Dome device</param>
         /// <param name="cancellationToken">Cancellation token - Default: No cancellation token</param>
@@ -171,11 +174,11 @@ namespace ASCOM.Common
         /// <returns>Awaitable task that ends when the dome is at its home position</returns>
         public static async Task FindHomeAsync(this IDomeV2 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
-            await ProcessTask(() => { device.FindHome(); }, () => { return device.Slewing; }, pollInterval, cancellationToken, logger, nameof(FindHomeAsync));
+            await ProcessTask(() => { device.FindHome(); }, () => { return device.Slewing; }, pollInterval, cancellationToken, logger, $"{nameof(IDomeV2)}.{nameof(FindHomeAsync)}");
         }
 
         /// <summary>
-        ///  Returns an awaitable <see cref="Task"/> that opens the dome shutter
+        /// Returns an awaitable, running, <see cref="Task"/> that opens the dome shutter
         /// </summary>
         /// <param name="device">The Dome device</param>
         /// <param name="cancellationToken">Cancellation token - Default: No cancellation token</param>
@@ -184,11 +187,11 @@ namespace ASCOM.Common
         /// <returns>Awaitable task that ends when the shutter is open</returns>
         public static async Task OpenShutterAsync(this IDomeV2 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
-            await ProcessTask(() => { device.OpenShutter(); }, () => { return device.ShutterStatus == ShutterState.Opening; }, pollInterval, cancellationToken, logger, nameof(OpenShutterAsync));
+            await ProcessTask(() => { device.OpenShutter(); }, () => { return device.ShutterStatus == ShutterState.Opening; }, pollInterval, cancellationToken, logger, $"{nameof(IDomeV2)}.{nameof(OpenShutterAsync)}");
         }
 
         /// <summary>
-        ///  Returns an awaitable <see cref="Task"/> that parks the dome
+        /// Returns an awaitable, running, <see cref="Task"/> that parks the dome
         /// </summary>
         /// <param name="device">The Dome device</param>
         /// <param name="cancellationToken">Cancellation token - Default: No cancellation token</param>
@@ -198,11 +201,11 @@ namespace ASCOM.Common
 
         public static async Task ParkAsync(this IDomeV2 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
-            await ProcessTask(() => { device.Park(); }, () => { return device.Slewing; }, pollInterval, cancellationToken, logger, nameof(ParkAsync));
+            await ProcessTask(() => { device.Park(); }, () => { return device.Slewing; }, pollInterval, cancellationToken, logger, $"{nameof(IDomeV2)}.{nameof(ParkAsync)}");
         }
 
         /// <summary>
-        ///  Returns an awaitable <see cref="Task"/> that slews the dome to the specified altitude
+        /// Returns an awaitable, running, <see cref="Task"/> that slews the dome to the specified altitude
         /// </summary>
         /// <param name="device">The Dome device</param>
         /// <param name="altitude">The CoverCalibrator device</param>
@@ -212,11 +215,11 @@ namespace ASCOM.Common
         /// <returns>Awaitable task that ends when the dome is at the required altitude</returns>
         public static async Task SlewToAltitudeAsync(this IDomeV2 device, double altitude, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
-            await ProcessTask(() => { device.SlewToAltitude(altitude); }, () => { return device.Slewing; }, pollInterval, cancellationToken, logger, nameof(SlewToAltitudeAsync));
+            await ProcessTask(() => { device.SlewToAltitude(altitude); }, () => { return device.Slewing; }, pollInterval, cancellationToken, logger, $"{nameof(IDomeV2)}.{nameof(SlewToAltitudeAsync)}");
         }
 
         /// <summary>
-        ///  Returns an awaitable <see cref="Task"/> that slews the dome to the specified azimuth
+        /// Returns an awaitable, running, <see cref="Task"/> that slews the dome to the specified azimuth
         /// </summary>
         /// <param name="device">The Dome device</param>
         /// <param name="azimuth">The CoverCalibrator device</param>
@@ -226,7 +229,7 @@ namespace ASCOM.Common
         /// <returns>Awaitable task that ends when the dome is at the required azimuth</returns>
         public static async Task SlewToAzimuthAsync(this IDomeV2 device, double azimuth, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
-            await ProcessTask(() => { device.SlewToAzimuth(azimuth); }, () => { return device.Slewing; }, pollInterval, cancellationToken, logger, nameof(SlewToAzimuthAsync));
+            await ProcessTask(() => { device.SlewToAzimuth(azimuth); }, () => { return device.Slewing; }, pollInterval, cancellationToken, logger, $"{nameof(IDomeV2)}.{nameof(SlewToAzimuthAsync)}");
         }
 
         #endregion
@@ -234,7 +237,7 @@ namespace ASCOM.Common
         #region FilterWheel extensions
 
         /// <summary>
-        ///  Returns an awaitable <see cref="Task"/> that moves the filter wheel to the specified filter wheel position
+        /// Returns an awaitable, running, <see cref="Task"/> that moves the filter wheel to the specified filter wheel position
         /// </summary>
         /// <param name="device">The FilterWheel device</param>
         /// <param name="position">The required filter wheel position</param>
@@ -244,7 +247,7 @@ namespace ASCOM.Common
         /// <returns>Awaitable task that ends when the filter wheel is at the required position</returns>
         public static async Task PositionSetAsync(this IFilterWheelV2 device, int position, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
-            await ProcessTask(() => { device.Position = Convert.ToInt16(position); }, () => { return device.Position == -1; }, pollInterval, cancellationToken, logger, nameof(PositionSetAsync));
+            await ProcessTask(() => { device.Position = Convert.ToInt16(position); }, () => { return device.Position == -1; }, pollInterval, cancellationToken, logger, $"{nameof(IFilterWheelV2)}.{nameof(PositionSetAsync)}");
         }
 
         #endregion
@@ -252,7 +255,7 @@ namespace ASCOM.Common
         #region Focuser extensions
 
         /// <summary>
-        ///  Returns an awaitable <see cref="Task"/> that halts focuser movement
+        /// Returns an awaitable, running, <see cref="Task"/> that halts focuser movement
         /// </summary>
         /// <param name="device">The Focuser device</param>
         /// <param name="cancellationToken">Cancellation token - Default: No cancellation token</param>
@@ -261,11 +264,11 @@ namespace ASCOM.Common
         /// <returns>Awaitable task that ends when focuser movement has halted</returns>
         public static async Task HaltAsync(this IFocuserV3 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
-            await ProcessTask(() => { device.Halt(); }, () => { return device.IsMoving; }, pollInterval, cancellationToken, logger, nameof(HaltAsync), () => { return $"Position: {device.Position}"; });
+            await ProcessTask(() => { device.Halt(); }, () => { return device.IsMoving; }, pollInterval, cancellationToken, logger, $"{nameof(IFocuserV3)}.{nameof(HaltAsync)}", () => { return $"Position: {device.Position}"; });
         }
 
         /// <summary>
-        ///  Returns an awaitable <see cref="Task"/> that moves to the specified focuser position
+        /// Returns an awaitable, running, <see cref="Task"/> that moves to the specified focuser position
         /// </summary>
         /// <param name="device">The Focuser device</param>
         /// <param name="position">The required filter wheel position</param>
@@ -275,7 +278,7 @@ namespace ASCOM.Common
         /// <returns>Awaitable task that ends when the focuser is at the required position</returns>
         public static async Task MoveAsync(this IFocuserV3 device, int position, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
-            await ProcessTask(() => { device.Move(position); }, () => { return device.IsMoving; }, pollInterval, cancellationToken, logger, nameof(MoveAsync), () => { return $"Position: {device.Position}"; });
+            await ProcessTask(() => { device.Move(position); }, () => { return device.IsMoving; }, pollInterval, cancellationToken, logger, $"{nameof(IFocuserV3)}.{nameof(MoveAsync)}", () => { return $"Position: {device.Position}"; });
         }
 
         #endregion
@@ -289,7 +292,7 @@ namespace ASCOM.Common
         #region Rotator extensions
 
         /// <summary>
-        ///  Returns an awaitable <see cref="Task"/> that halts rotator movement
+        /// Returns an awaitable, running, <see cref="Task"/> that halts rotator movement
         /// </summary>
         /// <param name="device">The Rotator device</param>
         /// <param name="cancellationToken">Cancellation token - Default: No cancellation token</param>
@@ -298,11 +301,11 @@ namespace ASCOM.Common
         /// <returns>Awaitable task that ends when rotator movement has halted</returns>
         public static async Task HaltAsync(this IRotatorV3 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
-            await ProcessTask(() => { device.Halt(); }, () => { return device.IsMoving; }, pollInterval, cancellationToken, logger, nameof(HaltAsync));
+            await ProcessTask(() => { device.Halt(); }, () => { return device.IsMoving; }, pollInterval, cancellationToken, logger, $"{nameof(IRotatorV3)}.{nameof(HaltAsync)}");
         }
 
         /// <summary>
-        ///  Returns an awaitable <see cref="Task"/> that moves the rotator to the specified relative position
+        /// Returns an awaitable, running, <see cref="Task"/> that moves the rotator to the specified relative position
         /// </summary>
         /// <param name="device">The Rotator device</param>
         /// <param name="position">The required filter wheel position</param>
@@ -312,11 +315,11 @@ namespace ASCOM.Common
         /// <returns>Awaitable task that ends when the rotator has moved by the specified amount</returns>
         public static async Task MoveAsync(this IRotatorV3 device, double position, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
-            await ProcessTask(() => { device.Move(Convert.ToSingle(position)); }, () => { return device.IsMoving; }, pollInterval, cancellationToken, logger, nameof(MoveAsync), () => { return $"Position: {device.Position}"; });
+            await ProcessTask(() => { device.Move(Convert.ToSingle(position)); }, () => { return device.IsMoving; }, pollInterval, cancellationToken, logger, $"{nameof(IRotatorV3)}.{nameof(MoveAsync)}", () => { return $"Position: {device.Position}"; });
         }
 
         /// <summary>
-        ///  Returns an awaitable <see cref="Task"/> that moves the rotator to the specified absolute position
+        /// Returns an awaitable, running, <see cref="Task"/> that moves the rotator to the specified absolute position
         /// </summary>
         /// <param name="device">The Rotator device</param>
         /// <param name="position">The required filter wheel position</param>
@@ -326,11 +329,11 @@ namespace ASCOM.Common
         /// <returns>Awaitable task that ends when the rotator is at the required absolute position</returns>
         public static async Task MoveAbsoluteAsync(this IRotatorV3 device, double position, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
-            await ProcessTask(() => { device.MoveAbsolute(Convert.ToSingle(position)); }, () => { return device.IsMoving; }, pollInterval, cancellationToken, logger, nameof(MoveAbsoluteAsync), () => { return $"Position: {device.Position}"; });
+            await ProcessTask(() => { device.MoveAbsolute(Convert.ToSingle(position)); }, () => { return device.IsMoving; }, pollInterval, cancellationToken, logger, $"{nameof(IRotatorV3)}.{nameof(MoveAbsoluteAsync)}", () => { return $"Position: {device.Position}"; });
         }
 
         /// <summary>
-        ///  Returns an awaitable <see cref="Task"/> that moves the rotator to the specified mechanical position
+        /// Returns an awaitable, running, <see cref="Task"/> that moves the rotator to the specified mechanical position
         /// </summary>
         /// <param name="device">The Rotator device</param>
         /// <param name="position">The required filter wheel position</param>
@@ -340,7 +343,7 @@ namespace ASCOM.Common
         /// <returns>Awaitable task that ends when the rotator is at the required mechanical position</returns>
         public static async Task MoveMechanicalAsync(this IRotatorV3 device, double position, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
-            await ProcessTask(() => { device.MoveMechanical(Convert.ToSingle(position)); }, () => { return device.IsMoving; }, pollInterval, cancellationToken, logger, nameof(MoveMechanicalAsync), () => { return $"Position: {device.Position}, Mechanical position: {device.MechanicalPosition}"; });
+            await ProcessTask(() => { device.MoveMechanical(Convert.ToSingle(position)); }, () => { return device.IsMoving; }, pollInterval, cancellationToken, logger, $"{nameof(IRotatorV3)}.{nameof(MoveMechanicalAsync)}", () => { return $"Position: {device.Position}, Mechanical position: {device.MechanicalPosition}"; });
         }
 
         #endregion
@@ -360,7 +363,7 @@ namespace ASCOM.Common
         #region Telescope extensions
 
         /// <summary>
-        /// Returns an awaitable <see cref="Task"/> that slews the telescope to the specified altitude / azimuth coordinates
+        /// Returns an awaitable, running, <see cref="Task"/> that slews the telescope to the specified altitude / azimuth coordinates
         /// </summary>
         /// <param name="device">The Telescope device</param>
         /// <param name="azimuth">The required azimuth</param>
@@ -371,11 +374,11 @@ namespace ASCOM.Common
         /// <returns>Awaitable task that ends when the telescope is at the required coordinates</returns>
         public static async Task SlewToAltAzTaskAsync(this ITelescopeV3 device, double azimuth, double altitude, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
-            await ProcessTask(() => { device.SlewToAltAzAsync(azimuth, altitude); }, () => { return device.Slewing; }, pollInterval, cancellationToken, logger, nameof(SlewToAltAzTaskAsync), () => { return $"Altitude: {device.Altitude}, Azimuth: {device.Azimuth}"; });
+            await ProcessTask(() => { device.SlewToAltAzAsync(azimuth, altitude); }, () => { return device.Slewing; }, pollInterval, cancellationToken, logger, $"{nameof(ITelescopeV3)}.{nameof(SlewToAltAzTaskAsync)}", () => { return $"Altitude: {device.Altitude}, Azimuth: {device.Azimuth}"; });
         }
 
         /// <summary>
-        /// Returns an awaitable <see cref="Task"/> that slews the telescope to the specified RA/Dec coordinates
+        /// Returns an awaitable, running, <see cref="Task"/> that slews the telescope to the specified RA/Dec coordinates
         /// </summary>
         /// <param name="device">The Telescope device</param>
         /// <param name="rightAscension">The required right ascension</param>
@@ -386,11 +389,11 @@ namespace ASCOM.Common
         /// <returns>Awaitable task that ends when the telescope is at the required coordinates</returns>
         public static async Task SlewToCoordinatesTaskAsync(this ITelescopeV3 device, double rightAscension, double declination, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
-            await ProcessTask(() => { device.SlewToCoordinatesAsync(rightAscension, declination); }, () => { return device.Slewing; }, pollInterval, cancellationToken, logger, nameof(SlewToCoordinatesTaskAsync), () => { return $"RA: {device.RightAscension}, Declination: {device.Declination}"; });
+            await ProcessTask(() => { device.SlewToCoordinatesAsync(rightAscension, declination); }, () => { return device.Slewing; }, pollInterval, cancellationToken, logger, $"{nameof(ITelescopeV3)}.{nameof(SlewToCoordinatesTaskAsync)}", () => { return $"RA: {device.RightAscension}, Declination: {device.Declination}"; });
         }
 
         /// <summary>
-        /// Returns an awaitable <see cref="Task"/> that slews the telescope to the coordinates specified by the TargetRA and TargetDeclination properties
+        /// Returns an awaitable, running, <see cref="Task"/> that slews the telescope to the coordinates specified by the TargetRA and TargetDeclination properties
         /// </summary>
         /// <param name="device">The Telescope device</param>
         /// <param name="cancellationToken">Cancellation token - Default: No cancellation token</param>
@@ -399,11 +402,11 @@ namespace ASCOM.Common
         /// <returns>Awaitable task that ends when the telescope is at the required coordinates</returns>
         public static async Task SlewToTargetTaskAsync(this ITelescopeV3 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
-            await ProcessTask(() => { device.SlewToTargetAsync(); }, () => { return device.Slewing; }, pollInterval, cancellationToken, logger, nameof(SlewToTargetTaskAsync), () => { return $"RA: {device.RightAscension}, Declination: {device.Declination}"; });
+            await ProcessTask(() => { device.SlewToTargetAsync(); }, () => { return device.Slewing; }, pollInterval, cancellationToken, logger, $"{nameof(ITelescopeV3)}.{nameof(SlewToTargetTaskAsync)}", () => { return $"RA: {device.RightAscension}, Declination: {device.Declination}"; });
         }
 
         /// <summary>
-        /// Returns an awaitable <see cref="Task"/> that stops telescope slewing movement
+        /// Returns an awaitable, running, <see cref="Task"/> that stops telescope slewing movement
         /// </summary>
         /// <param name="device">The Telescope device</param>
         /// <param name="cancellationToken">Cancellation token - Default: No cancellation token</param>
@@ -412,11 +415,11 @@ namespace ASCOM.Common
         /// <returns>Awaitable task that ends when telescope slewing has stopped</returns>
         public static async Task AbortSlewAsync(this ITelescopeV3 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
-            await ProcessTask(() => { device.AbortSlew(); }, () => { return device.Slewing; }, pollInterval, cancellationToken, logger, nameof(AbortSlewAsync));
+            await ProcessTask(() => { device.AbortSlew(); }, () => { return device.Slewing; }, pollInterval, cancellationToken, logger, $"{nameof(ITelescopeV3)}.{nameof(AbortSlewAsync)}");
         }
 
         /// <summary>
-        /// Returns an awaitable <see cref="Task"/> that moves the telescope to the home position
+        /// Returns an awaitable, running, <see cref="Task"/> that moves the telescope to the home position
         /// </summary>
         /// <param name="device">The Telescope device</param>
         /// <param name="cancellationToken">Cancellation token - Default: No cancellation token</param>
@@ -425,11 +428,11 @@ namespace ASCOM.Common
         /// <returns>Awaitable task that ends when telescope is at home</returns>
         public static async Task FindHomeAsync(this ITelescopeV3 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
-            await ProcessTask(() => { device.FindHome(); }, () => { return device.Slewing; }, pollInterval, cancellationToken, logger, nameof(FindHomeAsync), () => { return $"RA: {device.RightAscension}, Declination: {device.Declination}"; });
+            await ProcessTask(() => { device.FindHome(); }, () => { return device.Slewing; }, pollInterval, cancellationToken, logger, $"{nameof(ITelescopeV3)}.{nameof(FindHomeAsync)}", () => { return $"RA: {device.RightAscension}, Declination: {device.Declination}"; });
         }
 
         /// <summary>
-        /// Returns an awaitable <see cref="Task"/> that parks the telescope
+        /// Returns an awaitable, running, <see cref="Task"/> that parks the telescope
         /// </summary>
         /// <param name="device">The Telescope device</param>
         /// <param name="cancellationToken">Cancellation token - Default: No cancellation token</param>
@@ -438,11 +441,11 @@ namespace ASCOM.Common
         /// <returns>Awaitable task that ends when telescope is at the park position</returns>
         public static async Task ParkAsync(this ITelescopeV3 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
-            await ProcessTask(() => { device.Park(); }, () => { return device.Slewing; }, pollInterval, cancellationToken, logger, nameof(ParkAsync), () => { return $"RA: {device.RightAscension}, Declination: {device.Declination}"; });
+            await ProcessTask(() => { device.Park(); }, () => { return device.Slewing; }, pollInterval, cancellationToken, logger, $"{nameof(ITelescopeV3)}.{nameof(ParkAsync)}", () => { return $"RA: {device.RightAscension}, Declination: {device.Declination}"; });
         }
 
         /// <summary>
-        /// Returns an awaitable <see cref="Task"/> that un-parks the telescope
+        /// Returns an awaitable, running, <see cref="Task"/> that un-parks the telescope
         /// </summary>
         /// <param name="device">The Telescope device</param>
         /// <param name="cancellationToken">Cancellation token - Default: No cancellation token</param>
@@ -451,7 +454,7 @@ namespace ASCOM.Common
         /// <returns>Awaitable task that ends when telescope is un-parked</returns>
         public static async Task UnparkAsync(this ITelescopeV3 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
-            await ProcessTask(() => { device.Unpark(); }, () => { return device.Slewing; }, pollInterval, cancellationToken, logger, nameof(UnparkAsync));
+            await ProcessTask(() => { device.Unpark(); }, () => { return device.Slewing; }, pollInterval, cancellationToken, logger, $"{nameof(ITelescopeV3)}.{nameof(UnparkAsync)}");
         }
 
         #endregion
@@ -475,61 +478,108 @@ namespace ASCOM.Common
         /// <returns></returns>
         internal static async Task ProcessTask(Action initiatorMethod, Func<bool> processRunningFunction, int pollInterval, CancellationToken cancellationToken, ILogger logger, string callingMethodName, Func<string> updateFunction = null)
         {
-            Stopwatch swLoop = new Stopwatch();
-            Stopwatch swOverall = new Stopwatch();
-            int delayTime = pollInterval;
-            int loopTime;
-            double totalLoopOverhead = 0.0;
-            int averageLoopOverhead = 0;
+            Stopwatch swLoop = new Stopwatch(); // Stopwatch to time each polling loop
+            Stopwatch swOverall = new Stopwatch(); // Stopwatch to time the overall process
 
-            double loopCount = 0;
+            int delayTime = pollInterval; // Adjustable delay time required to make the polling loop run at the pollInterval value. Initialised to pollInterval as a first approximation
+            int loopTime; // Variable to record the loop time before the stopwatch is reset
+            double totalLoopTime = 0.0; // Total time accumulated over all polling loops
+            int averageLoopTime = 0; // Average time per polling loop
+            double loopCount = 0; // Number of polling loops
+
+            CancellationTokenRegistration cancellationTokenRegistration; // CancellationTokenRegistration to enable the cancellation event attached to the cancellationToken to be removed
 
             // Start the overall timing stopwatch
             swOverall.Start();
 
             // Start the operation by calling the initiator method
-            logger?.LogMessage(LogLevel.Information, callingMethodName, $"Calling initiator method");
+            logger?.LogMessage(LogLevel.Information, callingMethodName, $"{Thread.CurrentThread.ManagedThreadId:00} Calling initiator method");
             initiatorMethod();
+            logger?.LogMessage(LogLevel.Debug, callingMethodName, $"{Thread.CurrentThread.ManagedThreadId:00} Initiator completed");
 
-            // Asynchronously wait for the operation to complete
-            logger?.LogMessage(LogLevel.Information, callingMethodName, $"Starting wait for process to complete");
-            await Task.Run(async () =>
+            // Create a completion source that enables the task to be set to a complete status
+            TaskCompletionSource<object> taskhasBeenCancelled = new TaskCompletionSource<object>();
+
+            // Add an event handler to the cancellation token that will fire when the task is cancelled.
+            using (cancellationTokenRegistration = cancellationToken.Register(() =>
             {
-                swLoop.Restart();
-                while (processRunningFunction() & !cancellationToken.IsCancellationRequested)  // Test whether the operation has completed or whether it has been cancelled
+                // Set the taskhasBeenCancelled task result, which will end this task
+                logger?.LogMessage(LogLevel.Debug, callingMethodName, $"{Thread.CurrentThread.ManagedThreadId:00} Task cancelled, setting cancellation task result...");
+                taskhasBeenCancelled.SetResult(null);
+                logger?.LogMessage(LogLevel.Debug, callingMethodName, $"{Thread.CurrentThread.ManagedThreadId:00} Cancellation task result set");
+            }))
+            {
+                // Create and run an async task to effect the polling loop
+                Task completionTask = Task.Run(async () =>
                 {
-                    // Wait for the required delay time
-                    await Task.Delay(delayTime);
+                    logger?.LogMessage(LogLevel.Information, callingMethodName, $"{Thread.CurrentThread.ManagedThreadId:00} Starting wait for process to complete");
 
-                    // Measure the overall loop time and restar5t the stopwatch for the next loop
-                    loopTime = (int)swLoop.ElapsedMilliseconds;
+                    // Start the loop timer outside the loop so that an accurate loop time is received on the first loop
                     swLoop.Restart();
 
-                    // Calculate the average loop overhead
-                    loopCount += 1; // Increment the count of the number of loops
-                    totalLoopOverhead += loopTime - delayTime; // Add the loop time of this loop to the total
-                    averageLoopOverhead = Convert.ToInt32(totalLoopOverhead / loopCount); // Calculate the average loop time from the total loop time and the number of loops
+                    // Wait for the operation to complete
+                    while (processRunningFunction() & !cancellationToken.IsCancellationRequested)  // Test whether the operation has completed or whether it has been cancelled
+                    {
+                        // Wait for the required delay time
+                        await Task.Delay(delayTime, cancellationToken); // Delay will end early if the task is cancelled
 
-                    // Calculate an updated delay time value for the next loop
-                    delayTime = Math.Max(0, pollInterval - averageLoopOverhead); // Ensure that delay is always 0 or greater
+                        // Record the overall loop time and restart the stopwatch for the next loop
+                        loopTime = (int)swLoop.ElapsedMilliseconds;
+                        swLoop.Restart();
 
-                    // Log the loop outcome
-                    logger?.LogMessage(LogLevel.Debug, callingMethodName, $"Waiting {pollInterval}ms for action to complete... Delay time{delayTime}, Average loop overhead: {averageLoopOverhead:0.0}ms, Loop time: {loopTime}{(updateFunction is null ? "" : $", {updateFunction()}")}");
-                };
+                        // Calculate the average loop overhead
+                        loopCount += 1; // Increment the count of the number of loops
+                        totalLoopTime += loopTime - delayTime; // Add the loop time of this loop to the total
+                        averageLoopTime = Convert.ToInt32(totalLoopTime / loopCount); // Calculate the average loop time from the total loop time and the number of loops
+
+                        // Calculate an updated delay time value for the next loop
+                        delayTime = Math.Max(0, pollInterval - averageLoopTime); // Ensure that delay is always 0 or greater
+
+                        // Log the loop outcome
+                        logger?.LogMessage(LogLevel.Debug, callingMethodName, $"{Thread.CurrentThread.ManagedThreadId:00} Waiting {pollInterval}ms for action to complete... Delay time{delayTime}, Average loop overhead: {averageLoopTime:0.0}ms, Loop time: {loopTime}{(updateFunction is null ? "" : $", {updateFunction()}")}");
+                    };
+
+                }, cancellationToken);
+
+                // Wait for either the polling task to complete or for the task to be cancelled
+                await Task.WhenAny(completionTask, taskhasBeenCancelled.Task);
 
                 // Log the final outcome
                 if (cancellationToken.IsCancellationRequested)
                 {
-                    logger?.LogMessage(LogLevel.Information, callingMethodName, $"PROCESS CANCELLED after {swOverall.Elapsed.TotalSeconds:0.0} seconds ({swOverall.ElapsedMilliseconds}ms)");
+                    logger?.LogMessage(LogLevel.Information, callingMethodName, $"{Thread.CurrentThread.ManagedThreadId:00} PROCESS CANCELLED after {swOverall.Elapsed.TotalSeconds:0.0} seconds ({swOverall.ElapsedMilliseconds}ms)");
+
+                    // Throw an operation cancelled exception if the operation was cancelled
+                    cancellationToken.ThrowIfCancellationRequested();
                 }
                 else
                 {
-                    logger?.LogMessage(LogLevel.Information, callingMethodName, $"Process completed in {swOverall.Elapsed.TotalSeconds:0.0} seconds ({swOverall.ElapsedMilliseconds}ms)");
-                }
-            });
+                    // Check whether the polling process completed OK or faulted
+                    switch (completionTask.Status)
+                    {
+                        case TaskStatus.RanToCompletion:
+                            {
+                                logger?.LogMessage(LogLevel.Information, callingMethodName, $"{Thread.CurrentThread.ManagedThreadId:00} Process completed in {swOverall.Elapsed.TotalSeconds:0.0} seconds ({swOverall.ElapsedMilliseconds}ms)");
+                                break;
+                            }
 
-            // Throw an operation cancelled exception if the operation was cancelled
-            cancellationToken.ThrowIfCancellationRequested();
+                        case TaskStatus.Faulted:
+                            {
+                                logger?.LogMessage(LogLevel.Information, callingMethodName, $"{Thread.CurrentThread.ManagedThreadId:00} Process FAULTED in {swOverall.Elapsed.TotalSeconds:0.0} seconds ({swOverall.ElapsedMilliseconds}ms)");
+
+                                // Log and throw the returned exception
+                                logger?.LogMessage(LogLevel.Debug, callingMethodName, $"{Thread.CurrentThread.ManagedThreadId:00} Exception: {completionTask.Exception?.Flatten().InnerExceptions.First()}");
+                                throw completionTask.Exception?.Flatten().InnerExceptions.First();
+                            }
+
+                        default:
+                            {
+                                logger?.LogMessage(LogLevel.Information, callingMethodName, $"{Thread.CurrentThread.ManagedThreadId:00} Process status: {completionTask.Status}, finished in {swOverall.Elapsed.TotalSeconds:0.0} seconds ({swOverall.ElapsedMilliseconds}ms)");
+                                break;
+                            }
+                    }
+                }
+            }
         }
 
         #endregion
