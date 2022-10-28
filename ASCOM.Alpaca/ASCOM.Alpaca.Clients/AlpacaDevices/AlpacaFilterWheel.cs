@@ -108,15 +108,22 @@ namespace ASCOM.Alpaca.Clients
                 Version version = Assembly.GetEntryAssembly().GetName().Version;
 
                 LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), "Starting initialisation, Version: " + version.ToString());
-                LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), "This instance's unique client number: " + clientNumber);
                 LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), "This devices's base URI: " + URIBase);
+
+                LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"Service type: {serviceType}");
+                LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"IP address: {ipAddressString}");
+                LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"IP port: {portNumber}");
+                LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"Remote device number: {remoteDeviceNumber}");
                 LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), "Establish communications timeout: " + establishConnectionTimeout.ToString());
                 LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), "Standard device response timeout: " + standardDeviceResponseTimeout.ToString());
                 LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), "Long device response timeout: " + longDeviceResponseTimeout.ToString());
+
                 LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"User name is Null or Empty: {string.IsNullOrEmpty(userName)}, User name is Null or White Space: {string.IsNullOrWhiteSpace(userName)}");
                 LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"User name length: {password.Length}");
                 LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"Password is Null or Empty: {string.IsNullOrEmpty(password)}, Password is Null or White Space: {string.IsNullOrWhiteSpace(password)}");
                 LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"Password length: {password.Length}");
+                LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"Strict casing: {strictCasing}");
+
 
                 DynamicClientDriver.ConnectToRemoteDevice(ref client, serviceType, ipAddressString, portNumber, clientNumber, clientDeviceType, standardDeviceResponseTimeout, userName, password, ImageArrayCompression.None, logger);
                 LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), "Completed initialisation");

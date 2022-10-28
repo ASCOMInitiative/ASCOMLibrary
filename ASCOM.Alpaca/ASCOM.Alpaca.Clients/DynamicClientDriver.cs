@@ -49,11 +49,8 @@ namespace ASCOM.Alpaca.Clients
 
         //Private variables
         private static uint uniqueTransactionNumber = 0; // Unique number that increments on each call to TransactionNumber
-        private static readonly ConcurrentDictionary<long, bool> connectStates;
-
 
         // Lock objects
-        private readonly static object connectLockObject = new object();
         private readonly static object transactionCountlockObject = new object();
 
         #endregion
@@ -65,7 +62,6 @@ namespace ASCOM.Alpaca.Clients
         /// </summary>
         static DynamicClientDriver()
         {
-            connectStates = new ConcurrentDictionary<long, bool>();
         }
 
         #endregion
@@ -102,46 +98,6 @@ namespace ASCOM.Alpaca.Clients
                 uniqueTransactionNumber += 1;
             }
             return uniqueTransactionNumber;
-        }
-
-        /// <summary>
-        /// Test whether a particular client is already connected
-        /// </summary>
-        /// <param name="clientNumber">Number of the calling client</param>
-        /// <param name="logger">ILogger device to which to send runtime diagnostic information</param>
-        /// <returns></returns>
-        internal static bool IsClientConnected(uint clientNumber, ILogger logger)
-        {
-            foreach (KeyValuePair<long, bool> kvp in connectStates)
-            {
-                AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "IsClientConnected", $"This device ClientID is in the ConnectedStates list: {kvp.Key}, Value: {kvp.Value}");
-            }
-
-            AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "IsClientConnected", "Number of connected devices: " + connectStates.Count + ", Returning: " + connectStates.ContainsKey(clientNumber).ToString());
-
-            return connectStates.ContainsKey(clientNumber);
-        }
-
-        /// <summary>
-        /// Returns the number of connected clients
-        /// </summary>
-        internal static uint ConnectionCount(ILogger logger)
-        {
-            AlpacaDeviceBaseClass.LogMessage(logger, 0, "ConnectionCount", connectStates.Count.ToString());
-            return (uint)connectStates.Count;
-        }
-
-        /// <summary>
-        /// Return name of current method
-        /// </summary>
-        /// <returns>Name of current method</returns>
-        [MethodImpl(MethodImplOptions.NoInlining)]
-        internal static string GetCurrentMethod()
-        {
-            StackTrace st = new StackTrace();
-            StackFrame sf = st.GetFrame(1);
-
-            return sf.GetMethod().Name;
         }
 
         /// <summary>
@@ -1733,53 +1689,9 @@ namespace ASCOM.Alpaca.Clients
             return remoteString;
         }
 
-        internal static void Connect(uint clientNumber, HttpClient client, int timeout, string URIBase, bool strictCasing, ILogger logger)
-        {
-            AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "Connect", "Acquiring connection lock");
-            lock (connectLockObject) // Ensure that only one connection attempt can happen at a time
-            {
-                AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "Connect", "Has connection lock");
-                if (IsClientConnected(clientNumber, logger)) // If we are already connected then just log this 
-                {
-                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "Connect", "Already connected, just incrementing connection count.");
-                }
-                else // We are not connected so connect now
-                {
-                    try
-                    {
-                        AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "Connect", "This is the first connection so set Connected to True");
-                        SetBool(clientNumber, client, timeout, URIBase, strictCasing, logger, "Connected", true, MemberTypes.Property);
-                        bool notAlreadyPresent = connectStates.TryAdd(clientNumber, true);
-                        AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "Connect", "Successfully connected, AlreadyConnected: " + (!notAlreadyPresent).ToString() + ", number of connections: " + connectStates.Count);
-                    }
-                    catch (Exception ex)
-                    {
-                        AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "Connect", "Exception: " + ex.ToString());
-                        throw;
-                    }
-                }
-            }
-        }
-
         internal static string Description(uint clientNumber, HttpClient client, int timeout, string URIBase, bool strictCasing, ILogger logger)
         {
             return GetValue<string>(clientNumber, client, timeout, URIBase, strictCasing, logger, "Description", MemberTypes.Property);
-        }
-
-        internal static void Disconnect(uint clientNumber, HttpClient client, int timeout, string URIBase, bool strictCasing, ILogger logger)
-        {
-
-            if (IsClientConnected(clientNumber, logger)) // If we are already connected then disconnect, otherwise ignore disconnect 
-            {
-                AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "Disconnect", "We are connected, setting Connected to False on remote driver");
-                SetBool(clientNumber, client, timeout, URIBase, strictCasing, logger, "Connected", false, MemberTypes.Property);
-                bool successfullyRemoved = connectStates.TryRemove(clientNumber, out bool lastValue);
-                AlpacaDeviceBaseClass.LogMessage(logger, 0, "Disconnect", $"Set Connected to: False, Successfully removed: {successfullyRemoved}, previous value: {lastValue}");
-            }
-            else
-            {
-                AlpacaDeviceBaseClass.LogMessage(logger, 0, "Disconnect", "Already disconnected, not sending command to driver");
-            }
         }
 
         internal static string DriverInfo(uint clientNumber, HttpClient client, int timeout, string URIBase, bool strictCasing, ILogger logger)
@@ -2176,106 +2088,25 @@ namespace ASCOM.Alpaca.Clients
 
         #region Support code
 
-        ///// <summary>
-        ///// Use an HttpClient to retrieve the image array byte data
-        ///// </summary>
-        ///// <param name="url">URL from which to retrieve data</param>
-        ///// <param name="acceptString">The Accept string of mime types that we are prepared to accept.</param>
-        ///// <param name="clientId">TraceLogger for logging purposes.</param>
-        ///// <param name="clientTransactionId">TraceLogger for logging purposes.</param>
-        ///// <param name="TL">TraceLogger for logging purposes.</param>
-        ///// <returns>A populated RestSharp RestResponse</returns>
-        ///// <remarks>This approach is used because of inexplicable delays that occurred when using the RestSharp client to retrieve large binary byte arrays.</remarks>
-        //private static IRestResponse GetResponse(string url, string acceptString, uint clientId, uint clientTransactionId, ILogger TL)
-        //{
-        //    HttpClient wClient = new HttpClient();
-        //    IEnumerable<string> contentTypeValues;
-        //    string contentType = string.Empty;
-        //    Stopwatch sw = new Stopwatch();
-        //    Stopwatch swOverall = new Stopwatch();
+        internal static void Connect(string clientName, uint clientNumber, HttpClient client, int timeout, string URIBase, bool strictCasing, ILogger logger)
+        {
+            try
+            {
+                AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, $"{clientName}.Connect", "Setting Connected to True on Alpaca device");
+                SetBool(clientNumber, client, timeout, URIBase, strictCasing, logger, "Connected", true, MemberTypes.Property);
+            }
+            catch (Exception ex)
+            {
+                AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, $"{clientName}.Connect", "Exception: " + ex.ToString());
+                throw;
+            }
+        }
+        internal static void Disconnect(string clientName, uint clientNumber, HttpClient client, int timeout, string URIBase, bool strictCasing, ILogger logger)
+        {
+            AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, $"{clientName}.Disconnect", "Setting Connected to False on Alpaca device");
+            SetBool(clientNumber, client, timeout, URIBase, strictCasing, logger, "Connected", false, MemberTypes.Property);
+        }
 
-        //    //Add an ACCEPT header
-        //    wClient.DefaultRequestHeaders.Accept.ParseAdd(acceptString);
-
-        //    // Add the ClientID and ClientTransactionID parameters
-        //    UriBuilder builder = new UriBuilder(url)
-        //    {
-        //        Query = $"{AlpacaConstants.CLIENTID_PARAMETER_NAME}={clientId}&{AlpacaConstants.CLIENTTRANSACTION_PARAMETER_NAME}={clientTransactionId}"
-        //    };
-
-        //    sw.Start();
-        //    swOverall.Start();
-
-        //    // Get the data from the Alpaca device
-        //    using (HttpResponseMessage response = wClient.GetAsync(builder.Uri, HttpCompletionOption.ResponseContentRead).Result)
-        //    {
-        //        AlpacaDeviceBaseClass.LogMessage(logger, 0, "GetResponse", $"GetAsync time: {sw.ElapsedMilliseconds}ms, Overall time: {swOverall.ElapsedMilliseconds}ms.");
-
-        //        // Get the response CONTENT headers (different to response TRANSPORT headers, hard won knowledge!)
-        //        sw.Restart();
-        //        HttpContentHeaders headers = response.Content.Headers;
-
-        //        if (headers is null) throw new InvalidValueException("The device did not return any headers. Expected a Content-Type header with a value of 'application/json' or 'text/json' or 'application/imagebytes'.");
-
-        //        // List the headers received
-        //        foreach (var header in headers)
-        //        {
-        //            AlpacaDeviceBaseClass.LogMessage(logger, clientId, "GetResponse", $"Received header {header.Key} = {header.Value.FirstOrDefault()}.");
-        //        }
-
-        //        // Extract the content type from the headers
-        //        if (headers.TryGetValues(CONTENT_TYPE_HEADER_NAME, out contentTypeValues))
-        //        {
-        //            contentType = contentTypeValues.First().ToLowerInvariant();
-        //        }
-
-        //        // Get the returned data as a byte[] (could be JSON or ImageBytes image data)
-        //        sw.Restart();
-        //        byte[] rawbytes = response.Content.ReadAsByteArrayAsync().Result;
-        //        AlpacaDeviceBaseClass.LogMessage(logger, clientId, "GetResponse", $"ReadAsByteArrayAsync time: {sw.ElapsedMilliseconds}ms, Overall time: {swOverall.ElapsedMilliseconds}ms.");
-
-        //        // If the content type is ImageBytes - Assign the byte[] to the rawBytes property 
-        //        if (contentType.ToLowerInvariant().Contains(AlpacaConstants.IMAGE_BYTES_MIME_TYPE))
-        //        {
-        //            sw.Restart();
-        //            RestResponse restResponse = new RestResponse
-        //            {
-        //                RawBytes = rawbytes,
-        //                ContentType = contentType,
-        //                ResponseStatus = ResponseStatus.Completed,
-        //                StatusCode = response.StatusCode,
-        //                StatusDescription = response.ReasonPhrase
-        //            };
-        //            AlpacaDeviceBaseClass.LogMessage(logger, clientId, "GetResponse", $"GetByteArrayAsync time: {sw.ElapsedMilliseconds}ms, Overall time: {swOverall.ElapsedMilliseconds}ms.");
-
-        //            return restResponse;
-        //        }
-
-        //        // If the content type is JSON - Populate the Content property with a string converted from the byte[] 
-        //        else if ((contentType.ToLowerInvariant().Contains(AlpacaConstants.APPLICATION_JSON_MIME_TYPE)) | (contentType.ToLowerInvariant().Contains(AlpacaConstants.TEXT_JSON_MIME_TYPE)))
-        //        {
-        //            sw.Restart();
-        //            RestResponse restResponse = new RestResponse()
-        //            {
-        //                Content = Encoding.UTF8.GetString(rawbytes),
-        //                ContentType = contentType,
-        //                ResponseStatus = ResponseStatus.Completed,
-        //                StatusCode = response.StatusCode,
-        //                StatusDescription = response.ReasonPhrase
-        //            };
-        //            AlpacaDeviceBaseClass.LogMessage(logger, clientId, "GetResponse", $"GetStringAsync time: {sw.ElapsedMilliseconds}ms, Overall time: {swOverall.ElapsedMilliseconds}ms.");
-
-        //            return restResponse;
-        //        }
-
-        //        // Otherwise we didn't receive a content type header or received an unsupported content type, so throw an exception to indicate the problem.
-        //        else
-        //        {
-        //            AlpacaDeviceBaseClass.LogMessage(logger, clientId, "GetResponse", $"Did not find expected content type of 'application.json' or 'application/imagebytes'. Found: {contentType}");
-        //            throw new InvalidValueException($"The device did not return a content type or returned an unsupported content type: '{contentType}'");
-        //        }
-        //    }
-        //}
         #endregion
 
     }

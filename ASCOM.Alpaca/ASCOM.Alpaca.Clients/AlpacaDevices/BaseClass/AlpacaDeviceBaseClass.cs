@@ -28,7 +28,6 @@ namespace ASCOM.Alpaca.Clients
         internal bool strictCasing = true; // Strict or flexible interpretation of casing in device JSON responses
 
         internal ILogger logger; // Private variable to hold the trace logger object
-        internal bool manageConnectLocally = false;
         internal DeviceTypes clientDeviceType = DeviceTypes.Telescope; // Variable to hold the device type, which is set in each device type class
         internal uint clientNumber; // Unique number for this driver within the locaL server, i.e. across all drivers that the local server is serving
         internal HttpClient client; // Client to send and receive REST style messages to / from the remote device
@@ -179,14 +178,14 @@ namespace ASCOM.Alpaca.Clients
             set
             {
                 clientIsConnected = value;
-                if (manageConnectLocally)
+                // Send the command to the remote device
+                if (value) // Set Connected to true
                 {
-                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"The Connected property is being managed locally so the new value '{value}' will not be sent to the remote device");
+                    DynamicClientDriver.Connect(this.GetType().Name, clientNumber, client, establishConnectionTimeout, URIBase, strictCasing, logger);
                 }
-                else // Send the command to the remote device
+                else // Set Connected to false
                 {
-                    if (value) DynamicClientDriver.Connect(clientNumber, client, establishConnectionTimeout, URIBase, strictCasing, logger);
-                    else DynamicClientDriver.Disconnect(clientNumber, client, establishConnectionTimeout, URIBase, strictCasing, logger);
+                    DynamicClientDriver.Disconnect(this.GetType().Name, clientNumber, client, establishConnectionTimeout, URIBase, strictCasing, logger);
                 }
             }
         }
