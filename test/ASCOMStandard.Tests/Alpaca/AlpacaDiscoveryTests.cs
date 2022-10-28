@@ -20,7 +20,7 @@ namespace ASCOM.Alpaca.Tests.Alpaca
     /// <summary>
     /// This test class assumes that an Alpaca Telescope and Camera are accessible on the network
     /// </summary>
-    public class AlpacaDiscoveryTests
+    public class SynchronousDiscoveryTests
     {
         #region Synchronous methods
 
@@ -215,6 +215,9 @@ namespace ASCOM.Alpaca.Tests.Alpaca
 
         #endregion
 
+    }
+    public class AscomDeviceFilteringAndOrdering
+    {
         #region AscomDevice filtering and ordering
 
         [Fact]
@@ -277,7 +280,10 @@ namespace ASCOM.Alpaca.Tests.Alpaca
         }
 
         #endregion
+    }
 
+    public class Asyncmethods
+    {
         #region Async methods
 
         [Fact]
@@ -417,8 +423,8 @@ namespace ASCOM.Alpaca.Tests.Alpaca
 
         }
 
-        #endregion 
-
+        #endregion
+    
         #region Support code
         static List<AscomDevice> FetchAscomDevices(DeviceTypes? deviceTypes, TraceLogger TL)
         {
