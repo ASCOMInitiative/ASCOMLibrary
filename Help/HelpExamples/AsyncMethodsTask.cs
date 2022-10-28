@@ -10,7 +10,7 @@ namespace HelpExamples
 {
     internal class AsyncMethodsTaskClass
     {
-        internal static async void AsyncMethodsTask()
+        internal static void AsyncMethodsTask()
         {
             try
             {

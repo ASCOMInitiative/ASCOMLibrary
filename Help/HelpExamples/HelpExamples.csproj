@@ -10,9 +10,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ASCOM.Alpaca.Components" Version="1.0.36-beta" />
-    <PackageReference Include="ASCOM.Com.Components" Version="1.0.36-beta" />
-    <PackageReference Include="ASCOM.Tools" Version="1.0.36-beta" />
+    <PackageReference Include="ASCOM.Alpaca.Components" Version="1.0.43-beta" />
+    <PackageReference Include="ASCOM.Com.Components" Version="1.0.43-beta" />
+    <PackageReference Include="ASCOM.Tools" Version="1.0.43-beta" />
   </ItemGroup>
 
 </Project>

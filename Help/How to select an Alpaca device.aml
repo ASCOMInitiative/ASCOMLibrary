@@ -27,7 +27,7 @@
 			<content>
 				<para>
 					The easiest way to get a list of ASCOM devices, of a specific device type, from discoverable Alpaca devices is to use the asynchronous
-					<codeEntityReference linkText="AlpacaDiscovery.GetAscomDevicesAsync(DeviceTypes)">M:ASCOM.Alpaca.Discovery.AlpacaDiscovery.GetAscomDevicesAsync(System.Nullable{ASCOM.Common.DeviceTypes},System.Int32,System.Int32,System.Int32,System.Double,System.Boolean,System.Boolean,System.Boolean,ASCOM.Common.Alpaca.ServiceType,ASCOM.Common.Interfaces.ILogger)</codeEntityReference>
+					<codeEntityReference linkText="AlpacaDiscovery.GetAscomDevicesAsync(DeviceTypes)">M:ASCOM.Alpaca.Discovery.AlpacaDiscovery.GetAscomDevicesAsync(System.Nullable{ASCOM.Common.DeviceTypes},System.Int32,System.Int32,System.Int32,System.Double,System.Boolean,System.Boolean,System.Boolean,ASCOM.Common.Alpaca.ServiceType,ASCOM.Common.Interfaces.ILogger,System.Threading.CancellationToken)</codeEntityReference>
 					method:
 					<code source="HelpExamples\DeviceSelection.cs" region="AscomDeviceSelectionOption1" language="csharp" title="Get a list of ASCOM devices asynchronously" />
 				</para>

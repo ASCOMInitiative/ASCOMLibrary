@@ -161,28 +161,28 @@ namespace ASCOM.Alpaca.Tests.Clients
         public static async Task CoverCalibratorOpenCoverTest()
         {
             // Create a TraceLogger to record activity
-            TraceLogger TL = new TraceLogger("CoverCalibratorOpenCover", true, 64, LogLevel.Information);
+            TraceLogger TL = new TraceLogger("CoverCalibratorOpenCover", true, 64, LogLevel.Debug);
 
             // Create a COM client
             TL.LogMessage("Main", $"About to create device");
             CoverCalibrator client = new CoverCalibrator("ASCOM.Simulator.CoverCalibrator");
-            TL.LogMessage("Main", $"Device created");
+            TL.LogMessage("Main", $"{Thread.CurrentThread.ManagedThreadId:00} Device created");
             Assert.NotNull(client);
 
             // Set connected to true
             client.Connected = true;
-            TL.LogMessage("Main", $"Connected set true");
+            TL.LogMessage("Main", $"{Thread.CurrentThread.ManagedThreadId:00} Connected set true");
 
             // Test the client
-            TL.LogMessage("Main", $"About to await method");
+            TL.LogMessage("Main", $"{Thread.CurrentThread.ManagedThreadId:00} About to await method");
             await client.OpenCoverAsync(pollInterval: 100, logger: TL);
-            TL.LogMessage("Main", $"Await complete");
+            TL.LogMessage("Main", $"{Thread.CurrentThread.ManagedThreadId:00} Await complete");
             Assert.Equal(CoverStatus.Open, client.CoverState);
 
             // Disconnect from the client and dispose
             client.Connected = false;
             client.Dispose();
-            TL.LogMessage("Main", $"Finished");
+            TL.LogMessage("Main", $"{Thread.CurrentThread.ManagedThreadId:00} Finished");
         }
 
         [Fact]
@@ -1182,13 +1182,13 @@ namespace ASCOM.Alpaca.Tests.Clients
             TL.LogMessage("Main", $"Connected set true");
 
             // Ensure that the cover is in the closed state
-            await client.CloseCoverAsync(pollInterval: 100, logger: TL);
+            await client.CloseCoverAsync(pollInterval: 1000, logger: TL);
 
             // Start a task that will cancel the cover open after 1 second
             Task cancelOpenTask = new Task(async () =>
             {
                 TL.LogMessage("CancelOpenTask", $"Starting thread sleep");
-                await Task.Delay(1050);
+                await Task.Delay(3500);
                 TL.LogMessage("CancelOpenTask", $"Sleep completed, cancelling open.");
                 cancellationTokenSource.Cancel();
                 TL.LogMessage("CancelOpenTask", $"Open cancelled.");
@@ -1199,7 +1199,7 @@ namespace ASCOM.Alpaca.Tests.Clients
             await Assert.ThrowsAsync<OperationCanceledException>(async () =>
             {
                 TL.LogMessage("Main", $"About to await method");
-                await client.OpenCoverAsync(cancellationToken, 100, TL);
+                await client.OpenCoverAsync(cancellationToken, 1000, TL);
                 TL.LogMessage("Main", $"Await complete - should never get here...");
 
             });
@@ -1211,6 +1211,167 @@ namespace ASCOM.Alpaca.Tests.Clients
             client.Dispose();
             TL.LogMessage("Main", $"Finished");
         }
+
+        [Fact]
+        public static async Task CancelTaskTimeoutTest()
+        {
+            // Create a TraceLogger to record activity
+            TraceLogger TL = new TraceLogger("CancelTaskTimeout", true, 64, LogLevel.Debug);
+
+            // Create a COM client
+            TL.LogMessage("Main", $"About to create device");
+            CoverCalibrator client = new CoverCalibrator("ASCOM.Simulator.CoverCalibrator");
+            TL.LogMessage("Main", $"Device created");
+            Assert.NotNull(client);
+
+            // Set connected to true
+            client.Connected = true;
+            TL.LogMessage("Main", $"Connected set true");
+
+            // Ensure that the cover is in the closed state
+            await client.CloseCoverAsync(pollInterval: 1000, logger: TL);
+
+            // Test the cancel
+            await Assert.ThrowsAsync<OperationCanceledException>(async () =>
+            {
+                // Create a task completion source and token so that the task can be cancelled
+                CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+                cancellationTokenSource.CancelAfter(1500);
+                CancellationToken cancellationToken = cancellationTokenSource.Token;
+
+                TL.LogMessage("Main", $"About to await method");
+                await client.OpenCoverAsync(cancellationToken, 1000, TL);
+                TL.LogMessage("Main", $"Await complete - should never get here...");
+
+            });
+            TL.LogMessage("Main", $"Await complete, Cover state: {client.CoverState}");
+            Assert.NotEqual(CoverStatus.Open, client.CoverState);
+
+            // Disconnect from the client and dispose
+            client.Connected = false;
+            client.Dispose();
+            TL.LogMessage("Main", $"Finished");
+        }
+
+        [Fact]
+        public static async Task CancelTaskWhileWaitingTest()
+        {
+            TraceLogger TL = new TraceLogger("CancelTaskWhileWaiting", true, 64, LogLevel.Debug);
+
+            // Create a task completion source and token so that the task can be cancelled
+            CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+            CancellationToken cancellationToken = cancellationTokenSource.Token;
+
+            // Create a COM client
+            TL.LogMessage("Main", $"About to create device");
+            CoverCalibrator client = new CoverCalibrator("ASCOM.Simulator.CoverCalibrator");
+            TL.LogMessage("Main", $"Device created");
+            Assert.NotNull(client);
+
+            // Set connected to true
+            client.Connected = true;
+            TL.LogMessage("Main", $"Connected set true");
+
+            // Ensure that the cover is in the closed state
+            await client.CloseCoverAsync(pollInterval: 1000, logger: TL);
+
+            // Start a task that will cancel the cover open after 1.5 seconds
+            Task cancelOpenTask = new Task(async () =>
+            {
+                TL.LogMessage("CancelOpenTask", $"Starting thread sleep");
+                await Task.Delay(3500);
+                TL.LogMessage("CancelOpenTask", $"Sleep completed, cancelling open.");
+                cancellationTokenSource.Cancel();
+                TL.LogMessage("CancelOpenTask", $"Open cancelled.");
+            });
+            cancelOpenTask.Start();
+
+            // Test the cancel
+            TL.LogMessage("Main", $"About to create task");
+            Task openCoverTask = client.OpenCoverAsync(cancellationToken, 1000, TL);
+            TL.LogMessage("Main", $"About to start task");
+
+            for (int i = 0; i < 5; i++)
+            {
+                Thread.Sleep(100);
+                TL.LogMessage("Main", $"Doing some work: {i}");
+            }
+
+            TL.LogMessage("Main", $"Waiting for task to finish...");
+            Task.WaitAny(openCoverTask);
+            TL.LogMessage("Main", $"Open cover task status: {openCoverTask.Status}, Exception: {openCoverTask.Exception}");
+            Assert.Equal(TaskStatus.Canceled, openCoverTask.Status);
+
+
+            TL.LogMessage("Main", $"Await complete, Cover state: {client.CoverState}");
+            Assert.NotEqual(CoverStatus.Open, client.CoverState);
+
+            // Disconnect from the client and dispose
+            client.Connected = false;
+            client.Dispose();
+            TL.LogMessage("Main", $"Finished");
+        }
     }
 
+    public static class MiscellaneousTests
+    {
+        [Fact]
+        public static async Task BadCameraStartExposureTest()
+        {
+            TraceLogger TL = new TraceLogger("BadCameraStartExposure", true, 64, LogLevel.Debug);
+
+            // Create a task completion source and token so that the task can be cancelled
+            CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+            CancellationToken cancellationToken = cancellationTokenSource.Token;
+
+            // Create a COM client
+            TL.LogMessage("Main", $"About to create device");
+            Camera client = new Camera("ASCOM.Simulator.Camera");
+            TL.LogMessage("Main", $"Device created");
+            Assert.NotNull(client);
+
+            // Set connected to true
+            client.Connected = true;
+            TL.LogMessage("Main", $"Connected set true");
+
+            await Assert.ThrowsAsync<InvalidValueException>(async () =>
+            {
+                await client.StartExposureAsync(-10.0, true, CancellationToken.None, 100, TL);
+            });
+
+            // Disconnect from the client and dispose
+            client.Connected = false;
+            client.Dispose();
+            TL.LogMessage("Main", $"Finished");
+        }
+        [Fact]
+        public static async Task DefaultValuesTest()
+        {
+            TraceLogger TL = new TraceLogger("DefaultValues", true, 64, LogLevel.Debug);
+
+            // Create a COM client
+            TL.LogMessage("Main", $"About to create device");
+            Camera client = new Camera("ASCOM.Simulator.Camera");
+            TL.LogMessage("Main", $"Device created");
+            Assert.NotNull(client);
+
+            // Set connected to true
+            client.Connected = true;
+            TL.LogMessage("Main", $"Connected set true");
+
+            Assert.False(client.ImageReady);
+
+            TL.LogMessage("Main", $"Before exposure: ImageReady:{client.ImageReady}");
+
+            await client.StartExposureAsync(1.0, true);
+            Assert.True(client.ImageReady);
+
+            TL.LogMessage("Main", $"After exposure: ImageReady:{client.ImageReady}");
+
+            // Disconnect from the client and dispose
+            client.Connected = false;
+            client.Dispose();
+            TL.LogMessage("Main", $"Finished");
+        }
+    }
 }
