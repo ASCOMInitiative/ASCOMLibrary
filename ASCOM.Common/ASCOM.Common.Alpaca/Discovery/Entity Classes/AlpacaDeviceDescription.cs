@@ -13,7 +13,7 @@
         }
 
         /// <summary>
-        ///  Create a new AlpacaDeviceDescription with set values.
+        /// Create a new AlpacaDeviceDescription with set values.
         /// </summary>
         /// <param name="serverName">The device or server's overall name.</param>
         /// <param name="manufacturer">The manufacturer's name.</param>

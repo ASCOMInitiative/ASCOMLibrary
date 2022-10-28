@@ -1,10 +1,10 @@
 namespace ASCOM.Common.Alpaca
 {
     /// <summary>
-    ///   Error numbers for use by Alpaca applications and drivers in the range 0x400 to 0xFFF.
+    ///  Error numbers for use by Alpaca applications and drivers in the range 0x400 to 0xFFF.
     /// </summary>
     /// <remarks>
-    ///   The range 0x400 to 0x4FF is reserved for ASCOM Alpaca defined exceptions and the range 0x500 to 0xFFF is available for user defined application or driver errors
+    ///  The range 0x400 to 0x4FF is reserved for ASCOM Alpaca defined exceptions and the range 0x500 to 0xFFF is available for user defined application or driver errors
     /// </remarks>
     public enum AlpacaErrors
     {

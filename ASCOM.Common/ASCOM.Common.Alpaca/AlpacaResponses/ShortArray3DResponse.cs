@@ -52,7 +52,7 @@ namespace ASCOM.Common.Alpaca
         public int Rank { get; } = 3;
 
                 /// <summary>
-        ///  3D image array of short (int16) values
+        /// 3D image array of short (int16) values
         /// </summary>
         public short[,,] Value { get; set; }
 

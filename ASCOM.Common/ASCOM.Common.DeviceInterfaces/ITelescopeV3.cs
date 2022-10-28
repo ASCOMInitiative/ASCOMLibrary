@@ -3,8 +3,8 @@
 namespace ASCOM.Common.DeviceInterfaces
 {
     /// <summary>
-    ///  Defines the ITelescope Interface
-    ///  </summary>
+    /// Defines the ITelescope Interface
+    /// </summary>
     public interface ITelescopeV3 : IAscomDevice
     {
 
@@ -63,7 +63,7 @@ namespace ASCOM.Common.DeviceInterfaces
 
         /// <summary>
         /// True if the telescope is stopped in the Home position. Set only following a <see cref="FindHome"></see> operation,
-        ///  and reset with any slew operation. This property must be False if the telescope does not support homing. 
+        /// and reset with any slew operation. This property must be False if the telescope does not support homing. 
         /// </summary>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
@@ -364,7 +364,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// </list>
         /// </para>
         /// <para>
-        ///     This is not a required feature of this specification, however it is desirable. 
+        ///    This is not a required feature of this specification, however it is desirable. 
         /// </para>
         /// </remarks>
         double DeclinationRate { get; set; }
@@ -495,7 +495,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// misalignment and periodic error.</description></item>  
         /// <item><description>If a telescope does not support separate guiding rates in Right Ascension and Declination, then it is permissible for GuideRateRightAscension and <see cref="GuideRateDeclination" /> to be tied together. 
         /// In this case, changing one of the two properties will cause a change in the other.</description></item>  
-        ///     <item><description> Mounts must start up with a known or default right ascension guide rate, and this property must return that known/default guide rate until changed.</description></item>  
+        ///    <item><description> Mounts must start up with a known or default right ascension guide rate, and this property must return that known/default guide rate until changed.</description></item>  
         /// </list>
         /// </para>
         /// </remarks>

@@ -7,11 +7,11 @@
     public enum ServiceType
     {
         /// <summary>
-        ///  Unencrypted HTTP protocol
+        /// Unencrypted HTTP protocol
         /// </summary>
         Http = 0,
         /// <summary>
-        ///  Encrypted HTTPS protocol
+        /// Encrypted HTTPS protocol
         /// </summary>
         Https = 1
     }

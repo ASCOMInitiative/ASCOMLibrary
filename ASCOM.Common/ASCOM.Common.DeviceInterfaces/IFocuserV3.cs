@@ -64,7 +64,7 @@
         int MaxStep { get; }
 
         /// <summary>
-        ///  Moves the focuser by the specified amount or to the specified position depending on the value of the <see cref="Absolute" /> property.
+        /// Moves the focuser by the specified amount or to the specified position depending on the value of the <see cref="Absolute" /> property.
         /// </summary>
         /// <param name="Position">Step distance or absolute position, depending on the value of the <see cref="Absolute" /> property.</param>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>

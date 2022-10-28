@@ -76,7 +76,7 @@
         /// </summary>
         /// <param name="id">The device number (0 to <see cref="MaxSwitch"/> - 1)</param>
         /// <returns>
-        ///   String giving the device description.
+        ///  String giving the device description.
         /// </returns>
         /// <exception cref="InvalidValueException">If id is outside the range 0 to <see cref="MaxSwitch"/> - 1</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
@@ -95,7 +95,7 @@
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <param name="id">The device number (0 to <see cref="MaxSwitch"/> - 1)</param>
         /// <returns>
-        ///   <c>true</c> if the device can be written to, otherwise <c>false</c>.
+        ///  <c>true</c> if the device can be written to, otherwise <c>false</c>.
         /// </returns>
         /// <exception cref="InvalidValueException">If id is outside the range 0 to <see cref="MaxSwitch"/> - 1</exception>
         /// <remarks><p style="color:red"><b>Must be implemented, must not throw an ASCOM.NotImplementedException</b></p>
