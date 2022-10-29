@@ -45,18 +45,18 @@ namespace ASCOM.Alpaca.Clients
         /// <param name="password">basic authentication password for the Alpaca device</param>
         /// <param name="strictCasing">Tolerate or throw exceptions  if the Alpaca device does not use strictly correct casing for JSON object element names.</param>
         /// <param name="logger">Optional ILogger instance that can be sued to record operational information during execution</param>
-        public AlpacaCoverCalibrator(ServiceType serviceType,
-                          string ipAddressString,
-                          int portNumber,
-                          int remoteDeviceNumber,
-                          int establishConnectionTimeout,
-                          int standardDeviceResponseTimeout,
-                          int longDeviceResponseTimeout,
-                          uint clientNumber,
-                          string userName,
-                          string password,
-                          bool strictCasing,
-                          ILogger logger
+        public AlpacaCoverCalibrator(ServiceType serviceType = AlpacaClient.CLIENT_SERVICETYPE_DEFAULT,
+                                     string ipAddressString = AlpacaClient.CLIENT_IPADDRESS_DEFAULT,
+                                     int portNumber = AlpacaClient.CLIENT_IPPORT_DEFAULT,
+                                     int remoteDeviceNumber = AlpacaClient.CLIENT_REMOTEDEVICENUMBER_DEFAULT,
+                                     int establishConnectionTimeout = AlpacaClient.CLIENT_ESTABLISHCONNECTIONTIMEOUT_DEFAULT,
+                                     int standardDeviceResponseTimeout = AlpacaClient.CLIENT_STANDARDCONNECTIONTIMEOUT_DEFAULT,
+                                     int longDeviceResponseTimeout = AlpacaClient.CLIENT_LONGCONNECTIONTIMEOUT_DEFAULT,
+                                     uint clientNumber = AlpacaClient.CLIENT_CLIENTNUMBER_DEFAULT,
+                                     string userName = AlpacaClient.CLIENT_USERNAME_DEFAULT,
+                                     string password = AlpacaClient.CLIENT_PASSWORD_DEFAULT,
+                                     bool strictCasing = AlpacaClient.CLIENT_STRICTCASING_DEFAULT,
+                                     ILogger logger = AlpacaClient.CLIENT_LOGGER_DEFAULT
             )
         {
             this.serviceType = serviceType;
@@ -110,16 +110,20 @@ namespace ASCOM.Alpaca.Clients
                 URIBase = $"{AlpacaConstants.API_URL_BASE}{AlpacaConstants.API_VERSION_V1}/{clientDeviceType}/{remoteDeviceNumber}/";
                 Version version = Assembly.GetEntryAssembly().GetName().Version;
 
-                LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), "Starting initialisation, Version: " + version.ToString());
-                LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), "This instance's unique client number: " + clientNumber);
-                LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), "This devices's base URI: " + URIBase);
-                LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), "Establish communications timeout: " + establishConnectionTimeout.ToString());
-                LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), "Standard device response timeout: " + standardDeviceResponseTimeout.ToString());
-                LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), "Long device response timeout: " + longDeviceResponseTimeout.ToString());
+                // List parameter values
+                LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"Service type: {serviceType}");
+                LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"IP address: {ipAddressString}");
+                LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"IP port: {portNumber}");
+                LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"Remote device number: {remoteDeviceNumber}");
+                LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"Establish communications timeout: {establishConnectionTimeout}");
+                LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"Standard device response timeout: {standardDeviceResponseTimeout}");
+                LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"Long device response timeout: {longDeviceResponseTimeout}");
+                LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"Client number: {clientNumber}");
                 LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"User name is Null or Empty: {string.IsNullOrEmpty(userName)}, User name is Null or White Space: {string.IsNullOrWhiteSpace(userName)}");
                 LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"User name length: {password.Length}");
                 LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"Password is Null or Empty: {string.IsNullOrEmpty(password)}, Password is Null or White Space: {string.IsNullOrWhiteSpace(password)}");
                 LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"Password length: {password.Length}");
+                LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"Strict casing: {strictCasing}");
 
                 DynamicClientDriver.ConnectToRemoteDevice(ref client, serviceType, ipAddressString, portNumber, clientNumber, clientDeviceType, standardDeviceResponseTimeout, userName, password, ImageArrayCompression.None, logger);
                 LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), "Completed initialisation");
