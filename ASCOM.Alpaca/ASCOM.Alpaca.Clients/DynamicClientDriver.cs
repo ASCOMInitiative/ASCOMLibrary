@@ -2086,28 +2086,5 @@ namespace ASCOM.Alpaca.Clients
 
         #endregion
 
-        #region Support code
-
-        internal static void Connect(string clientName, uint clientNumber, HttpClient client, int timeout, string URIBase, bool strictCasing, ILogger logger)
-        {
-            try
-            {
-                AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, $"{clientName}.Connect", "Setting Connected to True on Alpaca device");
-                SetBool(clientNumber, client, timeout, URIBase, strictCasing, logger, "Connected", true, MemberTypes.Property);
-            }
-            catch (Exception ex)
-            {
-                AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, $"{clientName}.Connect", "Exception: " + ex.ToString());
-                throw;
-            }
-        }
-        internal static void Disconnect(string clientName, uint clientNumber, HttpClient client, int timeout, string URIBase, bool strictCasing, ILogger logger)
-        {
-            AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, $"{clientName}.Disconnect", "Setting Connected to False on Alpaca device");
-            SetBool(clientNumber, client, timeout, URIBase, strictCasing, logger, "Connected", false, MemberTypes.Property);
-        }
-
-        #endregion
-
     }
 }

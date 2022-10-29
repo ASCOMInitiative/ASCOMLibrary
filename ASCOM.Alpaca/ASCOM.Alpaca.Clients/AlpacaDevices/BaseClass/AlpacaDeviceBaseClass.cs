@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Reflection;
+using System.Threading;
 
 namespace ASCOM.Alpaca.Clients
 {
@@ -16,6 +17,8 @@ namespace ASCOM.Alpaca.Clients
     public abstract class AlpacaDeviceBaseClass : IDisposable
     {
         // Variables common to all instances
+
+        // Set default values
         internal ServiceType serviceType = AlpacaClient.CLIENT_SERVICETYPE_DEFAULT;
         internal string ipAddressString = AlpacaClient.CLIENT_IPADDRESS_DEFAULT;
         internal decimal portNumber = AlpacaClient.CLIENT_IPPORT_DEFAULT;
@@ -26,16 +29,15 @@ namespace ASCOM.Alpaca.Clients
         internal string userName = AlpacaClient.CLIENT_USERNAME_DEFAULT;
         internal string password = AlpacaClient.CLIENT_PASSWORD_DEFAULT;
         internal bool strictCasing = true; // Strict or flexible interpretation of casing in device JSON responses
-
-        internal ILogger logger; // Private variable to hold the trace logger object
+        internal ILogger logger=AlpacaClient.CLIENT_LOGGER_DEFAULT; // Private variable to hold the trace logger object
         internal DeviceTypes clientDeviceType = DeviceTypes.Telescope; // Variable to hold the device type, which is set in each device type class
-        internal uint clientNumber; // Unique number for this driver within the locaL server, i.e. across all drivers that the local server is serving
+        internal uint clientNumber = AlpacaClient.CLIENT_CLIENTNUMBER_DEFAULT; // Unique number for this driver within the locaL server, i.e. across all drivers that the local server is serving
+
         internal HttpClient client; // Client to send and receive REST style messages to / from the remote device
         internal bool clientIsConnected;  // Connection state of this driver
         internal string URIBase; // URI base unique to this driver
-        private bool disposedValue;
-
-        readonly ClientConfiguration clientConfiguration;
+        private bool disposedValue; // Whether or not the client has been Disposed()
+        private readonly ClientConfiguration clientConfiguration; // The client configuration
 
         /// <summary>
         /// Create a new instance of the AlpacaDeviceBaseClass passing the instance to the client configuration class
@@ -177,15 +179,20 @@ namespace ASCOM.Alpaca.Clients
             }
             set
             {
+                // Save the connected state
                 clientIsConnected = value;
-                // Send the command to the remote device
-                if (value) // Set Connected to true
+
+                // Set the device's Connected property
+                try
                 {
-                    DynamicClientDriver.Connect(this.GetType().Name, clientNumber, client, establishConnectionTimeout, URIBase, strictCasing, logger);
+                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, $"{this.GetType().Name}.Connected", $"Setting Connected to {value}");
+                    DynamicClientDriver.SetBool(clientNumber, client, establishConnectionTimeout, URIBase, strictCasing, logger, "Connected", value, MemberTypes.Property);
+                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, $"{this.GetType().Name}.Connected", $"Connected set to {value} OK");
                 }
-                else // Set Connected to false
+                catch (Exception ex)
                 {
-                    DynamicClientDriver.Disconnect(this.GetType().Name, clientNumber, client, establishConnectionTimeout, URIBase, strictCasing, logger);
+                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, $"{this.GetType().Name}.Connected", "Exception: " + ex.ToString());
+                    throw;
                 }
             }
         }
