@@ -1,0 +1,93 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<topic id="d50074a5-fc2e-4a40-a4aa-dec52045953b" revisionNumber="1">
+	<developerConceptualDocument xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5" xmlns:xlink="http://www.w3.org/1999/xlink">
+
+		<introduction>
+			<para>
+				The ASCOM interfaces support long running operations by means of an "Initiator / Completion variable" pattern in which a short running "initiator" method starts the operation and where a pollable "completion property"
+				indicates when the operation has finished. Examples of this include:
+			</para>
+			<list class="bullet">
+				<listItem>
+					<para>
+						Initiator: <legacyBold>ITelescope.SlewToCoordinatesAsync</legacyBold> - Completion Variable: <legacyBold>ITelescope.Slewing</legacyBold>
+					</para>
+				</listItem>
+				<listItem>
+					<para>
+						Initiator: <legacyBold>ICamera.StartExposure</legacyBold> - Completion Variable: <legacyBold>ICamera.CameraState</legacyBold>
+					</para>
+				</listItem>
+				<listItem>
+					<para>
+						Initiator: <legacyBold>IRotator.MoveAbsolute</legacyBold> - Completion Variable: <legacyBold>IRotator.IsMoving</legacyBold>
+					</para>
+				</listItem>
+			</list>
+			<para>
+				The asynchronous extension methods, which work with both <legacyBold>Alpaca clients</legacyBold> and <legacyBold>COM clients</legacyBold>, encapsulate each long running process initiator / completion variable pair as a single Microsoft .NET
+				<codeEntityReference>T:System.Threading.Tasks.Task</codeEntityReference>
+				that can be awaited or assigned to a Task variable. This enables the client to wait for the process to complete asynchronously by using language features such as the await operator and Task.WhenAll(task1, task2).
+			</para>
+			<para>
+				A list of extensions for all devices can be found here: <codeEntityReference linkText="List of Asynchronous Methods">T:ASCOM.Common.ClientExtensions</codeEntityReference>
+				and each client's asynchronous methods are also listed in the "Extension Methods" section that follows the client's "Methods" section in the API documentation.
+			</para>
+		</introduction>
+
+		<section address="NamingVisibility">
+			<title>Extension naming and visibility</title>
+			<content>
+				<para>
+					In line with .NET naming conventions, the asynchronous extensions are named by taking their initiator method names and appending "Async". This works well in most cases apart from some ITelescope
+					members whose names already end with Async. In these cases, to avoid names such as "SlewToTargetAsyncAsync", the text "Task" is inserted before the Async postfix. For example, the interface and
+					extension methods for slewing a telescope to its target coordinates are:
+				</para>
+				<list class="bullet">
+					<listItem>
+						<para>
+							ITelescope Interface: <legacyBold>ITelescope.SlewToTarget</legacyBold> - Synchronous method
+						</para>
+					</listItem>
+					<listItem>
+						<para>
+							ITelescope Interface: <legacyBold>ITelescope.SlewToTargetAsync</legacyBold> - Asynchronous method with completion Variable ITelescope.Slewing
+						</para>
+					</listItem>
+					<listItem>
+						<para>
+							ITelescope Extension: <legacyBold>ITelescope.SlewToTargetTaskAsync</legacyBold> - Returns an awaitable task that completes when the slew ends
+						</para>
+					</listItem>
+				</list>
+				<para>
+					To use the client extensions add a using(C#) / Imports(VB.Net) statement referencing the ASCOM.Common namespace. The extension methods will then appear as additional methods of the Alpaca and COM clients.
+				</para>
+			</content>
+		</section>
+
+		<section address="Exceptions">
+			<title>Exceptions</title>
+			<content>
+				<para>
+					When awaited, the extension methods will always return ASCOM exceptions. These can arrive immediately if thrown by the initiator or later if thrown by the completion variable.
+				</para>
+				<para>
+					If the task returned by the extension method is assigned to a Task variable, behaviour is the same as when the task is awaited, except that all exceptions will be wrapped in
+					<codeEntityReference>T:System.AggregateException</codeEntityReference>
+					exceptions in line with normal behaviour of .NET Tasks. In these cases you will need to check the InnerExceptions property in order to find the actual ASCOM exception that was thrown.
+				</para>
+			</content>
+		</section>
+
+		<bibliography>
+
+		</bibliography>
+
+		<relatedTopics>
+			<link xlink:href="833dd117-2e34-412d-8d52-4f3fd2dee3b1"/>
+		</relatedTopics>
+
+	</developerConceptualDocument>
+
+</topic>

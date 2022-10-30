@@ -113,6 +113,7 @@
   <ItemGroup>
     <None Include="Async Methods.aml" />
     <None Include="AlpacaAndAscomDevices.aml" />
+    <None Include="AsyncClientExtensions.aml" />
     <None Include="Introduction.aml" />
     <None Include="DeviceDriverPointers.aml" />
     <None Include="ApplicationDeveloperPointers.aml" />
@@ -121,6 +122,7 @@
     <None Include="How to select an Alpaca device.aml" />
     <None Include="SeamlessAlpacaAndCom.aml" />
     <None Include="PackageMapping.aml" />
+    <None Include="UsingAsyncClientExtensions.aml" />
   </ItemGroup>
   <ItemGroup>
     <ContentLayout Include="ASCOMLibrary.content" />

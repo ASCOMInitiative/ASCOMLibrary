@@ -7,7 +7,7 @@
 				This cross platform library targets .NET Standard 2.0 for broadest application across .NET frameworks and can be used in projects that target Linux, Raspberry Pi, MacOS and Windows.
 			</para>
 			<para>
-				Please see <link xlink:href="833dd117-2e34-412d-8d52-4f3fd2dee3b1">Alpaca devices and ASCOM devices</link> for information on the Alpaca device / ASCOM device terminology.
+				Please see <link xlink:href="833dd117-2e34-412d-8d52-4f3fd2dee3b1">Alpaca devices and ASCOM devices</link> for information on the Alpaca device / ASCOM device terminology used in the Library Help documentation.
 			</para>
 			<para>The library's capabilities, supported .NET frameworks and supported operating systems are described below.</para>
 		</introduction>
@@ -27,12 +27,21 @@
 						<legacyBold>COM Client</legacyBold> - Toolkit that encapsulates a Windows COM device and presents it as a strongly typed class (conceptually similar to the Platform's DriverAccess component - Windows only)
 					</listItem>
 					<listItem>
+						<legacyBold>Asynchronous Client Methods</legacyBold> - Extension methods for long running Alpaca and COM client operations that return awaitable
+						<externalLink>
+							<linkText>Microsoft Task asynchronous programming</linkText>
+							<linkAlternateText>Go to Microsoft Task asynchronous programming on Microsoft .NET web site</linkAlternateText>
+							<linkUri>https://learn.microsoft.com/en-us/dotnet/csharp/programming-guide/concepts/async/task-asynchronous-programming-model</linkUri>
+						</externalLink>
+						(TAP) Tasks. Each task encapsulates an operation that uses an "initiator / completion variable" combination (e.g. IFocuser.Move / IFocuser.IsMoving) and completes when the polled variable indicates that the operation has finished.
+					</listItem>
+					<listItem>
 						<legacyBold>Cross Platform Utilities</legacyBold>
 						<list class="bullet">
 							<listItem>New ILogger logging framework including a built in console logger</listItem>
 							<listItem>SOFA component, functionally equivalent to the Platform's SOFA component</listItem>
 							<listItem>Transform component, functionally equivalent to the Platform's Transform component</listItem>
-							<listItem>TraceLogger based on the Platform's TraceLogger component.</listItem>
+							<listItem>TraceLogger similar to the Platform's TraceLogger component.</listItem>
 							<listItem>ILogger console logger.</listItem>
 							<listItem>Utilities - A range of utility functions that have no counterparts in .NET APIs.</listItem>
 						</list>
@@ -75,10 +84,10 @@
 						<legacyBold>ASCOM.Com.Components</legacyBold> - The COM client toolkit, Profile and Chooser components to support clients and drivers on Windows platforms.
 					</listItem>
 					<listItem>
-						<legacyBold>ASCOM.Common.Components</legacyBold> - Common Interfaces, enums and other types shared by ASCOM Alpaca and COM projects.
+						<legacyBold>ASCOM.Tools</legacyBold> - A set of support components to aid development of clients, drivers and Alpaca devices.
 					</listItem>
 					<listItem>
-						<legacyBold>ASCOM.Tools</legacyBold> - A set of support components to aid development of clients, drivers and Alpaca devices.
+						<legacyBold>ASCOM.Common.Components</legacyBold> - Common Interfaces, enums and other types shared by ASCOM Alpaca and COM projects.
 					</listItem>
 				</list>
 			</content>
@@ -87,10 +96,10 @@
 		<section address="PackageDependencies">
 			<title>Package Dependencies</title>
 			<content>
-				<para>The Library only has dependencies on these packages:</para>
+				<para>The Library has dependencies on these packages:</para>
 				<list class="bullet">
 					<listItem>
-						<legacyBold>ASCOM.Exception.Library</legacyBold> - ASCOM Exception definitions that ensure inter-operation with Windows COM clients and drivers.
+						<legacyBold>ASCOM.Exception.Library</legacyBold> - ASCOM Exception definitions that ensure inter-operation between Alpaca clients / devices and COM clients / drivers.
 					</listItem>
 					<listItem>
 						<legacyBold>Microsoft supported .NET packages</legacyBold> - These provide C# Dynamic variable, Windows registry access and JSON serialisation / de-serialisation support.
@@ -120,7 +129,7 @@
 					<listItem>MacOS - Apple Silicon</listItem>
 					<listItem>Raspberry Pi - Arm32bit</listItem>
 					<listItem>Raspberry Pi - Arm64bit</listItem>
-					<listItem>Windows 7, 8, 10 and 11 - 32bit</listItem>
+					<listItem>Windows 7, 8 and 10 - 32bit</listItem>
 					<listItem>Windows 7, 8, 10 and 11 - 64bit</listItem>
 				</list>
 			</content>

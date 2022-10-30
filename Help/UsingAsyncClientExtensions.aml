@@ -1,0 +1,71 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<topic id="cc7f1bae-15ed-4d69-b238-5d857d570c88" revisionNumber="1">
+	<developerConceptualDocument xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5" xmlns:xlink="http://www.w3.org/1999/xlink">
+
+		<introduction>
+			<para>The client extensions are designed to be flexible by supporting concurrent client operation and to be easy to use for the developer through the use of optional parameters.</para>
+		</introduction>
+
+		<section address="Example">
+			<title>Examples</title>
+			<content>
+				<para>
+					The following example illustrates how multiple operations to prepare a telescope for imaging can be run in parallel and how to wait for them to complete before starting a further imaging task.
+				</para>
+				<code source="HelpExamples\ClientAsyncMethods.cs" region="ClientAsync1" language="csharp" title="Using asynchronous client extensions" />
+			</content>
+		</section>
+
+		<section address="Options">
+			<title>Extension method Optional Parameters</title>
+			<content>
+				<para>
+					All extension methods support three optional parameters in addition to whatever mandatory parameters are required by the initiating method. These are:
+				</para>
+				<list class="bullet">
+					<listItem>
+						<para>
+							<legacyBold>
+								<codeEntityReference>T:System.Threading.CancellationToken</codeEntityReference> cancellationToken
+							</legacyBold>
+							- A If you wish to be able to manually cancel a task or have it time out
+							after a given period, you can supply a <codeEntityReference>T:System.Threading.CancellationToken</codeEntityReference>. Please note that null is not a valid value for this parameter, instead please use
+							<codeEntityReference linkText="CancellationToken.None">P:System.Threading.CancellationToken.None</codeEntityReference>, which cannot be cancelled and will not time out.
+							The default value for this parameter is <codeEntityReference linkText="CancellationToken.None">P:System.Threading.CancellationToken.None</codeEntityReference>.
+						</para>
+					</listItem>
+					<listItem>
+						<para>
+							<legacyBold>
+								<codeEntityReference>T:System.Int32</codeEntityReference>pollInterval
+							</legacyBold> - Interval between polls of the completion property in milliseconds.
+							The default value of this parameter is 1000, yielding a 1 second interval between completion variable polls. The wait loop will compensate for the time taken to retrieve the completion variable
+							so that the loop time will be close to the expected interval regardless of how quickly the device responds.
+						</para>
+					</listItem>
+					<listItem>
+						<para>
+							<legacyBold>
+								<codeEntityReference>T:ASCOM.Common.Interfaces.ILogger</codeEntityReference> logger
+							</legacyBold> - An ILogger instance to which operational messages regarding behaviour will be written.
+							The default value of this parameter is null(C#) / Nothing(VB.Net) resulting in no operational messages.
+						</para>
+					</listItem>
+				</list>
+				<para>
+					These examples illustrate how to use the client extension's three optional parameters as positional parameters and as named parameters.
+				</para>
+				<code source="HelpExamples\ClientAsyncMethods.cs" region="ClientAsync2" language="csharp" title="Using the optional parameters" />
+			</content>
+		</section>
+
+		<bibliography>
+
+		</bibliography>
+
+		<relatedTopics>
+			<link xlink:href="833dd117-2e34-412d-8d52-4f3fd2dee3b1"/>
+		</relatedTopics>
+
+	</developerConceptualDocument>
+</topic>

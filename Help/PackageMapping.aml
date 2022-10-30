@@ -37,23 +37,6 @@
 			</content>
 		</section>
 
-		<section address="ASCOM.Common.Components">
-			<title>ASCOM.Common.Components Package</title>
-			<content>
-				<list class="bullet">
-					<listItem>ASCOM device interface definitions</listItem>
-					<listItem>Class definitions for all Alpaca JSON responses</listItem>
-					<listItem>Constants for defined Alpaca protocol element names e.g. parameter names for HTTP PUT operations</listItem>
-					<listItem>Class definitions for Alpaca discovery responses.</listItem>
-					<listItem>Enums for Alpaca protocol options (such as how to return data from Camera.ImageArray) and Alpaca error numbers.</listItem>
-					<listItem>COM error number special values such as minimum and maximum values that define the valid range.</listItem>
-					<listItem>Helper functions to make handling Exceptions from Alpaca devices easier</listItem>
-					<listItem>ILogger and IProfile interface definitions</listItem>
-					<listItem>Functions to list, manipulate and validate ASCOM device type names.</listItem>
-				</list>
-			</content>
-		</section>
-
 		<section address="ASCOM.Tools">
 			<title>ASCOM.Tools Package</title>
 			<content>
@@ -80,6 +63,25 @@
 				</list>
 			</content>
 		</section>
+
+		<section address="ASCOM.Common.Components">
+			<title>ASCOM.Common.Components Package</title>
+			<content>
+				<list class="bullet">
+					<listItem>ASCOM device interface definitions</listItem>
+					<listItem>Asynchronous client extension methods</listItem>
+					<listItem>Class definitions for all Alpaca JSON responses</listItem>
+					<listItem>Constants for defined Alpaca protocol element names e.g. parameter names for HTTP PUT operations</listItem>
+					<listItem>Class definitions for Alpaca discovery responses.</listItem>
+					<listItem>Enums for Alpaca protocol options (such as how to return data from Camera.ImageArray) and Alpaca error numbers.</listItem>
+					<listItem>COM error number special values such as minimum and maximum values that define the valid range.</listItem>
+					<listItem>Helper functions to make handling Exceptions from Alpaca devices easier</listItem>
+					<listItem>ILogger and IProfile interface definitions</listItem>
+					<listItem>Functions to list, manipulate and validate ASCOM device type names.</listItem>
+				</list>
+			</content>
+		</section>
+
 
 
 		<bibliography></bibliography>
