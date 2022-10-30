@@ -34,10 +34,14 @@ namespace ASCOM.Common
         /// <param name="device">The Camera device</param>
         /// <param name="duration">Length of exposure</param>
         /// <param name="light"><see langword="true"/> for light frames, <see langword="false"/> for dark frames</param>
-        /// <param name="cancellationToken">Cancellation token - Default: No cancellation token</param>
+        /// <param name="cancellationToken">Cancellation token - Default: <see cref="CancellationToken.None"/></param>
         /// <param name="pollInterval">Interval between polls of the completion variable (milliseconds) - Default: 1000 milliseconds.</param>
         /// <param name="logger">ILogger instance that will receive operation messages from the method - Default: No logger</param>
         /// <returns>Awaitable task that ends when the exposure is complete</returns>
+        /// <remarks>
+        /// <para>Initiator: <see cref="ICameraV3.StartExposure(double, bool)"/></para>
+        /// <para>Complete when: <see cref="ICameraV3.CameraState"/> is <see cref="CameraState.Idle"/> or <see cref="CameraState.Error"/></para>
+        /// </remarks>
         public static async Task StartExposureAsync(this ICameraV3 device, double duration, bool light, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
             await ProcessTask(() => { device.StartExposure(duration, light); },
@@ -54,13 +58,23 @@ namespace ASCOM.Common
         /// Returns an awaitable, running, <see cref="Task"/> that stops the current camera exposure
         /// </summary>
         /// <param name="device">The Camera device</param>
-        /// <param name="cancellationToken">Cancellation token - Default: No cancellation token</param>
+        /// <param name="cancellationToken">Cancellation token - Default: <see cref="CancellationToken.None"/></param>
         /// <param name="pollInterval">Interval between polls of the completion variable (milliseconds) - Default: 1000 milliseconds.</param>
         /// <param name="logger">ILogger instance that will receive operation messages from the method - Default: No logger</param>
         /// <returns>Awaitable task that ends when the exposure is has stopped</returns>
+        /// <remarks>
+        /// <para>Initiator: <see cref="ICameraV3.StopExposure"/></para>
+        /// <para>Complete when: <see cref="ICameraV3.CameraState"/> is <see cref="CameraState.Idle"/> or <see cref="CameraState.Error"/></para>
+        /// </remarks>
         public static async Task StopExposureAsync(this ICameraV3 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
-            await ProcessTask(() => { device.StopExposure(); }, () => { return device.CameraState == CameraState.Reading; }, pollInterval, cancellationToken, logger, $"{nameof(ICameraV3)}.{nameof(StopExposureAsync)}");
+            await ProcessTask(() => { device.StopExposure(); }, () =>
+            {
+                return (device.CameraState == CameraState.Reading) |
+                (device.CameraState == CameraState.Exposing) |
+                (device.CameraState == CameraState.Waiting);
+            },
+            pollInterval, cancellationToken, logger, $"{nameof(ICameraV3)}.{nameof(StopExposureAsync)}");
         }
 
         #endregion
@@ -71,10 +85,14 @@ namespace ASCOM.Common
         /// Returns an awaitable, running, <see cref="Task"/> that turns the calibrator off
         /// </summary>
         /// <param name="device">The CoverCalibrator device</param>
-        /// <param name="cancellationToken">Cancellation token - Default: No cancellation token</param>
+        /// <param name="cancellationToken">Cancellation token - Default: <see cref="CancellationToken.None"/></param>
         /// <param name="pollInterval">Interval between polls of the completion variable (milliseconds) - Default: 1000 milliseconds.</param>
         /// <param name="logger">ILogger instance that will receive operation messages from the method - Default: No logger</param>
         /// <returns>Awaitable task that ends when the calibrator is off</returns>
+        /// <remarks>
+        /// <para>Initiator: <see cref="ICoverCalibratorV1.CalibratorOff"/></para>
+        /// <para>Complete when: <see cref="ICoverCalibratorV1.CalibratorState"/> is <see cref="CalibratorStatus.NotPresent"/> or <see cref="CalibratorStatus.Off"/> <see cref="CalibratorStatus.Ready"/> or <see cref="CalibratorStatus.Unknown"/> or <see cref="CalibratorStatus.Error"/></para>
+        /// </remarks>
         public static async Task CalibratorOffAsync(this ICoverCalibratorV1 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
             await ProcessTask(() => { device.CalibratorOff(); }, () => { return device.CalibratorState == CalibratorStatus.NotReady; }, pollInterval, cancellationToken, logger, $"{nameof(ICoverCalibratorV1)}.{nameof(CalibratorOffAsync)}");
@@ -85,10 +103,14 @@ namespace ASCOM.Common
         /// </summary>
         /// <param name="device">The CoverCalibrator device</param>
         /// <param name="brightness">Required brightness level</param>
-        /// <param name="cancellationToken">Cancellation token - Default: No cancellation token</param>
+        /// <param name="cancellationToken">Cancellation token - Default: <see cref="CancellationToken.None"/></param>
         /// <param name="pollInterval">Interval between polls of the completion variable (milliseconds) - Default: 1000 milliseconds.</param>
         /// <param name="logger">ILogger instance that will receive operation messages from the method - Default: No logger</param>
         /// <returns>Awaitable task that ends when the calibrator is on</returns>
+        /// <remarks>
+        /// <para>Initiator: <see cref="ICoverCalibratorV1.CalibratorOn(int)"/></para>
+        /// <para>Complete when: <see cref="ICoverCalibratorV1.CalibratorState"/> is <see cref="CalibratorStatus.NotPresent"/> or <see cref="CalibratorStatus.Off"/> <see cref="CalibratorStatus.Ready"/> or <see cref="CalibratorStatus.Unknown"/> or <see cref="CalibratorStatus.Error"/></para>
+        /// </remarks>
         public static async Task CalibratorOnAsync(this ICoverCalibratorV1 device, int brightness, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
             await ProcessTask(() => { device.CalibratorOn(brightness); }, () => { return device.CalibratorState == CalibratorStatus.NotReady; }, pollInterval, cancellationToken, logger, $"{nameof(ICoverCalibratorV1)}.{nameof(CalibratorOnAsync)}");
@@ -98,23 +120,31 @@ namespace ASCOM.Common
         /// Returns an awaitable, running, <see cref="Task"/> that closes the cover
         /// </summary>
         /// <param name="device">The CoverCalibrator device</param>
-        /// <param name="cancellationToken">Cancellation token - Default: No cancellation token</param>
+        /// <param name="cancellationToken">Cancellation token - Default: <see cref="CancellationToken.None"/></param>
         /// <param name="pollInterval">Interval between polls of the completion variable (milliseconds) - Default: 1000 milliseconds.</param>
         /// <param name="logger">ILogger instance that will receive operation messages from the method - Default: No logger</param>
         /// <returns>Awaitable task that ends when the cover is closed</returns>
+        /// <remarks>
+        /// <para>Initiator: <see cref="ICoverCalibratorV1.CloseCover"/></para>
+        /// <para>Complete when: <see cref="ICoverCalibratorV1.CoverState"/> is <see cref="CoverStatus.NotPresent"/> or <see cref="CoverStatus.Closed"/> or <see cref="CoverStatus.Unknown"/> or <see cref="CoverStatus.Error"/></para>
+        /// </remarks>
         public static async Task CloseCoverAsync(this ICoverCalibratorV1 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
-            await ProcessTask(() => { device.CloseCover(); }, () => { return device.CoverState == CoverStatus.Moving; }, pollInterval, cancellationToken, logger, $"{nameof(ICoverCalibratorV1)}.{nameof(CloseCoverAsync)}");
+            await ProcessTask(() => { device.CloseCover(); }, () => { return (device.CoverState == CoverStatus.Moving) | (device.CoverState == CoverStatus.Open); }, pollInterval, cancellationToken, logger, $"{nameof(ICoverCalibratorV1)}.{nameof(CloseCoverAsync)}");
         }
 
         /// <summary>
         /// Returns an awaitable, running, <see cref="Task"/> that halts cover movement
         /// </summary>
         /// <param name="device">The CoverCalibrator device</param>
-        /// <param name="cancellationToken">Cancellation token - Default: No cancellation token</param>
+        /// <param name="cancellationToken">Cancellation token - Default: <see cref="CancellationToken.None"/></param>
         /// <param name="pollInterval">Interval between polls of the completion variable (milliseconds) - Default: 1000 milliseconds.</param>
         /// <param name="logger">ILogger instance that will receive operation messages from the method - Default: No logger</param>
         /// <returns>Awaitable task that ends when cover movement has stopped</returns>
+        /// <remarks>
+        /// <para>Initiator: <see cref="ICoverCalibratorV1.HaltCover"/></para>
+        /// <para>Complete when: <see cref="ICoverCalibratorV1.CoverState"/> is <see cref="CoverStatus.NotPresent"/> or <see cref="CoverStatus.Closed"/> <see cref="CoverStatus.Open"/> or <see cref="CoverStatus.Unknown"/> or <see cref="CoverStatus.Error"/></para>
+        /// </remarks>
         public static async Task HaltCoverAsync(this ICoverCalibratorV1 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
             await ProcessTask(() => { device.HaltCover(); }, () => { return device.CoverState == CoverStatus.Moving; }, pollInterval, cancellationToken, logger, $"{nameof(ICoverCalibratorV1)}.{nameof(HaltCoverAsync)}");
@@ -124,13 +154,17 @@ namespace ASCOM.Common
         /// Returns an awaitable, running, <see cref="Task"/> that opens the cover
         /// </summary>
         /// <param name="device">The CoverCalibrator device</param>
-        /// <param name="cancellationToken">Cancellation token - Default: No cancellation token</param>
+        /// <param name="cancellationToken">Cancellation token - Default: <see cref="CancellationToken.None"/></param>
         /// <param name="pollInterval">Interval between polls of the completion variable (milliseconds) - Default: 1000 milliseconds.</param>
         /// <param name="logger">ILogger instance that will receive operation messages from the method - Default: No logger</param>
         /// <returns>Awaitable task that ends when the cover is open</returns>
+        /// <remarks>
+        /// <para>Initiator: <see cref="ICoverCalibratorV1.OpenCover"/></para>
+        /// <para>Complete when: <see cref="ICoverCalibratorV1.CoverState"/> is <see cref="CoverStatus.NotPresent"/> or <see cref="CoverStatus.Open"/> or <see cref="CoverStatus.Unknown"/> or <see cref="CoverStatus.Error"/></para>
+        /// </remarks>
         public static async Task OpenCoverAsync(this ICoverCalibratorV1 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
-            await ProcessTask(() => { device.OpenCover(); }, () => { return device.CoverState == CoverStatus.Moving; }, pollInterval, cancellationToken, logger, $"{nameof(ICoverCalibratorV1)}.{nameof(OpenCoverAsync)}");
+            await ProcessTask(() => { device.OpenCover(); }, () => { return (device.CoverState == CoverStatus.Moving) | (device.CoverState == CoverStatus.Closed); }, pollInterval, cancellationToken, logger, $"{nameof(ICoverCalibratorV1)}.{nameof(OpenCoverAsync)}");
         }
 
         #endregion
@@ -141,11 +175,14 @@ namespace ASCOM.Common
         /// Returns an awaitable, running, <see cref="Task"/> that halts all dome movement
         /// </summary>
         /// <param name="device">The Dome device</param>
-        /// <param name="cancellationToken">Cancellation token - Default: No cancellation token</param>
+        /// <param name="cancellationToken">Cancellation token - Default: <see cref="CancellationToken.None"/></param>
         /// <param name="pollInterval">Interval between polls of the completion variable (milliseconds) - Default: 1000 milliseconds.</param>
         /// <param name="logger">ILogger instance that will receive operation messages from the method - Default: No logger</param>
         /// <returns>Awaitable task that ends when all dome movement has stopped</returns>
-
+        /// <remarks>
+        /// <para>Initiator: <see cref="IDomeV2.AbortSlew"/></para>
+        /// <para>Complete when: <see cref="IDomeV2.Slewing"/> is <see langword="false"/></para>
+        /// </remarks>
         public static async Task AbortSlewAsync(this IDomeV2 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
             await ProcessTask(() => { device.AbortSlew(); }, () => { return device.Slewing | (device.ShutterStatus == ShutterState.Opening) | (device.ShutterStatus == ShutterState.Closing); }, pollInterval, cancellationToken, logger, $"{nameof(IDomeV2)}.{nameof(AbortSlewAsync)}");
@@ -155,10 +192,14 @@ namespace ASCOM.Common
         /// Returns an awaitable, running, <see cref="Task"/> that closes the dome shutter
         /// </summary>
         /// <param name="device">The Dome device</param>
-        /// <param name="cancellationToken">Cancellation token - Default: No cancellation token</param>
+        /// <param name="cancellationToken">Cancellation token - Default: <see cref="CancellationToken.None"/></param>
         /// <param name="pollInterval">Interval between polls of the completion variable (milliseconds) - Default: 1000 milliseconds.</param>
         /// <param name="logger">ILogger instance that will receive operation messages from the method - Default: No logger</param>
         /// <returns>Awaitable task that ends when cover is closed</returns>
+        /// <remarks>
+        /// <para>Initiator: <see cref="IDomeV2.CloseShutter"/></para>
+        /// <para>Complete when: <see cref="IDomeV2.ShutterStatus"/> is <see cref="ShutterState.Closed"/> or <see cref="ShutterState.Error"/></para>
+        /// </remarks>
         public static async Task CloseShutterAsync(this IDomeV2 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
             await ProcessTask(() => { device.CloseShutter(); }, () => { return device.ShutterStatus == ShutterState.Closing; }, pollInterval, cancellationToken, logger, $"{nameof(IDomeV2)}.{nameof(CloseShutterAsync)}");
@@ -168,9 +209,13 @@ namespace ASCOM.Common
         /// Returns an awaitable, running, <see cref="Task"/> that moves the dome to the home position
         /// </summary>
         /// <param name="device">The Dome device</param>
-        /// <param name="cancellationToken">Cancellation token - Default: No cancellation token</param>
+        /// <param name="cancellationToken">Cancellation token - Default: <see cref="CancellationToken.None"/></param>
         /// <param name="pollInterval">Interval between polls of the completion variable (milliseconds) - Default: 1000 milliseconds.</param>
         /// <param name="logger">ILogger instance that will receive operation messages from the method - Default: No logger</param>
+        /// <remarks>
+        /// <para>Initiator: <see cref="IDomeV2.FindHome"/></para>
+        /// <para>Complete when: <see cref="IDomeV2.Slewing"/> is <see langword="false"/></para>
+        /// </remarks>
         /// <returns>Awaitable task that ends when the dome is at its home position</returns>
         public static async Task FindHomeAsync(this IDomeV2 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
@@ -181,10 +226,14 @@ namespace ASCOM.Common
         /// Returns an awaitable, running, <see cref="Task"/> that opens the dome shutter
         /// </summary>
         /// <param name="device">The Dome device</param>
-        /// <param name="cancellationToken">Cancellation token - Default: No cancellation token</param>
+        /// <param name="cancellationToken">Cancellation token - Default: <see cref="CancellationToken.None"/></param>
         /// <param name="pollInterval">Interval between polls of the completion variable (milliseconds) - Default: 1000 milliseconds.</param>
         /// <param name="logger">ILogger instance that will receive operation messages from the method - Default: No logger</param>
         /// <returns>Awaitable task that ends when the shutter is open</returns>
+        /// <remarks>
+        /// <para>Initiator: <see cref="IDomeV2.OpenShutter"/></para>
+        /// <para>Complete when: <see cref="IDomeV2.ShutterStatus"/> is <see cref="ShutterState.Open"/> or <see cref="ShutterState.Error"/></para>
+        /// </remarks>
         public static async Task OpenShutterAsync(this IDomeV2 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
             await ProcessTask(() => { device.OpenShutter(); }, () => { return device.ShutterStatus == ShutterState.Opening; }, pollInterval, cancellationToken, logger, $"{nameof(IDomeV2)}.{nameof(OpenShutterAsync)}");
@@ -194,11 +243,14 @@ namespace ASCOM.Common
         /// Returns an awaitable, running, <see cref="Task"/> that parks the dome
         /// </summary>
         /// <param name="device">The Dome device</param>
-        /// <param name="cancellationToken">Cancellation token - Default: No cancellation token</param>
+        /// <param name="cancellationToken">Cancellation token - Default: <see cref="CancellationToken.None"/></param>
         /// <param name="pollInterval">Interval between polls of the completion variable (milliseconds) - Default: 1000 milliseconds.</param>
         /// <param name="logger">ILogger instance that will receive operation messages from the method - Default: No logger</param>
         /// <returns>Awaitable task that ends when the dome is at its park position</returns>
-
+        /// <remarks>
+        /// <para>Initiator: <see cref="IDomeV2.Park"/></para>
+        /// <para>Complete when: <see cref="IDomeV2.Slewing"/> is <see langword="false"/></para>
+        /// </remarks>
         public static async Task ParkAsync(this IDomeV2 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
             await ProcessTask(() => { device.Park(); }, () => { return device.Slewing; }, pollInterval, cancellationToken, logger, $"{nameof(IDomeV2)}.{nameof(ParkAsync)}");
@@ -209,10 +261,14 @@ namespace ASCOM.Common
         /// </summary>
         /// <param name="device">The Dome device</param>
         /// <param name="altitude">The CoverCalibrator device</param>
-        /// <param name="cancellationToken">Cancellation token - Default: No cancellation token</param>
+        /// <param name="cancellationToken">Cancellation token - Default: <see cref="CancellationToken.None"/></param>
         /// <param name="pollInterval">Interval between polls of the completion variable (milliseconds) - Default: 1000 milliseconds.</param>
         /// <param name="logger">ILogger instance that will receive operation messages from the method - Default: No logger</param>
         /// <returns>Awaitable task that ends when the dome is at the required altitude</returns>
+        /// <remarks>
+        /// <para>Initiator: <see cref="IDomeV2.SlewToAltitude(double)"/></para>
+        /// <para>Complete when: <see cref="IDomeV2.Slewing"/> is <see langword="false"/></para>
+        /// </remarks>
         public static async Task SlewToAltitudeAsync(this IDomeV2 device, double altitude, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
             await ProcessTask(() => { device.SlewToAltitude(altitude); }, () => { return device.Slewing; }, pollInterval, cancellationToken, logger, $"{nameof(IDomeV2)}.{nameof(SlewToAltitudeAsync)}");
@@ -223,10 +279,14 @@ namespace ASCOM.Common
         /// </summary>
         /// <param name="device">The Dome device</param>
         /// <param name="azimuth">The CoverCalibrator device</param>
-        /// <param name="cancellationToken">Cancellation token - Default: No cancellation token</param>
+        /// <param name="cancellationToken">Cancellation token - Default: <see cref="CancellationToken.None"/></param>
         /// <param name="pollInterval">Interval between polls of the completion variable (milliseconds) - Default: 1000 milliseconds.</param>
         /// <param name="logger">ILogger instance that will receive operation messages from the method - Default: No logger</param>
         /// <returns>Awaitable task that ends when the dome is at the required azimuth</returns>
+        /// <remarks>
+        /// <para>Initiator: <see cref="IDomeV2.SlewToAzimuth(double)"/></para>
+        /// <para>Complete when: <see cref="IDomeV2.Slewing"/> is <see langword="false"/></para>
+        /// </remarks>
         public static async Task SlewToAzimuthAsync(this IDomeV2 device, double azimuth, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
             await ProcessTask(() => { device.SlewToAzimuth(azimuth); }, () => { return device.Slewing; }, pollInterval, cancellationToken, logger, $"{nameof(IDomeV2)}.{nameof(SlewToAzimuthAsync)}");
@@ -241,10 +301,14 @@ namespace ASCOM.Common
         /// </summary>
         /// <param name="device">The FilterWheel device</param>
         /// <param name="position">The required filter wheel position</param>
-        /// <param name="cancellationToken">Cancellation token - Default: No cancellation token</param>
+        /// <param name="cancellationToken">Cancellation token - Default: <see cref="CancellationToken.None"/></param>
         /// <param name="pollInterval">Interval between polls of the completion variable (milliseconds) - Default: 1000 milliseconds.</param>
         /// <param name="logger">ILogger instance that will receive operation messages from the method - Default: No logger</param>
         /// <returns>Awaitable task that ends when the filter wheel is at the required position</returns>
+        /// <remarks>
+        /// <para>Initiator: <see cref="IFilterWheelV2.Position">Set Postion</see></para>
+        /// <para>Complete when: <see cref="IFilterWheelV2.Position">Get Position</see> is zero or greater</para>
+        /// </remarks>
         public static async Task PositionSetAsync(this IFilterWheelV2 device, int position, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
             await ProcessTask(() => { device.Position = Convert.ToInt16(position); }, () => { return device.Position == -1; }, pollInterval, cancellationToken, logger, $"{nameof(IFilterWheelV2)}.{nameof(PositionSetAsync)}");
@@ -258,10 +322,14 @@ namespace ASCOM.Common
         /// Returns an awaitable, running, <see cref="Task"/> that halts focuser movement
         /// </summary>
         /// <param name="device">The Focuser device</param>
-        /// <param name="cancellationToken">Cancellation token - Default: No cancellation token</param>
+        /// <param name="cancellationToken">Cancellation token - Default: <see cref="CancellationToken.None"/></param>
         /// <param name="pollInterval">Interval between polls of the completion variable (milliseconds) - Default: 1000 milliseconds.</param>
         /// <param name="logger">ILogger instance that will receive operation messages from the method - Default: No logger</param>
         /// <returns>Awaitable task that ends when focuser movement has halted</returns>
+        /// <remarks>
+        /// <para>Initiator: <see cref="IFocuserV3.Halt"/></para>
+        /// <para>Complete when: <see cref="IFocuserV3.IsMoving"/> is <see langword="false"/></para>
+        /// </remarks>
         public static async Task HaltAsync(this IFocuserV3 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
             await ProcessTask(() => { device.Halt(); }, () => { return device.IsMoving; }, pollInterval, cancellationToken, logger, $"{nameof(IFocuserV3)}.{nameof(HaltAsync)}", () => { return $"Position: {device.Position}"; });
@@ -272,10 +340,14 @@ namespace ASCOM.Common
         /// </summary>
         /// <param name="device">The Focuser device</param>
         /// <param name="position">The required filter wheel position</param>
-        /// <param name="cancellationToken">Cancellation token - Default: No cancellation token</param>
+        /// <param name="cancellationToken">Cancellation token - Default: <see cref="CancellationToken.None"/></param>
         /// <param name="pollInterval">Interval between polls of the completion variable (milliseconds) - Default: 1000 milliseconds.</param>
         /// <param name="logger">ILogger instance that will receive operation messages from the method - Default: No logger</param>
         /// <returns>Awaitable task that ends when the focuser is at the required position</returns>
+        /// <remarks>
+        /// <para>Initiator: <see cref="IFocuserV3.Move(int)"/></para>
+        /// <para>Complete when: <see cref="IFocuserV3.IsMoving"/> is <see langword="false"/></para>
+        /// </remarks>
         public static async Task MoveAsync(this IFocuserV3 device, int position, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
             await ProcessTask(() => { device.Move(position); }, () => { return device.IsMoving; }, pollInterval, cancellationToken, logger, $"{nameof(IFocuserV3)}.{nameof(MoveAsync)}", () => { return $"Position: {device.Position}"; });
@@ -295,10 +367,14 @@ namespace ASCOM.Common
         /// Returns an awaitable, running, <see cref="Task"/> that halts rotator movement
         /// </summary>
         /// <param name="device">The Rotator device</param>
-        /// <param name="cancellationToken">Cancellation token - Default: No cancellation token</param>
+        /// <param name="cancellationToken">Cancellation token - Default: <see cref="CancellationToken.None"/></param>
         /// <param name="pollInterval">Interval between polls of the completion variable (milliseconds) - Default: 1000 milliseconds.</param>
         /// <param name="logger">ILogger instance that will receive operation messages from the method - Default: No logger</param>
         /// <returns>Awaitable task that ends when rotator movement has halted</returns>
+        /// <remarks>
+        /// <para>Initiator: <see cref="IRotatorV3.Halt"/></para>
+        /// <para>Complete when: <see cref="IRotatorV3.IsMoving"/> is <see langword="false"/></para>
+        /// </remarks>
         public static async Task HaltAsync(this IRotatorV3 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
             await ProcessTask(() => { device.Halt(); }, () => { return device.IsMoving; }, pollInterval, cancellationToken, logger, $"{nameof(IRotatorV3)}.{nameof(HaltAsync)}");
@@ -309,10 +385,14 @@ namespace ASCOM.Common
         /// </summary>
         /// <param name="device">The Rotator device</param>
         /// <param name="position">The required filter wheel position</param>
-        /// <param name="cancellationToken">Cancellation token - Default: No cancellation token</param>
+        /// <param name="cancellationToken">Cancellation token - Default: <see cref="CancellationToken.None"/></param>
         /// <param name="pollInterval">Interval between polls of the completion variable (milliseconds) - Default: 1000 milliseconds.</param>
         /// <param name="logger">ILogger instance that will receive operation messages from the method - Default: No logger</param>
         /// <returns>Awaitable task that ends when the rotator has moved by the specified amount</returns>
+        /// <remarks>
+        /// <para>Initiator: <see cref="IRotatorV3.Move(float)"/></para>
+        /// <para>Complete when: <see cref="IRotatorV3.IsMoving"/> is <see langword="false"/></para>
+        /// </remarks>
         public static async Task MoveAsync(this IRotatorV3 device, double position, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
             await ProcessTask(() => { device.Move(Convert.ToSingle(position)); }, () => { return device.IsMoving; }, pollInterval, cancellationToken, logger, $"{nameof(IRotatorV3)}.{nameof(MoveAsync)}", () => { return $"Position: {device.Position}"; });
@@ -323,10 +403,14 @@ namespace ASCOM.Common
         /// </summary>
         /// <param name="device">The Rotator device</param>
         /// <param name="position">The required filter wheel position</param>
-        /// <param name="cancellationToken">Cancellation token - Default: No cancellation token</param>
+        /// <param name="cancellationToken">Cancellation token - Default: <see cref="CancellationToken.None"/></param>
         /// <param name="pollInterval">Interval between polls of the completion variable (milliseconds) - Default: 1000 milliseconds.</param>
         /// <param name="logger">ILogger instance that will receive operation messages from the method - Default: No logger</param>
         /// <returns>Awaitable task that ends when the rotator is at the required absolute position</returns>
+        /// <remarks>
+        /// <para>Initiator: <see cref="IRotatorV3.MoveAbsolute(float)"/></para>
+        /// <para>Complete when: <see cref="IRotatorV3.IsMoving"/> is <see langword="false"/></para>
+        /// </remarks>
         public static async Task MoveAbsoluteAsync(this IRotatorV3 device, double position, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
             await ProcessTask(() => { device.MoveAbsolute(Convert.ToSingle(position)); }, () => { return device.IsMoving; }, pollInterval, cancellationToken, logger, $"{nameof(IRotatorV3)}.{nameof(MoveAbsoluteAsync)}", () => { return $"Position: {device.Position}"; });
@@ -337,10 +421,14 @@ namespace ASCOM.Common
         /// </summary>
         /// <param name="device">The Rotator device</param>
         /// <param name="position">The required filter wheel position</param>
-        /// <param name="cancellationToken">Cancellation token - Default: No cancellation token</param>
+        /// <param name="cancellationToken">Cancellation token - Default: <see cref="CancellationToken.None"/></param>
         /// <param name="pollInterval">Interval between polls of the completion variable (milliseconds) - Default: 1000 milliseconds.</param>
         /// <param name="logger">ILogger instance that will receive operation messages from the method - Default: No logger</param>
         /// <returns>Awaitable task that ends when the rotator is at the required mechanical position</returns>
+        /// <remarks>
+        /// <para>Initiator: <see cref="IRotatorV3.MoveMechanical(float)"/></para>
+        /// <para>Complete when: <see cref="IRotatorV3.IsMoving"/> is <see langword="false"/></para>
+        /// </remarks>
         public static async Task MoveMechanicalAsync(this IRotatorV3 device, double position, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
             await ProcessTask(() => { device.MoveMechanical(Convert.ToSingle(position)); }, () => { return device.IsMoving; }, pollInterval, cancellationToken, logger, $"{nameof(IRotatorV3)}.{nameof(MoveMechanicalAsync)}", () => { return $"Position: {device.Position}, Mechanical position: {device.MechanicalPosition}"; });
@@ -368,10 +456,14 @@ namespace ASCOM.Common
         /// <param name="device">The Telescope device</param>
         /// <param name="azimuth">The required azimuth</param>
         /// <param name="altitude">The required altitude</param>
-        /// <param name="cancellationToken">Cancellation token - Default: No cancellation token</param>
+        /// <param name="cancellationToken">Cancellation token - Default: <see cref="CancellationToken.None"/></param>
         /// <param name="pollInterval">Interval between polls of the completion variable (milliseconds) - Default: 1000 milliseconds.</param>
         /// <param name="logger">ILogger instance that will receive operation messages from the method - Default: No logger</param>
         /// <returns>Awaitable task that ends when the telescope is at the required coordinates</returns>
+        /// <remarks>
+        /// <para>Initiator: <see cref="ITelescopeV3.SlewToAltAzAsync(double, double)"/></para>
+        /// <para>Complete when: <see cref="ITelescopeV3.Slewing"/> is <see langword="false"/></para>
+        /// </remarks>
         public static async Task SlewToAltAzTaskAsync(this ITelescopeV3 device, double azimuth, double altitude, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
             await ProcessTask(() => { device.SlewToAltAzAsync(azimuth, altitude); }, () => { return device.Slewing; }, pollInterval, cancellationToken, logger, $"{nameof(ITelescopeV3)}.{nameof(SlewToAltAzTaskAsync)}", () => { return $"Altitude: {device.Altitude}, Azimuth: {device.Azimuth}"; });
@@ -383,10 +475,14 @@ namespace ASCOM.Common
         /// <param name="device">The Telescope device</param>
         /// <param name="rightAscension">The required right ascension</param>
         /// <param name="declination">The required declination</param>
-        /// <param name="cancellationToken">Cancellation token - Default: No cancellation token</param>
+        /// <param name="cancellationToken">Cancellation token - Default: <see cref="CancellationToken.None"/></param>
         /// <param name="pollInterval">Interval between polls of the completion variable (milliseconds) - Default: 1000 milliseconds.</param>
         /// <param name="logger">ILogger instance that will receive operation messages from the method - Default: No logger</param>
         /// <returns>Awaitable task that ends when the telescope is at the required coordinates</returns>
+        /// <remarks>
+        /// <para>Initiator: <see cref="ITelescopeV3.SlewToCoordinatesAsync(double, double)"/></para>
+        /// <para>Complete when: <see cref="ITelescopeV3.Slewing"/> is <see langword="false"/></para>
+        /// </remarks>
         public static async Task SlewToCoordinatesTaskAsync(this ITelescopeV3 device, double rightAscension, double declination, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
             await ProcessTask(() => { device.SlewToCoordinatesAsync(rightAscension, declination); }, () => { return device.Slewing; }, pollInterval, cancellationToken, logger, $"{nameof(ITelescopeV3)}.{nameof(SlewToCoordinatesTaskAsync)}", () => { return $"RA: {device.RightAscension}, Declination: {device.Declination}"; });
@@ -396,10 +492,14 @@ namespace ASCOM.Common
         /// Returns an awaitable, running, <see cref="Task"/> that slews the telescope to the coordinates specified by the TargetRA and TargetDeclination properties
         /// </summary>
         /// <param name="device">The Telescope device</param>
-        /// <param name="cancellationToken">Cancellation token - Default: No cancellation token</param>
+        /// <param name="cancellationToken">Cancellation token - Default: <see cref="CancellationToken.None"/></param>
         /// <param name="pollInterval">Interval between polls of the completion variable (milliseconds) - Default: 1000 milliseconds.</param>
         /// <param name="logger">ILogger instance that will receive operation messages from the method - Default: No logger</param>
         /// <returns>Awaitable task that ends when the telescope is at the required coordinates</returns>
+        /// <remarks>
+        /// <para>Initiator: <see cref="ITelescopeV3.SlewToTargetAsync()"/></para>
+        /// <para>Complete when: <see cref="ITelescopeV3.Slewing"/> is <see langword="false"/></para>
+        /// </remarks>
         public static async Task SlewToTargetTaskAsync(this ITelescopeV3 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
             await ProcessTask(() => { device.SlewToTargetAsync(); }, () => { return device.Slewing; }, pollInterval, cancellationToken, logger, $"{nameof(ITelescopeV3)}.{nameof(SlewToTargetTaskAsync)}", () => { return $"RA: {device.RightAscension}, Declination: {device.Declination}"; });
@@ -409,10 +509,14 @@ namespace ASCOM.Common
         /// Returns an awaitable, running, <see cref="Task"/> that stops telescope slewing movement
         /// </summary>
         /// <param name="device">The Telescope device</param>
-        /// <param name="cancellationToken">Cancellation token - Default: No cancellation token</param>
+        /// <param name="cancellationToken">Cancellation token - Default: <see cref="CancellationToken.None"/></param>
         /// <param name="pollInterval">Interval between polls of the completion variable (milliseconds) - Default: 1000 milliseconds.</param>
         /// <param name="logger">ILogger instance that will receive operation messages from the method - Default: No logger</param>
         /// <returns>Awaitable task that ends when telescope slewing has stopped</returns>
+        /// <remarks>
+        /// <para>Initiator: <see cref="ITelescopeV3.AbortSlew()"/></para>
+        /// <para>Complete when: <see cref="ITelescopeV3.Slewing"/> is <see langword="false"/></para>
+        /// </remarks>
         public static async Task AbortSlewAsync(this ITelescopeV3 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
             await ProcessTask(() => { device.AbortSlew(); }, () => { return device.Slewing; }, pollInterval, cancellationToken, logger, $"{nameof(ITelescopeV3)}.{nameof(AbortSlewAsync)}");
@@ -422,10 +526,14 @@ namespace ASCOM.Common
         /// Returns an awaitable, running, <see cref="Task"/> that moves the telescope to the home position
         /// </summary>
         /// <param name="device">The Telescope device</param>
-        /// <param name="cancellationToken">Cancellation token - Default: No cancellation token</param>
+        /// <param name="cancellationToken">Cancellation token - Default: <see cref="CancellationToken.None"/></param>
         /// <param name="pollInterval">Interval between polls of the completion variable (milliseconds) - Default: 1000 milliseconds.</param>
         /// <param name="logger">ILogger instance that will receive operation messages from the method - Default: No logger</param>
         /// <returns>Awaitable task that ends when telescope is at home</returns>
+        /// <remarks>
+        /// <para>Initiator: <see cref="ITelescopeV3.FindHome()"/></para>
+        /// <para>Complete when: <see cref="ITelescopeV3.Slewing"/> is <see langword="false"/></para>
+        /// </remarks>
         public static async Task FindHomeAsync(this ITelescopeV3 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
             await ProcessTask(() => { device.FindHome(); }, () => { return device.Slewing; }, pollInterval, cancellationToken, logger, $"{nameof(ITelescopeV3)}.{nameof(FindHomeAsync)}", () => { return $"RA: {device.RightAscension}, Declination: {device.Declination}"; });
@@ -435,26 +543,34 @@ namespace ASCOM.Common
         /// Returns an awaitable, running, <see cref="Task"/> that parks the telescope
         /// </summary>
         /// <param name="device">The Telescope device</param>
-        /// <param name="cancellationToken">Cancellation token - Default: No cancellation token</param>
+        /// <param name="cancellationToken">Cancellation token - Default: <see cref="CancellationToken.None"/></param>
         /// <param name="pollInterval">Interval between polls of the completion variable (milliseconds) - Default: 1000 milliseconds.</param>
         /// <param name="logger">ILogger instance that will receive operation messages from the method - Default: No logger</param>
         /// <returns>Awaitable task that ends when telescope is at the park position</returns>
+        /// <remarks>
+        /// <para>Initiator: <see cref="ITelescopeV3.Park()"/></para>
+        /// <para>Complete when: <see cref="ITelescopeV3.AtPark"/> is <see langword="true"/></para>
+        /// </remarks>
         public static async Task ParkAsync(this ITelescopeV3 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
-            await ProcessTask(() => { device.Park(); }, () => { return device.Slewing; }, pollInterval, cancellationToken, logger, $"{nameof(ITelescopeV3)}.{nameof(ParkAsync)}", () => { return $"RA: {device.RightAscension}, Declination: {device.Declination}"; });
+            await ProcessTask(() => { device.Park(); }, () => { return !device.AtPark; }, pollInterval, cancellationToken, logger, $"{nameof(ITelescopeV3)}.{nameof(ParkAsync)}", () => { return $"RA: {device.RightAscension}, Declination: {device.Declination}"; });
         }
 
         /// <summary>
         /// Returns an awaitable, running, <see cref="Task"/> that un-parks the telescope
         /// </summary>
         /// <param name="device">The Telescope device</param>
-        /// <param name="cancellationToken">Cancellation token - Default: No cancellation token</param>
+        /// <param name="cancellationToken">Cancellation token - Default: <see cref="CancellationToken.None"/></param>
         /// <param name="pollInterval">Interval between polls of the completion variable (milliseconds) - Default: 1000 milliseconds.</param>
         /// <param name="logger">ILogger instance that will receive operation messages from the method - Default: No logger</param>
         /// <returns>Awaitable task that ends when telescope is un-parked</returns>
+        /// <remarks>
+        /// <para>Initiator: <see cref="ITelescopeV3.Unpark()"/></para>
+        /// <para>Complete when: <see cref="ITelescopeV3.AtPark"/> is <see langword="false"/></para>
+        /// </remarks>
         public static async Task UnparkAsync(this ITelescopeV3 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
-            await ProcessTask(() => { device.Unpark(); }, () => { return device.Slewing; }, pollInterval, cancellationToken, logger, $"{nameof(ITelescopeV3)}.{nameof(UnparkAsync)}");
+            await ProcessTask(() => { device.Unpark(); }, () => { return device.AtPark; }, pollInterval, cancellationToken, logger, $"{nameof(ITelescopeV3)}.{nameof(UnparkAsync)}");
         }
 
         #endregion
