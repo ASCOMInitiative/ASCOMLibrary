@@ -117,7 +117,13 @@ namespace ASCOM.Alpaca.Clients
         /// <exception cref="NotImplementedException">If the method is not implemented</exception>
         /// <exception cref="NotConnectedException">If the driver is not connected.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
-        /// <remarks><p style="color:red"><b>May throw a NotImplementedException.</b></p> </remarks>
+        /// <remarks><p style="color:red"><b>May throw a NotImplementedException.</b></p>
+        /// <para>The CommandXXX methods are a historic mechanic that provides clients with direct and unimpeded access to change device hardware configuration. While highly enabling for clients, this mechanic is inherently risky
+        /// because clients can fundamentally change hardware operation without the driver being aware that a change is taking / has taken place.</para>
+        /// <para>The newer Action / SupportedActions mechanic provides discrete, named, functions that can deliver any functionality required.They do need driver authors to make provision for them within the 
+        /// driver, but this approach is much lower risk than using the CommandXXX methods because it enables the driver to resolve conflicts between standard device interface commands and extended commands 
+        /// provided as Actions.The driver is always aware of what is happening and can adapt more effectively to client needs.</para>
+        /// </remarks>
         public void CommandBlind(string command, bool raw = false)
         {
             DynamicClientDriver.CommandBlind(clientNumber, client, longDeviceResponseTimeout, URIBase, strictCasing, logger, command, raw);
@@ -138,7 +144,13 @@ namespace ASCOM.Alpaca.Clients
         /// <exception cref="NotImplementedException">If the method is not implemented</exception>
         /// <exception cref="NotConnectedException">If the driver is not connected.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
-        /// <remarks><p style="color:red"><b>May throw a NotImplementedException.</b></p> </remarks>
+        /// <remarks><p style="color:red"><b>May throw a NotImplementedException.</b></p>
+        /// <para>The CommandXXX methods are a historic mechanic that provides clients with direct and unimpeded access to change device hardware configuration. While highly enabling for clients, this mechanic is inherently risky
+        /// because clients can fundamentally change hardware operation without the driver being aware that a change is taking / has taken place.</para>
+        /// <para>The newer Action / SupportedActions mechanic provides discrete, named, functions that can deliver any functionality required.They do need driver authors to make provision for them within the 
+        /// driver, but this approach is much lower risk than using the CommandXXX methods because it enables the driver to resolve conflicts between standard device interface commands and extended commands 
+        /// provided as Actions.The driver is always aware of what is happening and can adapt more effectively to client needs.</para>
+        /// </remarks>
         public bool CommandBool(string command, bool raw = false)
         {
             return DynamicClientDriver.CommandBool(clientNumber, client, longDeviceResponseTimeout, URIBase, strictCasing, logger, command, raw);
@@ -159,7 +171,13 @@ namespace ASCOM.Alpaca.Clients
         /// <exception cref="NotImplementedException">If the method is not implemented</exception>
         /// <exception cref="NotConnectedException">If the driver is not connected.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
-        /// <remarks><p style="color:red"><b>May throw a NotImplementedException.</b></p> </remarks>
+        /// <remarks><p style="color:red"><b>May throw a NotImplementedException.</b></p>
+        /// <para>The CommandXXX methods are a historic mechanic that provides clients with direct and unimpeded access to change device hardware configuration. While highly enabling for clients, this mechanic is inherently risky
+        /// because clients can fundamentally change hardware operation without the driver being aware that a change is taking / has taken place.</para>
+        /// <para>The newer Action / SupportedActions mechanic provides discrete, named, functions that can deliver any functionality required.They do need driver authors to make provision for them within the 
+        /// driver, but this approach is much lower risk than using the CommandXXX methods because it enables the driver to resolve conflicts between standard device interface commands and extended commands 
+        /// provided as Actions.The driver is always aware of what is happening and can adapt more effectively to client needs.</para>
+        /// </remarks>
         public string CommandString(string command, bool raw = false)
         {
             return DynamicClientDriver.CommandString(clientNumber, client, longDeviceResponseTimeout, URIBase, strictCasing, logger, command, raw);
