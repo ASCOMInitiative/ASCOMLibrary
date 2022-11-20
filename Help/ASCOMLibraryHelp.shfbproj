@@ -36,16 +36,16 @@
     <BuildAssemblerVerbosity>OnlyWarningsAndErrors</BuildAssemblerVerbosity>
     <SaveComponentCacheCapacity>0</SaveComponentCacheCapacity>
     <HelpTitle>ASCOM Library</HelpTitle>
-    <HelpFileVersion>1.0.0.0</HelpFileVersion>
+    <HelpFileVersion>1.0.52.0</HelpFileVersion>
     <NamingMethod>MemberName</NamingMethod>
     <ContentPlacement>AboveNamespaces</ContentPlacement>
     <RootNamespaceContainer>True</RootNamespaceContainer>
     <RootNamespaceTitle>ASCOM Library APIs</RootNamespaceTitle>
     <NamespaceGrouping>True</NamespaceGrouping>
     <MaximumGroupParts>2</MaximumGroupParts>
-    <Preliminary>True</Preliminary>
+    <Preliminary>False</Preliminary>
     <CopyrightHref>www.ascom-standards.org</CopyrightHref>
-    <CopyrightText>Copyright ASCOM Initiative %28c%29 2022</CopyrightText>
+    <CopyrightText>Copyright &amp;#169%3b 2021 - 2022 ASCOM Initiative</CopyrightText>
     <SdkLinkTarget>Blank</SdkLinkTarget>
     <NamespaceSummaries>
       <NamespaceSummaryItem name="(global)" isDocumented="False">ASCOM Standard Root Global</NamespaceSummaryItem>
@@ -81,6 +81,7 @@
     </ApiFilter>
     <ProjectSummary>
     </ProjectSummary>
+    <FooterText>Version 1.0.52</FooterText>
   </PropertyGroup>
   <!-- There are no properties for these groups.  AnyCPU needs to appear in order for Visual Studio to perform
 			 the build.  The others are optional common platform types that may appear. -->
@@ -120,6 +121,7 @@
     <None Include="How to discover Alpaca devices.aml" />
     <None Include="How to create clients for discovered Alpaca devices.aml" />
     <None Include="How to select an Alpaca device.aml" />
+    <None Include="VersionHistory.aml" />
     <None Include="SeamlessAlpacaAndCom.aml" />
     <None Include="PackageMapping.aml" />
     <None Include="UsingAsyncClientExtensions.aml" />

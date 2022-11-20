@@ -1,10 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Topics>
   <Topic id="3e0a4970-b422-4427-bb1e-789bb79e1b4f" visible="True" />
+  <Topic id="cf197185-7fa2-4b56-bb1a-75aaebd459bb" visible="True" isSelected="true" title="Version History" />
   <Topic id="448ecc79-4087-401f-97ca-3e2af8022a62" visible="True" title="What is in each ASCOM Library package" />
   <Topic id="a99ce334-4008-4927-928e-833557065d59" visible="True" noFile="true" isExpanded="true" title="Asynchronous Library Methods (async await)">
     <Topic id="d0969e72-58ac-4f66-b725-8147769b8c5f" visible="True" title="How to discover Alpaca devices asynchronously" />
-    <Topic id="d50074a5-fc2e-4a40-a4aa-dec52045953b" visible="True" isSelected="true" title="Introduction to asynchronous client extensions" />
+    <Topic id="d50074a5-fc2e-4a40-a4aa-dec52045953b" visible="True" title="Introduction to asynchronous client extensions" />
     <Topic id="cc7f1bae-15ed-4d69-b238-5d857d570c88" visible="True" title="How to use the asynchronous Alpaca and COM client extensions" />
   </Topic>
   <Topic id="822398fe-b7bc-4024-a1fd-f654bfe79771" visible="True" title="How to discover Alpaca devices (polling and events)" />
