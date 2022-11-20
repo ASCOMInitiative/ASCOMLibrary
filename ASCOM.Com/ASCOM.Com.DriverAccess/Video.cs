@@ -296,18 +296,40 @@ namespace ASCOM.Com.DriverAccess
         /// </remarks>
         public IVideoFrame LastVideoFrame
         {
-            get 
+            get
             {
                 var frame = base.Device.LastVideoFrame;
 
                 //Convert the ASCOM KeyValuePair to the .Net System version
                 List<KeyValuePair<string, string>> metadata = new List<KeyValuePair<string, string>>();
-                foreach(var pair in frame.ImageMetadata)
+                foreach (var pair in frame.ImageMetadata)
                 {
                     metadata.Add(new KeyValuePair<string, string>(pair.Key(), pair.Value()));
                 }
 
-                return new VideoFrame(frame.ImageArray, frame.PreviewBitmap, frame.FrameNumber, frame.ExposureDuration, frame.ExposureStartTime, metadata);
+                // Supply a default 0.0 value if ExposureDuration (an optional member) isn't available
+                double exposureDuration;
+                try
+                {
+                    exposureDuration = frame.ExposureDuration;
+                }
+                catch (System.Exception)
+                {
+                    exposureDuration = 0.0;
+                }
+
+                // Supply a default empty string value if ExposureStartTime (an optional member) isn't available
+                string exposureStartTime;
+                try
+                {
+                    exposureStartTime = frame.ExposureStartTime;
+                }
+                catch (System.Exception)
+                {
+                    exposureStartTime = "";
+                }
+
+                return new VideoFrame(frame.ImageArray, frame.PreviewBitmap, frame.FrameNumber, exposureDuration, exposureStartTime, metadata);
             }
         }
 
