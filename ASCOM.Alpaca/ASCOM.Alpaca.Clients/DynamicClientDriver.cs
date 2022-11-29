@@ -103,7 +103,7 @@ namespace ASCOM.Alpaca.Clients
         /// <summary>
         /// Create and configure a REST client to communicate with the Alpaca device
         /// </summary>
-        /// <param name="client"></param>
+        /// <param name="httpClient"></param>
         /// <param name="ipAddressString"></param>
         /// <param name="portNumber"></param>
         /// <param name="serviceType"></param>
@@ -114,9 +114,11 @@ namespace ASCOM.Alpaca.Clients
         /// <param name="userName"></param>
         /// <param name="password"></param>
         /// <param name="imageArrayCompression"></param>
+        /// <param name="userAgentProductName"></param>
+        /// <param name="userAgentProductVersion"></param>
         /// <remarks>This method will attempt to re-discover the Alpaca device if it is not possible to establish a TCP connection with the device at the specified address and port.</remarks>
-        internal static void ConnectToRemoteDevice(ref HttpClient client, ServiceType serviceType, string ipAddressString, decimal portNumber,
-                                                 uint clientNumber, DeviceTypes deviceType, int deviceResponseTimeout, string userName, string password, ImageArrayCompression imageArrayCompression, ILogger logger)
+        internal static void ConnectToRemoteDevice(ref HttpClient httpClient, ServiceType serviceType, string ipAddressString, decimal portNumber,
+                                                 uint clientNumber, DeviceTypes deviceType, int deviceResponseTimeout, string userName, string password, ImageArrayCompression imageArrayCompression, ILogger logger, string userAgentProductName, string userAgentProductVersion)
         {
             string clientHostAddress = $"{serviceType.ToString().ToLowerInvariant()}://{ipAddressString}:{portNumber}";
 
@@ -286,9 +288,9 @@ namespace ASCOM.Alpaca.Clients
             #endregion
 
             // Remove any old client, if present
-            if (client != null)
+            if (httpClient != null)
             {
-                client.Dispose();
+                httpClient.Dispose();
             }
 
             // Convert from the Alpaca decompression enum to the HttpClient decompression enum
@@ -319,7 +321,7 @@ namespace ASCOM.Alpaca.Clients
             };
 
             // Create a new client pointing at the alpaca device
-            client = new HttpClient(httpClientHandler);
+            httpClient = new HttpClient(httpClientHandler);
 
             // Add a basic authenticator if the user name is not null
             if (!string.IsNullOrEmpty(userName))
@@ -338,23 +340,32 @@ namespace ASCOM.Alpaca.Clients
                 }
 
                 // Set the authentication header for all requests
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(authenticationBytes));
+                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(authenticationBytes));
             }
 
             // Set the base URI for the device
-            client.BaseAddress = new Uri(clientHostAddress);
+            httpClient.BaseAddress = new Uri(clientHostAddress);
 
-            // Get the assembly's file version
-            Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
-            FileVersionInfo assemblyFileVersionInfo = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location);
+            string userproductName = userAgentProductName;
+            string productVersion = userAgentProductVersion;
+
+            if (string.IsNullOrEmpty(userproductName))
+            {
+                userproductName = AlpacaClient.CLIENT_USER_AGENT_PRODUCT_NAME;
+            }
+
+            if (string.IsNullOrEmpty(productVersion))
+            {
+                productVersion = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).FileVersion;
+            }
 
             // Add default headers for JSON
-            client.DefaultRequestHeaders.Accept.Clear();
-            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(AlpacaConstants.APPLICATION_JSON_MIME_TYPE));
-            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(AlpacaConstants.TEXT_JSON_MIME_TYPE));
-            client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("AscomAlpacaClient", assemblyFileVersionInfo.FileVersion));
-            client.DefaultRequestHeaders.Connection.Add("keep-alive");
-            client.DefaultRequestHeaders.ConnectionClose = false;
+            httpClient.DefaultRequestHeaders.Accept.Clear();
+            httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(AlpacaConstants.APPLICATION_JSON_MIME_TYPE));
+            httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(AlpacaConstants.TEXT_JSON_MIME_TYPE));
+            httpClient.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(userproductName, productVersion));
+            httpClient.DefaultRequestHeaders.Connection.Add("keep-alive");
+            httpClient.DefaultRequestHeaders.ConnectionClose = false;
         }
 
         // /// <summary>

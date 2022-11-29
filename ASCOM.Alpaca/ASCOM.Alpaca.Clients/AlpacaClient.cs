@@ -27,6 +27,7 @@ namespace ASCOM.Alpaca.Clients
         internal const int CLIENT_REMOTEDEVICENUMBER_DEFAULT = 0; // Default device number in the URI on the remote Alpaca device
         internal const ImageArrayTransferType CLIENT_IMAGEARRAYTRANSFERTYPE_DEFAULT = ImageArrayTransferType.BestAvailable; // Default camera image array transfer type
         internal const ImageArrayCompression CLIENT_IMAGEARRAYCOMPRESSION_DEFAULT = ImageArrayCompression.None; // Default camera image array compression type
+        internal const string CLIENT_USER_AGENT_PRODUCT_NAME = "ASCOMAlpacaClient";
 
         #endregion
 

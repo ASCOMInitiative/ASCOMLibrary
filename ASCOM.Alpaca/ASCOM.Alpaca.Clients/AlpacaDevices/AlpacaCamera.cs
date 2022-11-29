@@ -56,6 +56,8 @@ namespace ASCOM.Alpaca.Clients
         /// <param name="password">basic authentication password for the Alpaca device</param>
         /// <param name="strictCasing">Tolerate or throw exceptions  if the Alpaca device does not use strictly correct casing for JSON object element names.</param>
         /// <param name="logger">Optional ILogger instance that can be sued to record operational information during execution</param>
+        /// <param name="userAgentProductName">Optional product name to include in the User-Agent HTTP header sent to the Alpaca device</param>
+        /// <param name="userAgentProductVersion">Optional product version to include in the User-Agent HTTP header sent to the Alpaca device</param>
         public AlpacaCamera(ServiceType serviceType = AlpacaClient.CLIENT_SERVICETYPE_DEFAULT,
                             string ipAddressString = AlpacaClient.CLIENT_IPADDRESS_DEFAULT,
                             int portNumber = AlpacaClient.CLIENT_IPPORT_DEFAULT,
@@ -69,7 +71,9 @@ namespace ASCOM.Alpaca.Clients
                             string userName = AlpacaClient.CLIENT_USERNAME_DEFAULT,
                             string password = AlpacaClient.CLIENT_PASSWORD_DEFAULT,
                             bool strictCasing = AlpacaClient.CLIENT_STRICTCASING_DEFAULT,
-                            ILogger logger = AlpacaClient.CLIENT_LOGGER_DEFAULT
+                            ILogger logger = AlpacaClient.CLIENT_LOGGER_DEFAULT,
+                            string userAgentProductName = null,
+                            string userAgentProductVersion = null
             )
         {
             this.serviceType = serviceType;
@@ -86,6 +90,8 @@ namespace ASCOM.Alpaca.Clients
             this.password = password;
             this.strictCasing = strictCasing;
             this.logger = logger;
+            this.userAgentProductName = userAgentProductName;
+            this.userAgentProductVersion = userAgentProductVersion;
 
             Initialise();
         }
@@ -142,7 +148,7 @@ namespace ASCOM.Alpaca.Clients
                 LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"Password length: {password.Length}");
                 LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"Strict casing: {strictCasing}");
 
-                DynamicClientDriver.ConnectToRemoteDevice(ref client, serviceType, ipAddressString, portNumber, clientNumber, clientDeviceType, standardDeviceResponseTimeout, userName, password, imageArrayCompression, logger);
+                DynamicClientDriver.ConnectToRemoteDevice(ref client, serviceType, ipAddressString, portNumber, clientNumber, clientDeviceType, standardDeviceResponseTimeout, userName, password, imageArrayCompression, logger, userAgentProductName, userAgentProductVersion);
                 LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), "Completed initialisation");
             }
             catch (Exception ex)

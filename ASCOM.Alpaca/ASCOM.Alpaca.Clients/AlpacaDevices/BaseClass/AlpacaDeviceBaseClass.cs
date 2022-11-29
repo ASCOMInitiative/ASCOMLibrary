@@ -39,6 +39,9 @@ namespace ASCOM.Alpaca.Clients
         private bool disposedValue; // Whether or not the client has been Disposed()
         private readonly ClientConfiguration clientConfiguration; // The client configuration
 
+        internal string userAgentProductName;
+        internal string userAgentProductVersion;
+
         /// <summary>
         /// Create a new instance of the AlpacaDeviceBaseClass passing the instance to the client configuration class
         /// </summary>

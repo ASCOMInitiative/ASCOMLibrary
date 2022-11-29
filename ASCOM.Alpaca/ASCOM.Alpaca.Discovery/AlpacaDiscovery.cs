@@ -7,7 +7,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Net.Sockets;
+using System.Reflection;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -69,6 +71,8 @@ namespace ASCOM.Alpaca.Discovery
         private bool discoveryCompleteValue; // Discovery completion status
         private readonly object deviceListLockObject = new object(); // Lock object to synchronise access to the Alpaca device list collection, which is not a thread safe collection
         private readonly bool strictCasing; // Flag indicating whether case sensitive or case insensitive de-serialisation will be used.
+        private string productName; // Product name to go in the User-Agent header
+        private string productVersion; // Product version to go in the User-Agent header
 
         private ServiceType serviceType; // Holds the service type for management API calls: HTTP or HTTPS
 
@@ -88,11 +92,16 @@ namespace ASCOM.Alpaca.Discovery
         /// Initialiser that takes a trace logger (Can only be used from .NET clients)
         /// </summary>
         /// <param name="strictCasing">Trace logger instance to use for activity logging</param>
-        /// <param name="traceLogger">Trace logger instance to use for activity logging</param>
-        public AlpacaDiscovery(bool strictCasing, ILogger traceLogger)
+        /// <param name="logger">Trace logger instance to use for activity logging</param>
+        /// <param name="productName">Product name in the User-Agent header of management API HTTP calls</param>
+        /// <param name="productVersion">Product version in the User-Agent header of management API HTTP calls</param>
+        public AlpacaDiscovery(bool strictCasing, ILogger logger, string productName = "ASCOMLibrary", string productVersion = null)
         {
-            logger = traceLogger; // Save the supplied trace logger object
+            this.logger = logger; // Save the supplied trace logger object
             this.strictCasing = strictCasing;
+            this.productName = productName;
+            this.productVersion = productVersion;
+
             InitialiseClass(); // Initialise using the trace logger
         }
 
@@ -347,6 +356,21 @@ namespace ASCOM.Alpaca.Discovery
             {
                 Timeout = TimeSpan.FromSeconds(discoveryDuration)
             };
+
+            // Make sure that the User-Agent product name has some content
+            if (string.IsNullOrEmpty(productName))
+            {
+                productName = "ASCOMLibrary";
+            }
+
+            // Make sure that the User-Agent product version has some content
+            if (string.IsNullOrEmpty(productVersion))
+            {
+                productVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString(3);
+            }
+
+            // Add the User-Agent header
+            httpClient.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(new ProductHeaderValue(productName, productVersion)));
 
             // Send the broadcast polls
             for (int i = 1, loopTo = numberOfPolls; i <= loopTo; i++)

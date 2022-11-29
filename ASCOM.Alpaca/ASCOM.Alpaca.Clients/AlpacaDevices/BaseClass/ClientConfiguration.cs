@@ -4,6 +4,9 @@ using ASCOM.Common;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Reflection;
+using System.Net.Http.Headers;
+using System.Net.Http;
 
 namespace ASCOM.Alpaca.Clients
 {
@@ -142,5 +145,68 @@ namespace ASCOM.Alpaca.Clients
             set { baseClass.logger = value; }
         }
 
+       /// <summary>
+       /// Product name to include in the User-Agent HTTP header
+       /// </summary>
+        public string UserAgentProductName
+        {
+            get { return baseClass.userAgentProductName; }
+            set
+            {
+                baseClass.userAgentProductName = value;
+                baseClass.client.DefaultRequestHeaders.Clear();
+
+                string productName = value;
+                string productVersion = UserAgentProductVersion;
+
+                // Make sure that the User-Agent product name has some content
+                if (string.IsNullOrEmpty(productName))
+                {
+                    productName = "ASCOMLibrary";
+                }
+
+                // Make sure that the User-Agent product version has some content
+                if (string.IsNullOrEmpty(productVersion))
+                {
+                    productVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString(3);
+                }
+
+                // Add the User-Agent header
+                baseClass.client.DefaultRequestHeaders.UserAgent.Clear();
+                baseClass.client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(new ProductHeaderValue(productName, productVersion)));
+            }
+        }
+
+        /// <summary>
+        /// Product version to include in the User-Agent HTTP header
+        /// </summary>
+        public string UserAgentProductVersion
+        {
+            get { return baseClass.userAgentProductVersion; }
+            set 
+            {
+                baseClass.userAgentProductVersion = value;
+                baseClass.client.DefaultRequestHeaders.Clear();
+
+                string productName = UserAgentProductName;
+                string productVersion = value;
+
+                // Make sure that the User-Agent product name has some content
+                if (string.IsNullOrEmpty(productName))
+                {
+                    productName = "ASCOMLibrary";
+                }
+
+                // Make sure that the User-Agent product version has some content
+                if (string.IsNullOrEmpty(productVersion))
+                {
+                    productVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString(3);
+                }
+
+                // Add the User-Agent header
+                baseClass.client.DefaultRequestHeaders.UserAgent.Clear();
+                baseClass.client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(new ProductHeaderValue(productName, productVersion)));
+            }
+        }
     }
 }
