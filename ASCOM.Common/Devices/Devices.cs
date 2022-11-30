@@ -25,13 +25,31 @@ namespace ASCOM.Common
         }
 
         /// <summary>
-        /// Confirms that the supplied device type name is a valid ASCOM device type.
+        /// Confirms that the supplied device type is a valid ASCOM device type.
         /// </summary>
         /// <param name="deviceType">Device type name to assess.</param>
-        /// <returns>Returns true if the supplied name is a valid ASCOM device type, otherwise returns false.</returns>
+        /// <returns>Returns true if the supplied type is a valid ASCOM device type, otherwise returns false.</returns>
         public static bool IsValidDeviceType(DeviceTypes deviceType)
         {
             return Enum.IsDefined(typeof(DeviceTypes), deviceType);
+        }
+
+        /// <summary>
+        /// Confirms that the supplied device type string name is valid
+        /// </summary>
+        /// <param name="deviceTypeName">Device type name as a string</param>
+        /// <returns>True if the supplied name is a valid ASCOM device type, otherwise returns false.</returns>
+        public static bool IsValidDeviceTypeName(string deviceTypeName)
+        {
+            try
+            {
+                DeviceTypes deviceType = StringToDeviceType(deviceTypeName);
+                return true;
+            }
+            catch (InvalidValueException)
+            {
+                return false;
+            }
         }
 
         /// <summary>
