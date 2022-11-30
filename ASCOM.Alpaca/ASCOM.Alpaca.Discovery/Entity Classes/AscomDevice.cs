@@ -24,7 +24,45 @@ namespace ASCOM.Alpaca.Discovery
         }
 
         /// <summary>
-        /// 
+        /// Initialise the class providing the device type as a string device type name
+        /// </summary>
+        /// <param name="ascomDdeviceName">ASCOM device name</param>
+        /// <param name="ascomDeviceTypeName">ASCOM device type name</param>
+        /// <param name="alpacaDeviceNumber">Alpaca API device number</param>
+        /// <param name="uniqueId">ASCOM device unique ID</param>
+        /// <param name="alpacaDevice">AlpacaDevice instance that servers this ASCOM device.</param>
+        /// <param name="interfaceVersion">Supported Alpaca interface version</param>
+        public AscomDevice(string ascomDdeviceName, string ascomDeviceTypeName, int alpacaDeviceNumber, string uniqueId, AlpacaDevice alpacaDevice, int interfaceVersion)
+        {
+            // Test whether the supplied device type name is one of the valid ASCOM device types
+            if (Devices.IsValidDeviceTypeName(ascomDeviceTypeName)) // This is a valid device so initialise accordingly
+            {
+                // Set the ASCOM device type enum using the supplied string device type name
+                AscomDeviceType = Devices.StringToDeviceType(ascomDeviceTypeName);
+
+                // Set the non ASCOM device type to null
+                NonAscomDeviceType = null;
+
+                // Initialise the remainder of the class
+                Initialise(ascomDdeviceName, alpacaDeviceNumber, uniqueId, alpacaDevice.ServiceType, alpacaDevice.IPEndPoint, alpacaDevice.HostName, interfaceVersion,
+                    alpacaDevice.ServerName, alpacaDevice.Manufacturer, alpacaDevice.ManufacturerVersion, alpacaDevice.Location);
+            }
+            else // This is not a valid ASCOM device type so initialise accordingly
+            {
+                // Set the device type to null
+                AscomDeviceType = null;
+
+                // Set the Non ASCOM device type to the supplied device type name because this is NOT a known ASCOM device type
+                NonAscomDeviceType = ascomDeviceTypeName;
+
+                // Initialise the remainder of the class
+                Initialise(ascomDdeviceName, alpacaDeviceNumber, uniqueId, alpacaDevice.ServiceType, alpacaDevice.IPEndPoint, alpacaDevice.HostName, interfaceVersion,
+                    alpacaDevice.ServerName, alpacaDevice.Manufacturer, alpacaDevice.ManufacturerVersion, alpacaDevice.Location);
+            }
+        }
+
+        /// <summary>
+        /// Initialise the class providing the device type as a DeviceTypes enum value
         /// </summary>
         /// <param name="ascomDdeviceName">ASCOM device name</param>
         /// <param name="ascomDeviceType">ASCOM device type</param>
@@ -36,7 +74,6 @@ namespace ASCOM.Alpaca.Discovery
             this(ascomDdeviceName, ascomDeviceType, alpacaDeviceNumber, uniqueId, alpacaDevice.ServiceType, alpacaDevice.IPEndPoint, alpacaDevice.HostName, interfaceVersion,
                 alpacaDevice.ServerName, alpacaDevice.Manufacturer, alpacaDevice.ManufacturerVersion, alpacaDevice.Location)
         { }
-
 
         /// <summary>
         /// Initialise the ASCOM device name, ASCOM device type and ASCOM device unique ID, plus
@@ -57,8 +94,36 @@ namespace ASCOM.Alpaca.Discovery
         /// <remarks>This can only be used by .NET clients because COM only supports parameterless initialisers.</remarks>
         public AscomDevice(string ascomDdeviceName, DeviceTypes ascomDeviceType, int alpacaDeviceNumber, string uniqueId, ServiceType serviceType, IPEndPoint ipEndPoint, string hostName, int interfaceVersion, string serverName, string manufacturer, string manufacturerVersion, string location)
         {
-            AscomDeviceName = ascomDdeviceName;
+            // Set the device type
             AscomDeviceType = ascomDeviceType;
+
+            // Set the Non ASCOM device type to null because this is a known ASCOM device type
+            NonAscomDeviceType = null;
+
+            // Initialise the remainder of the class
+            Initialise(ascomDdeviceName, alpacaDeviceNumber, uniqueId, serviceType, ipEndPoint, hostName, interfaceVersion, serverName, manufacturer, manufacturerVersion, location);
+        }
+
+        /// <summary>
+        /// Initialise the ASCOM device name, ASCOM device type and ASCOM device unique ID, plus
+        /// the Alpaca API device number, unique ID, service type, device IP endpoint, Alpaca unique ID, interface version and status message
+        /// </summary>
+        /// <param name="ascomDdeviceName">ASCOM device name</param>
+        /// <param name="alpacaDeviceNumber">Alpaca API device number</param>
+        /// <param name="uniqueId">ASCOM device unique ID</param>
+        /// <param name="serviceType">HTTP or HTTPS service type</param>
+        /// <param name="ipEndPoint">Alpaca device IP endpoint</param>
+        /// <param name="hostName">ALapca device host name</param>
+        /// <param name="interfaceVersion">Supported Alpaca interface version</param>
+        /// <param name="serverName">ALapca device host name</param>
+        /// <param name="manufacturer">ALapca device host name</param>
+        /// <param name="manufacturerVersion">ALapca device host name</param>
+        /// <param name="location">ALapca device host name</param>
+        /// <remarks>This can only be used by .NET clients because COM only supports parameterless initialisers.</remarks>
+        private void Initialise(string ascomDdeviceName, int alpacaDeviceNumber, string uniqueId, ServiceType serviceType, IPEndPoint ipEndPoint, string hostName, int interfaceVersion,
+            string serverName, string manufacturer, string manufacturerVersion, string location)
+        {
+            AscomDeviceName = ascomDdeviceName;
             AlpacaDeviceNumber = alpacaDeviceNumber;
             UniqueId = uniqueId;
             IPEndPoint = ipEndPoint;
@@ -100,6 +165,10 @@ namespace ASCOM.Alpaca.Discovery
         /// <summary>
         /// ASCOM device type
         /// </summary>
+        /// <remarks>
+        /// This field will be populated when the device type is one of the recognised ASCOM types such as Telescope or Camera.
+        /// When this field is populated the <see cref="NonAscomDeviceType"/> property will return <see langword="null" />.
+        /// </remarks>
         public DeviceTypes? AscomDeviceType { get; set; }
 
         /// <summary>
@@ -160,6 +229,15 @@ namespace ASCOM.Alpaca.Discovery
         /// </summary>
         /// <returns>String location</returns>
         public string Location { get; set; }
+
+        /// <summary>
+        /// Device type if this is not one of the ASCOM device types such as Telescope, Camera etc.
+        /// </summary>
+        /// <remarks>
+        /// This field will only be populated when the supplied device type is not one of the recognised ASCOM types such as Telescope or Camera. 
+        /// When this field is populated the <see cref="AscomDeviceType"/> property will return <see langword="null" />.
+        /// </remarks>
+        public string NonAscomDeviceType { get; set; }
 
         #endregion
 

@@ -150,13 +150,13 @@ namespace ASCOM.Alpaca.Discovery
                     try { if (finder != null) finder.ResponseReceivedEvent -= FoundDeviceEventHandler; } catch { }
 
                     // Dispose of the Finder
-                    try { if (finder != null) finder.Dispose(); } catch { }
+                    try { finder?.Dispose(); } catch { }
 
                     // Dispose of the discovery completion timer
-                    try { if (discoveryCompleteTimer != null) discoveryCompleteTimer.Dispose(); } catch { }
+                    try { discoveryCompleteTimer?.Dispose(); } catch { }
 
                     // Dispose of the HTTP client
-                    try { if (httpClient != null) httpClient.Dispose(); } catch { }
+                    try { httpClient?.Dispose(); } catch { }
                 }
 
                 disposedValue = true;
@@ -348,10 +348,7 @@ namespace ASCOM.Alpaca.Discovery
 
             // Create a new HTTP Client so that its timeout property can be set
 
-            if (httpClient != null)
-            {
-                httpClient.Dispose();
-            }
+            httpClient?.Dispose();
             httpClient = new HttpClient
             {
                 Timeout = TimeSpan.FromSeconds(discoveryDuration)
@@ -412,7 +409,7 @@ namespace ASCOM.Alpaca.Discovery
             bool useIpV6 = USE_IP_V6_DEFAULT,
             ServiceType serviceType = SERVICE_TYPE_DEFAULT,
             ILogger logger = null,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             try
             {
@@ -740,12 +737,18 @@ namespace ASCOM.Alpaca.Discovery
                         // Iterate over the ASCOM devices presented by this Alpaca device adding them to the return List
                         foreach (AlpacaConfiguredDevice alpacaConfiguredDevice in configuredDevicesResponse.Value)
                         {
-                            ascomDevices.Add(new AscomDevice(alpacaConfiguredDevice.DeviceName, Devices.StringToDeviceType(alpacaConfiguredDevice.DeviceType), alpacaConfiguredDevice.DeviceNumber, alpacaConfiguredDevice.UniqueID, alpacaDeviceList[deviceIpEndPoint], alpacaDeviceInterfaceVersion)); // ASCOM device information 
+                            ascomDevices.Add(new AscomDevice(
+                                alpacaConfiguredDevice.DeviceName, 
+                                alpacaConfiguredDevice.DeviceType, 
+                                alpacaConfiguredDevice.DeviceNumber, 
+                                alpacaConfiguredDevice.UniqueID, 
+                                alpacaDeviceList[deviceIpEndPoint], 
+                                alpacaDeviceInterfaceVersion)); // ASCOM device information 
 
                         } // Next Ascom Device
                     } // Next interface version
 
-                    // Add the updated list of AscomDevices to the ALpacaDevice instance
+                    // Add the updated list of AscomDevices to the AlpacaDevice instance
                     alpacaDeviceList[deviceIpEndPoint].SetAscomDevices(ascomDevices);
 
                     LogMessage("GetAlpacaDeviceInformation", $"Listing configured devices");
