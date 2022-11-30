@@ -76,7 +76,7 @@ namespace ASCOM.Alpaca.Clients
             this.strictCasing = strictCasing;
             this.logger = logger;
             this.userAgentProductName = userAgentProductName;
-            this.userAgentProductName = userAgentProductVersion;
+            this.userAgentProductVersion = userAgentProductVersion;
 
             Initialise();
         }
