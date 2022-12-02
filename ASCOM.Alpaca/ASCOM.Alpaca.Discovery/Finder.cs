@@ -149,7 +149,7 @@ namespace ASCOM.Alpaca.Discovery
         }
 
         /// <summary>
-        /// Clears the cached IP Endpoints in CachedEndpoints
+        /// List of IP Endpoints that returned valid Alpaca discovery responses
         /// </summary>
         public List<IPEndPoint> CachedEndpoints
         {
@@ -157,7 +157,7 @@ namespace ASCOM.Alpaca.Discovery
         } = new List<IPEndPoint>();
 
         /// <summary>
-        /// Clear cached endpoint values.
+        /// Clears the cached IP Endpoints in CachedEndpoints
         /// </summary>
         public void ClearCache()
         {
