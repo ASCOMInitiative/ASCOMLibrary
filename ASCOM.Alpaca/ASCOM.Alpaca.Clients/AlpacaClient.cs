@@ -89,13 +89,45 @@ namespace ASCOM.Alpaca.Clients
         {
             if (typeof(T) == typeof(AlpacaCamera)) // Return a camera type with its additional parameters defaulted
             {
-                return (T)Activator.CreateInstance(typeof(T), new object[] {serviceType, ipAddressString, portNumber, remoteDeviceNumber,  establishConnectionTimeout, standardDeviceResponseTimeout, longDeviceResponseTimeout,
-                clientNumber, imageArrayTransferType, imageArrayCompression, userName, password, strictCasing, logger });
+                return (T)Activator.CreateInstance(typeof(T), new object[]
+                {
+                    serviceType,
+                    ipAddressString,
+                    portNumber,
+                    remoteDeviceNumber,
+                    establishConnectionTimeout,
+                    standardDeviceResponseTimeout,
+                    longDeviceResponseTimeout,
+                    clientNumber,
+                    imageArrayTransferType,
+                    imageArrayCompression,
+                    userName,
+                    password,
+                    strictCasing,
+                    logger,
+                    null,
+                    null
+                });
             }
             else // Return a standard device client
             {
-                return (T)Activator.CreateInstance(typeof(T), new object[] { serviceType, ipAddressString, portNumber, remoteDeviceNumber, establishConnectionTimeout,
-                                            standardDeviceResponseTimeout, longDeviceResponseTimeout, clientNumber, userName, password, strictCasing, logger });
+                return (T)Activator.CreateInstance(typeof(T), new object[]
+                {
+                    serviceType,
+                    ipAddressString,
+                    portNumber,
+                    remoteDeviceNumber,
+                    establishConnectionTimeout,
+                    standardDeviceResponseTimeout,
+                    longDeviceResponseTimeout,
+                    clientNumber,
+                    userName,
+                    password,
+                    strictCasing,
+                    logger,
+                    null,
+                    null
+                });
             }
 
         }

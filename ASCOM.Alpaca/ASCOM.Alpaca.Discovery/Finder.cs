@@ -24,6 +24,7 @@ namespace ASCOM.Alpaca.Discovery
         private readonly Dictionary<IPAddress, UdpClient> IPv4Clients = new Dictionary<IPAddress, UdpClient>(); // Collection of IP v4 clients for the various link local and localhost networks
         private readonly Dictionary<IPAddress, UdpClient> IPv6Clients = new Dictionary<IPAddress, UdpClient>(); // Collection of IP v6 clients for the various link local and localhost networks
         private bool disposedValue; // Disposed variable
+        private readonly object broadcastResponsesLockObject = new object();
 
         private const int SIO_UDP_CONNRESET = -1744830452; //Control code to turn off UDP ICMP Connection Reset
 
@@ -157,6 +158,14 @@ namespace ASCOM.Alpaca.Discovery
         } = new List<IPEndPoint>();
 
         /// <summary>
+        /// List of all responses to the broadcasts
+        /// </summary>
+        public List<BroadcastResponse> BroadcastResponses
+        {
+            get;
+        } = new List<BroadcastResponse>();
+
+        /// <summary>
         /// Clears the cached IP Endpoints in CachedEndpoints
         /// </summary>
         public void ClearCache()
@@ -180,8 +189,17 @@ namespace ASCOM.Alpaca.Discovery
 
                 endpoint = new IPEndPoint(IPAddress.Any, discoveryPort);
 
-                // Obtain the UDP message body and convert it to a string, with remote IP address attached as well
-                string ReceiveString = Encoding.ASCII.GetString(udpClient.EndReceive(ar, ref endpoint));
+                // Obtain the UDP message body as a byte[]
+                byte[] returnedBytes = udpClient.EndReceive(ar, ref endpoint);
+
+                // Save the broadcast response in a thread safe manner
+                lock (broadcastResponsesLockObject)
+                {
+                    BroadcastResponses.Add(new BroadcastResponse(endpoint, returnedBytes));
+                }
+
+                // Convert the message bytes to a string, with remote IP address attached as well
+                string ReceiveString = Encoding.ASCII.GetString(returnedBytes);
                 LogMessage($"ReceiveCallback", $"Received {ReceiveString} from Alpaca device at {endpoint.Address}");
 
                 // Accept responses containing the discovery response string and don't respond to your own transmissions
@@ -306,7 +324,6 @@ namespace ASCOM.Alpaca.Discovery
                 }
             }
         }
-
 
         private UdpClient NewIPv4Client()
         {
