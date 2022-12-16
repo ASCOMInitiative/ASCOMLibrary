@@ -85,7 +85,7 @@
         /// <summary>
         /// ID HTTP parameter name
         /// </summary>
-        public const string ID_PARAMETER_NAME = "ID";
+        public const string ID_PARAMETER_NAME = "Id";
         /// <summary>
         /// State HTTP parameter name
         /// </summary>
