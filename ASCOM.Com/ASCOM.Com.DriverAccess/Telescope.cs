@@ -1007,7 +1007,17 @@ namespace ASCOM.Com.DriverAccess
 
                 foreach (var rate in (base.Device.TrackingRates))
                 {
-                    rates.Add((DriveRate)rate);
+                    try
+                    {
+                        if (rate != null && Enum.IsDefined(typeof(DriveRate), rate))
+                        {
+                            rates.Add((DriveRate)rate);
+                        }
+                    }
+                    catch
+                    {
+
+                    }
                 }
                 return rates;
             }
