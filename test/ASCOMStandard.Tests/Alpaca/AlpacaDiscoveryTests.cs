@@ -232,9 +232,9 @@ namespace ASCOM.Alpaca.Tests.Alpaca
             // Create a single device subset of Telescope devices (Could be achieved more simply by supplying a DeviceTypes parameter value in place of the null parameter in the command above)
             var ascomDevices = allAscomDevices.Where(info => info.AscomDeviceType == DeviceTypes.Telescope);
             TL.LogMessage("Test", $"Returned from GetAscomDevicesAsync");
+            TL.LogMessage("Test", $"Found {ascomDevices.Count()} Telescope devices");
 
             Assert.NotEmpty(ascomDevices);
-            TL.LogMessage("Test", $"Found {ascomDevices.Count()} Telescope devices");
             foreach (AscomDevice ascomDevice in ascomDevices)
             {
                 Assert.False(String.IsNullOrEmpty(ascomDevice.ServerName));

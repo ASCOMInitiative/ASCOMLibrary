@@ -852,18 +852,18 @@ namespace ASCOM.Alpaca.Tests.Clients
             TL.LogMessage("Main", $"Tracking set false");
 
             // Slew somewhere that is not likely to be the test position
-            TL.LogMessage("Main", $"Slewing to somewhere that is not likely to be the test position");
-            await client.SlewToAltAzTaskAsync(15.0, 7.0, pollInterval: 100, logger: TL);
+            TL.LogMessage("Main", $"Slewing to 50, 60 that is not the test position");
+            await client.SlewToAltAzTaskAsync(50.0, 60.0, pollInterval: 100, logger: TL);
             TL.LogMessage("Main", $"Slew await complete, Is parked: {client.AtPark}, Is at home: {client.AtHome}, Azimuth: {client.Azimuth}, Altitude: {client.Altitude}");
 
             // Slew to the target 
-            TL.LogMessage("Main", $"Slewing to the target ALt/Az (0.0, 0.0)");
-            await client.SlewToAltAzTaskAsync(0.0, 0.0, pollInterval: 100, logger: TL);
+            TL.LogMessage("Main", $"Slewing to the target ALt/Az (40.0, 50.0)");
+            await client.SlewToAltAzTaskAsync(40.0, 50.0, pollInterval: 100, logger: TL);
             TL.LogMessage("Main", $"Slew await complete, Is parked: {client.AtPark}, Is at home: {client.AtHome}, Azimuth: {client.Azimuth}, Altitude: {client.Altitude}");
             Assert.False(client.AtHome);
             Assert.False(client.AtPark);
-            Assert.Equal(0.0, Math.Round(client.Azimuth, 1));
-            Assert.Equal(0.0, Math.Round(client.Altitude, 1));
+            Assert.Equal(40.0, Math.Round(client.Azimuth, 1));
+            Assert.Equal(50.0, Math.Round(client.Altitude, 1));
 
             // Disconnect from the client and dispose
             client.Connected = false;
