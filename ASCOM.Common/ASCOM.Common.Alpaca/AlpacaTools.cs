@@ -1053,7 +1053,7 @@ namespace ASCOM.Common.Alpaca
 
             // Convert the returned byte[] into the form that the client is expecting
 
-            if ((imageElementType == ImageArrayElementTypes.Int16) & (transmissionElementType == ImageArrayElementTypes.Byte)) // Handle the special case where Int32 has been converted to Byte for transmission
+            if ((imageElementType == ImageArrayElementTypes.Int16) & (transmissionElementType == ImageArrayElementTypes.Byte)) // Handle the special case where Int16 has been converted to Byte for transmission
             {
                 switch (rank)
                 {
@@ -1092,7 +1092,7 @@ namespace ASCOM.Common.Alpaca
                         throw new InvalidValueException($"ToImageArray - Returned array cannot be handled because it does not have a rank of 2 or 3. Returned array rank:{rank}.");
                 }
             }
-            else if ((imageElementType == ImageArrayElementTypes.UInt16) & (transmissionElementType == ImageArrayElementTypes.Byte)) // Handle the special case where Int32 has been converted to Byte for transmission
+            else if ((imageElementType == ImageArrayElementTypes.UInt16) & (transmissionElementType == ImageArrayElementTypes.Byte)) // Handle the special case where UInt16 has been converted to Byte for transmission
             {
                 switch (rank)
                 {
@@ -1256,7 +1256,7 @@ namespace ASCOM.Common.Alpaca
                         switch (transmissionElementType)
                         {
                             case ImageArrayElementTypes.Byte:
-                                Object[,] byteArray2D = new Object[dimension1, dimension2];
+                                Object[,] byteObjectArray2D = new Object[dimension1, dimension2];
                                 int nextArrayElement = ARRAY_METADATAV1_LENGTH;
                                 for (int i = 0; i < dimension1; i++)
                                 {
