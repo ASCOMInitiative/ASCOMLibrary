@@ -1256,7 +1256,7 @@ namespace ASCOM.Common.Alpaca
                         switch (transmissionElementType)
                         {
                             case ImageArrayElementTypes.Byte:
-                                Object[,] byteObjectArray2D = new Object[dimension1, dimension2];
+                                Object[,] byteArray2D = new Object[dimension1, dimension2];
                                 int nextArrayElement = ARRAY_METADATAV1_LENGTH;
                                 for (int i = 0; i < dimension1; i++)
                                 {
