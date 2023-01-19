@@ -10,6 +10,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Sockets;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -681,7 +682,46 @@ namespace ASCOM.Alpaca.Discovery
 
                 case AddressFamily.InterNetworkV6:
                     string scopeId = $"%{deviceIpEndPoint.Address.ScopeId}"; // Obtain the IPv6 scope ID in text form (if present)
-                    hostIpAndPort = $"{serviceType.ToString().ToLowerInvariant()}://{deviceIpEndPoint.ToString().Replace(scopeId, string.Empty)}"; // Create the overall URI
+                    LogMessage("GetAlpacaDeviceInformation", $"Device IP Endpoint: {deviceIpEndPoint}, Whole Address: {deviceIpEndPoint.Address}, Family: {deviceIpEndPoint.AddressFamily}, " +
+                        $"Scope  ID: {deviceIpEndPoint.Address.ScopeId}, Port: {deviceIpEndPoint.Port}, Is link local: {deviceIpEndPoint.Address.IsIPv6LinkLocal}," +
+                        $",OS Architecture: {RuntimeInformation.OSArchitecture}.");
+
+                    // Handle different requirements for address format
+                    if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                    {
+                        // Must exclude the scope ID
+                        hostIpAndPort = $"{serviceType.ToString().ToLowerInvariant()}://{deviceIpEndPoint.ToString().Replace(scopeId, string.Empty)}"; // Create the overall URI
+                        LogMessage("GetAlpacaDeviceInformation", $"WINDOWS - Device IP Endpoint: {deviceIpEndPoint}, Whole Address: {deviceIpEndPoint.Address}, Family: {deviceIpEndPoint.AddressFamily}, " +
+                            $"Scope  ID: {deviceIpEndPoint.Address.ScopeId}, Port: {deviceIpEndPoint.Port}, Is link local: {deviceIpEndPoint.Address.IsIPv6LinkLocal}," +
+                            $",OS Architecture: {RuntimeInformation.OSArchitecture}, URL base: {hostIpAndPort}.");
+                    }
+                    else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) // Linux
+                    {
+                        if ((RuntimeInformation.OSArchitecture == Architecture.X86) | (RuntimeInformation.OSArchitecture == Architecture.X64)) // Linux on Intel
+                        {
+                            // Must include the scope ID
+                            hostIpAndPort = $"{serviceType.ToString().ToLowerInvariant()}://{deviceIpEndPoint}"; // Create the overall URI
+                            LogMessage("GetAlpacaDeviceInformation", $"LINUX-INTEL - Device IP Endpoint: {deviceIpEndPoint}, Whole Address: {deviceIpEndPoint.Address}, Family: {deviceIpEndPoint.AddressFamily}, " +
+                                $"Scope  ID: {deviceIpEndPoint.Address.ScopeId}, Port: {deviceIpEndPoint.Port}, Is link local: {deviceIpEndPoint.Address.IsIPv6LinkLocal}," +
+                                $",OS Architecture: {RuntimeInformation.OSArchitecture}, URL base: {hostIpAndPort}.");
+                        }
+                        else // Linux on ARM
+                        {
+                            // Must include the scope ID
+                            hostIpAndPort = $"{serviceType.ToString().ToLowerInvariant()}://{deviceIpEndPoint}"; // Create the overall URI
+                            LogMessage("GetAlpacaDeviceInformation", $"LINUX-ARM - Device IP Endpoint: {deviceIpEndPoint}, Whole Address: {deviceIpEndPoint.Address}, Family: {deviceIpEndPoint.AddressFamily}, " +
+                                $"Scope  ID: {deviceIpEndPoint.Address.ScopeId}, Port: {deviceIpEndPoint.Port}, Is link local: {deviceIpEndPoint.Address.IsIPv6LinkLocal}," +
+                                $",OS Architecture: {RuntimeInformation.OSArchitecture}, URL base: {hostIpAndPort}.");
+                        }
+                    }
+                    else // OSX
+                    {
+                        // Must include the scope ID
+                        hostIpAndPort = $"{serviceType.ToString().ToLowerInvariant()}://{deviceIpEndPoint}"; // Create the overall URI
+                        LogMessage("GetAlpacaDeviceInformation", $"OSX - Device IP Endpoint: {deviceIpEndPoint}, Whole Address: {deviceIpEndPoint.Address}, Family: {deviceIpEndPoint.AddressFamily}, " +
+                            $"Scope  ID: {deviceIpEndPoint.Address.ScopeId}, Port: {deviceIpEndPoint.Port}, Is link local: {deviceIpEndPoint.Address.IsIPv6LinkLocal}," +
+                            $",OS Architecture: {RuntimeInformation.OSArchitecture}, URL base: {hostIpAndPort}.");
+                    }
                     break;
 
                 default:
@@ -738,11 +778,11 @@ namespace ASCOM.Alpaca.Discovery
                         foreach (AlpacaConfiguredDevice alpacaConfiguredDevice in configuredDevicesResponse.Value)
                         {
                             ascomDevices.Add(new AscomDevice(
-                                alpacaConfiguredDevice.DeviceName, 
-                                alpacaConfiguredDevice.DeviceType, 
-                                alpacaConfiguredDevice.DeviceNumber, 
-                                alpacaConfiguredDevice.UniqueID, 
-                                alpacaDeviceList[deviceIpEndPoint], 
+                                alpacaConfiguredDevice.DeviceName,
+                                alpacaConfiguredDevice.DeviceType,
+                                alpacaConfiguredDevice.DeviceNumber,
+                                alpacaConfiguredDevice.UniqueID,
+                                alpacaDeviceList[deviceIpEndPoint],
                                 alpacaDeviceInterfaceVersion)); // ASCOM device information 
 
                         } // Next Ascom Device
