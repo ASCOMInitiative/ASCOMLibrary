@@ -42,6 +42,8 @@ namespace ASCOM.Alpaca.Clients
         internal string userAgentProductName;
         internal string userAgentProductVersion;
 
+        internal bool trustUserGeneratedSslCertificates;
+
         /// <summary>
         /// Create a new instance of the AlpacaDeviceBaseClass passing the instance to the client configuration class
         /// </summary>

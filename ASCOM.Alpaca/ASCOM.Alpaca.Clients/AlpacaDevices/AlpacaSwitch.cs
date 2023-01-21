@@ -44,6 +44,7 @@ namespace ASCOM.Alpaca.Clients
         /// <param name="logger">Optional ILogger instance that can be sued to record operational information during execution</param>
         /// <param name="userAgentProductName">Optional product name to include in the User-Agent HTTP header sent to the Alpaca device</param>
         /// <param name="userAgentProductVersion">Optional product version to include in the User-Agent HTTP header sent to the Alpaca device</param>
+        /// <param name="trustUserGeneratedSslCertificates">Trust user generated SSL certificates</param>
         public AlpacaSwitch(ServiceType serviceType = AlpacaClient.CLIENT_SERVICETYPE_DEFAULT,
                             string ipAddressString = AlpacaClient.CLIENT_IPADDRESS_DEFAULT,
                             int portNumber = AlpacaClient.CLIENT_IPPORT_DEFAULT,
@@ -57,7 +58,7 @@ namespace ASCOM.Alpaca.Clients
                             bool strictCasing = AlpacaClient.CLIENT_STRICTCASING_DEFAULT,
                             ILogger logger = AlpacaClient.CLIENT_LOGGER_DEFAULT,
                             string userAgentProductName = null,
-                            string userAgentProductVersion = null
+                            string userAgentProductVersion = null,bool trustUserGeneratedSslCertificates=AlpacaClient.TRUST_USER_GENERATED_SSL_CERTIFICATES_DEFAULT
            )
         {
             this.serviceType = serviceType;
@@ -74,6 +75,7 @@ namespace ASCOM.Alpaca.Clients
             this.logger = logger;
             this.userAgentProductName = userAgentProductName;
             this.userAgentProductVersion = userAgentProductVersion;
+            this.trustUserGeneratedSslCertificates = trustUserGeneratedSslCertificates;
 
             Initialise();
         }
@@ -127,8 +129,10 @@ namespace ASCOM.Alpaca.Clients
                 LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"Password is Null or Empty: {string.IsNullOrEmpty(password)}, Password is Null or White Space: {string.IsNullOrWhiteSpace(password)}");
                 LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"Password length: {password.Length}");
                 LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"Strict casing: {strictCasing}");
+                LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"Trust user generated SSL certificates: {trustUserGeneratedSslCertificates}");
 
-                DynamicClientDriver.ConnectToRemoteDevice(ref client, serviceType, ipAddressString, portNumber, clientNumber, clientDeviceType, standardDeviceResponseTimeout, userName, password, ImageArrayCompression.None, logger, userAgentProductName, userAgentProductVersion);
+                DynamicClientDriver.ConnectToRemoteDevice(ref client, serviceType, ipAddressString, portNumber, clientNumber, clientDeviceType, standardDeviceResponseTimeout, userName, password, ImageArrayCompression.None, 
+                    logger, userAgentProductName, userAgentProductVersion, trustUserGeneratedSslCertificates);
                 LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), "Completed initialisation");
             }
             catch (Exception ex)

@@ -116,9 +116,11 @@ namespace ASCOM.Alpaca.Clients
         /// <param name="imageArrayCompression"></param>
         /// <param name="userAgentProductName"></param>
         /// <param name="userAgentProductVersion"></param>
+        /// <param name="trustUnsignedSslCertificates"></param>
         /// <remarks>This method will attempt to re-discover the Alpaca device if it is not possible to establish a TCP connection with the device at the specified address and port.</remarks>
         internal static void ConnectToRemoteDevice(ref HttpClient httpClient, ServiceType serviceType, string ipAddressString, decimal portNumber,
-                                                 uint clientNumber, DeviceTypes deviceType, int deviceResponseTimeout, string userName, string password, ImageArrayCompression imageArrayCompression, ILogger logger, string userAgentProductName, string userAgentProductVersion)
+                                                 uint clientNumber, DeviceTypes deviceType, int deviceResponseTimeout, string userName, string password, ImageArrayCompression imageArrayCompression, ILogger logger,
+                                                 string userAgentProductName, string userAgentProductVersion, bool trustUnsignedSslCertificates)
         {
             string clientHostAddress = $"{serviceType.ToString().ToLowerInvariant()}://{ipAddressString}:{portNumber}";
 
@@ -319,6 +321,18 @@ namespace ASCOM.Alpaca.Clients
                 PreAuthenticate = true,
                 AutomaticDecompression = decompressionMethods
             };
+
+            httpClientHandler.ClientCertificateOptions = ClientCertificateOption.Manual;
+
+            // Trust self-signed certificates if requested to do so
+            if (trustUnsignedSslCertificates)
+            {
+                httpClientHandler.ServerCertificateCustomValidationCallback =
+                    (httpRequestMessage, cert, cetChain, policyErrors) =>
+                    {
+                        return true;
+                    };
+            }
 
             // Create a new client pointing at the alpaca device
             httpClient = new HttpClient(httpClientHandler);

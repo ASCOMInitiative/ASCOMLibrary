@@ -27,6 +27,8 @@ namespace ASCOM.Alpaca.Clients
         internal const int CLIENT_REMOTEDEVICENUMBER_DEFAULT = 0; // Default device number in the URI on the remote Alpaca device
         internal const ImageArrayTransferType CLIENT_IMAGEARRAYTRANSFERTYPE_DEFAULT = ImageArrayTransferType.BestAvailable; // Default camera image array transfer type
         internal const ImageArrayCompression CLIENT_IMAGEARRAYCOMPRESSION_DEFAULT = ImageArrayCompression.None; // Default camera image array compression type
+        internal const bool TRUST_USER_GENERATED_SSL_CERTIFICATES_DEFAULT = false; // Default for whether or not to trust user generated SSL certificates
+
         internal const string CLIENT_USER_AGENT_PRODUCT_NAME = "ASCOMAlpacaClient";
 
         #endregion
@@ -81,11 +83,16 @@ namespace ASCOM.Alpaca.Clients
         /// <param name="logger">ILogger instance or null. Default: null</param>
         /// <param name="imageArrayTransferType">Image array transfer type (Only relevant to Camera devices). Default: ImageArrayTransferType.BestAvailable</param>
         /// <param name="imageArrayCompression">Image array compression type (Only relevant to Camera devices). Default: ImageArrayCompression.None</param>
+        /// <param name="userAgentProductName">User agent header product name. Default: Not added to header.</param>
+        /// <param name="userAgentProductVersion">User agent header product version. Default: Not added to header.</param>
+        /// <param name="trustUserGeneratedSslCertificates">Trust user generated SSL certificates. Default: User generated SSL certificates are not trusted.</param>
         /// <returns>An Alpaca client of the specified type</returns>
         public static T GetDevice<T>(ServiceType serviceType = CLIENT_SERVICETYPE_DEFAULT, string ipAddressString = CLIENT_IPADDRESS_DEFAULT, int portNumber = CLIENT_IPPORT_DEFAULT, int remoteDeviceNumber = CLIENT_REMOTEDEVICENUMBER_DEFAULT, int establishConnectionTimeout = CLIENT_ESTABLISHCONNECTIONTIMEOUT_DEFAULT,
                                   int standardDeviceResponseTimeout = CLIENT_STANDARDCONNECTIONTIMEOUT_DEFAULT, int longDeviceResponseTimeout = CLIENT_LONGCONNECTIONTIMEOUT_DEFAULT, uint clientNumber = CLIENT_CLIENTNUMBER_DEFAULT,
                                   string userName = CLIENT_USERNAME_DEFAULT, string password = CLIENT_PASSWORD_DEFAULT, bool strictCasing = CLIENT_STRICTCASING_DEFAULT, ILogger logger = CLIENT_LOGGER_DEFAULT,
-                                  ImageArrayTransferType imageArrayTransferType = CLIENT_IMAGEARRAYTRANSFERTYPE_DEFAULT, ImageArrayCompression imageArrayCompression = CLIENT_IMAGEARRAYCOMPRESSION_DEFAULT) where T : AlpacaDeviceBaseClass, new()
+                                  ImageArrayTransferType imageArrayTransferType = CLIENT_IMAGEARRAYTRANSFERTYPE_DEFAULT, ImageArrayCompression imageArrayCompression = CLIENT_IMAGEARRAYCOMPRESSION_DEFAULT,
+                                  string userAgentProductName = null, string userAgentProductVersion = null, bool trustUserGeneratedSslCertificates = TRUST_USER_GENERATED_SSL_CERTIFICATES_DEFAULT)
+                                  where T : AlpacaDeviceBaseClass, new()
         {
             if (typeof(T) == typeof(AlpacaCamera)) // Return a camera type with its additional parameters defaulted
             {
@@ -105,8 +112,9 @@ namespace ASCOM.Alpaca.Clients
                     password,
                     strictCasing,
                     logger,
-                    null,
-                    null
+                    userAgentProductName,
+                    userAgentProductVersion,
+                    trustUserGeneratedSslCertificates
                 });
             }
             else // Return a standard device client
@@ -125,8 +133,9 @@ namespace ASCOM.Alpaca.Clients
                     password,
                     strictCasing,
                     logger,
-                    null,
-                    null
+                    userAgentProductName,
+                    userAgentProductVersion,
+                    trustUserGeneratedSslCertificates
                 });
             }
 
