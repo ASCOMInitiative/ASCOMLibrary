@@ -50,19 +50,25 @@ namespace ASCOM.Alpaca.Clients
         /// <param name="logger">ILogger instance or null. Default: null</param>
         /// <param name="imageArrayTransferType">Image array transfer type (Only relevant to Camera devices). Default: ImageArrayTransferType.BestAvailable</param>
         /// <param name="imageArrayCompression">Image array compression type (Only relevant to Camera devices). Default: ImageArrayCompression.None</param>
+        /// <param name="userAgentProductName">User agent header product name. Default: Not added to header.</param>
+        /// <param name="userAgentProductVersion">User agent header product version. Default: Not added to header.</param>
+        /// <param name="trustUserGeneratedSslCertificates">Trust user generated SSL certificates. Default: User generated SSL certificates are not trusted.</param>
         /// <returns>An Alpaca client instance for the supplied device and configuration</returns>
         /// <remarks>ASCOM Camera client specific parameters can be set through the <see cref="ImageArrayTransferType"/> and <see cref="ImageArrayCompression"/> properties.</remarks>
         public static T GetDevice<T>(AscomDevice ascomDevice, int establishConnectionTimeout = CLIENT_ESTABLISHCONNECTIONTIMEOUT_DEFAULT,
                                   int standardDeviceResponseTimeout = CLIENT_STANDARDCONNECTIONTIMEOUT_DEFAULT, int longDeviceResponseTimeout = CLIENT_LONGCONNECTIONTIMEOUT_DEFAULT, uint clientNumber = CLIENT_CLIENTNUMBER_DEFAULT,
                                   string userName = CLIENT_USERNAME_DEFAULT, string password = CLIENT_PASSWORD_DEFAULT, bool strictCasing = CLIENT_STRICTCASING_DEFAULT, ILogger logger = CLIENT_LOGGER_DEFAULT,
-                                  ImageArrayTransferType imageArrayTransferType = CLIENT_IMAGEARRAYTRANSFERTYPE_DEFAULT, ImageArrayCompression imageArrayCompression = CLIENT_IMAGEARRAYCOMPRESSION_DEFAULT) where T : AlpacaDeviceBaseClass, new()
+                                  ImageArrayTransferType imageArrayTransferType = CLIENT_IMAGEARRAYTRANSFERTYPE_DEFAULT, ImageArrayCompression imageArrayCompression = CLIENT_IMAGEARRAYCOMPRESSION_DEFAULT,
+                                  string userAgentProductName = null, string userAgentProductVersion = null, bool trustUserGeneratedSslCertificates = TRUST_USER_GENERATED_SSL_CERTIFICATES_DEFAULT)
+                                  where T : AlpacaDeviceBaseClass, new()
         {
             // Validate that the ascomDevice parameter is not null
             if (ascomDevice is null)
                 throw new InvalidValueException($"AlpacaClient.GetDevice - The supplied ascomDevice parameter is null");
 
             return (T)GetDevice<T>(ascomDevice.ServiceType, ascomDevice.IpAddress, ascomDevice.IpPort, ascomDevice.AlpacaDeviceNumber,
-                establishConnectionTimeout, standardDeviceResponseTimeout, longDeviceResponseTimeout, clientNumber, userName, password, strictCasing, logger, imageArrayTransferType, imageArrayCompression);
+                establishConnectionTimeout, standardDeviceResponseTimeout, longDeviceResponseTimeout, clientNumber, userName, password, strictCasing, logger, imageArrayTransferType, imageArrayCompression,
+                userAgentProductName,userAgentProductVersion,trustUserGeneratedSslCertificates);
         }
 
         /// <summary>
