@@ -258,10 +258,10 @@ namespace ASCOM.Com.DriverAccess
             }
 
             // Default behavior if its not one of the exceptions above
-            string defaultmessage = "CheckDotNetExceptions " + "_strProgId" + " " + memberName + " " + e.InnerException.ToString() + " (See Inner Exception for details)";
+            message = e.InnerException.Message;
 
-            FakeLogger.LogMessageCrLf(memberName, "  Throwing Default DriverException: '" + defaultmessage + "'");
-            throw new DriverException(defaultmessage, e.InnerException);
+            FakeLogger.LogMessageCrLf(memberName, "  Throwing Default DriverException: '" + message + "'");
+            throw new DriverException(message, e.InnerException);
         }
     }
 
