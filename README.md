@@ -1,9 +1,12 @@
 # ASCOM Cross-Platform libraries
 This repository contains cross platform ASCOM Alpaca and Microsoft COM support components that target .NET Standard 2.0 to provide the widest applicability. These are intended to assist developers in creating effective ASCOM Alpaca / COM applications and Alpaca devices / COM drivers.
 
-See https://www.ascom-standards.org/Developer/Alpaca.htm for further information on ASCOM Alpaca.
+For documentation of these libraries see [ASCOM Cross Platform Library Documentation](https://ascom-standards.org/library)
+
+See [Alpaca Developers on the ASCOM Web Site](https://www.ascom-standards.org/Developer/Alpaca.htm) for further information on ASCOM Alpaca.
 
 # Library Capabilities
+
 * Alpaca clients that provide straightforward access to Alpaca devices
 * Simple tools to discover available Alpaca devices
 * COM clients that provide straightforward access to Windows COM drivers
@@ -22,6 +25,7 @@ See https://www.ascom-standards.org/Developer/Alpaca.htm for further information
 
 # Packages
 The library is distributed via NuGet and consists of five packages:
+
 * ASCOM.Alpaca.Components - ASCOM Alpaca Clients and Client Discovery Library
 * ASCOM.Alpaca.Device - Device / driver side discovery library
 * ASCOM.Com.Components - A .Net Standard (.Net Core / .Net 5+) access library for ASCOM COM drivers
