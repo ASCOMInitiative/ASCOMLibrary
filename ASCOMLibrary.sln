@@ -26,8 +26,6 @@ Global
 		Debug|x86 = Debug|x86
 		Release|Any CPU = Release|Any CPU
 		Release|x86 = Release|x86
-		Swashbuckle_Documentation|Any CPU = Swashbuckle_Documentation|Any CPU
-		Swashbuckle_Documentation|x86 = Swashbuckle_Documentation|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{EC97A23E-7CB2-43A8-A351-CC4FDDA9CE2C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -38,10 +36,6 @@ Global
 		{EC97A23E-7CB2-43A8-A351-CC4FDDA9CE2C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{EC97A23E-7CB2-43A8-A351-CC4FDDA9CE2C}.Release|x86.ActiveCfg = Release|Any CPU
 		{EC97A23E-7CB2-43A8-A351-CC4FDDA9CE2C}.Release|x86.Build.0 = Release|Any CPU
-		{EC97A23E-7CB2-43A8-A351-CC4FDDA9CE2C}.Swashbuckle_Documentation|Any CPU.ActiveCfg = Swashbuckle_Documentation|Any CPU
-		{EC97A23E-7CB2-43A8-A351-CC4FDDA9CE2C}.Swashbuckle_Documentation|Any CPU.Build.0 = Swashbuckle_Documentation|Any CPU
-		{EC97A23E-7CB2-43A8-A351-CC4FDDA9CE2C}.Swashbuckle_Documentation|x86.ActiveCfg = Swashbuckle_Documentation|Any CPU
-		{EC97A23E-7CB2-43A8-A351-CC4FDDA9CE2C}.Swashbuckle_Documentation|x86.Build.0 = Swashbuckle_Documentation|Any CPU
 		{F0C9BFFD-C144-44AF-9318-847B19DF5C5B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F0C9BFFD-C144-44AF-9318-847B19DF5C5B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F0C9BFFD-C144-44AF-9318-847B19DF5C5B}.Debug|x86.ActiveCfg = Debug|Any CPU
@@ -50,10 +44,6 @@ Global
 		{F0C9BFFD-C144-44AF-9318-847B19DF5C5B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F0C9BFFD-C144-44AF-9318-847B19DF5C5B}.Release|x86.ActiveCfg = Release|Any CPU
 		{F0C9BFFD-C144-44AF-9318-847B19DF5C5B}.Release|x86.Build.0 = Release|Any CPU
-		{F0C9BFFD-C144-44AF-9318-847B19DF5C5B}.Swashbuckle_Documentation|Any CPU.ActiveCfg = Swashbuckle_Documentation|Any CPU
-		{F0C9BFFD-C144-44AF-9318-847B19DF5C5B}.Swashbuckle_Documentation|Any CPU.Build.0 = Swashbuckle_Documentation|Any CPU
-		{F0C9BFFD-C144-44AF-9318-847B19DF5C5B}.Swashbuckle_Documentation|x86.ActiveCfg = Swashbuckle_Documentation|Any CPU
-		{F0C9BFFD-C144-44AF-9318-847B19DF5C5B}.Swashbuckle_Documentation|x86.Build.0 = Swashbuckle_Documentation|Any CPU
 		{E0DA83D6-2F10-4A2E-B34A-1113335E2375}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{E0DA83D6-2F10-4A2E-B34A-1113335E2375}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E0DA83D6-2F10-4A2E-B34A-1113335E2375}.Debug|x86.ActiveCfg = Debug|Any CPU
@@ -62,10 +52,6 @@ Global
 		{E0DA83D6-2F10-4A2E-B34A-1113335E2375}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E0DA83D6-2F10-4A2E-B34A-1113335E2375}.Release|x86.ActiveCfg = Release|Any CPU
 		{E0DA83D6-2F10-4A2E-B34A-1113335E2375}.Release|x86.Build.0 = Release|Any CPU
-		{E0DA83D6-2F10-4A2E-B34A-1113335E2375}.Swashbuckle_Documentation|Any CPU.ActiveCfg = Swashbuckle_Documentation|Any CPU
-		{E0DA83D6-2F10-4A2E-B34A-1113335E2375}.Swashbuckle_Documentation|Any CPU.Build.0 = Swashbuckle_Documentation|Any CPU
-		{E0DA83D6-2F10-4A2E-B34A-1113335E2375}.Swashbuckle_Documentation|x86.ActiveCfg = Swashbuckle_Documentation|Any CPU
-		{E0DA83D6-2F10-4A2E-B34A-1113335E2375}.Swashbuckle_Documentation|x86.Build.0 = Swashbuckle_Documentation|Any CPU
 		{15505B99-58E8-4CA7-87B0-BEDF9F2FF990}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{15505B99-58E8-4CA7-87B0-BEDF9F2FF990}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{15505B99-58E8-4CA7-87B0-BEDF9F2FF990}.Debug|x86.ActiveCfg = Debug|Any CPU
@@ -74,10 +60,6 @@ Global
 		{15505B99-58E8-4CA7-87B0-BEDF9F2FF990}.Release|Any CPU.Build.0 = Release|Any CPU
 		{15505B99-58E8-4CA7-87B0-BEDF9F2FF990}.Release|x86.ActiveCfg = Release|Any CPU
 		{15505B99-58E8-4CA7-87B0-BEDF9F2FF990}.Release|x86.Build.0 = Release|Any CPU
-		{15505B99-58E8-4CA7-87B0-BEDF9F2FF990}.Swashbuckle_Documentation|Any CPU.ActiveCfg = Swashbuckle_Documentation|Any CPU
-		{15505B99-58E8-4CA7-87B0-BEDF9F2FF990}.Swashbuckle_Documentation|Any CPU.Build.0 = Swashbuckle_Documentation|Any CPU
-		{15505B99-58E8-4CA7-87B0-BEDF9F2FF990}.Swashbuckle_Documentation|x86.ActiveCfg = Swashbuckle_Documentation|Any CPU
-		{15505B99-58E8-4CA7-87B0-BEDF9F2FF990}.Swashbuckle_Documentation|x86.Build.0 = Swashbuckle_Documentation|Any CPU
 		{777AE5B4-4DF7-4382-9461-7A1A0D8C49D4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{777AE5B4-4DF7-4382-9461-7A1A0D8C49D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{777AE5B4-4DF7-4382-9461-7A1A0D8C49D4}.Debug|x86.ActiveCfg = Debug|Any CPU
@@ -86,10 +68,6 @@ Global
 		{777AE5B4-4DF7-4382-9461-7A1A0D8C49D4}.Release|Any CPU.Build.0 = Release|Any CPU
 		{777AE5B4-4DF7-4382-9461-7A1A0D8C49D4}.Release|x86.ActiveCfg = Release|Any CPU
 		{777AE5B4-4DF7-4382-9461-7A1A0D8C49D4}.Release|x86.Build.0 = Release|Any CPU
-		{777AE5B4-4DF7-4382-9461-7A1A0D8C49D4}.Swashbuckle_Documentation|Any CPU.ActiveCfg = Swashbuckle_Documentation|Any CPU
-		{777AE5B4-4DF7-4382-9461-7A1A0D8C49D4}.Swashbuckle_Documentation|Any CPU.Build.0 = Swashbuckle_Documentation|Any CPU
-		{777AE5B4-4DF7-4382-9461-7A1A0D8C49D4}.Swashbuckle_Documentation|x86.ActiveCfg = Swashbuckle_Documentation|Any CPU
-		{777AE5B4-4DF7-4382-9461-7A1A0D8C49D4}.Swashbuckle_Documentation|x86.Build.0 = Swashbuckle_Documentation|Any CPU
 		{95BB0001-3F6C-405A-A343-D63F96D7975C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{95BB0001-3F6C-405A-A343-D63F96D7975C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{95BB0001-3F6C-405A-A343-D63F96D7975C}.Debug|x86.ActiveCfg = Debug|Any CPU
@@ -98,10 +76,6 @@ Global
 		{95BB0001-3F6C-405A-A343-D63F96D7975C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{95BB0001-3F6C-405A-A343-D63F96D7975C}.Release|x86.ActiveCfg = Release|Any CPU
 		{95BB0001-3F6C-405A-A343-D63F96D7975C}.Release|x86.Build.0 = Release|Any CPU
-		{95BB0001-3F6C-405A-A343-D63F96D7975C}.Swashbuckle_Documentation|Any CPU.ActiveCfg = Swashbuckle_Documentation|Any CPU
-		{95BB0001-3F6C-405A-A343-D63F96D7975C}.Swashbuckle_Documentation|Any CPU.Build.0 = Swashbuckle_Documentation|Any CPU
-		{95BB0001-3F6C-405A-A343-D63F96D7975C}.Swashbuckle_Documentation|x86.ActiveCfg = Swashbuckle_Documentation|Any CPU
-		{95BB0001-3F6C-405A-A343-D63F96D7975C}.Swashbuckle_Documentation|x86.Build.0 = Swashbuckle_Documentation|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
