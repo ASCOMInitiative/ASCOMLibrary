@@ -7,6 +7,7 @@ using ASCOM.Common.Interfaces;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -44,7 +45,7 @@ namespace ASCOM.Alpaca.Clients
         private const string CONTENT_TYPE_HEADER_NAME = "Content-Type"; // Name of HTTP header used to affirm the type of data returned by the device
 
         // Image array ImageBytes - combined mime-type values
-        private const string JSON_MIME_TYPES = AlpacaConstants.APPLICATION_JSON_MIME_TYPE + ", " + AlpacaConstants.TEXT_JSON_MIME_TYPE; // JSON mime types
+        private const string JSON_MIME_TYPES = AlpacaConstants.APPLICATION_JSON_MIME_TYPE; // JSON mime types
         private const string IMAGE_BYTES_ACCEPT_HEADER = AlpacaConstants.IMAGE_BYTES_MIME_TYPE + ", " + JSON_MIME_TYPES; // Value of HTTP header to indicate support for the GetImageBytes mechanic
 
         //Private variables
@@ -376,7 +377,6 @@ namespace ASCOM.Alpaca.Clients
             // Add default headers for JSON
             httpClient.DefaultRequestHeaders.Accept.Clear();
             httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(AlpacaConstants.APPLICATION_JSON_MIME_TYPE));
-            httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(AlpacaConstants.TEXT_JSON_MIME_TYPE));
             httpClient.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(userproductName, productVersion));
             httpClient.DefaultRequestHeaders.Connection.Add("keep-alive");
             httpClient.DefaultRequestHeaders.ConnectionClose = false;
@@ -680,7 +680,7 @@ namespace ASCOM.Alpaca.Clients
                     UriBuilder transactionUri = new UriBuilder($"{client.BaseAddress}{uriBase}{method}".ToLowerInvariant());
 
                     // Create a new request message to be sent to the device
-                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"UriBase: '{uriBase}', Device URI: {transactionUri.Uri}");
+                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"HTTP {httpMethod} - UriBase: '{uriBase}', Device URI: {transactionUri.Uri}");
 
                     // Process HTTP GET and PUT methods
                     if (httpMethod == HttpMethod.Get) // HTTP GET methods
@@ -714,12 +714,16 @@ namespace ASCOM.Alpaca.Clients
                                     break;
 
                                 case ImageArrayTransferType.ImageBytes:
-                                    request.Headers.Add(ACCEPT_HEADER_NAME, IMAGE_BYTES_ACCEPT_HEADER);
+                                    //request.Headers.Add(ACCEPT_HEADER_NAME, AlpacaConstants.IMAGE_BYTES_MIME_TYPE);
+                                    request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(AlpacaConstants.IMAGE_BYTES_MIME_TYPE));
+                                    request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(AlpacaConstants.APPLICATION_JSON_MIME_TYPE));
                                     break;
 
                                 case ImageArrayTransferType.BestAvailable:
                                     request.Headers.Add(AlpacaConstants.BASE64_HANDOFF_HEADER, AlpacaConstants.BASE64_HANDOFF_SUPPORTED);
-                                    request.Headers.Add(ACCEPT_HEADER_NAME, IMAGE_BYTES_ACCEPT_HEADER);
+                                    request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(AlpacaConstants.IMAGE_BYTES_MIME_TYPE));
+                                    request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(AlpacaConstants.APPLICATION_JSON_MIME_TYPE));
+                                    //request.Headers.Add(ACCEPT_HEADER_NAME, AlpacaConstants.IMAGE_BYTES_MIME_TYPE);
                                     break;
 
                                 default:
@@ -742,23 +746,52 @@ namespace ASCOM.Alpaca.Clients
                             parameters.Add(AlpacaConstants.CLIENTTRANSACTION_PARAMETER_NAME, transactionId.ToString());
                         }
 
-                        // Add all parameters to the request body as form url encoded content
+                        // Add all parameters to the request body as form URL encoded content
                         if (parameters.Count > 0)
                         {
                             FormUrlEncodedContent formParameters = new FormUrlEncodedContent(parameters);
                             request.Content = formParameters;
                         }
+                        else
+                        {
+                            AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"No form parameters to include in this request.");
+                        }
+
+                        // Log the PUT parameters
+                        foreach (KeyValuePair<string, string> parameter in parameters)
+                        {
+                            AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"Sending form parameter {parameter.Key} = {parameter.Value}");
+                        }
+
                     }
                     else
                     {
                         throw new InvalidValueException($"DynamicClientDriver only supports the GET and PUT methods. It does not support the {httpMethod} method.");
                     }
 
-                    // Log the request URI
-                    lastTime = sw.ElapsedMilliseconds;
-                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"Client Transaction ID: {transactionId}, Sending command to remote device: {client.BaseAddress} - {request.RequestUri}");
+                    // Log the default headers 
+                    foreach (KeyValuePair<string, IEnumerable<string>> headerCollection in client.DefaultRequestHeaders)
+                    {
+                        foreach (string headerValue in headerCollection.Value)
+                        {
+                            AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"Sending header {headerCollection.Key} = {headerValue}");
+                        }
+                    }
+
+                    // Log any headers specifically added to this request
+                    foreach (KeyValuePair<string, IEnumerable<string>> headerCollection in request.Headers)
+                    {
+                        foreach (string headerValue in headerCollection.Value)
+                        {
+                            AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"Sending header {headerCollection.Key} = {headerValue}");
+                        }
+                    }
+
+                    // Log the URI
+                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"Client Transaction ID: {transactionId}, Remote device: {client.BaseAddress}, Full URI: {request.RequestUri}");
 
                     // Create a cancellation token that will time out after the required retry interval
+                    lastTime = sw.ElapsedMilliseconds;
                     CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
                     cancellationTokenSource.CancelAfter(TimeSpan.FromSeconds(timeout));
 
@@ -772,7 +805,7 @@ namespace ASCOM.Alpaca.Clients
                         HttpContentHeaders responseHeaders = deviceJsonResponse.Content.Headers;
 
                         // Throw an exception if there is no content-type header indicating what has been returned
-                        if (responseHeaders is null) throw new InvalidValueException("The device did not return any headers. Expected a Content-Type header with a value of 'application/json' or 'text/json' or 'application/imagebytes'.");
+                        if (responseHeaders is null) throw new InvalidValueException("The device did not return any headers. Expected a Content-Type header with a value of 'application/json' or 'application/imagebytes'.");
 
                         // List the headers received
                         foreach (var header in responseHeaders)
@@ -799,7 +832,7 @@ namespace ASCOM.Alpaca.Clients
                         {
                             AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"Received an ImageBytes response: '{deviceJsonResponse.ReasonPhrase}', Content type: {responseContentType}");
                         }
-                        else if ((responseContentType.ToLowerInvariant().Contains(AlpacaConstants.APPLICATION_JSON_MIME_TYPE)) | (responseContentType.ToLowerInvariant().Contains(AlpacaConstants.TEXT_JSON_MIME_TYPE))) // JSON response
+                        else if (responseContentType.ToLowerInvariant().Contains(AlpacaConstants.APPLICATION_JSON_MIME_TYPE)) // JSON response
                         {
                             // Populate the JSON response variable with a string converted from the received byte[] 
                             responseJson = Encoding.UTF8.GetString(rawBytes);

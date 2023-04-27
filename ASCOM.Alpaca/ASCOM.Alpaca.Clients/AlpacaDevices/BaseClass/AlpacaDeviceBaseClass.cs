@@ -208,13 +208,13 @@ namespace ASCOM.Alpaca.Clients
                 // Set the device's Connected property
                 try
                 {
-                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, $"{this.GetType().Name}.Connected", $"Setting Connected to {value}");
+                    LogMessage(logger, clientNumber, $"Connected", $"Setting {this.GetType().Name} Connected to {value}");
                     DynamicClientDriver.SetBool(clientNumber, client, establishConnectionTimeout, URIBase, strictCasing, logger, "Connected", value, MemberTypes.Property);
-                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, $"{this.GetType().Name}.Connected", $"Connected set to {value} OK");
+                    LogMessage(logger, clientNumber, $"Connected", $"{this.GetType().Name} Connected set to {value} OK");
                 }
                 catch (Exception ex)
                 {
-                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, $"{this.GetType().Name}.Connected", "Exception: " + ex.ToString());
+                    LogMessage(logger, clientNumber, $"Connected", $"Exception when connecting to {this.GetType().Name}: {ex.Message}\r\n{ex}");
                     throw;
                 }
             }

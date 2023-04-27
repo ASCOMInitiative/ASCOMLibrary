@@ -169,10 +169,5 @@
         /// </summary>
         public const string APPLICATION_JSON_MIME_TYPE = "application/json"; // Application/json mime type
 
-        /// <summary>
-        /// Mime type indicating a JSON response
-        /// </summary>
-        public const string TEXT_JSON_MIME_TYPE = "text/json"; // Text/json mime type
-
     }
 }
