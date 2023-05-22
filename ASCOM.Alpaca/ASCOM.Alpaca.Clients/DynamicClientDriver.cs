@@ -661,6 +661,7 @@ namespace ASCOM.Alpaca.Clients
             string responseContentType = "NoContentTypeProvided";
             string responseJson = "";
             HttpRequestMessage request; // HTTP request definition
+            byte[] rawBytes = new byte[0];
 
             sw.Start();
             swOverall.Start();
@@ -824,8 +825,24 @@ namespace ASCOM.Alpaca.Clients
 
                         // Get the returned data as a byte[] (could be JSON text or ImageBytes image data)
                         sw.Restart();
-                        byte[] rawBytes = deviceJsonResponse.Content.ReadAsByteArrayAsync().Result;
-                        AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"ReadAsByteArrayAsync time: {sw.ElapsedMilliseconds}ms, Overall time: {swOverall.ElapsedMilliseconds}ms.");
+                        rawBytes = deviceJsonResponse.Content.ReadAsByteArrayAsync().Result;
+                        AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"Received {rawBytes.Length} bytes, ReadAsByteArrayAsync time: {sw.ElapsedMilliseconds}ms, Overall time: {swOverall.ElapsedMilliseconds}ms.");
+
+                        // Log whatever the bytes that were returned
+                        StringBuilder rawBytesString = new StringBuilder();
+
+                        if (rawBytes.Length <= 500)
+                        {
+                            foreach (byte b in rawBytes)
+                            {
+                                rawBytesString.Append($"[{b:X2}] ");
+                            }
+                        }
+                        else
+                        {
+                            rawBytesString.Append("More than 500 bytes were returned.");
+                        }
+                        AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"Raw bytes: {rawBytesString}");
 
                         // Log the device's response
                         if (responseContentType.ToLowerInvariant().Contains(AlpacaConstants.IMAGE_BYTES_MIME_TYPE)) // Image bytes response
@@ -836,8 +853,9 @@ namespace ASCOM.Alpaca.Clients
                         {
                             // Populate the JSON response variable with a string converted from the received byte[] 
                             responseJson = Encoding.UTF8.GetString(rawBytes);
+                            AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"JSON response: {responseJson}");
                         }
-                        else // We didn't receive a content type header or received an unsupported content type, so assume that the response is JSON throw an exception to indicate the problem.
+                        else // We didn't receive a content type header or received an unsupported content type so throw an exception to indicate the problem.
                         {
                             AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "GetResponse", $"Did not find expected content type of 'application.json' or 'application/imagebytes'. Found: {responseContentType}");
                             throw new InvalidValueException($"The device did not return a content type or returned an unsupported content type: '{responseContentType}'");
