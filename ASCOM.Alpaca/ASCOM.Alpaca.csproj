@@ -21,6 +21,7 @@
 		<DelaySign>false</DelaySign>
 		<Configurations>Debug;Release</Configurations>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -30,9 +31,9 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <Compile Remove="ASCOM.Alpaca.Discovery\Response Classes\**" />
-	  <EmbeddedResource Remove="ASCOM.Alpaca.Discovery\Response Classes\**" />
-	  <None Remove="ASCOM.Alpaca.Discovery\Response Classes\**" />
+		<Compile Remove="ASCOM.Alpaca.Discovery\Response Classes\**" />
+		<EmbeddedResource Remove="ASCOM.Alpaca.Discovery\Response Classes\**" />
+		<None Remove="ASCOM.Alpaca.Discovery\Response Classes\**" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -40,6 +41,9 @@
 			<Pack>True</Pack>
 			<PackagePath></PackagePath>
 		</None>
+		<None Include="README.md"
+			  Pack="true"
+			  PackagePath="\"/>
 	</ItemGroup>
 
 	<ItemGroup>

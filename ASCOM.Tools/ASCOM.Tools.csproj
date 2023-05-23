@@ -13,6 +13,7 @@
 		<Configurations>Debug;Release</Configurations>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -26,7 +27,7 @@
 	<ItemGroup>
 		<None Include="..\ASCOMBoarderless.png">
 			<Pack>True</Pack>
-			<PackagePath></PackagePath>
+			<PackagePath>\</PackagePath>
 		</None>
 	</ItemGroup>
 
@@ -35,13 +36,14 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Include="..\ASCOM.Common\README.md">
+		<None Include="README.md">
 			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
 		</None>
 	</ItemGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="ASCOM.Exception.Library" Version="6.6.1" />
+		<PackageReference Include="ASCOM.Exception.Library" Version="6.6.1" />
 	</ItemGroup>
 
 	<ItemGroup>

@@ -16,6 +16,7 @@
 		<Configurations>Debug;Release</Configurations>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -26,6 +27,10 @@
 		<None Include="..\ASCOMBoarderless.png">
 			<Pack>True</Pack>
 			<PackagePath></PackagePath>
+		</None>
+		<None Include="README.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
 		</None>
 	</ItemGroup>
 
