@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace ASCOM.Common.Alpaca
 {
@@ -46,6 +47,7 @@ namespace ASCOM.Common.Alpaca
         /// <summary>
         /// String collection returned by the device
         /// </summary>
+        [JsonPropertyOrder(1000)]
         public IList<string> Value { get; set; }
 
         /// <summary>

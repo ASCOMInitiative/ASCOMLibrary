@@ -1,4 +1,6 @@
-﻿namespace ASCOM.Common.Alpaca
+﻿using System.Text.Json.Serialization;
+
+namespace ASCOM.Common.Alpaca
 {
     /// <summary>
     /// Response that returns a string array value.
@@ -28,6 +30,7 @@
         /// <summary>
         /// String array returned by the device
         /// </summary>
+        [JsonPropertyOrder(1000)]
         public string[] Value
         {
             get { return stringArray; }

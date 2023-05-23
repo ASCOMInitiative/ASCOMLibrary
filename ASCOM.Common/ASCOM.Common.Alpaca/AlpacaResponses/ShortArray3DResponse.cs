@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace ASCOM.Common.Alpaca
 {
     /// <summary>
@@ -51,9 +53,10 @@ namespace ASCOM.Common.Alpaca
         /// </summary>
         public int Rank { get; } = 3;
 
-                /// <summary>
+        /// <summary>
         /// 3D image array of short (int16) values
         /// </summary>
+        [JsonPropertyOrder(1000)]
         public short[,,] Value { get; set; }
 
         /// <summary>

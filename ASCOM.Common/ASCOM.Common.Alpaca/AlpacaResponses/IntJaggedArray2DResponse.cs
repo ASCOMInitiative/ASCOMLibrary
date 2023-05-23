@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace ASCOM.Common.Alpaca
 {
     /// <summary>
@@ -54,6 +56,7 @@ namespace ASCOM.Common.Alpaca
         /// <summary>
         /// 2D image array of int32 values
         /// </summary>
+        [JsonPropertyOrder(1000)]
         public int[][] Value { get; set; }
 
         /// <summary>
