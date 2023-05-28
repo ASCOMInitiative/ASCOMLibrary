@@ -24,5 +24,8 @@ routines that are available in standard .NET namespaces.
 
 # Version History
 
+***Release 1.0.107***
+* Added missing linux-arm32 native SOFA library.
+
 ***Release 1.0.106***
 * No change

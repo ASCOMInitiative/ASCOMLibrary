@@ -4,5 +4,8 @@ A set of tools to support development of Alpaca devices. Written to .Net Standar
 
 # Version History
 
+***Release 1.0.107***
+* No change.
+
 ***Release 1.0.106***
 * No change

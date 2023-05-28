@@ -47,21 +47,25 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Update="SOFALibraries\osx-x64\libsofa.dylib">
+		<None Update="SOFALibraries\linux-arm\libsofa.so">
 			<Pack>True</Pack>
-			<PackagePath>runtimes/osx-x64/native</PackagePath>
+			<PackagePath>runtimes/linux-arm/native</PackagePath>
+		</None>
+		<None Update="SOFALibraries\linux-arm64\libsofa.so">
+			<Pack>True</Pack>
+			<PackagePath>runtimes/linux-arm64/native</PackagePath>
+		</None>
+		<None Update="SOFALibraries\linux-x64\libsofa.so">
+			<Pack>True</Pack>
+			<PackagePath>runtimes/linux-x64/native</PackagePath>
 		</None>
 		<None Update="SOFALibraries\osx-arm64\libsofa.dylib">
 			<Pack>True</Pack>
 			<PackagePath>runtimes/osx-arm64/native</PackagePath>
 		</None>
-		<None Update="SOFALibraries\linux-arm\libsofa.so">
+		<None Update="SOFALibraries\osx-x64\libsofa.dylib">
 			<Pack>True</Pack>
-			<PackagePath>runtimes/linux-arm/native</PackagePath>
-		</None>
-		<None Update="SOFALibraries\linux-x64\libsofa.so">
-			<Pack>True</Pack>
-			<PackagePath>runtimes/linux-x64/native</PackagePath>
+			<PackagePath>runtimes/osx-x64/native</PackagePath>
 		</None>
 		<None Update="SOFALibraries\win-x64\libsofa.dll">
 			<Pack>True</Pack>

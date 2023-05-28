@@ -4,6 +4,9 @@ A set of client tools to discover and access Alpaca devices. Written to .Net Sta
 
 # Version History
 
+***Release 1.0.107***
+* No change.
+
 ***Release 1.0.106***
 * Improved Alpaca Client debug logging
 * Improved Alpaca Client resilience to unexpected content in JSON error responses.
