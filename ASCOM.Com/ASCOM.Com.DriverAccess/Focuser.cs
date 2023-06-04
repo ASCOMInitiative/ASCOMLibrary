@@ -40,11 +40,15 @@ namespace ASCOM.Com.DriverAccess
             }
             set
             {
+                //Interface Version 1 focusers do not have a Connected property and must use Link instead.
                 if (InterfaceVersion == 1)
                 {
                     base.Device.Link = value;
                 }
-                base.Connected = value;
+                else
+                {
+                    base.Connected = value;
+                }
             }
         }
 
