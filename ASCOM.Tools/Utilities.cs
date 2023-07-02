@@ -15,6 +15,204 @@ namespace ASCOM.Tools
         private const double JULIAN_DAY_WHEN_GREGORIAN_CALENDAR_WAS_INTRODUCED = 2299161.0; // Julian day number of the day on which the Gregorian calendar was first used - 15th October 1582
         private static readonly DateTime GREGORIAN_CALENDAR_INTRODUCTION = new DateTime(1582, 10, 15, 0, 0, 0); // Date and time when the Gregorian calendar was first used 00:00:00 15th October 1582
 
+        #region DeltaT Calculation
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="julianDateUTC"></param>
+        /// <returns></returns>
+        public static double DeltaT(double julianDateUTC)
+        {
+            const double TAB_START_1620 = 1620.0;
+            const int TAB_SIZE = 392;
+            const double MODIFIED_JULIAN_DAY_OFFSET = 2400000.5; // This is the offset of Modified Julian dates from true Julian dates
+            const double J2000_BASE = 2451545.0; // TDB Julian date of epoch J2000.0.
+            const double TROPICAL_YEAR_IN_DAYS = 365.24219;
+            const double TT_TAI_OFFSET = 32.184; // '32.184 seconds
+            const double LEAP_SECOND_ULTIMATE_FALLBACK_VALUE = 37.0; // Ultimate fallback-back value for number of leap seconds if all else fails
+
+            double yearFraction, b, retval, modifiedJulianDay;
+
+            yearFraction = 2000.0 + (julianDateUTC - J2000_BASE) / (double)TROPICAL_YEAR_IN_DAYS; // This calculation is accurate enough for our purposes here (T0 = 2451545.0 is TDB Julian date of epoch J2000.0)
+            modifiedJulianDay = julianDateUTC - MODIFIED_JULIAN_DAY_OFFSET;
+
+            // NOTE: Starting April 2018 - Please note the use of modified Julian date in the formula rather than year fraction as in previous formulae
+
+            // DATE RANGE 18th July 2023 Onwards - This is beyond the sensible extrapolation range of the most recent data analysis so revert to the basic formula: DeltaT = LeapSeconds + 32.184
+            if ((yearFraction >= 2023.55))
+            {
+                // Ultimate fallback value if all else fails!
+                retval = LEAP_SECOND_ULTIMATE_FALLBACK_VALUE + TT_TAI_OFFSET;
+            }
+            else if ((yearFraction >= 2022.55))
+                retval = (-0.000000000000528908084762244 * modifiedJulianDay * modifiedJulianDay * modifiedJulianDay * modifiedJulianDay * modifiedJulianDay)
+                    + (+0.000000158529137391645 * modifiedJulianDay * modifiedJulianDay * modifiedJulianDay * modifiedJulianDay)
+                    + (-0.0190063060965729 * modifiedJulianDay * modifiedJulianDay * modifiedJulianDay)
+                    + (+1139.34719487418 * modifiedJulianDay * modifiedJulianDay)
+                    + (-34149488.355673 * modifiedJulianDay)
+                    + (+409422822837.639);
+            else if ((yearFraction >= 2021.79))
+                retval = (0.000000000000926333089959963 * modifiedJulianDay * modifiedJulianDay * modifiedJulianDay * modifiedJulianDay * modifiedJulianDay)
+                    + (-0.000000276351646101278 * modifiedJulianDay * modifiedJulianDay * modifiedJulianDay * modifiedJulianDay)
+                    + (0.0329773938043592 * modifiedJulianDay * modifiedJulianDay * modifiedJulianDay)
+                    + (-1967.61450470546 * modifiedJulianDay * modifiedJulianDay)
+                    + (58699325.5212533 * modifiedJulianDay)
+                    - 700463653286.072;
+            else if ((yearFraction >= 2020.79))
+                retval = (0.0000000000526391114738186 * modifiedJulianDay * modifiedJulianDay * modifiedJulianDay * modifiedJulianDay)
+                    + (-0.0000124987447353606 * modifiedJulianDay * modifiedJulianDay * modifiedJulianDay)
+                    + (1.1128953517557 * modifiedJulianDay * modifiedJulianDay)
+                    + (-44041.1402447551 * modifiedJulianDay)
+                    + 653571203.42671;
+            else if ((yearFraction >= 2020.5))
+                retval = (0.0000000000234066661113585 * modifiedJulianDay * modifiedJulianDay * modifiedJulianDay * modifiedJulianDay) 
+                    - (0.00000555556956413194 * modifiedJulianDay * modifiedJulianDay * modifiedJulianDay) 
+                    + (0.494477925757861 * modifiedJulianDay * modifiedJulianDay) 
+                    - (19560.53496991 * modifiedJulianDay) 
+                    + 290164271.563078;
+            else if ((yearFraction >= 2018.3) & (yearFraction < double.MaxValue))
+                retval = (0.00000161128367083801 * modifiedJulianDay * modifiedJulianDay) 
+                    + (-0.187474214389602 * modifiedJulianDay) 
+                    + 5522.26034874982;
+            else if ((yearFraction >= 2018) & (yearFraction < double.MaxValue))
+                retval = (0.0024855297566049 * yearFraction * yearFraction * yearFraction) 
+                    + (-15.0681141702439 * yearFraction * yearFraction) 
+                    + (30449.647471213 * yearFraction) 
+                    - 20511035.5077593;
+            else if ((yearFraction >= 2017.0) & (yearFraction < double.MaxValue))
+                retval = (0.02465436 * yearFraction * yearFraction) 
+                    + (-98.92626556 * yearFraction) 
+                    + 99301.85784308;
+            else if ((yearFraction >= 2015.75) & (yearFraction < double.MaxValue))
+                retval = (0.02002376 * yearFraction * yearFraction) 
+                    + (-80.27921003 * yearFraction) 
+                    + 80529.32;
+            else if ((yearFraction >= 2011.75) & (yearFraction < 2015.75))
+                retval = (0.00231189 * yearFraction * yearFraction) 
+                    + (-8.85231952 * yearFraction) 
+                    + 8518.54;
+            else if ((yearFraction >= 2011.0) & (yearFraction < 2011.75))
+            {
+                // Following now superseded by above for 2012-16, this is left in for consistency with previous behaviour
+                // Use polynomial given at http://sunearth.gsfc.nasa.gov/eclipse/SEcat5/deltatpoly.html as retrieved on 11-Jan-2009
+                b = yearFraction - 2000.0;
+                retval = 62.92 + (b * (0.32217 + (b * 0.005589)));
+            }
+            else
+            {
+                // Setup for pre 2011 calculations using Bob Denny's original code
+
+                // /* Note, Stephenson and Morrison's table starts at the year 1630.
+                // * The Chapronts' table does not agree with the Almanac prior to 1630.
+                // * The actual accuracy decreases rapidly prior to 1780.
+                // */
+                // static short dt[] = {
+                int[] dt = new[] { 12400, 11900, 11500, 11000, 10600, 10200, 9800, 9500, 9100, 8800, 8500, 8200, 7900, 7700, 7400, 7200, 7000, 6700, 6500, 6300, 6200, 6000, 5800, 5700, 5500, 5400, 5300, 5100, 5000, 4900, 4800, 4700, 4600, 4500, 4400, 4300, 4200, 4100, 4000, 3800, 3700, 3600, 3500, 3400, 3300, 3200, 3100, 3000, 2800, 2700, 2600, 2500, 2400, 2300, 2200, 2100, 2000, 1900, 1800, 1700, 1600, 1500, 1400, 1400, 1300, 1200, 1200, 1100, 1100, 1000, 1000, 1000, 900, 900, 900, 900, 900, 900, 900, 900, 900, 900, 900, 900, 900, 900, 900, 900, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1100, 1100, 1100, 1100, 1100, 1100, 1100, 1100, 1100, 1100, 1100, 1100, 1100, 1100, 1100, 1100, 1100, 1200, 1200, 1200, 1200, 1200, 1200, 1200, 1200, 1200, 1200, 1300, 1300, 1300, 1300, 1300, 1300, 1300, 1400, 1400, 1400, 1400, 1400, 1400, 1400, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1600, 1600, 1600, 1600, 1600, 1600, 1600, 1600, 1600, 1600, 1700, 1700, 1700, 1700, 1700, 1700, 1700, 1700, 1700, 1700, 1700, 1700, 1700, 1700, 1700, 1700, 1700, 1600, 1600, 1600, 1600, 1500, 1500, 1400, 1400, 1370, 1340, 1310, 1290, 1270, 1260, 1250, 1250, 1250, 1250, 1250, 1250, 1250, 1250, 1250, 1250, 1250, 1240, 1230, 1220, 1200, 1170, 1140, 1110, 1060, 1020, 960, 910, 860, 800, 750, 700, 660, 630, 600, 580, 570, 560, 560, 560, 570, 580, 590, 610, 620, 630, 650, 660, 680, 690, 710, 720, 730, 740, 750, 760, 770, 770, 780, 780, 788, 782, 754, 697, 640, 602, 541, 410, 292, 182, 161, 10, -102, -128, -269, -324, -364, -454, -471, -511, -540, -542, -520, -546, -546, -579, -563, -564, -580, -566, -587, -601, -619, -664, -644, -647, -609, -576, -466, -374, -272, -154, -2, 124, 264, 386, 537, 614, 775, 913, 1046, 1153, 1336, 1465, 1601, 1720, 1824, 1906, 2025, 2095, 2116, 2225, 2241, 2303, 2349, 2362, 2386, 2449, 2434, 2408, 2402, 2400, 2387, 2395, 2386, 2393, 2373, 2392, 2396, 2402, 2433, 2483, 2530, 2570, 2624, 2677, 2728, 2778, 2825, 2871, 2915, 2957, 2997, 3036, 3072, 3107, 3135, 3168, 3218, 3268, 3315, 3359, 3400, 3447, 3503, 3573, 3654, 3743, 3829, 3920, 4018, 4117, 4223, 4337, 4449, 4548, 4646, 4752, 4853, 4959, 5054, 5138, 5217, 5296, 5379, 5434, 5487, 5532, 5582, 5630, 5686, 5757, 5831, 5912, 5998, 6078, 6163, 6230, 6296, 6347, 6383, 6409, 6430, 6447, 6457, 6469, 6485, 6515, 6546, 6570, 6650, 6710 };
+                // Change TABEND and TABSIZ if you add/delete anything
+
+                // Calculate  DeltaT = ET - UT in seconds.  Describes the irregularities of the Earth rotation rate in the ET time scale.
+                double p;
+                int[] d = new int[7];
+                int i, iy, k;
+
+                // DATE RANGE <1620
+                if ((yearFraction < TAB_START_1620))
+                {
+                    if ((yearFraction >= 948.0))
+                    {
+                        // /* Stephenson and Morrison, stated domain is 948 to 1600:
+                        // * 25.5(centuries from 1800)^2 - 1.9159(centuries from 1955)^2
+                        // */
+                        b = 0.01 * (yearFraction - 2000.0);
+                        retval = (23.58 * b + 100.3) * b + 101.6;
+                    }
+                    else
+                    {
+                        // /* Borkowski */
+                        b = 0.01 * (yearFraction - 2000.0) + 3.75;
+                        retval = 35.0 * b * b + 40.0;
+                    }
+                }
+                else
+                {
+
+                    // DATE RANGE 1620 to 2011
+
+                    // Besselian interpolation from tabulated values. See AA page K11.
+                    // Index into the table.
+                    p = Math.Floor(yearFraction);
+                    iy = System.Convert.ToInt32(p - TAB_START_1620);            // // rbd - added cast
+                                                                              // /* Zeroth order estimate is value at start of year */
+                    retval = dt[iy];
+                    k = iy + 1;
+                    if ((k >= TAB_SIZE))
+                        goto done; // /* No data, can't go on. */
+
+                    // /* The fraction of tabulation interval */
+                    p = yearFraction - p;
+
+                    // /* First order interpolated value */
+                    retval += p * (dt[k] - dt[iy]);
+                    if (((iy - 1 < 0) | (iy + 2 >= TAB_SIZE)))
+                        goto done; // /* can't do second differences */
+
+                    // /* Make table of first differences */
+                    k = iy - 2;
+                    for (i = 0; i <= 4; i++)
+                    {
+                        if (((k < 0) | (k + 1 >= TAB_SIZE)))
+                            d[i] = 0;
+                        else
+                            d[i] = dt[k + 1] - dt[k];
+                        k += 1;
+                    }
+                    // /* Compute second differences */
+                    for (i = 0; i <= 3; i++)
+                        d[i] = d[i + 1] - d[i];
+                    b = 0.25 * p * (p - 1.0);
+                    retval += b * (d[1] + d[2]);
+                    if ((iy + 2 >= TAB_SIZE))
+                        goto done;
+
+                    // /* Compute third differences */
+                    for (i = 0; i <= 2; i++)
+                        d[i] = d[i + 1] - d[i];
+                    b = 2.0 * b / 3.0;
+                    retval += (p - 0.5) * b * d[1];
+                    if (((iy - 2 < 0) | (iy + 3 > TAB_SIZE)))
+                        goto done;
+
+                    // /* Compute fourth differences */
+                    for (i = 0; i <= 1; i++)
+                        d[i] = d[i + 1] - d[i];
+                    b = 0.125 * b * (p + 1.0) * (p - 2.0);
+                    retval += b * (d[0] + d[1]);
+
+                // /* Astronomical Almanac table is corrected by adding the expression
+                // *     -0.000091 (ndot + 26)(year-1955)^2  seconds
+                // * to entries prior to 1955 (AA page K8), where ndot is the secular
+                // * tidal term in the mean motion of the Moon.
+                // *
+                // * Entries after 1955 are referred to atomic time standards and
+                // * are not affected by errors in Lunar or planetary theory.
+                // */
+                done:
+                    ;
+                    retval *= 0.01;
+                    if ((yearFraction < 1955.0))
+                    {
+                        b = (yearFraction - 1955.0);
+                        retval += -0.000091 * (-25.8 + 26.0) * b * b;
+                    }
+                }
+            }
+
+            return retval;
+        }
+
+        #endregion
+
         #region Sexagesimal Conversions
 
         /// <summary>
