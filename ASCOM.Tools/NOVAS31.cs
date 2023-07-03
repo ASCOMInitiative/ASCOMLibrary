@@ -1,4 +1,6 @@
-﻿using ASCOM.Tools;
+﻿using ASCOM.Common;
+using ASCOM.Common.Interfaces;
+using ASCOM.Tools;
 using System;
 using System.Collections;
 using System.IO;
@@ -36,17 +38,25 @@ namespace ASCOM.Tools
 
         private const string NOVAS31_MUTEX_NAME = "ASCOMNovas31Mutex";
 
-        private TraceLogger TL;
+        private readonly ILogger TL;
 
         // Private Parameters As EarthRotationParameters
 
         #region New and IDisposable
+
         /// <summary>
-        /// Creates a new instance of the NOVAS31 component
+        /// Creates a new instance of the NOVAS 3.1 component
         /// </summary>
-        /// <exception cref="HelperException">Thrown if the NOVAS31 support library DLL cannot be loaded</exception>
+        /// <exception cref="HelperException">Thrown if the JPLEPH and cio_ra.bin support files are not in the application directory.</exception>
         /// <remarks></remarks>
-        public NOVAS31()
+        public NOVAS31() : this(null) { }
+
+        /// <summary>
+        /// Creates a new instance of the NOVAS 3.1 component with the given logger
+        /// </summary>
+        /// <exception cref="HelperException">Thrown if the JPLEPH and cio_ra.bin support files are not in the application directory.</exception>
+        /// <remarks></remarks>
+        public NOVAS31(ILogger logger)
         {
             short rc1;
             string libraryFile = NOVAS32DLL, RACIOFile, JPLEphFile;
@@ -55,68 +65,58 @@ namespace ASCOM.Tools
             Mutex Novas31Mutex;
             var gotMutex = default(bool); // Flag indicating whether the NOVAS initialisation mutex was successfully claimed
 
-            TL = new TraceLogger("NOVAS31", true)
-            {
-                Enabled = true // Get enabled / disabled state from the user registry
-            };
+            TL = logger;
             Novas31Mutex = new Mutex(false, NOVAS31_MUTEX_NAME); // Create a mutex that will ensure that only one NOVAS31 initialisation can occur at a time
             JPLEphFile = "";
 
             try
             {
-                TL.LogMessage("New", "Waiting for mutex");
+                LogMessage("New", "Waiting for mutex");
                 gotMutex = Novas31Mutex.WaitOne(10000); // Wait up to 10 seconds for the mutex to become available
-                TL.LogMessage("New", $"Got mutex: {gotMutex}");
+                LogMessage("New", $"Got mutex: {gotMutex}");
 
                 aplicationPath = Directory.GetCurrentDirectory();
-                TL.LogMessage("New", $"Current path: {aplicationPath}");
+                LogMessage("New", $"Current path: {aplicationPath}");
 
-
-
-
-
-                RACIOFile = Path.Combine(aplicationPath,RACIO_FILE);
-                JPLEphFile = Path.Combine(aplicationPath ,JPL_EPHEM_FILE_NAME);
+                RACIOFile = Path.Combine(aplicationPath, RACIO_FILE);
+                JPLEphFile = Path.Combine(aplicationPath, JPL_EPHEM_FILE_NAME);
 
                 // Validate that the files exist
-                TL.LogMessage("New", $"RACIO file: {RACIOFile}");
-                TL.LogMessage("New", $"JPL ephemeris file: {JPLEphFile}");
-
-
-
+                LogMessage("New", $"RACIO file: {RACIOFile}");
+                LogMessage("New", $"JPL ephemeris file: {JPLEphFile}");
 
                 if (!File.Exists(RACIOFile))
                 {
-                    TL.LogMessage("New", $"NOVAS31 Initialise - Unable to locate RACIO file: {RACIOFile}");
+                    LogMessage("New", $"NOVAS31 Initialise - Unable to locate RACIO file: {RACIOFile}");
                     throw new HelperException($"NOVAS31 Initialise - Unable to locate RACIO file: {RACIOFile}");
                 }
                 else
                 {
-                    TL.LogMessage("New", $"Found RACIO file: {RACIOFile}");
+                    LogMessage("New", $"Found RACIO file: {RACIOFile}");
                 }
 
                 if (!File.Exists(JPLEphFile))
                 {
-                    TL.LogMessage("New", $"NOVAS31 Initialise - Unable to locate JPL ephemeris file: {JPLEphFile}");
+                    LogMessage("New", $"NOVAS31 Initialise - Unable to locate JPL ephemeris file: {JPLEphFile}");
                     throw new HelperException($"NOVAS31 Initialise - Unable to locate JPL ephemeris file: {JPLEphFile}");
                 }
                 else
                 {
-                    TL.LogMessage("New", $"Found  JPL ephemeris file: {JPLEphFile}");
+                    LogMessage("New", $"Found  JPL ephemeris file: {JPLEphFile}");
                 }
 
-                TL.LogMessage("New", "Loading NOVAS31 library DLL: " + libraryFile);
+                LogMessage("New", "Loading NOVAS31 library DLL: " + libraryFile);
 
                 //Novas31DllHandle = LoadLibrary(libraryFile);
                 //LastError = Marshal.GetLastWin32Error();
 
                 //if (Novas31DllHandle != IntPtr.Zero) // Loaded successfully
                 //{
-                //    TL.LogMessage("New", "Loaded NOVAS31 library OK");
+                //    LogMessage("New", "Loaded NOVAS31 library OK");
                 //}
                 //else // Did not load 
                 //{
-                //    TL.LogMessage("New", $"Error loading NOVAS31 library: {LastError:X8} from {NOVAS32DLL}");
+                //    LogMessage("New", $"Error loading NOVAS31 library: {LastError:X8} from {NOVAS32DLL}");
                 //    throw new HelperException($"NOVAS31 Initialisation - Error code {LastError:X8} returned from LoadLibrary when loading NOVAS31 library {NOVAS32DLL}");
                 //}
 
@@ -125,7 +125,7 @@ namespace ASCOM.Tools
             }
             catch (Exception ex)
             {
-                TL.LogMessage("New", "Exception: " + ex.ToString());
+                LogMessage("New", "Exception: " + ex.ToString());
                 throw new HelperException($"NOVAS31 Initialisation Exception - {ex.Message} (See inner exception for details)", ex);
             }
             finally
@@ -144,12 +144,12 @@ namespace ASCOM.Tools
 
             if (rc1 > 0)
             {
-                TL.LogMessage("New", "Unable to open ephemeris file: " + JPLEphFile + ", RC: " + rc1);
+                LogMessage("New", "Unable to open ephemeris file: " + JPLEphFile + ", RC: " + rc1);
                 throw new HelperException($"NOVAS31 Initialisation - Unable to open ephemeris file: {JPLEphFile} RC: {rc1}");
             }
-            TL.LogMessage("New", $"Ephemeris file {JPLEphFile} opened OK - DE number: {DENumber}");
+            LogMessage("New", $"Ephemeris file {JPLEphFile} opened OK - DE number: {DENumber}");
 
-            TL.LogMessage("New", "NOVAS31 initialised OK");
+            LogMessage("New", "NOVAS31 initialised OK");
         }
 
         private bool disposedValue = false;        // To detect redundant calls
@@ -180,40 +180,9 @@ namespace ASCOM.Tools
                         // Try : Parameters = Nothing : Catch : End Try
                         // End If
 
-                        if (!(TL is null))
-                        {
-                            try
-                            {
-                                TL.Enabled = false;
-                            }
-                            catch
-                            {
-                            }
-                            try
-                            {
-                                TL.Dispose();
-                            }
-                            catch
-                            {
-                            }
-                            try
-                            {
-                                TL = null;
-                            }
-                            catch
-                            {
-                            }
-                        }
-                    }
 
-                    // Free your own state (unmanaged objects) and set large fields to null.
-                    try
-                    {
-                        //FreeLibrary(Novas31DllHandle);
+                        // Free your own state (unmanaged objects) and set large fields to null.
                     }
-                    catch
-                    {
-                    } // Free the NOVAS library but don't return any error value
                 }
                 disposedValue = true;
             }
@@ -489,24 +458,24 @@ namespace ASCOM.Tools
             short rc;
             try
             {
-                TL.LogMessage("AppStar", "JD Accuracy:        " + JdTt + " " + Accuracy.ToString());
-                TL.LogMessage("AppStar", "  Star.RA:          " + Utilities.HoursToHMS(Star.RA, ":", ":", "", 3));
-                TL.LogMessage("AppStar", "  Dec:              " + Utilities.DegreesToDMS(Star.Dec, ":", ":", "", 3));
-                TL.LogMessage("AppStar", "  Catalog:          " + Star.Catalog);
-                TL.LogMessage("AppStar", "  Parallax:         " + Star.Parallax);
-                TL.LogMessage("AppStar", "  ProMoDec:         " + Star.ProMoDec);
-                TL.LogMessage("AppStar", "  ProMoRA:          " + Star.ProMoRA);
-                TL.LogMessage("AppStar", "  RadialVelocity:   " + Star.RadialVelocity);
-                TL.LogMessage("AppStar", "  StarName:         " + Star.StarName);
-                TL.LogMessage("AppStar", "  StarNumber:       " + Star.StarNumber);
+                LogMessage("AppStar", "JD Accuracy:        " + JdTt + " " + Accuracy.ToString());
+                LogMessage("AppStar", "  Star.RA:          " + Utilities.HoursToHMS(Star.RA, ":", ":", "", 3));
+                LogMessage("AppStar", "  Dec:              " + Utilities.DegreesToDMS(Star.Dec, ":", ":", "", 3));
+                LogMessage("AppStar", "  Catalog:          " + Star.Catalog);
+                LogMessage("AppStar", "  Parallax:         " + Star.Parallax);
+                LogMessage("AppStar", "  ProMoDec:         " + Star.ProMoDec);
+                LogMessage("AppStar", "  ProMoRA:          " + Star.ProMoRA);
+                LogMessage("AppStar", "  RadialVelocity:   " + Star.RadialVelocity);
+                LogMessage("AppStar", "  StarName:         " + Star.StarName);
+                LogMessage("AppStar", "  StarNumber:       " + Star.StarNumber);
             }
             catch (Exception ex)
             {
-                TL.LogMessage("AppStar", "Exception: " + ex.ToString());
+                LogMessage("AppStar", "Exception: " + ex.ToString());
             }
 
             rc = AppStar32(JdTt, ref Star, Accuracy, ref Ra, ref Dec);
-            TL.LogMessage("AppStar", "  32bit - Return Code: " + rc + ", RA Dec: " + Utilities.HoursToHMS(Ra, ":", ":", "", 3) + " " + Utilities.DegreesToDMS(Dec, ":", ":", "", 3));
+            LogMessage("AppStar", "  32bit - Return Code: " + rc + ", RA Dec: " + Utilities.HoursToHMS(Ra, ":", ":", "", 3) + " " + Utilities.DegreesToDMS(Dec, ":", ":", "", 3));
             return rc;
 
         }
@@ -552,24 +521,24 @@ namespace ASCOM.Tools
             short rc;
             try
             {
-                TL.LogMessage("AstroStar", "JD Accuracy:        " + JdTt + " " + Accuracy.ToString());
-                TL.LogMessage("AstroStar", "  Star.RA:          " + Utilities.HoursToHMS(Star.RA, ":", ":", "", 3));
-                TL.LogMessage("AstroStar", "  Dec:              " + Utilities.DegreesToDMS(Star.Dec, ":", ":", "", 3));
-                TL.LogMessage("AstroStar", "  Catalog:          " + Star.Catalog);
-                TL.LogMessage("AstroStar", "  Parallax:         " + Star.Parallax);
-                TL.LogMessage("AstroStar", "  ProMoDec:         " + Star.ProMoDec);
-                TL.LogMessage("AstroStar", "  ProMoRA:          " + Star.ProMoRA);
-                TL.LogMessage("AstroStar", "  RadialVelocity:   " + Star.RadialVelocity);
-                TL.LogMessage("AstroStar", "  StarName:         " + Star.StarName);
-                TL.LogMessage("AstroStar", "  StarNumber:       " + Star.StarNumber);
+                LogMessage("AstroStar", "JD Accuracy:        " + JdTt + " " + Accuracy.ToString());
+                LogMessage("AstroStar", "  Star.RA:          " + Utilities.HoursToHMS(Star.RA, ":", ":", "", 3));
+                LogMessage("AstroStar", "  Dec:              " + Utilities.DegreesToDMS(Star.Dec, ":", ":", "", 3));
+                LogMessage("AstroStar", "  Catalog:          " + Star.Catalog);
+                LogMessage("AstroStar", "  Parallax:         " + Star.Parallax);
+                LogMessage("AstroStar", "  ProMoDec:         " + Star.ProMoDec);
+                LogMessage("AstroStar", "  ProMoRA:          " + Star.ProMoRA);
+                LogMessage("AstroStar", "  RadialVelocity:   " + Star.RadialVelocity);
+                LogMessage("AstroStar", "  StarName:         " + Star.StarName);
+                LogMessage("AstroStar", "  StarNumber:       " + Star.StarNumber);
             }
             catch (Exception ex)
             {
-                TL.LogMessage("AstroStar", "Exception: " + ex.ToString());
+                LogMessage("AstroStar", "Exception: " + ex.ToString());
             }
 
             rc = AstroStar32(JdTt, ref Star, Accuracy, ref Ra, ref Dec);
-            TL.LogMessage("AstroStar", "  32bit - Return Code: " + rc + ", RA Dec: " + Utilities.HoursToHMS(Ra, ":", ":", "", 3) + " " + Utilities.DegreesToDMS(Dec, ":", ":", "", 3));
+            LogMessage("AstroStar", "  32bit - Return Code: " + rc + ", RA Dec: " + Utilities.HoursToHMS(Ra, ":", ":", "", 3) + " " + Utilities.DegreesToDMS(Dec, ":", ":", "", 3));
             return rc;
         }
 
@@ -969,24 +938,24 @@ namespace ASCOM.Tools
             try
             {
 
-                TL.LogMessage("Equ2Hor", "JD Accuracy RA DEC:     " + Jd_Ut1 + " " + Accuracy.ToString() + " " + Utilities.HoursToHMS(Ra, ":", ":", "", 3) + " " + Utilities.DegreesToDMS(Dec, ":", ":", "", 3));
-                TL.LogMessage("Equ2Hor", "  DeltaT:               " + DeltT);
-                TL.LogMessage("Equ2Hor", "  xp:                   " + xp);
-                TL.LogMessage("Equ2Hor", "  yp:                   " + yp);
-                TL.LogMessage("Equ2Hor", "  Refraction:           " + RefOption.ToString());
-                TL.LogMessage("Equ2Hor", "  Location.Height:      " + Location.Height);
-                TL.LogMessage("Equ2Hor", "  Location.Latitude:    " + Location.Latitude);
-                TL.LogMessage("Equ2Hor", "  Location.Longitude:   " + Location.Longitude);
-                TL.LogMessage("Equ2Hor", "  Location.Pressure:    " + Location.Pressure);
-                TL.LogMessage("Equ2Hor", "  Location.Temperature: " + Location.Temperature);
+                LogMessage("Equ2Hor", "JD Accuracy RA DEC:     " + Jd_Ut1 + " " + Accuracy.ToString() + " " + Utilities.HoursToHMS(Ra, ":", ":", "", 3) + " " + Utilities.DegreesToDMS(Dec, ":", ":", "", 3));
+                LogMessage("Equ2Hor", "  DeltaT:               " + DeltT);
+                LogMessage("Equ2Hor", "  xp:                   " + xp);
+                LogMessage("Equ2Hor", "  yp:                   " + yp);
+                LogMessage("Equ2Hor", "  Refraction:           " + RefOption.ToString());
+                LogMessage("Equ2Hor", "  Location.Height:      " + Location.Height);
+                LogMessage("Equ2Hor", "  Location.Latitude:    " + Location.Latitude);
+                LogMessage("Equ2Hor", "  Location.Longitude:   " + Location.Longitude);
+                LogMessage("Equ2Hor", "  Location.Pressure:    " + Location.Pressure);
+                LogMessage("Equ2Hor", "  Location.Temperature: " + Location.Temperature);
             }
             catch (Exception ex)
             {
-                TL.LogMessage("Equ2Hor", "Exception: " + ex.ToString());
+                LogMessage("Equ2Hor", "Exception: " + ex.ToString());
             }
 
             Equ2Hor32(Jd_Ut1, DeltT, Accuracy, xp, yp, ref Location, Ra, Dec, RefOption, ref Zd, ref Az, ref RaR, ref DecR);
-            TL.LogMessage("Equ2Hor", "  32bit - RA Dec: " + Utilities.HoursToHMS(RaR, ":", ":", "", 3) + " " + Utilities.DegreesToDMS(DecR, ":", ":", "", 3));
+            LogMessage("Equ2Hor", "  32bit - RA Dec: " + Utilities.HoursToHMS(RaR, ":", ":", "", 3) + " " + Utilities.DegreesToDMS(DecR, ":", ":", "", 3));
 
         }
 
@@ -1877,28 +1846,28 @@ namespace ASCOM.Tools
             short rc;
             try
             {
-                TL.LogMessage("TopoStar", "JD Accuracy:            " + JdTt + " " + Accuracy.ToString());
-                TL.LogMessage("TopoStar", "  Star.RA:              " + Utilities.HoursToHMS(Star.RA, ":", ":", "", 3));
-                TL.LogMessage("TopoStar", "  Dec:                  " + Utilities.DegreesToDMS(Star.Dec, ":", ":", "", 3));
-                TL.LogMessage("TopoStar", "  Catalog:              " + Star.Catalog);
-                TL.LogMessage("TopoStar", "  Parallax:             " + Star.Parallax);
-                TL.LogMessage("TopoStar", "  ProMoDec:             " + Star.ProMoDec);
-                TL.LogMessage("TopoStar", "  ProMoRA:              " + Star.ProMoRA);
-                TL.LogMessage("TopoStar", "  RadialVelocity:       " + Star.RadialVelocity);
-                TL.LogMessage("TopoStar", "  StarName:             " + Star.StarName);
-                TL.LogMessage("TopoStar", "  StarNumber:           " + Star.StarNumber);
-                TL.LogMessage("TopoStar", "  Position.Height:      " + Position.Height);
-                TL.LogMessage("TopoStar", "  Position.Latitude:    " + Position.Latitude);
-                TL.LogMessage("TopoStar", "  Position.Longitude:   " + Position.Longitude);
-                TL.LogMessage("TopoStar", "  Position.Pressure:    " + Position.Pressure);
-                TL.LogMessage("TopoStar", "  Position.Temperature: " + Position.Temperature);
+                LogMessage("TopoStar", "JD Accuracy:            " + JdTt + " " + Accuracy.ToString());
+                LogMessage("TopoStar", "  Star.RA:              " + Utilities.HoursToHMS(Star.RA, ":", ":", "", 3));
+                LogMessage("TopoStar", "  Dec:                  " + Utilities.DegreesToDMS(Star.Dec, ":", ":", "", 3));
+                LogMessage("TopoStar", "  Catalog:              " + Star.Catalog);
+                LogMessage("TopoStar", "  Parallax:             " + Star.Parallax);
+                LogMessage("TopoStar", "  ProMoDec:             " + Star.ProMoDec);
+                LogMessage("TopoStar", "  ProMoRA:              " + Star.ProMoRA);
+                LogMessage("TopoStar", "  RadialVelocity:       " + Star.RadialVelocity);
+                LogMessage("TopoStar", "  StarName:             " + Star.StarName);
+                LogMessage("TopoStar", "  StarNumber:           " + Star.StarNumber);
+                LogMessage("TopoStar", "  Position.Height:      " + Position.Height);
+                LogMessage("TopoStar", "  Position.Latitude:    " + Position.Latitude);
+                LogMessage("TopoStar", "  Position.Longitude:   " + Position.Longitude);
+                LogMessage("TopoStar", "  Position.Pressure:    " + Position.Pressure);
+                LogMessage("TopoStar", "  Position.Temperature: " + Position.Temperature);
                 rc = TopoStar32(JdTt, DeltaT, ref Star, ref Position, Accuracy, ref Ra, ref Dec);
-                TL.LogMessage("TopoStar", "  32bit - Return Code: " + rc + ", RA Dec: " + Utilities.HoursToHMS(Ra, ":", ":", "", 3) + " " + Utilities.DegreesToDMS(Dec, ":", ":", "", 3));
+                LogMessage("TopoStar", "  32bit - Return Code: " + rc + ", RA Dec: " + Utilities.HoursToHMS(Ra, ":", ":", "", 3) + " " + Utilities.DegreesToDMS(Dec, ":", ":", "", 3));
                 return rc;
             }
             catch (Exception ex)
             {
-                TL.LogMessage("TopoStar", "Exception: " + ex.ToString());
+                LogMessage("TopoStar", "Exception: " + ex.ToString());
             }
 
             return default;
@@ -2071,7 +2040,6 @@ namespace ASCOM.Tools
             PosVecToArr(VPos2, ref Pos2);
         }
         #endregion
-
 
         #region DLL Entry Points for Ephemeris and RACIOFile (32bit)
 
@@ -2307,6 +2275,26 @@ namespace ASCOM.Tools
         #region Private Support Code
 
         /// <summary>
+        /// Log a message from the NOVAS DLL
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="message"></param>
+        private void LogMessage(string context, string message)
+        {
+            if (!(TL is null))
+            {
+                if (TL is TraceLogger traceLogger)
+                {
+                    traceLogger.LogMessage(LogLevel.Debug, context, message);
+                }
+                else
+                {
+                    TL.Log(LogLevel.Debug, $"{context} - {message}");
+                }
+            }
+        }
+
+        /// <summary>
         /// Loads a library DLL
         /// </summary>
         /// <param name="lpFileName">Full path to the file to load</param>
@@ -2429,18 +2417,6 @@ namespace ASCOM.Tools
             return O3I;
         }
         #endregion
-
-        // #Region "DeltaT Member"
-        // ''' <summary>
-        // ''' Return the value of DeltaT for the given Julian date
-        // ''' </summary>
-        // ''' <param name="Tjd">Julian date for which the delta T value is required</param>
-        // ''' <returns>Double value of DeltaT (seconds)</returns>
-        // ''' <remarks>Valid between the years 1650 and 2050</remarks>
-        // Public Function DeltaT(ByVal Tjd As Double) As Double 
-        // Return Parameters.DeltaT(Tjd)
-        // End Function
-        // #End Region
 
     }
 
