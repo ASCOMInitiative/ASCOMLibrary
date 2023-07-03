@@ -77,4 +77,79 @@
 		</None>
 	</ItemGroup>
 
+	<ItemGroup>
+		<!-- Windows 64bit Native Library -->
+		<None Update="NOVASLibraries\win-x64\libnovas.dll">
+			<Pack>True</Pack>
+			<PackagePath>runtimes/win-x64/native</PackagePath>
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="NOVASLibraries\win-x64\JPLEPH">
+			<Pack>True</Pack>
+			<PackagePath>runtimes/win-x64/native</PackagePath>
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="NOVASLibraries\win-x64\cio_ra.bin">
+			<Pack>True</Pack>
+			<PackagePath>runtimes/win-x64/native</PackagePath>
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+
+		<!-- Windows 32bit Native Library -->
+		<None Update="NOVASLibraries\win-x86\libnovas.dll">
+			<Pack>True</Pack>
+			<PackagePath>runtimes/win-x86/native</PackagePath>
+		</None>
+		<None Update="NOVASLibraries\win-x86\JPLEPH">
+			<Pack>True</Pack>
+			<PackagePath>runtimes/win-x86/native</PackagePath>
+		</None>
+		<None Update="NOVASLibraries\win-x86\cio_ra.bin">
+			<Pack>True</Pack>
+			<PackagePath>runtimes/win-x86/native</PackagePath>
+		</None>
+
+		<!-- Linux Intel 64bit Native Library -->
+		<None Update="NOVASLibraries\linux-x64\libnovas.so">
+			<Pack>True</Pack>
+			<PackagePath>runtimes/linux-x64/native</PackagePath>
+		</None>
+		<None Update="NOVASLibraries\linux-x64\JPLEPH">
+			<Pack>True</Pack>
+			<PackagePath>runtimes/linux-x64/native</PackagePath>
+		</None>
+		<None Update="NOVASLibraries\linux-x64\cio_ra.bin">
+			<Pack>True</Pack>
+			<PackagePath>runtimes/linux-x64/native</PackagePath>
+		</None>
+
+		<!-- OSX Intel 64bit Native Library -->
+		<None Update="NOVASLibraries\osx-x64\libnovas.dylib">
+			<Pack>True</Pack>
+			<PackagePath>runtimes/osx-x64/native</PackagePath>
+		</None>
+		<None Update="NOVASLibraries\osx-x64\JPLEPH">
+			<Pack>True</Pack>
+			<PackagePath>runtimes/osx-x64/native</PackagePath>
+		</None>
+		<None Update="NOVASLibraries\osx-x64\cio_ra.bin">
+			<Pack>True</Pack>
+			<PackagePath>runtimes/osx-x64/native</PackagePath>
+		</None>
+
+		<!-- OSX Apple Silicon ARM 64bit Native Library -->
+		<None Update="NOVASLibraries\osx-arm64\libnovas.dylib">
+			<Pack>True</Pack>
+			<PackagePath>runtimes/osx-arm64/native</PackagePath>
+		</None>
+		<None Update="NOVASLibraries\osx-arm64\JPLEPH">
+			<Pack>True</Pack>
+			<PackagePath>runtimes/osx-arm64/native</PackagePath>
+		</None>
+		<None Update="NOVASLibraries\osx-arm64\cio_ra.bin">
+			<Pack>True</Pack>
+			<PackagePath>runtimes/osx-arm64/native</PackagePath>
+		</None>
+	</ItemGroup>
+	
 </Project>

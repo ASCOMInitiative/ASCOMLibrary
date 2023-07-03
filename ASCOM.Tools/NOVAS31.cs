@@ -32,7 +32,6 @@ namespace ASCOM.Tools
         private double JPL_EPHEM_START_DATE = 2305424.5d; // First date of data in the ephemeredes file
         private double JPL_EPHEM_END_DATE = 2525008.5d; // Last date of data in the ephemeredes file
 
-        private const string NOVAS_DLL_LOCATION = @".\"; // This is appended to the Common Files path
         private const string RACIO_FILE = "cio_ra.bin"; // Name of the RA of CIO binary data file
 
         private const string NOVAS31_MUTEX_NAME = "ASCOMNovas31Mutex";
@@ -76,8 +75,8 @@ namespace ASCOM.Tools
 
 
 
-                RACIOFile = aplicationPath + NOVAS_DLL_LOCATION + RACIO_FILE;
-                JPLEphFile = aplicationPath + NOVAS_DLL_LOCATION + JPL_EPHEM_FILE_NAME;
+                RACIOFile = Path.Combine(aplicationPath,RACIO_FILE);
+                JPLEphFile = Path.Combine(aplicationPath ,JPL_EPHEM_FILE_NAME);
 
                 // Validate that the files exist
                 TL.LogMessage("New", $"RACIO file: {RACIOFile}");
@@ -108,21 +107,21 @@ namespace ASCOM.Tools
 
                 TL.LogMessage("New", "Loading NOVAS31 library DLL: " + libraryFile);
 
-                Novas31DllHandle = LoadLibrary(libraryFile);
-                LastError = Marshal.GetLastWin32Error();
+                //Novas31DllHandle = LoadLibrary(libraryFile);
+                //LastError = Marshal.GetLastWin32Error();
 
-                if (Novas31DllHandle != IntPtr.Zero) // Loaded successfully
-                {
-                    TL.LogMessage("New", "Loaded NOVAS31 library OK");
-                }
-                else // Did not load 
-                {
-                    TL.LogMessage("New", $"Error loading NOVAS31 library: {LastError:X8} from {NOVAS32DLL}");
-                    throw new HelperException($"NOVAS31 Initialisation - Error code {LastError:X8} returned from LoadLibrary when loading NOVAS31 library {NOVAS32DLL}");
-                }
+                //if (Novas31DllHandle != IntPtr.Zero) // Loaded successfully
+                //{
+                //    TL.LogMessage("New", "Loaded NOVAS31 library OK");
+                //}
+                //else // Did not load 
+                //{
+                //    TL.LogMessage("New", $"Error loading NOVAS31 library: {LastError:X8} from {NOVAS32DLL}");
+                //    throw new HelperException($"NOVAS31 Initialisation - Error code {LastError:X8} returned from LoadLibrary when loading NOVAS31 library {NOVAS32DLL}");
+                //}
 
                 // Open the ephemerides file and set its applicable date range
-                rc1 = Ephem_Open(JPLEphFile, ref JPL_EPHEM_START_DATE, ref JPL_EPHEM_END_DATE, ref DENumber);
+                rc1 = EphemOpen(JPLEphFile, ref JPL_EPHEM_START_DATE, ref JPL_EPHEM_END_DATE, ref DENumber);
             }
             catch (Exception ex)
             {
@@ -402,6 +401,31 @@ namespace ASCOM.Tools
             VelVecToArr(VVel, ref TargetVel);
             return rc;
         }
+
+        /// <summary>
+        /// Open the supplied ephemeris file.
+        /// </summary>
+        /// <param name="EphemFileName">File name of the ephemeris file to open</param>
+        /// <param name="JDBegin">Beginning Julian date from the ephemeris file</param>
+        /// <param name="JDEnd">End Julian date from the ephemeris file.</param>
+        /// <param name="DENumber">DE number from the ephemeris file e.g. DE405 or DE421.</param>
+        /// <returns>0 for success otherwise an error code.</returns>
+        public short EphemOpen(string EphemFileName, ref double JDBegin, ref double JDEnd, ref short DENumber)
+        {
+            short rc;
+            rc = EphemOpen32(EphemFileName, ref JDBegin, ref JDEnd, ref DENumber);
+            return rc;
+        }
+
+        /// <summary>
+        /// Close the current ephemeris file
+        /// </summary>
+        /// <returns>0 for success otherwise an error code.</returns>
+        public short EphemClose()
+        {
+            return EphemClose32();
+        }
+
         #endregion
 
         #region Public NOVAS Interface - NOVAS Members
@@ -2049,21 +2073,6 @@ namespace ASCOM.Tools
         }
         #endregion
 
-        #region Private Ephemeris And RACIOFile Routines
-        private short Ephem_Open(string Ephem_Name, ref double JD_Begin, ref double JD_End, ref short DENumber)
-        {
-
-            short rc;
-            rc = EphemOpen32(Ephem_Name, ref JD_Begin, ref JD_End, ref DENumber);
-            return rc;
-        }
-
-        private short Ephem_Close()
-        {
-            return EphemClose32();
-        }
-
-        #endregion
 
         #region DLL Entry Points for Ephemeris and RACIOFile (32bit)
 
