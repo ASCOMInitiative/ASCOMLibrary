@@ -30,7 +30,7 @@ namespace ASCOM.Tools
 
         private readonly bool loggerIsTraceLogger = false;
 
-        private TraceLogger traceLogger;
+        private readonly TraceLogger traceLogger;
         private readonly ILogger iLogger;
         private Stopwatch sw, swRecalculate;
 

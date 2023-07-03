@@ -29,15 +29,14 @@ namespace ASCOM.Tools
         private const string NOVAS32DLL = "libnovas"; // Names of NOVAS 32 and 64bit DLL files
 
         private const string JPL_EPHEM_FILE_NAME = "JPLEPH"; // Name of JPL ephemeredes file
-        private double JPL_EPHEM_START_DATE = 2305424.5d; // First date of data in the ephemeredes file
-        private double JPL_EPHEM_END_DATE = 2525008.5d; // Last date of data in the ephemeredes file
+        private readonly double JPL_EPHEM_START_DATE = 2305424.5d; // First date of data in the ephemeredes file
+        private readonly double JPL_EPHEM_END_DATE = 2525008.5d; // Last date of data in the ephemeredes file
 
         private const string RACIO_FILE = "cio_ra.bin"; // Name of the RA of CIO binary data file
 
         private const string NOVAS31_MUTEX_NAME = "ASCOMNovas31Mutex";
 
         private TraceLogger TL;
-        private IntPtr Novas31DllHandle;
 
         // Private Parameters As EarthRotationParameters
 
@@ -53,12 +52,13 @@ namespace ASCOM.Tools
             string libraryFile = NOVAS32DLL, RACIOFile, JPLEphFile;
             var DENumber = default(short);
             string aplicationPath;
-            int LastError;
             Mutex Novas31Mutex;
             var gotMutex = default(bool); // Flag indicating whether the NOVAS initialisation mutex was successfully claimed
 
-            TL = new TraceLogger("NOVAS31", true);
-            TL.Enabled = true; // Get enabled / disabled state from the user registry
+            TL = new TraceLogger("NOVAS31", true)
+            {
+                Enabled = true // Get enabled / disabled state from the user registry
+            };
             Novas31Mutex = new Mutex(false, NOVAS31_MUTEX_NAME); // Create a mutex that will ensure that only one NOVAS31 initialisation can occur at a time
             JPLEphFile = "";
 
@@ -209,7 +209,7 @@ namespace ASCOM.Tools
                     // Free your own state (unmanaged objects) and set large fields to null.
                     try
                     {
-                        FreeLibrary(Novas31DllHandle);
+                        //FreeLibrary(Novas31DllHandle);
                     }
                     catch
                     {
@@ -219,8 +219,7 @@ namespace ASCOM.Tools
             }
             finally
             {
-                if (!(Novas31Mutex is null))
-                    Novas31Mutex.ReleaseMutex();
+                Novas31Mutex?.ReleaseMutex();
             }
         }
 
@@ -2328,10 +2327,12 @@ namespace ASCOM.Tools
         private static PosVector ArrToPosVec(double[] Arr)
         {
             // Create a new vector having the values in the supplied double array
-            var V = new PosVector();
-            V.x = Arr[0];
-            V.y = Arr[1];
-            V.z = Arr[2];
+            var V = new PosVector
+            {
+                x = Arr[0],
+                y = Arr[1],
+                z = Arr[2]
+            };
             return V;
         }
 
@@ -2346,10 +2347,12 @@ namespace ASCOM.Tools
         private static VelVector ArrToVelVec(double[] Arr)
         {
             // Create a new vector having the values in the supplied double array
-            var V = new VelVector();
-            V.x = Arr[0];
-            V.y = Arr[1];
-            V.z = Arr[2];
+            var V = new VelVector
+            {
+                x = Arr[0],
+                y = Arr[1],
+                z = Arr[2]
+            };
             return V;
         }
 
@@ -2416,11 +2419,13 @@ namespace ASCOM.Tools
 
         private Object3Internal O3IFromObject3(Object3 O3)
         {
-            var O3I = new Object3Internal();
-            O3I.Name = O3.Name;
-            O3I.Number = (short)O3.Number;
-            O3I.Star = O3.Star;
-            O3I.Type = O3.Type;
+            var O3I = new Object3Internal
+            {
+                Name = O3.Name,
+                Number = (short)O3.Number,
+                Star = O3.Star,
+                Type = O3.Type
+            };
             return O3I;
         }
         #endregion

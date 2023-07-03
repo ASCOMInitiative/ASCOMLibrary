@@ -16,6 +16,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <None Include="..\..\.editorconfig" Link=".editorconfig" />
       <None Include="..\..\ASCOM.Tools\SOFALibraries\win-x64\libsofa.dll" Link="libsofa.dll">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
