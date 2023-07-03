@@ -123,6 +123,34 @@
 			<PackagePath>runtimes/linux-x64/native</PackagePath>
 		</None>
 
+		<!-- Linux ARM Native Library -->
+		<None Update="NOVASLibraries\linux-arm\libnovas.so">
+			<Pack>True</Pack>
+			<PackagePath>runtimes/linux-arm/native</PackagePath>
+		</None>
+		<None Update="NOVASLibraries\linux-arm\JPLEPH">
+			<Pack>True</Pack>
+			<PackagePath>runtimes/linux-arm/native</PackagePath>
+		</None>
+		<None Update="NOVASLibraries\linux-arm\cio_ra.bin">
+			<Pack>True</Pack>
+			<PackagePath>runtimes/linux-arm/native</PackagePath>
+		</None>
+
+		<!-- Linux ARM64 Native Library -->
+		<None Update="NOVASLibraries\linux-arm64\libnovas.so">
+			<Pack>True</Pack>
+			<PackagePath>runtimes/linux-arm64/native</PackagePath>
+		</None>
+		<None Update="NOVASLibraries\linux-arm64\JPLEPH">
+			<Pack>True</Pack>
+			<PackagePath>runtimes/linux-arm64/native</PackagePath>
+		</None>
+		<None Update="NOVASLibraries\linux-arm64\cio_ra.bin">
+			<Pack>True</Pack>
+			<PackagePath>runtimes/linux-arm64/native</PackagePath>
+		</None>
+
 		<!-- OSX Intel 64bit Native Library -->
 		<None Update="NOVASLibraries\osx-x64\libnovas.dylib">
 			<Pack>True</Pack>
