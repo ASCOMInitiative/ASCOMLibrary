@@ -1,11 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
 namespace ASCOM.Tools
 {
 
-    static class GlobalItems
+    static class Constants
     {
+        internal const double ABSOLUTE_ZERO_CELSIUS = -273.15; // Absolute zero on the Celsius temperature scale
+        internal const double LEAP_SECONDS_DEFAULT = 37.0; // Current number of leap seconds
 
         // Physical constants
         internal const double MOON_RADIUS = 1737.0d; // km
@@ -60,6 +63,7 @@ namespace ASCOM.Tools
         internal const double OLE_AUTOMATION_JULIAN_DATE_OFFSET = 2415018.5d; // Offset of OLE automation dates from Julian dates
         internal const double JULIAN_DATE_MINIMUM_VALUE = -657435.0d + OLE_AUTOMATION_JULIAN_DATE_OFFSET; // Minimum valid Julian date value (1/1/0100 00:00:00) - because DateTime.FromOADate has this limit
         internal const double JULIAN_DATE_MAXIMUM_VALUE = 2958465.99999999d + OLE_AUTOMATION_JULIAN_DATE_OFFSET; // Maximum valid Julian date value (31/12/9999 23:59:59.999) - because DateTime.FromOADate has this limit
+        internal const double JULIAN_DAY_WHEN_GREGORIAN_CALENDAR_WAS_INTRODUCED = 2299161.0; // Julian day number of the day on which the Gregorian calendar was first used - 15th October 1582
 
         internal const double RACIO_DEFAULT_VALUE = double.NaN; // NOVAS3: Default value that if still present will indicate that this value was not updated
 
@@ -178,6 +182,28 @@ namespace ASCOM.Tools
     }
 
     #region AstroUtilities Enums and Structures
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public struct RiseSetTimes
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        public bool IsRisen;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public List<double> RiseEvents;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public List<double> SetEvents;
+    }
+
     /// <summary>
     /// Type of event for which an ephemeris is required
     /// </summary>
@@ -1414,26 +1440,26 @@ namespace ASCOM.Tools
 
         internal void Initialise()
         {
-            Value1.RACio = GlobalItems.RACIO_DEFAULT_VALUE;
-            Value2.RACio = GlobalItems.RACIO_DEFAULT_VALUE;
-            Value3.RACio = GlobalItems.RACIO_DEFAULT_VALUE;
-            Value4.RACio = GlobalItems.RACIO_DEFAULT_VALUE;
-            Value5.RACio = GlobalItems.RACIO_DEFAULT_VALUE;
-            Value6.RACio = GlobalItems.RACIO_DEFAULT_VALUE;
-            Value7.RACio = GlobalItems.RACIO_DEFAULT_VALUE;
-            Value8.RACio = GlobalItems.RACIO_DEFAULT_VALUE;
-            Value9.RACio = GlobalItems.RACIO_DEFAULT_VALUE;
-            Value10.RACio = GlobalItems.RACIO_DEFAULT_VALUE;
-            Value11.RACio = GlobalItems.RACIO_DEFAULT_VALUE;
-            Value12.RACio = GlobalItems.RACIO_DEFAULT_VALUE;
-            Value13.RACio = GlobalItems.RACIO_DEFAULT_VALUE;
-            Value14.RACio = GlobalItems.RACIO_DEFAULT_VALUE;
-            Value15.RACio = GlobalItems.RACIO_DEFAULT_VALUE;
-            Value16.RACio = GlobalItems.RACIO_DEFAULT_VALUE;
-            Value17.RACio = GlobalItems.RACIO_DEFAULT_VALUE;
-            Value18.RACio = GlobalItems.RACIO_DEFAULT_VALUE;
-            Value19.RACio = GlobalItems.RACIO_DEFAULT_VALUE;
-            Value20.RACio = GlobalItems.RACIO_DEFAULT_VALUE;
+            Value1.RACio = Constants.RACIO_DEFAULT_VALUE;
+            Value2.RACio = Constants.RACIO_DEFAULT_VALUE;
+            Value3.RACio = Constants.RACIO_DEFAULT_VALUE;
+            Value4.RACio = Constants.RACIO_DEFAULT_VALUE;
+            Value5.RACio = Constants.RACIO_DEFAULT_VALUE;
+            Value6.RACio = Constants.RACIO_DEFAULT_VALUE;
+            Value7.RACio = Constants.RACIO_DEFAULT_VALUE;
+            Value8.RACio = Constants.RACIO_DEFAULT_VALUE;
+            Value9.RACio = Constants.RACIO_DEFAULT_VALUE;
+            Value10.RACio = Constants.RACIO_DEFAULT_VALUE;
+            Value11.RACio = Constants.RACIO_DEFAULT_VALUE;
+            Value12.RACio = Constants.RACIO_DEFAULT_VALUE;
+            Value13.RACio = Constants.RACIO_DEFAULT_VALUE;
+            Value14.RACio = Constants.RACIO_DEFAULT_VALUE;
+            Value15.RACio = Constants.RACIO_DEFAULT_VALUE;
+            Value16.RACio = Constants.RACIO_DEFAULT_VALUE;
+            Value17.RACio = Constants.RACIO_DEFAULT_VALUE;
+            Value18.RACio = Constants.RACIO_DEFAULT_VALUE;
+            Value19.RACio = Constants.RACIO_DEFAULT_VALUE;
+            Value20.RACio = Constants.RACIO_DEFAULT_VALUE;
         }
     }
 }

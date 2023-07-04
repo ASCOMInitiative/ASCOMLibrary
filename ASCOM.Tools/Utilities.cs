@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -10,12 +12,439 @@ namespace ASCOM.Tools
     /// </summary>
     public class Utilities : IDisposable
     {
+        private const bool DEBUG_LOGGING = true;
 
-        private const double ABSOLUTE_ZERO_CELSIUS = -273.15; // Absolute zero on the Celsius temperature scale
-        private const double JULIAN_DAY_WHEN_GREGORIAN_CALENDAR_WAS_INTRODUCED = 2299161.0; // Julian day number of the day on which the Gregorian calendar was first used - 15th October 1582
-        private static readonly DateTime GREGORIAN_CALENDAR_INTRODUCTION = new DateTime(1582, 10, 15, 0, 0, 0); // Date and time when the Gregorian calendar was first used 00:00:00 15th October 1582
+        private static double currentLeapSeconds;
 
-        #region DeltaT Calculation
+        /// <summary>
+        /// Information about the body
+        /// </summary>
+        private struct BodyInfo
+        {
+            /// <summary>
+            /// Body altitude
+            /// </summary>
+            public double Altitude;
+
+            /// <summary>
+            /// Distance to body
+            /// </summary>
+            public double Distance;
+
+            /// <summary>
+            /// Radius of the body
+            /// </summary>
+            public double Radius;
+        }
+
+        #region Initialiser
+
+        // Static initialiser - runs once to initialise static variables
+        static Utilities()
+        {
+            currentLeapSeconds = Constants.LEAP_SECONDS_DEFAULT;
+        }
+
+        #endregion
+
+        #region AstroUtils
+
+        /// <summary>
+        /// Function that returns a list of rise and set events of a particular type that occur on a particular day at a given latitude, longitude and time zone
+        /// </summary>
+        /// <param name="TypeofEvent">Type of event e.g. Sunrise or Astronomical twilight</param>
+        /// <param name="Day">Integer Day number</param>
+        /// <param name="Month">Integer Month number</param>
+        /// <param name="Year">Integer Year number</param>
+        /// <param name="SiteLatitude">Site latitude</param>
+        /// <param name="SiteLongitude">Site longitude (West of Greenwich is negative)</param>
+        /// <param name="SiteTimeZone">Site time zone offset (West of Greenwich is negative)</param>
+        /// <returns>An arraylist of event information (see Remarks for arraylist structure).
+        /// </returns>
+        /// <exception cref="ASCOM.InvalidValueException">If the combination of day, month and year is invalid e.g. 31st September.</exception>
+        /// <remarks>
+        /// <para>The definitions of sunrise, sunset and the various twilights that are used in this method are taken from the 
+        /// <a href="http://aa.usno.navy.mil/faq/docs/RST_defs.php">US Naval Observatory Definitions</a>.
+        /// </para>
+        /// <para>The dynamics of the sun, Earth and Moon can result at some latitudes in days where there may be no, 1 or 2 rise or set events during 
+        /// a 24 hour period; in consequence, results are returned in the flexible form of arraylist.</para>
+        /// <para>The returned zero based arraylist has the following values:
+        /// <list type="Bullet">
+        /// <item>Arraylist(0)                              - Boolean - True if the body is above the event limit at midnight (the beginning of the 24 hour day), false if it is below the event limit</item>
+        /// <item>Arraylist(1)                              - Integer - Number of rise events in this 24 hour period</item>
+        /// <item>Arraylist(2)                              - Integer - Number of set events in this 24 hour period</item>
+        /// <item>Arraylist(3) onwards                      - Double  - Values of rise events in hours </item>
+        /// <item>Arraylist(3 + NumberOfRiseEvents) onwards - Double  - Values of set events in hours </item>
+        /// </list></para>
+        /// <para>If the number of rise events is zero the first double value will be the first set event. If the numbers of both rise and set events
+        /// are zero, there will be no double values and the arraylist will just contain elements 0, 1 and 2, the above/below horizon flag and the integer count values.</para>
+        /// <para>The algorithm employed in this method is taken from Astronomy on the Personal Computer (Montenbruck and Pfleger) pp 46..56, 
+        /// Springer Fourth Edition 2000, Fourth Printing 2009. The day is divided into twelve two hour intervals and a quadratic equation is fitted
+        /// to the altitudes at the beginning, middle and end of each interval. The resulting equation coefficients are then processed to determine 
+        /// the number of roots within the interval (each of which corresponds to a rise or set event) and their sense (rise or set). 
+        /// These results are are then aggregated over the day and the resultant list of values returned as the function result.
+        /// </para>
+        /// <para>High precision ephemeredes for the Sun, Moon and Earth and other planets from the JPL DE421 series are employed as delivered by the 
+        /// ASCOM NOVAS 3.1 component rather than using the lower precision ephemeredes employed by Montenbruck and Pfleger.
+        /// </para>
+        /// <para><b>Accuracy</b> Whole year almanacs for Sunrise/Sunset, Moonrise/Moonset and the various twilights every 5 degrees from the 
+        /// North pole to the South Pole at a variety of longitudes, timezones and dates have been compared to data from
+        /// the <a href="http://aa.usno.navy.mil/data/docs/RS_OneYear.php">US Naval Observatory Astronomical Data</a> web site. The RMS error has been found to be 
+        /// better than 0.5 minute over the latitude range 80 degrees North to 80 degrees South and better than 5 minutes from 80 degrees to the relevant pole.
+        /// Most returned values are within 1 minute of the USNO values although some very infrequent grazing event times at lattiudes from 67 to 90 degrees North and South can be up to 
+        /// 10 minutes different.
+        /// </para>
+        /// <para>An Almanac program that creates a year's worth of information for a given event, lattitude, longitude and timezone is included in the 
+        /// developer code examples elsewhere in this help file. This creates an output file with an almost identical format to that used by the USNO web site 
+        /// and allows comprehensive checking of acccuracy for a given set of parameters.</para>
+        /// </remarks>
+        public static RiseSetTimes EventTimes(EventType TypeofEvent, int Day, int Month, int Year, double SiteLatitude, double SiteLongitude, double SiteTimeZone)
+        {
+            bool DoesRise, DoesSet, AboveHorizon = default;
+            double CentreTime, AltitiudeMinus1, Altitiude0, AltitiudePlus1, a, b, c, XSymmetry, Discriminant, RefractionCorrection;
+            double DeltaX, Zero1, Zero2, JD;
+            int NZeros;
+            var Observer = new OnSurface();
+            RiseSetTimes Retval = new RiseSetTimes();
+            List<double> BodyRises = new List<double>(), BodySets = new List<double>();
+            BodyInfo BodyInfoMinus1, BodyInfo0, BodyInfoPlus1;
+            DateTime TestDate;
+
+            DoesRise = false;
+            DoesSet = false;
+
+            try
+            {
+                TestDate = DateTime.Parse(Month + "/" + Day + "/" + Year, System.Globalization.CultureInfo.InvariantCulture); // Test whether this is a valid date e.g is not the 31st of February
+            }
+            catch (FormatException) // Catch case where day exceeds the maximum number of days in the month
+            {
+                throw new ASCOM.InvalidValueException("Day or Month", Day.ToString() + " " + Month.ToString() + " " + Year.ToString(), "Day must not exceed the number of days in the month");
+            }
+            catch (Exception ex) // Throw all other exceptions as they are are received
+            {
+                LogMessage("EventTimes", ex.ToString());
+                throw;
+            }
+
+            // Calculate Julian date in the local timezone
+            JD = Novas.JulianDate((short)Year, (short)Month, (short)Day, 0.0d) - SiteTimeZone / 24.0d;
+
+            // Initialise observer structure and calculate the refraction at the hozrizon
+            Observer.Latitude = SiteLatitude;
+            Observer.Longitude = SiteLongitude;
+            RefractionCorrection = Novas.Refract(Observer, RefractionOption.StandardRefraction, 90.0d);
+
+            // Iterate over the day in two hour periods
+
+            // Start at 01:00 as the centre time i.e. then time range will be 00:00 to 02:00
+            CentreTime = 1.0d;
+
+            do
+            {
+                // Calculate body positional information
+                BodyInfoMinus1 = BodyAltitude(TypeofEvent, JD, CentreTime - 1d, SiteLatitude, SiteLongitude);
+                BodyInfo0 = BodyAltitude(TypeofEvent, JD, CentreTime, SiteLatitude, SiteLongitude);
+                BodyInfoPlus1 = BodyAltitude(TypeofEvent, JD, CentreTime + 1d, SiteLatitude, SiteLongitude);
+
+                // Correct altitude for body's apparent size, parallax, required distance below horizon and refraction
+                switch (TypeofEvent)
+                {
+                    case EventType.MoonRiseMoonSet:
+                        {
+                            // Parallax and apparent size are dynamically calculated for the Moon because it is so close and does not transcribe a circular orbit
+                            AltitiudeMinus1 = BodyInfoMinus1.Altitude - Constants.EARTH_RADIUS * Constants.RAD2DEG / BodyInfoMinus1.Distance + BodyInfoMinus1.Radius * Constants.RAD2DEG / BodyInfoMinus1.Distance + RefractionCorrection;
+                            Altitiude0 = BodyInfo0.Altitude - Constants.EARTH_RADIUS * Constants.RAD2DEG / BodyInfo0.Distance + BodyInfo0.Radius * Constants.RAD2DEG / BodyInfo0.Distance + RefractionCorrection;
+                            AltitiudePlus1 = BodyInfoPlus1.Altitude - Constants.EARTH_RADIUS * Constants.RAD2DEG / BodyInfoPlus1.Distance + BodyInfoPlus1.Radius * Constants.RAD2DEG / BodyInfoPlus1.Distance + RefractionCorrection;
+                            break;
+                        }
+                    case EventType.SunRiseSunset:
+                        {
+                            AltitiudeMinus1 = BodyInfoMinus1.Altitude - Constants.SUN_RISE;
+                            Altitiude0 = BodyInfo0.Altitude - Constants.SUN_RISE;
+                            AltitiudePlus1 = BodyInfoPlus1.Altitude - Constants.SUN_RISE;
+                            break;
+                        }
+                    case EventType.CivilTwilight:
+                        {
+                            AltitiudeMinus1 = BodyInfoMinus1.Altitude - Constants.CIVIL_TWILIGHT;
+                            Altitiude0 = BodyInfo0.Altitude - Constants.CIVIL_TWILIGHT;
+                            AltitiudePlus1 = BodyInfoPlus1.Altitude - Constants.CIVIL_TWILIGHT;
+                            break;
+                        }
+                    case EventType.NauticalTwilight:
+                        {
+                            AltitiudeMinus1 = BodyInfoMinus1.Altitude - Constants.NAUTICAL_TWILIGHT;
+                            Altitiude0 = BodyInfo0.Altitude - Constants.NAUTICAL_TWILIGHT;
+                            AltitiudePlus1 = BodyInfoPlus1.Altitude - Constants.NAUTICAL_TWILIGHT;
+                            break;
+                        }
+                    case EventType.AmateurAstronomicalTwilight:
+                        {
+                            AltitiudeMinus1 = BodyInfoMinus1.Altitude - Constants.AMATEUR_ASRONOMICAL_TWILIGHT;
+                            Altitiude0 = BodyInfo0.Altitude - Constants.AMATEUR_ASRONOMICAL_TWILIGHT;
+                            AltitiudePlus1 = BodyInfoPlus1.Altitude - Constants.AMATEUR_ASRONOMICAL_TWILIGHT;
+                            break;
+                        }
+                    case EventType.AstronomicalTwilight:
+                        {
+                            AltitiudeMinus1 = BodyInfoMinus1.Altitude - Constants.ASTRONOMICAL_TWILIGHT;
+                            Altitiude0 = BodyInfo0.Altitude - Constants.ASTRONOMICAL_TWILIGHT;
+                            AltitiudePlus1 = BodyInfoPlus1.Altitude - Constants.ASTRONOMICAL_TWILIGHT; // Planets so correct for radius of plant and refraction
+                            break;
+                        }
+
+                    default:
+                        {
+                            AltitiudeMinus1 = BodyInfoMinus1.Altitude + RefractionCorrection + Constants.RAD2DEG * BodyInfo0.Radius / BodyInfo0.Distance;
+                            Altitiude0 = BodyInfo0.Altitude + RefractionCorrection + Constants.RAD2DEG * BodyInfo0.Radius / BodyInfo0.Distance;
+                            AltitiudePlus1 = BodyInfoPlus1.Altitude + RefractionCorrection + Constants.RAD2DEG * BodyInfo0.Radius / BodyInfo0.Distance;
+                            break;
+                        }
+                }
+
+                if (CentreTime == 1.0d)
+                {
+                    if (AltitiudeMinus1 < 0d)
+                    {
+                        AboveHorizon = false;
+                    }
+                    else
+                    {
+                        AboveHorizon = true;
+                    }
+                }
+
+                // Assess quadratic equation
+                c = Altitiude0;
+                b = 0.5d * (AltitiudePlus1 - AltitiudeMinus1);
+                a = 0.5d * (AltitiudePlus1 + AltitiudeMinus1) - Altitiude0;
+
+                XSymmetry = -b / (2.0d * a);
+                Discriminant = b * b - 4.0d * a * c;
+
+                Zero1 = double.NaN;
+                Zero2 = double.NaN;
+                NZeros = 0;
+
+                if (Discriminant > 0.0d)                 // there are zeros
+                {
+                    DeltaX = 0.5d * Math.Sqrt(Discriminant) / Math.Abs(a);
+                    Zero1 = XSymmetry - DeltaX;
+                    Zero2 = XSymmetry + DeltaX;
+                    if (Math.Abs(Zero1) <= 1.0d)
+                        NZeros++; // This zero is in interval
+                    if (Math.Abs(Zero2) <= 1.0d)
+                        NZeros++; // This zero is in interval
+
+                    if (Zero1 < -1.0d)
+                        Zero1 = Zero2;
+                }
+
+                switch (NZeros)
+                {
+                    // cases depend on values of discriminant - inner part of STEP 4
+                    case 0: // nothing  - go to next time slot
+                        {
+                            break;
+                        }
+                    case 1:                      // simple rise / set event
+                        {
+                            if (AltitiudeMinus1 < 0.0d)       // The body is set at start of event so this must be a rising event
+                            {
+                                DoesRise = true;
+                                BodyRises.Add(CentreTime + Zero1);
+                            }
+                            else                    // must be setting
+                            {
+                                DoesSet = true;
+                                BodySets.Add(CentreTime + Zero1);
+                            }
+
+                            break;
+                        }
+                    case 2:                      // rises and sets within interval
+                        {
+                            if (AltitiudeMinus1 < 0.0d) // The body is set at start of event so it must rise first then set
+                            {
+                                BodyRises.Add(CentreTime + Zero1);
+                                BodySets.Add(CentreTime + Zero2);
+                            }
+                            else                    // The body is risen at the start of the event so it must set first then rise
+                            {
+                                BodyRises.Add(CentreTime + Zero2);
+                                BodySets.Add(CentreTime + Zero1);
+                            }
+                            DoesRise = true;
+                            DoesSet = true;
+                            break;
+                        }
+                        // Zero2 = 1
+                }
+                CentreTime += 2.0d; // Increment by 2 hours to get the next 2 hour slot in the day
+            }
+
+            while (!(DoesRise & DoesSet & Math.Abs(SiteLatitude) < 60.0d | CentreTime == 25.0d));
+
+            Retval.IsRisen=AboveHorizon; // Add above horizon at midnight flag
+            Retval.RiseEvents = BodyRises;
+            Retval.SetEvents = BodySets;
+
+            return Retval;
+        }
+
+        /// <summary>
+        /// Returns the fraction of the Moon's surface that is illuminated 
+        /// </summary>
+        /// <param name="JD">Julian day (UTC) for which the Moon illumination is required</param>
+        /// <returns>Percentage illumination of the Moon</returns>
+        /// <remarks> The algorithm used is that given in Astronomical Algorithms (Second Edition, Corrected to August 2009) 
+        /// Chapter 48 p345 by Jean Meeus (Willmann-Bell 1991). The Sun and Moon positions are calculated by high precision NOVAS 3.1 library using JPL DE 421 ephemeredes.
+        /// </remarks>
+        public static double MoonIllumination(double JD)
+        {
+            var Obj3 = new Object3();
+            var Location = new OnSurface();
+            var Cat = new CatEntry3();
+            SkyPos SunPosition = new SkyPos(), MoonPosition = new SkyPos();
+            var Obs = new Observer();
+            double Phi, Inc, k, deltaT;
+
+            // DeltaT = DeltaTCalc(JD)
+            deltaT = DeltaT(JD);
+
+            // Calculate Moon RA, Dec and distance
+            Obj3.Name = "Moon";
+            Obj3.Number = Body.Moon;
+            Obj3.Star = Cat;
+            Obj3.Type = ObjectType.MajorPlanetSunOrMoon;
+
+            Obs.OnSurf = Location;
+            Obs.Where = ObserverLocation.EarthGeoCenter;
+
+            Novas.Place(JD + deltaT * Constants.SECONDS2DAYS, Obj3, Obs, deltaT, CoordSys.EquinoxOfDate, Accuracy.Full, ref MoonPosition);
+
+            // Calculate Sun RA, Dec and distance
+            Obj3.Name = "Sun";
+            Obj3.Number = Body.Sun;
+            Obj3.Star = Cat;
+            Obj3.Type = ObjectType.MajorPlanetSunOrMoon;
+
+            Novas.Place(JD + deltaT * Constants.SECONDS2DAYS, Obj3, Obs, deltaT, CoordSys.EquinoxOfDate, Accuracy.Full, ref SunPosition);
+
+            // Calculate geocentriic elongation of the Moon
+            Phi = Math.Acos(Math.Sin(SunPosition.Dec * Constants.DEG2RAD) * Math.Sin(MoonPosition.Dec * Constants.DEG2RAD) + Math.Cos(SunPosition.Dec * Constants.DEG2RAD) * Math.Cos(MoonPosition.Dec * Constants.DEG2RAD) * Math.Cos((SunPosition.RA - MoonPosition.RA) * Constants.HOURS2DEG * Constants.DEG2RAD));
+
+            // Calculate the phase angle of the Moon
+            Inc = Math.Atan2(SunPosition.Dis * Math.Sin(Phi), MoonPosition.Dis - SunPosition.Dis * Math.Cos(Phi));
+
+            // Calculate the illuminated fraction of the Moon's disc
+            k = (1.0d + Math.Cos(Inc)) / 2.0d;
+
+            return k;
+        }
+
+        /// <summary>
+        /// Returns the Moon phase as an angle
+        /// </summary>
+        /// <param name="JD">Julian day (UTC) for which the Moon phase is required</param>
+        /// <returns>Moon phase as an angle between -180.0 amd +180.0 (see Remarks for further description)</returns>
+        /// <remarks>To allow maximum freedom in displaying the Moon phase, this function returns the excess of the apparent geocentric longitude
+        /// of the Moon over the apparent geocentric longitude of the Sun, expressed as an angle in the range -180.0 to +180.0 degrees.
+        /// This definition is taken from Astronomical Algorithms (Second Edition, Corrected to August 2009) Chapter 49 p349
+        /// by Jean Meeus (Willmann-Bell 1991).
+        /// <para>The frequently used eight phase description for phases of the Moon can be easily constructed from the results of this function
+        /// using logic similar to the following:
+        /// <code>
+        /// Select Case MoonPhase
+        ///     Case -180.0 To -135.0
+        ///         Phase = "Full Moon"
+        ///     Case -135.0 To -90.0
+        ///         Phase = "Waning Gibbous"
+        ///     Case -90.0 To -45.0
+        ///         Phase = "Last Quarter"
+        ///     Case -45.0 To 0.0
+        ///         Phase = "Waning Crescent"
+        ///     Case 0.0 To 45.0
+        ///         Phase = "New Moon"
+        ///     Case 45.0 To 90.0
+        ///         Phase = "Waxing Crescent"
+        ///     Case 90.0 To 135.0
+        ///         Phase = "First Quarter"
+        ///     Case 135.0 To 180.0
+        ///         Phase = "Waxing Gibbous"
+        /// End Select
+        /// </code></para>
+        /// <para>Other representations can be easily constructed by changing the angle ranges and text descriptors as desired. The result range -180 to +180
+        /// was chosen so that negative values represent the Moon waning and positive values represent the Moon waxing.</para>
+        /// </remarks>
+        public static double MoonPhase(double JD)
+        {
+            var Obj3 = new Object3();
+            var Location = new OnSurface();
+            var Cat = new CatEntry3();
+            SkyPos SunPosition = new SkyPos(), MoonPosition = new SkyPos();
+            var Obs = new Observer();
+            double PositionAngle, deltaT;
+
+            // DeltaT = DeltaTCalc(JD)
+            deltaT = DeltaT(JD);
+
+            // Calculate Moon RA, Dec and distance
+            Obj3.Name = "Moon";
+            Obj3.Number = Body.Moon;
+            Obj3.Star = Cat;
+            Obj3.Type = ObjectType.MajorPlanetSunOrMoon;
+
+            Obs.OnSurf = Location;
+            Obs.Where = ObserverLocation.EarthGeoCenter;
+
+            Novas.Place(JD + deltaT * Constants.SECONDS2DAYS, Obj3, Obs, deltaT, CoordSys.EquinoxOfDate, Accuracy.Full, ref MoonPosition);
+
+            // Calculate Sun RA, Dec and distance
+            Obj3.Name = "Sun";
+            Obj3.Number = Body.Sun;
+            Obj3.Star = Cat;
+            Obj3.Type = ObjectType.MajorPlanetSunOrMoon;
+
+            Novas.Place(JD + deltaT * Constants.SECONDS2DAYS, Obj3, Obs, deltaT, CoordSys.EquinoxOfDate, Accuracy.Full, ref SunPosition);
+
+            // Return the difference between the sun and moon RA's expressed as degrees from -180 to +180
+            PositionAngle = Range((MoonPosition.RA - SunPosition.RA) * Constants.HOURS2DEG, -180.0d, false, 180.0d, true);
+
+            return PositionAngle;
+
+        }
+
+        #endregion
+
+        #region Leap seconds and DeltaT Calculation
+
+        /// <summary>
+        /// Current number of leap seconds
+        /// </summary>
+        public static double LeapSeconds
+        {
+            get
+            {
+                // Return the current leap seconds value
+                return currentLeapSeconds;
+            }
+        }
+
+        /// <summary>
+        /// Set the current number of leap seconds
+        /// </summary>
+        /// <param name="leapSeconds"></param>
+        public static void SetLeapSeconds(double leapSeconds)
+        {
+            // Set the internal leap seconds value to the supplied value
+            if (leapSeconds < 0.0)
+                throw new InvalidValueException($"Utlities.SetLeapSeconds - Supplied value is zero or less: {leapSeconds}");
+
+            // Save the provided value
+            currentLeapSeconds = leapSeconds;
+        }
 
         /// <summary>
         /// 
@@ -66,31 +495,31 @@ namespace ASCOM.Tools
                     + (-44041.1402447551 * modifiedJulianDay)
                     + 653571203.42671;
             else if ((yearFraction >= 2020.5))
-                retval = (0.0000000000234066661113585 * modifiedJulianDay * modifiedJulianDay * modifiedJulianDay * modifiedJulianDay) 
-                    - (0.00000555556956413194 * modifiedJulianDay * modifiedJulianDay * modifiedJulianDay) 
-                    + (0.494477925757861 * modifiedJulianDay * modifiedJulianDay) 
-                    - (19560.53496991 * modifiedJulianDay) 
+                retval = (0.0000000000234066661113585 * modifiedJulianDay * modifiedJulianDay * modifiedJulianDay * modifiedJulianDay)
+                    - (0.00000555556956413194 * modifiedJulianDay * modifiedJulianDay * modifiedJulianDay)
+                    + (0.494477925757861 * modifiedJulianDay * modifiedJulianDay)
+                    - (19560.53496991 * modifiedJulianDay)
                     + 290164271.563078;
             else if ((yearFraction >= 2018.3) & (yearFraction < double.MaxValue))
-                retval = (0.00000161128367083801 * modifiedJulianDay * modifiedJulianDay) 
-                    + (-0.187474214389602 * modifiedJulianDay) 
+                retval = (0.00000161128367083801 * modifiedJulianDay * modifiedJulianDay)
+                    + (-0.187474214389602 * modifiedJulianDay)
                     + 5522.26034874982;
             else if ((yearFraction >= 2018) & (yearFraction < double.MaxValue))
-                retval = (0.0024855297566049 * yearFraction * yearFraction * yearFraction) 
-                    + (-15.0681141702439 * yearFraction * yearFraction) 
-                    + (30449.647471213 * yearFraction) 
+                retval = (0.0024855297566049 * yearFraction * yearFraction * yearFraction)
+                    + (-15.0681141702439 * yearFraction * yearFraction)
+                    + (30449.647471213 * yearFraction)
                     - 20511035.5077593;
             else if ((yearFraction >= 2017.0) & (yearFraction < double.MaxValue))
-                retval = (0.02465436 * yearFraction * yearFraction) 
-                    + (-98.92626556 * yearFraction) 
+                retval = (0.02465436 * yearFraction * yearFraction)
+                    + (-98.92626556 * yearFraction)
                     + 99301.85784308;
             else if ((yearFraction >= 2015.75) & (yearFraction < double.MaxValue))
-                retval = (0.02002376 * yearFraction * yearFraction) 
-                    + (-80.27921003 * yearFraction) 
+                retval = (0.02002376 * yearFraction * yearFraction)
+                    + (-80.27921003 * yearFraction)
                     + 80529.32;
             else if ((yearFraction >= 2011.75) & (yearFraction < 2015.75))
-                retval = (0.00231189 * yearFraction * yearFraction) 
-                    + (-8.85231952 * yearFraction) 
+                retval = (0.00231189 * yearFraction * yearFraction)
+                    + (-8.85231952 * yearFraction)
                     + 8518.54;
             else if ((yearFraction >= 2011.0) & (yearFraction < 2011.75))
             {
@@ -143,7 +572,7 @@ namespace ASCOM.Tools
                     // Index into the table.
                     p = Math.Floor(yearFraction);
                     iy = System.Convert.ToInt32(p - TAB_START_1620);            // // rbd - added cast
-                                                                              // /* Zeroth order estimate is value at start of year */
+                                                                                // /* Zeroth order estimate is value at start of year */
                     retval = dt[iy];
                     k = iy + 1;
                     if ((k >= TAB_SIZE))
@@ -629,7 +1058,8 @@ namespace ASCOM.Tools
             // This implementation has been validated against the USNO Julian date calculator at https://aa.usno.navy.mil/data/docs/JulianDate.php 
 
             // Validate the incoming Julian date because it is not possible for a DateTime value to represent a date/time earlier that 00:00:00 1st January 0001
-            if (JD < JULIAN_DAY_WHEN_GREGORIAN_CALENDAR_WAS_INTRODUCED) throw new InvalidValueException($"JulianDateToDateTime: The supplied Julian date {JD} precedes introduction of the Gregorian calendar on 15th October 1582.");
+            if (JD < Constants.JULIAN_DAY_WHEN_GREGORIAN_CALENDAR_WAS_INTRODUCED)
+                throw new InvalidValueException($"JulianDateToDateTime: The supplied Julian date {JD} precedes introduction of the Gregorian calendar on 15th October 1582.");
 
             // Defined constants for the Gregorian calendar, taken from the Explanatory Supplement to the Astronomical Almanac.
             const int y = 4716;
@@ -684,61 +1114,24 @@ namespace ASCOM.Tools
 
 
         /// <summary>
-        /// Calculate the Julian date from a provided DateTime value
+        /// Calculate the Julian date from a provided DateTime value. The value is assumed to be a UTC time
         /// </summary>
         /// <param name="ObservationDateTime">DateTime in UTC</param>
         /// <returns>Julian date</returns>
         /// <remarks>Julian dates should always be in UTC </remarks>
         public static double JulianDateFromDateTime(DateTime ObservationDateTime)
         {
-            // The algorithm employed here is taken from the Explanatory Supplement to the USNO/HMNAO Astronomical Almanac 3rd Edition 2013 edited by Urban and Seidelmann, pages 617 - 619.
-            // This implementation has been validated against the USNO Julian date calculator at : https://aa.usno.navy.mil/data/docs/JulianDate.php 
+            double jd1 = default, jd2 = default;
+            int rc;
 
-            // Validate the supplied date / time to make sure it is on or after introduction of the Gregorian calendar in 15th October 1582
-            if (ObservationDateTime < GREGORIAN_CALENDAR_INTRODUCTION) throw new InvalidValueException($"JulianDateToDateTime: The supplied date {ObservationDateTime:hh:mm:ss.fff dd MMMM yyyy} precedes introduction of the Gregorian calendar on 18th October 1582.");
+            // Revised to use SOFA to calculate the Julian date
+            rc = Sofa.Dtf2d("UTC", ObservationDateTime.Year, ObservationDateTime.Month, ObservationDateTime.Day, ObservationDateTime.Hour, ObservationDateTime.Minute, ObservationDateTime.Second + ObservationDateTime.Millisecond / 1000.0d, ref jd1, ref jd2);
+            if (rc != 0)
+                LogMessage("UTCJulianDate", string.Format("Bad return code from Sofa.Dtf2d: {0} for date: {1}", rc, ObservationDateTime.ToString("dddd dd MMMM yyyy HH:mm:ss.fff")));
 
-            // Defined constants for the Gregorian calendar, taken from the Explanatory Supplement to the Astronomical Almanac.
-            const int y = 4716;
-            const int j = 1401;
-            const int m = 2;
-            const int n = 12;
-            const int r = 4;
-            const int p = 1461;
-            const int q = 0;
-            const int u = 5;
-            const int s = 153;
-            const int t = 2;
-            const int A = 184;
-            const int C = -38;
+            return jd1 + jd2;
 
-            int D = ObservationDateTime.Day;
-            int M = ObservationDateTime.Month;
-            int Y = ObservationDateTime.Year;
 
-            int h = M - m; // Equation 1
-            int g = Y + y - (n - h) / n;
-            int f = (h - 1 + n) % n;
-            int e = (p * g + q) / r + D - 1 - j;
-            int J = e + (s * f + t) / u;
-            J = J - (3 * ((g + A) / 100)) / 4 - C;
-
-            // J is the number of the Julian day that starts at 12:00 on the supplied Gregorian observation date/time. 
-            // If the time of the observation is earlier that 12:00 then the Julian day will actually be the preceding day, one less than calculated.
-
-            double dayFraction = ObservationDateTime.TimeOfDay.TotalDays; // Calculate the day fraction corresponding of the Gregorian observation date/time i.e. 00:00:00 is dayFraction 0.0 and 18:00:00 is dayFraction 0.75
-
-            if (dayFraction < 0.5) // We are actually in the preceding Julian day
-            {
-                J -= 1; // Decrement the Julian day number
-                dayFraction += 1.0; // Increment the day fraction to compensate
-            }
-
-            // Now compensate for the fact that Julian days start at 12:00:00 on each Gregorian day
-            dayFraction -= 0.5;
-
-            return (double)J + dayFraction;
-
-            //return DateTime.ToOADate() + 2415018.5;
         }
 
         /// <summary>
@@ -847,7 +1240,7 @@ namespace ASCOM.Tools
                 {
                     case Unit.degreesCelsius:
                         {
-                            intermediateValue = InputValue - ABSOLUTE_ZERO_CELSIUS;
+                            intermediateValue = InputValue - Constants.ABSOLUTE_ZERO_CELSIUS;
                             break;
                         }
 
@@ -874,7 +1267,7 @@ namespace ASCOM.Tools
                 {
                     case Unit.degreesCelsius:
                         {
-                            finalValue = intermediateValue + ABSOLUTE_ZERO_CELSIUS;
+                            finalValue = intermediateValue + Constants.ABSOLUTE_ZERO_CELSIUS;
                             break;
                         }
 
@@ -1042,8 +1435,8 @@ namespace ASCOM.Tools
             // Validate input values
             if ((RelativeHumidity < 0.0) | (RelativeHumidity > 100.0))
                 throw new InvalidValueException("Humidity2DewPoint - Relative humidity is < 0.0% or > 100.0%: " + RelativeHumidity.ToString());
-            if ((AmbientTemperature < ABSOLUTE_ZERO_CELSIUS) | (AmbientTemperature > 100.0))
-                throw new InvalidValueException("Humidity2DewPoint - Ambient temperature is < " + ABSOLUTE_ZERO_CELSIUS + "C or > 100.0C: " + AmbientTemperature.ToString());
+            if ((AmbientTemperature < Constants.ABSOLUTE_ZERO_CELSIUS) | (AmbientTemperature > 100.0))
+                throw new InvalidValueException("Humidity2DewPoint - Ambient temperature is < " + Constants.ABSOLUTE_ZERO_CELSIUS + "C or > 100.0C: " + AmbientTemperature.ToString());
 
             Pws = A * Math.Pow(10.0, m * AmbientTemperature / (AmbientTemperature + Tn)); // Calculate water vapour saturation pressure, Pws, from Vaisala formula (6) - In hPa
             Pw = Pws * RelativeHumidity / 100.0; // Calculate measured vapour pressure, Pw
@@ -1073,10 +1466,10 @@ namespace ASCOM.Tools
             const double Tn = 240.7263;
 
             // Validate input values
-            if ((DewPoint < ABSOLUTE_ZERO_CELSIUS) | (DewPoint > 100.0))
-                throw new InvalidValueException("DewPoint2Humidity - Dew point is < " + ABSOLUTE_ZERO_CELSIUS + "C or > 100.0C: " + DewPoint.ToString());
-            if ((AmbientTemperature < ABSOLUTE_ZERO_CELSIUS) | (AmbientTemperature > 100.0))
-                throw new InvalidValueException("DewPoint2Humidity - Ambient temperature is < " + ABSOLUTE_ZERO_CELSIUS + "C or > 100.0C: " + AmbientTemperature.ToString());
+            if ((DewPoint < Constants.ABSOLUTE_ZERO_CELSIUS) | (DewPoint > 100.0))
+                throw new InvalidValueException("DewPoint2Humidity - Dew point is < " + Constants.ABSOLUTE_ZERO_CELSIUS + "C or > 100.0C: " + DewPoint.ToString());
+            if ((AmbientTemperature < Constants.ABSOLUTE_ZERO_CELSIUS) | (AmbientTemperature > 100.0))
+                throw new InvalidValueException("DewPoint2Humidity - Ambient temperature is < " + Constants.ABSOLUTE_ZERO_CELSIUS + "C or > 100.0C: " + AmbientTemperature.ToString());
 
             RH = 100.0 * Math.Pow(10.0, m * ((DewPoint / (DewPoint + Tn)) - (AmbientTemperature / (AmbientTemperature + Tn))));
 
@@ -1300,6 +1693,188 @@ namespace ASCOM.Tools
             if (inputIsNegative) returnValue = $"-{returnValue}";
 
             return returnValue;
+        }
+
+        private static void LogMessage(string method, string message)
+        {
+            if (DEBUG_LOGGING)
+                Console.WriteLine($"{method} - {message}");
+        }
+
+        /// <summary>
+        /// Returns the altitude of the body given the input parameters
+        /// </summary>
+        /// <param name="TypeOfEvent">Type of event to be calaculated</param>
+        /// <param name="JD">UTC Julian date</param>
+        /// <param name="Hour">Hour of Julian day</param>
+        /// <param name="Latitude">Site Latitude</param>
+        /// <param name="Longitude">Site Longitude</param>
+        /// <returns>The altitude of the body (degrees)</returns>
+        /// <remarks></remarks>
+        private static BodyInfo BodyAltitude(EventType TypeOfEvent, double JD, double Hour, double Latitude, double Longitude)
+        {
+            double Instant, Tau, Gmst = default, deltaT;
+            short rc;
+            var Obj3 = new Object3();
+            var Location = new OnSurface();
+            var Cat = new CatEntry3();
+            var SkyPosition = new SkyPos();
+            var Obs = new Observer();
+            var Retval = new BodyInfo();
+
+            Instant = JD + Hour / 24.0d; // Add the hour to the whole Julian day number
+            // DeltaT = DeltaTCalc(JD)
+            deltaT = DeltaT(JD);
+
+            switch (TypeOfEvent)
+            {
+                case EventType.MercuryRiseSet:
+                    {
+                        Obj3.Name = "Mercury";
+                        Obj3.Number = Body.Mercury;
+                        break;
+                    }
+                case EventType.VenusRiseSet:
+                    {
+                        Obj3.Name = "Venus";
+                        Obj3.Number = Body.Venus;
+                        break;
+                    }
+                case EventType.MarsRiseSet:
+                    {
+                        Obj3.Name = "Mars";
+                        Obj3.Number = Body.Mars;
+                        break;
+                    }
+                case EventType.JupiterRiseSet:
+                    {
+                        Obj3.Name = "Jupiter";
+                        Obj3.Number = Body.Jupiter;
+                        break;
+                    }
+                case EventType.SaturnRiseSet:
+                    {
+                        Obj3.Name = "Saturn";
+                        Obj3.Number = Body.Saturn;
+                        break;
+                    }
+                case EventType.UranusRiseSet:
+                    {
+                        Obj3.Name = "Uranus";
+                        Obj3.Number = Body.Uranus;
+                        break;
+                    }
+                case EventType.NeptuneRiseSet:
+                    {
+                        Obj3.Name = "Neptune";
+                        Obj3.Number = Body.Neptune;
+                        break;
+                    }
+                case EventType.PlutoRiseSet:
+                    {
+                        Obj3.Name = "Pluto";
+                        Obj3.Number = Body.Pluto;
+                        break;
+                    }
+                case EventType.MoonRiseMoonSet:
+                    {
+                        Obj3.Name = "Moon";
+                        Obj3.Number = Body.Moon;
+                        break;
+                    }
+                case EventType.SunRiseSunset:
+                case EventType.AmateurAstronomicalTwilight:
+                case EventType.AstronomicalTwilight:
+                case EventType.CivilTwilight:
+                case EventType.NauticalTwilight:
+                    {
+                        Obj3.Name = "Sun";
+                        Obj3.Number = Body.Sun;
+                        break;
+                    }
+
+                default:
+                    {
+                        throw new ASCOM.InvalidValueException("TypeOfEvent", TypeOfEvent.ToString(), "Unknown type of event");
+                    }
+            }
+
+            Obj3.Star = Cat;
+            Obj3.Type = ObjectType.MajorPlanetSunOrMoon;
+
+            Obs.OnSurf = Location;
+            Obs.Where = ObserverLocation.EarthGeoCenter;
+
+            Novas.Place(Instant + deltaT * Constants.SECONDS2DAYS, Obj3, Obs, deltaT, CoordSys.EquinoxOfDate, Accuracy.Full, ref SkyPosition);
+            Retval.Distance = SkyPosition.Dis * Constants.AU2KILOMETRE; // Distance is in AU so save it in km
+
+            rc = Novas.SiderealTime(Instant, 0.0d, deltaT, GstType.GreenwichApparentSiderealTime, Method.EquinoxBased, Accuracy.Full, ref Gmst);
+
+            if (rc != 0)
+            {
+                LogMessage("BodyAltitude", $"Novas.SiderealTime returned error code {rc}, zero was expected. Throwing HelperException.");
+                throw new HelperException($"BodyAltitude - Novas.SiderealTime returned error code {rc}, zero was expected.");
+            }
+
+            Tau = Constants.HOURS2DEG * (Range(Gmst + Longitude * Constants.DEG2HOURS, 0d, true, 24.0d, false) - SkyPosition.RA); // East longitude is  positive
+            Retval.Altitude = Math.Asin(Math.Sin(Latitude * Constants.DEG2RAD) * Math.Sin(SkyPosition.Dec * Constants.DEG2RAD) + Math.Cos(Latitude * Constants.DEG2RAD) * Math.Cos(SkyPosition.Dec * Constants.DEG2RAD) * Math.Cos(Tau * Constants.DEG2RAD)) * Constants.RAD2DEG;
+
+            switch (TypeOfEvent)
+            {
+                case EventType.MercuryRiseSet:
+                    {
+                        Retval.Radius = Constants.MERCURY_RADIUS; // km
+                        break;
+                    }
+                case EventType.VenusRiseSet:
+                    {
+                        Retval.Radius = Constants.VENUS_RADIUS; // km
+                        break;
+                    }
+                case EventType.MarsRiseSet:
+                    {
+                        Retval.Radius = Constants.MARS_RADIUS; // km
+                        break;
+                    }
+                case EventType.JupiterRiseSet:
+                    {
+                        Retval.Radius = Constants.JUPITER_RADIUS; // km
+                        break;
+                    }
+                case EventType.SaturnRiseSet:
+                    {
+                        Retval.Radius = Constants.SATURN_RADIUS; // km
+                        break;
+                    }
+                case EventType.UranusRiseSet:
+                    {
+                        Retval.Radius = Constants.URANUS_RADIUS; // km
+                        break;
+                    }
+                case EventType.NeptuneRiseSet:
+                    {
+                        Retval.Radius = Constants.NEPTUNE_RADIUS; // km
+                        break;
+                    }
+                case EventType.PlutoRiseSet:
+                    {
+                        Retval.Radius = Constants.PLUTO_RADIUS; // km
+                        break;
+                    }
+                case EventType.MoonRiseMoonSet:
+                    {
+                        Retval.Radius = Constants.MOON_RADIUS; // km
+                        break;
+                    }
+
+                default:
+                    {
+                        Retval.Radius = Constants.SUN_RADIUS; // km
+                        break;
+                    }
+            }
+
+            return Retval;
         }
 
         #endregion

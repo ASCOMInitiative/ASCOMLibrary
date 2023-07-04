@@ -21,53 +21,52 @@ namespace ASCOM.Tools
     /// <href>http://www.usno.navy.mil/USNO/astronomical-applications/software-products/novas</href>
     /// in the "C Edition of NOVAS" link. 
     /// </remarks>
-    public class NOVAS31 : IDisposable
+    public class Novas
     {
-
         private const string NOVAS_LIBRARY = "libnovas"; // Base name of the NOVAS library files. Relevant file extensions like .DLL and .so are added automatically by .NET when searching for the library.
         private const string RACIO_FILE = "cio_ra.bin"; // Name of the RA of CIO binary data file
 
         private const string JPL_EPHEM_FILE_NAME = "JPLEPH"; // Name of JPL ephemeredes file
 
-        private readonly ILogger TL; // Logger instance for this component instance
+        private static ILogger TL; // Logger instance for this component instance
 
-        // Private Parameters As EarthRotationParameters
+        private static bool isInitialised = false; // Flag indicating whether the library initialisation has been run
 
-        #region New and IDisposable
+        #region Initialiser
 
         /// <summary>
-        /// Creates a new instance of the NOVAS 3.1 component
+        /// Static intialiser
         /// </summary>
         /// <exception cref="HelperException">Thrown if the JPLEPH and cio_ra.bin support files are not in the application directory.</exception>
         /// <remarks></remarks>
-        public NOVAS31() : this(null) { }
+        static Novas()
+        {
+        }
 
         /// <summary>
-        /// Creates a new instance of the NOVAS 3.1 component with the given logger
+        /// Initialise the library only runs once
         /// </summary>
         /// <exception cref="HelperException">Thrown if the JPLEPH and cio_ra.bin support files are not in the application directory.</exception>
-        /// <remarks></remarks>
-        public NOVAS31(ILogger logger)
+        /// <remarks>
+        /// This delayed initialisation approach is used so that the logger can be assigned before the initialiser is called.
+        /// This makes it possible to see debug logging from the initialiser.
+        /// </remarks>
+        private static void Initialise()
         {
             short rc1;
             string RACIOFile, JPLEphFile;
             var DENumber = default(short);
             string aplicationPath;
 
-            // Save the supplied logger instance.
-            TL = logger;
-
             try
             {
                 // Get the current directory
                 aplicationPath = Directory.GetCurrentDirectory();
-                LogMessage("New", $"Current path: {aplicationPath}");
-                // Create paths to the CIO and ephemeris files.
 
+                // Create paths to the CIO and ephemeris files.
                 RACIOFile = Path.Combine(aplicationPath, RACIO_FILE);
                 JPLEphFile = Path.Combine(aplicationPath, JPL_EPHEM_FILE_NAME);
-                LogMessage("New", $"RACIO file: {RACIOFile}");
-                LogMessage("New", $"JPL ephemeris file: {JPLEphFile}");
+                LogMessage("New", $"Current path: {aplicationPath}, RACIO file: {RACIOFile}, JPL ephemeris file: {JPLEphFile}");
 
                 // Validate that the CIO file exists
                 if (!File.Exists(RACIOFile))
@@ -87,7 +86,7 @@ namespace ASCOM.Tools
                     throw new HelperException($"NOVAS31 Initialise - Unable to locate JPL ephemeris file: {JPLEphFile}");
                 }
 
-                // Open the ephemerides file and set its applicable date range
+                // Open the ephemeris file and set its applicable date range
                 LogMessage("New", "Opening JPL ephemeris file: " + JPLEphFile);
                 double ephStart = 0.0, ephEnd = 0.0;
                 rc1 = EphemOpen(JPLEphFile, ref ephStart, ref ephEnd, ref DENumber);
@@ -97,6 +96,7 @@ namespace ASCOM.Tools
                     LogMessage("New", "Unable to open ephemeris file: " + JPLEphFile + ", RC: " + rc1);
                     throw new HelperException($"NOVAS31 Initialisation - Unable to open ephemeris file: {JPLEphFile} RC: {rc1}");
                 }
+
                 LogMessage("New", $"Ephemeris file {JPLEphFile} opened OK - DE number: {DENumber}, Start: {ephStart}, End: {ephEnd}");
                 LogMessage("New", "NOVAS31 initialised OK");
             }
@@ -113,47 +113,24 @@ namespace ASCOM.Tools
                 try { LogMessage("New", "Exception: " + ex.ToString()); } catch { }
                 throw;
             }
+
+            // Set the initialised flag
+            isInitialised = true;
         }
 
-        private bool disposedValue = false;        // To detect redundant calls
+        #endregion
 
-        // IDisposable
+        #region Public helper members
+
         /// <summary>
-        /// 
+        /// Assign a logger instance to the NOVAS component
         /// </summary>
-        /// <param name="disposing"></param>
-        protected virtual void Dispose(bool disposing)
+        /// <param name="logger">an ILigger instance</param>
+        public static void SetLogger(ILogger logger)
         {
-            short rc = short.MinValue;
-
-            if (!disposedValue)
-            {
-                if (disposing)
-                {
-                    // Clean up files and memory
-                    try { LogMessage("Dispose", "About to close ephemeris file..."); } catch { }
-                    try { rc = EphemClose(); } catch { }
-                    try { LogMessage("Dispose", $"Closed ephemeris file. Return code: {rc}"); } catch { }
-
-                    try { LogMessage("Dispose", "Cleaning remaining ephemeris files..."); } catch { }
-                    try { CleanEph(); } catch { }
-                    try { LogMessage("Dispose", "Cleaning completed."); } catch { }
-                }
-            }
-            disposedValue = true;
+            TL = logger;
         }
 
-        // This code added by Visual Basic to correctly implement the disposable pattern.
-        /// <summary>
-        /// Cleans up the NOVAS3 object and releases its open file handle on the JPL planetary ephemeris file
-        /// </summary>
-        /// <remarks></remarks>
-        public void Dispose()
-        {
-            // Do not change this code.  Put clean-up code in Dispose(ByVal disposing As Boolean) above.
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
         #endregion
 
         #region Public NOVAS Interface - Ephemeris Members
@@ -174,7 +151,7 @@ namespace ASCOM.Tools
         /// </returns>
         /// <remarks>This function accesses the JPL planetary ephemeris to give the position and velocity of the target 
         /// object with respect to the center object.</remarks>
-        public short PlanetEphemeris(ref double[] Tjd, Target Target, Target Center, ref double[] Position, ref double[] Velocity)
+        public static short PlanetEphemeris(ref double[] Tjd, Target Target, Target Center, ref double[] Position, ref double[] Velocity)
         {
             var JdHp = new JDHighPrecision();
             var VPos = new PosVector();
@@ -215,7 +192,7 @@ namespace ASCOM.Tools
         /// <para>Further information on using NOVAS with minor planet data is given here: 
         /// http://www.usno.navy.mil/USNO/astronomical-applications/software-products/usnoae98</para>
         /// </remarks>
-        public double[] ReadEph(int Mp, string Name, double Jd, ref int Err)
+        public static double[] ReadEph(int Mp, string Name, double Jd, ref int Err)
         {
             const int DOUBLE_LENGTH = 8;
             const int NUM_RETURN_VALUES = 6;
@@ -257,7 +234,7 @@ namespace ASCOM.Tools
         /// <param name="Vel">Velocity vector of 'body' at tjd; equatorial rectangular system referred to the ICRS.</param>
         /// <returns>Always returns 0</returns>
         /// <remarks></remarks>
-        public short SolarSystem(double Tjd, Body Body, Origin Origin, ref double[] Pos, ref double[] Vel)
+        public static short SolarSystem(double Tjd, Body Body, Origin Origin, ref double[] Pos, ref double[] Vel)
         {
 
             var VPos = new PosVector();
@@ -302,7 +279,7 @@ namespace ASCOM.Tools
         /// between then and epoch.
         /// </para>
         /// </remarks>
-        public short State(ref double[] Jed, Target Target, ref double[] TargetPos, ref double[] TargetVel)
+        public static short State(ref double[] Jed, Target Target, ref double[] TargetPos, ref double[] TargetVel)
         {
 
             var JdHp = new JDHighPrecision();
@@ -327,7 +304,7 @@ namespace ASCOM.Tools
         /// <param name="JDEnd">End Julian date from the ephemeris file.</param>
         /// <param name="DENumber">DE number from the ephemeris file e.g. DE405 or DE421.</param>
         /// <returns>0 for success otherwise an error code.</returns>
-        public short EphemOpen(string EphemFileName, ref double JDBegin, ref double JDEnd, ref short DENumber)
+        public static short EphemOpen(string EphemFileName, ref double JDBegin, ref double JDEnd, ref short DENumber)
         {
             short rc;
             rc = EphemOpenLib(EphemFileName, ref JDBegin, ref JDEnd, ref DENumber);
@@ -338,7 +315,7 @@ namespace ASCOM.Tools
         /// Close the current ephemeris file
         /// </summary>
         /// <returns>0 for success otherwise an error code.</returns>
-        public short EphemClose()
+        public static short EphemClose()
         {
             return EphemCloseLib();
         }
@@ -346,7 +323,7 @@ namespace ASCOM.Tools
         /// <summary>
         /// Close all open ephemeris files and release allocated memory.
         /// </summary>
-        public void CleanEph()
+        public static void CleanEph()
         {
             CleanEphLib();
         }
@@ -362,14 +339,17 @@ namespace ASCOM.Tools
         /// <param name="LightTime"> Light time from object to Earth in days.</param>
         /// <param name="Pos2"> Position vector, referred to origin at center of mass of the Earth, corrected for aberration, components in AU</param>
         /// <remarks>If 'lighttime' = 0 on input, this function will compute it.</remarks>
-        public void Aberration(double[] Pos, double[] Vel, double LightTime, ref double[] Pos2)
+        public static void Aberration(double[] Pos, double[] Vel, double LightTime, ref double[] Pos2)
         {
             var VPos2 = default(PosVector);
             var argPos1 = ArrToPosVec(Pos);
             var argVel1 = ArrToVelVec(Vel);
+
+            // Initialise if necessary
+            if (!isInitialised) Initialise();
+
             AberrationLib(ref argPos1, ref argVel1, LightTime, ref VPos2);
             PosVecToArr(VPos2, ref Pos2);
-
         }
 
         /// <summary>
@@ -387,11 +367,14 @@ namespace ASCOM.Tools
         /// > 10 ... Error code from function 'Place'.
         /// </pre></returns>
         /// <remarks></remarks>
-        public short AppPlanet(double JdTt, Object3 SsBody, Accuracy Accuracy, ref double Ra, ref double Dec, ref double Dis)
+        public static short AppPlanet(double JdTt, Object3 SsBody, Accuracy Accuracy, ref double Ra, ref double Dec, ref double Dis)
         {
             var argSsBody1 = O3IFromObject3(SsBody);
-            return AppPlanetLib(JdTt, ref argSsBody1, Accuracy, ref Ra, ref Dec, ref Dis);
 
+            // Initialise if necessary
+            if (!isInitialised) Initialise();
+
+            return AppPlanetLib(JdTt, ref argSsBody1, Accuracy, ref Ra, ref Dec, ref Dis);
         }
 
         /// <summary>
@@ -409,10 +392,16 @@ namespace ASCOM.Tools
         /// > 20 ... Error code from function 'Place'.
         /// </pre></returns>
         /// <remarks></remarks>
-        public short AppStar(double JdTt, CatEntry3 Star, Accuracy Accuracy, ref double Ra, ref double Dec)
+        public static short AppStar(double JdTt, CatEntry3 Star, Accuracy Accuracy, ref double Ra, ref double Dec)
         {
-
             short rc;
+
+            // Initialise if necessary
+            if (!isInitialised) Initialise();
+
+            // Initialise if necessary
+            if (!isInitialised) Initialise();
+
             try
             {
                 LogMessage("AppStar", "JD Accuracy:        " + JdTt + " " + Accuracy.ToString());
@@ -434,7 +423,6 @@ namespace ASCOM.Tools
             rc = AppStarLib(JdTt, ref Star, Accuracy, ref Ra, ref Dec);
             LogMessage("AppStar", "  Return Code: " + rc + ", RA Dec: " + Utilities.HoursToHMS(Ra, ":", ":", "", 3) + " " + Utilities.DegreesToDMS(Dec, ":", ":", "", 3));
             return rc;
-
         }
 
         /// <summary>
@@ -453,9 +441,13 @@ namespace ASCOM.Tools
         /// > 10 ... Error code from function 'Place'.
         /// </pre></returns>
         /// <remarks></remarks>
-        public short AstroPlanet(double JdTt, Object3 SsBody, Accuracy Accuracy, ref double Ra, ref double Dec, ref double Dis)
+        public static short AstroPlanet(double JdTt, Object3 SsBody, Accuracy Accuracy, ref double Ra, ref double Dec, ref double Dis)
         {
             var argSsBody1 = O3IFromObject3(SsBody);
+
+            // Initialise if necessary
+            if (!isInitialised) Initialise();
+
             return AstroPlanetLib(JdTt, ref argSsBody1, Accuracy, ref Ra, ref Dec, ref Dis);
         }
 
@@ -473,9 +465,13 @@ namespace ASCOM.Tools
         /// > 20 ... Error code from function 'Place'.
         /// </pre></returns>
         /// <remarks></remarks>
-        public short AstroStar(double JdTt, CatEntry3 Star, Accuracy Accuracy, ref double Ra, ref double Dec)
+        public static short AstroStar(double JdTt, CatEntry3 Star, Accuracy Accuracy, ref double Ra, ref double Dec)
         {
             short rc;
+
+            // Initialise if necessary
+            if (!isInitialised) Initialise();
+
             try
             {
                 LogMessage("AstroStar", "JD Accuracy:        " + JdTt + " " + Accuracy.ToString());
@@ -507,11 +503,15 @@ namespace ASCOM.Tools
         /// <param name="Pos2"> Position vector, referred to origin at center of mass of the Earth, components in AU.</param>
         /// <param name="Lighttime">Light time from object to Earth in days.</param>
         /// <remarks></remarks>
-        public void Bary2Obs(double[] Pos, double[] PosObs, ref double[] Pos2, ref double Lighttime)
+        public static void Bary2Obs(double[] Pos, double[] PosObs, ref double[] Pos2, ref double Lighttime)
         {
             var PosV = new PosVector();
             var argPos1 = ArrToPosVec(Pos);
             var argPosObs1 = ArrToPosVec(PosObs);
+
+            // Initialise if necessary
+            if (!isInitialised) Initialise();
+
             Bary2ObsLib(ref argPos1, ref argPosObs1, ref PosV, ref Lighttime);
             PosVecToArr(PosV, ref Pos2);
         }
@@ -525,8 +525,11 @@ namespace ASCOM.Tools
         /// <param name="Day">day number</param>
         /// <param name="Hour">Fractional hour of the day</param>
         /// <remarks></remarks>
-        public void CalDate(double Tjd, ref short Year, ref short Month, ref short Day, ref double Hour)
+        public static void CalDate(double Tjd, ref short Year, ref short Month, ref short Day, ref double Hour)
         {
+            // Initialise if necessary
+            if (!isInitialised) Initialise();
+
             CalDateLib(Tjd, ref Year, ref Month, ref Day, ref Hour);
         }
 
@@ -562,17 +565,20 @@ namespace ASCOM.Tools
         /// <para>
         /// Note2: 'option' = 1 only works for the equinox-based method.
         /// </para></remarks>
-        public short Cel2Ter(double JdHigh, double JdLow, double DeltaT, Method Method, Accuracy Accuracy, OutputVectorOption OutputOption, double xp, double yp, double[] VecT, ref double[] VecC)
+        public static short Cel2Ter(double JdHigh, double JdLow, double DeltaT, Method Method, Accuracy Accuracy, OutputVectorOption OutputOption, double xp, double yp, double[] VecT, ref double[] VecC)
         {
             var VVecC = new PosVector();
             short rc;
             var argVecT1 = ArrToPosVec(VecT);
+
+            // Initialise if necessary
+            if (!isInitialised) Initialise();
+
             rc = Cel2TerLib(JdHigh, JdLow, DeltaT, Method, Accuracy, OutputOption, xp, yp, ref argVecT1, ref VVecC);
 
             PosVecToArr(VVecC, ref VecC);
             return rc;
         }
-
 
         /// <summary>
         /// This function allows for the specification of celestial pole offsets for high-precision applications.  Each set of offsets is a correction to the modeled position of the pole for a specific date, derived from observations and published by the IERS.
@@ -586,8 +592,11 @@ namespace ASCOM.Tools
         /// 1 ... Invalid value of 'Type'.
         /// </pre></returns>
         /// <remarks></remarks>
-        public short CelPole(double Tjd, PoleOffsetCorrection Type, double Dpole1, double Dpole2)
+        public static short CelPole(double Tjd, PoleOffsetCorrection Type, double Dpole1, double Dpole2)
         {
+            // Initialise if necessary
+            if (!isInitialised) Initialise();
+
             return CelPoleLib(Tjd, Type, Dpole1, Dpole2);
         }
 
@@ -626,10 +635,13 @@ namespace ASCOM.Tools
         /// </code>
         /// </example>
         /// </remarks>
-        public short CioArray(double JdTdb, int NPts, ref ArrayList Cio)
+        public static short CioArray(double JdTdb, int NPts, ref ArrayList Cio)
         {
             var CioStruct = new RAOfCioArray();
             short rc;
+
+            // Initialise if necessary
+            if (!isInitialised) Initialise();
 
             CioStruct.Initialise(); // Set internal default values so we can see which elements are changed by the NOVAS DLL.
             rc = CioArrayLib(JdTdb, NPts, ref CioStruct);
@@ -659,8 +671,11 @@ namespace ASCOM.Tools
         /// right ascension of the CIO at that date is required as input.  The right ascension of the CIO 
         /// can be with respect to either the GCRS origin or the true equinox of date -- different algorithms 
         /// are used in the two cases.</remarks>
-        public short CioBasis(double JdTdbEquionx, double RaCioEquionx, ReferenceSystem RefSys, Accuracy Accuracy, ref double x, ref double y, ref double z)
+        public static short CioBasis(double JdTdbEquionx, double RaCioEquionx, ReferenceSystem RefSys, Accuracy Accuracy, ref double x, ref double y, ref double z)
         {
+            // Initialise if necessary
+            if (!isInitialised) Initialise();
+
             return CioBasisLib(JdTdbEquionx, RaCioEquionx, RefSys, Accuracy, ref x, ref y, ref z);
         }
 
@@ -677,8 +692,11 @@ namespace ASCOM.Tools
         /// > 10 ... 10 + the error code from function 'CioArray'.
         /// </pre></returns>
         /// <remarks>  This function returns the location of the celestial intermediate origin (CIO) for a given Julian date, as a right ascension with respect to either the GCRS (geocentric ICRS) origin or the true equinox of date.  The CIO is always located on the true equator (= intermediate equator) of date.</remarks>
-        public short CioLocation(double JdTdb, Accuracy Accuracy, ref double RaCio, ref ReferenceSystem RefSys)
+        public static short CioLocation(double JdTdb, Accuracy Accuracy, ref double RaCio, ref ReferenceSystem RefSys)
         {
+            // Initialise if necessary
+            if (!isInitialised) Initialise();
+
             return CioLocationLib(JdTdb, Accuracy, ref RaCio, ref RefSys);
         }
 
@@ -696,8 +714,11 @@ namespace ASCOM.Tools
         /// > 20 ... 20 + the error code from function 'CioBasis'.
         /// </pre></returns>
         /// <remarks></remarks>
-        public short CioRa(double JdTt, Accuracy Accuracy, ref double RaCio)
+        public static short CioRa(double JdTt, Accuracy Accuracy, ref double RaCio)
         {
+            // Initialise if necessary
+            if (!isInitialised) Initialise();
+
             return CioRaLib(JdTt, Accuracy, ref RaCio);
         }
 
@@ -716,10 +737,14 @@ namespace ASCOM.Tools
         /// that is closest to solar system body (positive if light passes body before hitting observer, i.e., if 
         /// 'Pos1' is within 90 degrees of 'PosObs').
         /// </remarks>
-        public double DLight(double[] Pos1, double[] PosObs)
+        public static double DLight(double[] Pos1, double[] PosObs)
         {
             var argPos11 = ArrToPosVec(Pos1);
             var argPosObs1 = ArrToPosVec(PosObs);
+
+            // Initialise if necessary
+            if (!isInitialised) Initialise();
+
             return DLightLib(ref argPos11, ref argPosObs1);
         }
 
@@ -740,11 +765,15 @@ namespace ASCOM.Tools
         /// set 'CoordSys' = 2; the value of 'JdTt' can be set to anything, since J2000.0 is assumed. 
         /// Except for the output from this case, all vectors are assumed to be with respect to a dynamical system.
         /// </remarks>
-        public short Ecl2EquVec(double JdTt, CoordSys CoordSys, Accuracy Accuracy, double[] Pos1, ref double[] Pos2)
+        public static short Ecl2EquVec(double JdTt, CoordSys CoordSys, Accuracy Accuracy, double[] Pos1, ref double[] Pos2)
         {
             var VPos2 = new PosVector();
             short rc;
             var argPos11 = ArrToPosVec(Pos1);
+
+            // Initialise if necessary
+            if (!isInitialised) Initialise();
+
             rc = Ecl2EquVecLib(JdTt, CoordSys, Accuracy, ref argPos11, ref VPos2);
 
             PosVecToArr(VPos2, ref Pos2);
@@ -766,8 +795,11 @@ namespace ASCOM.Tools
         /// smaller than 2 microarcseconds have been omitted.</para>
         /// <para>3. This function is based on NOVAS Fortran routine 'eect2000', with the low-accuracy formula taken from NOVAS Fortran routine 'etilt'.</para>
         /// </remarks>
-        public double EeCt(double JdHigh, double JdLow, Accuracy Accuracy)
+        public static double EeCt(double JdHigh, double JdLow, Accuracy Accuracy)
         {
+            // Initialise if necessary
+            if (!isInitialised) Initialise();
+
             return EeCtLib(JdHigh, JdLow, Accuracy);
         }
 
@@ -789,7 +821,7 @@ namespace ASCOM.Tools
         /// 20+n ... where n is the error code from 'ReadEph'.
         /// </pre></returns>
         /// <remarks>It is recommended that the input structure 'cel_obj' be created using function 'MakeObject' in file novas.c.</remarks>
-        public short Ephemeris(double[] Jd, Object3 CelObj, Origin Origin, Accuracy Accuracy, ref double[] Pos, ref double[] Vel)
+        public static short Ephemeris(double[] Jd, Object3 CelObj, Origin Origin, Accuracy Accuracy, ref double[] Pos, ref double[] Vel)
         {
             var VPos = new PosVector();
             var VVel = new VelVector();
@@ -797,6 +829,10 @@ namespace ASCOM.Tools
             short rc;
             JdHp.JDPart1 = Jd[0];
             JdHp.JDPart2 = Jd[1];
+
+            // Initialise if necessary
+            if (!isInitialised) Initialise();
+
             var argCelObj1 = O3IFromObject3(CelObj);
             rc = EphemerisLib(ref JdHp, ref argCelObj1, Origin, Accuracy, ref VPos, ref VVel);
 
@@ -824,8 +860,12 @@ namespace ASCOM.Tools
         /// set 'CoordSys' = 2; the value of 'JdTt' can be set to anything, since J2000.0 is assumed. 
         /// Except for the input to this case, all input coordinates are dynamical.
         /// </remarks>
-        public short Equ2Ecl(double JdTt, CoordSys CoordSys, Accuracy Accuracy, double Ra, double Dec, ref double ELon, ref double ELat)
+        public static short Equ2Ecl(double JdTt, CoordSys CoordSys, Accuracy Accuracy, double Ra, double Dec, ref double ELon, ref double ELat)
         {
+
+            // Initialise if necessary
+            if (!isInitialised) Initialise();
+
             return Equ2EclLib(JdTt, CoordSys, Accuracy, Ra, Dec, ref ELon, ref ELat);
         }
 
@@ -844,11 +884,15 @@ namespace ASCOM.Tools
         /// <remarks>To convert an ICRS vector to an ecliptic vector (mean ecliptic and equinox of J2000.0 only), 
         /// set 'CoordSys' = 2; the value of 'JdTt' can be set to anything, since J2000.0 is assumed. Except for 
         /// the input to this case, all vectors are assumed to be with respect to a dynamical system.</remarks>
-        public short Equ2EclVec(double JdTt, CoordSys CoordSys, Accuracy Accuracy, double[] Pos1, ref double[] Pos2)
+        public static short Equ2EclVec(double JdTt, CoordSys CoordSys, Accuracy Accuracy, double[] Pos1, ref double[] Pos2)
         {
             var VPos2 = new PosVector();
             short rc;
             var argPos11 = ArrToPosVec(Pos1);
+
+            // Initialise if necessary
+            if (!isInitialised) Initialise();
+
             rc = Equ2EclVecLib(JdTt, CoordSys, Accuracy, ref argPos11, ref VPos2);
 
             PosVecToArr(VPos2, ref Pos2);
@@ -863,8 +907,12 @@ namespace ASCOM.Tools
         /// <param name="GLon">Galactic longitude in degrees.</param>
         /// <param name="GLat">Galactic latitude in degrees.</param>
         /// <remarks></remarks>
-        public void Equ2Gal(double RaI, double DecI, ref double GLon, ref double GLat)
+        public static void Equ2Gal(double RaI, double DecI, ref double GLon, ref double GLat)
         {
+
+            // Initialise if necessary
+            if (!isInitialised) Initialise();
+
             Equ2GalLib(RaI, DecI, ref GLon, ref GLat);
         }
 
@@ -890,8 +938,12 @@ namespace ASCOM.Tools
         /// <remarks>This function transforms topocentric right ascension and declination to zenith distance and azimuth.  
         /// It uses a method that properly accounts for polar motion, which is significant at the sub-arcsecond level.  
         /// This function can also adjust coordinates for atmospheric refraction.</remarks>
-        public void Equ2Hor(double Jd_Ut1, double DeltT, Accuracy Accuracy, double xp, double yp, OnSurface Location, double Ra, double Dec, RefractionOption RefOption, ref double Zd, ref double Az, ref double RaR, ref double DecR)
+        public static void Equ2Hor(double Jd_Ut1, double DeltT, Accuracy Accuracy, double xp, double yp, OnSurface Location, double Ra, double Dec, RefractionOption RefOption, ref double Zd, ref double Az, ref double RaR, ref double DecR)
         {
+
+            // Initialise if necessary
+            if (!isInitialised) Initialise();
+
             try
             {
 
@@ -927,8 +979,12 @@ namespace ASCOM.Tools
         /// in days from J2000 (t = JdHigh + JdLow - T0), but it avoids many two-PI 'wraps' that 
         /// decrease precision (adopted from SOFA Fortran routine iau_era00; see also expression at top 
         /// of page 35 of IERS Conventions (1996)).</remarks>
-        public double Era(double JdHigh, double JdLow)
+        public static double Era(double JdHigh, double JdLow)
         {
+
+            // Initialise if necessary
+            if (!isInitialised) Initialise();
+
             return EraLib(JdHigh, JdLow);
         }
 
@@ -944,8 +1000,12 @@ namespace ASCOM.Tools
         /// <param name="Deps">Nutation in obliquity in arcseconds at 'JdTdb'.</param>
         /// <remarks>Values of the celestial pole offsets 'PSI_COR' and 'EPS_COR' are set using function 'cel_pole', 
         /// if desired.  See the prolog of 'cel_pole' for details.</remarks>
-        public void ETilt(double JdTdb, Accuracy Accuracy, ref double Mobl, ref double Tobl, ref double Ee, ref double Dpsi, ref double Deps)
+        public static void ETilt(double JdTdb, Accuracy Accuracy, ref double Mobl, ref double Tobl, ref double Ee, ref double Dpsi, ref double Deps)
         {
+
+            // Initialise if necessary
+            if (!isInitialised) Initialise();
+
             ETiltLib(JdTdb, Accuracy, ref Mobl, ref Tobl, ref Ee, ref Dpsi, ref Deps);
         }
 
@@ -957,11 +1017,15 @@ namespace ASCOM.Tools
         /// ICRS to dynamical transformation.</param>
         /// <param name="Pos2">Position vector, equatorial rectangular coordinates.</param>
         /// <remarks></remarks>
-        public void FrameTie(double[] Pos1, FrameConversionDirection Direction, ref double[] Pos2)
+        public static void FrameTie(double[] Pos1, FrameConversionDirection Direction, ref double[] Pos2)
         {
             var VPos2 = new PosVector();
 
             var argPos11 = ArrToPosVec(Pos1);
+
+            // Initialise if necessary
+            if (!isInitialised) Initialise();
+
             FrameTieLib(ref argPos11, Direction, ref VPos2);
             PosVecToArr(VPos2, ref Pos2);
         }
@@ -983,9 +1047,12 @@ namespace ASCOM.Tools
         ///                precession = 5028.8200 arcsec/cy)
         /// </pre>
         /// </remarks>
-        public void FundArgs(double t, ref double[] a)
+        public static void FundArgs(double t, ref double[] a)
         {
             var va = new FundamentalArgs();
+
+            // Initialise if necessary
+            if (!isInitialised) Initialise();
 
             FundArgsLib(t, ref va);
 
@@ -994,7 +1061,6 @@ namespace ASCOM.Tools
             a[2] = va.F;
             a[3] = va.D;
             a[4] = va.Omega;
-
         }
 
         /// <summary>
@@ -1017,8 +1083,12 @@ namespace ASCOM.Tools
         /// </pre>></returns>
         /// <remarks>For coordinates with respect to the true equator of date, the origin of right ascension can be either the true equinox or the celestial intermediate origin (CIO).
         /// <para> This function only supports the CIO-based method.</para></remarks>
-        public short Gcrs2Equ(double JdTt, CoordSys CoordSys, Accuracy Accuracy, double RaG, double DecG, ref double Ra, ref double Dec)
+        public static short Gcrs2Equ(double JdTt, CoordSys CoordSys, Accuracy Accuracy, double RaG, double DecG, ref double Ra, ref double Dec)
         {
+
+            // Initialise if necessary
+            if (!isInitialised) Initialise();
+
             return Gcrs2EquLib(JdTt, CoordSys, Accuracy, RaG, DecG, ref Ra, ref Dec);
         }
 
@@ -1039,11 +1109,14 @@ namespace ASCOM.Tools
         /// 1 ... invalid value of 'Accuracy'.
         /// </pre></returns>
         /// <remarks>The final vectors are expressed in the GCRS.</remarks>
-        public short GeoPosVel(double JdTt, double DeltaT, Accuracy Accuracy, Observer Obs, ref double[] Pos, ref double[] Vel)
+        public static short GeoPosVel(double JdTt, double DeltaT, Accuracy Accuracy, Observer Obs, ref double[] Pos, ref double[] Vel)
         {
             var VPos = new PosVector();
             var VVel = new VelVector();
             short rc;
+
+            // Initialise if necessary
+            if (!isInitialised) Initialise();
 
             rc = GeoPosVelLib(JdTt, DeltaT, Accuracy, ref Obs, ref VPos, ref VVel);
 
@@ -1076,13 +1149,17 @@ namespace ASCOM.Tools
         /// calculation.  In both cases, if the observer is not at the geocenter, the deflection due to the Earth is included.
         /// </para>
         /// </remarks>
-        public short GravDef(double JdTdb, EarthDeflection LocCode, Accuracy Accuracy, double[] Pos1, double[] PosObs, ref double[] Pos2)
+        public static short GravDef(double JdTdb, EarthDeflection LocCode, Accuracy Accuracy, double[] Pos1, double[] PosObs, ref double[] Pos2)
         {
             var VPos2 = new PosVector();
             short rc;
 
             var argPos11 = ArrToPosVec(Pos1);
             var argPosObs1 = ArrToPosVec(PosObs);
+
+            // Initialise if necessary
+            if (!isInitialised) Initialise();
+
             rc = GravDefLib(JdTdb, LocCode, Accuracy, ref argPos11, ref argPosObs1, ref VPos2);
 
             PosVecToArr(VPos2, ref Pos2);
@@ -1103,13 +1180,17 @@ namespace ASCOM.Tools
         /// <param name="Pos2">Position vector of observed object, with respect to origin at observer 
         /// (or the geocenter), corrected for gravitational deflection, components in AU.</param>
         /// <remarks>This function valid for an observed body within the solar system as well as for a star.</remarks>
-        public void GravVec(double[] Pos1, double[] PosObs, double[] PosBody, double RMass, ref double[] Pos2)
+        public static void GravVec(double[] Pos1, double[] PosObs, double[] PosBody, double RMass, ref double[] Pos2)
         {
             var VPos2 = new PosVector();
 
             var argPos11 = ArrToPosVec(Pos1);
             var argPosObs1 = ArrToPosVec(PosObs);
             var argPosBody1 = ArrToPosVec(PosBody);
+
+            // Initialise if necessary
+            if (!isInitialised) Initialise();
+
             GravVecLib(ref argPos11, ref argPosObs1, ref argPosBody1, RMass, ref VPos2);
 
             PosVecToArr(VPos2, ref Pos2);
@@ -1124,8 +1205,12 @@ namespace ASCOM.Tools
         /// <returns>Intermediate right ascension of the equinox, in hours (+ or -). If 'equinox' = 1 
         /// (i.e true equinox), then the returned value is the equation of the origins.</returns>
         /// <remarks></remarks>
-        public double IraEquinox(double JdTdb, EquinoxType Equinox, Accuracy Accuracy)
+        public static double IraEquinox(double JdTdb, EquinoxType Equinox, Accuracy Accuracy)
         {
+
+            // Initialise if necessary
+            if (!isInitialised) Initialise();
+
             return IraEquinoxLib(JdTdb, Equinox, Accuracy);
         }
 
@@ -1140,8 +1225,12 @@ namespace ASCOM.Tools
         /// <remarks>This function makes no checks for a valid input calendar date. The input calendar date 
         /// must be Gregorian. The input time value can be based on any UT-like time scale (UTC, UT1, TT, etc.) 
         /// - output Julian date will have the same basis.</remarks>
-        public double JulianDate(short Year, short Month, short Day, double Hour)
+        public static double JulianDate(short Year, short Month, short Day, double Hour)
         {
+
+            // Initialise if necessary
+            if (!isInitialised) Initialise();
+
             return JulianDateLib(Year, Month, Day, Hour);
         }
 
@@ -1163,12 +1252,16 @@ namespace ASCOM.Tools
         /// <![CDATA[>]]> 10 ... error is 10 + error from function 'SolarSystem'.
         /// </pre></returns>
         /// <remarks></remarks>
-        public short LightTime(double JdTdb, Object3 SsObject, double[] PosObs, double TLight0, Accuracy Accuracy, ref double[] Pos, ref double TLight)
+        public static short LightTime(double JdTdb, Object3 SsObject, double[] PosObs, double TLight0, Accuracy Accuracy, ref double[] Pos, ref double TLight)
         {
             var VPos = new PosVector();
             short rc;
             var argSsObject1 = O3IFromObject3(SsObject);
             var argPosObs1 = ArrToPosVec(PosObs);
+
+            // Initialise if necessary
+            if (!isInitialised) Initialise();
+
             rc = LightTimeLib(JdTdb, ref argSsObject1, ref argPosObs1, TLight0, Accuracy, ref VPos, ref TLight);
 
             PosVecToArr(VPos, ref Pos);
@@ -1189,10 +1282,14 @@ namespace ASCOM.Tools
         /// refraction or oblateness is included).  The observer can be on or above the Earth.  
         /// For an observer on the surface of the Earth, this function returns the approximate unrefracted 
         /// altitude.</remarks>
-        public void LimbAngle(double[] PosObj, double[] PosObs, ref double LimbAng, ref double NadirAng)
+        public static void LimbAngle(double[] PosObj, double[] PosObs, ref double LimbAng, ref double NadirAng)
         {
             var argPosObj1 = ArrToPosVec(PosObj);
             var argPosObs1 = ArrToPosVec(PosObs);
+
+            // Initialise if necessary
+            if (!isInitialised) Initialise();
+
             LimbAngleLib(ref argPosObj1, ref argPosObs1, ref LimbAng, ref NadirAng);
         }
 
@@ -1213,9 +1310,13 @@ namespace ASCOM.Tools
         /// <![CDATA[>]]> 10 ... Error code from function 'Place'.
         /// </pre></returns>
         /// <remarks></remarks>
-        public short LocalPlanet(double JdTt, Object3 SsBody, double DeltaT, OnSurface Position, Accuracy Accuracy, ref double Ra, ref double Dec, ref double Dis)
+        public static short LocalPlanet(double JdTt, Object3 SsBody, double DeltaT, OnSurface Position, Accuracy Accuracy, ref double Ra, ref double Dec, ref double Dis)
         {
             var argSsBody1 = O3IFromObject3(SsBody);
+
+            // Initialise if necessary
+            if (!isInitialised) Initialise();
+
             return LocalPlanetLib(JdTt, ref argSsBody1, DeltaT, ref Position, Accuracy, ref Ra, ref Dec, ref Dis);
         }
 
@@ -1236,8 +1337,11 @@ namespace ASCOM.Tools
         /// > 20 ... Error code from function 'Place'.
         /// </pre></returns>
         /// <remarks></remarks>
-        public short LocalStar(double JdTt, double DeltaT, CatEntry3 Star, OnSurface Position, Accuracy Accuracy, ref double Ra, ref double Dec)
+        public static short LocalStar(double JdTt, double DeltaT, CatEntry3 Star, OnSurface Position, Accuracy Accuracy, ref double Ra, ref double Dec)
         {
+            // Initialise if necessary
+            if (!isInitialised) Initialise();
+
             return LocalStarLib(JdTt, DeltaT, ref Star, ref Position, Accuracy, ref Ra, ref Dec);
         }
 
@@ -1255,8 +1359,11 @@ namespace ASCOM.Tools
         /// <param name="RadVel">Radial velocity (kilometers/second).</param>
         /// <param name="Star">CatEntry3 structure containing the input data</param>
         /// <remarks></remarks>
-        public void MakeCatEntry(string StarName, string Catalog, int StarNum, double Ra, double Dec, double PmRa, double PmDec, double Parallax, double RadVel, ref CatEntry3 Star)
+        public static void MakeCatEntry(string StarName, string Catalog, int StarNum, double Ra, double Dec, double PmRa, double PmDec, double Parallax, double RadVel, ref CatEntry3 Star)
         {
+            // Initialise if necessary
+            if (!isInitialised) Initialise();
+
             MakeCatEntryLib(StarName, Catalog, StarNum, Ra, Dec, PmRa, PmDec, Parallax, RadVel, ref Star);
         }
 
@@ -1269,10 +1376,14 @@ namespace ASCOM.Tools
         /// <param name="ObsSpace">InSpace structure containing the position and velocity of an observer situated 
         /// on a near-Earth spacecraft</param>
         /// <remarks></remarks>
-        public void MakeInSpace(double[] ScPos, double[] ScVel, ref InSpace ObsSpace)
+        public static void MakeInSpace(double[] ScPos, double[] ScVel, ref InSpace ObsSpace)
         {
             var argScPos1 = ArrToPosVec(ScPos);
             var argScVel1 = ArrToVelVec(ScVel);
+
+            // Initialise if necessary
+            if (!isInitialised) Initialise();
+
             MakeInSpaceLib(ref argScPos1, ref argScVel1, ref ObsSpace);
         }
 
@@ -1293,10 +1404,13 @@ namespace ASCOM.Tools
         /// 2 ... 'Number' out of range
         /// </pre></returns>
         /// <remarks></remarks>
-        public short MakeObject(ObjectType Type, short Number, string Name, CatEntry3 StarData, ref Object3 CelObj)
+        public static short MakeObject(ObjectType Type, short Number, string Name, CatEntry3 StarData, ref Object3 CelObj)
         {
             var O3I = new Object3Internal();
             short rc;
+
+            // Initialise if necessary
+            if (!isInitialised) Initialise();
 
             rc = MakeObjectLib(Type, Number, Name, ref StarData, ref O3I);
             O3FromO3Internal(O3I, ref CelObj);
@@ -1318,8 +1432,11 @@ namespace ASCOM.Tools
         /// 1 ... input value of 'Where' is out-of-range.
         /// </pre></returns>
         /// <remarks></remarks>
-        public short MakeObserver(ObserverLocation Where, OnSurface ObsSurface, InSpace ObsSpace, ref Observer Obs)
+        public static short MakeObserver(ObserverLocation Where, OnSurface ObsSurface, InSpace ObsSpace, ref Observer Obs)
         {
+            // Initialise if necessary
+            if (!isInitialised) Initialise();
+
             return MakeObserverLib(Where, ref ObsSurface, ref ObsSpace, ref Obs);
         }
 
@@ -1328,8 +1445,11 @@ namespace ASCOM.Tools
         /// </summary>
         /// <param name="ObsAtGeocenter">Structure specifying the location of the observer at the geocenter</param>
         /// <remarks></remarks>
-        public void MakeObserverAtGeocenter(ref Observer ObsAtGeocenter)
+        public static void MakeObserverAtGeocenter(ref Observer ObsAtGeocenter)
         {
+            // Initialise if necessary
+            if (!isInitialised) Initialise();
+
             MakeObserverAtGeocenterLib(ref ObsAtGeocenter);
         }
 
@@ -1342,10 +1462,14 @@ namespace ASCOM.Tools
         /// <param name="ObsInSpace">Structure containing the position and velocity of an observer 
         /// situated on a near-Earth spacecraft</param>
         /// <remarks>Both input vectors are with respect to true equator and equinox of date.</remarks>
-        public void MakeObserverInSpace(double[] ScPos, double[] ScVel, ref Observer ObsInSpace)
+        public static void MakeObserverInSpace(double[] ScPos, double[] ScVel, ref Observer ObsInSpace)
         {
             var argScPos1 = ArrToPosVec(ScPos);
             var argScVel1 = ArrToVelVec(ScVel);
+
+            // Initialise if necessary
+            if (!isInitialised) Initialise();
+
             MakeObserverInSpaceLib(ref argScPos1, ref argScVel1, ref ObsInSpace);
         }
 
@@ -1361,8 +1485,11 @@ namespace ASCOM.Tools
         /// <param name="ObsOnSurface">Structure containing the location of and weather for an observer on 
         /// the surface of the Earth</param>
         /// <remarks></remarks>
-        public void MakeObserverOnSurface(double Latitude, double Longitude, double Height, double Temperature, double Pressure, ref Observer ObsOnSurface)
+        public static void MakeObserverOnSurface(double Latitude, double Longitude, double Height, double Temperature, double Pressure, ref Observer ObsOnSurface)
         {
+            // Initialise if necessary
+            if (!isInitialised) Initialise();
+
             MakeObserverOnSurfaceLib(Latitude, Longitude, Height, Temperature, Pressure, ref ObsOnSurface);
         }
 
@@ -1378,8 +1505,11 @@ namespace ASCOM.Tools
         /// <param name="ObsSurface">Structure containing the location of and weather for an 
         /// observer on the surface of the Earth.</param>
         /// <remarks></remarks>
-        public void MakeOnSurface(double Latitude, double Longitude, double Height, double Temperature, double Pressure, ref OnSurface ObsSurface)
+        public static void MakeOnSurface(double Latitude, double Longitude, double Height, double Temperature, double Pressure, ref OnSurface ObsSurface)
         {
+            // Initialise if necessary
+            if (!isInitialised) Initialise();
+
             MakeOnSurfaceLib(Latitude, Longitude, Height, Temperature, Pressure, ref ObsSurface);
         }
 
@@ -1389,10 +1519,13 @@ namespace ASCOM.Tools
         /// <param name="JdTdb">TDB Julian Date.</param>
         /// <returns>Mean obliquity of the ecliptic in arcseconds.</returns>
         /// <remarks></remarks>
-        public double MeanObliq(double JdTdb)
+        public static double MeanObliq(double JdTdb)
         {
-            return MeanObliqLib(JdTdb);
 
+            // Initialise if necessary
+            if (!isInitialised) Initialise();
+
+            return MeanObliqLib(JdTdb);
         }
 
         /// <summary>
@@ -1412,8 +1545,11 @@ namespace ASCOM.Tools
         /// > 20 ... Error from function 'AppStar'.
         /// </pre></returns>
         /// <remarks></remarks>
-        public short MeanStar(double JdTt, double Ra, double Dec, Accuracy Accuracy, ref double IRa, ref double IDec)
+        public static short MeanStar(double JdTt, double Ra, double Dec, Accuracy Accuracy, ref double IRa, ref double IDec)
         {
+            // Initialise if necessary
+            if (!isInitialised) Initialise();
+
             return MeanStarLib(JdTt, Ra, Dec, Accuracy, ref IRa, ref IDec);
         }
 
@@ -1423,8 +1559,11 @@ namespace ASCOM.Tools
         /// <param name="Angle">Input angle (radians).</param>
         /// <returns>The input angle, normalized as described above (radians).</returns>
         /// <remarks></remarks>
-        public double NormAng(double Angle)
+        public static double NormAng(double Angle)
         {
+            // Initialise if necessary
+            if (!isInitialised) Initialise();
+
             return NormAngLib(Angle);
         }
 
@@ -1440,11 +1579,15 @@ namespace ASCOM.Tools
         /// <param name="Pos2">Position vector, geocentric equatorial rectangular coordinates, referred to 
         /// true equator and equinox of epoch.</param>
         /// <remarks> Inverse transformation may be applied by setting flag 'direction'</remarks>
-        public void Nutation(double JdTdb, NutationDirection Direction, Accuracy Accuracy, double[] Pos, ref double[] Pos2)
+        public static void Nutation(double JdTdb, NutationDirection Direction, Accuracy Accuracy, double[] Pos, ref double[] Pos2)
         {
             var VPOs2 = new PosVector();
 
             var argPos1 = ArrToPosVec(Pos);
+
+            // Initialise if necessary
+            if (!isInitialised) Initialise();
+
             NutationLib(JdTdb, Direction, Accuracy, ref argPos1, ref VPOs2);
             PosVecToArr(VPOs2, ref Pos2);
         }
@@ -1463,8 +1606,11 @@ namespace ASCOM.Tools
         /// a specially truncated (and therefore faster) version of IAU 2000A, called 'NU2000K' is used.
         /// </para>
         /// </remarks>
-        public void NutationAngles(double t, Accuracy Accuracy, ref double DPsi, ref double DEps)
+        public static void NutationAngles(double t, Accuracy Accuracy, ref double DPsi, ref double DEps)
         {
+            // Initialise if necessary
+            if (!isInitialised) Initialise();
+
             NutationAnglesLib(t, Accuracy, ref DPsi, ref DEps);
         }
 
@@ -1509,8 +1655,11 @@ namespace ASCOM.Tools
         /// on surface of Earth or in a near-Earth satellite). </para>
         /// <remarks>
         /// </remarks>
-        public short Place(double JdTt, Object3 CelObject, Observer Location, double DeltaT, CoordSys CoordSys, Accuracy Accuracy, ref SkyPos Output)
+        public static short Place(double JdTt, Object3 CelObject, Observer Location, double DeltaT, CoordSys CoordSys, Accuracy Accuracy, ref SkyPos Output)
         {
+            // Initialise if necessary
+            if (!isInitialised) Initialise();
+
             var argCelObject1 = O3IFromObject3(CelObject);
             return PlaceLib(JdTt, ref argCelObject1, ref Location, DeltaT, CoordSys, Accuracy, ref Output);
         }
@@ -1527,13 +1676,16 @@ namespace ASCOM.Tools
         /// 1 ... Precession not to or from J2000.0; 'JdTdb1' or 'JdTdb2' not 2451545.0.
         /// </pre></returns>
         /// <remarks> One of the two epochs must be J2000.0.  The coordinates are referred to the mean dynamical equator and equinox of the two respective epochs.</remarks>
-        public short Precession(double JdTdb1, double[] Pos1, double JdTdb2, ref double[] Pos2)
+        public static short Precession(double JdTdb1, double[] Pos1, double JdTdb2, ref double[] Pos2)
         {
-
             var VPos2 = new PosVector();
             short rc;
 
             var argPos11 = ArrToPosVec(Pos1);
+
+            // Initialise if necessary
+            if (!isInitialised) Initialise();
+
             rc = PrecessionLib(JdTdb1, ref argPos11, JdTdb2, ref VPos2);
             PosVecToArr(VPos2, ref Pos2);
             return rc;
@@ -1548,12 +1700,16 @@ namespace ASCOM.Tools
         /// <param name="JdTdb2">TDB Julian date of second epoch.</param>
         /// <param name="Pos2">Position vector at second epoch.</param>
         /// <remarks></remarks>
-        public void ProperMotion(double JdTdb1, double[] Pos, double[] Vel, double JdTdb2, ref double[] Pos2)
+        public static void ProperMotion(double JdTdb1, double[] Pos, double[] Vel, double JdTdb2, ref double[] Pos2)
         {
             var VPos2 = new PosVector();
 
             var argPos1 = ArrToPosVec(Pos);
             var argVel1 = ArrToVelVec(Vel);
+
+            // Initialise if necessary
+            if (!isInitialised) Initialise();
+
             ProperMotionLib(JdTdb1, ref argPos1, ref argVel1, JdTdb2, ref VPos2);
 
             PosVecToArr(VPos2, ref Pos2);
@@ -1567,9 +1723,13 @@ namespace ASCOM.Tools
         /// <param name="Dist">Distance in AU</param>
         /// <param name="Vector">Position vector, equatorial rectangular coordinates (AU).</param>
         /// <remarks></remarks>
-        public void RaDec2Vector(double Ra, double Dec, double Dist, ref double[] Vector)
+        public static void RaDec2Vector(double Ra, double Dec, double Dist, ref double[] Vector)
         {
             var VVector = new PosVector();
+
+
+            // Initialise if necessary
+            if (!isInitialised) Initialise();
 
             RaDec2VectorLib(Ra, Dec, Dist, ref VVector);
             PosVecToArr(VVector, ref Vector);
@@ -1593,12 +1753,16 @@ namespace ASCOM.Tools
         /// barycentric radial velocity measure, a scalar derived from spectroscopy.  Nearby stars with a known 
         /// kinematic velocity vector (obtained independently of spectroscopy) can be treated like 
         /// solar system objects.</remarks>
-        public void RadVel(Object3 CelObject, double[] Pos, double[] Vel, double[] VelObs, double DObsGeo, double DObsSun, double DObjSun, ref double Rv)
+        public static void RadVel(Object3 CelObject, double[] Pos, double[] Vel, double[] VelObs, double DObsGeo, double DObsSun, double DObjSun, ref double Rv)
         {
             var argCelObject1 = O3IFromObject3(CelObject);
             var argPos1 = ArrToPosVec(Pos);
             var argVel1 = ArrToVelVec(Vel);
             var argVelObs1 = ArrToVelVec(VelObs);
+
+            // Initialise if necessary
+            if (!isInitialised) Initialise();
+
             RadVelLib(ref argCelObject1, ref argPos1, ref argVel1, ref argVelObs1, DObsGeo, DObsSun, DObjSun, ref Rv);
         }
 
@@ -1613,8 +1777,11 @@ namespace ASCOM.Tools
         /// <remarks>This version computes approximate refraction for optical wavelengths. This function 
         /// can be used for planning observations or telescope pointing, but should not be used for the 
         /// reduction of precise observations.</remarks>
-        public double Refract(OnSurface Location, RefractionOption RefOption, double ZdObs)
+        public static double Refract(OnSurface Location, RefractionOption RefOption, double ZdObs)
         {
+            // Initialise if necessary
+            if (!isInitialised) Initialise();
+
             return RefractLib(ref Location, RefOption, ZdObs);
         }
 
@@ -1636,8 +1803,10 @@ namespace ASCOM.Tools
         /// </pre></returns>
         /// <remarks> The Julian date may be split at any point, but for highest precision, set 'JdHigh' 
         /// to be the integral part of the Julian date, and set 'JdLow' to be the fractional part.</remarks>
-        public short SiderealTime(double JdHigh, double JdLow, double DeltaT, GstType GstType, Method Method, Accuracy Accuracy, ref double Gst)
+        public static short SiderealTime(double JdHigh, double JdLow, double DeltaT, GstType GstType, Method Method, Accuracy Accuracy, ref double Gst)
         {
+            // Initialise if necessary
+            if (!isInitialised) Initialise();
 
             return SiderealTimeLib(JdHigh, JdLow, DeltaT, GstType, Method, Accuracy, ref Gst);
         }
@@ -1649,10 +1818,14 @@ namespace ASCOM.Tools
         /// <param name="Pos1">Position vector.</param>
         /// <param name="Pos2">Position vector expressed in new coordinate system rotated about z by 'angle'.</param>
         /// <remarks></remarks>
-        public void Spin(double Angle, double[] Pos1, ref double[] Pos2)
+        public static void Spin(double Angle, double[] Pos1, ref double[] Pos2)
         {
             var VPOs2 = new PosVector();
             var argPos11 = ArrToPosVec(Pos1);
+
+            // Initialise if necessary
+            if (!isInitialised) Initialise();
+
             SpinLib(Angle, ref argPos11, ref VPOs2);
 
             PosVecToArr(VPOs2, ref Pos2);
@@ -1665,10 +1838,14 @@ namespace ASCOM.Tools
         /// <param name="Pos">Position vector, equatorial rectangular coordinates, components in AU.</param>
         /// <param name="Vel">Velocity vector, equatorial rectangular coordinates, components in AU/Day.</param>
         /// <remarks></remarks>
-        public void StarVectors(CatEntry3 Star, ref double[] Pos, ref double[] Vel)
+        public static void StarVectors(CatEntry3 Star, ref double[] Pos, ref double[] Vel)
         {
             var VPos = new PosVector();
             var VVel = new VelVector();
+
+            // Initialise if necessary
+            if (!isInitialised) Initialise();
+
             StarVectorsLib(ref Star, ref VPos, ref VVel);
 
             PosVecToArr(VPos, ref Pos);
@@ -1685,8 +1862,12 @@ namespace ASCOM.Tools
         /// <remarks>Expression used in this function is a truncated form of a longer and more precise 
         /// series given in: Explanatory Supplement to the Astronomical Almanac, pp. 42-44 and p. 316. 
         /// The result is good to about 10 microseconds.</remarks>
-        public void Tdb2Tt(double TdbJd, ref double TtJd, ref double SecDiff)
+        public static void Tdb2Tt(double TdbJd, ref double TtJd, ref double SecDiff)
         {
+
+            // Initialise if necessary
+            if (!isInitialised) Initialise();
+
             Tdb2TtLib(TdbJd, ref TtJd, ref SecDiff);
         }
 
@@ -1719,11 +1900,15 @@ namespace ASCOM.Tools
         /// <para>
         /// The 'option' flag only works for the equinox-based method.
         /// </para></remarks>
-        public short Ter2Cel(double JdHigh, double JdLow, double DeltaT, Method Method, Accuracy Accuracy, OutputVectorOption OutputOption, double xp, double yp, double[] VecT, ref double[] VecC)
+        public static short Ter2Cel(double JdHigh, double JdLow, double DeltaT, Method Method, Accuracy Accuracy, OutputVectorOption OutputOption, double xp, double yp, double[] VecT, ref double[] VecC)
         {
             var VVecC = new PosVector();
             short rc;
             var argVecT1 = ArrToPosVec(VecT);
+
+            // Initialise if necessary
+            if (!isInitialised) Initialise();
+
             rc = Ter2CelLib(JdHigh, JdLow, DeltaT, Method, Accuracy, OutputOption, xp, yp, ref argVecT1, ref VVecC);
 
             PosVecToArr(VVecC, ref VecC);
@@ -1747,10 +1932,14 @@ namespace ASCOM.Tools
         /// to an inertial system, the very small velocity component (several meters/day) due to the precession 
         /// and nutation of the Earth's axis is not accounted for here.</para>
         /// </remarks>
-        public void Terra(OnSurface Location, double St, ref double[] Pos, ref double[] Vel)
+        public static void Terra(OnSurface Location, double St, ref double[] Pos, ref double[] Vel)
         {
             var VPos = new PosVector();
             var VVel = new VelVector();
+
+            // Initialise if necessary
+            if (!isInitialised) Initialise();
+
             TerraLib(ref Location, St, ref VPos, ref VVel);
 
             PosVecToArr(VPos, ref Pos);
@@ -1774,9 +1963,13 @@ namespace ASCOM.Tools
         /// > 10 ... Error code from function 'Place'.
         /// </pre></returns>
         /// <remarks></remarks>
-        public short TopoPlanet(double JdTt, Object3 SsBody, double DeltaT, OnSurface Position, Accuracy Accuracy, ref double Ra, ref double Dec, ref double Dis)
+        public static short TopoPlanet(double JdTt, Object3 SsBody, double DeltaT, OnSurface Position, Accuracy Accuracy, ref double Ra, ref double Dec, ref double Dis)
         {
             var argSsBody1 = O3IFromObject3(SsBody);
+
+            // Initialise if necessary
+            if (!isInitialised) Initialise();
+
             return TopoPlanetLib(JdTt, ref argSsBody1, DeltaT, ref Position, Accuracy, ref Ra, ref Dec, ref Dis);
         }
 
@@ -1797,10 +1990,14 @@ namespace ASCOM.Tools
         /// > 20 ... Error code from function 'Place'.
         /// </pre></returns>
         /// <remarks></remarks>
-        public short TopoStar(double JdTt, double DeltaT, CatEntry3 Star, OnSurface Position, Accuracy Accuracy, ref double Ra, ref double Dec)
+        public static short TopoStar(double JdTt, double DeltaT, CatEntry3 Star, OnSurface Position, Accuracy Accuracy, ref double Ra, ref double Dec)
         {
 
             short rc;
+
+            // Initialise if necessary
+            if (!isInitialised) Initialise();
+
             try
             {
                 LogMessage("TopoStar", "JD Accuracy:            " + JdTt + " " + Accuracy.ToString());
@@ -1865,8 +2062,12 @@ namespace ASCOM.Tools
         /// with modern values.  In particular, it should not be used for catalogs whose positions and 
         /// proper motions were derived by assuming a precession constant significantly different from 
         /// the value implicit in function 'precession'.</para></remarks>
-        public short TransformCat(TransformationOption3 TransformOption, double DateInCat, CatEntry3 InCat, double DateNewCat, string NewCatId, ref CatEntry3 NewCat)
+        public static short TransformCat(TransformationOption3 TransformOption, double DateInCat, CatEntry3 InCat, double DateNewCat, string NewCatId, ref CatEntry3 NewCat)
         {
+
+            // Initialise if necessary
+            if (!isInitialised) Initialise();
+
             return TransformCatLib(TransformOption, DateInCat, ref InCat, DateNewCat, NewCatId, ref NewCat);
         }
 
@@ -1903,8 +2104,12 @@ namespace ASCOM.Tools
         /// </list>>
         /// </para>
         /// </remarks>
-        public void TransformHip(CatEntry3 Hipparcos, ref CatEntry3 Hip2000)
+        public static void TransformHip(CatEntry3 Hipparcos, ref CatEntry3 Hip2000)
         {
+
+            // Initialise if necessary
+            if (!isInitialised) Initialise();
+
             TransformHipLib(ref Hipparcos, ref Hip2000);
         }
 
@@ -1921,9 +2126,13 @@ namespace ASCOM.Tools
         /// = 2 ... Both Pos[0] and Pos[1] are zero, but Pos[2] is nonzero; 'Ra' is indeterminate.
         /// </pre></returns>
         /// <remarks></remarks>
-        public short Vector2RaDec(double[] Pos, ref double Ra, ref double Dec)
+        public static short Vector2RaDec(double[] Pos, ref double Ra, ref double Dec)
         {
             var argPos1 = ArrToPosVec(Pos);
+
+            // Initialise if necessary
+            if (!isInitialised) Initialise();
+
             return Vector2RaDecLib(ref argPos1, ref Ra, ref Dec);
         }
 
@@ -1943,9 +2152,13 @@ namespace ASCOM.Tools
         /// > 10 ... Error code from function 'Place'.
         /// </pre></returns>
         /// <remarks></remarks>
-        public short VirtualPlanet(double JdTt, Object3 SsBody, Accuracy Accuracy, ref double Ra, ref double Dec, ref double Dis)
+        public static short VirtualPlanet(double JdTt, Object3 SsBody, Accuracy Accuracy, ref double Ra, ref double Dec, ref double Dis)
         {
             var argSsBody1 = O3IFromObject3(SsBody);
+
+            // Initialise if necessary
+            if (!isInitialised) Initialise();
+
             return VirtualPlanetLib(JdTt, ref argSsBody1, Accuracy, ref Ra, ref Dec, ref Dis);
         }
 
@@ -1964,8 +2177,11 @@ namespace ASCOM.Tools
         /// > 20 ... Error code from function 'Place'
         /// </pre></returns>
         /// <remarks></remarks>
-        public short VirtualStar(double JdTt, CatEntry3 Star, Accuracy Accuracy, ref double Ra, ref double Dec)
+        public static short VirtualStar(double JdTt, CatEntry3 Star, Accuracy Accuracy, ref double Ra, ref double Dec)
         {
+          // Initialise if necessary
+            if (!isInitialised) Initialise();
+
             return VirtualStarLib(JdTt, ref Star, Accuracy, ref Ra, ref Dec);
         }
 
@@ -1987,11 +2203,15 @@ namespace ASCOM.Tools
         /// <param name="Pos2">Position vector, geocentric equatorial rectangular coordinates, 
         /// referred to true equator and TIO.</param>
         /// <remarks></remarks>
-        public void Wobble(double Tjd, TransformationDirection Direction, double xp, double yp, double[] Pos1, ref double[] Pos2)
+        public static void Wobble(double Tjd, TransformationDirection Direction, double xp, double yp, double[] Pos1, ref double[] Pos2)
         {
             var VPos2 = new PosVector();
 
             var argPos11 = ArrToPosVec(Pos1);
+
+            // Initialise if necessary
+            if (!isInitialised) Initialise();
+
             WobbleLib(Tjd, (short)Direction, xp, yp, ref argPos11, ref VPos2);
 
             PosVecToArr(VPos2, ref Pos2);
@@ -2022,7 +2242,7 @@ namespace ASCOM.Tools
         private static extern short StateLib(ref JDHighPrecision Jed, Target Target, ref PosVector TargetPos, ref VelVector TargetVel);
         #endregion
 
-        #region Library Entry Points NOVAS
+        #region Library Entry Points for NOVAS
 
         [DllImport(NOVAS_LIBRARY, EntryPoint = "aberration")]
         private static extern void AberrationLib(ref PosVector Pos, ref VelVector Vel, double LightTime, ref PosVector Pos2);
@@ -2237,7 +2457,7 @@ namespace ASCOM.Tools
         /// </summary>
         /// <param name="context"></param>
         /// <param name="message"></param>
-        private void LogMessage(string context, string message)
+        private static void LogMessage(string context, string message)
         {
             if (!(TL is null))
             {
@@ -2295,49 +2515,49 @@ namespace ASCOM.Tools
         private static void RACioArrayStructureToArr(RAOfCioArray C, ref ArrayList Ar)
         {
             // Transfer all RACio values that have actually been set by the NOVAS DLL to the arraylist for return to the client
-            if (C.Value1.RACio != GlobalItems.RACIO_DEFAULT_VALUE)
+            if (C.Value1.RACio != Constants.RACIO_DEFAULT_VALUE)
                 Ar.Add(C.Value1);
-            if (C.Value2.RACio != GlobalItems.RACIO_DEFAULT_VALUE)
+            if (C.Value2.RACio != Constants.RACIO_DEFAULT_VALUE)
                 Ar.Add(C.Value2);
-            if (C.Value3.RACio != GlobalItems.RACIO_DEFAULT_VALUE)
+            if (C.Value3.RACio != Constants.RACIO_DEFAULT_VALUE)
                 Ar.Add(C.Value3);
-            if (C.Value4.RACio != GlobalItems.RACIO_DEFAULT_VALUE)
+            if (C.Value4.RACio != Constants.RACIO_DEFAULT_VALUE)
                 Ar.Add(C.Value4);
-            if (C.Value5.RACio != GlobalItems.RACIO_DEFAULT_VALUE)
+            if (C.Value5.RACio != Constants.RACIO_DEFAULT_VALUE)
                 Ar.Add(C.Value5);
-            if (C.Value6.RACio != GlobalItems.RACIO_DEFAULT_VALUE)
+            if (C.Value6.RACio != Constants.RACIO_DEFAULT_VALUE)
                 Ar.Add(C.Value6);
-            if (C.Value7.RACio != GlobalItems.RACIO_DEFAULT_VALUE)
+            if (C.Value7.RACio != Constants.RACIO_DEFAULT_VALUE)
                 Ar.Add(C.Value7);
-            if (C.Value8.RACio != GlobalItems.RACIO_DEFAULT_VALUE)
+            if (C.Value8.RACio != Constants.RACIO_DEFAULT_VALUE)
                 Ar.Add(C.Value8);
-            if (C.Value9.RACio != GlobalItems.RACIO_DEFAULT_VALUE)
+            if (C.Value9.RACio != Constants.RACIO_DEFAULT_VALUE)
                 Ar.Add(C.Value9);
-            if (C.Value10.RACio != GlobalItems.RACIO_DEFAULT_VALUE)
+            if (C.Value10.RACio != Constants.RACIO_DEFAULT_VALUE)
                 Ar.Add(C.Value10);
-            if (C.Value11.RACio != GlobalItems.RACIO_DEFAULT_VALUE)
+            if (C.Value11.RACio != Constants.RACIO_DEFAULT_VALUE)
                 Ar.Add(C.Value11);
-            if (C.Value12.RACio != GlobalItems.RACIO_DEFAULT_VALUE)
+            if (C.Value12.RACio != Constants.RACIO_DEFAULT_VALUE)
                 Ar.Add(C.Value12);
-            if (C.Value13.RACio != GlobalItems.RACIO_DEFAULT_VALUE)
+            if (C.Value13.RACio != Constants.RACIO_DEFAULT_VALUE)
                 Ar.Add(C.Value13);
-            if (C.Value14.RACio != GlobalItems.RACIO_DEFAULT_VALUE)
+            if (C.Value14.RACio != Constants.RACIO_DEFAULT_VALUE)
                 Ar.Add(C.Value14);
-            if (C.Value15.RACio != GlobalItems.RACIO_DEFAULT_VALUE)
+            if (C.Value15.RACio != Constants.RACIO_DEFAULT_VALUE)
                 Ar.Add(C.Value15);
-            if (C.Value16.RACio != GlobalItems.RACIO_DEFAULT_VALUE)
+            if (C.Value16.RACio != Constants.RACIO_DEFAULT_VALUE)
                 Ar.Add(C.Value16);
-            if (C.Value17.RACio != GlobalItems.RACIO_DEFAULT_VALUE)
+            if (C.Value17.RACio != Constants.RACIO_DEFAULT_VALUE)
                 Ar.Add(C.Value17);
-            if (C.Value18.RACio != GlobalItems.RACIO_DEFAULT_VALUE)
+            if (C.Value18.RACio != Constants.RACIO_DEFAULT_VALUE)
                 Ar.Add(C.Value18);
-            if (C.Value19.RACio != GlobalItems.RACIO_DEFAULT_VALUE)
+            if (C.Value19.RACio != Constants.RACIO_DEFAULT_VALUE)
                 Ar.Add(C.Value19);
-            if (C.Value20.RACio != GlobalItems.RACIO_DEFAULT_VALUE)
+            if (C.Value20.RACio != Constants.RACIO_DEFAULT_VALUE)
                 Ar.Add(C.Value20);
         }
 
-        private void O3FromO3Internal(Object3Internal O3I, ref Object3 O3)
+        private static void O3FromO3Internal(Object3Internal O3I, ref Object3 O3)
         {
             O3.Name = O3I.Name;
             O3.Number = (Body)O3I.Number;
@@ -2345,7 +2565,7 @@ namespace ASCOM.Tools
             O3.Type = O3I.Type;
         }
 
-        private Object3Internal O3IFromObject3(Object3 O3)
+        private static Object3Internal O3IFromObject3(Object3 O3)
         {
             var O3I = new Object3Internal
             {
@@ -2360,5 +2580,4 @@ namespace ASCOM.Tools
         #endregion
 
     }
-
 }
