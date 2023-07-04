@@ -20,25 +20,16 @@ namespace ASCOM.Tools
     /// (NOVAS C3.1 Guide.pdf) included in the ASCOM Platform Docs start menu folder. The latest revision is also available on the USNO web site at
     /// <href>http://www.usno.navy.mil/USNO/astronomical-applications/software-products/novas</href>
     /// in the "C Edition of NOVAS" link. 
-    /// <para>If you use NOVAS, please send an e-mail through this page:
-    /// <href>http://www.usno.navy.mil/help/astronomy-help</href> as this provides evidence to USNO that justifies further 
-    /// improvements and developments of NOVAS capabilities.
-    /// </para>
     /// </remarks>
     public class NOVAS31 : IDisposable
     {
 
-        private const string NOVAS32DLL = "libnovas"; // Names of NOVAS 32 and 64bit DLL files
-
-        private const string JPL_EPHEM_FILE_NAME = "JPLEPH"; // Name of JPL ephemeredes file
-        private readonly double JPL_EPHEM_START_DATE = 2305424.5d; // First date of data in the ephemeredes file
-        private readonly double JPL_EPHEM_END_DATE = 2525008.5d; // Last date of data in the ephemeredes file
-
+        private const string NOVAS_LIBRARY = "libnovas"; // Base name of the NOVAS library files. Relevant file extensions like .DLL and .so are added automatically by .NET when searching for the library.
         private const string RACIO_FILE = "cio_ra.bin"; // Name of the RA of CIO binary data file
 
-        private const string NOVAS31_MUTEX_NAME = "ASCOMNovas31Mutex";
+        private const string JPL_EPHEM_FILE_NAME = "JPLEPH"; // Name of JPL ephemeredes file
 
-        private readonly ILogger TL;
+        private readonly ILogger TL; // Logger instance for this component instance
 
         // Private Parameters As EarthRotationParameters
 
@@ -59,32 +50,26 @@ namespace ASCOM.Tools
         public NOVAS31(ILogger logger)
         {
             short rc1;
-            string libraryFile = NOVAS32DLL, RACIOFile, JPLEphFile;
+            string RACIOFile, JPLEphFile;
             var DENumber = default(short);
             string aplicationPath;
-            Mutex Novas31Mutex;
-            var gotMutex = default(bool); // Flag indicating whether the NOVAS initialisation mutex was successfully claimed
 
+            // Save the supplied logger instance.
             TL = logger;
-            Novas31Mutex = new Mutex(false, NOVAS31_MUTEX_NAME); // Create a mutex that will ensure that only one NOVAS31 initialisation can occur at a time
-            JPLEphFile = "";
 
             try
             {
-                LogMessage("New", "Waiting for mutex");
-                gotMutex = Novas31Mutex.WaitOne(10000); // Wait up to 10 seconds for the mutex to become available
-                LogMessage("New", $"Got mutex: {gotMutex}");
-
+                // Get the current directory
                 aplicationPath = Directory.GetCurrentDirectory();
                 LogMessage("New", $"Current path: {aplicationPath}");
+                // Create paths to the CIO and ephemeris files.
 
                 RACIOFile = Path.Combine(aplicationPath, RACIO_FILE);
                 JPLEphFile = Path.Combine(aplicationPath, JPL_EPHEM_FILE_NAME);
-
-                // Validate that the files exist
                 LogMessage("New", $"RACIO file: {RACIOFile}");
                 LogMessage("New", $"JPL ephemeris file: {JPLEphFile}");
 
+                // Validate that the CIO file exists
                 if (!File.Exists(RACIOFile))
                 {
                     LogMessage("New", $"NOVAS31 Initialise - Unable to locate RACIO file: {RACIOFile}");
@@ -95,61 +80,39 @@ namespace ASCOM.Tools
                     LogMessage("New", $"Found RACIO file: {RACIOFile}");
                 }
 
+                // Validate that the planetary ephemeris file exists
                 if (!File.Exists(JPLEphFile))
                 {
                     LogMessage("New", $"NOVAS31 Initialise - Unable to locate JPL ephemeris file: {JPLEphFile}");
                     throw new HelperException($"NOVAS31 Initialise - Unable to locate JPL ephemeris file: {JPLEphFile}");
                 }
-                else
-                {
-                    LogMessage("New", $"Found  JPL ephemeris file: {JPLEphFile}");
-                }
-
-                LogMessage("New", "Loading NOVAS31 library DLL: " + libraryFile);
-
-                //Novas31DllHandle = LoadLibrary(libraryFile);
-                //LastError = Marshal.GetLastWin32Error();
-
-                //if (Novas31DllHandle != IntPtr.Zero) // Loaded successfully
-                //{
-                //    LogMessage("New", "Loaded NOVAS31 library OK");
-                //}
-                //else // Did not load 
-                //{
-                //    LogMessage("New", $"Error loading NOVAS31 library: {LastError:X8} from {NOVAS32DLL}");
-                //    throw new HelperException($"NOVAS31 Initialisation - Error code {LastError:X8} returned from LoadLibrary when loading NOVAS31 library {NOVAS32DLL}");
-                //}
 
                 // Open the ephemerides file and set its applicable date range
-                rc1 = EphemOpen(JPLEphFile, ref JPL_EPHEM_START_DATE, ref JPL_EPHEM_END_DATE, ref DENumber);
+                LogMessage("New", "Opening JPL ephemeris file: " + JPLEphFile);
+                double ephStart = 0.0, ephEnd = 0.0;
+                rc1 = EphemOpen(JPLEphFile, ref ephStart, ref ephEnd, ref DENumber);
+
+                if (rc1 > 0)
+                {
+                    LogMessage("New", "Unable to open ephemeris file: " + JPLEphFile + ", RC: " + rc1);
+                    throw new HelperException($"NOVAS31 Initialisation - Unable to open ephemeris file: {JPLEphFile} RC: {rc1}");
+                }
+                LogMessage("New", $"Ephemeris file {JPLEphFile} opened OK - DE number: {DENumber}, Start: {ephStart}, End: {ephEnd}");
+                LogMessage("New", "NOVAS31 initialised OK");
             }
+
+            // Re-throw any HelperExceptions thrown above
+            catch (HelperException)
+            {
+                throw;
+            }
+
+            // Log any other exceptions and re-throw.
             catch (Exception ex)
             {
-                LogMessage("New", "Exception: " + ex.ToString());
-                throw new HelperException($"NOVAS31 Initialisation Exception - {ex.Message} (See inner exception for details)", ex);
+                try { LogMessage("New", "Exception: " + ex.ToString()); } catch { }
+                throw;
             }
-            finally
-            {
-                if (gotMutex)
-                {
-                    try
-                    {
-                        Novas31Mutex.ReleaseMutex();
-                    }
-                    catch
-                    {
-                    }
-                }  // Release the initialisation mutex if we got it in the first place
-            }
-
-            if (rc1 > 0)
-            {
-                LogMessage("New", "Unable to open ephemeris file: " + JPLEphFile + ", RC: " + rc1);
-                throw new HelperException($"NOVAS31 Initialisation - Unable to open ephemeris file: {JPLEphFile} RC: {rc1}");
-            }
-            LogMessage("New", $"Ephemeris file {JPLEphFile} opened OK - DE number: {DENumber}");
-
-            LogMessage("New", "NOVAS31 initialised OK");
         }
 
         private bool disposedValue = false;        // To detect redundant calls
@@ -161,35 +124,23 @@ namespace ASCOM.Tools
         /// <param name="disposing"></param>
         protected virtual void Dispose(bool disposing)
         {
-            Mutex Novas31Mutex;
-            Novas31Mutex = null;
+            short rc = short.MinValue;
 
-            try
+            if (!disposedValue)
             {
-                Novas31Mutex = new Mutex(false, NOVAS31_MUTEX_NAME); // Create a mutex that will ensure that only one NOVAS31 dispose can occur at a time
-                Novas31Mutex.WaitOne(10000); // Wait up to 10 seconds for the mutex to become available
-
-                if (!disposedValue)
+                if (disposing)
                 {
-                    if (disposing)
-                    {
-                        // Free other state (managed objects).
+                    // Clean up files and memory
+                    try { LogMessage("Dispose", "About to close ephemeris file..."); } catch { }
+                    try { rc = EphemClose(); } catch { }
+                    try { LogMessage("Dispose", $"Closed ephemeris file. Return code: {rc}"); } catch { }
 
-                        // If Not (Parameters Is Nothing) Then
-                        // Try : Parameters.Dispose() : Catch : End Try
-                        // Try : Parameters = Nothing : Catch : End Try
-                        // End If
-
-
-                        // Free your own state (unmanaged objects) and set large fields to null.
-                    }
+                    try { LogMessage("Dispose", "Cleaning remaining ephemeris files..."); } catch { }
+                    try { CleanEph(); } catch { }
+                    try { LogMessage("Dispose", "Cleaning completed."); } catch { }
                 }
-                disposedValue = true;
             }
-            finally
-            {
-                Novas31Mutex?.ReleaseMutex();
-            }
+            disposedValue = true;
         }
 
         // This code added by Visual Basic to correctly implement the disposable pattern.
@@ -199,7 +150,7 @@ namespace ASCOM.Tools
         /// <remarks></remarks>
         public void Dispose()
         {
-            // Do not change this code.  Put cleanup code in Dispose(ByVal disposing As Boolean) above.
+            // Do not change this code.  Put clean-up code in Dispose(ByVal disposing As Boolean) above.
             Dispose(true);
             GC.SuppressFinalize(this);
         }
@@ -225,7 +176,6 @@ namespace ASCOM.Tools
         /// object with respect to the center object.</remarks>
         public short PlanetEphemeris(ref double[] Tjd, Target Target, Target Center, ref double[] Position, ref double[] Velocity)
         {
-
             var JdHp = new JDHighPrecision();
             var VPos = new PosVector();
             var VVel = new VelVector();
@@ -233,7 +183,7 @@ namespace ASCOM.Tools
 
             JdHp.JDPart1 = Tjd[0];
             JdHp.JDPart2 = Tjd[1];
-            rc = PlanetEphemeris32(ref JdHp, Target, Center, ref VPos, ref VVel);
+            rc = PlanetEphemerisLib(ref JdHp, Target, Center, ref VPos, ref VVel);
 
             PosVecToArr(VPos, ref Position);
             VelVecToArr(VVel, ref Velocity);
@@ -267,7 +217,6 @@ namespace ASCOM.Tools
         /// </remarks>
         public double[] ReadEph(int Mp, string Name, double Jd, ref int Err)
         {
-
             const int DOUBLE_LENGTH = 8;
             const int NUM_RETURN_VALUES = 6;
 
@@ -275,7 +224,7 @@ namespace ASCOM.Tools
             IntPtr EphPtr;
             var Bytes = new byte[49];
 
-            EphPtr = ReadEph32(Mp, Name, Jd, ref Err);
+            EphPtr = ReadEphLib(Mp, Name, Jd, ref Err);
 
             if (Err == 0) // Get the returned values if the call was successful
             {
@@ -315,7 +264,7 @@ namespace ASCOM.Tools
             var VVel = new VelVector();
             short rc;
 
-            rc = SolarSystem32(Tjd, (short)Body, (short)Origin, ref VPos, ref VVel);
+            rc = SolarSystemLib(Tjd, (short)Body, (short)Origin, ref VPos, ref VVel);
 
             PosVecToArr(VPos, ref Pos);
             VelVecToArr(VVel, ref Vel);
@@ -363,7 +312,7 @@ namespace ASCOM.Tools
 
             JdHp.JDPart1 = Jed[0];
             JdHp.JDPart2 = Jed[1];
-            rc = State32(ref JdHp, Target, ref VPos, ref VVel);
+            rc = StateLib(ref JdHp, Target, ref VPos, ref VVel);
 
             PosVecToArr(VPos, ref TargetPos);
             VelVecToArr(VVel, ref TargetVel);
@@ -381,7 +330,7 @@ namespace ASCOM.Tools
         public short EphemOpen(string EphemFileName, ref double JDBegin, ref double JDEnd, ref short DENumber)
         {
             short rc;
-            rc = EphemOpen32(EphemFileName, ref JDBegin, ref JDEnd, ref DENumber);
+            rc = EphemOpenLib(EphemFileName, ref JDBegin, ref JDEnd, ref DENumber);
             return rc;
         }
 
@@ -391,12 +340,20 @@ namespace ASCOM.Tools
         /// <returns>0 for success otherwise an error code.</returns>
         public short EphemClose()
         {
-            return EphemClose32();
+            return EphemCloseLib();
+        }
+
+        /// <summary>
+        /// Close all open ephemeris files and release allocated memory.
+        /// </summary>
+        public void CleanEph()
+        {
+            CleanEphLib();
         }
 
         #endregion
 
-        #region Public NOVAS Interface - NOVAS Members
+        #region Public NOVAS Interface Members
         /// <summary>
         /// Corrects position vector for aberration of light.  Algorithm includes relativistic terms.
         /// </summary>
@@ -410,7 +367,7 @@ namespace ASCOM.Tools
             var VPos2 = default(PosVector);
             var argPos1 = ArrToPosVec(Pos);
             var argVel1 = ArrToVelVec(Vel);
-            Aberration32(ref argPos1, ref argVel1, LightTime, ref VPos2);
+            AberrationLib(ref argPos1, ref argVel1, LightTime, ref VPos2);
             PosVecToArr(VPos2, ref Pos2);
 
         }
@@ -433,7 +390,7 @@ namespace ASCOM.Tools
         public short AppPlanet(double JdTt, Object3 SsBody, Accuracy Accuracy, ref double Ra, ref double Dec, ref double Dis)
         {
             var argSsBody1 = O3IFromObject3(SsBody);
-            return AppPlanet32(JdTt, ref argSsBody1, Accuracy, ref Ra, ref Dec, ref Dis);
+            return AppPlanetLib(JdTt, ref argSsBody1, Accuracy, ref Ra, ref Dec, ref Dis);
 
         }
 
@@ -474,8 +431,8 @@ namespace ASCOM.Tools
                 LogMessage("AppStar", "Exception: " + ex.ToString());
             }
 
-            rc = AppStar32(JdTt, ref Star, Accuracy, ref Ra, ref Dec);
-            LogMessage("AppStar", "  32bit - Return Code: " + rc + ", RA Dec: " + Utilities.HoursToHMS(Ra, ":", ":", "", 3) + " " + Utilities.DegreesToDMS(Dec, ":", ":", "", 3));
+            rc = AppStarLib(JdTt, ref Star, Accuracy, ref Ra, ref Dec);
+            LogMessage("AppStar", "  Return Code: " + rc + ", RA Dec: " + Utilities.HoursToHMS(Ra, ":", ":", "", 3) + " " + Utilities.DegreesToDMS(Dec, ":", ":", "", 3));
             return rc;
 
         }
@@ -499,7 +456,7 @@ namespace ASCOM.Tools
         public short AstroPlanet(double JdTt, Object3 SsBody, Accuracy Accuracy, ref double Ra, ref double Dec, ref double Dis)
         {
             var argSsBody1 = O3IFromObject3(SsBody);
-            return AstroPlanet32(JdTt, ref argSsBody1, Accuracy, ref Ra, ref Dec, ref Dis);
+            return AstroPlanetLib(JdTt, ref argSsBody1, Accuracy, ref Ra, ref Dec, ref Dis);
         }
 
         /// <summary>
@@ -537,8 +494,8 @@ namespace ASCOM.Tools
                 LogMessage("AstroStar", "Exception: " + ex.ToString());
             }
 
-            rc = AstroStar32(JdTt, ref Star, Accuracy, ref Ra, ref Dec);
-            LogMessage("AstroStar", "  32bit - Return Code: " + rc + ", RA Dec: " + Utilities.HoursToHMS(Ra, ":", ":", "", 3) + " " + Utilities.DegreesToDMS(Dec, ":", ":", "", 3));
+            rc = AstroStarLib(JdTt, ref Star, Accuracy, ref Ra, ref Dec);
+            LogMessage("AstroStar", "  Return Code: " + rc + ", RA Dec: " + Utilities.HoursToHMS(Ra, ":", ":", "", 3) + " " + Utilities.DegreesToDMS(Dec, ":", ":", "", 3));
             return rc;
         }
 
@@ -555,7 +512,7 @@ namespace ASCOM.Tools
             var PosV = new PosVector();
             var argPos1 = ArrToPosVec(Pos);
             var argPosObs1 = ArrToPosVec(PosObs);
-            Bary2Obs32(ref argPos1, ref argPosObs1, ref PosV, ref Lighttime);
+            Bary2ObsLib(ref argPos1, ref argPosObs1, ref PosV, ref Lighttime);
             PosVecToArr(PosV, ref Pos2);
         }
 
@@ -570,7 +527,7 @@ namespace ASCOM.Tools
         /// <remarks></remarks>
         public void CalDate(double Tjd, ref short Year, ref short Month, ref short Day, ref double Hour)
         {
-            CalDate32(Tjd, ref Year, ref Month, ref Day, ref Hour);
+            CalDateLib(Tjd, ref Year, ref Month, ref Day, ref Hour);
         }
 
         /// <summary>
@@ -610,7 +567,7 @@ namespace ASCOM.Tools
             var VVecC = new PosVector();
             short rc;
             var argVecT1 = ArrToPosVec(VecT);
-            rc = Cel2Ter32(JdHigh, JdLow, DeltaT, Method, Accuracy, OutputOption, xp, yp, ref argVecT1, ref VVecC);
+            rc = Cel2TerLib(JdHigh, JdLow, DeltaT, Method, Accuracy, OutputOption, xp, yp, ref argVecT1, ref VVecC);
 
             PosVecToArr(VVecC, ref VecC);
             return rc;
@@ -631,7 +588,7 @@ namespace ASCOM.Tools
         /// <remarks></remarks>
         public short CelPole(double Tjd, PoleOffsetCorrection Type, double Dpole1, double Dpole2)
         {
-            return CelPole32(Tjd, Type, Dpole1, Dpole2);
+            return CelPoleLib(Tjd, Type, Dpole1, Dpole2);
         }
 
         /// <summary>
@@ -675,7 +632,7 @@ namespace ASCOM.Tools
             short rc;
 
             CioStruct.Initialise(); // Set internal default values so we can see which elements are changed by the NOVAS DLL.
-            rc = CioArray32(JdTdb, NPts, ref CioStruct);
+            rc = CioArrayLib(JdTdb, NPts, ref CioStruct);
 
             RACioArrayStructureToArr(CioStruct, ref Cio); // Copy data from the CioStruct structure to the returning arraylist
             return rc;
@@ -704,7 +661,7 @@ namespace ASCOM.Tools
         /// are used in the two cases.</remarks>
         public short CioBasis(double JdTdbEquionx, double RaCioEquionx, ReferenceSystem RefSys, Accuracy Accuracy, ref double x, ref double y, ref double z)
         {
-            return CioBasis32(JdTdbEquionx, RaCioEquionx, RefSys, Accuracy, ref x, ref y, ref z);
+            return CioBasisLib(JdTdbEquionx, RaCioEquionx, RefSys, Accuracy, ref x, ref y, ref z);
         }
 
         /// <summary>
@@ -722,7 +679,7 @@ namespace ASCOM.Tools
         /// <remarks>  This function returns the location of the celestial intermediate origin (CIO) for a given Julian date, as a right ascension with respect to either the GCRS (geocentric ICRS) origin or the true equinox of date.  The CIO is always located on the true equator (= intermediate equator) of date.</remarks>
         public short CioLocation(double JdTdb, Accuracy Accuracy, ref double RaCio, ref ReferenceSystem RefSys)
         {
-            return CioLocation32(JdTdb, Accuracy, ref RaCio, ref RefSys);
+            return CioLocationLib(JdTdb, Accuracy, ref RaCio, ref RefSys);
         }
 
         /// <summary>
@@ -741,7 +698,7 @@ namespace ASCOM.Tools
         /// <remarks></remarks>
         public short CioRa(double JdTt, Accuracy Accuracy, ref double RaCio)
         {
-            return CioRa32(JdTt, Accuracy, ref RaCio);
+            return CioRaLib(JdTt, Accuracy, ref RaCio);
         }
 
         /// <summary>
@@ -763,7 +720,7 @@ namespace ASCOM.Tools
         {
             var argPos11 = ArrToPosVec(Pos1);
             var argPosObs1 = ArrToPosVec(PosObs);
-            return DLight32(ref argPos11, ref argPosObs1);
+            return DLightLib(ref argPos11, ref argPosObs1);
         }
 
         /// <summary>
@@ -788,7 +745,7 @@ namespace ASCOM.Tools
             var VPos2 = new PosVector();
             short rc;
             var argPos11 = ArrToPosVec(Pos1);
-            rc = Ecl2EquVec32(JdTt, CoordSys, Accuracy, ref argPos11, ref VPos2);
+            rc = Ecl2EquVecLib(JdTt, CoordSys, Accuracy, ref argPos11, ref VPos2);
 
             PosVecToArr(VPos2, ref Pos2);
             return rc;
@@ -811,7 +768,7 @@ namespace ASCOM.Tools
         /// </remarks>
         public double EeCt(double JdHigh, double JdLow, Accuracy Accuracy)
         {
-            return EeCt32(JdHigh, JdLow, Accuracy);
+            return EeCtLib(JdHigh, JdLow, Accuracy);
         }
 
         /// <summary>
@@ -841,7 +798,7 @@ namespace ASCOM.Tools
             JdHp.JDPart1 = Jd[0];
             JdHp.JDPart2 = Jd[1];
             var argCelObj1 = O3IFromObject3(CelObj);
-            rc = Ephemeris32(ref JdHp, ref argCelObj1, Origin, Accuracy, ref VPos, ref VVel);
+            rc = EphemerisLib(ref JdHp, ref argCelObj1, Origin, Accuracy, ref VPos, ref VVel);
 
             PosVecToArr(VPos, ref Pos);
             VelVecToArr(VVel, ref Vel);
@@ -869,7 +826,7 @@ namespace ASCOM.Tools
         /// </remarks>
         public short Equ2Ecl(double JdTt, CoordSys CoordSys, Accuracy Accuracy, double Ra, double Dec, ref double ELon, ref double ELat)
         {
-            return Equ2Ecl32(JdTt, CoordSys, Accuracy, Ra, Dec, ref ELon, ref ELat);
+            return Equ2EclLib(JdTt, CoordSys, Accuracy, Ra, Dec, ref ELon, ref ELat);
         }
 
         /// <summary>
@@ -892,7 +849,7 @@ namespace ASCOM.Tools
             var VPos2 = new PosVector();
             short rc;
             var argPos11 = ArrToPosVec(Pos1);
-            rc = Equ2EclVec32(JdTt, CoordSys, Accuracy, ref argPos11, ref VPos2);
+            rc = Equ2EclVecLib(JdTt, CoordSys, Accuracy, ref argPos11, ref VPos2);
 
             PosVecToArr(VPos2, ref Pos2);
             return rc;
@@ -908,7 +865,7 @@ namespace ASCOM.Tools
         /// <remarks></remarks>
         public void Equ2Gal(double RaI, double DecI, ref double GLon, ref double GLat)
         {
-            Equ2Gal32(RaI, DecI, ref GLon, ref GLat);
+            Equ2GalLib(RaI, DecI, ref GLon, ref GLat);
         }
 
         /// <summary>
@@ -954,8 +911,8 @@ namespace ASCOM.Tools
                 LogMessage("Equ2Hor", "Exception: " + ex.ToString());
             }
 
-            Equ2Hor32(Jd_Ut1, DeltT, Accuracy, xp, yp, ref Location, Ra, Dec, RefOption, ref Zd, ref Az, ref RaR, ref DecR);
-            LogMessage("Equ2Hor", "  32bit - RA Dec: " + Utilities.HoursToHMS(RaR, ":", ":", "", 3) + " " + Utilities.DegreesToDMS(DecR, ":", ":", "", 3));
+            Equ2HorLib(Jd_Ut1, DeltT, Accuracy, xp, yp, ref Location, Ra, Dec, RefOption, ref Zd, ref Az, ref RaR, ref DecR);
+            LogMessage("Equ2Hor", "  RA Dec: " + Utilities.HoursToHMS(RaR, ":", ":", "", 3) + " " + Utilities.DegreesToDMS(DecR, ":", ":", "", 3));
 
         }
 
@@ -972,7 +929,7 @@ namespace ASCOM.Tools
         /// of page 35 of IERS Conventions (1996)).</remarks>
         public double Era(double JdHigh, double JdLow)
         {
-            return Era32(JdHigh, JdLow);
+            return EraLib(JdHigh, JdLow);
         }
 
         /// <summary>
@@ -989,7 +946,7 @@ namespace ASCOM.Tools
         /// if desired.  See the prolog of 'cel_pole' for details.</remarks>
         public void ETilt(double JdTdb, Accuracy Accuracy, ref double Mobl, ref double Tobl, ref double Ee, ref double Dpsi, ref double Deps)
         {
-            ETilt32(JdTdb, Accuracy, ref Mobl, ref Tobl, ref Ee, ref Dpsi, ref Deps);
+            ETiltLib(JdTdb, Accuracy, ref Mobl, ref Tobl, ref Ee, ref Dpsi, ref Deps);
         }
 
         /// <summary>
@@ -1005,7 +962,7 @@ namespace ASCOM.Tools
             var VPos2 = new PosVector();
 
             var argPos11 = ArrToPosVec(Pos1);
-            FrameTie32(ref argPos11, Direction, ref VPos2);
+            FrameTieLib(ref argPos11, Direction, ref VPos2);
             PosVecToArr(VPos2, ref Pos2);
         }
 
@@ -1030,7 +987,7 @@ namespace ASCOM.Tools
         {
             var va = new FundamentalArgs();
 
-            FundArgs32(t, ref va);
+            FundArgsLib(t, ref va);
 
             a[0] = va.l;
             a[1] = va.ldash;
@@ -1062,7 +1019,7 @@ namespace ASCOM.Tools
         /// <para> This function only supports the CIO-based method.</para></remarks>
         public short Gcrs2Equ(double JdTt, CoordSys CoordSys, Accuracy Accuracy, double RaG, double DecG, ref double Ra, ref double Dec)
         {
-            return Gcrs2Equ32(JdTt, CoordSys, Accuracy, RaG, DecG, ref Ra, ref Dec);
+            return Gcrs2EquLib(JdTt, CoordSys, Accuracy, RaG, DecG, ref Ra, ref Dec);
         }
 
         /// <summary>
@@ -1088,7 +1045,7 @@ namespace ASCOM.Tools
             var VVel = new VelVector();
             short rc;
 
-            rc = GeoPosVel32(JdTt, DeltaT, Accuracy, ref Obs, ref VPos, ref VVel);
+            rc = GeoPosVelLib(JdTt, DeltaT, Accuracy, ref Obs, ref VPos, ref VVel);
 
             PosVecToArr(VPos, ref Pos);
             VelVecToArr(VVel, ref Vel);
@@ -1126,7 +1083,7 @@ namespace ASCOM.Tools
 
             var argPos11 = ArrToPosVec(Pos1);
             var argPosObs1 = ArrToPosVec(PosObs);
-            rc = GravDef32(JdTdb, LocCode, Accuracy, ref argPos11, ref argPosObs1, ref VPos2);
+            rc = GravDefLib(JdTdb, LocCode, Accuracy, ref argPos11, ref argPosObs1, ref VPos2);
 
             PosVecToArr(VPos2, ref Pos2);
             return rc;
@@ -1153,7 +1110,7 @@ namespace ASCOM.Tools
             var argPos11 = ArrToPosVec(Pos1);
             var argPosObs1 = ArrToPosVec(PosObs);
             var argPosBody1 = ArrToPosVec(PosBody);
-            GravVec32(ref argPos11, ref argPosObs1, ref argPosBody1, RMass, ref VPos2);
+            GravVecLib(ref argPos11, ref argPosObs1, ref argPosBody1, RMass, ref VPos2);
 
             PosVecToArr(VPos2, ref Pos2);
         }
@@ -1169,7 +1126,7 @@ namespace ASCOM.Tools
         /// <remarks></remarks>
         public double IraEquinox(double JdTdb, EquinoxType Equinox, Accuracy Accuracy)
         {
-            return IraEquinox32(JdTdb, Equinox, Accuracy);
+            return IraEquinoxLib(JdTdb, Equinox, Accuracy);
         }
 
         /// <summary>
@@ -1185,7 +1142,7 @@ namespace ASCOM.Tools
         /// - output Julian date will have the same basis.</remarks>
         public double JulianDate(short Year, short Month, short Day, double Hour)
         {
-            return JulianDate32(Year, Month, Day, Hour);
+            return JulianDateLib(Year, Month, Day, Hour);
         }
 
         /// <summary>
@@ -1212,7 +1169,7 @@ namespace ASCOM.Tools
             short rc;
             var argSsObject1 = O3IFromObject3(SsObject);
             var argPosObs1 = ArrToPosVec(PosObs);
-            rc = LightTime32(JdTdb, ref argSsObject1, ref argPosObs1, TLight0, Accuracy, ref VPos, ref TLight);
+            rc = LightTimeLib(JdTdb, ref argSsObject1, ref argPosObs1, TLight0, Accuracy, ref VPos, ref TLight);
 
             PosVecToArr(VPos, ref Pos);
             return rc;
@@ -1236,7 +1193,7 @@ namespace ASCOM.Tools
         {
             var argPosObj1 = ArrToPosVec(PosObj);
             var argPosObs1 = ArrToPosVec(PosObs);
-            LimbAngle32(ref argPosObj1, ref argPosObs1, ref LimbAng, ref NadirAng);
+            LimbAngleLib(ref argPosObj1, ref argPosObs1, ref LimbAng, ref NadirAng);
         }
 
         /// <summary>
@@ -1259,7 +1216,7 @@ namespace ASCOM.Tools
         public short LocalPlanet(double JdTt, Object3 SsBody, double DeltaT, OnSurface Position, Accuracy Accuracy, ref double Ra, ref double Dec, ref double Dis)
         {
             var argSsBody1 = O3IFromObject3(SsBody);
-            return LocalPlanet32(JdTt, ref argSsBody1, DeltaT, ref Position, Accuracy, ref Ra, ref Dec, ref Dis);
+            return LocalPlanetLib(JdTt, ref argSsBody1, DeltaT, ref Position, Accuracy, ref Ra, ref Dec, ref Dis);
         }
 
         /// <summary>
@@ -1281,7 +1238,7 @@ namespace ASCOM.Tools
         /// <remarks></remarks>
         public short LocalStar(double JdTt, double DeltaT, CatEntry3 Star, OnSurface Position, Accuracy Accuracy, ref double Ra, ref double Dec)
         {
-            return LocalStar32(JdTt, DeltaT, ref Star, ref Position, Accuracy, ref Ra, ref Dec);
+            return LocalStarLib(JdTt, DeltaT, ref Star, ref Position, Accuracy, ref Ra, ref Dec);
         }
 
         /// <summary>
@@ -1300,7 +1257,7 @@ namespace ASCOM.Tools
         /// <remarks></remarks>
         public void MakeCatEntry(string StarName, string Catalog, int StarNum, double Ra, double Dec, double PmRa, double PmDec, double Parallax, double RadVel, ref CatEntry3 Star)
         {
-            MakeCatEntry32(StarName, Catalog, StarNum, Ra, Dec, PmRa, PmDec, Parallax, RadVel, ref Star);
+            MakeCatEntryLib(StarName, Catalog, StarNum, Ra, Dec, PmRa, PmDec, Parallax, RadVel, ref Star);
         }
 
         /// <summary>
@@ -1316,7 +1273,7 @@ namespace ASCOM.Tools
         {
             var argScPos1 = ArrToPosVec(ScPos);
             var argScVel1 = ArrToVelVec(ScVel);
-            MakeInSpace32(ref argScPos1, ref argScVel1, ref ObsSpace);
+            MakeInSpaceLib(ref argScPos1, ref argScVel1, ref ObsSpace);
         }
 
         /// <summary>
@@ -1341,7 +1298,7 @@ namespace ASCOM.Tools
             var O3I = new Object3Internal();
             short rc;
 
-            rc = MakeObject32(Type, Number, Name, ref StarData, ref O3I);
+            rc = MakeObjectLib(Type, Number, Name, ref StarData, ref O3I);
             O3FromO3Internal(O3I, ref CelObj);
             return rc;
         }
@@ -1363,7 +1320,7 @@ namespace ASCOM.Tools
         /// <remarks></remarks>
         public short MakeObserver(ObserverLocation Where, OnSurface ObsSurface, InSpace ObsSpace, ref Observer Obs)
         {
-            return MakeObserver32(Where, ref ObsSurface, ref ObsSpace, ref Obs);
+            return MakeObserverLib(Where, ref ObsSurface, ref ObsSpace, ref Obs);
         }
 
         /// <summary>
@@ -1373,7 +1330,7 @@ namespace ASCOM.Tools
         /// <remarks></remarks>
         public void MakeObserverAtGeocenter(ref Observer ObsAtGeocenter)
         {
-            MakeObserverAtGeocenter32(ref ObsAtGeocenter);
+            MakeObserverAtGeocenterLib(ref ObsAtGeocenter);
         }
 
         /// <summary>
@@ -1389,7 +1346,7 @@ namespace ASCOM.Tools
         {
             var argScPos1 = ArrToPosVec(ScPos);
             var argScVel1 = ArrToVelVec(ScVel);
-            MakeObserverInSpace32(ref argScPos1, ref argScVel1, ref ObsInSpace);
+            MakeObserverInSpaceLib(ref argScPos1, ref argScVel1, ref ObsInSpace);
         }
 
         /// <summary>
@@ -1406,7 +1363,7 @@ namespace ASCOM.Tools
         /// <remarks></remarks>
         public void MakeObserverOnSurface(double Latitude, double Longitude, double Height, double Temperature, double Pressure, ref Observer ObsOnSurface)
         {
-            MakeObserverOnSurface32(Latitude, Longitude, Height, Temperature, Pressure, ref ObsOnSurface);
+            MakeObserverOnSurfaceLib(Latitude, Longitude, Height, Temperature, Pressure, ref ObsOnSurface);
         }
 
         /// <summary>
@@ -1423,7 +1380,7 @@ namespace ASCOM.Tools
         /// <remarks></remarks>
         public void MakeOnSurface(double Latitude, double Longitude, double Height, double Temperature, double Pressure, ref OnSurface ObsSurface)
         {
-            MakeOnSurface32(Latitude, Longitude, Height, Temperature, Pressure, ref ObsSurface);
+            MakeOnSurfaceLib(Latitude, Longitude, Height, Temperature, Pressure, ref ObsSurface);
         }
 
         /// <summary>
@@ -1434,7 +1391,7 @@ namespace ASCOM.Tools
         /// <remarks></remarks>
         public double MeanObliq(double JdTdb)
         {
-            return MeanObliq32(JdTdb);
+            return MeanObliqLib(JdTdb);
 
         }
 
@@ -1457,7 +1414,7 @@ namespace ASCOM.Tools
         /// <remarks></remarks>
         public short MeanStar(double JdTt, double Ra, double Dec, Accuracy Accuracy, ref double IRa, ref double IDec)
         {
-            return MeanStar32(JdTt, Ra, Dec, Accuracy, ref IRa, ref IDec);
+            return MeanStarLib(JdTt, Ra, Dec, Accuracy, ref IRa, ref IDec);
         }
 
         /// <summary>
@@ -1468,7 +1425,7 @@ namespace ASCOM.Tools
         /// <remarks></remarks>
         public double NormAng(double Angle)
         {
-            return NormAng32(Angle);
+            return NormAngLib(Angle);
         }
 
         /// <summary>
@@ -1488,7 +1445,7 @@ namespace ASCOM.Tools
             var VPOs2 = new PosVector();
 
             var argPos1 = ArrToPosVec(Pos);
-            Nutation32(JdTdb, Direction, Accuracy, ref argPos1, ref VPOs2);
+            NutationLib(JdTdb, Direction, Accuracy, ref argPos1, ref VPOs2);
             PosVecToArr(VPOs2, ref Pos2);
         }
 
@@ -1508,7 +1465,7 @@ namespace ASCOM.Tools
         /// </remarks>
         public void NutationAngles(double t, Accuracy Accuracy, ref double DPsi, ref double DEps)
         {
-            NutationAngles32(t, Accuracy, ref DPsi, ref DEps);
+            NutationAnglesLib(t, Accuracy, ref DPsi, ref DEps);
         }
 
         /// <summary>
@@ -1555,7 +1512,7 @@ namespace ASCOM.Tools
         public short Place(double JdTt, Object3 CelObject, Observer Location, double DeltaT, CoordSys CoordSys, Accuracy Accuracy, ref SkyPos Output)
         {
             var argCelObject1 = O3IFromObject3(CelObject);
-            return Place32(JdTt, ref argCelObject1, ref Location, DeltaT, CoordSys, Accuracy, ref Output);
+            return PlaceLib(JdTt, ref argCelObject1, ref Location, DeltaT, CoordSys, Accuracy, ref Output);
         }
 
         /// <summary>
@@ -1577,7 +1534,7 @@ namespace ASCOM.Tools
             short rc;
 
             var argPos11 = ArrToPosVec(Pos1);
-            rc = Precession32(JdTdb1, ref argPos11, JdTdb2, ref VPos2);
+            rc = PrecessionLib(JdTdb1, ref argPos11, JdTdb2, ref VPos2);
             PosVecToArr(VPos2, ref Pos2);
             return rc;
         }
@@ -1597,7 +1554,7 @@ namespace ASCOM.Tools
 
             var argPos1 = ArrToPosVec(Pos);
             var argVel1 = ArrToVelVec(Vel);
-            ProperMotion32(JdTdb1, ref argPos1, ref argVel1, JdTdb2, ref VPos2);
+            ProperMotionLib(JdTdb1, ref argPos1, ref argVel1, JdTdb2, ref VPos2);
 
             PosVecToArr(VPos2, ref Pos2);
         }
@@ -1614,7 +1571,7 @@ namespace ASCOM.Tools
         {
             var VVector = new PosVector();
 
-            RaDec2Vector32(Ra, Dec, Dist, ref VVector);
+            RaDec2VectorLib(Ra, Dec, Dist, ref VVector);
             PosVecToArr(VVector, ref Vector);
         }
 
@@ -1642,7 +1599,7 @@ namespace ASCOM.Tools
             var argPos1 = ArrToPosVec(Pos);
             var argVel1 = ArrToVelVec(Vel);
             var argVelObs1 = ArrToVelVec(VelObs);
-            RadVel32(ref argCelObject1, ref argPos1, ref argVel1, ref argVelObs1, DObsGeo, DObsSun, DObjSun, ref Rv);
+            RadVelLib(ref argCelObject1, ref argPos1, ref argVel1, ref argVelObs1, DObsGeo, DObsSun, DObjSun, ref Rv);
         }
 
         /// <summary>
@@ -1658,7 +1615,7 @@ namespace ASCOM.Tools
         /// reduction of precise observations.</remarks>
         public double Refract(OnSurface Location, RefractionOption RefOption, double ZdObs)
         {
-            return Refract32(ref Location, RefOption, ZdObs);
+            return RefractLib(ref Location, RefOption, ZdObs);
         }
 
         /// <summary>
@@ -1682,7 +1639,7 @@ namespace ASCOM.Tools
         public short SiderealTime(double JdHigh, double JdLow, double DeltaT, GstType GstType, Method Method, Accuracy Accuracy, ref double Gst)
         {
 
-            return SiderealTime32(JdHigh, JdLow, DeltaT, GstType, Method, Accuracy, ref Gst);
+            return SiderealTimeLib(JdHigh, JdLow, DeltaT, GstType, Method, Accuracy, ref Gst);
         }
 
         /// <summary>
@@ -1696,7 +1653,7 @@ namespace ASCOM.Tools
         {
             var VPOs2 = new PosVector();
             var argPos11 = ArrToPosVec(Pos1);
-            Spin32(Angle, ref argPos11, ref VPOs2);
+            SpinLib(Angle, ref argPos11, ref VPOs2);
 
             PosVecToArr(VPOs2, ref Pos2);
         }
@@ -1712,7 +1669,7 @@ namespace ASCOM.Tools
         {
             var VPos = new PosVector();
             var VVel = new VelVector();
-            StarVectors32(ref Star, ref VPos, ref VVel);
+            StarVectorsLib(ref Star, ref VPos, ref VVel);
 
             PosVecToArr(VPos, ref Pos);
             VelVecToArr(VVel, ref Vel);
@@ -1730,7 +1687,7 @@ namespace ASCOM.Tools
         /// The result is good to about 10 microseconds.</remarks>
         public void Tdb2Tt(double TdbJd, ref double TtJd, ref double SecDiff)
         {
-            Tdb2Tt32(TdbJd, ref TtJd, ref SecDiff);
+            Tdb2TtLib(TdbJd, ref TtJd, ref SecDiff);
         }
 
         /// <summary>
@@ -1767,7 +1724,7 @@ namespace ASCOM.Tools
             var VVecC = new PosVector();
             short rc;
             var argVecT1 = ArrToPosVec(VecT);
-            rc = Ter2Cel32(JdHigh, JdLow, DeltaT, Method, Accuracy, OutputOption, xp, yp, ref argVecT1, ref VVecC);
+            rc = Ter2CelLib(JdHigh, JdLow, DeltaT, Method, Accuracy, OutputOption, xp, yp, ref argVecT1, ref VVecC);
 
             PosVecToArr(VVecC, ref VecC);
             return rc;
@@ -1794,7 +1751,7 @@ namespace ASCOM.Tools
         {
             var VPos = new PosVector();
             var VVel = new VelVector();
-            Terra32(ref Location, St, ref VPos, ref VVel);
+            TerraLib(ref Location, St, ref VPos, ref VVel);
 
             PosVecToArr(VPos, ref Pos);
             VelVecToArr(VVel, ref Vel);
@@ -1820,7 +1777,7 @@ namespace ASCOM.Tools
         public short TopoPlanet(double JdTt, Object3 SsBody, double DeltaT, OnSurface Position, Accuracy Accuracy, ref double Ra, ref double Dec, ref double Dis)
         {
             var argSsBody1 = O3IFromObject3(SsBody);
-            return TopoPlanet32(JdTt, ref argSsBody1, DeltaT, ref Position, Accuracy, ref Ra, ref Dec, ref Dis);
+            return TopoPlanetLib(JdTt, ref argSsBody1, DeltaT, ref Position, Accuracy, ref Ra, ref Dec, ref Dis);
         }
 
         /// <summary>
@@ -1861,8 +1818,8 @@ namespace ASCOM.Tools
                 LogMessage("TopoStar", "  Position.Longitude:   " + Position.Longitude);
                 LogMessage("TopoStar", "  Position.Pressure:    " + Position.Pressure);
                 LogMessage("TopoStar", "  Position.Temperature: " + Position.Temperature);
-                rc = TopoStar32(JdTt, DeltaT, ref Star, ref Position, Accuracy, ref Ra, ref Dec);
-                LogMessage("TopoStar", "  32bit - Return Code: " + rc + ", RA Dec: " + Utilities.HoursToHMS(Ra, ":", ":", "", 3) + " " + Utilities.DegreesToDMS(Dec, ":", ":", "", 3));
+                rc = TopoStarLib(JdTt, DeltaT, ref Star, ref Position, Accuracy, ref Ra, ref Dec);
+                LogMessage("TopoStar", "  Return Code: " + rc + ", RA Dec: " + Utilities.HoursToHMS(Ra, ":", ":", "", 3) + " " + Utilities.DegreesToDMS(Dec, ":", ":", "", 3));
                 return rc;
             }
             catch (Exception ex)
@@ -1910,7 +1867,7 @@ namespace ASCOM.Tools
         /// the value implicit in function 'precession'.</para></remarks>
         public short TransformCat(TransformationOption3 TransformOption, double DateInCat, CatEntry3 InCat, double DateNewCat, string NewCatId, ref CatEntry3 NewCat)
         {
-            return TransformCat32(TransformOption, DateInCat, ref InCat, DateNewCat, NewCatId, ref NewCat);
+            return TransformCatLib(TransformOption, DateInCat, ref InCat, DateNewCat, NewCatId, ref NewCat);
         }
 
         /// <summary>
@@ -1948,7 +1905,7 @@ namespace ASCOM.Tools
         /// </remarks>
         public void TransformHip(CatEntry3 Hipparcos, ref CatEntry3 Hip2000)
         {
-            TransformHip32(ref Hipparcos, ref Hip2000);
+            TransformHipLib(ref Hipparcos, ref Hip2000);
         }
 
         /// <summary>
@@ -1967,7 +1924,7 @@ namespace ASCOM.Tools
         public short Vector2RaDec(double[] Pos, ref double Ra, ref double Dec)
         {
             var argPos1 = ArrToPosVec(Pos);
-            return Vector2RaDec32(ref argPos1, ref Ra, ref Dec);
+            return Vector2RaDecLib(ref argPos1, ref Ra, ref Dec);
         }
 
         /// <summary>
@@ -1989,7 +1946,7 @@ namespace ASCOM.Tools
         public short VirtualPlanet(double JdTt, Object3 SsBody, Accuracy Accuracy, ref double Ra, ref double Dec, ref double Dis)
         {
             var argSsBody1 = O3IFromObject3(SsBody);
-            return VirtualPlanet32(JdTt, ref argSsBody1, Accuracy, ref Ra, ref Dec, ref Dis);
+            return VirtualPlanetLib(JdTt, ref argSsBody1, Accuracy, ref Ra, ref Dec, ref Dis);
         }
 
         /// <summary>
@@ -2009,7 +1966,7 @@ namespace ASCOM.Tools
         /// <remarks></remarks>
         public short VirtualStar(double JdTt, CatEntry3 Star, Accuracy Accuracy, ref double Ra, ref double Dec)
         {
-            return VirtualStar32(JdTt, ref Star, Accuracy, ref Ra, ref Dec);
+            return VirtualStarLib(JdTt, ref Star, Accuracy, ref Ra, ref Dec);
         }
 
         /// <summary>
@@ -2035,241 +1992,242 @@ namespace ASCOM.Tools
             var VPos2 = new PosVector();
 
             var argPos11 = ArrToPosVec(Pos1);
-            Wobble32(Tjd, (short)Direction, xp, yp, ref argPos11, ref VPos2);
+            WobbleLib(Tjd, (short)Direction, xp, yp, ref argPos11, ref VPos2);
 
             PosVecToArr(VPos2, ref Pos2);
         }
         #endregion
 
-        #region DLL Entry Points for Ephemeris and RACIOFile (32bit)
+        #region Library Entry Points for Ephemeris and RACIOFile
 
-        [DllImport(NOVAS32DLL, EntryPoint = "ephem_close")]
-        private static extern short EphemClose32();
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "ephem_close")]
+        private static extern short EphemCloseLib();
 
-        [DllImport(NOVAS32DLL, EntryPoint = "ephem_open")]
-        private static extern short EphemOpen32([MarshalAs(UnmanagedType.LPStr)] string Ephem_Name, ref double JD_Begin, ref double JD_End, ref short DENumber);
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "ephem_open")]
+        private static extern short EphemOpenLib([MarshalAs(UnmanagedType.LPStr)] string Ephem_Name, ref double JD_Begin, ref double JD_End, ref short DENumber);
 
-        [DllImport(NOVAS32DLL, EntryPoint = "planet_ephemeris")]
-        private static extern short PlanetEphemeris32(ref JDHighPrecision Tjd, Target Target, Target Center, ref PosVector Position, ref VelVector Velocity);
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "planet_ephemeris")]
+        private static extern short PlanetEphemerisLib(ref JDHighPrecision Tjd, Target Target, Target Center, ref PosVector Position, ref VelVector Velocity);
 
-        [DllImport(NOVAS32DLL, EntryPoint = "readeph")]
-        private static extern IntPtr ReadEph32(int Mp, [MarshalAs(UnmanagedType.LPStr)] string Name, double Jd, ref int Err);
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "readeph")]
+        private static extern IntPtr ReadEphLib(int Mp, [MarshalAs(UnmanagedType.LPStr)] string Name, double Jd, ref int Err);
 
-        [DllImport(NOVAS32DLL, EntryPoint = "cleaneph")]
-        private static extern void CleanEph32();
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "cleaneph")]
+        private static extern void CleanEphLib();
 
-        [DllImport(NOVAS32DLL, EntryPoint = "solarsystem")]
-        private static extern short SolarSystem32(double tjd, short body, short origin, ref PosVector pos, ref VelVector vel);
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "solarsystem")]
+        private static extern short SolarSystemLib(double tjd, short body, short origin, ref PosVector pos, ref VelVector vel);
 
-        [DllImport(NOVAS32DLL, EntryPoint = "state")]
-        private static extern short State32(ref JDHighPrecision Jed, Target Target, ref PosVector TargetPos, ref VelVector TargetVel);
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "state")]
+        private static extern short StateLib(ref JDHighPrecision Jed, Target Target, ref PosVector TargetPos, ref VelVector TargetVel);
         #endregion
 
-        #region DLL Entry Points NOVAS (32bit)
-        [DllImport(NOVAS32DLL, EntryPoint = "aberration")]
-        private static extern void Aberration32(ref PosVector Pos, ref VelVector Vel, double LightTime, ref PosVector Pos2);
+        #region Library Entry Points NOVAS
 
-        [DllImport(NOVAS32DLL, EntryPoint = "app_planet")]
-        private static extern short AppPlanet32(double JdTt, ref Object3Internal SsBody, Accuracy Accuracy, ref double Ra, ref double Dec, ref double Dis);
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "aberration")]
+        private static extern void AberrationLib(ref PosVector Pos, ref VelVector Vel, double LightTime, ref PosVector Pos2);
 
-        [DllImport(NOVAS32DLL, EntryPoint = "app_star")]
-        private static extern short AppStar32(double JdTt, ref CatEntry3 Star, Accuracy Accuracy, ref double Ra, ref double Dec);
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "app_planet")]
+        private static extern short AppPlanetLib(double JdTt, ref Object3Internal SsBody, Accuracy Accuracy, ref double Ra, ref double Dec, ref double Dis);
 
-        [DllImport(NOVAS32DLL, EntryPoint = "astro_planet")]
-        private static extern short AstroPlanet32(double JdTt, ref Object3Internal SsBody, Accuracy Accuracy, ref double Ra, ref double Dec, ref double Dis);
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "app_star")]
+        private static extern short AppStarLib(double JdTt, ref CatEntry3 Star, Accuracy Accuracy, ref double Ra, ref double Dec);
 
-        [DllImport(NOVAS32DLL, EntryPoint = "astro_star")]
-        private static extern short AstroStar32(double JdTt, ref CatEntry3 Star, Accuracy Accuracy, ref double Ra, ref double Dec);
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "astro_planet")]
+        private static extern short AstroPlanetLib(double JdTt, ref Object3Internal SsBody, Accuracy Accuracy, ref double Ra, ref double Dec, ref double Dis);
 
-        [DllImport(NOVAS32DLL, EntryPoint = "bary2obs")]
-        private static extern void Bary2Obs32(ref PosVector Pos, ref PosVector PosObs, ref PosVector Pos2, ref double Lighttime);
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "astro_star")]
+        private static extern short AstroStarLib(double JdTt, ref CatEntry3 Star, Accuracy Accuracy, ref double Ra, ref double Dec);
 
-        [DllImport(NOVAS32DLL, EntryPoint = "cal_date")]
-        private static extern void CalDate32(double Tjd, ref short Year, ref short Month, ref short Day, ref double Hour);
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "bary2obs")]
+        private static extern void Bary2ObsLib(ref PosVector Pos, ref PosVector PosObs, ref PosVector Pos2, ref double Lighttime);
 
-        [DllImport(NOVAS32DLL, EntryPoint = "cel2ter")]
-        private static extern short Cel2Ter32(double JdHigh, double JdLow, double DeltaT, Method Method, Accuracy Accuracy, OutputVectorOption OutputOption, double x, double y, ref PosVector VecT, ref PosVector VecC);
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "cal_date")]
+        private static extern void CalDateLib(double Tjd, ref short Year, ref short Month, ref short Day, ref double Hour);
 
-        [DllImport(NOVAS32DLL, EntryPoint = "cel_pole")]
-        private static extern short CelPole32(double Tjd, PoleOffsetCorrection Type, double Dpole1, double Dpole2);
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "cel2ter")]
+        private static extern short Cel2TerLib(double JdHigh, double JdLow, double DeltaT, Method Method, Accuracy Accuracy, OutputVectorOption OutputOption, double x, double y, ref PosVector VecT, ref PosVector VecC);
 
-        [DllImport(NOVAS32DLL, EntryPoint = "cio_array")]
-        private static extern short CioArray32(double JdTdb, int NPts, ref RAOfCioArray Cio);
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "cel_pole")]
+        private static extern short CelPoleLib(double Tjd, PoleOffsetCorrection Type, double Dpole1, double Dpole2);
 
-        [DllImport(NOVAS32DLL, EntryPoint = "cio_basis")]
-        private static extern short CioBasis32(double JdTdbEquionx, double RaCioEquionx, ReferenceSystem RefSys, Accuracy Accuracy, ref double x, ref double y, ref double z);
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "cio_array")]
+        private static extern short CioArrayLib(double JdTdb, int NPts, ref RAOfCioArray Cio);
 
-        [DllImport(NOVAS32DLL, EntryPoint = "cio_location")]
-        private static extern short CioLocation32(double JdTdb, Accuracy Accuracy, ref double RaCio, ref ReferenceSystem RefSys);
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "cio_basis")]
+        private static extern short CioBasisLib(double JdTdbEquionx, double RaCioEquionx, ReferenceSystem RefSys, Accuracy Accuracy, ref double x, ref double y, ref double z);
 
-        [DllImport(NOVAS32DLL, EntryPoint = "cio_ra")]
-        private static extern short CioRa32(double JdTt, Accuracy Accuracy, ref double RaCio);
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "cio_location")]
+        private static extern short CioLocationLib(double JdTdb, Accuracy Accuracy, ref double RaCio, ref ReferenceSystem RefSys);
 
-        [DllImport(NOVAS32DLL, EntryPoint = "d_light")]
-        private static extern double DLight32(ref PosVector Pos1, ref PosVector PosObs);
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "cio_ra")]
+        private static extern short CioRaLib(double JdTt, Accuracy Accuracy, ref double RaCio);
 
-        [DllImport(NOVAS32DLL, EntryPoint = "e_tilt")]
-        private static extern void ETilt32(double JdTdb, Accuracy Accuracy, ref double Mobl, ref double Tobl, ref double Ee, ref double Dpsi, ref double Deps);
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "d_light")]
+        private static extern double DLightLib(ref PosVector Pos1, ref PosVector PosObs);
 
-        [DllImport(NOVAS32DLL, EntryPoint = "ecl2equ_vec")]
-        private static extern short Ecl2EquVec32(double JdTt, CoordSys CoordSys, Accuracy Accuracy, ref PosVector Pos1, ref PosVector Pos2);
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "e_tilt")]
+        private static extern void ETiltLib(double JdTdb, Accuracy Accuracy, ref double Mobl, ref double Tobl, ref double Ee, ref double Dpsi, ref double Deps);
 
-        [DllImport(NOVAS32DLL, EntryPoint = "ee_ct")]
-        private static extern double EeCt32(double JdHigh, double JdLow, Accuracy Accuracy);
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "ecl2equ_vec")]
+        private static extern short Ecl2EquVecLib(double JdTt, CoordSys CoordSys, Accuracy Accuracy, ref PosVector Pos1, ref PosVector Pos2);
 
-        [DllImport(NOVAS32DLL, EntryPoint = "ephemeris")]
-        private static extern short Ephemeris32(ref JDHighPrecision Jd, ref Object3Internal CelObj, Origin Origin, Accuracy Accuracy, ref PosVector Pos, ref VelVector Vel);
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "ee_ct")]
+        private static extern double EeCtLib(double JdHigh, double JdLow, Accuracy Accuracy);
 
-        [DllImport(NOVAS32DLL, EntryPoint = "equ2ecl")]
-        private static extern short Equ2Ecl32(double JdTt, CoordSys CoordSys, Accuracy Accuracy, double Ra, double Dec, ref double ELon, ref double ELat);
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "ephemeris")]
+        private static extern short EphemerisLib(ref JDHighPrecision Jd, ref Object3Internal CelObj, Origin Origin, Accuracy Accuracy, ref PosVector Pos, ref VelVector Vel);
 
-        [DllImport(NOVAS32DLL, EntryPoint = "equ2ecl_vec")]
-        private static extern short Equ2EclVec32(double JdTt, CoordSys CoordSys, Accuracy Accuracy, ref PosVector Pos1, ref PosVector Pos2);
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "equ2ecl")]
+        private static extern short Equ2EclLib(double JdTt, CoordSys CoordSys, Accuracy Accuracy, double Ra, double Dec, ref double ELon, ref double ELat);
 
-        [DllImport(NOVAS32DLL, EntryPoint = "equ2gal")]
-        private static extern void Equ2Gal32(double RaI, double DecI, ref double GLon, ref double GLat);
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "equ2ecl_vec")]
+        private static extern short Equ2EclVecLib(double JdTt, CoordSys CoordSys, Accuracy Accuracy, ref PosVector Pos1, ref PosVector Pos2);
 
-        [DllImport(NOVAS32DLL, EntryPoint = "equ2hor")]
-        private static extern void Equ2Hor32(double Jd_Ut1, double DeltT, Accuracy Accuracy, double x, double y, ref OnSurface Location, double Ra, double Dec, RefractionOption RefOption, ref double Zd, ref double Az, ref double RaR, ref double DecR);
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "equ2gal")]
+        private static extern void Equ2GalLib(double RaI, double DecI, ref double GLon, ref double GLat);
 
-        [DllImport(NOVAS32DLL, EntryPoint = "era")]
-        private static extern double Era32(double JdHigh, double JdLow);
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "equ2hor")]
+        private static extern void Equ2HorLib(double Jd_Ut1, double DeltT, Accuracy Accuracy, double x, double y, ref OnSurface Location, double Ra, double Dec, RefractionOption RefOption, ref double Zd, ref double Az, ref double RaR, ref double DecR);
 
-        [DllImport(NOVAS32DLL, EntryPoint = "frame_tie")]
-        private static extern void FrameTie32(ref PosVector Pos1, FrameConversionDirection Direction, ref PosVector Pos2);
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "era")]
+        private static extern double EraLib(double JdHigh, double JdLow);
 
-        [DllImport(NOVAS32DLL, EntryPoint = "fund_args")]
-        private static extern void FundArgs32(double t, ref FundamentalArgs a);
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "frame_tie")]
+        private static extern void FrameTieLib(ref PosVector Pos1, FrameConversionDirection Direction, ref PosVector Pos2);
 
-        [DllImport(NOVAS32DLL, EntryPoint = "gcrs2equ")]
-        private static extern short Gcrs2Equ32(double JdTt, CoordSys CoordSys, Accuracy Accuracy, double RaG, double DecG, ref double Ra, ref double Dec);
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "fund_args")]
+        private static extern void FundArgsLib(double t, ref FundamentalArgs a);
 
-        [DllImport(NOVAS32DLL, EntryPoint = "geo_posvel")]
-        private static extern short GeoPosVel32(double JdTt, double DeltaT, Accuracy Accuracy, ref Observer Obs, ref PosVector Pos, ref VelVector Vel);
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "gcrs2equ")]
+        private static extern short Gcrs2EquLib(double JdTt, CoordSys CoordSys, Accuracy Accuracy, double RaG, double DecG, ref double Ra, ref double Dec);
 
-        [DllImport(NOVAS32DLL, EntryPoint = "grav_def")]
-        private static extern short GravDef32(double JdTdb, EarthDeflection LocCode, Accuracy Accuracy, ref PosVector Pos1, ref PosVector PosObs, ref PosVector Pos2);
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "geo_posvel")]
+        private static extern short GeoPosVelLib(double JdTt, double DeltaT, Accuracy Accuracy, ref Observer Obs, ref PosVector Pos, ref VelVector Vel);
 
-        [DllImport(NOVAS32DLL, EntryPoint = "grav_vec")]
-        private static extern void GravVec32(ref PosVector Pos1, ref PosVector PosObs, ref PosVector PosBody, double RMass, ref PosVector Pos2);
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "grav_def")]
+        private static extern short GravDefLib(double JdTdb, EarthDeflection LocCode, Accuracy Accuracy, ref PosVector Pos1, ref PosVector PosObs, ref PosVector Pos2);
 
-        [DllImport(NOVAS32DLL, EntryPoint = "ira_equinox")]
-        private static extern double IraEquinox32(double JdTdb, EquinoxType Equinox, Accuracy Accuracy);
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "grav_vec")]
+        private static extern void GravVecLib(ref PosVector Pos1, ref PosVector PosObs, ref PosVector PosBody, double RMass, ref PosVector Pos2);
 
-        [DllImport(NOVAS32DLL, EntryPoint = "julian_date")]
-        private static extern double JulianDate32(short Year, short Month, short Day, double Hour);
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "ira_equinox")]
+        private static extern double IraEquinoxLib(double JdTdb, EquinoxType Equinox, Accuracy Accuracy);
 
-        [DllImport(NOVAS32DLL, EntryPoint = "light_time")]
-        private static extern short LightTime32(double JdTdb, ref Object3Internal SsObject, ref PosVector PosObs, double TLight0, Accuracy Accuracy, ref PosVector Pos, ref double TLight);
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "julian_date")]
+        private static extern double JulianDateLib(short Year, short Month, short Day, double Hour);
 
-        [DllImport(NOVAS32DLL, EntryPoint = "limb_angle")]
-        private static extern void LimbAngle32(ref PosVector PosObj, ref PosVector PosObs, ref double LimbAng, ref double NadirAng);
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "light_time")]
+        private static extern short LightTimeLib(double JdTdb, ref Object3Internal SsObject, ref PosVector PosObs, double TLight0, Accuracy Accuracy, ref PosVector Pos, ref double TLight);
 
-        [DllImport(NOVAS32DLL, EntryPoint = "local_planet")]
-        private static extern short LocalPlanet32(double JdTt, ref Object3Internal SsBody, double DeltaT, ref OnSurface Position, Accuracy Accuracy, ref double Ra, ref double Dec, ref double Dis);
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "limb_angle")]
+        private static extern void LimbAngleLib(ref PosVector PosObj, ref PosVector PosObs, ref double LimbAng, ref double NadirAng);
 
-        [DllImport(NOVAS32DLL, EntryPoint = "local_star")]
-        private static extern short LocalStar32(double JdTt, double DeltaT, ref CatEntry3 Star, ref OnSurface Position, Accuracy Accuracy, ref double Ra, ref double Dec);
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "local_planet")]
+        private static extern short LocalPlanetLib(double JdTt, ref Object3Internal SsBody, double DeltaT, ref OnSurface Position, Accuracy Accuracy, ref double Ra, ref double Dec, ref double Dis);
 
-        [DllImport(NOVAS32DLL, EntryPoint = "make_cat_entry")]
-        private static extern void MakeCatEntry32([MarshalAs(UnmanagedType.LPStr)] string StarName, [MarshalAs(UnmanagedType.LPStr)] string Catalog, int StarNum, double Ra, double Dec, double PmRa, double PmDec, double Parallax, double RadVel, ref CatEntry3 Star);
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "local_star")]
+        private static extern short LocalStarLib(double JdTt, double DeltaT, ref CatEntry3 Star, ref OnSurface Position, Accuracy Accuracy, ref double Ra, ref double Dec);
 
-        [DllImport(NOVAS32DLL, EntryPoint = "make_in_space")]
-        private static extern void MakeInSpace32(ref PosVector ScPos, ref VelVector ScVel, ref InSpace ObsSpace);
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "make_cat_entry")]
+        private static extern void MakeCatEntryLib([MarshalAs(UnmanagedType.LPStr)] string StarName, [MarshalAs(UnmanagedType.LPStr)] string Catalog, int StarNum, double Ra, double Dec, double PmRa, double PmDec, double Parallax, double RadVel, ref CatEntry3 Star);
 
-        [DllImport(NOVAS32DLL, EntryPoint = "make_object")]
-        private static extern short MakeObject32(ObjectType Type, short Number, [MarshalAs(UnmanagedType.LPStr)] string Name, ref CatEntry3 StarData, ref Object3Internal CelObj);
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "make_in_space")]
+        private static extern void MakeInSpaceLib(ref PosVector ScPos, ref VelVector ScVel, ref InSpace ObsSpace);
 
-        [DllImport(NOVAS32DLL, EntryPoint = "make_observer")]
-        private static extern short MakeObserver32(ObserverLocation Where, ref OnSurface ObsSurface, ref InSpace ObsSpace, ref Observer Obs);
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "make_object")]
+        private static extern short MakeObjectLib(ObjectType Type, short Number, [MarshalAs(UnmanagedType.LPStr)] string Name, ref CatEntry3 StarData, ref Object3Internal CelObj);
 
-        [DllImport(NOVAS32DLL, EntryPoint = "make_observer_at_geocenter")]
-        private static extern void MakeObserverAtGeocenter32(ref Observer ObsAtGeocenter);
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "make_observer")]
+        private static extern short MakeObserverLib(ObserverLocation Where, ref OnSurface ObsSurface, ref InSpace ObsSpace, ref Observer Obs);
 
-        [DllImport(NOVAS32DLL, EntryPoint = "make_observer_in_space")]
-        private static extern void MakeObserverInSpace32(ref PosVector ScPos, ref VelVector ScVel, ref Observer ObsInSpace);
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "make_observer_at_geocenter")]
+        private static extern void MakeObserverAtGeocenterLib(ref Observer ObsAtGeocenter);
 
-        [DllImport(NOVAS32DLL, EntryPoint = "make_observer_on_surface")]
-        private static extern void MakeObserverOnSurface32(double Latitude, double Longitude, double Height, double Temperature, double Pressure, ref Observer ObsOnSurface);
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "make_observer_in_space")]
+        private static extern void MakeObserverInSpaceLib(ref PosVector ScPos, ref VelVector ScVel, ref Observer ObsInSpace);
 
-        [DllImport(NOVAS32DLL, EntryPoint = "make_on_surface")]
-        private static extern void MakeOnSurface32(double Latitude, double Longitude, double Height, double Temperature, double Pressure, ref OnSurface ObsSurface);
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "make_observer_on_surface")]
+        private static extern void MakeObserverOnSurfaceLib(double Latitude, double Longitude, double Height, double Temperature, double Pressure, ref Observer ObsOnSurface);
 
-        [DllImport(NOVAS32DLL, EntryPoint = "mean_obliq")]
-        private static extern double MeanObliq32(double JdTdb);
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "make_on_surface")]
+        private static extern void MakeOnSurfaceLib(double Latitude, double Longitude, double Height, double Temperature, double Pressure, ref OnSurface ObsSurface);
 
-        [DllImport(NOVAS32DLL, EntryPoint = "mean_star")]
-        private static extern short MeanStar32(double JdTt, double Ra, double Dec, Accuracy Accuracy, ref double IRa, ref double IDec);
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "mean_obliq")]
+        private static extern double MeanObliqLib(double JdTdb);
 
-        [DllImport(NOVAS32DLL, EntryPoint = "norm_ang")]
-        private static extern double NormAng32(double Angle);
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "mean_star")]
+        private static extern short MeanStarLib(double JdTt, double Ra, double Dec, Accuracy Accuracy, ref double IRa, ref double IDec);
 
-        [DllImport(NOVAS32DLL, EntryPoint = "nutation")]
-        private static extern void Nutation32(double JdTdb, NutationDirection Direction, Accuracy Accuracy, ref PosVector Pos, ref PosVector Pos2);
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "norm_ang")]
+        private static extern double NormAngLib(double Angle);
 
-        [DllImport(NOVAS32DLL, EntryPoint = "nutation_angles")]
-        private static extern void NutationAngles32(double t, Accuracy Accuracy, ref double DPsi, ref double DEps);
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "nutation")]
+        private static extern void NutationLib(double JdTdb, NutationDirection Direction, Accuracy Accuracy, ref PosVector Pos, ref PosVector Pos2);
 
-        [DllImport(NOVAS32DLL, EntryPoint = "place")]
-        private static extern short Place32(double JdTt, ref Object3Internal CelObject, ref Observer Location, double DeltaT, CoordSys CoordSys, Accuracy Accuracy, ref SkyPos Output);
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "nutation_angles")]
+        private static extern void NutationAnglesLib(double t, Accuracy Accuracy, ref double DPsi, ref double DEps);
 
-        [DllImport(NOVAS32DLL, EntryPoint = "precession")]
-        private static extern short Precession32(double JdTdb1, ref PosVector Pos1, double JdTdb2, ref PosVector Pos2);
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "place")]
+        private static extern short PlaceLib(double JdTt, ref Object3Internal CelObject, ref Observer Location, double DeltaT, CoordSys CoordSys, Accuracy Accuracy, ref SkyPos Output);
 
-        [DllImport(NOVAS32DLL, EntryPoint = "proper_motion")]
-        private static extern void ProperMotion32(double JdTdb1, ref PosVector Pos, ref VelVector Vel, double JdTdb2, ref PosVector Pos2);
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "precession")]
+        private static extern short PrecessionLib(double JdTdb1, ref PosVector Pos1, double JdTdb2, ref PosVector Pos2);
 
-        [DllImport(NOVAS32DLL, EntryPoint = "rad_vel")]
-        private static extern void RadVel32(ref Object3Internal CelObject, ref PosVector Pos, ref VelVector Vel, ref VelVector VelObs, double DObsGeo, double DObsSun, double DObjSun, ref double Rv);
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "proper_motion")]
+        private static extern void ProperMotionLib(double JdTdb1, ref PosVector Pos, ref VelVector Vel, double JdTdb2, ref PosVector Pos2);
 
-        [DllImport(NOVAS32DLL, EntryPoint = "radec2vector")]
-        private static extern void RaDec2Vector32(double Ra, double Dec, double Dist, ref PosVector Vector);
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "rad_vel")]
+        private static extern void RadVelLib(ref Object3Internal CelObject, ref PosVector Pos, ref VelVector Vel, ref VelVector VelObs, double DObsGeo, double DObsSun, double DObjSun, ref double Rv);
 
-        [DllImport(NOVAS32DLL, EntryPoint = "refract")]
-        private static extern double Refract32(ref OnSurface Location, RefractionOption RefOption, double ZdObs);
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "radec2vector")]
+        private static extern void RaDec2VectorLib(double Ra, double Dec, double Dist, ref PosVector Vector);
 
-        [DllImport(NOVAS32DLL, EntryPoint = "sidereal_time")]
-        private static extern short SiderealTime32(double JdHigh, double JdLow, double DeltaT, GstType GstType, Method Method, Accuracy Accuracy, ref double Gst);
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "refract")]
+        private static extern double RefractLib(ref OnSurface Location, RefractionOption RefOption, double ZdObs);
 
-        [DllImport(NOVAS32DLL, EntryPoint = "spin")]
-        private static extern void Spin32(double Angle, ref PosVector Pos1, ref PosVector Pos2);
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "sidereal_time")]
+        private static extern short SiderealTimeLib(double JdHigh, double JdLow, double DeltaT, GstType GstType, Method Method, Accuracy Accuracy, ref double Gst);
 
-        [DllImport(NOVAS32DLL, EntryPoint = "starvectors")]
-        private static extern void StarVectors32(ref CatEntry3 Star, ref PosVector Pos, ref VelVector Vel);
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "spin")]
+        private static extern void SpinLib(double Angle, ref PosVector Pos1, ref PosVector Pos2);
 
-        [DllImport(NOVAS32DLL, EntryPoint = "tdb2tt")]
-        private static extern void Tdb2Tt32(double TdbJd, ref double TtJd, ref double SecDiff);
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "starvectors")]
+        private static extern void StarVectorsLib(ref CatEntry3 Star, ref PosVector Pos, ref VelVector Vel);
 
-        [DllImport(NOVAS32DLL, EntryPoint = "ter2cel")]
-        private static extern short Ter2Cel32(double JdHigh, double JdLow, double DeltaT, Method Method, Accuracy Accuracy, OutputVectorOption OutputOption, double x, double y, ref PosVector VecT, ref PosVector VecC);
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "tdb2tt")]
+        private static extern void Tdb2TtLib(double TdbJd, ref double TtJd, ref double SecDiff);
 
-        [DllImport(NOVAS32DLL, EntryPoint = "terra")]
-        private static extern void Terra32(ref OnSurface Location, double St, ref PosVector Pos, ref VelVector Vel);
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "ter2cel")]
+        private static extern short Ter2CelLib(double JdHigh, double JdLow, double DeltaT, Method Method, Accuracy Accuracy, OutputVectorOption OutputOption, double x, double y, ref PosVector VecT, ref PosVector VecC);
 
-        [DllImport(NOVAS32DLL, EntryPoint = "topo_planet")]
-        private static extern short TopoPlanet32(double JdTt, ref Object3Internal SsBody, double DeltaT, ref OnSurface Position, Accuracy Accuracy, ref double Ra, ref double Dec, ref double Dis);
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "terra")]
+        private static extern void TerraLib(ref OnSurface Location, double St, ref PosVector Pos, ref VelVector Vel);
 
-        [DllImport(NOVAS32DLL, EntryPoint = "topo_star")]
-        private static extern short TopoStar32(double JdTt, double DeltaT, ref CatEntry3 Star, ref OnSurface Position, Accuracy Accuracy, ref double Ra, ref double Dec);
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "topo_planet")]
+        private static extern short TopoPlanetLib(double JdTt, ref Object3Internal SsBody, double DeltaT, ref OnSurface Position, Accuracy Accuracy, ref double Ra, ref double Dec, ref double Dis);
 
-        [DllImport(NOVAS32DLL, EntryPoint = "transform_cat")]
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "topo_star")]
+        private static extern short TopoStarLib(double JdTt, double DeltaT, ref CatEntry3 Star, ref OnSurface Position, Accuracy Accuracy, ref double Ra, ref double Dec);
 
-        private static extern short TransformCat32(TransformationOption3 TransformOption, double DateInCat, ref CatEntry3 InCat, double DateNewCat, [MarshalAs(UnmanagedType.LPStr)] string NewCatId, ref CatEntry3 NewCat);
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "transform_cat")]
 
-        [DllImport(NOVAS32DLL, EntryPoint = "transform_hip")]
-        private static extern void TransformHip32(ref CatEntry3 Hipparcos, ref CatEntry3 Hip2000);
+        private static extern short TransformCatLib(TransformationOption3 TransformOption, double DateInCat, ref CatEntry3 InCat, double DateNewCat, [MarshalAs(UnmanagedType.LPStr)] string NewCatId, ref CatEntry3 NewCat);
 
-        [DllImport(NOVAS32DLL, EntryPoint = "vector2radec")]
-        private static extern short Vector2RaDec32(ref PosVector Pos, ref double Ra, ref double Dec);
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "transform_hip")]
+        private static extern void TransformHipLib(ref CatEntry3 Hipparcos, ref CatEntry3 Hip2000);
 
-        [DllImport(NOVAS32DLL, EntryPoint = "virtual_planet")]
-        private static extern short VirtualPlanet32(double JdTt, ref Object3Internal SsBody, Accuracy Accuracy, ref double Ra, ref double Dec, ref double Dis);
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "vector2radec")]
+        private static extern short Vector2RaDecLib(ref PosVector Pos, ref double Ra, ref double Dec);
 
-        [DllImport(NOVAS32DLL, EntryPoint = "virtual_star")]
-        private static extern short VirtualStar32(double JdTt, ref CatEntry3 Star, Accuracy Accuracy, ref double Ra, ref double Dec);
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "virtual_planet")]
+        private static extern short VirtualPlanetLib(double JdTt, ref Object3Internal SsBody, Accuracy Accuracy, ref double Ra, ref double Dec, ref double Dis);
 
-        [DllImport(NOVAS32DLL, EntryPoint = "wobble")]
-        private static extern void Wobble32(double Tjd, short Direction, double x, double y, ref PosVector Pos1, ref PosVector Pos2);
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "virtual_star")]
+        private static extern short VirtualStarLib(double JdTt, ref CatEntry3 Star, Accuracy Accuracy, ref double Ra, ref double Dec);
+
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "wobble")]
+        private static extern void WobbleLib(double Tjd, short Direction, double x, double y, ref PosVector Pos1, ref PosVector Pos2);
         #endregion
 
         #region Private Support Code
@@ -2293,24 +2251,6 @@ namespace ASCOM.Tools
                 }
             }
         }
-
-        /// <summary>
-        /// Loads a library DLL
-        /// </summary>
-        /// <param name="lpFileName">Full path to the file to load</param>
-        /// <returns>A pointer to the loaded DLL image</returns>
-        /// <remarks>This is a wrapper for the Windows kernel32 function LoadLibraryA</remarks>
-        [DllImport("kernel32.dll", SetLastError = true, EntryPoint = "LoadLibraryA")]
-        private static extern IntPtr LoadLibrary(string lpFileName);
-
-        /// <summary>
-        /// Unloads a library DLL
-        /// </summary>
-        /// <param name="hModule">Pointer to the loaded library returned by the LoadLibrary function.</param>
-        /// <returns>True or false depending on whether the library was released.</returns>
-        /// <remarks></remarks>
-        [DllImport("kernel32.dll", SetLastError = true, EntryPoint = "FreeLibrary")]
-        private static extern bool FreeLibrary(IntPtr hModule);
 
         private static PosVector ArrToPosVec(double[] Arr)
         {
@@ -2416,6 +2356,7 @@ namespace ASCOM.Tools
             };
             return O3I;
         }
+
         #endregion
 
     }
