@@ -248,7 +248,8 @@ namespace ASCOM.Tools
     }
     #endregion
 
-    #region NOVAS2 Enums
+    #region NOVAS Enums
+
     /// <summary>
     /// Type of body, Major Planet, Moon, Sun or Minor Planet
     /// </summary>
@@ -391,29 +392,6 @@ namespace ASCOM.Tools
     }
 
     /// <summary>
-    /// Type of transformation: Epoch, Equator and Equinox or all three
-    /// </summary>
-    /// <remarks></remarks>
-    public enum TransformationOption : int
-    {
-        /// <summary>
-        /// Change epoch only
-        /// </summary>
-        /// <remarks></remarks>
-        ChangeEpoch = 1,
-        /// <summary>
-        /// Change equator and equinox
-        /// </summary>
-        /// <remarks></remarks>
-        ChangeEquatorAndEquinox = 2,
-        /// <summary>
-        /// Change equator, equinox and epoch
-        /// </summary>
-        /// <remarks></remarks>
-        ChangeEquatorAndEquinoxAndEpoch = 3
-    }
-
-    /// <summary>
     /// Direction of nutation correction
     /// </summary>
     /// <remarks></remarks>
@@ -430,9 +408,7 @@ namespace ASCOM.Tools
         /// <remarks></remarks>
         TrueToMean = 1
     }
-    #endregion
-
-    #region NOVAS3 Enums
+ 
     /// <summary>
     /// Direction of transformation: ITRS to Terrestrial Intermediate or vice versa
     /// </summary>
@@ -836,143 +812,10 @@ namespace ASCOM.Tools
         /// <remarks></remarks>
         Nutations = 13
     }
+
     #endregion
 
-    #region Public NOVAS 2 Structures
-    /// <summary>
-    /// Structure to hold body type, number and name
-    /// </summary>
-    /// <remarks>Designates a celestial object.
-    /// </remarks>
-    public struct BodyDescription
-    {
-        /// <summary>
-        /// Type of body
-        /// </summary>
-        /// <remarks>
-        /// 0 = Major planet, Sun, or Moon
-        /// 1 = Minor planet
-        /// </remarks>
-        public BodyType Type;
-        /// <summary>
-        /// body number
-        /// </summary>
-        /// <remarks><pre>
-        /// For 'type' = 0: Mercury = 1, ..., Pluto = 9, Sun = 10, Moon = 11
-        /// For 'type' = 1: minor planet number
-        /// </pre></remarks>
-        public Body Number;
-        /// <summary>
-        /// Name of the body (limited to 99 characters)
-        /// </summary>
-        /// <remarks></remarks>
-        [MarshalAs(UnmanagedType.BStr, SizeConst = 100)]
-        public string Name; // char[100]
-    }
-
-    /// <summary>
-    /// Structure to hold astrometric catalogue data
-    /// </summary>
-    /// <remarks>
-    /// The astrometric catalogue data for a star; equator and equinox and units will depend on the catalogue. 
-    /// While this structure can be used as a generic container for catalogue data, all high-level 
-    /// NOVAS-C functions require J2000.0 catalogue data with FK5-type units (shown in square brackets below).
-    /// </remarks>
-    public struct CatEntry
-    {
-        /// <summary>
-        /// 3-character catalogue designator. 
-        /// </summary>
-        /// <remarks></remarks>
-        [MarshalAs(UnmanagedType.BStr, SizeConst = 4)]
-        public string Catalog; // char[4] was <MarshalAsAttribute(UnmanagedType.ByValTStr, SizeConst:=4)> Was this before changing for COM compatibility
-
-        /// <summary>
-        /// Name of star.
-        /// </summary>
-        /// <remarks></remarks>
-        [MarshalAs(UnmanagedType.BStr, SizeConst = 51)]
-        public string StarName; // char[51] was <MarshalAsAttribute(UnmanagedType.ByValTStr, SizeConst:=51)> _
-
-        /// <summary>
-        /// Integer identifier assigned to star.
-        /// </summary>
-        /// <remarks></remarks>
-        public int StarNumber;
-
-        /// <summary>
-        /// Mean right ascension [hours].
-        /// </summary>
-        /// <remarks></remarks>
-        public double RA;
-
-        /// <summary>
-        /// Mean declination [degrees].
-        /// </summary>
-        /// <remarks></remarks>
-        public double Dec;
-
-        /// <summary>
-        /// Proper motion in RA [seconds of time per century].
-        /// </summary>
-        /// <remarks></remarks>
-        public double ProMoRA;
-
-        /// <summary>
-        /// Proper motion in declination [arc seconds per century].
-        /// </summary>
-        /// <remarks></remarks>
-        public double ProMoDec;
-
-        /// <summary>
-        /// Parallax [arc seconds].
-        /// </summary>
-        /// <remarks></remarks>
-        public double Parallax;
-
-        /// <summary>
-        /// Radial velocity [kilometres per second]
-        /// </summary>
-        /// <remarks></remarks>
-        public double RadialVelocity;
-    }
-
-    /// <summary>
-    /// Structure to hold site information
-    /// </summary>
-    /// <remarks>
-    /// Data for the observer's location.  The atmospheric parameters are used only by the refraction 
-    /// function called from function 'equ_to_hor'. Additional parameters can be added to this 
-    /// structure if a more sophisticated refraction model is employed.
-    /// </remarks>
-    public struct SiteInfo
-    {
-        /// <summary>
-        /// Geodetic latitude in degrees; north positive.
-        /// </summary>
-        /// <remarks></remarks>
-        public double Latitude; // geodetic latitude in degrees; north positive.
-        /// <summary>
-        /// Geodetic longitude in degrees; east positive.
-        /// </summary>
-        /// <remarks></remarks>
-        public double Longitude; // geodetic longitude in degrees; east positive.
-        /// <summary>
-        /// Height of the observer in meters.
-        /// </summary>
-        /// <remarks></remarks>
-        public double Height; // height of the observer in meters.
-        /// <summary>
-        /// Temperature (degrees Celsius).
-        /// </summary>
-        /// <remarks></remarks>
-        public double Temperature; // temperature (degrees Celsius).
-        /// <summary>
-        /// Atmospheric pressure (millibars)
-        /// </summary>
-        /// <remarks></remarks>
-        public double Pressure; // atmospheric pressure (millibars)
-    }
+    #region Public NOVAS Structures
 
     /// <summary>
     /// Structure to hold a position vector
@@ -1055,9 +898,6 @@ namespace ASCOM.Tools
         /// <remarks></remarks>
         public double Omega;
     }
-    #endregion
-
-    #region Public NOVAS 3 Structures
 
     /// <summary>
     /// Catalogue entry structure
@@ -1289,6 +1129,7 @@ namespace ASCOM.Tools
         /// <remarks></remarks>
         public InSpace NearEarth;
     }
+
     #endregion
 
     #region Internal NOVAS3 Structures
@@ -1359,5 +1200,7 @@ namespace ASCOM.Tools
             Value20.RACio = Constants.RACIO_DEFAULT_VALUE;
         }
     }
-}
+
 #endregion
+
+}
