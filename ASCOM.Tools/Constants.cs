@@ -184,27 +184,6 @@ namespace ASCOM.Tools
     #region AstroUtilities Enums and Structures
 
     /// <summary>
-    /// 
-    /// </summary>
-    public struct RiseSetTimes
-    {
-        /// <summary>
-        /// 
-        /// </summary>
-        public bool IsRisen;
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public List<double> RiseEvents;
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public List<double> SetEvents;
-    }
-
-    /// <summary>
     /// Type of event for which an ephemeris is required
     /// </summary>
     /// <remarks></remarks>

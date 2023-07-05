@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections;
-using System.Diagnostics;
 using System.Text.RegularExpressions;
 using System.Threading;
+using ASCOM.Common.Interfaces;
+using ASCOM.Common;
 
 namespace ASCOM.Tools
 {
@@ -13,6 +13,7 @@ namespace ASCOM.Tools
     public class Utilities : IDisposable
     {
         private static double currentLeapSeconds;
+        private static ILogger TL; // Logger instance for this component instance
 
         /// <summary>
         /// Information about the body
@@ -45,6 +46,19 @@ namespace ASCOM.Tools
 
         #endregion
 
+        #region Public helper members
+
+        /// <summary>
+        /// Assign a logger instance to the NOVAS component
+        /// </summary>
+        /// <param name="logger">an ILigger instance</param>
+        public static void SetLogger(ILogger logger)
+        {
+            TL = logger;
+        }
+
+        #endregion
+
         #region AstroUtils
 
         /// <summary>
@@ -57,44 +71,39 @@ namespace ASCOM.Tools
         /// <param name="SiteLatitude">Site latitude</param>
         /// <param name="SiteLongitude">Site longitude (West of Greenwich is negative)</param>
         /// <param name="SiteTimeZone">Site time zone offset (West of Greenwich is negative)</param>
-        /// <returns>An arraylist of event information (see Remarks for arraylist structure).
+        /// <returns>An <see cref="RiseSetTimes"/> class containing event information.
         /// </returns>
-        /// <exception cref="ASCOM.InvalidValueException">If the combination of day, month and year is invalid e.g. 31st September.</exception>
+        /// <exception cref="ASCOM.InvalidValueException">When the supplied combination of day, month and year is invalid e.g. 31st September.</exception>
         /// <remarks>
         /// <para>The definitions of sunrise, sunset and the various twilights that are used in this method are taken from the 
-        /// <a href="http://aa.usno.navy.mil/faq/docs/RST_defs.php">US Naval Observatory Definitions</a>.
+        /// <a href="https://aa.usno.navy.mil/faq/RST_defs">US Naval Observatory Definitions</a>.
         /// </para>
-        /// <para>The dynamics of the sun, Earth and Moon can result at some latitudes in days where there may be no, 1 or 2 rise or set events during 
-        /// a 24 hour period; in consequence, results are returned in the flexible form of arraylist.</para>
-        /// <para>The returned zero based arraylist has the following values:
+        /// <para>The dynamics of the Sun, Earth and Moon can result at some latitudes in days where there may be no, 1 or 2 rise or set events during 
+        /// a 24 SI hour period.</para>
+        /// <para>The returned <see cref="RiseSetTimes"/> class presents these members:
         /// <list type="Bullet">
-        /// <item>Arraylist(0)                              - Boolean - True if the body is above the event limit at midnight (the beginning of the 24 hour day), false if it is below the event limit</item>
-        /// <item>Arraylist(1)                              - Integer - Number of rise events in this 24 hour period</item>
-        /// <item>Arraylist(2)                              - Integer - Number of set events in this 24 hour period</item>
-        /// <item>Arraylist(3) onwards                      - Double  - Values of rise events in hours </item>
-        /// <item>Arraylist(3 + NumberOfRiseEvents) onwards - Double  - Values of set events in hours </item>
+        /// <item>AboveHorizonAtMidnight                  - Boolean - True if the body is above the event limit at midnight (the beginning of the 24 hour day), false if it is below the event limit</item>
+        /// <item>RiseEvents                              - Generic List of double - List of rise times in this 24 hour period</item>
+        /// <item>SetEvents                               - Generic List of double - List of set times in this 24 hour period</item>
         /// </list></para>
-        /// <para>If the number of rise events is zero the first double value will be the first set event. If the numbers of both rise and set events
-        /// are zero, there will be no double values and the arraylist will just contain elements 0, 1 and 2, the above/below horizon flag and the integer count values.</para>
         /// <para>The algorithm employed in this method is taken from Astronomy on the Personal Computer (Montenbruck and Pfleger) pp 46..56, 
         /// Springer Fourth Edition 2000, Fourth Printing 2009. The day is divided into twelve two hour intervals and a quadratic equation is fitted
         /// to the altitudes at the beginning, middle and end of each interval. The resulting equation coefficients are then processed to determine 
         /// the number of roots within the interval (each of which corresponds to a rise or set event) and their sense (rise or set). 
-        /// These results are are then aggregated over the day and the resultant list of values returned as the function result.
+        /// These results are then aggregated over the day and the resultant list of values returned as the function result.
         /// </para>
-        /// <para>High precision ephemeredes for the Sun, Moon and Earth and other planets from the JPL DE421 series are employed as delivered by the 
-        /// ASCOM NOVAS 3.1 component rather than using the lower precision ephemeredes employed by Montenbruck and Pfleger.
+        /// <para>High precision ephemerides for the Sun, Moon and Earth and other planets from the JPL DE421 series are employed as delivered by the 
+        /// ASCOM <see cref="Novas"/> component rather than using the lower precision ephemerides employed by Montenbruck and Pfleger.
         /// </para>
         /// <para><b>Accuracy</b> Whole year almanacs for Sunrise/Sunset, Moonrise/Moonset and the various twilights every 5 degrees from the 
-        /// North pole to the South Pole at a variety of longitudes, timezones and dates have been compared to data from
-        /// the <a href="http://aa.usno.navy.mil/data/docs/RS_OneYear.php">US Naval Observatory Astronomical Data</a> web site. The RMS error has been found to be 
-        /// better than 0.5 minute over the latitude range 80 degrees North to 80 degrees South and better than 5 minutes from 80 degrees to the relevant pole.
-        /// Most returned values are within 1 minute of the USNO values although some very infrequent grazing event times at lattiudes from 67 to 90 degrees North and South can be up to 
+        /// North pole to the South Pole at a variety of longitudes, time-zones and dates have been compared to data from
+        /// the <a href="https://aa.usno.navy.mil/data/RS_OneYear">US Naval Observatory Astronomical Data</a> web site.
+        /// Most returned event times are within 1 minute of the USNO values although some very infrequent grazing event times at latitudes from 67 to 90 degrees North and South can be up to 
         /// 10 minutes different.
         /// </para>
-        /// <para>An Almanac program that creates a year's worth of information for a given event, lattitude, longitude and timezone is included in the 
+        /// <para>An Almanac program that creates a year's worth of information for a given event, latitude, longitude and time-zone is included in the 
         /// developer code examples elsewhere in this help file. This creates an output file with an almost identical format to that used by the USNO web site 
-        /// and allows comprehensive checking of acccuracy for a given set of parameters.</para>
+        /// and allows comprehensive checking of accuracy for a given set of parameters.</para>
         /// </remarks>
         public static RiseSetTimes EventTimes(EventType TypeofEvent, int Day, int Month, int Year, double SiteLatitude, double SiteLongitude, double SiteTimeZone)
         {
@@ -114,20 +123,22 @@ namespace ASCOM.Tools
             try
             {
                 TestDate = DateTime.Parse(Month + "/" + Day + "/" + Year, System.Globalization.CultureInfo.InvariantCulture); // Test whether this is a valid date e.g is not the 31st of February
+                LogMessage("RiseSetTimes", $"Day: {Day}, Month: {Month}, Year: {Year} - Test date: {TestDate}");
             }
-            catch (FormatException) // Catch case where day exceeds the maximum number of days in the month
+            catch (FormatException ex) // Catch case where day exceeds the maximum number of days in the month
             {
+                LogMessage("RiseSetTimes", $"Caught FormatException: {ex.Message} for {Day} - {Month} - {Year}");
                 throw new InvalidValueException("Day or Month", Day.ToString() + " " + Month.ToString() + " " + Year.ToString(), "Day must not exceed the number of days in the month");
             }
-            catch (Exception) // Throw all other exceptions as they are are received
+            catch (Exception) // Throw all other exceptions as they are received
             {
                 throw;
             }
 
-            // Calculate Julian date in the local timezone
+            // Calculate Julian date in the local time-zone
             JD = Novas.JulianDate((short)Year, (short)Month, (short)Day, 0.0d) - SiteTimeZone / 24.0d;
 
-            // Initialise observer structure and calculate the refraction at the hozrizon
+            // Initialise observer structure and calculate the refraction at the horizon
             Observer.Latitude = SiteLatitude;
             Observer.Longitude = SiteLongitude;
             RefractionCorrection = Novas.Refract(Observer, RefractionOption.StandardRefraction, 90.0d);
@@ -283,7 +294,7 @@ namespace ASCOM.Tools
 
             while (!(DoesRise & DoesSet & Math.Abs(SiteLatitude) < 60.0d | CentreTime == 25.0d));
 
-            Retval.IsRisen = AboveHorizon; // Add above horizon at midnight flag
+            Retval.AboveHorizonAtMidnight = AboveHorizon; // Add above horizon at midnight flag
             Retval.RiseEvents = BodyRises;
             Retval.SetEvents = BodySets;
 
@@ -296,7 +307,7 @@ namespace ASCOM.Tools
         /// <param name="JD">Julian day (UTC) for which the Moon illumination is required</param>
         /// <returns>Percentage illumination of the Moon</returns>
         /// <remarks> The algorithm used is that given in Astronomical Algorithms (Second Edition, Corrected to August 2009) 
-        /// Chapter 48 p345 by Jean Meeus (Willmann-Bell 1991). The Sun and Moon positions are calculated by high precision NOVAS 3.1 library using JPL DE 421 ephemeredes.
+        /// Chapter 48 p345 by Jean Meeus (Willmann-Bell 1991). The Sun and Moon positions are calculated by high precision NOVAS 3.1 library using JPL DE 421 ephemerides.
         /// </remarks>
         public static double MoonIllumination(double JD)
         {
@@ -345,7 +356,7 @@ namespace ASCOM.Tools
         /// Returns the Moon phase as an angle
         /// </summary>
         /// <param name="JD">Julian day (UTC) for which the Moon phase is required</param>
-        /// <returns>Moon phase as an angle between -180.0 amd +180.0 (see Remarks for further description)</returns>
+        /// <returns>Moon phase as an angle between -180.0 and +180.0 (see Remarks for further description)</returns>
         /// <remarks>To allow maximum freedom in displaying the Moon phase, this function returns the excess of the apparent geocentric longitude
         /// of the Moon over the apparent geocentric longitude of the Sun, expressed as an angle in the range -180.0 to +180.0 degrees.
         /// This definition is taken from Astronomical Algorithms (Second Edition, Corrected to August 2009) Chapter 49 p349
@@ -1118,10 +1129,9 @@ namespace ASCOM.Tools
             // Revised to use SOFA to calculate the Julian date
             rc = Sofa.Dtf2d("UTC", ObservationDateTime.Year, ObservationDateTime.Month, ObservationDateTime.Day, ObservationDateTime.Hour, ObservationDateTime.Minute, ObservationDateTime.Second + ObservationDateTime.Millisecond / 1000.0d, ref jd1, ref jd2);
             if (rc != 0)
-                throw new HelperException($"UTCJulianDate- Bad return code from Sofa.Dtf2d: {rc} for date: {ObservationDateTime.ToString("dddd dd MMMM yyyy HH:mm:ss.fff")}");
+                throw new HelperException($"UTCJulianDate- Bad return code from Sofa.Dtf2d: {rc} for date: {ObservationDateTime:dddd dd MMMM yyyy HH:mm:ss.fff}");
 
             return jd1 + jd2;
-
 
         }
 
@@ -1604,6 +1614,26 @@ namespace ASCOM.Tools
         #endregion
 
         #region Private support code
+
+        /// <summary>
+        /// Log a message from the NOVAS DLL
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="message"></param>
+        private static void LogMessage(string context, string message)
+        {
+            if (!(TL is null))
+            {
+                if (TL is TraceLogger traceLogger)
+                {
+                    traceLogger.LogMessage(LogLevel.Debug, context, message);
+                }
+                else
+                {
+                    TL.Log(LogLevel.Debug, $"{context} - {message}");
+                }
+            }
+        }
 
         private static string DoubleToSexagesimalSeconds(double Units, string DegDelim, string MinDelim, string SecDelim, int SecDecimalDigits)
         {
