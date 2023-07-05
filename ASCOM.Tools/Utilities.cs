@@ -12,8 +12,6 @@ namespace ASCOM.Tools
     /// </summary>
     public class Utilities : IDisposable
     {
-        private const bool DEBUG_LOGGING = true;
-
         private static double currentLeapSeconds;
 
         /// <summary>
@@ -119,11 +117,10 @@ namespace ASCOM.Tools
             }
             catch (FormatException) // Catch case where day exceeds the maximum number of days in the month
             {
-                throw new ASCOM.InvalidValueException("Day or Month", Day.ToString() + " " + Month.ToString() + " " + Year.ToString(), "Day must not exceed the number of days in the month");
+                throw new InvalidValueException("Day or Month", Day.ToString() + " " + Month.ToString() + " " + Year.ToString(), "Day must not exceed the number of days in the month");
             }
-            catch (Exception ex) // Throw all other exceptions as they are are received
+            catch (Exception) // Throw all other exceptions as they are are received
             {
-                LogMessage("EventTimes", ex.ToString());
                 throw;
             }
 
@@ -286,7 +283,7 @@ namespace ASCOM.Tools
 
             while (!(DoesRise & DoesSet & Math.Abs(SiteLatitude) < 60.0d | CentreTime == 25.0d));
 
-            Retval.IsRisen=AboveHorizon; // Add above horizon at midnight flag
+            Retval.IsRisen = AboveHorizon; // Add above horizon at midnight flag
             Retval.RiseEvents = BodyRises;
             Retval.SetEvents = BodySets;
 
@@ -690,15 +687,12 @@ namespace ASCOM.Tools
             if (ms.Count > 0) // We have at least a degrees value
             {
                 returnValue = Convert.ToDouble(ms[0].Value); // Include the degrees value
-                Debug.WriteLine("Degrees: {0}", ms[0].Value);
                 if (ms.Count > 1) // We have at least minutes and possibly seconds to deal with 
                 {
                     returnValue += (Convert.ToDouble(ms[1].Value) / 60.0); // Include the minutes value
-                    Debug.WriteLine("Minutes: {0}", ms[1].Value);
                     if (ms.Count > 2)
                     {
                         returnValue += (Convert.ToDouble(ms[2].Value) / 3600.0);// We have a seconds value so include this as well
-                        Debug.WriteLine("Seconds: {0}", ms[2].Value);
                     }
                 }
             }
@@ -773,15 +767,12 @@ namespace ASCOM.Tools
             if (ms.Count > 0) // We have at least a degrees value
             {
                 returnValue = Convert.ToDouble(ms[0].Value); // Include the degrees value
-                Debug.WriteLine("Hours: {0}", ms[0].Value);
                 if (ms.Count > 1) // We have at least minutes and possibly seconds to deal with 
                 {
                     returnValue += (Convert.ToDouble(ms[1].Value) / 60.0); // Include the minutes value
-                    Debug.WriteLine("Minutes: {0}", ms[1].Value);
                     if (ms.Count > 2)
                     {
                         returnValue += (Convert.ToDouble(ms[2].Value) / 3600.0);// We have a seconds value so include this as well
-                        Debug.WriteLine("Seconds: {0}", ms[2].Value);
                     }
                 }
             }
@@ -1127,7 +1118,7 @@ namespace ASCOM.Tools
             // Revised to use SOFA to calculate the Julian date
             rc = Sofa.Dtf2d("UTC", ObservationDateTime.Year, ObservationDateTime.Month, ObservationDateTime.Day, ObservationDateTime.Hour, ObservationDateTime.Minute, ObservationDateTime.Second + ObservationDateTime.Millisecond / 1000.0d, ref jd1, ref jd2);
             if (rc != 0)
-                LogMessage("UTCJulianDate", string.Format("Bad return code from Sofa.Dtf2d: {0} for date: {1}", rc, ObservationDateTime.ToString("dddd dd MMMM yyyy HH:mm:ss.fff")));
+                throw new HelperException($"UTCJulianDate- Bad return code from Sofa.Dtf2d: {rc} for date: {ObservationDateTime.ToString("dddd dd MMMM yyyy HH:mm:ss.fff")}");
 
             return jd1 + jd2;
 
@@ -1695,12 +1686,6 @@ namespace ASCOM.Tools
             return returnValue;
         }
 
-        private static void LogMessage(string method, string message)
-        {
-            if (DEBUG_LOGGING)
-                Console.WriteLine($"{method} - {message}");
-        }
-
         /// <summary>
         /// Returns the altitude of the body given the input parameters
         /// </summary>
@@ -1811,10 +1796,7 @@ namespace ASCOM.Tools
             rc = Novas.SiderealTime(Instant, 0.0d, deltaT, GstType.GreenwichApparentSiderealTime, Method.EquinoxBased, Accuracy.Full, ref Gmst);
 
             if (rc != 0)
-            {
-                LogMessage("BodyAltitude", $"Novas.SiderealTime returned error code {rc}, zero was expected. Throwing HelperException.");
                 throw new HelperException($"BodyAltitude - Novas.SiderealTime returned error code {rc}, zero was expected.");
-            }
 
             Tau = Constants.HOURS2DEG * (Range(Gmst + Longitude * Constants.DEG2HOURS, 0d, true, 24.0d, false) - SkyPosition.RA); // East longitude is  positive
             Retval.Altitude = Math.Asin(Math.Sin(Latitude * Constants.DEG2RAD) * Math.Sin(SkyPosition.Dec * Constants.DEG2RAD) + Math.Cos(Latitude * Constants.DEG2RAD) * Math.Cos(SkyPosition.Dec * Constants.DEG2RAD) * Math.Cos(Tau * Constants.DEG2RAD)) * Constants.RAD2DEG;

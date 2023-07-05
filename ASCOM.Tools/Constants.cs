@@ -208,8 +208,6 @@ namespace ASCOM.Tools
     /// Type of event for which an ephemeris is required
     /// </summary>
     /// <remarks></remarks>
-    [Guid("946C9620-B292-4807-9B75-FC828AB1700B")]
-    [ComVisible(true)]
     public enum EventType : int
     {
         /// <summary>
@@ -276,8 +274,6 @@ namespace ASCOM.Tools
     /// Type of body, Major Planet, Moon, Sun or Minor Planet
     /// </summary>
     /// <remarks></remarks>
-    [Guid("A1D2C046-F7BC-474f-8D95-6E7B761DEECB")]
-    [ComVisible(true)]
     public enum BodyType : int
     {
         /// <summary>
@@ -315,8 +311,6 @@ namespace ASCOM.Tools
     /// Co-ordinate origin: centre of Sun or solar system barycentre
     /// </summary>
     /// <remarks></remarks>
-    [Guid("9591FC6A-3EF1-41ae-9FE1-FE0C76686A85")]
-    [ComVisible(true)]
     public enum Origin : int
     {
         /// <summary>
@@ -335,8 +329,6 @@ namespace ASCOM.Tools
     /// Body number starting with Mercury = 1
     /// </summary>
     /// <remarks></remarks>
-    [Guid("C839867F-E152-44e1-8356-2DB450329EDC")]
-    [ComVisible(true)]
     public enum Body : int
     {
         /// <summary>
@@ -400,8 +392,6 @@ namespace ASCOM.Tools
     /// Type of refraction correction
     /// </summary>
     /// <remarks></remarks>
-    [Guid("32914B41-41C3-4f68-A974-E9ABCE0BA03A")]
-    [ComVisible(true)]
     public enum RefractionOption : int
     {
         /// <summary>
@@ -425,8 +415,6 @@ namespace ASCOM.Tools
     /// Type of transformation: Epoch, Equator and Equinox or all three
     /// </summary>
     /// <remarks></remarks>
-    [Guid("6ADE707E-1D7E-471a-94C9-F9FCC56755B1")]
-    [ComVisible(true)]
     public enum TransformationOption : int
     {
         /// <summary>
@@ -450,8 +438,6 @@ namespace ASCOM.Tools
     /// Direction of nutation correction
     /// </summary>
     /// <remarks></remarks>
-    [Guid("394E0981-3344-4cff-8ABA-E19A775AAD29")]
-    [ComVisible(true)]
     public enum NutationDirection : int
     {
         /// <summary>
@@ -472,8 +458,6 @@ namespace ASCOM.Tools
     /// Direction of transformation: ITRS to Terrestrial Intermediate or vice versa
     /// </summary>
     /// <remarks></remarks>
-    [Guid("45EAC3DA-08FB-49E2-B852-114312933742")]
-    [ComVisible(true)]
     public enum TransformationDirection : short
     {
         /// <summary>
@@ -489,8 +473,6 @@ namespace ASCOM.Tools
     /// Location of observer
     /// </summary>
     /// <remarks></remarks>
-    [Guid("8FFEAC07-F976-4fd8-8547-3DCFF25F5FA3")]
-    [ComVisible(true)]
     public enum ObserverLocation : short
     {
         /// <summary>
@@ -539,8 +521,6 @@ namespace ASCOM.Tools
     /// when the accuracy requirements are not better than 0.1 milliarcsecond for stars or 3.5 milli arc-seconds for solar system bodies. 
     /// Selecting this approach can reduce the time required for Earth-rotation computations by about two-thirds.</para>
     /// </remarks>
-    [Guid("F10B748F-4F90-4acf-9EB0-76D50293E9A9")]
-    [ComVisible(true)]
     public enum Accuracy : short
     {
         /// <summary>
@@ -559,8 +539,6 @@ namespace ASCOM.Tools
     /// Coordinate system of the output position
     /// </summary>
     /// <remarks>Used by function Place</remarks>
-    [Guid("0EF9BC38-B790-4416-8FEF-E03758B6B630")]
-    [ComVisible(true)]
     public enum CoordSys : short
     {
         /// <summary>
@@ -589,8 +567,6 @@ namespace ASCOM.Tools
     /// Type of sidereal time
     /// </summary>
     /// <remarks></remarks>
-    [Guid("7722AE51-F475-4c69-8B35-B2EDBD297C66")]
-    [ComVisible(true)]
     public enum GstType : short
     {
         /// <summary>
@@ -609,8 +585,6 @@ namespace ASCOM.Tools
     /// Computation method
     /// </summary>
     /// <remarks></remarks>
-    [Guid("8D9E6EF5-CE9C-4ba9-8B24-C0FA5067D8FA")]
-    [ComVisible(true)]
     public enum Method : short
     {
         /// <summary>
@@ -629,8 +603,6 @@ namespace ASCOM.Tools
     /// Output vector reference system
     /// </summary>
     /// <remarks></remarks>
-    [Guid("CD7AEAC0-1BFA-447e-A43E-62C231B0FC55")]
-    [ComVisible(true)]
     public enum OutputVectorOption : short
     {
         /// <summary>
@@ -649,8 +621,6 @@ namespace ASCOM.Tools
     /// Type of pole offset
     /// </summary>
     /// <remarks>Used by CelPole.</remarks>
-    [Guid("AF69D7CC-A59C-4fcc-BE17-C2F568957BFD")]
-    [ComVisible(true)]
     public enum PoleOffsetCorrection : short
     {
         /// <summary>
@@ -670,8 +640,6 @@ namespace ASCOM.Tools
     /// Direction of frame conversion
     /// </summary>
     /// <remarks>Used by FrameTie method.</remarks>
-    [Guid("3AC3E32A-EDCE-4234-AA50-CDB346851C5D")]
-    [ComVisible(true)]
     public enum FrameConversionDirection : short
     {
         /// <summary>
@@ -690,8 +658,6 @@ namespace ASCOM.Tools
     /// Location of observer, determining whether the gravitational deflection due to the earth itself is applied.
     /// </summary>
     /// <remarks>Used by GravDef method.</remarks>
-    [Guid("C39A798C-53F7-460b-853F-DA5389B4324D")]
-    [ComVisible(true)]
     public enum EarthDeflection : short
     {
         /// <summary>
@@ -710,8 +676,6 @@ namespace ASCOM.Tools
     /// Reference system in which right ascension is given
     /// </summary>
     /// <remarks></remarks>
-    [Guid("DF215CCF-2C25-48e5-A357-A8300C1EA027")]
-    [ComVisible(true)]
     public enum ReferenceSystem : short
     {
         /// <summary>
@@ -730,8 +694,6 @@ namespace ASCOM.Tools
     /// Type of equinox
     /// </summary>
     /// <remarks></remarks>
-    [Guid("5EDEE8B3-E223-4fb7-924F-4C56E8373380")]
-    [ComVisible(true)]
     public enum EquinoxType : short
     {
         /// <summary>
@@ -750,8 +712,6 @@ namespace ASCOM.Tools
     /// Type of transformation
     /// </summary>
     /// <remarks></remarks>
-    [Guid("8BBA934E-D874-48a2-A3E2-C842A7FFFB35")]
-    [ComVisible(true)]
     public enum TransformationOption3 : short
     {
         /// <summary>
@@ -785,8 +745,6 @@ namespace ASCOM.Tools
     /// Type of object
     /// </summary>
     /// <remarks></remarks>
-    [Guid("5BBB931B-358C-40ac-921C-B48373F01348")]
-    [ComVisible(true)]
     public enum ObjectType : short
     {
         /// <summary>
@@ -826,8 +784,6 @@ namespace ASCOM.Tools
     /// If nutations are desired, set 'target' = 14; 'centre' will be ignored on that call.
     /// </para>
     /// </remarks>
-    [Guid("60E342F9-3CC3-4b98-8045-D61B5A7D974B")]
-    [ComVisible(true)]
     public enum Target : short
     {
         /// <summary>
@@ -909,9 +865,6 @@ namespace ASCOM.Tools
     /// </summary>
     /// <remarks>Designates a celestial object.
     /// </remarks>
-    [Guid("558F644F-E112-4e88-9D79-20063BB25C3E")]
-    [ComVisible(true)]
-    [StructLayout(LayoutKind.Sequential)]
     public struct BodyDescription
     {
         /// <summary>
@@ -946,9 +899,6 @@ namespace ASCOM.Tools
     /// While this structure can be used as a generic container for catalogue data, all high-level 
     /// NOVAS-C functions require J2000.0 catalogue data with FK5-type units (shown in square brackets below).
     /// </remarks>
-    [Guid("6320FEDA-8582-4048-988A-7D4DE7978C71")]
-    [ComVisible(true)]
-    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
     public struct CatEntry
     {
         /// <summary>
@@ -1016,9 +966,6 @@ namespace ASCOM.Tools
     /// function called from function 'equ_to_hor'. Additional parameters can be added to this 
     /// structure if a more sophisticated refraction model is employed.
     /// </remarks>
-    [Guid("ED02B64A-320F-47cd-90D9-3DF2DF07602D")]
-    [ComVisible(true)]
-    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
     public struct SiteInfo
     {
         /// <summary>
@@ -1053,9 +1000,6 @@ namespace ASCOM.Tools
     /// </summary>
     /// <remarks>Object position vector
     /// </remarks>
-    [Guid("69651C90-75F5-4f46-8D0F-22D186151D45")]
-    [ComVisible(true)]
-    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
     public struct PosVector
     {
         /// <summary>
@@ -1080,9 +1024,6 @@ namespace ASCOM.Tools
     /// </summary>
     /// <remarks>Object velocity vector
     /// </remarks>
-    [Guid("F18240B0-00CC-4ff7-9A94-AC835387F959")]
-    [ComVisible(true)]
-    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
     public struct VelVector
     {
         /// <summary>
@@ -1107,9 +1048,6 @@ namespace ASCOM.Tools
     /// </summary>
     /// <remarks>Fundamental arguments, in radians
     /// </remarks>
-    [Guid("5EE28FFB-39CD-4d23-BF62-11EE4C581681")]
-    [ComVisible(true)]
-    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
     public struct FundamentalArgs
     {
         /// <summary>
@@ -1157,9 +1095,6 @@ namespace ASCOM.Tools
     /// </list>
     /// </para>
     /// </remarks>
-    [Guid("5325E96C-BD24-4470-A0F6-E917B05805E1")]
-    [ComVisible(true)]
-    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
     public struct CatEntry3
     {
         /// <summary>
@@ -1223,8 +1158,6 @@ namespace ASCOM.Tools
     /// Celestial object structure
     /// </summary>
     /// <remarks>Designates a celestial object</remarks>
-    [Guid("AEFE0EA0-D013-46a9-B77D-6D0FDD661005")]
-    [ComVisible(true)]
     public struct Object3
     {
         /// <summary>
@@ -1253,9 +1186,6 @@ namespace ASCOM.Tools
     /// Celestial object's place in the sky
     /// </summary>
     /// <remarks></remarks>
-    [Guid("9AD852C3-A895-4f69-AEC0-C9CA44283FA0")]
-    [ComVisible(true)]
-    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
     public struct SkyPos
     {
         /// <summary>
@@ -1290,9 +1220,6 @@ namespace ASCOM.Tools
     /// Observer’s position and velocity in a near-Earth spacecraft.
     /// </summary>
     /// <remarks></remarks>
-    [Guid("15737EA5-E4FA-40da-8BDA-B8CF96D89E43")]
-    [ComVisible(true)]
-    [StructLayout(LayoutKind.Sequential)]
     public struct InSpace
     {
         /// <summary>
@@ -1313,9 +1240,6 @@ namespace ASCOM.Tools
     /// Right ascension of the Celestial Intermediate Origin (CIO) with respect to the GCRS.
     /// </summary>
     /// <remarks></remarks>
-    [Guid("4959930F-0CDB-4324-A0E0-F60A351454B7")]
-    [ComVisible(true)]
-    [StructLayout(LayoutKind.Sequential)]
     public struct RAOfCio
     {
         /// <summary>
@@ -1335,9 +1259,6 @@ namespace ASCOM.Tools
     /// </summary>
     /// <remarks>This structure is identical to the NOVAS2 SiteInfo structure but is included so that NOVAS3 naming
     /// conventions are maintained, making it easier to relate this code to the NOVAS3 documentation and C code.</remarks>
-    [Guid("277380A5-6599-448f-9232-1C280073D3CD")]
-    [ComVisible(true)]
-    [StructLayout(LayoutKind.Sequential)]
     public struct OnSurface
     {
         /// <summary>
@@ -1371,9 +1292,6 @@ namespace ASCOM.Tools
     /// General specification for the observer's location
     /// </summary>
     /// <remarks></remarks>
-    [Guid("64A25FDD-3687-45e0-BEAF-18C361E5E340")]
-    [ComVisible(true)]
-    [StructLayout(LayoutKind.Sequential)]
     public struct Observer
     {
         /// <summary>
