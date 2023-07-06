@@ -25,6 +25,7 @@
       <DocumentationSource sourceFile="..\ASCOM.Tools\ASCOM.Tools.csproj" />
       <DocumentationSource sourceFile="C:\Program Files (x86)\ASCOM\Platform 6 Developer Components\Components\Platform6\ASCOM.Exceptions.xml" />
       <DocumentationSource sourceFile="C:\Program Files (x86)\ASCOM\Platform 6 Developer Components\Components\Platform6\ASCOM.Exceptions.dll" />
+      <DocumentationSource sourceFile="..\ASCOM.Tools\NamespaceDocs.xml" />
     </DocumentationSources>
     <HelpFileFormat>HtmlHelp1, Website</HelpFileFormat>
     <SyntaxFilters>C#, Visual Basic</SyntaxFilters>

@@ -73,7 +73,7 @@
 			<content>
 				<para>
 					Once an <codeEntityReference>T:ASCOM.Alpaca.Discovery.AscomDevice</codeEntityReference> is available, it can be used to create an Alpaca client of the required type with the
-					<codeEntityReference linkText="AlpacaClient.GetDevice&lt;T&gt;(AscomDevice ascomDevice)">M:ASCOM.Alpaca.Clients.AlpacaClient.GetDevice``1(ASCOM.Alpaca.Discovery.AscomDevice,System.Int32,System.Int32,System.Int32,System.UInt32,System.String,System.String,System.Boolean,ASCOM.Common.Interfaces.ILogger,ASCOM.Common.Alpaca.ImageArrayTransferType,ASCOM.Common.Alpaca.ImageArrayCompression)</codeEntityReference>
+					<codeEntityReference linkText="AlpacaClient.GetDevice&lt;T&gt;(AscomDevice ascomDevice)">M:ASCOM.Alpaca.Clients.AlpacaClient.GetDevice``1(ASCOM.Alpaca.Discovery.AscomDevice,System.Int32,System.Int32,System.Int32,System.UInt32,System.String,System.String,System.Boolean,ASCOM.Common.Interfaces.ILogger,ASCOM.Common.Alpaca.ImageArrayTransferType,ASCOM.Common.Alpaca.ImageArrayCompression,System.String,System.String,System.Boolean)</codeEntityReference>
 					method:
 					<code source="HelpExamples\DeviceSelection.cs" region="CreateAlpacaDevice" language="csharp" title="Create an Alpaca Telescope client from a supplied AscomDevice instance" />
 				</para>

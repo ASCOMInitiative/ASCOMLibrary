@@ -1,0 +1,56 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<doc>
+	<assembly>
+		<name>ASCOM.Tools</name>
+		<summary>
+			Provides a suite of useful utilities for ASCOM driver and application developers
+		</summary>
+	</assembly>
+
+	<members>
+
+		<member name="G:ASCOM.Tools">
+			<summary>
+				<p>
+					Provides a suite of useful utilities for ASCOM driver and application developers
+				</p>
+			</summary>
+		</member>
+
+		<member name="N:ASCOM.Tools">
+			<summary>
+				<h2>ASCOM Tools and Utilities</h2>
+				<h3>Summary</h3>
+				<p>
+					Provides a suite of useful utilities for ASCOM driver and application developers
+				</p>
+			</summary>
+		</member>
+
+		<member name="N:ASCOM.Tools.Novas31">
+			<summary>
+				<h2>
+					NOVAS: Naval Observatory Vector Astrometry Subroutines
+				</h2>
+				<h3>Introduction</h3>
+				<p>
+					This component is a .NET presentation of the subroutines and function in the US Naval Observatory
+					NOVAS 3.1 library. The following is extracted from its accompanying pdf document, which is also included
+					in the ASCOM distribution
+				</p>
+				<p>
+					The Naval Observatory Vector Astrometry Software (NOVAS) is a source-code library in Fortran, C, and Python that provides common astrometric quantities and transformations.
+					It can supply, in one or two function calls, the instantaneous celestial position of any star or planet in a variety of coordinate systems.
+					The library also provides access to all of the “building blocks” that go into such computations—single-purpose functions for common astrometric algorithms, such as those for precession, nutation, aberration,
+					parallax, etc. NOVAS calculations are accurate at the sub-milliarcsecond level.
+				</p>
+				<p>
+					The NOVAS algorithms are based on a vector and matrix formulation that is rigorous and consistent with recent recommendations of the International Astronomical Union (IAU).
+					Objects inside and outside the solar system are treated similarly. The position vectors formed and operated on by the NOVAS functions are defined within either the Barycentric Celestial Reference
+					System (BCRS) or the Geocentric Celestial Reference System (GCRS), as appropriate. Both of these systems are described in IAU resolutions passed in 2000. GCRS quantities are converted to more
+					familiar coordinate systems, such as the equator and equinox of date, by applying standard rotations.
+				</p>
+			</summary>
+		</member>
+	</members>
+</doc>

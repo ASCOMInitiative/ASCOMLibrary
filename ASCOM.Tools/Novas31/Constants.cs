@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
-namespace ASCOM.Tools
+namespace ASCOM.Tools.Novas31
 {
 
     static class Constants
@@ -408,7 +408,7 @@ namespace ASCOM.Tools
         /// <remarks></remarks>
         TrueToMean = 1
     }
- 
+
     /// <summary>
     /// Direction of transformation: ITRS to Terrestrial Intermediate or vice versa
     /// </summary>
@@ -1201,6 +1201,6 @@ namespace ASCOM.Tools
         }
     }
 
-#endregion
+    #endregion
 
 }

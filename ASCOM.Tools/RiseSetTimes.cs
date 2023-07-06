@@ -24,15 +24,13 @@ namespace ASCOM.Tools
         public bool AboveHorizonAtMidnight { get; set; }
 
         /// <summary>
-        /// 
+        /// List of rise event times.
         /// </summary>
         public List<double> RiseEvents { get; set; }
 
         /// <summary>
-        /// 
+        /// List of set event times
         /// </summary>
         public List<double> SetEvents { get; set; }
-
-
     }
 }

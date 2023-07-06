@@ -1,6 +1,5 @@
 ﻿using ASCOM.Common;
 using ASCOM.Common.Interfaces;
-using ASCOM.Tools;
 using System;
 using System.Collections;
 using System.IO;
@@ -8,7 +7,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using static System.Environment;
 
-namespace ASCOM.Tools
+namespace ASCOM.Tools.Novas31
 {
 
     /// <summary>
@@ -2179,7 +2178,7 @@ namespace ASCOM.Tools
         /// <remarks></remarks>
         public static short VirtualStar(double JdTt, CatEntry3 Star, Accuracy Accuracy, ref double Ra, ref double Dec)
         {
-          // Initialise if necessary
+            // Initialise if necessary
             if (!isInitialised) Initialise();
 
             return VirtualStarLib(JdTt, ref Star, Accuracy, ref Ra, ref Dec);

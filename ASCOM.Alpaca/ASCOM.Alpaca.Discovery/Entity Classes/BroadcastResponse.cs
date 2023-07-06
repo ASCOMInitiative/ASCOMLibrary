@@ -10,8 +10,8 @@ namespace ASCOM.Alpaca.Discovery
         /// <summary>
         /// Create a new instance of the BroadcastResponse class using the provided IP endpoint and response bytes
         /// </summary>
-        /// <param name="iPEndpoint"></param>
-        /// <param name="response"></param>
+        /// <param name="iPEndpoint">IP endpoint of the device.</param>
+        /// <param name="response">Device's response as a byte array.</param>
         public BroadcastResponse(IPEndPoint iPEndpoint, byte[] response) 
         {
             IPEndpoint = iPEndpoint;

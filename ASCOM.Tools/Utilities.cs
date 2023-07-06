@@ -4,6 +4,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using ASCOM.Common.Interfaces;
 using ASCOM.Common;
+using ASCOM.Tools.Novas31;
 
 namespace ASCOM.Tools
 {
@@ -78,8 +79,25 @@ namespace ASCOM.Tools
         /// <para>The definitions of sunrise, sunset and the various twilights that are used in this method are taken from the 
         /// <a href="https://aa.usno.navy.mil/faq/RST_defs">US Naval Observatory Definitions</a>.
         /// </para>
-        /// <para>The dynamics of the Sun, Earth and Moon can result at some latitudes in days where there may be no, 1 or 2 rise or set events during 
-        /// a 24 SI hour period.</para>
+        /// <para>The dynamics of the Sun, Earth and Moon can result at some latitudes in days where there may be no, 1 or 2 rise or set events during a 24 SI hour period.</para>
+        /// <para> Rise-set or start-end times are available for the following events: 
+        /// <list type="Bullet">
+        /// <item>Sun rise-set.</item>
+        /// <item>Moon rise-set.</item>
+        /// <item>Civil twilight start-end.</item>
+        /// <item>Nautical twilight start-end.</item>
+        /// <item>Amateur astronomical twilight start-end.</item>
+        /// <item>Astronomical twilight start-end.</item>
+        /// <item>Mercury rise-set.</item>
+        /// <item>Venus rise-set.</item>
+        /// <item>Mars rise-set.</item>
+        /// <item>Jupiter rise-set.</item>
+        /// <item>Saturn rise-set.</item>
+        /// <item>Uranus rise-set.</item>
+        /// <item>Neptune rise-set.</item>
+        /// <item>Pluto rise-set.</item>
+        /// </list>
+        /// </para>
         /// <para>The returned <see cref="RiseSetTimes"/> class presents these members:
         /// <list type="Bullet">
         /// <item>AboveHorizonAtMidnight                  - Boolean - True if the body is above the event limit at midnight (the beginning of the 24 hour day), false if it is below the event limit</item>
@@ -441,9 +459,9 @@ namespace ASCOM.Tools
         }
 
         /// <summary>
-        /// Set the current number of leap seconds
+        /// Set the current number of leap seconds (overrides the built-in leap second value)
         /// </summary>
-        /// <param name="leapSeconds"></param>
+        /// <param name="leapSeconds">Current number of leap seconds (37.0 at July 2023)</param>
         public static void SetLeapSeconds(double leapSeconds)
         {
             // Set the internal leap seconds value to the supplied value
@@ -455,10 +473,10 @@ namespace ASCOM.Tools
         }
 
         /// <summary>
-        /// 
+        /// Returns the value of DeltaT (Terrestrial time minus Universal Time = TT-UT1) at the given Julian date.
         /// </summary>
-        /// <param name="julianDateUTC"></param>
-        /// <returns></returns>
+        /// <param name="julianDateUTC">Julian date for which the DeltaT value is required.</param>
+        /// <returns>The number of seconds difference between terrestrial time and universal time.</returns>
         public static double DeltaT(double julianDateUTC)
         {
             const double TAB_START_1620 = 1620.0;

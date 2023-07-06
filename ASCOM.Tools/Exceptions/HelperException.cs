@@ -1,31 +1,30 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 
 namespace ASCOM
 {
+
     /// <summary>
-    /// Exception thrown by the Transform component when an uninitialised property is read.
+    /// General exception for use within Tools components.
     /// </summary>
-    public class TransformUninitialisedException : ASCOM.DriverException
+    public class HelperException : Exception
     {
+        //Exception for Utilities component exceptions
 
         /// <summary>
-        /// Create a new exception with message 
+        /// Create a new exception with message
         /// </summary>
         /// <param name="message">Message to be reported by the exception</param>
         /// <remarks></remarks>
-        public TransformUninitialisedException(string message) : base(message)
-        {
-        }
+        public HelperException(string message) : base(message) { }
 
         /// <summary>
-        /// Create a new exception with message 
+        /// Create a new exception with message and inner exception
         /// </summary>
         /// <param name="message">Message to be reported by the exception</param>
         /// <param name="inner">Exception to be reported as the inner exception</param>
         /// <remarks></remarks>
-        public TransformUninitialisedException(string message, Exception inner) : base(message, inner)
-        {
-        }
+        public HelperException(string message, Exception inner) : base(message, inner) { }
 
         /// <summary>
         /// Serialise the exception
@@ -33,8 +32,8 @@ namespace ASCOM
         /// <param name="info">Serialisation information</param>
         /// <param name="context">Serialisation context</param>
         /// <remarks></remarks>
-        public TransformUninitialisedException(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) : base(info, context)
-        {
-        }
+        public HelperException(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) { }
+
     }
+
 }
