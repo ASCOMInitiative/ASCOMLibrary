@@ -15,14 +15,15 @@ namespace ASCOM.Common
         /// <param name="logLevel">ILogger LogLevel to use if the logger is not a TraceLogger.</param>
         /// <param name="method">Calling method name</param>
         /// <param name="message">Log message</param>
-        public static void LogMessage(this ILogger logger, LogLevel logLevel, string method, string message)
+        /// <param name="includeLib">Include the [LIB] library output identifier, defaults to True.</param>
+        public static void LogMessage(this ILogger logger, LogLevel logLevel, string method, string message, bool includeLib = true)
         {
             // Use a log format depending on whether the supplied logger is an ITraceLogger instance or just a plain ILogger instance
             if (logger is ITraceLogger traceLogger) // The logger is an ITraceLogger instance so use the ITraceLogger.LogMessage method to log the message
             {
                 if (logLevel >= logger.LoggingLevel) // Only log the message if it is at or above the current logging level
                 {
-                    traceLogger.LogMessage($"[Lib] {method}", message); // Use the ITraceLogger.LogMessage method
+                    traceLogger.LogMessage($"{(includeLib ? "[Lib]" : "")} {method}", message); // Use the ITraceLogger.LogMessage method
                 }
             }
             else // The logger is null or an ILogger instance so use the ILogger.Log method if the logger is not null, otherwise ignore

@@ -5,6 +5,7 @@ using System.Threading;
 using ASCOM.Common.Interfaces;
 using ASCOM.Common;
 using ASCOM.Tools.Novas31;
+using System.ComponentModel.Design;
 
 namespace ASCOM.Tools
 {
@@ -63,15 +64,249 @@ namespace ASCOM.Tools
         #region AstroUtils
 
         /// <summary>
+        /// Create a one year almanac for the given event, year and location.
+        /// </summary>
+        /// <param name="typeOfEvent">The rise-set or twilight times event that the almanac will describe.</param>
+        /// <param name="year">Year of the almanac.</param>
+        /// <param name="siteLatitude">Latitude of the site for which the almanac is required (-90.0 to +90.0). North positive, south negative.</param>
+        /// <param name="siteLongitude">Longitude of the site for which the almanac is required (-180.0 to +180.0 ). East positive, west negative</param>
+        /// <param name="siteTimeZone">Time zone of the site for which the almanac is required (-12.0 to +14.0). East positive, west negative</param>
+        /// <param name="almanacLogger">An ILogger component to which the almanac will be written.</param>
+        /// <remarks>
+        /// <para>
+        /// At latitudes greater than 60N or 60S it is possible for there to be two rises or sets in a given 24 hour day,
+        /// hence results are aggregated into two EventTime lines. If, for a given day, all months have only 0 or 1 event
+        /// only the first event times line is included. If any day has two events then the second event times line
+        /// is included with the same day number as the first event times line.
+        /// </para>
+        /// <para>
+        /// The following symbols are used in the almanac:
+        /// <list type="bullet">
+        /// <item><c>****</c> - Visible at all times - risen all day.</item>
+        /// <item><c>----</c> - Never visible - set all day.</item>
+        /// <item><c>////</c> - Lighter than the twilight threshold all day long.</item>
+        /// <item><c>====</c> - Darker than the twilight threshold all day long.</item>
+        /// <item>Blank space indicates no events on this day.</item>
+        /// </list>
+        /// For some event types it is possible that no event of that type occurs, in which case the event time is represented 
+        /// as a blank space. At times of year when no events occur, because a body is "always risen" or "always set", rise and set times
+        /// are shown as "****" and "----" respectively.
+        /// </para>
+        /// <para>
+        /// The expected output for Moon rising / setting using the parameters: Year=2012, Latitude=75N, Longitude=75W, TimeZone=-5h is given at 
+        /// the end of this example.
+        /// </para>
+        /// </remarks>
+        public static void Almanac(EventType typeOfEvent, int year, double siteLatitude, double siteLongitude, double siteTimeZone, ILogger almanacLogger)
+        {
+            bool isRiseSet; // Flag indicating whether the event is a rise-set or twilight times type of event.
+            RiseSetTimes events; // Returned list of events
+            string eventTimes1, eventTimes2; // First and second lines of event times
+
+            #region Parameter validation
+
+            // Validate event type and determine whether this is a rise-set or twilight times event.
+            switch (typeOfEvent)
+            {
+                case EventType.SunRiseSunset:
+                case EventType.MoonRiseMoonSet:
+                case EventType.MercuryRiseSet:
+                case EventType.VenusRiseSet:
+                case EventType.MarsRiseSet:
+                case EventType.JupiterRiseSet:
+                case EventType.SaturnRiseSet:
+                case EventType.UranusRiseSet:
+                case EventType.NeptuneRiseSet:
+                case EventType.PlutoRiseSet:
+                    isRiseSet = true;
+                    break;
+
+                case EventType.CivilTwilight:
+                case EventType.NauticalTwilight:
+                case EventType.AmateurAstronomicalTwilight:
+                case EventType.AstronomicalTwilight:
+                    isRiseSet = false;
+                    break;
+
+                default:
+                    throw new InvalidValueException($"Almanac - Unknown event type: {typeOfEvent}");
+            }
+
+            // Validate year
+            if ((year < 1900) | (year > 2052))
+                throw new InvalidValueException($"Utilities.Almanac - The year parameter is outside the valid range of the DE421 ephemeris (1900 to 2052) that underlies the ephemeris calculations. Requested year: {year}");
+
+            // Validate latitude
+            if ((siteLatitude < -90.0) | (siteLatitude > +90.0))
+                throw new InvalidValueException($"Utilities.Almanac - The latitude parameter is outside the valid range (-90.0 to +90.0): {siteTimeZone}");
+
+            // Validate longitude
+            if ((siteLongitude < -180.0) | (siteLongitude > +180.0))
+                throw new InvalidValueException($"Utilities.Almanac - The longitude parameter is outside the valid range (-180.0 to +180.0): {siteLongitude}");
+
+            // Validate time zone
+            if ((siteTimeZone < -12.0) | (siteTimeZone > +14.0))
+                throw new InvalidValueException($"Utilities.Almanac - The time zone parameter is outside the valid range (-12.0 to +14.0): {siteTimeZone}");
+
+            if (almanacLogger is null)
+                throw new InvalidValueException($"Utilities.Almanac - The almanac logger is null.");
+
+            #endregion
+
+            // Write the title
+               LogMessageInfo("Almanac", $"                                                           ASCOM Almanac", almanacLogger);
+            BlankLine(almanacLogger);
+
+            // Write the almanac parameters
+            LogMessageInfo("Almanac", $"Latitude: {Utilities.DegreesToDMS(Math.Abs(siteLatitude), ":", ":", "", 0)} {(siteLatitude >= 0.0 ? "N" : "S")},   Longitude: {Utilities.DegreesToDMS(Math.Abs(siteLongitude), ":", ":", "", 0)} {(siteLongitude >= 0.0 ? "E" : "W")},   Time Zone: {Math.Abs(siteTimeZone)} hours {(siteTimeZone <= 0.0 ? "West" : "East")} of Greenwich,   Year: {year},   Event: {typeOfEvent}", almanacLogger);
+            BlankLine(almanacLogger);
+
+            // Write title lines
+                LogMessageInfo("Almanac", "       Jan.       Feb.       Mar.       Apr.       May        June       July       Aug.       Sept.      Oct.       Nov.       Dec.  ", almanacLogger);
+            if (isRiseSet)
+                LogMessageInfo("Almanac", "Day Rise  Set  Rise  Set  Rise  Set  Rise  Set  Rise  Set  Rise  Set  Rise  Set  Rise  Set  Rise  Set  Rise  Set  Rise  Set  Rise  Set", almanacLogger);
+            else
+                LogMessageInfo("Almanac", "Day Begin End  Begin End  Begin End  Begin End  Begin End  Begin End  Begin End  Begin End  Begin End  Begin End  Begin End  Begin End", almanacLogger);
+
+            // Work through each day number in turn, processing all months having that day.
+            // This approach is taken in order to create output in a similar format to that which comes from the USNO ephemeris data web
+            // site: https://aa.usno.navy.mil/data/mrst 
+            for (int dayOfMonth = 1; dayOfMonth <= 31; dayOfMonth++) // Process 1 day at a time to match the USNO online Almanac. Tries 31 days even for short months
+            {
+                eventTimes1 = ""; // Initialise event times
+                eventTimes2 = "";
+
+                // Process each month in turn for this day number
+                for (int monthOfYear = 1; monthOfYear <= 12; monthOfYear++)
+                {
+                    try
+                    {
+                        events = EventTimes(typeOfEvent, dayOfMonth, monthOfYear, year, siteLatitude, siteLongitude, siteTimeZone); // Get the rise and set events list
+
+                        if ((events.RiseEvents.Count > 0) | (events.SetEvents.Count > 0))
+                        {
+                            switch (events.RiseEvents.Count)
+                            {
+                                case 0: // No rises
+                                    eventTimes1 += "    ";
+                                    eventTimes2 += "    ";
+                                    break;
+
+                                case 1: // 1 rise so build up the first message line
+                                    eventTimes1 += RoundHour(events.RiseEvents[0]);
+                                    eventTimes2 += "    ";
+                                    break;
+
+                                case 2: // 2 rises so build up message lines 1 and 2
+                                    eventTimes1 += RoundHour(events.RiseEvents[0]);
+                                    eventTimes2 += RoundHour(events.RiseEvents[1]);
+                                    break;
+
+                                default:
+                                    eventTimes1 += "????";
+                                    eventTimes2 += "????";
+                                    break;
+                            }
+
+                            eventTimes1 += " "; // Add spacer between rise and set value
+                            eventTimes2 += " ";
+
+                            switch (events.SetEvents.Count)
+                            {
+                                case 0: // No sets
+                                    eventTimes1 += "    ";
+                                    eventTimes2 += "    ";
+                                    break;
+
+                                case 1: // 1 set so build up the first message line
+                                    eventTimes1 += RoundHour(events.SetEvents[0]);
+                                    eventTimes2 += "    ";
+                                    break;
+
+                                case 2: // 2 sets so build up message lines 1 and 2
+                                    eventTimes1 += RoundHour(events.SetEvents[0]);
+                                    eventTimes2 += RoundHour(events.SetEvents[1]);
+                                    break;
+
+                                default:
+                                    eventTimes1 += "????";
+                                    eventTimes2 += "????";
+                                    break;
+                            }
+                        }
+                        else if (events.AboveHorizonAtMidnight) // No events so must always be above the horizon / threshold
+                        {
+                            if (isRiseSet)
+                            {
+                                eventTimes1 += "**** ****"; // Flag as above 
+                                eventTimes2 += "         ";
+                            }
+                            else
+                            {
+                                eventTimes1 += "//// ////"; // Flag as above 
+                                eventTimes2 += "         ";
+                            }
+                        }
+                        else // No events so must always be below the horizon / threshold.
+                        {
+                            if (isRiseSet)
+                            {
+                                eventTimes1 += "---- ----"; // Flag as below
+                                eventTimes2 += "         ";
+                            }
+                            else
+                            {
+                                eventTimes1 += "==== ===="; // Flag as above 
+                                eventTimes2 += "         ";
+                            }
+                        }
+
+                        // Add spacers between months
+                        eventTimes1 += "  ";
+                        eventTimes2 += "  ";
+                    }
+                    catch (InvalidValueException) // Invalid date so insert white space in place of a value
+                    {
+                        eventTimes1 += "           ";
+                        eventTimes2 += "           ";
+
+                    }
+                    catch (Exception ex)
+                    {
+                        LogMessageInfo("Loop vales", $"Day of month: {dayOfMonth}, Month of year: {monthOfYear}", almanacLogger);
+                        LogMessageInfo("Exception", ex.ToString(), almanacLogger);
+                    }
+                }
+
+                // Print the whole day line and the line with second events if it has any values
+                LogMessageInfo("Almanac", $"{dayOfMonth:00}  {eventTimes1}", almanacLogger);
+                if (eventTimes2.Trim() != "")
+                    LogMessageInfo("Almanac", $"{dayOfMonth:00}  {eventTimes2}", almanacLogger);
+            }
+            BlankLine(almanacLogger);
+
+            // Write the explanatory legend
+            if (isRiseSet) // select correct text for body rise/set almanac.
+                LogMessageInfo("", "    **** Object continuously above horizon                            ---- Object continuously below horizon", almanacLogger);
+            else // Select correct text for twilight almanac.
+                LogMessageInfo("", "    //// Sun continuously above twilight limit                        ==== Sun continuously below twilight limit", almanacLogger);
+
+            LogMessageInfo("", "         Spaces indicate no event                                          Multiple events in a day are shown as multiple day lines", almanacLogger);
+            BlankLine(almanacLogger);
+            LogMessageInfo("", "         Add one hour when daylight savings time is in effect", almanacLogger);
+            BlankLine(almanacLogger);
+        }
+
+        /// <summary>
         /// Function that returns a list of rise and set events of a particular type that occur on a particular day at a given latitude, longitude and time zone
         /// </summary>
-        /// <param name="TypeofEvent">Type of event e.g. Sunrise or Astronomical twilight</param>
-        /// <param name="Day">Integer Day number</param>
-        /// <param name="Month">Integer Month number</param>
-        /// <param name="Year">Integer Year number</param>
-        /// <param name="SiteLatitude">Site latitude</param>
-        /// <param name="SiteLongitude">Site longitude (West of Greenwich is negative)</param>
-        /// <param name="SiteTimeZone">Site time zone offset (West of Greenwich is negative)</param>
+        /// <param name="typeOfEvent">Type of event e.g. Sunrise or Astronomical twilight</param>
+        /// <param name="dayOfWeek">Integer Day number</param>
+        /// <param name="monthOfYear">Integer Month number</param>
+        /// <param name="year">Integer Year number</param>
+        /// <param name="siteLatitude">Site latitude</param>
+        /// <param name="siteLongitude">Site longitude (West of Greenwich is negative)</param>
+        /// <param name="siteTimeZone">Site time zone offset (West of Greenwich is negative)</param>
         /// <returns>An <see cref="RiseSetTimes"/> class containing event information.
         /// </returns>
         /// <exception cref="ASCOM.InvalidValueException">When the supplied combination of day, month and year is invalid e.g. 31st September.</exception>
@@ -123,7 +358,7 @@ namespace ASCOM.Tools
         /// developer code examples elsewhere in this help file. This creates an output file with an almost identical format to that used by the USNO web site 
         /// and allows comprehensive checking of accuracy for a given set of parameters.</para>
         /// </remarks>
-        public static RiseSetTimes EventTimes(EventType TypeofEvent, int Day, int Month, int Year, double SiteLatitude, double SiteLongitude, double SiteTimeZone)
+        public static RiseSetTimes EventTimes(EventType typeOfEvent, int dayOfWeek, int monthOfYear, int year, double siteLatitude, double siteLongitude, double siteTimeZone)
         {
             bool DoesRise, DoesSet, AboveHorizon = default;
             double CentreTime, AltitiudeMinus1, Altitiude0, AltitiudePlus1, a, b, c, XSymmetry, Discriminant, RefractionCorrection;
@@ -138,15 +373,60 @@ namespace ASCOM.Tools
             DoesRise = false;
             DoesSet = false;
 
+            #region Parameter validation
+
+            // Validate event type and determine whether this is a rise-set or twilight times event.
+            switch (typeOfEvent)
+            {
+                case EventType.SunRiseSunset:
+                case EventType.MoonRiseMoonSet:
+                case EventType.MercuryRiseSet:
+                case EventType.VenusRiseSet:
+                case EventType.MarsRiseSet:
+                case EventType.JupiterRiseSet:
+                case EventType.SaturnRiseSet:
+                case EventType.UranusRiseSet:
+                case EventType.NeptuneRiseSet:
+                case EventType.PlutoRiseSet:
+                case EventType.CivilTwilight:
+                case EventType.NauticalTwilight:
+                case EventType.AmateurAstronomicalTwilight:
+                case EventType.AstronomicalTwilight:
+                    // No action required.
+                    break;
+
+                default:
+                    throw new InvalidValueException($"Almanac - Unknown event type: {typeOfEvent}");
+            }
+
+            // Validate year
+            if ((year < 1900) | (year > 2052))
+                throw new InvalidValueException($"Utilities.Almanac - The year parameter is outside the valid range of the DE421 ephemeris (1900 to 2052) that underlies the ephemeris calculations. Requested year: {year}");
+
+            // Validate latitude
+            if ((siteLatitude < -90.0) | (siteLatitude > +90.0))
+                throw new InvalidValueException($"Utilities.Almanac - The latitude parameter is outside the valid range (-90.0 to +90.0): {siteLatitude}");
+
+            // Validate longitude
+            if ((siteLongitude < -180.0) | (siteLongitude > +180.0))
+                throw new InvalidValueException($"Utilities.Almanac - The longitude parameter is outside the valid range (-180.0 to +180.0): {siteLongitude}");
+
+            // Validate time zone
+            if ((siteTimeZone < -12.0) | (siteTimeZone > +14.0))
+                throw new InvalidValueException($"Utilities.Almanac - The time zone parameter is outside the valid range (-12.0 to +14.0): {siteTimeZone}");
+
+            #endregion
+
+
             try
             {
-                TestDate = DateTime.Parse(Month + "/" + Day + "/" + Year, System.Globalization.CultureInfo.InvariantCulture); // Test whether this is a valid date e.g is not the 31st of February
-                LogMessage("RiseSetTimes", $"Day: {Day}, Month: {Month}, Year: {Year} - Test date: {TestDate}");
+                TestDate = DateTime.Parse(monthOfYear + "/" + dayOfWeek + "/" + year, System.Globalization.CultureInfo.InvariantCulture); // Test whether this is a valid date e.g is not the 31st of February
+                LogMessageDebug("RiseSetTimes", $"Day: {dayOfWeek}, Month: {monthOfYear}, Year: {year} - Test date: {TestDate}");
             }
             catch (FormatException ex) // Catch case where day exceeds the maximum number of days in the month
             {
-                LogMessage("RiseSetTimes", $"Caught FormatException: {ex.Message} for {Day} - {Month} - {Year}");
-                throw new InvalidValueException("Day or Month", Day.ToString() + " " + Month.ToString() + " " + Year.ToString(), "Day must not exceed the number of days in the month");
+                LogMessageDebug("RiseSetTimes", $"Caught FormatException: {ex.Message} for {dayOfWeek} - {monthOfYear} - {year}");
+                throw new InvalidValueException("Day or Month", dayOfWeek.ToString() + " " + monthOfYear.ToString() + " " + year.ToString(), "Day must not exceed the number of days in the month");
             }
             catch (Exception) // Throw all other exceptions as they are received
             {
@@ -154,11 +434,11 @@ namespace ASCOM.Tools
             }
 
             // Calculate Julian date in the local time-zone
-            JD = Novas.JulianDate((short)Year, (short)Month, (short)Day, 0.0d) - SiteTimeZone / 24.0d;
+            JD = Novas.JulianDate((short)year, (short)monthOfYear, (short)dayOfWeek, 0.0d) - siteTimeZone / 24.0d;
 
             // Initialise observer structure and calculate the refraction at the horizon
-            Observer.Latitude = SiteLatitude;
-            Observer.Longitude = SiteLongitude;
+            Observer.Latitude = siteLatitude;
+            Observer.Longitude = siteLongitude;
             RefractionCorrection = Novas.Refract(Observer, RefractionOption.StandardRefraction, 90.0d);
 
             // Iterate over the day in two hour periods
@@ -169,12 +449,12 @@ namespace ASCOM.Tools
             do
             {
                 // Calculate body positional information
-                BodyInfoMinus1 = BodyAltitude(TypeofEvent, JD, CentreTime - 1d, SiteLatitude, SiteLongitude);
-                BodyInfo0 = BodyAltitude(TypeofEvent, JD, CentreTime, SiteLatitude, SiteLongitude);
-                BodyInfoPlus1 = BodyAltitude(TypeofEvent, JD, CentreTime + 1d, SiteLatitude, SiteLongitude);
+                BodyInfoMinus1 = BodyAltitude(typeOfEvent, JD, CentreTime - 1d, siteLatitude, siteLongitude);
+                BodyInfo0 = BodyAltitude(typeOfEvent, JD, CentreTime, siteLatitude, siteLongitude);
+                BodyInfoPlus1 = BodyAltitude(typeOfEvent, JD, CentreTime + 1d, siteLatitude, siteLongitude);
 
                 // Correct altitude for body's apparent size, parallax, required distance below horizon and refraction
-                switch (TypeofEvent)
+                switch (typeOfEvent)
                 {
                     case EventType.MoonRiseMoonSet:
                         {
@@ -310,7 +590,7 @@ namespace ASCOM.Tools
                 CentreTime += 2.0d; // Increment by 2 hours to get the next 2 hour slot in the day
             }
 
-            while (!(DoesRise & DoesSet & Math.Abs(SiteLatitude) < 60.0d | CentreTime == 25.0d));
+            while (!(DoesRise & DoesSet & Math.Abs(siteLatitude) < 60.0d | CentreTime == 25.0d));
 
             Retval.AboveHorizonAtMidnight = AboveHorizon; // Add above horizon at midnight flag
             Retval.RiseEvents = BodyRises;
@@ -1634,11 +1914,37 @@ namespace ASCOM.Tools
         #region Private support code
 
         /// <summary>
-        /// Log a message from the NOVAS DLL
+        /// Rounds an hour value up or down to the nearest minute
+        /// </summary>
+        /// <param name="Moment">Time of day expressed in hours</param>
+        /// <returns>String in HH:mm format rounded to the neaest minute</returns>
+        /// <remarks>.NET rounding, when going from doubles to HH:mm format, always rounds down to the nearest minute e.g. 11:32:58 will be
+        /// returned as 11:58 rather than 11:59. This function adds 30 seconds to the supplied date and rounds that value in order to 
+        /// achieve rounding where XX:YY:00 to XX:YY:29 becomes XX:YY and XX:YY:30 to XX:YY:59 becomes XX:YY+1.
+        /// <para>Rounding is omitted for minute 23:59 in order to prevent the value flipping over into the next day</para></remarks>
+        private static string RoundHour(double Moment)
+        {
+            string Retval;
+            try
+            {
+                if (Moment >= 23.9833333)
+                    Retval = new DateTime().AddHours(Moment).ToString("HHmm"); // Util.HoursToHM(Moment, "")
+                else
+                    Retval = new DateTime().AddHours(Moment).AddSeconds(30).ToString("HHmm");
+            }
+            catch (Exception)
+            {
+                Retval = "XXXX";
+            }
+            return Retval;
+        }
+
+        /// <summary>
+        /// Log a message at Debug level
         /// </summary>
         /// <param name="context"></param>
         /// <param name="message"></param>
-        private static void LogMessage(string context, string message)
+        private static void LogMessageDebug(string context, string message)
         {
             if (!(TL is null))
             {
@@ -1648,7 +1954,46 @@ namespace ASCOM.Tools
                 }
                 else
                 {
-                    TL.Log(LogLevel.Debug, $"{context} - {message}");
+                    TL.LogDebug($"{context} - {message}");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Log a message at Info level
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="message"></param>
+        /// <param name="logger"></param>
+        private static void LogMessageInfo(string context, string message, ILogger logger)
+        {
+            if (!(logger is null))
+            {
+                if (logger is TraceLogger traceLogger)
+                {
+                    traceLogger.LogMessage(LogLevel.Information, context, message, false);
+                }
+                else
+                {
+                    logger.LogInformation($"{message}");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Log a blank line
+        /// </summary>
+        private static void BlankLine(ILogger logger)
+        {
+            if (!(logger is null))
+            {
+                if (logger is TraceLogger traceLogger)
+                {
+                    traceLogger.BlankLine();
+                }
+                else
+                {
+                    logger.LogInformation($" ");
                 }
             }
         }
