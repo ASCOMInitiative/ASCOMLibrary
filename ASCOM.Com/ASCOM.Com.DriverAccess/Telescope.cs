@@ -4,14 +4,17 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using ASCOM.Common;
+using System.Linq;
 
 namespace ASCOM.Com.DriverAccess
 {
     /// <summary>
     /// Telescope device class
     /// </summary>
-    public class Telescope : ASCOMDevice, ITelescopeV3
+    public class Telescope : ASCOMDevice, ITelescopeV4
     {
+        Operation currentOperation = Operation.None;
+
         /// <summary>
         /// Return a list of all Telescopes registered in the ASCOM Profile
         /// </summary>
@@ -759,7 +762,15 @@ namespace ASCOM.Com.DriverAccess
         /// to physical side of pier for German equatorial telescopes. It also includes details of the tests performed by Conform to determine whether 
         /// the driver correctly reports the pointing state as defined above.</para>
         /// </remarks>
-        public PointingState SideOfPier { get => (PointingState)base.Device.SideOfPier; set => base.Device.SideOfPier = value; }
+        public PointingState SideOfPier
+        {
+            get => (PointingState)base.Device.SideOfPier;
+            set
+            {
+                currentOperation = Operation.SideOfPier;
+                base.Device.SideOfPier = value;
+            }
+        }
 
         /// <summary>
         /// The local apparent sidereal time from the telescope's internal clock (hours, sidereal)
@@ -1052,6 +1063,7 @@ namespace ASCOM.Com.DriverAccess
         /// </remarks>
         public void AbortSlew()
         {
+            currentOperation = Operation.AbortSlew;
             base.Device.AbortSlew();
         }
 
@@ -1147,6 +1159,8 @@ namespace ASCOM.Com.DriverAccess
             {
                 throw new ASCOM.NotImplementedException("FindHome is only supported by Interface Versions 2 and above.");
             }
+
+            currentOperation = Operation.FindHome;
             base.Device.FindHome();
         }
 
@@ -1184,6 +1198,7 @@ namespace ASCOM.Com.DriverAccess
         /// </remarks>
         public void MoveAxis(TelescopeAxis Axis, double Rate)
         {
+            currentOperation = Operation.MoveAxis;
             base.Device.MoveAxis(Axis, Rate);
         }
 
@@ -1200,6 +1215,7 @@ namespace ASCOM.Com.DriverAccess
         /// </remarks>
         public void Park()
         {
+            currentOperation = Operation.Park;
             base.Device.Park();
         }
 
@@ -1234,6 +1250,7 @@ namespace ASCOM.Com.DriverAccess
         /// </remarks>
         public void PulseGuide(GuideDirection Direction, int Duration)
         {
+            currentOperation = Operation.PulseGuide;
             base.Device.PulseGuide(Direction, Duration);
         }
 
@@ -1298,6 +1315,8 @@ namespace ASCOM.Com.DriverAccess
             {
                 throw new ASCOM.NotImplementedException("SlewToAltAzAsync is only supported by Interface Versions 2 and above.");
             }
+
+            currentOperation = Operation.SlewToAltAzAsync;
             base.Device.SlewToAltAzAsync(Azimuth, Altitude);
         }
 
@@ -1347,6 +1366,7 @@ namespace ASCOM.Com.DriverAccess
         /// </remarks>
         public void SlewToCoordinatesAsync(double RightAscension, double Declination)
         {
+            currentOperation = Operation.SlewToCoordinatesAsync;
             base.Device.SlewToCoordinatesAsync(RightAscension, Declination);
         }
 
@@ -1386,6 +1406,7 @@ namespace ASCOM.Com.DriverAccess
         /// </remarks>
         public void SlewToTargetAsync()
         {
+            currentOperation = Operation.SlewToTargetAsync;
             base.Device.SlewToTargetAsync();
         }
 
@@ -1465,8 +1486,117 @@ namespace ASCOM.Com.DriverAccess
         /// </remarks>
         public void Unpark()
         {
+            currentOperation = Operation.Unpark;
+
             base.Device.Unpark();
         }
+
+        #region ITelescopeV4
+
+        /// <summary>
+        /// /
+        /// </summary>
+        public void Connect()
+        {
+            // Use the Connected property for ITelescopeV3 and earlier
+            if (InterfaceVersion < 4)
+            {
+                base.Device.Connected = true;
+                return;
+            }
+
+            // Call the Connect method for ITelescopeV4 and later
+            base.Device.Connect();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public void Disconnect()
+        {
+            // Use the Connected property for ITelescopeV3 and earlier
+            if (InterfaceVersion < 4)
+            {
+                base.Device.Connected = false;
+                return;
+            }
+
+            // Call the Disconnect method for ITelescopeV4 and later
+            base.Device.Disconnect();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public bool Connecting
+        {
+            get
+            {
+                // Always return false for ITelescopeV3 and earlier
+                if (InterfaceVersion < 4)
+                    return false;
+
+                // Return the device value for interface ITelescopeV4 and later
+                return base.Device.Connecting;
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public bool OperationComplete
+        {
+            get
+            {
+                if (InterfaceVersion < 4)
+                {
+                    switch (currentOperation)
+                    {
+                        case Operation.FindHome:
+                            return base.Device.AtHome;
+
+                        case Operation.Park:
+                        case Operation.Unpark:
+                            return base.Device.AtPark;
+
+                        case Operation.MoveAxis:
+                        case Operation.SideOfPier:
+                        case Operation.SlewToAltAzAsync:
+                        case Operation.SlewToCoordinatesAsync:
+                        case Operation.SlewToTargetAsync:
+                        case Operation.AbortSlew:
+                            return base.Device.Slewing;
+
+                        case Operation.PulseGuide:
+                            return base.Device.IsPulseGuiding;
+
+                        default:
+                            throw new InvalidOperationException($"OperationComplete - Unexpected Operation value: {currentOperation}");
+                    }
+                }
+
+                return base.Device.OperationComplete;
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public IList<IStateValue> DeviceState
+        {
+            get
+            {
+                if (InterfaceVersion < 4)
+                {
+                    return new List<IStateValue>();
+                }
+
+                return (Device.DeviceState as IEnumerable).Cast<IStateValue>().ToList();
+
+            }
+        }
+
+        #endregion
     }
 
     /// <summary>

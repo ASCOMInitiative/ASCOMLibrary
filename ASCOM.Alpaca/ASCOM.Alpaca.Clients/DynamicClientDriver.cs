@@ -1013,6 +1013,12 @@ namespace ASCOM.Alpaca.Clients
                             AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, string.Format(LOG_FORMAT_STRING, stringListResponse.ClientTransactionID, stringListResponse.ServerTransactionID, (stringListResponse.Value is null) ? "NO VALUE OR NULL VALUE RETURNED" : stringListResponse.Value.Count.ToString()));
                             return (T)(object)stringListResponse.Value;
                         }
+                        if (typeof(T) == typeof(IList<IStateValue>)) // Used for DeviceState property
+                        {
+                            DeviceStateResponse deviceStateResponse = JsonSerializer.Deserialize<DeviceStateResponse>(responseJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = !strictCasing });
+                            AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, string.Format(LOG_FORMAT_STRING, deviceStateResponse.ClientTransactionID, deviceStateResponse.ServerTransactionID, (deviceStateResponse.Value is null) ? "NO VALUE OR NULL VALUE RETURNED" : deviceStateResponse.Value.Count.ToString()));
+                            return (T)(object)deviceStateResponse.Value;
+                        }
                         if (typeof(T) == typeof(NoReturnValue)) // Used for Methods that have no response and Property Set members
                         {
                             MethodResponse methodResponse = JsonSerializer.Deserialize<MethodResponse>(responseJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = !strictCasing });
