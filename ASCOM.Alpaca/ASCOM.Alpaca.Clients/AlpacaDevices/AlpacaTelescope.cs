@@ -14,7 +14,7 @@ namespace ASCOM.Alpaca.Clients
     /// <summary>
     /// ASCOM Alpaca Telescope client
     /// </summary>
-    public class AlpacaTelescope : AlpacaDeviceBaseClass, ITelescopeV3
+    public class AlpacaTelescope : AlpacaDeviceBaseClass, ITelescopeV4
     {
         #region Variables and Constants
 
@@ -62,7 +62,7 @@ namespace ASCOM.Alpaca.Clients
                                ILogger logger = AlpacaClient.CLIENT_LOGGER_DEFAULT,
                                string userAgentProductName = null,
                                string userAgentProductVersion = null,
-                               bool trustUserGeneratedSslCertificates=AlpacaClient.TRUST_USER_GENERATED_SSL_CERTIFICATES_DEFAULT
+                               bool trustUserGeneratedSslCertificates = AlpacaClient.TRUST_USER_GENERATED_SSL_CERTIFICATES_DEFAULT
             )
         {
             this.serviceType = serviceType;
@@ -135,7 +135,7 @@ namespace ASCOM.Alpaca.Clients
                 LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"Strict casing: {strictCasing}");
                 LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"Trust user generated SSL certificates: {trustUserGeneratedSslCertificates}");
 
-                DynamicClientDriver.CreateHttpClient(ref client, serviceType, ipAddressString, portNumber, clientNumber, clientDeviceType, userName, password, ImageArrayCompression.None, 
+                DynamicClientDriver.CreateHttpClient(ref client, serviceType, ipAddressString, portNumber, clientNumber, clientDeviceType, userName, password, ImageArrayCompression.None,
                     logger, userAgentProductName, userAgentProductVersion, trustUserGeneratedSslCertificates);
                 LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), "Completed initialisation");
             }
@@ -1681,6 +1681,58 @@ namespace ASCOM.Alpaca.Clients
         }
 
         #endregion
+
+        #region ITelescopeV4 members
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public bool Connecting
+        {
+            get 
+            {
+                return DynamicClientDriver.GetValue<bool>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "Connecting", MemberTypes.Property);
+            }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        public void Connect()
+        {
+            DynamicClientDriver.CallMethodWithNoParameters(clientNumber, client, longDeviceResponseTimeout, URIBase, strictCasing, logger, "Connect", MemberTypes.Method);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public void Disconnect()
+        {
+            DynamicClientDriver.CallMethodWithNoParameters(clientNumber, client, longDeviceResponseTimeout, URIBase, strictCasing, logger, "Disconnect", MemberTypes.Method);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public bool OperationComplete
+        {
+            get
+            {
+                return DynamicClientDriver.GetValue<bool>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "OperationComplete", MemberTypes.Property);
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public IList<IStateValue> DeviceState
+        {
+            get 
+            {
+                return DynamicClientDriver.GetValue<IList<IStateValue>>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "DeviceState", MemberTypes.Property);
+            }
+        }
+
+       #endregion
 
     }
 }
