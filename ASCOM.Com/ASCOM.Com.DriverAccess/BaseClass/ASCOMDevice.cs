@@ -10,7 +10,7 @@ namespace ASCOM.Com.DriverAccess
     /// <summary>
     /// Base class for COM DriverAccess devices
     /// </summary>
-    public abstract class ASCOMDevice : IAscomDevice, IDisposable
+    public abstract class ASCOMDevice : IAscomDeviceV2, IDisposable
     {
         private readonly dynamic device;
         internal dynamic Device
@@ -28,6 +28,8 @@ namespace ASCOM.Com.DriverAccess
         {
             device = new DynamicAccess(progid);
         }
+
+        #region IAscomDevice members
 
         /// <summary>
         /// Set True to enable the link. Set False to disable the link.
@@ -288,6 +290,80 @@ namespace ASCOM.Com.DriverAccess
             Device.SetupDialog();
         }
 
+        #endregion
+
+        #region IAscomDeviceV2 members
+
+        /// <summary>
+        /// Connect to a device asynchronously
+        /// </summary>
+        public void Connect()
+        {
+            // Use the Connected property for ITelescopeV3 and earlier devices
+            if (InterfaceVersion < 4)
+            {
+                Device.Connected = true;
+                return;
+            }
+
+            // Call the device's Connect method for ITelescopeV4 and later devices
+            Device.Connect();
+        }
+
+        /// <summary>
+        /// Disconnect from a device asynchronously
+        /// </summary>
+        public void Disconnect()
+        {
+            // Use the Connected property for ITelescopeV3 and earlier devices
+            if (InterfaceVersion < 4)
+            {
+                Device.Connected = false;
+                return;
+            }
+
+            // Call the device's Disconnect method for ITelescopeV4 and later devices
+            Device.Disconnect();
+        }
+
+        /// <summary>
+        /// Asynchronous connection completion variable.
+        /// </summary>
+        public bool Connecting
+        {
+            get
+            {
+                // Always return false for ITelescopeV3 and earlier devices
+                if (InterfaceVersion < 4)
+                    return false;
+
+                // Return the device's value for interface ITelescopeV4 and later devices
+                return Device.Connecting;
+            }
+        }
+
+        /// <summary>
+        /// Returns a List of device IStateValue state objects
+        /// </summary>
+        public IList<IStateValue> DeviceState
+        {
+            get
+            {
+                // Return an empty list for ITelescopeV3 and earlier devices
+                if (InterfaceVersion < 4)
+                {
+                    return new List<IStateValue>();
+                }
+
+                // Return the device's value for interface ITelescopeV4 and later devices
+                return (Device.DeviceState as IEnumerable).Cast<IStateValue>().ToList();
+            }
+        }
+
+        #endregion
+
+        #region Support code
+
         internal void AssertMethodImplemented(int MinimumVersion, string Message)
         {
             if (this.InterfaceVersion < MinimumVersion)
@@ -303,5 +379,8 @@ namespace ASCOM.Com.DriverAccess
                 throw new ASCOM.NotImplementedException(Message);
             }
         }
+
+        #endregion
+
     }
 }

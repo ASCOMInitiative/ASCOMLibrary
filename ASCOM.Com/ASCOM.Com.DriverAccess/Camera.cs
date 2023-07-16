@@ -90,7 +90,7 @@ namespace ASCOM.Com.DriverAccess
         /// <exception cref="InvalidValueException">Must throw an exception for illegal binning values</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
-        public short BinX { get => base.Device.BinX; set => base.Device.BinX = value; }
+        public short BinX { get => Device.BinX; set => Device.BinX = value; }
 
         /// <summary>
         /// Sets the binning factor for the Y axis, also returns the current value.
@@ -103,7 +103,7 @@ namespace ASCOM.Com.DriverAccess
         /// <exception cref="InvalidValueException">Must throw an exception for illegal binning values</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
-        public short BinY { get => base.Device.BinY; set => base.Device.BinY = value; }
+        public short BinY { get => Device.BinY; set => Device.BinY = value; }
 
         /// <summary>
         /// Returns the current camera operational state
@@ -123,7 +123,7 @@ namespace ASCOM.Com.DriverAccess
         /// <value>The state of the camera.</value>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
-        public CameraState CameraState => (CameraState)base.Device.CameraState;
+        public CameraState CameraState => (CameraState)Device.CameraState;
 
         /// <summary>
         /// Returns the width of the CCD camera chip in unbinned pixels.
@@ -131,7 +131,7 @@ namespace ASCOM.Com.DriverAccess
         /// <value>The size of the camera X.</value>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
-        public int CameraXSize => base.Device.CameraXSize;
+        public int CameraXSize => Device.CameraXSize;
 
         /// <summary>
         /// Returns the height of the CCD camera chip in unbinned pixels.
@@ -139,7 +139,7 @@ namespace ASCOM.Com.DriverAccess
         /// <value>The size of the camera Y.</value>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
-        public int CameraYSize => base.Device.CameraYSize;
+        public int CameraYSize => Device.CameraYSize;
 
         /// <summary>
         /// Returns <c>true</c> if the camera can abort exposures; <c>false</c> if not.
@@ -152,7 +152,7 @@ namespace ASCOM.Com.DriverAccess
         /// <remarks>
         /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
         /// </remarks>
-        public bool CanAbortExposure => base.Device.CanAbortExposure;
+        public bool CanAbortExposure => Device.CanAbortExposure;
 
         /// <summary>
         /// Returns a flag showing whether this camera supports asymmetric binning
@@ -167,7 +167,7 @@ namespace ASCOM.Com.DriverAccess
         /// </value>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
-        public bool CanAsymmetricBin => base.Device.CanAsymmetricBin;
+        public bool CanAsymmetricBin => Device.CanAsymmetricBin;
 
         /// <summary>
         /// If <c>true</c>, the camera's cooler power setting can be read.
@@ -180,7 +180,7 @@ namespace ASCOM.Com.DriverAccess
         /// <remarks>
         /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
         /// </remarks>
-        public bool CanGetCoolerPower => base.Device.CanGetCoolerPower;
+        public bool CanGetCoolerPower => Device.CanGetCoolerPower;
 
         /// <summary>
         /// Returns a flag indicating whether this camera supports pulse guiding
@@ -195,7 +195,7 @@ namespace ASCOM.Com.DriverAccess
         /// </value>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
-        public bool CanPulseGuide => base.Device.CanPulseGuide;
+        public bool CanPulseGuide => Device.CanPulseGuide;
 
         /// <summary>
         /// Returns a flag indicating whether this camera supports setting the CCD temperature
@@ -211,7 +211,7 @@ namespace ASCOM.Com.DriverAccess
         /// </value>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
-        public bool CanSetCCDTemperature => base.Device.CanSetCCDTemperature;
+        public bool CanSetCCDTemperature => Device.CanSetCCDTemperature;
 
         /// <summary>
         /// Returns a flag indicating whether this camera can stop an exposure that is in progress
@@ -227,7 +227,7 @@ namespace ASCOM.Com.DriverAccess
         /// </value>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
-        public bool CanStopExposure => base.Device.CanStopExposure;
+        public bool CanStopExposure => Device.CanStopExposure;
 
         /// <summary>
         /// Returns the current CCD temperature in degrees Celsius.
@@ -237,7 +237,7 @@ namespace ASCOM.Com.DriverAccess
         /// <exception cref="NotImplementedException">Must throw exception if not supported.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
-        public double CCDTemperature => base.Device.CCDTemperature;
+        public double CCDTemperature => Device.CCDTemperature;
 
         /// <summary>
         /// Turns on and off the camera cooler, and returns the current on/off state.
@@ -252,7 +252,7 @@ namespace ASCOM.Com.DriverAccess
         /// <exception cref=" NotImplementedException">not supported</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
-        public bool CoolerOn { get => base.Device.CoolerOn; set => base.Device.CoolerOn = value; }
+        public bool CoolerOn { get => Device.CoolerOn; set => Device.CoolerOn = value; }
 
         /// <summary>
         /// Returns the present cooler power level, in percent.
@@ -264,7 +264,7 @@ namespace ASCOM.Com.DriverAccess
         /// <exception cref=" NotImplementedException">not supported</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
-        public double CoolerPower => base.Device.CoolerPower;
+        public double CoolerPower => Device.CoolerPower;
 
         /// <summary>
         /// Returns the gain of the camera in photoelectrons per A/D unit.
@@ -276,7 +276,7 @@ namespace ASCOM.Com.DriverAccess
         /// <value>The electrons per ADU.</value>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
-        public double ElectronsPerADU => base.Device.ElectronsPerADU;
+        public double ElectronsPerADU => Device.ElectronsPerADU;
 
         /// <summary>
         /// Reports the full well capacity of the camera in electrons, at the current camera settings (binning, SetupDialog settings, etc.)
@@ -284,7 +284,7 @@ namespace ASCOM.Com.DriverAccess
         /// <value>The full well capacity.</value>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
-        public double FullWellCapacity => base.Device.FullWellCapacity;
+        public double FullWellCapacity => Device.FullWellCapacity;
 
         /// <summary>
         /// Returns a flag indicating whether this camera has a mechanical shutter
@@ -299,7 +299,7 @@ namespace ASCOM.Com.DriverAccess
         /// </value>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
-        public bool HasShutter => base.Device.HasShutter;
+        public bool HasShutter => Device.HasShutter;
 
         /// <summary>
         /// Returns the current heat sink temperature (called "ambient temperature" by some manufacturers) in degrees Celsius.
@@ -310,7 +310,7 @@ namespace ASCOM.Com.DriverAccess
         /// <value>The heat sink temperature.</value>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
-        public double HeatSinkTemperature => base.Device.HeatSinkTemperature;
+        public double HeatSinkTemperature => Device.HeatSinkTemperature;
 
         /// <summary>
         /// Returns a safearray of int of size <see cref="NumX" /> * <see cref="NumY" /> containing the pixel values from the last exposure.
@@ -327,7 +327,7 @@ namespace ASCOM.Com.DriverAccess
         /// <exception cref="InvalidOperationException">If no image data is available.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
-        public object ImageArray => base.Device.ImageArray;
+        public object ImageArray => Device.ImageArray;
 
         /// <summary>
         /// Returns a safearray of Variant of size <see cref="NumX" /> * <see cref="NumY" /> containing the pixel values from the last exposure.
@@ -347,7 +347,7 @@ namespace ASCOM.Com.DriverAccess
         /// <exception cref="InvalidOperationException">If no image data is available.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
-        public object ImageArrayVariant => base.Device.ImageArrayVariant;
+        public object ImageArrayVariant => Device.ImageArrayVariant;
 
         /// <summary>
         /// Returns a flag indicating whether the image is ready to be downloaded from the camera
@@ -359,7 +359,7 @@ namespace ASCOM.Com.DriverAccess
         /// <value><c>true</c> if [image ready]; otherwise, <c>false</c>.</value>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
-        public bool ImageReady => base.Device.ImageReady;
+        public bool ImageReady => Device.ImageReady;
 
         /// <summary>
         /// Returns a flag indicating whether the camera is currently in a <see cref="PulseGuide">PulseGuide</see> operation.
@@ -373,7 +373,7 @@ namespace ASCOM.Com.DriverAccess
         /// </value>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
-        public bool IsPulseGuiding => base.Device.IsPulseGuiding;
+        public bool IsPulseGuiding => Device.IsPulseGuiding;
 
         /// <summary>
         /// Reports the actual exposure duration in seconds (i.e. shutter open time).
@@ -386,7 +386,7 @@ namespace ASCOM.Com.DriverAccess
         /// <exception cref="InvalidOperationException">If called before any exposure has been taken</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
-        public double LastExposureDuration => base.Device.LastExposureDuration;
+        public double LastExposureDuration => Device.LastExposureDuration;
 
         /// <summary>
         /// Reports the actual exposure start in the FITS-standard CCYY-MM-DDThh:mm:ss[.sss...] format.
@@ -397,7 +397,7 @@ namespace ASCOM.Com.DriverAccess
         /// <exception cref="InvalidOperationException">If called before any exposure has been taken</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
-        public string LastExposureStartTime => base.Device.LastExposureStartTime;
+        public string LastExposureStartTime => Device.LastExposureStartTime;
 
         /// <summary>
         /// Reports the maximum ADU value the camera can produce.
@@ -405,7 +405,7 @@ namespace ASCOM.Com.DriverAccess
         /// <value>The maximum ADU.</value>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
-        public int MaxADU => base.Device.MaxADU;
+        public int MaxADU => Device.MaxADU;
 
         /// <summary>
         /// Returns the maximum allowed binning for the X camera axis
@@ -417,7 +417,7 @@ namespace ASCOM.Com.DriverAccess
         /// <value>The max bin X.</value>
 		/// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
 		/// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
-        public short MaxBinX => base.Device.MaxBinX;
+        public short MaxBinX => Device.MaxBinX;
 
         /// <summary>
         /// Returns the maximum allowed binning for the Y camera axis
@@ -429,7 +429,7 @@ namespace ASCOM.Com.DriverAccess
         /// <value>The max bin Y.</value>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
-        public short MaxBinY => base.Device.MaxBinY;
+        public short MaxBinY => Device.MaxBinY;
 
         /// <summary>
         /// Sets the subframe width. Also returns the current value.
@@ -441,7 +441,7 @@ namespace ASCOM.Com.DriverAccess
         /// <value>The num X.</value>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
-        public int NumX { get => base.Device.NumX; set => base.Device.NumX = value; }
+        public int NumX { get => Device.NumX; set => Device.NumX = value; }
 
         /// <summary>
         /// Sets the subframe height. Also returns the current value.
@@ -454,7 +454,7 @@ namespace ASCOM.Com.DriverAccess
         /// <value>The num Y.</value>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
-        public int NumY { get => base.Device.NumY; set => base.Device.NumY = value; }
+        public int NumY { get => Device.NumY; set => Device.NumY = value; }
 
         /// <summary>
         /// Returns the width of the CCD chip pixels in microns.
@@ -462,7 +462,7 @@ namespace ASCOM.Com.DriverAccess
         /// <value>The pixel size X.</value>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
-        public double PixelSizeX => base.Device.PixelSizeX;
+        public double PixelSizeX => Device.PixelSizeX;
 
         /// <summary>
         /// Returns the height of the CCD chip pixels in microns.
@@ -470,7 +470,7 @@ namespace ASCOM.Com.DriverAccess
         /// <value>The pixel size Y.</value>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
-        public double PixelSizeY => base.Device.PixelSizeY;
+        public double PixelSizeY => Device.PixelSizeY;
 
         /// <summary>
         /// Sets the camera cooler setpoint in degrees Celsius, and returns the current setpoint.
@@ -488,7 +488,7 @@ namespace ASCOM.Com.DriverAccess
         /// <exception cref="NotImplementedException">Must throw exception if <see cref="CanSetCCDTemperature" /> is <c>false</c>.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
-        public double SetCCDTemperature { get => base.Device.SetCCDTemperature; set => base.Device.SetCCDTemperature = value; }
+        public double SetCCDTemperature { get => Device.SetCCDTemperature; set => Device.SetCCDTemperature = value; }
         /// <summary>
         /// Sets the subframe start position for the X axis (0 based) and returns the current value.
         /// </summary>
@@ -499,7 +499,7 @@ namespace ASCOM.Com.DriverAccess
         /// <value>The start X.</value>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
-        public int StartX { get => base.Device.StartX; set => base.Device.StartX = value; }
+        public int StartX { get => Device.StartX; set => Device.StartX = value; }
 
         /// <summary>
         /// Sets the subframe start position for the Y axis (0 based). Also returns the current value.
@@ -511,7 +511,7 @@ namespace ASCOM.Com.DriverAccess
         /// <value>The start Y.</value>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
-        public int StartY { get => base.Device.StartY; set => base.Device.StartY = value; }
+        public int StartY { get => Device.StartY; set => Device.StartY = value; }
 
         /// <summary>
         /// Returns the X offset of the Bayer matrix, as defined in <see cref="SensorType" />.
@@ -537,7 +537,7 @@ namespace ASCOM.Com.DriverAccess
                 {
                     throw new ASCOM.NotImplementedException("BayerOffsetX is only supported by Interface Versions 2 and above.");
                 }
-                return base.Device.BayerOffsetX;
+                return Device.BayerOffsetX;
             }
         }
 
@@ -565,7 +565,7 @@ namespace ASCOM.Com.DriverAccess
                 {
                     throw new ASCOM.NotImplementedException("BayerOffsetY is only supported by Interface Versions 2 and above.");
                 }
-                return base.Device.BayerOffsetY;
+                return Device.BayerOffsetY;
             }
         }
 
@@ -588,7 +588,7 @@ namespace ASCOM.Com.DriverAccess
                 {
                     return false;
                 }
-                return base.Device.CanFastReadout;
+                return Device.CanFastReadout;
             }
         }
 
@@ -612,7 +612,7 @@ namespace ASCOM.Com.DriverAccess
                 {
                     throw new ASCOM.NotImplementedException("ExposureMax is only supported by Interface Versions 2 and above.");
                 }
-                return base.Device.ExposureMax;
+                return Device.ExposureMax;
             }
         }
 
@@ -638,7 +638,7 @@ namespace ASCOM.Com.DriverAccess
                 {
                     throw new ASCOM.NotImplementedException("ExposureMin is only supported by Interface Versions 2 and above.");
                 }
-                return base.Device.ExposureMin;
+                return Device.ExposureMin;
             }
         }
 
@@ -666,7 +666,7 @@ namespace ASCOM.Com.DriverAccess
                 {
                     throw new ASCOM.NotImplementedException("ExposureResolution is only supported by Interface Versions 2 and above.");
                 }
-                return base.Device.ExposureResolution;
+                return Device.ExposureResolution;
             }
         }
 
@@ -697,7 +697,7 @@ namespace ASCOM.Com.DriverAccess
                 {
                     throw new ASCOM.NotImplementedException("FastReadout is only supported by Interface Versions 2 and above.");
                 }
-                return base.Device.FastReadout;
+                return Device.FastReadout;
             }
 
             set
@@ -706,7 +706,7 @@ namespace ASCOM.Com.DriverAccess
                 {
                     throw new ASCOM.NotImplementedException("FastReadout is only supported by Interface Versions 2 and above.");
                 }
-                base.Device.FastReadout = value;
+                Device.FastReadout = value;
             }
         }
 
@@ -754,7 +754,7 @@ namespace ASCOM.Com.DriverAccess
                 {
                     throw new ASCOM.NotImplementedException("Gain is only supported by Interface Versions 2 and above.");
                 }
-                return base.Device.Gain;
+                return Device.Gain;
             }
 
             set
@@ -763,7 +763,7 @@ namespace ASCOM.Com.DriverAccess
                 {
                     throw new ASCOM.NotImplementedException("Gain is only supported by Interface Versions 2 and above.");
                 }
-                base.Device.Gain = value;
+                Device.Gain = value;
             }
         }
 
@@ -793,7 +793,7 @@ namespace ASCOM.Com.DriverAccess
                 {
                     throw new ASCOM.NotImplementedException("GainMax is only supported by Interface Versions 2 and above.");
                 }
-                return base.Device.GainMax;
+                return Device.GainMax;
             }
         }
 
@@ -823,7 +823,7 @@ namespace ASCOM.Com.DriverAccess
                 {
                     throw new ASCOM.NotImplementedException("GainMin is only supported by Interface Versions 2 and above.");
                 }
-                return base.Device.GainMin;
+                return Device.GainMin;
             }
         }
 
@@ -886,7 +886,7 @@ namespace ASCOM.Com.DriverAccess
                 {
                     throw new ASCOM.NotImplementedException("PercentCompleted is only supported by Interface Versions 2 and above.");
                 }
-                return base.Device.PercentCompleted;
+                return Device.PercentCompleted;
             }
         }
 
@@ -916,7 +916,7 @@ namespace ASCOM.Com.DriverAccess
                 {
                     throw new ASCOM.NotImplementedException("ReadoutMode is only supported by Interface Versions 2 and above.");
                 }
-                return base.Device.ReadoutMode;
+                return Device.ReadoutMode;
             }
 
             set
@@ -925,7 +925,7 @@ namespace ASCOM.Com.DriverAccess
                 {
                     throw new ASCOM.NotImplementedException("ReadoutMode is only supported by Interface Versions 2 and above.");
                 }
-                base.Device.ReadoutMode = value;
+                Device.ReadoutMode = value;
             }
         }
 
@@ -1006,7 +1006,7 @@ namespace ASCOM.Com.DriverAccess
                 {
                     throw new ASCOM.NotImplementedException("SensorName is only supported by Interface Versions 2 and above.");
                 }
-                return base.Device.SensorName;
+                return Device.SensorName;
             }
         }
 
@@ -1695,7 +1695,7 @@ namespace ASCOM.Com.DriverAccess
                 {
                     throw new ASCOM.NotImplementedException("SensorType is only supported by Interface Versions 2 and above.");
                 }
-                return (SensorType)base.Device.SensorType;
+                return (SensorType)Device.SensorType;
             }
         }
 
@@ -1743,7 +1743,7 @@ namespace ASCOM.Com.DriverAccess
                 {
                     throw new ASCOM.NotImplementedException("Offset is only supported by Interface Versions 3 and above.");
                 }
-                return base.Device.Offset;
+                return Device.Offset;
             }
 
             set
@@ -1752,7 +1752,7 @@ namespace ASCOM.Com.DriverAccess
                 {
                     throw new ASCOM.NotImplementedException("Offset is only supported by Interface Versions 3 and above.");
                 }
-                base.Device.Offset = value;
+                Device.Offset = value;
             }
         }
 
@@ -1782,7 +1782,7 @@ namespace ASCOM.Com.DriverAccess
                 {
                     throw new ASCOM.NotImplementedException("OffsetMax is only supported by Interface Versions 3 and above.");
                 }
-                return base.Device.OffsetMax;
+                return Device.OffsetMax;
             }
         }
 
@@ -1812,7 +1812,7 @@ namespace ASCOM.Com.DriverAccess
                 {
                     throw new ASCOM.NotImplementedException("OffsetMin is only supported by Interface Versions 3 and above.");
                 }
-                return base.Device.OffsetMin;
+                return Device.OffsetMin;
             }
         }
 
@@ -1865,7 +1865,7 @@ namespace ASCOM.Com.DriverAccess
                 {
                     throw new ASCOM.NotImplementedException("SubExposureDuration is only supported by Interface Versions 3 and above.");
                 }
-                return base.Device.SubExposureDuration;
+                return Device.SubExposureDuration;
             }
 
             set
@@ -1874,7 +1874,7 @@ namespace ASCOM.Com.DriverAccess
                 {
                     throw new ASCOM.NotImplementedException("SubExposureDuration is only supported by Interface Versions 3 and above.");
                 }
-                base.Device.SubExposureDuration = value;
+                Device.SubExposureDuration = value;
             }
         }
 
@@ -1896,7 +1896,7 @@ namespace ASCOM.Com.DriverAccess
         /// <exception cref="DriverException">Thrown if a communications error occurs, or if the abort fails.</exception>
         public void AbortExposure()
         {
-            base.Device.AbortExposure();
+            Device.AbortExposure();
         }
 
         /// <summary>
@@ -1926,7 +1926,7 @@ namespace ASCOM.Com.DriverAccess
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         public void PulseGuide(GuideDirection Direction, int Duration)
         {
-            base.Device.PulseGuide(Direction, Duration);
+            Device.PulseGuide(Direction, Duration);
         }
 
         /// <summary>
@@ -1949,7 +1949,7 @@ namespace ASCOM.Com.DriverAccess
 		/// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         public void StartExposure(double Duration, bool Light)
         {
-            base.Device.StartExposure(Duration, Light);
+            Device.StartExposure(Duration, Light);
         }
 
         /// <summary>
@@ -1964,7 +1964,7 @@ namespace ASCOM.Com.DriverAccess
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         public void StopExposure()
         {
-            base.Device.StopExposure();
+            Device.StopExposure();
         }
     }
 }

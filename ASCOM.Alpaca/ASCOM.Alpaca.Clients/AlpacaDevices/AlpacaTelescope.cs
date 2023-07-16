@@ -4,6 +4,7 @@ using ASCOM.Common.DeviceInterfaces;
 using ASCOM.Common.Interfaces;
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Net.Http;
@@ -17,6 +18,8 @@ namespace ASCOM.Alpaca.Clients
     public class AlpacaTelescope : AlpacaDeviceBaseClass, ITelescopeV4
     {
         #region Variables and Constants
+
+        Operation currentOperation = Operation.None; // Current operation name
 
         #endregion
 
@@ -160,6 +163,7 @@ namespace ASCOM.Alpaca.Clients
         /// </remarks>
         public void AbortSlew()
         {
+            currentOperation = Operation.AbortSlew; // Set the current operation
             DynamicClientDriver.CallMethodWithNoParameters(clientNumber, client, longDeviceResponseTimeout, URIBase, strictCasing, logger, "AbortSlew", MemberTypes.Method);
             LogMessage(logger, clientNumber, "AbortSlew", "Slew aborted OK");
         }
@@ -777,6 +781,7 @@ namespace ASCOM.Alpaca.Clients
         /// </remarks>
         public void FindHome()
         {
+            currentOperation = Operation.FindHome; // Set the current operation
             DynamicClientDriver.CallMethodWithNoParameters(clientNumber, client, longDeviceResponseTimeout, URIBase, strictCasing, logger, "FindHome", MemberTypes.Method);
             LogMessage(logger, clientNumber, "FindHome", "Home found OK");
         }
@@ -918,6 +923,7 @@ namespace ASCOM.Alpaca.Clients
         /// </remarks>
         public void MoveAxis(TelescopeAxis Axis, double Rate)
         {
+            currentOperation = Operation.MoveAxis; // Set the current operation
             Dictionary<string, string> Parameters = new Dictionary<string, string>
             {
                 { AlpacaConstants.AXIS_PARAMETER_NAME, ((int)Axis).ToString(CultureInfo.InvariantCulture) },
@@ -939,6 +945,7 @@ namespace ASCOM.Alpaca.Clients
         /// </remarks>
         public void Park()
         {
+            currentOperation = Operation.Park; // Set the current operation
             DynamicClientDriver.CallMethodWithNoParameters(clientNumber, client, longDeviceResponseTimeout, URIBase, strictCasing, logger, "Park", MemberTypes.Method);
             LogMessage(logger, clientNumber, "Park", "Parked OK");
         }
@@ -974,6 +981,7 @@ namespace ASCOM.Alpaca.Clients
         /// </remarks>
         public void PulseGuide(GuideDirection Direction, int Duration)
         {
+            currentOperation = Operation.PulseGuide; // Set the current operation
             Dictionary<string, string> Parameters = new Dictionary<string, string>
             {
                 { AlpacaConstants.DIRECTION_PARAMETER_NAME, ((int)Direction).ToString(CultureInfo.InvariantCulture) },
@@ -1139,6 +1147,7 @@ namespace ASCOM.Alpaca.Clients
             }
             set
             {
+                currentOperation = Operation.SideOfPier; // Set the current operation
                 Dictionary<string, string> Parameters = new Dictionary<string, string>
                 {
                     { AlpacaConstants.SIDEOFPIER_PARAMETER_NAME, ((int)value).ToString(CultureInfo.InvariantCulture) }
@@ -1314,6 +1323,7 @@ namespace ASCOM.Alpaca.Clients
         /// </remarks>
         public void SlewToAltAzAsync(double Azimuth, double Altitude)
         {
+            currentOperation = Operation.SlewToAltAzAsync; // Set the current operation
             Dictionary<string, string> Parameters = new Dictionary<string, string>
             {
                 { AlpacaConstants.AZ_PARAMETER_NAME, Azimuth.ToString(CultureInfo.InvariantCulture) },
@@ -1373,6 +1383,7 @@ namespace ASCOM.Alpaca.Clients
         /// </remarks>
         public void SlewToCoordinatesAsync(double RightAscension, double Declination)
         {
+            currentOperation = Operation.SlewToCoordinatesAsync; // Set the current operation
             Dictionary<string, string> Parameters = new Dictionary<string, string>
             {
                 { AlpacaConstants.RA_PARAMETER_NAME, RightAscension.ToString(CultureInfo.InvariantCulture) },
@@ -1417,6 +1428,7 @@ namespace ASCOM.Alpaca.Clients
         /// </remarks>
         public void SlewToTargetAsync()
         {
+            currentOperation = Operation.SlewToTargetAsync; // Set the current operation
             DynamicClientDriver.CallMethodWithNoParameters(clientNumber, client, longDeviceResponseTimeout, URIBase, strictCasing, logger, "SlewToTargetAsync", MemberTypes.Method);
             LogMessage(logger, clientNumber, "SlewToTargetAsync", "Slew completed OK");
         }
@@ -1676,6 +1688,7 @@ namespace ASCOM.Alpaca.Clients
         /// </remarks>
         public void Unpark()
         {
+            currentOperation = Operation.Unpark; // Set the current operation
             DynamicClientDriver.CallMethodWithNoParameters(clientNumber, client, longDeviceResponseTimeout, URIBase, strictCasing, logger, "UnPark", MemberTypes.Method);
             LogMessage(logger, clientNumber, "UnPark", "Unparked OK");
         }
@@ -1685,50 +1698,40 @@ namespace ASCOM.Alpaca.Clients
         #region ITelescopeV4 members
 
         /// <summary>
-        /// 
-        /// </summary>
-        public bool Connecting
-        {
-            get 
-            {
-                return DynamicClientDriver.GetValue<bool>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "Connecting", MemberTypes.Property);
-            }
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        public void Connect()
-        {
-            DynamicClientDriver.CallMethodWithNoParameters(clientNumber, client, longDeviceResponseTimeout, URIBase, strictCasing, logger, "Connect", MemberTypes.Method);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public void Disconnect()
-        {
-            DynamicClientDriver.CallMethodWithNoParameters(clientNumber, client, longDeviceResponseTimeout, URIBase, strictCasing, logger, "Disconnect", MemberTypes.Method);
-        }
-
-        /// <summary>
-        /// 
+        /// Completion variable for asynchronous telescope movement
         /// </summary>
         public bool OperationComplete
         {
             get
             {
-                return DynamicClientDriver.GetValue<bool>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "OperationComplete", MemberTypes.Property);
-            }
-        }
+                if (InterfaceVersion < 4)
+                {
+                    switch (currentOperation)
+                    {
+                        case Operation.FindHome:
+                            return DynamicClientDriver.GetValue<bool>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "AtHome", MemberTypes.Property);
 
-        /// <summary>
-        /// 
-        /// </summary>
-        public IList<IStateValue> DeviceState
-        {
-            get 
-            {
-                return DynamicClientDriver.GetValue<IList<IStateValue>>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "DeviceState", MemberTypes.Property);
+                        case Operation.Park:
+                        case Operation.Unpark:
+                            return DynamicClientDriver.GetValue<bool>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "AtPark", MemberTypes.Property);
+
+                        case Operation.MoveAxis:
+                        case Operation.SideOfPier:
+                        case Operation.SlewToAltAzAsync:
+                        case Operation.SlewToCoordinatesAsync:
+                        case Operation.SlewToTargetAsync:
+                        case Operation.AbortSlew:
+                            return !DynamicClientDriver.GetValue<bool>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "Slewing", MemberTypes.Property);
+
+                        case Operation.PulseGuide:
+                            return !DynamicClientDriver.GetValue<bool>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "IsPulseGuiding", MemberTypes.Property);
+
+                        default:
+                            throw new InvalidOperationException($"OperationComplete - Unexpected Operation value: {currentOperation}");
+                    }
+                }
+
+                return DynamicClientDriver.GetValue<bool>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "OperationComplete", MemberTypes.Property);
             }
         }
 

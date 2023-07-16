@@ -34,7 +34,7 @@ namespace ASCOM.Com.DriverAccess
             {
                 if (InterfaceVersion == 1)
                 {
-                    return base.Device.Link;
+                    return Device.Link;
                 }
                 return base.Connected;
             }
@@ -43,7 +43,7 @@ namespace ASCOM.Com.DriverAccess
                 //Interface Version 1 focusers do not have a Connected property and must use Link instead.
                 if (InterfaceVersion == 1)
                 {
-                    base.Device.Link = value;
+                    Device.Link = value;
                 }
                 else
                 {
@@ -132,7 +132,7 @@ namespace ASCOM.Com.DriverAccess
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks><p style="color:red"><b>Must be implemented</b></p> </remarks>
-        public bool Absolute => base.Device.Absolute;
+        public bool Absolute => Device.Absolute;
 
         /// <summary>
         /// True if the focuser is currently moving to a new position. False if the focuser is stationary.
@@ -140,7 +140,7 @@ namespace ASCOM.Com.DriverAccess
         /// <exception cref="NotConnectedException">If the driver is not connected.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks><p style="color:red"><b>Must be implemented</b></p></remarks>
-        public bool IsMoving => base.Device.IsMoving;
+        public bool IsMoving => Device.IsMoving;
 
         /// <summary>
         /// Maximum increment size allowed by the focuser; 
@@ -152,7 +152,7 @@ namespace ASCOM.Com.DriverAccess
         /// <p style="color:red"><b>Must be implemented</b></p>
         /// For most focusers this is the same as the <see cref="MaxStep" /> property. This is normally used to limit the Increment display in the host software.
         /// </remarks>
-        public int MaxIncrement => base.Device.MaxIncrement;
+        public int MaxIncrement => Device.MaxIncrement;
 
         /// <summary>
         /// Maximum step position permitted.
@@ -163,7 +163,7 @@ namespace ASCOM.Com.DriverAccess
         /// <p style="color:red"><b>Must be implemented</b></p>
         /// The focuser can step between 0 and <see cref="MaxStep" />. If an attempt is made to move the focuser beyond these limits, it will automatically stop at the limit.
         /// </remarks>
-        public int MaxStep => base.Device.MaxStep;
+        public int MaxStep => Device.MaxStep;
 
         /// <summary>
         /// Current focuser position, in steps.
@@ -175,7 +175,7 @@ namespace ASCOM.Com.DriverAccess
         /// <p style="color:red"><b>Can throw a not implemented exception</b></p> Valid only for absolute positioning focusers (see the <see cref="Absolute" /> property).
         /// A <see cref="NotImplementedException">NotImplementedException</see> exception must be thrown if this device is a relative positioning focuser rather than an absolute position focuser.
         /// </remarks>
-        public int Position => base.Device.Position;
+        public int Position => Device.Position;
 
         /// <summary>
         /// Step size (microns) for the focuser.
@@ -184,7 +184,7 @@ namespace ASCOM.Com.DriverAccess
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks><p style="color:red"><b>Can throw a not implemented exception</b></p> Must throw an exception if the focuser does not intrinsically know what the step size is.</remarks>
-        public double StepSize => base.Device.StepSize;
+        public double StepSize => Device.StepSize;
 
         /// <summary>
         /// The state of temperature compensation mode (if available), else always False.
@@ -206,7 +206,7 @@ namespace ASCOM.Com.DriverAccess
         /// temperature compensation or simply by moving the focuser with compensation enabled if the hardware supports this.</para>
         /// <para>Conform will continue to pass IFocuserV2 drivers that throw InvalidOperationException exceptions. However, Conform will now fail IFocuserV3 drivers that throw InvalidOperationException exceptions, in line with this revised specification.</para>
         /// </remarks>
-        public bool TempComp { get => base.Device.TempComp; set => base.Device.TempComp = value; }
+        public bool TempComp { get => Device.TempComp; set => Device.TempComp = value; }
 
         /// <summary>
         /// True if focuser has temperature compensation available.
@@ -217,7 +217,7 @@ namespace ASCOM.Com.DriverAccess
         /// <p style="color:red"><b>Must be implemented</b></p>
         /// Will be True only if the focuser's temperature compensation can be turned on and off via the <see cref="TempComp" /> property. 
         /// </remarks>
-        public bool TempCompAvailable => base.Device.TempCompAvailable;
+        public bool TempCompAvailable => Device.TempCompAvailable;
 
         /// <summary>
         /// Current ambient temperature as measured by the focuser.
@@ -228,7 +228,7 @@ namespace ASCOM.Com.DriverAccess
         /// <remarks><p style="color:red"><b>Can throw a not implemented exception</b></p> 
         /// Raises an exception if ambient temperature is not available. Commonly available on focusers with a built-in temperature compensation mode. 
         /// </remarks>
-        public double Temperature => base.Device.Temperature;
+        public double Temperature => Device.Temperature;
 
         /// <summary>
         /// Immediately stop any focuser motion due to a previous <see cref="Move" /> method call.
@@ -243,7 +243,7 @@ namespace ASCOM.Com.DriverAccess
         /// </remarks>
         public void Halt()
         {
-            base.Device.Halt();
+            Device.Halt();
         }
 
         /// <summary>
@@ -267,7 +267,7 @@ namespace ASCOM.Com.DriverAccess
         /// </remarks>
         public void Move(int Position)
         {
-            base.Device.Move(Position);
+            Device.Move(Position);
         }
     }
 }

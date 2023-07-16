@@ -107,7 +107,7 @@ namespace ASCOM.Com.DriverAccess
         /// For each valid slot number (from 0 to N-1), reports the focus offset for the given filter position.  These values are focuser and filter dependent, and  would usually be set up by the user via 
         /// the SetupDialog. The number of slots N can be determined from the length of the array. If focuser offsets are not available, then it should report back 0 for all array values.
         /// </remarks>
-        public int[] FocusOffsets => base.Device.FocusOffsets;
+        public int[] FocusOffsets => Device.FocusOffsets;
 
         /// <summary>
         /// Name of each filter in the wheel
@@ -119,7 +119,7 @@ namespace ASCOM.Com.DriverAccess
         /// For each valid slot number (from 0 to N-1), reports the name given to the filter position.  These names would usually be set up by the user via the
         /// SetupDialog.  The number of slots N can be determined from the length of the array.  If filter names are not available, then it should report back "Filter 1", "Filter 2", etc.
         /// </remarks>
-        public string[] Names => base.Device.Names;
+        public string[] Names => Device.Names;
 
         /// <summary>
         /// Sets or returns the current filter wheel position
@@ -136,6 +136,6 @@ namespace ASCOM.Com.DriverAccess
         /// <para>Some filter wheels are built into the camera (one driver, two interfaces).  Some cameras may not actually rotate the wheel until the exposure is triggered.  In this case, the written value is available
         /// immediately as the read value, and -1 is never produced.</para>
         /// </remarks>
-        public short Position { get => base.Device.Position; set => base.Device.Position = value; }
+        public short Position { get => Device.Position; set => Device.Position = value; }
     }
 }

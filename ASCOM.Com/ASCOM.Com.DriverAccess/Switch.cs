@@ -30,7 +30,7 @@ namespace ASCOM.Com.DriverAccess
         /// <returns>The number of devices managed by this driver.</returns>
         /// <remarks><p style="color:red"><b>Must be implemented, must not throw a <see cref="NotImplementedException"/></b></p> 
         /// <p>Devices are numbered from 0 to <see cref="MaxSwitch"/> - 1</p></remarks>
-        public short MaxSwitch => base.Device.MaxSwitch;
+        public short MaxSwitch => Device.MaxSwitch;
 
         /// <summary>
         /// Return the name of switch device n.
@@ -44,7 +44,7 @@ namespace ASCOM.Com.DriverAccess
         /// <para>Devices are numbered from 0 to <see cref="MaxSwitch"/> - 1</para></remarks>
         public string GetSwitchName(short id)
         {
-            return base.Device.GetSwitchName(id);
+            return Device.GetSwitchName(id);
         }
 
         /// <summary>
@@ -61,7 +61,7 @@ namespace ASCOM.Com.DriverAccess
         /// </remarks>
         public void SetSwitchName(short id, string name)
         {
-            base.Device.SetSwitchName(id, name);
+            Device.SetSwitchName(id, name);
         }
 
         /// <summary>
@@ -81,7 +81,7 @@ namespace ASCOM.Com.DriverAccess
         /// </remarks>
         public string GetSwitchDescription(short id)
         {
-            return base.Device.GetSwitchDescription(id);
+            return Device.GetSwitchDescription(id);
         }
 
         /// <summary>
@@ -101,7 +101,7 @@ namespace ASCOM.Com.DriverAccess
         /// </remarks>
         public bool CanWrite(short id)
         {
-            return base.Device.CanWrite(id);
+            return Device.CanWrite(id);
         }
 
         /// <summary>
@@ -126,7 +126,7 @@ namespace ASCOM.Com.DriverAccess
         /// <para>Devices are numbered from 0 to <see cref="MaxSwitch"/> - 1</para></remarks>
         public bool GetSwitch(short id)
         {
-            return base.Device.GetSwitch(id);
+            return Device.GetSwitch(id);
         }
 
         /// <summary>
@@ -143,7 +143,7 @@ namespace ASCOM.Com.DriverAccess
         /// <para>Devices are numbered from 0 to <see cref="MaxSwitch"/> - 1</para></remarks>
         public void SetSwitch(short id, bool state)
         {
-            base.Device.SetSwitch(id, state);
+            Device.SetSwitch(id, state);
         }
 
         /// <summary>
@@ -163,7 +163,7 @@ namespace ASCOM.Com.DriverAccess
         {
             try
             {
-                return base.Device.MaxSwitchValue(id);
+                return Device.MaxSwitchValue(id);
             }
             catch (ASCOM.NotImplementedException)
             {
@@ -188,7 +188,7 @@ namespace ASCOM.Com.DriverAccess
         {
             try
             {
-                return base.Device.MinSwitchValue(id);
+                return Device.MinSwitchValue(id);
             }
             catch (ASCOM.NotImplementedException)
             {
@@ -218,7 +218,7 @@ namespace ASCOM.Com.DriverAccess
         {
             try
             {
-                return base.Device.SwitchStep(id);
+                return Device.SwitchStep(id);
             }
             catch (ASCOM.NotImplementedException)
             {
@@ -251,7 +251,7 @@ namespace ASCOM.Com.DriverAccess
         {
             try
             {
-                return base.Device.GetSwitchValue(id);
+                return Device.GetSwitchValue(id);
             }
             catch (ASCOM.NotImplementedException)
             {
@@ -280,7 +280,7 @@ namespace ASCOM.Com.DriverAccess
         {
             try
             {
-                base.Device.SetSwitchValue(id, value);
+                Device.SetSwitchValue(id, value);
             }
             catch (ASCOM.NotImplementedException)
             {

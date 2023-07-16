@@ -370,7 +370,7 @@ namespace ASCOM.Com
             Process clientManagerProcess;
 
             // Construct path to the executable that will dynamically create a new Alpaca COM client
-            clientManagerWorkingDirectory = $@"{Environment.GetFolderPath(SpecialFolder.ProgramFilesX86)}\{ALPACA_DYNAMIC_CLIENT_MANAGER_RELATIVE_PATH}";
+            clientManagerWorkingDirectory = $@"{GetFolderPath(SpecialFolder.ProgramFilesX86)}\{ALPACA_DYNAMIC_CLIENT_MANAGER_RELATIVE_PATH}";
             clientManagerExeFile = $@"{clientManagerWorkingDirectory}\{ALPACA_DYNAMIC_CLIENT_MANAGER_EXE_NAME}";
 
             LogMessage("RunDynamicClientManager", $"Generator parameters: '{parameterString}'");
