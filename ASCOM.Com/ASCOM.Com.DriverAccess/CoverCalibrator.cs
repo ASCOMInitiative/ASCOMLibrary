@@ -33,7 +33,7 @@ namespace ASCOM.Com.DriverAccess
         /// <para>If the cover hardware cannot report its state, the device could mimic this by recording the last configured state and returning this. Driver authors or device manufacturers may also wish to offer users
         /// the capability of powering up in a known state e.g. Open or Closed and driving the hardware to this state when Connected is set <see langword="true"/>.</para>
         /// </remarks>
-        public CoverStatus CoverState => (CoverStatus)base.Device.CoverState;
+        public CoverStatus CoverState => (CoverStatus)Device.CoverState;
 
         /// <summary>
         /// Returns the state of the calibration device, if present, otherwise returns "NotPresent"
@@ -46,7 +46,7 @@ namespace ASCOM.Com.DriverAccess
         /// <para>If the calibrator hardware cannot report its state, the device could mimic this by recording the last configured state and returning this. Driver authors or device manufacturers may also wish to offer users
         /// the capability of powering up in a known state and driving the hardware to this state when Connected is set <see langword="true"/>.</para>
         /// </remarks>
-        public CalibratorStatus CalibratorState => (CalibratorStatus)base.Device.CalibratorState;
+        public CalibratorStatus CalibratorState => (CalibratorStatus)Device.CalibratorState;
 
         /// <summary>
         /// Returns the current calibrator brightness in the range 0 (completely off) to <see cref="MaxBrightness"/> (fully on)
@@ -58,7 +58,7 @@ namespace ASCOM.Com.DriverAccess
         /// <para>This is a mandatory property that must always return a value for a calibrator device </para>
         /// <para>The brightness value must be 0 when the <see cref="CalibratorState"/> is <see cref="CalibratorStatus.Off"/></para>
         /// </remarks>
-        public int Brightness => base.Device.Brightness;
+        public int Brightness => Device.Brightness;
 
         /// <summary>
         /// The Brightness value that makes the calibrator deliver its maximum illumination.
@@ -72,7 +72,7 @@ namespace ASCOM.Com.DriverAccess
         /// <para>A value of 10 indicates that the calibrator has 10 discreet illumination levels in addition to "off".</para>
         /// <para>The value for this parameter should be determined by the driver author or device manufacturer based on the capabilities of the hardware used in the calibrator.</para>
         /// </remarks>
-        public int MaxBrightness => base.Device.MaxBrightness;
+        public int MaxBrightness => Device.MaxBrightness;
 
         /// <summary>
         /// Initiates cover opening if a cover is present
@@ -87,7 +87,7 @@ namespace ASCOM.Com.DriverAccess
         /// </remarks>
         public void OpenCover()
         {
-            base.Device.OpenCover();
+            Device.OpenCover();
         }
 
         /// <summary>
@@ -103,7 +103,7 @@ namespace ASCOM.Com.DriverAccess
         /// </remarks>
         public void CloseCover()
         {
-            base.Device.CloseCover();
+            Device.CloseCover();
         }
 
         /// <summary>
@@ -119,7 +119,7 @@ namespace ASCOM.Com.DriverAccess
         /// </remarks>
         public void HaltCover()
         {
-            base.Device.HaltCover();
+            Device.HaltCover();
         }
 
         /// <summary>
@@ -139,7 +139,7 @@ namespace ASCOM.Com.DriverAccess
         /// </remarks>
         public void CalibratorOn(int Brightness)
         {
-            base.Device.CalibratorOn(Brightness);
+            Device.CalibratorOn(Brightness);
         }
 
         /// <summary>
@@ -157,7 +157,7 @@ namespace ASCOM.Com.DriverAccess
         /// </remarks>
         public void CalibratorOff()
         {
-            base.Device.CalibratorOff();
+            Device.CalibratorOff();
         }
     }
 }

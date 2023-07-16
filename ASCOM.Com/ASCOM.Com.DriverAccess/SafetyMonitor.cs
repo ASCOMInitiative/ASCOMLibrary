@@ -32,6 +32,6 @@ namespace ASCOM.Com.DriverAccess
         /// <remarks>
         /// <p style="color:red;margin-bottom:0"><b>Must be implemented and must not throw a NotImplementedException. </b></p>
         /// </remarks>
-        public bool IsSafe => base.Device.IsSafe;
+        public bool IsSafe => Device.IsSafe;
     }
 }

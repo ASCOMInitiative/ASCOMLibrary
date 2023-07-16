@@ -36,7 +36,7 @@ namespace ASCOM.Com.DriverAccess
         /// <para>Please resist the temptation to throw exceptions when clients query sensor properties when insufficient time has passed to get a true average reading. 
         /// A best estimate of the average sensor value should be returned in these situations. </para> 
         /// </remarks>
-        public double AveragePeriod { get => base.Device.AveragePeriod; set => base.Device.AveragePeriod = value; }
+        public double AveragePeriod { get => Device.AveragePeriod; set => Device.AveragePeriod = value; }
 
         /// <summary>
         /// Amount of sky obscured by cloud
@@ -49,7 +49,7 @@ namespace ASCOM.Com.DriverAccess
         /// <p style="color:red"><b>Optional property, can throw a NotImplementedException</b></p>
         /// This property should return a value between 0.0 and 100.0 where 0.0 = clear sky and 100.0 = 100% cloud coverage
         /// </remarks>
-        public double CloudCover => base.Device.CloudCover;
+        public double CloudCover => Device.CloudCover;
 
         /// <summary>
         /// Atmospheric dew point at the observatory
@@ -66,7 +66,7 @@ namespace ASCOM.Com.DriverAccess
         /// one to be implemented and the other to throw a NotImplementedException. The ASCOM.Tools.Utilities component contains methods DewPoint2Humidity and 
         /// Humidity2DewPoint to convert DewPoint to Humidity and vice versa given the ambient temperature.</para>
         /// </remarks>
-        public double DewPoint => base.Device.DewPoint;
+        public double DewPoint => Device.DewPoint;
 
         /// <summary>
         /// Atmospheric humidity at the observatory
@@ -83,7 +83,7 @@ namespace ASCOM.Com.DriverAccess
         /// Humidity2DewPoint to convert DewPoint to Humidity and vice versa given the ambient temperature.</para>
         /// <para>This property should return a value between 0.0 and 100.0 where 0.0 = 0% relative humidity and 100.0 = 100% relative humidity.</para>
         /// </remarks>
-        public double Humidity => base.Device.Humidity;
+        public double Humidity => Device.Humidity;
 
         /// <summary>
         /// Atmospheric pressure at the observatory
@@ -102,7 +102,7 @@ namespace ASCOM.Com.DriverAccess
         /// The ASCOM.Tools.Utilities.ConvertPressure method can be used to effect this adjustment.
         /// </para>
         /// </remarks>
-        public double Pressure => base.Device.Pressure;
+        public double Pressure => Device.Pressure;
 
         /// <summary>
         /// Rain rate at the observatory
@@ -124,7 +124,7 @@ namespace ASCOM.Com.DriverAccess
         /// <item><description>Violent rain — when the precipitation rate is &gt; 50 mm (2.0 in) per hour</description></item>
         /// </list>
         /// </remarks>
-        public double RainRate => base.Device.RainRate;
+        public double RainRate => Device.RainRate;
 
         /// <summary>
         /// Sky brightness at the observatory
@@ -155,7 +155,7 @@ namespace ASCOM.Com.DriverAccess
         /// <item><description>32000–100000 lux</description><description>Direct sunlight</description></item>
         /// </list>
         /// </remarks>
-        public double SkyBrightness => base.Device.SkyBrightness;
+        public double SkyBrightness => Device.SkyBrightness;
 
         /// <summary>
         /// Sky quality at the observatory
@@ -307,7 +307,7 @@ namespace ASCOM.Com.DriverAccess
         /// </table>
         /// </para>
         /// </remarks>
-        public double SkyQuality => base.Device.SkyQuality;
+        public double SkyQuality => Device.SkyQuality;
 
         /// <summary>
         /// Seeing at the observatory measured as star full width half maximum (FWHM) in arc secs.
@@ -319,7 +319,7 @@ namespace ASCOM.Com.DriverAccess
         /// <remarks>
         /// <p style="color:red"><b>Optional property, can throw a NotImplementedException</b></p>
         /// </remarks>
-        public double StarFWHM => base.Device.StarFWHM;
+        public double StarFWHM => Device.StarFWHM;
 
         /// <summary>
         /// Sky temperature at the observatory
@@ -334,7 +334,7 @@ namespace ASCOM.Com.DriverAccess
         /// to convert these units to and from degrees Fahrenheit.</para>
         /// <para>This is expected to be returned by an infra-red sensor looking at the sky. The lower the temperature the more the sky is likely to be clear.</para>
         /// </remarks>
-        public double SkyTemperature => base.Device.SkyTemperature;
+        public double SkyTemperature => Device.SkyTemperature;
 
         /// <summary>
         /// Temperature at the observatory
@@ -349,7 +349,7 @@ namespace ASCOM.Com.DriverAccess
         /// to convert these units to and from degrees Fahrenheit.</para>
         /// <para>This is expected to be the ambient temperature at the observatory.</para>
         /// </remarks>
-        public double Temperature => base.Device.Temperature;
+        public double Temperature => Device.Temperature;
 
         /// <summary>
         /// Wind direction at the observatory
@@ -363,7 +363,7 @@ namespace ASCOM.Com.DriverAccess
         /// The returned value must be between 0.0 and 360.0, interpreted according to the meteorological standard, where a special value of 0.0 is returned when the wind speed is 0.0. 
         /// Wind direction is measured clockwise from north, through east, where East=90.0, South=180.0, West=270.0 and North=360.0.
         /// </remarks>
-        public double WindDirection => base.Device.WindDirection;
+        public double WindDirection => Device.WindDirection;
 
         /// <summary>
         /// Peak 3 second wind gust at the observatory over the last 2 minutes
@@ -377,7 +377,7 @@ namespace ASCOM.Com.DriverAccess
         /// The units of this property are metres per second. Driver and application authors can use the ASCOM.Tools.Utilities.ConvertUnits method
         /// to convert these units to and from miles per hour or knots.
         /// </remarks>
-        public double WindGust => base.Device.WindGust;
+        public double WindGust => Device.WindGust;
 
         /// <summary>
         /// Wind speed at the observatory
@@ -391,7 +391,7 @@ namespace ASCOM.Com.DriverAccess
         /// The units of this property are metres per second. Driver and application authors can use the ASCOM.Tools.Utilities.ConvertUnits method
         /// to convert these units to and from miles per hour or knots.
         /// </remarks>
-        public double WindSpeed => base.Device.WindSpeed;
+        public double WindSpeed => Device.WindSpeed;
 
         /// <summary>
         /// Provides the time since the sensor value was last updated
@@ -410,7 +410,7 @@ namespace ASCOM.Com.DriverAccess
         /// </remarks>
         public double TimeSinceLastUpdate(string PropertyName)
         {
-            return base.Device.TimeSinceLastUpdate(PropertyName);
+            return Device.TimeSinceLastUpdate(PropertyName);
         }
 
         /// <summary>
@@ -431,7 +431,7 @@ namespace ASCOM.Com.DriverAccess
         /// </remarks>
         public string SensorDescription(string PropertyName)
         {
-            return base.Device.SensorDescription(PropertyName);
+            return Device.SensorDescription(PropertyName);
         }
 
         /// <summary>
@@ -445,7 +445,7 @@ namespace ASCOM.Com.DriverAccess
         /// </remarks>
         public void Refresh()
         {
-            base.Device.Refresh();
+            Device.Refresh();
         }
     }
 }

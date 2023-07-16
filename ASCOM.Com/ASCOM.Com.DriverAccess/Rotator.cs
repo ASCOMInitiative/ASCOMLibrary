@@ -108,7 +108,7 @@ namespace ASCOM.Com.DriverAccess
         /// <remarks>
         /// <p style="color:red;margin-bottom:0"><b>Must be implemented and must always return True for the IRotatorV3 interface or later.</b></p>
         /// </remarks>
-        public bool CanReverse => base.Device.CanReverse;
+        public bool CanReverse => Device.CanReverse;
 
         /// <summary>
         /// Indicates whether the rotator is currently moving
@@ -122,7 +122,7 @@ namespace ASCOM.Com.DriverAccess
         /// <para><b>NOTE</b></para>
         /// <para>IRotatorV3, released in Platform 6.5, requires this method to be implemented, in previous interface versions implementation was optional.</para>
         /// </remarks>
-        public bool IsMoving => base.Device.IsMoving;
+        public bool IsMoving => Device.IsMoving;
 
         /// <summary>
         /// Current instantaneous Rotator position, allowing for any sync offset, in degrees.
@@ -152,7 +152,7 @@ namespace ASCOM.Com.DriverAccess
         /// <para><b>NOTE</b></para>
         /// <para>IRotatorV3, released in Platform 6.5, requires this method to be implemented, in previous interface versions implementation was optional.</para>
         /// </remarks>
-        public float Position => base.Device.Position;
+        public float Position => Device.Position;
 
         /// <summary>
         /// Sets or Returns the rotator’s Reverse state.
@@ -166,7 +166,7 @@ namespace ASCOM.Com.DriverAccess
         /// <para><b>NOTE</b></para>
         /// <para>IRotatorV3, released in Platform 6.5, requires this method to be implemented, in previous interface versions implementation was optional.</para>
         /// </remarks>
-        public bool Reverse { get => base.Device.Reverse; set => base.Device.Reverse = value; }
+        public bool Reverse { get => Device.Reverse; set => Device.Reverse = value; }
 
         /// <summary>
         /// The minimum StepSize, in degrees.
@@ -178,7 +178,7 @@ namespace ASCOM.Com.DriverAccess
         /// <p style="color:red"><b>Optional - can throw a not implemented exception</b></p>
         /// <para>Raises an exception if the rotator does not intrinsically know what the step size is.</para>
         /// </remarks>
-        public float StepSize => base.Device.StepSize;
+        public float StepSize => Device.StepSize;
 
         /// <summary>
         /// The destination position angle for Move() and MoveAbsolute().
@@ -193,7 +193,7 @@ namespace ASCOM.Com.DriverAccess
         /// <para><b>NOTE</b></para>
         /// <para>IRotatorV3, released in Platform 6.5, requires this method to be implemented, in previous interface versions implementation was optional.</para>
         /// </remarks>
-        public float TargetPosition => base.Device.TargetPosition;
+        public float TargetPosition => Device.TargetPosition;
 
         /// <summary>
         /// This returns the raw mechanical position of the rotator in degrees.
@@ -211,7 +211,7 @@ namespace ASCOM.Com.DriverAccess
             get
             {
                 AssertMethodImplemented(3, "MechanicalPosition is not implemented because the driver is IRotatorV2 or earlier.");
-                return base.Device.MechanicalPosition;
+                return Device.MechanicalPosition;
             }
         }
 
@@ -224,7 +224,7 @@ namespace ASCOM.Com.DriverAccess
         /// <remarks><p style="color:red"><b>Optional - can throw a not implemented exception</b></p> </remarks>
         public void Halt()
         {
-            base.Device.Halt();
+            Device.Halt();
         }
 
         /// <summary>
@@ -243,7 +243,7 @@ namespace ASCOM.Com.DriverAccess
         /// </remarks>
         public void Move(float Position)
         {
-            base.Device.Move(Position);
+            Device.Move(Position);
         }
 
         /// <summary>
@@ -265,7 +265,7 @@ namespace ASCOM.Com.DriverAccess
         /// </remarks>
         public void MoveAbsolute(float Position)
         {
-            base.Device.MoveAbsolute(Position);
+            Device.MoveAbsolute(Position);
         }
 
         /// <summary>
@@ -285,7 +285,7 @@ namespace ASCOM.Com.DriverAccess
         public void MoveMechanical(float Position)
         {
             AssertMethodImplemented(3, "MoveMechanical is not implemented because the driver is IRotatorV2 or earlier.");
-            base.Device.MoveMechanical(Position);
+            Device.MoveMechanical(Position);
         }
 
         /// <summary>
@@ -304,7 +304,7 @@ namespace ASCOM.Com.DriverAccess
         public void Sync(float Position)
         {
             AssertMethodImplemented(3, "Sync is not implemented because the driver is IRotatorV2 or earlier.");
-            base.Device.Sync(Position);
+            Device.Sync(Position);
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using ASCOM.Alpaca.Discovery;
 using ASCOM.Common;
 using ASCOM.Common.Alpaca;
+using ASCOM.Common.DeviceInterfaces;
 using ASCOM.Common.Interfaces;
 
 using System;
@@ -14,7 +15,7 @@ namespace ASCOM.Alpaca.Clients
     /// <summary>
     /// Base class for Alpaca client devices
     /// </summary>
-    public abstract class AlpacaDeviceBaseClass : IDisposable
+    public abstract class AlpacaDeviceBaseClass : IAscomDeviceV2, IDisposable
     {
         // Variables common to all instances
 
@@ -65,7 +66,7 @@ namespace ASCOM.Alpaca.Clients
 
         #endregion
 
-        #region Common properties and methods.
+        #region IAscomDevice common properties and methods.
 
         /// <summary>
         /// Invokes the specified device-specific action.
@@ -314,6 +315,76 @@ namespace ASCOM.Alpaca.Clients
             get
             {
                 return DynamicClientDriver.SupportedActions(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger);
+            }
+        }
+
+        #endregion
+
+        #region IAscomDeviceV2 common properties and methods
+
+        /// <summary>
+        /// Connect to a device asynchronously
+        /// </summary>
+        public void Connect()
+        {
+            // Use the synchronous connected property for ITelescopeV3 and earlier devices
+            if (InterfaceVersion < 4)
+            {
+                DynamicClientDriver.SetBool(clientNumber, client, establishConnectionTimeout, URIBase, strictCasing, logger, "Connected", true, MemberTypes.Property);
+                return;
+            }
+
+            // Call the device's Connect method for ITelescopeV4 and later devices
+            DynamicClientDriver.CallMethodWithNoParameters(clientNumber, client, longDeviceResponseTimeout, URIBase, strictCasing, logger, "Connect", MemberTypes.Method);
+        }
+
+        /// <summary>
+        /// Disconnect from a device asynchronously
+        /// </summary>
+        public void Disconnect()
+        {
+            // Use the synchronous Connected property for ITelescopeV3 and earlier devices
+            if (InterfaceVersion < 4)
+            {
+                DynamicClientDriver.SetBool(clientNumber, client, establishConnectionTimeout, URIBase, strictCasing, logger, "Connected", false, MemberTypes.Property);
+                return;
+            }
+
+            // Call the device's Disconnect method for ITelescopeV4 and later devices
+            DynamicClientDriver.CallMethodWithNoParameters(clientNumber, client, longDeviceResponseTimeout, URIBase, strictCasing, logger, "Disconnect", MemberTypes.Method);
+        }
+
+        /// <summary>
+        /// Asynchronous connection completion variable.
+        /// </summary>
+        public bool Connecting
+        {
+            get
+            {
+                // Always return false for ITelescopeV3 and earlier devices
+                if (InterfaceVersion < 4)
+                    return false;
+
+                // Return the device's value for interface ITelescopeV4 and later devices
+                return DynamicClientDriver.GetValue<bool>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "Connecting", MemberTypes.Property);
+            }
+        }
+
+        /// <summary>
+        /// Returns a List of device IStateValue state objects
+        /// </summary>
+        public IList<IStateValue> DeviceState
+        {
+            get
+            {
+                // Return an empty list for ITelescopeV3 and earlier devices
+                if (InterfaceVersion < 4)
+                {
+                    return new List<IStateValue>();
+                }
+
+                // Return the device's value for interface ITelescopeV4 and later devices
+                return DynamicClientDriver.GetValue<IList<IStateValue>>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "DeviceState", MemberTypes.Property);
             }
         }
 
