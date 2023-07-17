@@ -1735,7 +1735,23 @@ namespace ASCOM.Alpaca.Clients
             }
         }
 
-       #endregion
+        /// <summary>
+        /// Completion variable for asynchronous operation interruption
+        /// </summary>
+        public bool InterruptionComplete
+        {
+            get
+            {
+                if (InterfaceVersion < 4)
+                {
+                    return true;
+                }
+
+                return DynamicClientDriver.GetValue<bool>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "InterruptionComplete", MemberTypes.Property);
+            }
+        }
+
+        #endregion
 
     }
 }

@@ -11,5 +11,10 @@ namespace ASCOM.Common.DeviceInterfaces
         /// True when an asynchronous operation has completed
         /// </summary>
         bool OperationComplete { get; }
+
+        /// <summary>
+        /// True when an asynchronous operation has been interrupted
+        /// </summary>
+        bool InterruptionComplete { get; }
     }
 }
