@@ -1535,23 +1535,6 @@ namespace ASCOM.Com.DriverAccess
             }
         }
 
-        /// <summary>
-        /// Completion variable for interrupting asynchronous telescope movement
-        /// </summary>
-        public bool InterruptionComplete
-        {
-            get
-            {
-                if (InterfaceVersion < 4)
-                {
-                    // Always return true for ITelescopeV3 and earlier interfaces.
-                    return true;
-                }
-
-                return Device.InterruptionComplete;
-            }
-        }
-
         #endregion
     }
 
