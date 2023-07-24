@@ -1497,43 +1497,7 @@ namespace ASCOM.Com.DriverAccess
 
         #region ITelescopeV4
 
-        /// <summary>
-        /// Completion variable for asynchronous telescope movement
-        /// </summary>
-        public bool OperationComplete
-        {
-            get
-            {
-                if (InterfaceVersion < 4)
-                {
-                    switch (currentOperation)
-                    {
-                        case Operation.FindHome:
-                            return Device.AtHome;
-
-                        case Operation.Park:
-                        case Operation.Unpark:
-                            return Device.AtPark;
-
-                        case Operation.MoveAxis:
-                        case Operation.SideOfPier:
-                        case Operation.SlewToAltAzAsync:
-                        case Operation.SlewToCoordinatesAsync:
-                        case Operation.SlewToTargetAsync:
-                        case Operation.AbortSlew:
-                            return !Device.Slewing;
-
-                        case Operation.PulseGuide:
-                            return !Device.IsPulseGuiding;
-
-                        default:
-                            throw new InvalidOperationException($"OperationComplete - Unexpected Operation value: {currentOperation}");
-                    }
-                }
-
-                return Device.OperationComplete;
-            }
-        }
+        // No new telescope members
 
         #endregion
     }
