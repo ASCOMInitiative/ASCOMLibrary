@@ -1697,43 +1697,7 @@ namespace ASCOM.Alpaca.Clients
 
         #region ITelescopeV4 members
 
-        /// <summary>
-        /// Completion variable for asynchronous telescope movement
-        /// </summary>
-        public bool OperationComplete
-        {
-            get
-            {
-                if (InterfaceVersion < 4)
-                {
-                    switch (currentOperation)
-                    {
-                        case Operation.FindHome:
-                            return DynamicClientDriver.GetValue<bool>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "AtHome", MemberTypes.Property);
-
-                        case Operation.Park:
-                        case Operation.Unpark:
-                            return DynamicClientDriver.GetValue<bool>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "AtPark", MemberTypes.Property);
-
-                        case Operation.MoveAxis:
-                        case Operation.SideOfPier:
-                        case Operation.SlewToAltAzAsync:
-                        case Operation.SlewToCoordinatesAsync:
-                        case Operation.SlewToTargetAsync:
-                        case Operation.AbortSlew:
-                            return !DynamicClientDriver.GetValue<bool>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "Slewing", MemberTypes.Property);
-
-                        case Operation.PulseGuide:
-                            return !DynamicClientDriver.GetValue<bool>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "IsPulseGuiding", MemberTypes.Property);
-
-                        default:
-                            throw new InvalidOperationException($"OperationComplete - Unexpected Operation value: {currentOperation}");
-                    }
-                }
-
-                return DynamicClientDriver.GetValue<bool>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "OperationComplete", MemberTypes.Property);
-            }
-        }
+        // No new telescope members
 
         #endregion
 
