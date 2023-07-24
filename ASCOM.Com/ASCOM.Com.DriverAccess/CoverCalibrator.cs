@@ -20,7 +20,7 @@ namespace ASCOM.Com.DriverAccess
         /// <param name="ProgID">COM ProgID of the device.</param>
         public CoverCalibrator(string ProgID) : base(ProgID)
         {
-
+            deviceType = DeviceTypes.CoverCalibrator;
         }
 
         /// <summary>

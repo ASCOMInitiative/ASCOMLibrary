@@ -22,7 +22,7 @@ namespace ASCOM.Com.DriverAccess
         /// <param name="ProgID">ProgID of the driver</param>
         public Camera(string ProgID) : base(ProgID)
         {
-
+            deviceType = DeviceTypes.Camera;
         }
 
         /// <summary>

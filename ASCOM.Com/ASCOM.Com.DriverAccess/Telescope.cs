@@ -26,6 +26,7 @@ namespace ASCOM.Com.DriverAccess
         /// <param name="ProgID">COM ProgID of the device.</param>
         public Telescope(string ProgID) : base(ProgID)
         {
+            deviceType = DeviceTypes.Telescope;
         }
 
         #region ITelescopeV3

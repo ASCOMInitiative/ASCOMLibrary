@@ -1,10 +1,13 @@
-﻿using ASCOM.Common.DeviceInterfaces;
+﻿using ASCOM.Common;
+using ASCOM.Common.DeviceInterfaces;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
+
 namespace ASCOM.Com.DriverAccess
 {
     /// <summary>
@@ -12,7 +15,13 @@ namespace ASCOM.Com.DriverAccess
     /// </summary>
     public abstract class ASCOMDevice : IAscomDeviceV2, IDisposable
     {
-        private readonly dynamic device;
+        private readonly dynamic device; // COM device
+
+        internal DeviceTypes deviceType; // Device's device type
+
+        private bool connecting;
+        private Exception connectException;
+
         internal dynamic Device
         {
             get => device;
@@ -299,15 +308,38 @@ namespace ASCOM.Com.DriverAccess
         /// </summary>
         public void Connect()
         {
-            // Use the Connected property for ITelescopeV3 and earlier devices
-            if (InterfaceVersion < 4)
+            // Check whether this device supports Connect / Disconnect
+            if (DeviceCapabilities.HasConnectAndDeviceState(deviceType, InterfaceVersion))
             {
-                Device.Connected = true;
+                // Platform 7 or later device so use the device's Connect method
+                Device.Connect();
                 return;
             }
 
-            // Call the device's Connect method for ITelescopeV4 and later devices
-            Device.Connect();
+            // Platform 6 or earlier device so emulate Connect() using the Connected property
+            connecting = true;
+            connectException = null;
+
+            // Run a task to set the Connected property to True
+            Task connectingTask = Task.Factory.StartNew(() =>
+            {
+                // Ensure that no exceptions can escape
+                try
+                {
+                    // Set Connected True
+                    Device.Connected = true;
+                }
+                catch (Exception ex)
+                {
+                    // Something went wrong so log the issue and save the exception
+                    connectException = ex;
+                }
+                // Ensure that Connecting is always set False at the end of the task
+                finally
+                {
+                    connecting = false;
+                }
+            });
         }
 
         /// <summary>
@@ -315,15 +347,40 @@ namespace ASCOM.Com.DriverAccess
         /// </summary>
         public void Disconnect()
         {
-            // Use the Connected property for ITelescopeV3 and earlier devices
-            if (InterfaceVersion < 4)
+            // Check whether this device supports Connect / Disconnect
+            if (DeviceCapabilities.HasConnectAndDeviceState(deviceType, InterfaceVersion))
             {
-                Device.Connected = false;
+                // Platform 7 or later device so use the device's Disconnect method
+                Device.Disconnect();
                 return;
             }
 
-            // Call the device's Disconnect method for ITelescopeV4 and later devices
-            Device.Disconnect();
+            // Platform 6 or earlier device so use the Connected property
+
+            // Set Connecting to true and clear any previous exception
+            connecting = true;
+            connectException = null;
+
+            // Run a task to set the Connected property to False
+            Task disConnectingTask = Task.Factory.StartNew(() =>
+            {
+                // Ensure that no exceptions can escape
+                try
+                {
+                    // Set Connected False
+                    Device.Connected = false;
+                }
+                catch (Exception ex)
+                {
+                    // Something went wrong so save the exception
+                    connectException = ex;
+                }
+                // Ensure that Connecting is always set False at the end of the task
+                finally
+                {
+                    connecting = false;
+                }
+            });
         }
 
         /// <summary>
@@ -333,12 +390,21 @@ namespace ASCOM.Com.DriverAccess
         {
             get
             {
-                // Always return false for ITelescopeV3 and earlier devices
-                if (InterfaceVersion < 4)
-                    return false;
+                // Check whether this device supports Connect / Disconnect
+                if (DeviceCapabilities.HasConnectAndDeviceState(deviceType, InterfaceVersion))
+                {
+                    // Platform 7 or later device so return the device's Connecting property
+                    return Device.Connecting;
+                }
 
-                // Return the device's value for interface ITelescopeV4 and later devices
-                return Device.Connecting;
+                // If Connected or disconnected threw an exception, throw this to the client
+                if (!(connectException is null))
+                {
+                    throw connectException;
+                }
+
+                // Platform 6 or earlier device so always return false.
+                return false;
             }
         }
 
@@ -349,14 +415,15 @@ namespace ASCOM.Com.DriverAccess
         {
             get
             {
-                // Return an empty list for ITelescopeV3 and earlier devices
-                if (InterfaceVersion < 4)
+                // Check whether this device supports Connect / Disconnect
+                if (DeviceCapabilities.HasConnectAndDeviceState(deviceType, InterfaceVersion))
                 {
-                    return new List<IStateValue>();
+                    // Platform 7 or later device so return the device's value
+                    return (Device.DeviceState as IEnumerable).Cast<IStateValue>().ToList();
                 }
 
-                // Return the device's value for interface ITelescopeV4 and later devices
-                return (Device.DeviceState as IEnumerable).Cast<IStateValue>().ToList();
+                // Return an empty list for Platform 6 and earlier devices
+                return new List<IStateValue>();
             }
         }
 

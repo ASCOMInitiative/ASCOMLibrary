@@ -18,8 +18,6 @@ namespace ASCOM.Alpaca.Clients
     public abstract class AlpacaDeviceBaseClass : IAscomDeviceV2, IDisposable
     {
         // Variables common to all instances
-
-        // Set default values
         internal ServiceType serviceType = AlpacaClient.CLIENT_SERVICETYPE_DEFAULT;
         internal string ipAddressString = AlpacaClient.CLIENT_IPADDRESS_DEFAULT;
         internal decimal portNumber = AlpacaClient.CLIENT_IPPORT_DEFAULT;
@@ -30,7 +28,7 @@ namespace ASCOM.Alpaca.Clients
         internal string userName = AlpacaClient.CLIENT_USERNAME_DEFAULT;
         internal string password = AlpacaClient.CLIENT_PASSWORD_DEFAULT;
         internal bool strictCasing = true; // Strict or flexible interpretation of casing in device JSON responses
-        internal ILogger logger=AlpacaClient.CLIENT_LOGGER_DEFAULT; // Private variable to hold the trace logger object
+        internal ILogger logger = AlpacaClient.CLIENT_LOGGER_DEFAULT; // Private variable to hold the trace logger object
         internal DeviceTypes clientDeviceType = DeviceTypes.Telescope; // Variable to hold the device type, which is set in each device type class
         internal uint clientNumber = AlpacaClient.CLIENT_CLIENTNUMBER_DEFAULT; // Unique number for this driver within the locaL server, i.e. across all drivers that the local server is serving
 
@@ -44,6 +42,8 @@ namespace ASCOM.Alpaca.Clients
         internal string userAgentProductVersion;
 
         internal bool trustUserGeneratedSslCertificates;
+
+        private short? interfaceVersion;
 
         /// <summary>
         /// Create a new instance of the AlpacaDeviceBaseClass passing the instance to the client configuration class
@@ -280,7 +280,14 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.InterfaceVersion(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger);
+                // Test whether the interface version has already been retrieved
+                if (!interfaceVersion.HasValue) // This is the first time the method has been called so get the interface version number from the driver and cache it
+                {
+                    try { interfaceVersion = DynamicClientDriver.InterfaceVersion(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger); } // Get the interface version
+                    catch { interfaceVersion = 1; } // The method failed so assume that the driver has a version 1 interface where the InterfaceVersion method is not implemented
+                }
+
+                return interfaceVersion.Value; // Return the newly retrieved or already cached value
             }
         }
 
@@ -327,15 +334,16 @@ namespace ASCOM.Alpaca.Clients
         /// </summary>
         public void Connect()
         {
-            // Use the synchronous connected property for ITelescopeV3 and earlier devices
-            if (InterfaceVersion < 4)
+            // Check whether this device supports Connect / Disconnect
+            if (DeviceCapabilities.HasConnectAndDeviceState(clientDeviceType, InterfaceVersion))
             {
-                DynamicClientDriver.SetBool(clientNumber, client, establishConnectionTimeout, URIBase, strictCasing, logger, "Connected", true, MemberTypes.Property);
+                // Platform 7 or later device so use the device's Connect method
+                DynamicClientDriver.CallMethodWithNoParameters(clientNumber, client, longDeviceResponseTimeout, URIBase, strictCasing, logger, "Connect", MemberTypes.Method);
                 return;
             }
 
-            // Call the device's Connect method for ITelescopeV4 and later devices
-            DynamicClientDriver.CallMethodWithNoParameters(clientNumber, client, longDeviceResponseTimeout, URIBase, strictCasing, logger, "Connect", MemberTypes.Method);
+            // Platform 6 or earlier device so use the Connected property
+            DynamicClientDriver.SetBool(clientNumber, client, establishConnectionTimeout, URIBase, strictCasing, logger, "Connected", true, MemberTypes.Property);
         }
 
         /// <summary>
@@ -343,15 +351,16 @@ namespace ASCOM.Alpaca.Clients
         /// </summary>
         public void Disconnect()
         {
-            // Use the synchronous Connected property for ITelescopeV3 and earlier devices
-            if (InterfaceVersion < 4)
+            // Check whether this device supports Connect / Disconnect
+            if (DeviceCapabilities.HasConnectAndDeviceState(clientDeviceType, InterfaceVersion))
             {
-                DynamicClientDriver.SetBool(clientNumber, client, establishConnectionTimeout, URIBase, strictCasing, logger, "Connected", false, MemberTypes.Property);
+                // Platform 7 or later device so use the device's Disconnect method
+                DynamicClientDriver.CallMethodWithNoParameters(clientNumber, client, longDeviceResponseTimeout, URIBase, strictCasing, logger, "Disconnect", MemberTypes.Method);
                 return;
             }
 
-            // Call the device's Disconnect method for ITelescopeV4 and later devices
-            DynamicClientDriver.CallMethodWithNoParameters(clientNumber, client, longDeviceResponseTimeout, URIBase, strictCasing, logger, "Disconnect", MemberTypes.Method);
+            // Platform 6 or earlier device so use the Connected property
+            DynamicClientDriver.SetBool(clientNumber, client, establishConnectionTimeout, URIBase, strictCasing, logger, "Connected", false, MemberTypes.Property);
         }
 
         /// <summary>
@@ -361,12 +370,15 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                // Always return false for ITelescopeV3 and earlier devices
-                if (InterfaceVersion < 4)
-                    return false;
+                // Check whether this device supports Connect / Disconnect
+                if (DeviceCapabilities.HasConnectAndDeviceState(clientDeviceType, InterfaceVersion))
+                {
+                    // Platform 7 or later device so return the device's Connecting property
+                    return DynamicClientDriver.GetValue<bool>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "Connecting", MemberTypes.Property);
+                }
 
-                // Return the device's value for interface ITelescopeV4 and later devices
-                return DynamicClientDriver.GetValue<bool>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "Connecting", MemberTypes.Property);
+                // Always return false for Platform 6 and earlier devices
+                return false;
             }
         }
 
@@ -377,14 +389,15 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                // Return an empty list for ITelescopeV3 and earlier devices
-                if (InterfaceVersion < 4)
+                // Check whether this device supports Connect / Disconnect
+                if (DeviceCapabilities.HasConnectAndDeviceState(clientDeviceType, InterfaceVersion))
                 {
-                    return new List<IStateValue>();
+                    // Platform 7 or later device so return the device's value
+                    return DynamicClientDriver.GetValue<IList<IStateValue>>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "DeviceState", MemberTypes.Property);
                 }
 
-                // Return the device's value for interface ITelescopeV4 and later devices
-                return DynamicClientDriver.GetValue<IList<IStateValue>>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "DeviceState", MemberTypes.Property);
+                // Return an empty list for Platform 6 and earlier devices
+                return new List<IStateValue>();
             }
         }
 

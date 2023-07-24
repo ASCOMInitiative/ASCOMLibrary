@@ -23,7 +23,7 @@ namespace ASCOM.Com.DriverAccess
         /// <param name="ProgID">COM ProgID of the device.</param>
         public Video(string ProgID) : base(ProgID)
         {
-
+            deviceType = DeviceTypes.Video;
         }
 
         /// <summary>
