@@ -20,7 +20,7 @@ namespace ASCOM.Com.DriverAccess
         /// <param name="ProgID">COM ProgID of the device.</param>
         public Dome(string ProgID) : base(ProgID)
         {
-
+            deviceType = DeviceTypes.Dome;
         }
 
         /// <summary>
