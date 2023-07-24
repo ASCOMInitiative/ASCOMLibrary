@@ -5,12 +5,12 @@ using System.Text.Json.Serialization;
 namespace ASCOM.Common.Alpaca
 {
     /// <summary>
-    /// Response that returns a collection of strings
+    /// Response that returns a collection of IStateValue objects
     /// </summary>
     public class DeviceStateResponse : Response, IValueResponse<IList<IStateValue>>
     {
         /// <summary>
-        /// Create a new StringListResponse with default values
+        /// Create a new DeviceStateResponse with default values
         /// </summary>
         public DeviceStateResponse()
         {
@@ -18,7 +18,7 @@ namespace ASCOM.Common.Alpaca
         }
 
         /// <summary>
-        /// Create a new StringListResponse with the supplied parameter values
+        /// Create a new DeviceStateResponse with the supplied parameter values
         /// </summary>
         /// <param name="clientTransactionID">Client transaction ID</param>
         /// <param name="serverTransactionID">Server transaction ID</param>
@@ -31,7 +31,7 @@ namespace ASCOM.Common.Alpaca
         }
 
         /// <summary>
-        /// Create a new StringListResponse with the supplied parameter values
+        /// Create a new DeviceStateResponse with the supplied parameter values
         /// </summary>
         /// <param name="clientTransactionID">Client transaction ID</param>
         /// <param name="serverTransactionID">Server transaction ID</param>
@@ -46,7 +46,7 @@ namespace ASCOM.Common.Alpaca
         }
 
         /// <summary>
-        /// String collection returned by the device
+        /// IStateValue collection returned by the device
         /// </summary>
         [JsonPropertyOrder(1000)]
         public IList<IStateValue> Value { get; set; }
