@@ -7,7 +7,7 @@ namespace ASCOM.Com.DriverAccess
     /// <summary>
     /// SafetyMonitor device class
     /// </summary>
-    public class SafetyMonitor : ASCOMDevice, ISafetyMonitor
+    public class SafetyMonitor : ASCOMDevice, ISafetyMonitorV3
     {
         /// <summary>
         /// Return a list of all SafetyMonitors registered in the ASCOM Profile

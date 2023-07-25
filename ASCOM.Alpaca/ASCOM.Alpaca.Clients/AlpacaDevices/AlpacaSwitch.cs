@@ -11,7 +11,7 @@ namespace ASCOM.Alpaca.Clients
     /// <summary>
     /// ASCOM Alpaca Switch client
     /// </summary>
-    public class AlpacaSwitch : AlpacaDeviceBaseClass, ISwitchV2
+    public class AlpacaSwitch : AlpacaDeviceBaseClass, ISwitchV3
     {
         #region Variables and Constants
 

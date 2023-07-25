@@ -88,7 +88,5 @@ namespace ASCOM.Common.DeviceInterfaces
             // Device has a Platform 6 or earlier interface
             return false;
         }
-
-
     }
 }

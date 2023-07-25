@@ -14,7 +14,7 @@ namespace ASCOM.Alpaca.Clients
     /// <summary>
     /// ASCOM Alpaca Focuser client
     /// </summary>
-    public class AlpacaFocuser : AlpacaDeviceBaseClass, IFocuserV3
+    public class AlpacaFocuser : AlpacaDeviceBaseClass, IFocuserV4
     {
         #region Variables and Constants
 

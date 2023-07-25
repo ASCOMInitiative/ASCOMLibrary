@@ -14,7 +14,7 @@ namespace ASCOM.Alpaca.Clients
     /// <summary>
     /// ASCOM Alpaca Dome client.
     /// </summary>
-    public class AlpacaDome : AlpacaDeviceBaseClass, IDomeV2
+    public class AlpacaDome : AlpacaDeviceBaseClass, IDomeV3
     {
         #region Variables and Constants
 

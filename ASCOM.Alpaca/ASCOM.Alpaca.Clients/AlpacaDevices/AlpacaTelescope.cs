@@ -150,7 +150,7 @@ namespace ASCOM.Alpaca.Clients
 
         #endregion
 
-        #region ITelescope Implementation
+        #region ITelescopeV3 Implementation
         /// <summary>
         /// Stops a slew in progress.
         /// </summary>

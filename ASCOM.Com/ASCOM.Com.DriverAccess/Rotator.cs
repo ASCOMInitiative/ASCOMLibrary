@@ -7,7 +7,7 @@ namespace ASCOM.Com.DriverAccess
     /// <summary>
     /// Rotator device class
     /// </summary>
-    public class Rotator : ASCOMDevice, IRotatorV3
+    public class Rotator : ASCOMDevice, IRotatorV4
     {
         /// <summary>
         /// Return a list of all Rotators registered in the ASCOM Profile

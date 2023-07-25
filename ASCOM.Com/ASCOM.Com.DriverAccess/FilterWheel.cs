@@ -7,7 +7,7 @@ namespace ASCOM.Com.DriverAccess
     /// <summary>
     /// FilterWheel device class
     /// </summary>
-    public class FilterWheel : ASCOMDevice, IFilterWheelV2
+    public class FilterWheel : ASCOMDevice, IFilterWheelV3
     {
         /// <summary>
         /// Return a list of all FilterWheels registered in the ASCOM Profile

@@ -7,7 +7,7 @@ namespace ASCOM.Com.DriverAccess
     /// <summary>
     /// ObservingConditions device class
     /// </summary>
-    public class ObservingConditions : ASCOMDevice, IObservingConditions
+    public class ObservingConditions : ASCOMDevice, IObservingConditionsV2
     {
         /// <summary>
         /// Return a list of all ObservingConditions devices registered in the ASCOM Profile

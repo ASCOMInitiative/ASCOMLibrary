@@ -19,7 +19,7 @@ namespace ASCOM.Alpaca.Clients
     /// <summary>
     /// ASCOM Alpaca Camera client
     /// </summary>
-    public class AlpacaCamera : AlpacaDeviceBaseClass, ICameraV3
+    public class AlpacaCamera : AlpacaDeviceBaseClass, ICameraV4
     {
         #region Variables and Constants
 
