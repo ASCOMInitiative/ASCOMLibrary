@@ -14,7 +14,7 @@ namespace ASCOM.Alpaca.Clients
     /// <summary>
     /// ASCOM Alpaca Rotator client
     /// </summary>
-    public class AlpacaRotator : AlpacaDeviceBaseClass, IRotatorV3
+    public class AlpacaRotator : AlpacaDeviceBaseClass, IRotatorV4
     {
         #region Variables and Constants
 

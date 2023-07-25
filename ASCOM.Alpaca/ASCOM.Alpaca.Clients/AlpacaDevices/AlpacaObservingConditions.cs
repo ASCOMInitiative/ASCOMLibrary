@@ -11,7 +11,7 @@ namespace ASCOM.Alpaca.Clients
     /// <summary>
     /// ASCOM Alpaca ObservingConditions client
     /// </summary>
-    public class AlpacaObservingConditions : AlpacaDeviceBaseClass, IObservingConditions
+    public class AlpacaObservingConditions : AlpacaDeviceBaseClass, IObservingConditionsV2
     {
         #region Variables and Constants
 

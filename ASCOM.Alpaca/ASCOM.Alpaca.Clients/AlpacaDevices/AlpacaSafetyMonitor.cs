@@ -11,7 +11,7 @@ namespace ASCOM.Alpaca.Clients
     /// <summary>
     /// ASCOM Alpaca SafetyMonitor client
     /// </summary>
-    public class AlpacaSafetyMonitor : AlpacaDeviceBaseClass, ISafetyMonitor
+    public class AlpacaSafetyMonitor : AlpacaDeviceBaseClass, ISafetyMonitorV3
     {
         #region Variables and Constants
 

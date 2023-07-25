@@ -10,7 +10,7 @@ namespace ASCOM.Com.DriverAccess
     /// <summary>
     /// Video device class
     /// </summary>
-    public class Video : ASCOMDevice, IVideo
+    public class Video : ASCOMDevice, IVideoV2
     {
         /// <summary>
         /// Return a list of all Video devices registered in the ASCOM Profile

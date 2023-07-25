@@ -1,14 +1,17 @@
 ﻿using ASCOM.Common.DeviceInterfaces;
 using System.Collections.Generic;
 using ASCOM.Common;
+using System.Reflection;
 
 namespace ASCOM.Com.DriverAccess
 {
     /// <summary>
     /// CoverCalibrator device class
     /// </summary>
-    public class CoverCalibrator : ASCOMDevice, ICoverCalibratorV1
+    public class CoverCalibrator : ASCOMDevice, ICoverCalibratorV2
     {
+        #region ICoverCalibratorV1 members
+
         /// <summary>
         /// Return a list of all CoverCalibrator devices registered in the ASCOM Profile
         /// </summary>
@@ -159,5 +162,49 @@ namespace ASCOM.Com.DriverAccess
         {
             Device.CalibratorOff();
         }
+
+        #endregion
+
+        #region ICoverCalibratorV2 members
+
+        /// <summary>
+        /// True while the calibrator brightness is changing.
+        /// </summary>
+        public bool CalibratorChanging
+        {
+            get
+            {
+                // Check whether this device supports Connect / Disconnect
+                if (DeviceCapabilities.HasConnectAndDeviceState(deviceType, InterfaceVersion))
+                {
+                    // Platform 7 or later device so return the device's CalibratorChanging property
+                    return Device.CalibratorChanging;
+                }
+
+                // Platform 6 or earlier device so use CalibratorState to determine the movement state.
+                return CalibratorState == CalibratorStatus.NotReady;
+            }
+        }
+
+        /// <summary>
+        /// True while the cover is in motion.
+        /// </summary>
+        public bool CoverMoving
+        {
+            get
+            {
+                // Check whether this device supports Connect / Disconnect
+                if (DeviceCapabilities.HasConnectAndDeviceState(deviceType, InterfaceVersion))
+                {
+                    // Platform 7 or later device so return the device's CoverMoving property
+                    return Device.CoverMoving;
+                }
+
+                // Platform 6 or earlier device so use CoverState to determine the movement state.
+                return CoverState == CoverStatus.Moving;
+            }
+        }
+
+        #endregion
     }
 }

@@ -14,7 +14,7 @@ namespace ASCOM.Alpaca.Clients
     /// <summary>
     /// ASCOM Alpaca CoverCalibrator client
     /// </summary>
-    public class AlpacaCoverCalibrator : AlpacaDeviceBaseClass, ICoverCalibratorV1
+    public class AlpacaCoverCalibrator : AlpacaDeviceBaseClass, ICoverCalibratorV2
     {
         #region Variables and Constants
 
@@ -317,6 +317,48 @@ namespace ASCOM.Alpaca.Clients
         {
             DynamicClientDriver.CallMethodWithNoParameters(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "CalibratorOff", MemberTypes.Method);
             LogMessage(logger, clientNumber, "AbortSlew", $"Calibrator off OK");
+        }
+
+        #endregion
+
+        #region ICoverCalibratorV2 Implementation
+
+        /// <summary>
+        /// True while the calibrator brightness is changing.
+        /// </summary>
+        public bool CalibratorChanging
+        {
+            get
+            {
+                // Check whether this device supports Connect / Disconnect
+                if (DeviceCapabilities.HasConnectAndDeviceState(clientDeviceType, InterfaceVersion))
+                {
+                    // Platform 7 or later device so return the device's CalibratorChanging property
+                    return DynamicClientDriver.GetValue<bool>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "CalibratorChanging", MemberTypes.Property);
+                }
+
+                // Platform 6 or earlier device so use CalibratorState to determine the movement state.
+                return CalibratorState == CalibratorStatus.NotReady;
+            }
+        }
+
+        /// <summary>
+        /// True while the cover is in motion.
+        /// </summary>
+        public bool CoverMoving
+        {
+            get
+            {
+                // Check whether this device supports Connect / Disconnect
+                if (DeviceCapabilities.HasConnectAndDeviceState(clientDeviceType, InterfaceVersion))
+                {
+                    // Platform 7 or later device so return the device's CoverMoving property
+                    return DynamicClientDriver.GetValue<bool>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "CoverMoving", MemberTypes.Property);
+                }
+
+                // Platform 6 or earlier device so use CoverState to determine the movement state.
+                return CoverState == CoverStatus.Moving;
+            }
         }
 
         #endregion

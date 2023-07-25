@@ -9,7 +9,7 @@ namespace ASCOM.Com.DriverAccess
     /// <summary>
     /// Camera device class
     /// </summary>
-    public class Camera : ASCOMDevice, ICameraV3
+    public class Camera : ASCOMDevice, ICameraV4
     {
         /// <summary>
         /// Return a list of all Cameras registered in the ASCOM Profile

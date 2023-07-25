@@ -7,7 +7,7 @@ namespace ASCOM.Com.DriverAccess
     /// <summary>
     /// Switch device class
     /// </summary>
-    public class Switch : ASCOMDevice, ISwitchV2
+    public class Switch : ASCOMDevice, ISwitchV3
     {
         /// <summary>
         /// Return a list of all Switches registered in the ASCOM Profile

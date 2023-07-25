@@ -7,7 +7,7 @@ namespace ASCOM.Com.DriverAccess
     /// <summary>
     /// Focuser device class
     /// </summary>
-    public class Focuser : ASCOMDevice, IFocuserV3
+    public class Focuser : ASCOMDevice, IFocuserV4
     {
         /// <summary>
         /// Return a list of all Focusers registered in the ASCOM Profile

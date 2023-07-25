@@ -7,7 +7,7 @@ namespace ASCOM.Com.DriverAccess
     /// <summary>
     /// Dome device class
     /// </summary>
-    public class Dome : ASCOMDevice, IDomeV2
+    public class Dome : ASCOMDevice, IDomeV3
     {
         /// <summary>
         /// Return a list of all Dome devices registered in the ASCOM Profile

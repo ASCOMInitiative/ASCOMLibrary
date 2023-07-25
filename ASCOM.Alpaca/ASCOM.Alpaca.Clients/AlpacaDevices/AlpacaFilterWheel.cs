@@ -11,7 +11,7 @@ namespace ASCOM.Alpaca.Clients
     /// <summary>
     /// ASCOM Alpaca FilterWheel client
     /// </summary>
-    public class AlpacaFilterWheel : AlpacaDeviceBaseClass, IFilterWheelV2
+    public class AlpacaFilterWheel : AlpacaDeviceBaseClass, IFilterWheelV3
     {
         #region Variables and Constants
 
