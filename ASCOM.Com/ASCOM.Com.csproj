@@ -19,6 +19,14 @@
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 	</PropertyGroup>
 
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+	  <DebugType>embedded</DebugType>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+	  <DebugType>embedded</DebugType>
+	</PropertyGroup>
+
 	<ItemGroup>
 		<None Remove="README.md" />
 	</ItemGroup>
@@ -42,6 +50,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\ASCOM.Common\ASCOM.Common.csproj" />
+		<ProjectReference Include="..\ASCOM.Tools\ASCOM.Tools.csproj" />
 	</ItemGroup>
 
 </Project>
