@@ -1,5 +1,7 @@
 ﻿using ASCOM.Common;
 using ASCOM.Common.DeviceInterfaces;
+using ASCOM.Common.Interfaces;
+using ASCOM.Tools;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -419,7 +421,12 @@ namespace ASCOM.Com.DriverAccess
                 if (DeviceCapabilities.HasConnectAndDeviceState(deviceType, InterfaceVersion))
                 {
                     // Platform 7 or later device so return the device's value
-                    return (Device.DeviceState as IEnumerable).Cast<IStateValue>().ToList();
+                    List<IStateValue> deviceState = new List<IStateValue>();
+                    foreach (dynamic item in Device.DeviceState)
+                    {
+                        deviceState.Add(new StateValue(item.Name, item.Value));
+                    }
+                    return deviceState;
                 }
 
                 // Return an empty list for Platform 6 and earlier devices

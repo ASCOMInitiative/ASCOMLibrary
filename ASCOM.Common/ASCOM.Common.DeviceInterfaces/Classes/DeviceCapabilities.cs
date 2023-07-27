@@ -10,74 +10,86 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <summary>
         /// Returns <see langword="true"/> if the device has a Platform 7 or later interface that supports Connect / Disconnect and DeviceState
         /// </summary>
-        public static bool HasConnectAndDeviceState(DeviceTypes deviceType, short DriverInterfaceVersion)
+        /// <param name="deviceType">Device type.</param>
+        /// <param name="driverInterfaceVersion">Interface version of this driver (Int16)</param>
+        public static bool HasConnectAndDeviceState(DeviceTypes deviceType, short driverInterfaceVersion)
+        {
+            return HasConnectAndDeviceState(deviceType, Convert.ToInt32(driverInterfaceVersion));
+        }
+
+        /// <summary>
+        /// Returns <see langword="true"/> if the device has a Platform 7 or later interface that supports Connect / Disconnect and DeviceState
+        /// </summary>
+        /// <param name="deviceType">Device type.</param>
+        /// <param name="driverInterfaceVersion">Interface version of this driver (Int32)</param>
+        public static bool HasConnectAndDeviceState(DeviceTypes deviceType, int driverInterfaceVersion)
         {
             // Switch on the type of this DriverAccess object
             switch (deviceType)
             {
                 // True if interface version is greater than 3
-                case DeviceTypes.Camera :
-                    if (DriverInterfaceVersion > 3)
+                case DeviceTypes.Camera:
+                    if (driverInterfaceVersion > 3)
                         return true;
                     break;
 
                 // True if interface version is greater than 1
                 case DeviceTypes.CoverCalibrator:
-                    if (DriverInterfaceVersion > 1)
+                    if (driverInterfaceVersion > 1)
                         return true;
                     break;
 
                 // True if interface version is greater than 2
                 case DeviceTypes.Dome:
-                    if (DriverInterfaceVersion > 2)
+                    if (driverInterfaceVersion > 2)
                         return true;
                     break;
 
                 // True if interface version is greater than 2
                 case DeviceTypes.FilterWheel:
-                    if (DriverInterfaceVersion > 2)
+                    if (driverInterfaceVersion > 2)
                         return true;
                     break;
 
                 // True if interface version is greater than 3
                 case DeviceTypes.Focuser:
-                    if (DriverInterfaceVersion > 3)
+                    if (driverInterfaceVersion > 3)
                         return true;
                     break;
 
                 // True if interface version is greater than 1
                 case DeviceTypes.ObservingConditions:
-                    if (DriverInterfaceVersion > 1)
+                    if (driverInterfaceVersion > 1)
                         return true;
                     break;
 
                 // True if interface version is greater than 3
                 case DeviceTypes.Rotator:
-                    if (DriverInterfaceVersion > 3)
+                    if (driverInterfaceVersion > 3)
                         return true;
                     break;
 
                 // True if interface version is greater than 1
                 case DeviceTypes.SafetyMonitor:
-                    if (DriverInterfaceVersion > 2)
+                    if (driverInterfaceVersion > 2)
                         return true;
                     break;
 
                 // True if interface version is greater than 2
                 case DeviceTypes.Switch:
-                    if (DriverInterfaceVersion > 2)
+                    if (driverInterfaceVersion > 2)
                         return true;
                     break;
 
                 // True if interface version is greater than 3
                 case DeviceTypes.Telescope:
-                    if (DriverInterfaceVersion > 3)
+                    if (driverInterfaceVersion > 3)
                         return true;
                     break;
 
                 // True if interface version is greater than 1
                 case DeviceTypes.Video:
-                    if (DriverInterfaceVersion > 1)
+                    if (driverInterfaceVersion > 1)
                         return true;
                     break;
 
