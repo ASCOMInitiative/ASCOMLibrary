@@ -1,6 +1,8 @@
 ﻿using ASCOM.Common.DeviceInterfaces;
 using System.Collections.Generic;
 using ASCOM.Common;
+using ASCOM.Common.Interfaces;
+using ASCOM.Common.DeviceStateClasses;
 
 namespace ASCOM.Com.DriverAccess
 {
@@ -9,10 +11,38 @@ namespace ASCOM.Com.DriverAccess
     /// </summary>
     public class Rotator : ASCOMDevice, IRotatorV4
     {
+        ILogger TL = null;
+
+        #region Convenience members
+
         /// <summary>
         /// Return a list of all Rotators registered in the ASCOM Profile
         /// </summary>
         public static List<ASCOMRegistration> Rotators => Profile.GetDrivers(DeviceTypes.Rotator);
+
+        /// <summary>
+        /// Rotator device state
+        /// </summary>
+        public RotatorState RotatorState
+        {
+            get
+            {
+                // Create a state object to return.
+                RotatorState rotatorState = new RotatorState(DeviceState, TL);
+                TL.LogMessage(LogLevel.Debug,nameof(RotatorState), $"Returning: " +
+                    $"Cloud cover: '{rotatorState.IsMoving}', " +
+                    $"Dew point: '{rotatorState.MechanicalPosition}', " +
+                    $"Humidity: '{rotatorState.Position}', " +
+                    $"Time stamp: '{rotatorState.TimeStamp}'");
+
+                // Return the device specific state class
+                return rotatorState;
+            }
+        }
+
+        #endregion
+
+        #region Initialisers
 
         /// <summary>
         /// Initialise Rotator device
@@ -22,6 +52,20 @@ namespace ASCOM.Com.DriverAccess
         {
             deviceType = DeviceTypes.Rotator;
         }
+
+        /// <summary>
+        /// Initialise Rotator device with a debug logger
+        /// </summary>
+        /// <param name="ProgID">ProgID of the driver</param>
+        /// <param name="logger">Logger instance to receive debug information.</param>
+        public Rotator(string ProgID, ILogger logger) : base(ProgID)
+        {
+            deviceType = DeviceTypes.Rotator;
+            TL = logger;
+        }
+        #endregion
+
+        #region IRotatorV3 and IRotatorV4
 
         /// <summary>
         /// Returns a description of the driver, such as manufacturer and model
@@ -306,5 +350,8 @@ namespace ASCOM.Com.DriverAccess
             AssertMethodImplemented(3, "Sync is not implemented because the driver is IRotatorV2 or earlier.");
             Device.Sync(Position);
         }
+
+        #endregion
+
     }
 }

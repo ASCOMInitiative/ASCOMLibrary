@@ -3,6 +3,8 @@ using ASCOM.Common;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using ASCOM.Common.DeviceStateClasses;
+using ASCOM.Common.Interfaces;
 
 namespace ASCOM.Com.DriverAccess
 {
@@ -11,10 +13,34 @@ namespace ASCOM.Com.DriverAccess
     /// </summary>
     public class Camera : ASCOMDevice, ICameraV4
     {
+        ILogger TL = null;
+
+        #region Convenience members
+
         /// <summary>
         /// Return a list of all Cameras registered in the ASCOM Profile
         /// </summary>
         public static List<ASCOMRegistration> Cameras => Profile.GetDrivers(DeviceTypes.Camera);
+
+        /// <summary>
+        /// Camera device state
+        /// </summary>
+        public CameraDeviceState CameraDeviceState
+        {
+            get
+            {
+                // Create a state object to return.
+                CameraDeviceState cameraDeviceState = new CameraDeviceState(DeviceState, TL);
+                TL.LogMessage(LogLevel.Debug, "CameraDeviceState", $"Returning: '{cameraDeviceState.CameraState}' '{cameraDeviceState.CCDTemperature}' '{cameraDeviceState.CoolerPower}' '{cameraDeviceState.HeatSinkTemperature}' '{cameraDeviceState.ImageReady}' '{cameraDeviceState.PercentCompleted}' '{cameraDeviceState.TimeStamp}'");
+
+                // Return the device specific state class
+                return cameraDeviceState;
+            }
+        }
+
+        #endregion
+
+        #region Initialisers
 
         /// <summary>
         /// Initialise Camera device
@@ -23,7 +49,23 @@ namespace ASCOM.Com.DriverAccess
         public Camera(string ProgID) : base(ProgID)
         {
             deviceType = DeviceTypes.Camera;
+            TL = null;
         }
+
+        /// <summary>
+        /// Initialise Camera device with a debug logger
+        /// </summary>
+        /// <param name="ProgID">ProgID of the driver</param>
+        /// <param name="logger">Logger instance to receive debug information.</param>
+        public Camera(string ProgID, ILogger logger) : base(ProgID)
+        {
+            deviceType = DeviceTypes.Camera;
+            TL = logger;
+        }
+
+        #endregion
+
+        #region ICameraV3 and ICameraV4
 
         /// <summary>
         /// Descriptive and version information about this ASCOM driver.
@@ -1966,5 +2008,8 @@ namespace ASCOM.Com.DriverAccess
         {
             Device.StopExposure();
         }
+
+        #endregion
+
     }
 }

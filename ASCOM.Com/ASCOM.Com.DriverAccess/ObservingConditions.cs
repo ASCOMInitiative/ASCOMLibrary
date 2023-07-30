@@ -1,6 +1,8 @@
 ﻿using ASCOM.Common.DeviceInterfaces;
 using System.Collections.Generic;
 using ASCOM.Common;
+using ASCOM.Common.Interfaces;
+using ASCOM.Common.DeviceStateClasses;
 
 namespace ASCOM.Com.DriverAccess
 {
@@ -9,11 +11,48 @@ namespace ASCOM.Com.DriverAccess
     /// </summary>
     public class ObservingConditions : ASCOMDevice, IObservingConditionsV2
     {
+        ILogger TL = null;
+
+        #region Convenience members
+
         /// <summary>
         /// Return a list of all ObservingConditions devices registered in the ASCOM Profile
         /// </summary>
         public static List<ASCOMRegistration> ObservingConditionDrivers => Profile.GetDrivers(DeviceTypes.ObservingConditions);
 
+        /// <summary>
+        /// ObservingConditions device state
+        /// </summary>
+        public ObservingConditionsState ObservingConditionsState
+        {
+            get
+            {
+                // Create a state object to return.
+                ObservingConditionsState observingConditionsState = new ObservingConditionsState(DeviceState, TL);
+                TL.LogMessage(LogLevel.Debug,nameof(ObservingConditionsState), $"Returning: " +
+                    $"Cloud cover: '{observingConditionsState.CloudCover}', " +
+                    $"Dew point: '{observingConditionsState.DewPoint}', " +
+                    $"Humidity: '{observingConditionsState.Humidity}', " +
+                    $"Pressure: '{observingConditionsState.Pressure}', " +
+                    $"Rain rate: '{observingConditionsState.RainRate}', " +
+                    $"Sky brightness: '{observingConditionsState.SkyBrightness}', " +
+                    $"Sky quality: '{observingConditionsState.SkyQuality}', " +
+                    $"Sky temperature'{observingConditionsState.SkyTemperature}', " +
+                    $"Star FWHM: '{observingConditionsState.StarFWHM}', " +
+                    $"Temperature: '{observingConditionsState.Temperature}', " +
+                    $"Wind direction: '{observingConditionsState.WindDirection}', " +
+                    $"Wind gust: '{observingConditionsState.WindGust}', " +
+                    $"Wind speed: '{observingConditionsState.WindSpeed}', " +
+                    $"Time stamp: '{observingConditionsState.TimeStamp}'");
+
+                // Return the device specific state class
+                return observingConditionsState;
+            }
+        }
+
+        #endregion
+
+        #region Initialisers
         /// <summary>
         /// Initialise ObservingConditions device
         /// </summary>
@@ -22,6 +61,20 @@ namespace ASCOM.Com.DriverAccess
         {
             deviceType = DeviceTypes.ObservingConditions;
         }
+
+        /// <summary>
+        /// Initialise ObservingConditions device with a debug logger
+        /// </summary>
+        /// <param name="ProgID">ProgID of the driver</param>
+        /// <param name="logger">Logger instance to receive debug information.</param>
+        public ObservingConditions(string ProgID, ILogger logger) : base(ProgID)
+        {
+            deviceType = DeviceTypes.ObservingConditions;
+            TL = logger;
+        }
+        #endregion
+
+        #region IObservingConditionsV1 and IObservingConditionsV2
 
         /// <summary>
         /// Gets And sets the time period over which observations will be averaged
@@ -447,5 +500,8 @@ namespace ASCOM.Com.DriverAccess
         {
             Device.Refresh();
         }
+
+        #endregion
+
     }
 }

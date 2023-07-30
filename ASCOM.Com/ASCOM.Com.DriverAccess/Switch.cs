@@ -1,6 +1,7 @@
 ﻿using ASCOM.Common.DeviceInterfaces;
 using System.Collections.Generic;
 using ASCOM.Common;
+using ASCOM.Common.Interfaces;
 
 namespace ASCOM.Com.DriverAccess
 {
@@ -9,11 +10,18 @@ namespace ASCOM.Com.DriverAccess
     /// </summary>
     public class Switch : ASCOMDevice, ISwitchV3
     {
+        ILogger TL = null;
+
+        #region Convenience members
+
         /// <summary>
         /// Return a list of all Switches registered in the ASCOM Profile
         /// </summary>
         public static List<ASCOMRegistration> Switches => Profile.GetDrivers(DeviceTypes.Switch);
 
+        #endregion
+
+        #region Initialisers
         /// <summary>
         /// Initialise Switch device
         /// </summary>
@@ -22,6 +30,21 @@ namespace ASCOM.Com.DriverAccess
         {
             deviceType = DeviceTypes.Switch;
         }
+
+        /// <summary>
+        /// Initialise Switch device with a debug logger
+        /// </summary>
+        /// <param name="ProgID">ProgID of the driver</param>
+        /// <param name="logger">Logger instance to receive debug information.</param>
+        public Switch(string ProgID, ILogger logger) : base(ProgID)
+        {
+            deviceType = DeviceTypes.Switch;
+            TL = logger;
+        }
+
+        #endregion
+
+        #region ISwitchV2 and ISwitchV3
 
         /// <summary>
         /// The number of switch devices managed by this driver
@@ -289,5 +312,8 @@ namespace ASCOM.Com.DriverAccess
                 this.SetSwitch(id, bv);
             }
         }
+
+        #endregion  
+
     }
 }

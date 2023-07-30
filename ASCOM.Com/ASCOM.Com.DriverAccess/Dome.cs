@@ -1,6 +1,8 @@
 ﻿using ASCOM.Common.DeviceInterfaces;
 using System.Collections.Generic;
 using ASCOM.Common;
+using ASCOM.Common.Interfaces;
+using ASCOM.Common.DeviceStateClasses;
 
 namespace ASCOM.Com.DriverAccess
 {
@@ -9,10 +11,33 @@ namespace ASCOM.Com.DriverAccess
     /// </summary>
     public class Dome : ASCOMDevice, IDomeV3
     {
+        ILogger TL = null;
+
+        #region Convenience members
+
         /// <summary>
         /// Return a list of all Dome devices registered in the ASCOM Profile
         /// </summary>
         public static List<ASCOMRegistration> Domes => Profile.GetDrivers(DeviceTypes.Dome);
+
+        /// <summary>
+        /// Dome device state
+        /// </summary>
+        public DomeState DomeState
+        {
+            get
+            {
+                // Create a state object to return.
+                DomeState domeState = new DomeState(DeviceState, TL);
+                TL.LogMessage(LogLevel.Debug, nameof(DomeState), $"Returning: '{domeState.Altitude}' '{domeState.AtHome}' '{domeState.AtPark}' '{domeState.Azimuth}' '{domeState.ShutterStatus}' '{domeState.Slewing}' '{domeState.TimeStamp}'");
+
+                // Return the device specific state class
+                return domeState;
+            }
+        }
+        #endregion
+
+        #region Initialisers
 
         /// <summary>
         /// Initialise Dome device
@@ -22,6 +47,21 @@ namespace ASCOM.Com.DriverAccess
         {
             deviceType = DeviceTypes.Dome;
         }
+
+        /// <summary>
+        /// Initialise Dome device with a debug logger
+        /// </summary>
+        /// <param name="ProgID">ProgID of the driver</param>
+        /// <param name="logger">Logger instance to receive debug information.</param>
+        public Dome(string ProgID, ILogger logger) : base(ProgID)
+        {
+            deviceType = DeviceTypes.Dome;
+            TL = logger;
+        }
+
+        #endregion
+
+        #region IDomeV2 and IDomeV3
 
         /// <summary>
         /// A string containing only the major and minor version of the driver.
@@ -342,5 +382,8 @@ namespace ASCOM.Com.DriverAccess
         {
             Device.SyncToAzimuth(Azimuth);
         }
+
+        #endregion
+
     }
 }

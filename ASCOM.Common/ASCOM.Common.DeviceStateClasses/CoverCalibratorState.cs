@@ -22,28 +22,25 @@ namespace ASCOM.Common.DeviceStateClasses
         /// <summary>
         /// Create a new CoverCalibratorState instance from the device's DeviceState response.
         /// </summary>
-        /// <param name="deviceStateArrayList">The device's DeviceState response.</param>
+        /// <param name="deviceState">The device's DeviceState response.</param>
         /// <param name="TL">Debug TraceLogger instance.</param>
-        public CoverCalibratorState(ArrayList deviceStateArrayList, ILogger TL)
+        public CoverCalibratorState(IList<IStateValue> deviceState, ILogger TL)
         {
-            TL?.LogMessage(LogLevel.Debug, className, $"Received {deviceStateArrayList.Count} items");
+            TL?.LogMessage(LogLevel.Debug, className, $"Received {deviceState.Count} items");
 
-            List<IStateValue> deviceState = new List<IStateValue>();
-
-            // Handle null ArrayList
-            if (deviceStateArrayList is null) // No ArrayList was supplied so return
+            // Handle null List
+            if (deviceState is null) // No List was supplied so return
             {
-                TL?.LogMessage(LogLevel.Debug, className, $"Supplied device state ArrayList is null, all values will be unknown.");
+                TL?.LogMessage(LogLevel.Debug, className, $"Supplied device state List is null, all values will be unknown.");
                 return;
             }
 
             // An ArrayList was supplied so process each supplied value
-            foreach (IStateValue stateValue in deviceStateArrayList)
+            foreach (IStateValue stateValue in deviceState)
             {
                 try
                 {
                     TL?.LogMessage(LogLevel.Debug, className, $"{stateValue.Name} = {stateValue.Value}");
-                    deviceState.Add(new StateValue(stateValue.Name, stateValue.Value));
 
                     switch (stateValue.Name)
                     {
