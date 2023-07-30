@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using ASCOM.Common;
+using ASCOM.Common.Interfaces;
+using ASCOM.Common.DeviceStateClasses;
 
 namespace ASCOM.Com.DriverAccess
 {
@@ -12,10 +14,36 @@ namespace ASCOM.Com.DriverAccess
     /// </summary>
     public class Video : ASCOMDevice, IVideoV2
     {
+        ILogger TL = null;
+
+        #region Convenience members
+
         /// <summary>
         /// Return a list of all Video devices registered in the ASCOM Profile
         /// </summary>
         public static List<ASCOMRegistration> Videos => Profile.GetDrivers(DeviceTypes.Video);
+
+        /// <summary>
+        /// VideoState device state
+        /// </summary>
+        public VideoState VideoState
+        {
+            get
+            {
+                // Create a state object to return.
+                VideoState videoState = new VideoState(DeviceState, TL);
+                TL.LogMessage(LogLevel.Debug,nameof(VideoState), $"Returning: " +
+                    $"CameraState: '{videoState.CameraState}', " +
+                    $"Time stamp: '{videoState.TimeStamp}'");
+
+                // Return the device specific state class
+                return videoState;
+            }
+        }
+
+        #endregion
+
+        #region Initialisers
 
         /// <summary>
         /// Initialise Video device
@@ -25,6 +53,21 @@ namespace ASCOM.Com.DriverAccess
         {
             deviceType = DeviceTypes.Video;
         }
+
+        /// <summary>
+        /// Initialise Video device with a debug logger
+        /// </summary>
+        /// <param name="ProgID">ProgID of the driver</param>
+        /// <param name="logger">Logger instance to receive debug information.</param>
+        public Video(string ProgID, ILogger logger) : base(ProgID)
+        {
+            deviceType = DeviceTypes.Video;
+            TL = logger;
+        }
+
+        #endregion
+
+        #region IVideoV1 and IVideov2
 
         /// <summary>
         /// Reports the bit depth the camera can produce.
@@ -759,5 +802,8 @@ namespace ASCOM.Com.DriverAccess
         {
             Device.StopRecordingVideoFile();
         }
+
+        #endregion
+
     }
 }

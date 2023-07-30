@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Globalization;
 using ASCOM.Common;
 using System.Linq;
+using ASCOM.Common.Interfaces;
+using ASCOM.Common.DeviceStateClasses;
 
 namespace ASCOM.Com.DriverAccess
 {
@@ -14,11 +16,35 @@ namespace ASCOM.Com.DriverAccess
     public class Telescope : ASCOMDevice, ITelescopeV4
     {
         Operation currentOperation = Operation.None; // Current operation name
+        ILogger TL = null;
+
+        #region Convenience members
 
         /// <summary>
         /// Return a list of all Telescopes registered in the ASCOM Profile
         /// </summary>
         public static List<ASCOMRegistration> Telescopes => Profile.GetDrivers(DeviceTypes.Telescope);
+
+        /// <summary>
+		/// State response from the device
+		/// </summary>
+		public TelescopeState TelescopeState
+        {
+            get
+            {
+                // Create a state object to return.
+                TelescopeState state = new TelescopeState(DeviceState, TL);
+                TL.LogMessage(LogLevel.Debug,nameof(TelescopeState), $"Returning: '{state.Altitude}' '{state.AtHome}' '{state.AtPark}' '{state.Azimuth}' '{state.Declination}' '{state.IsPulseGuiding}' " +
+                    $"'{state.RightAscension}' '{state.SideOfPier}' '{state.SiderealTime}' '{state.Slewing}' '{state.Tracking}' '{state.UTCDate}' '{state.TimeStamp}'");
+
+                // Return the device specific state class
+                return state;
+            }
+        }
+
+        #endregion
+
+        #region Initialisers
 
         /// <summary>
         /// Initialise Telescope device
@@ -28,6 +54,18 @@ namespace ASCOM.Com.DriverAccess
         {
             deviceType = DeviceTypes.Telescope;
         }
+        /// <summary>
+        /// Initialise Telescope device with a debug logger
+        /// </summary>
+        /// <param name="ProgID">ProgID of the driver</param>
+        /// <param name="logger">Logger instance to receive debug information.</param>
+        public Telescope(string ProgID, ILogger logger) : base(ProgID)
+        {
+            deviceType = DeviceTypes.Telescope;
+            TL = logger;
+        }
+
+        #endregion
 
         #region ITelescopeV3
 

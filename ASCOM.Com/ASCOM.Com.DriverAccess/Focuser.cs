@@ -1,6 +1,8 @@
 ﻿using ASCOM.Common.DeviceInterfaces;
 using System.Collections.Generic;
 using ASCOM.Common;
+using ASCOM.Common.Interfaces;
+using ASCOM.Common.DeviceStateClasses;
 
 namespace ASCOM.Com.DriverAccess
 {
@@ -9,10 +11,34 @@ namespace ASCOM.Com.DriverAccess
     /// </summary>
     public class Focuser : ASCOMDevice, IFocuserV4
     {
+        ILogger TL = null;
+
+        #region Convenience members
+
         /// <summary>
         /// Return a list of all Focusers registered in the ASCOM Profile
         /// </summary>
         public static List<ASCOMRegistration> Focusers => Profile.GetDrivers(DeviceTypes.Focuser);
+
+        /// <summary>
+        /// Focuser device state
+        /// </summary>
+        public FocuserState FocuserState
+        {
+            get
+            {
+                // Create a state object to return.
+                FocuserState focuserState = new FocuserState(DeviceState, TL);
+                TL.LogMessage(LogLevel.Debug, nameof(FocuserState), $"Returning: '{focuserState.IsMoving}' '{focuserState.Position}' '{focuserState.Temperature}' '{focuserState.TimeStamp}'");
+
+                // Return the device specific state class
+                return focuserState;
+            }
+        }
+
+        #endregion
+
+        #region Initialisers
 
         /// <summary>
         /// Initialise Focuser device
@@ -22,6 +48,21 @@ namespace ASCOM.Com.DriverAccess
         {
             deviceType = DeviceTypes.Focuser;
         }
+
+        /// <summary>
+        /// Initialise Focuser device with a debug logger
+        /// </summary>
+        /// <param name="ProgID">ProgID of the driver</param>
+        /// <param name="logger">Logger instance to receive debug information.</param>
+        public Focuser(string ProgID, ILogger logger) : base(ProgID)
+        {
+            deviceType = DeviceTypes.Focuser;
+            TL = logger;
+        }
+
+        #endregion
+
+        #region IFocuserV3 and IFocuserV4
 
         /// <summary>
         /// Set True to enable the link. Set False to disable the link.
@@ -270,5 +311,8 @@ namespace ASCOM.Com.DriverAccess
         {
             Device.Move(Position);
         }
+
+        #endregion
+
     }
 }

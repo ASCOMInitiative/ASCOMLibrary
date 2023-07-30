@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using ASCOM.Common;
 using System.Reflection;
+using ASCOM.Common.Interfaces;
+using ASCOM.Common.DeviceStateClasses;
 
 namespace ASCOM.Com.DriverAccess
 {
@@ -10,12 +12,34 @@ namespace ASCOM.Com.DriverAccess
     /// </summary>
     public class CoverCalibrator : ASCOMDevice, ICoverCalibratorV2
     {
-        #region ICoverCalibratorV1 members
+        ILogger TL = null;
+
+        #region Convenience members
 
         /// <summary>
         /// Return a list of all CoverCalibrator devices registered in the ASCOM Profile
         /// </summary>
         public static List<ASCOMRegistration> CoverCalibrators => Profile.GetDrivers(DeviceTypes.CoverCalibrator);
+
+        /// <summary>
+        /// CoverCalibrator device state
+        /// </summary>
+        public CoverCalibratorState CoverCalibratorState
+        {
+            get
+            {
+                // Create a state object to return.
+                CoverCalibratorState deviceState = new CoverCalibratorState(DeviceState, TL);
+                TL.LogMessage(LogLevel.Debug,"CoverCalibratorState", $"Returning: '{deviceState.Brightness}' '{deviceState.CalibratorReady}' '{deviceState.CalibratorState}' '{deviceState.CoverMoving}' '{deviceState.CoverState}' '{deviceState.TimeStamp}'");
+
+                // Return the device specific state class
+                return deviceState;
+            }
+        }
+
+        #endregion
+
+        #region Initialisers
 
         /// <summary>
         /// Initialise CoverClaibrator device
@@ -25,6 +49,21 @@ namespace ASCOM.Com.DriverAccess
         {
             deviceType = DeviceTypes.CoverCalibrator;
         }
+
+        /// <summary>
+        /// Initialise CoverCalibrator device with a debug logger
+        /// </summary>
+        /// <param name="ProgID">ProgID of the driver</param>
+        /// <param name="logger">Logger instance to receive debug information.</param>
+        public CoverCalibrator(string ProgID, ILogger logger) : base(ProgID)
+        {
+            deviceType = DeviceTypes.CoverCalibrator;
+            TL = logger;
+        }
+
+        #endregion
+
+        #region ICoverCalibratorV1 members
 
         /// <summary>
         /// Returns the state of the device cover, if present, otherwise returns "NotPresent"

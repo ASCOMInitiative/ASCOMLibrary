@@ -1,6 +1,8 @@
 ﻿using ASCOM.Common.DeviceInterfaces;
 using System.Collections.Generic;
 using ASCOM.Common;
+using ASCOM.Common.Interfaces;
+using ASCOM.Common.DeviceStateClasses;
 
 namespace ASCOM.Com.DriverAccess
 {
@@ -9,10 +11,33 @@ namespace ASCOM.Com.DriverAccess
     /// </summary>
     public class FilterWheel : ASCOMDevice, IFilterWheelV3
     {
+        ILogger TL = null;
+
+        #region Convenience members
+
         /// <summary>
         /// Return a list of all FilterWheels registered in the ASCOM Profile
         /// </summary>
         public static List<ASCOMRegistration> FilterWheels => Profile.GetDrivers(DeviceTypes.FilterWheel);
+
+        /// <summary>
+        /// FilterWheel device state
+        /// </summary>
+        public FilterWheelState FilterWheelState
+        {
+            get
+            {
+                // Create a state object to return.
+                FilterWheelState filterWheelState = new FilterWheelState(DeviceState, TL);
+                TL.LogMessage(LogLevel.Debug,nameof(FilterWheelState), $"Returning: '{filterWheelState.Position}' '{filterWheelState.TimeStamp}'");
+
+                // Return the device specific state class
+                return filterWheelState;
+            }
+        }
+        #endregion
+
+        #region Initialisers
 
         /// <summary>
         /// Initialise FilterWheel device
@@ -22,6 +47,21 @@ namespace ASCOM.Com.DriverAccess
         {
             deviceType = DeviceTypes.FilterWheel; ;
         }
+
+        /// <summary>
+        /// Initialise FilterWheel device with a debug logger
+        /// </summary>
+        /// <param name="ProgID">ProgID of the driver</param>
+        /// <param name="logger">Logger instance to receive debug information.</param>
+        public FilterWheel(string ProgID, ILogger logger) : base(ProgID)
+        {
+            deviceType = DeviceTypes.FilterWheel;
+            TL = logger;
+        }
+
+        #endregion
+
+        #region IFilterWheelV2 and IFilterWheelV3
 
         /// <summary>
         /// Returns a description of the driver, such as manufacturer and model
@@ -137,5 +177,7 @@ namespace ASCOM.Com.DriverAccess
         /// immediately as the read value, and -1 is never produced.</para>
         /// </remarks>
         public short Position { get => Device.Position; set => Device.Position = value; }
+
+        #endregion
     }
 }
