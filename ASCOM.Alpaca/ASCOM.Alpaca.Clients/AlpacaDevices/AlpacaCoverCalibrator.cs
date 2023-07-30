@@ -326,7 +326,7 @@ namespace ASCOM.Alpaca.Clients
         /// <summary>
         /// True while the calibrator brightness is changing.
         /// </summary>
-        public bool CalibratorChanging
+        public bool CalibratorReady
         {
             get
             {

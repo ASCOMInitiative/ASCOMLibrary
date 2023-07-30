@@ -170,7 +170,7 @@ namespace ASCOM.Com.DriverAccess
         /// <summary>
         /// True while the calibrator brightness is changing.
         /// </summary>
-        public bool CalibratorChanging
+        public bool CalibratorReady
         {
             get
             {
