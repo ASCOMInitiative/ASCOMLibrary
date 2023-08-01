@@ -20,15 +20,18 @@ namespace ASCOM.Alpaca.Tests.Alpaca
     /// <summary>
     /// This test class assumes that an Alpaca Telescope and Camera are accessible on the network
     /// </summary>
+    //[Collection("DiscoveryTests")]
     public class SynchronousDiscoveryTests
     {
+        const double DISCOVERY_TIME = 2.0;
+
         #region Synchronous methods
 
         [Fact]
         public void AlpacaCamera()
         {
             AlpacaDiscovery alpacaDisocvery = new AlpacaDiscovery();
-            alpacaDisocvery.StartDiscovery(1, 100, 32227, 1.0, false, true, false, ServiceType.Http);
+            alpacaDisocvery.StartDiscovery(1, 100, 32227, DISCOVERY_TIME, false, true, false, ServiceType.Http);
             do
             {
                 Thread.Sleep(50);
@@ -45,7 +48,7 @@ namespace ASCOM.Alpaca.Tests.Alpaca
         public void AlpacaTelescope()
         {
             AlpacaDiscovery alpacaDisocvery = new AlpacaDiscovery();
-            alpacaDisocvery.StartDiscovery(1, 100, 32227, 1.0, false, true, false, ServiceType.Http);
+            alpacaDisocvery.StartDiscovery(1, 100, 32227, DISCOVERY_TIME, false, true, false, ServiceType.Http);
             do
             {
                 Thread.Sleep(50);
@@ -62,7 +65,7 @@ namespace ASCOM.Alpaca.Tests.Alpaca
         public void AlpacaBadAscomDevice()
         {
             AlpacaDiscovery alpacaDisocvery = new AlpacaDiscovery();
-            alpacaDisocvery.StartDiscovery(1, 100, 32227, 1.0, false, true, false, ServiceType.Http);
+            alpacaDisocvery.StartDiscovery(1, 100, 32227, DISCOVERY_TIME, false, true, false, ServiceType.Http);
             do
             {
                 Thread.Sleep(50);
@@ -80,7 +83,7 @@ namespace ASCOM.Alpaca.Tests.Alpaca
             const uint CLIENT_NUMBER = 729;
 
             AlpacaDiscovery alpacaDisocvery = new AlpacaDiscovery();
-            alpacaDisocvery.StartDiscovery(1, 100, 32227, 1.0, false, true, false, ServiceType.Http);
+            alpacaDisocvery.StartDiscovery(1, 100, 32227, DISCOVERY_TIME, false, true, false, ServiceType.Http);
             do
             {
                 Thread.Sleep(50);
@@ -117,7 +120,7 @@ namespace ASCOM.Alpaca.Tests.Alpaca
             const string USER_PASSWORD = "$%Sg90|@!56BhI";
 
             AlpacaDiscovery alpacaDisocvery = new AlpacaDiscovery();
-            alpacaDisocvery.StartDiscovery(1, 100, 32227, 1.0, false, true, false, ServiceType.Http);
+            alpacaDisocvery.StartDiscovery(1, 100, 32227, DISCOVERY_TIME, false, true, false, ServiceType.Http);
             do
             {
                 Thread.Sleep(50);
@@ -154,7 +157,7 @@ namespace ASCOM.Alpaca.Tests.Alpaca
             const string USER_PASSWORD = "";
 
             AlpacaDiscovery alpacaDisocvery = new AlpacaDiscovery();
-            alpacaDisocvery.StartDiscovery(1, 100, 32227, 1.0, false, true, false, ServiceType.Http);
+            alpacaDisocvery.StartDiscovery(1, 100, 32227, DISCOVERY_TIME, false, true, false, ServiceType.Http);
             do
             {
                 Thread.Sleep(50);
@@ -191,7 +194,7 @@ namespace ASCOM.Alpaca.Tests.Alpaca
             const string USER_PASSWORD = "";
 
             AlpacaDiscovery alpacaDisocvery = new AlpacaDiscovery();
-            alpacaDisocvery.StartDiscovery(1, 100, 32227, 1.0, false, true, false, ServiceType.Http);
+            alpacaDisocvery.StartDiscovery(1, 100, 32227, DISCOVERY_TIME, false, true, false, ServiceType.Http);
             do
             {
                 Thread.Sleep(50);
@@ -216,8 +219,11 @@ namespace ASCOM.Alpaca.Tests.Alpaca
         #endregion
 
     }
+    //[Collection("DiscoveryTests")]
     public class AscomDeviceFilteringAndOrdering
     {
+        const double DISCOVERY_TIME = 2.0;
+
         #region AscomDevice filtering and ordering
 
         [Fact]
@@ -227,7 +233,7 @@ namespace ASCOM.Alpaca.Tests.Alpaca
             TL.LogMessage("Test", $"About to call GetAscomDevicesAsync");
 
             // Get every ASCOM device from all Alpaca discovered devices into a List
-            List<AscomDevice> allAscomDevices = await AlpacaDiscovery.GetAscomDevicesAsync(null); // Or use a discovery instance and the GetAscomDevices method
+            List<AscomDevice> allAscomDevices = await AlpacaDiscovery.GetAscomDevicesAsync(null, discoveryDuration: DISCOVERY_TIME); // Or use a discovery instance and the GetAscomDevices method
 
             // Create a single device subset of Telescope devices (Could be achieved more simply by supplying a DeviceTypes parameter value in place of the null parameter in the command above)
             var ascomDevices = allAscomDevices.Where(info => info.AscomDeviceType == DeviceTypes.Telescope);
@@ -254,7 +260,7 @@ namespace ASCOM.Alpaca.Tests.Alpaca
             // Get every ASCOM device from all Alpaca discovered devices into a List
             List<AscomDevice> ascomDevices = await AlpacaDiscovery.GetAscomDevicesAsync(DeviceTypes.CoverCalibrator); // Or use a discovery instance and the GetAscomDevices method
             TL.LogMessage("Test", $"Returned from GetAscomDevicesAsync");
-            foreach(AscomDevice device in ascomDevices)
+            foreach (AscomDevice device in ascomDevices)
             {
                 TL.LogMessage("Test", $"Discovered {device.AscomDeviceName} at {device.Location}");
             }
@@ -285,6 +291,7 @@ namespace ASCOM.Alpaca.Tests.Alpaca
         #endregion
     }
 
+    //[Collection("DiscoveryTests")]
     public class Asyncmethods
     {
         #region Async methods
@@ -427,7 +434,7 @@ namespace ASCOM.Alpaca.Tests.Alpaca
         }
 
         #endregion
-    
+
         #region Support code
         static List<AscomDevice> FetchAscomDevices(DeviceTypes? deviceTypes, TraceLogger TL)
         {

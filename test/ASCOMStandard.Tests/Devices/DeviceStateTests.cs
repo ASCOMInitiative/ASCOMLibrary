@@ -6,7 +6,8 @@ using Xunit;
 
 namespace DriverAccessTests
 {
-    public class DeviceStateTests
+    [Collection("CameraTests")]
+    public class CameraStateTest
     {
         [Fact]
         public void Camera()
@@ -34,7 +35,11 @@ namespace DriverAccessTests
                 device.Disconnect();
             }
         }
+    }
 
+    [Collection("CoverCalibratorTests")]
+    public class CoverCalibratorStateTest
+    { 
         [Fact]
         public void CoverCalibrator()
         {
@@ -60,6 +65,11 @@ namespace DriverAccessTests
             }
         }
 
+    }
+
+    [Collection("DomeTests")]
+    public class DomeStateTest
+    {
         [Fact]
         public void Dome()
         {
@@ -85,6 +95,11 @@ namespace DriverAccessTests
                 device.Disconnect();
             }
         }
+    }
+
+    [Collection("FilterWheelTests")]
+    public class FilterWheelStateTest
+    {
         [Fact]
         public void FilterWheel()
         {
@@ -105,6 +120,11 @@ namespace DriverAccessTests
                 device.Disconnect();
             }
         }
+    }
+
+    [Collection("FocuserTests")]
+    public class FocuserStateTest
+    {
         [Fact]
         public void Focuser()
         {
@@ -128,6 +148,11 @@ namespace DriverAccessTests
             }
         }
 
+    }
+
+    [Collection("ObservingConditionsTests")]
+    public class ObservingConditionsStateTest
+    {
         [Fact]
         public void ObservingConditions()
         {
@@ -161,6 +186,11 @@ namespace DriverAccessTests
             }
         }
 
+    }
+
+    [Collection("RotatorTests")]
+    public class RotatorStateTest
+    {
         [Fact]
         public void Rotator()
         {
@@ -184,6 +214,11 @@ namespace DriverAccessTests
             }
         }
 
+    }
+
+    [Collection("SafetyMonitorTests")]
+    public class SafetyMonitorStateTest
+    {
         [Fact]
         public void SafetyMonitor()
         {
@@ -205,28 +240,11 @@ namespace DriverAccessTests
             }
         }
 
-        [Fact]
-        public void Video()
-        {
-            using (Video device = new Video("ASCOM.Simulator.Video"))
-            {
-                device.Connect();
-                do
-                {
-                    System.Threading.Thread.Sleep(100);
-                } while (device.Connecting);
-                Assert.True(device.Connected);
+    }
 
-                VideoState deviceState = device.VideoState;
-
-                Assert.True(deviceState.CameraState.HasValue);
-                Assert.Equal(nameof(IVideoV2.CameraState), nameof(VideoState.CameraState));
-                Assert.True(deviceState.TimeStamp.HasValue);
-
-                device.Disconnect();
-            }
-        }
-
+    [Collection("TelescopeTests")]
+    public class TelescopeStateTest
+    {
         [Fact]
         public void Telescope()
         {
@@ -258,5 +276,32 @@ namespace DriverAccessTests
                 device.Disconnect();
             }
         }
+    }
+
+    [Collection("VideoTests")]
+    public class VideoStateTest
+    {
+        [Fact]
+        public void Video()
+        {
+            using (Video device = new Video("ASCOM.Simulator.Video"))
+            {
+                device.Connect();
+                do
+                {
+                    System.Threading.Thread.Sleep(100);
+                } while (device.Connecting);
+                Assert.True(device.Connected);
+
+                VideoState deviceState = device.VideoState;
+
+                Assert.True(deviceState.CameraState.HasValue);
+                Assert.Equal(nameof(IVideoV2.CameraState), nameof(VideoState.CameraState));
+                Assert.True(deviceState.TimeStamp.HasValue);
+
+                device.Disconnect();
+            }
+        }
+
     }
 }

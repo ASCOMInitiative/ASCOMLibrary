@@ -462,6 +462,8 @@ namespace ASCOM.Alpaca.Tests.ImageArray
             const int IMAGE_WIDTH = 4000;
             const int IMAGE_HEIGHT = 3000;
 
+            Stopwatch sw = Stopwatch.StartNew();
+
             Object[,,] imageArray = new Object[IMAGE_WIDTH, IMAGE_HEIGHT, 3];
             Parallel.For(0, IMAGE_WIDTH, (i) =>
             {
@@ -473,16 +475,16 @@ namespace ASCOM.Alpaca.Tests.ImageArray
                     }
                 }
             });
-
-            Stopwatch sw = Stopwatch.StartNew();
+            output.WriteLine($"Time to create Int16 array: {sw.Elapsed.TotalMilliseconds:0.0}");
+            sw.Restart();
 
             byte[] bytes = imageArray.ToByteArray(1, 0, 0, AlpacaErrors.AlpacaNoError, "");
             output.WriteLine($"Time to create byte array: {sw.Elapsed.TotalMilliseconds:0.0}");
 
             ArrayMetadataV1 metadata = bytes.GetMetadataV1();
             Assert.True(metadata.TransmissionElementType == ImageArrayElementTypes.UInt16);
-
             sw.Restart();
+
             Object[,,] responseArray = (Object[,,])bytes.ToImageArray();
             output.WriteLine($"Time to create return array: {sw.Elapsed.TotalMilliseconds:0.0}");
             Assert.True(CompareArrays(imageArray, responseArray, false));
