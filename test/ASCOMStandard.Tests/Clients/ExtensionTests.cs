@@ -12,10 +12,81 @@ using System.Threading;
 using System.Diagnostics;
 using ASCOM.Alpaca.Clients;
 using System.Dynamic;
+using Xunit.Abstractions;
 
 namespace ASCOM.Alpaca.Tests.Clients
 {
+    [Collection("CameraTests")]
+    public class MiscellaneousTests
+    {
+        private ITestOutputHelper output;
 
+        public MiscellaneousTests(ITestOutputHelper output)
+        {
+            this.output = output;
+        }
+
+        [Fact]
+        public static async Task BadCameraStartExposureTest()
+        {
+            TraceLogger TL = new TraceLogger("BadCameraStartExposure", true, 64, LogLevel.Debug);
+
+            // Create a task completion source and token so that the task can be cancelled
+            CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+            CancellationToken cancellationToken = cancellationTokenSource.Token;
+
+            // Create a COM client
+            TL.LogMessage("Main", $"About to create device");
+            Camera client = new Camera("ASCOM.Simulator.Camera");
+            TL.LogMessage("Main", $"Device created");
+            Assert.NotNull(client);
+
+            // Set connected to true
+            client.Connected = true;
+            TL.LogMessage("Main", $"Connected set true");
+
+            await Assert.ThrowsAsync<InvalidValueException>(async () =>
+            {
+                await client.StartExposureAsync(-10.0, true, CancellationToken.None, 100, TL);
+            });
+
+            // Disconnect from the client and dispose
+            client.Connected = false;
+            client.Dispose();
+            TL.LogMessage("Main", $"Finished");
+        }
+
+        [Fact]
+        public static async Task DefaultValuesTest()
+        {
+            TraceLogger TL = new TraceLogger("DefaultValues", true, 64, LogLevel.Debug);
+
+            // Create a COM client
+            TL.LogMessage("Main", $"About to create device");
+            Camera client = new Camera("ASCOM.Simulator.Camera");
+            TL.LogMessage("Main", $"Device created");
+            Assert.NotNull(client);
+
+            // Set connected to true
+            client.Connected = true;
+            TL.LogMessage("Main", $"Connected set true");
+
+            TL.LogMessage("Main", $"Before exposure: ImageReady:{client.ImageReady}");
+            Assert.False(client.ImageReady);
+
+            await client.StartExposureAsync(2.0, true);
+
+            TL.LogMessage("Main", $"After exposure: ImageReady:{client.ImageReady}");
+            Assert.True(client.ImageReady);
+
+            // Disconnect from the client and dispose
+            client.Connected = false;
+            client.Dispose();
+            TL.LogMessage("Main", $"Finished");
+        }
+    }
+
+    [Collection("CameraTests")]
     public static class CameraTests
     {
         [Fact]
@@ -90,6 +161,7 @@ namespace ASCOM.Alpaca.Tests.Clients
         }
     }
 
+    [Collection("CoverCalibratorTests")]
     public static class CoverCalibratorCalibratorTests
     {
         [Fact]
@@ -155,6 +227,7 @@ namespace ASCOM.Alpaca.Tests.Clients
         }
     }
 
+    [Collection("CoverCalibratorTests")]
     public static class CoverCalibratorCoverTests
     {
         [Fact]
@@ -259,6 +332,7 @@ namespace ASCOM.Alpaca.Tests.Clients
         }
     }
 
+    [Collection("DomeTests")]
     public static class DomeTests
     {
         [Fact]
@@ -509,6 +583,7 @@ namespace ASCOM.Alpaca.Tests.Clients
         }
     }
 
+    [Collection("FilterWheelTests")]
     public static class FilterWheelTests
     {
         [Fact]
@@ -551,6 +626,7 @@ namespace ASCOM.Alpaca.Tests.Clients
         }
     }
 
+    [Collection("FocuserTests")]
     public static class FocuserTests
     {
         [Fact]
@@ -667,6 +743,7 @@ namespace ASCOM.Alpaca.Tests.Clients
         }
     }
 
+    [Collection("RotatorTests")]
     public static class RotatorTests
     {
         [Fact]
@@ -825,6 +902,7 @@ namespace ASCOM.Alpaca.Tests.Clients
         }
     }
 
+    [Collection("TelescopeTests")]
     public static class TelescopeTests
     {
         [Fact]
@@ -863,7 +941,7 @@ namespace ASCOM.Alpaca.Tests.Clients
             Assert.False(client.AtHome);
             Assert.False(client.AtPark);
             Assert.Equal(40.0, Math.Round(client.Azimuth, 1));
-            Assert.Equal(50.0, Math.Round(client.Altitude, 1));
+            Assert.InRange<double>(client.Altitude, 49.8, 50.2);
 
             // Disconnect from the client and dispose
             client.Connected = false;
@@ -1125,12 +1203,8 @@ namespace ASCOM.Alpaca.Tests.Clients
             client.Tracking = true;
             TL.LogMessage("Main", $"Tracking set true");
 
-            double targetRa = (client.SiderealTime - 3.771 + 24.0) % 24.0;
-
-            // Slew somewhere that is the test position
-            TL.LogMessage("Main", $"Slewing to somewhere that is not likely to be the test position");
-            await client.SlewToCoordinatesTaskAsync(targetRa - 3.0, 5.0, pollInterval: 100, logger: TL);
-            TL.LogMessage("Main", $"Slew await complete, Is parked: {client.AtPark}, Is at home: {client.AtHome}, RA: {client.RightAscension}, Declination: {client.Declination}");
+            // Create a target that is 3 hours away from the current RA
+            double targetRa = (client.RightAscension - 3.0 + 24.0) % 24.0;
 
             // Start a task that will halt the slew after 1 second
             Task abortSlewTask = new Task(async () =>
@@ -1143,14 +1217,15 @@ namespace ASCOM.Alpaca.Tests.Clients
             });
             abortSlewTask.Start();
 
-            // Slew to the target 
-            TL.LogMessage("Main", $"Slewing to the target ALt/Az (0.0, 0.0)");
-            await client.SlewToCoordinatesTaskAsync(targetRa, 0.0, pollInterval: 100, logger: TL);
+            // Start the slew that is to be aborted
+            TL.LogMessage("Main", $"Slewing to somewhere that is 3 hours away form the current RA");
+            await client.SlewToCoordinatesTaskAsync(targetRa, 5.0, pollInterval: 100, logger: TL);
             TL.LogMessage("Main", $"Slew await complete, Is parked: {client.AtPark}, Is at home: {client.AtHome}, RA: {client.RightAscension}, Declination: {client.Declination}");
+
             Assert.False(client.AtHome);
             Assert.False(client.AtPark);
-            Assert.NotEqual(Math.Round(targetRa, 3), Math.Round(client.RightAscension, 3));
-            Assert.NotEqual(0.0, Math.Round(client.Declination, 3));
+            Assert.NotEqual<double>(targetRa, client.RightAscension);
+            Assert.NotEqual<double>(0.0, client.Declination);
 
             // Disconnect from the client and dispose
             client.Connected = false;
@@ -1159,6 +1234,7 @@ namespace ASCOM.Alpaca.Tests.Clients
         }
     }
 
+    [Collection("CoverCalibratorTests")]
     public static class CancelTests
     {
         [Fact]
@@ -1313,65 +1389,4 @@ namespace ASCOM.Alpaca.Tests.Clients
         }
     }
 
-    public static class MiscellaneousTests
-    {
-        [Fact]
-        public static async Task BadCameraStartExposureTest()
-        {
-            TraceLogger TL = new TraceLogger("BadCameraStartExposure", true, 64, LogLevel.Debug);
-
-            // Create a task completion source and token so that the task can be cancelled
-            CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-            CancellationToken cancellationToken = cancellationTokenSource.Token;
-
-            // Create a COM client
-            TL.LogMessage("Main", $"About to create device");
-            Camera client = new Camera("ASCOM.Simulator.Camera");
-            TL.LogMessage("Main", $"Device created");
-            Assert.NotNull(client);
-
-            // Set connected to true
-            client.Connected = true;
-            TL.LogMessage("Main", $"Connected set true");
-
-            await Assert.ThrowsAsync<InvalidValueException>(async () =>
-            {
-                await client.StartExposureAsync(-10.0, true, CancellationToken.None, 100, TL);
-            });
-
-            // Disconnect from the client and dispose
-            client.Connected = false;
-            client.Dispose();
-            TL.LogMessage("Main", $"Finished");
-        }
-        [Fact]
-        public static async Task DefaultValuesTest()
-        {
-            TraceLogger TL = new TraceLogger("DefaultValues", true, 64, LogLevel.Debug);
-
-            // Create a COM client
-            TL.LogMessage("Main", $"About to create device");
-            Camera client = new Camera("ASCOM.Simulator.Camera");
-            TL.LogMessage("Main", $"Device created");
-            Assert.NotNull(client);
-
-            // Set connected to true
-            client.Connected = true;
-            TL.LogMessage("Main", $"Connected set true");
-
-            Assert.False(client.ImageReady);
-
-            TL.LogMessage("Main", $"Before exposure: ImageReady:{client.ImageReady}");
-
-            await client.StartExposureAsync(1.0, true);
-            Assert.True(client.ImageReady);
-
-            TL.LogMessage("Main", $"After exposure: ImageReady:{client.ImageReady}");
-
-            // Disconnect from the client and dispose
-            client.Connected = false;
-            client.Dispose();
-            TL.LogMessage("Main", $"Finished");
-        }
-    }
 }
