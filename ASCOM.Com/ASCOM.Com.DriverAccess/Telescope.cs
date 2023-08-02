@@ -35,7 +35,7 @@ namespace ASCOM.Com.DriverAccess
                 // Create a state object to return.
                 TelescopeState state = new TelescopeState(DeviceState, TL);
                 TL.LogMessage(LogLevel.Debug,nameof(TelescopeState), $"Returning: '{state.Altitude}' '{state.AtHome}' '{state.AtPark}' '{state.Azimuth}' '{state.Declination}' '{state.IsPulseGuiding}' " +
-                    $"'{state.RightAscension}' '{state.SideOfPier}' '{state.SiderealTime}' '{state.Slewing}' '{state.Tracking}' '{state.UTCDate}' '{state.TimeStamp}'");
+                    $"'{state.RightAscension}' '{state.SideOfPier}' '{state.SiderealTime}' '{state.Slewing}' '{state.Tracking}' '{state.UTCDate}' '{state.TimeStamp}' '{currentOperation}'");
 
                 // Return the device specific state class
                 return state;

@@ -4,7 +4,9 @@ using ASCOM.Common.DeviceInterfaces;
 using ASCOM.Common.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Net.Http;
 using System.Reflection;
+using System.Threading;
 
 namespace ASCOM.Alpaca.Clients
 {
@@ -58,7 +60,7 @@ namespace ASCOM.Alpaca.Clients
                             bool strictCasing = AlpacaClient.CLIENT_STRICTCASING_DEFAULT,
                             ILogger logger = AlpacaClient.CLIENT_LOGGER_DEFAULT,
                             string userAgentProductName = null,
-                            string userAgentProductVersion = null,bool trustUserGeneratedSslCertificates=AlpacaClient.TRUST_USER_GENERATED_SSL_CERTIFICATES_DEFAULT
+                            string userAgentProductVersion = null, bool trustUserGeneratedSslCertificates = AlpacaClient.TRUST_USER_GENERATED_SSL_CERTIFICATES_DEFAULT
            )
         {
             this.serviceType = serviceType;
@@ -131,7 +133,7 @@ namespace ASCOM.Alpaca.Clients
                 LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"Strict casing: {strictCasing}");
                 LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"Trust user generated SSL certificates: {trustUserGeneratedSslCertificates}");
 
-                DynamicClientDriver.CreateHttpClient(ref client, serviceType, ipAddressString, portNumber, clientNumber, clientDeviceType, userName, password, ImageArrayCompression.None, 
+                DynamicClientDriver.CreateHttpClient(ref client, serviceType, ipAddressString, portNumber, clientNumber, clientDeviceType, userName, password, ImageArrayCompression.None,
                     logger, userAgentProductName, userAgentProductVersion, trustUserGeneratedSslCertificates);
                 LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), "Completed initialisation");
             }
@@ -380,6 +382,84 @@ namespace ASCOM.Alpaca.Clients
         public void SetSwitchValue(short id, double value)
         {
             DynamicClientDriver.SetDoubleWithShortParameter(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "SetSwitchValue", id, value, MemberTypes.Method);
+        }
+
+        #endregion
+
+        #region ISwitchV3
+
+        /// <inheritdoc />
+        public void SetAsync(short id, bool state)
+        {
+            // Check whether this device supports asynchronous methods
+            if (DeviceCapabilities.HasConnectAndDeviceState(DeviceTypes.Switch, InterfaceVersion))
+            {
+                // Platform 7 or later device so use the device's method
+                DynamicClientDriver.SetBoolWithShortParameter(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "SetAsync", id, state, MemberTypes.Method);
+                return;
+            }
+
+            // Platform 6 or earlier device
+            throw new MethodNotImplementedException($"DriverAccess.Switch - SetAsync is not supported by this device because it exposes interface ISwitchV{InterfaceVersion}.");
+        }
+
+        /// <inheritdoc />
+        public void SetAsyncValue(short id, double value)
+        {
+            // Check whether this device supports asynchronous methods
+            if (DeviceCapabilities.HasConnectAndDeviceState(DeviceTypes.Switch, InterfaceVersion))
+            {
+                // Platform 7 or later device so use the device's method
+                DynamicClientDriver.SetDoubleWithShortParameter(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "SetAsyncValue", id, value, MemberTypes.Method);
+                return;
+            }
+
+            // Platform 6 or earlier device
+            throw new MethodNotImplementedException($"DriverAccess.Switch - SetAsyncValue is not supported by this device because it exposes interface ISwitchV{InterfaceVersion}.");
+        }
+
+        /// <inheritdoc />
+        public bool CanAsync(short id)
+        {
+            // Check whether this device supports asynchronous methods
+            if (DeviceCapabilities.HasConnectAndDeviceState(DeviceTypes.Switch, InterfaceVersion))
+            {
+                // Platform 7 or later device so use the device's method
+                return DynamicClientDriver.GetShortIndexedBool(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "CanAsync", id, MemberTypes.Method);
+            }
+
+            // Platform 6 or earlier device - async is not supported so return false to show no async support.
+            return false;
+        }
+
+        /// <inheritdoc />
+        public bool StateChangeComplete(short id)
+        {
+            // Check whether this device supports asynchronous methods
+            if (DeviceCapabilities.HasConnectAndDeviceState(DeviceTypes.Switch, InterfaceVersion))
+            {
+                // Platform 7 or later device so use the device's method
+                return DynamicClientDriver.GetShortIndexedBool(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "StateChangeComplete", id, MemberTypes.Method);
+            }
+
+            // Platform 6 or earlier device
+            throw new MethodNotImplementedException($"DriverAccess.Switch - StateChangeComplete is not supported by this device because it exposes interface ISwitchV{InterfaceVersion}.");
+        }
+
+        /// <inheritdoc />
+        public void CancelAsync(short id)
+        {
+            // Check whether this device supports asynchronous methods
+            if (DeviceCapabilities.HasConnectAndDeviceState(DeviceTypes.Switch, InterfaceVersion))
+            {
+                // Platform 7 or later device so use the device's method
+                Dictionary<string, string> Parameters = new Dictionary<string, string>() { { AlpacaConstants.ID_PARAMETER_NAME, id.ToString() } };
+                DynamicClientDriver.SendToRemoteDevice<NoReturnValue>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "CancelAsync", Parameters, HttpMethod.Put, MemberTypes.Method);
+                return;
+            }
+
+            // Platform 6 or earlier device
+            throw new MethodNotImplementedException($"DriverAccess.Switch - CancelAsync is not supported by this device because it exposes interface ISwitchV{InterfaceVersion}.");
         }
 
         #endregion

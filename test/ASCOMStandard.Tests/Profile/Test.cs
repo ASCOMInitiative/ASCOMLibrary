@@ -45,10 +45,12 @@ namespace ASCOM.Alpaca.Tests.Profile
         public static void ClearDeviceRegistration(string progId)
         {
             // Open the local machine hive in 32bit mode
+#pragma warning disable CA1416 // Validate platform compatibility
             using (RegistryKey localmachine32 = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry32))
             {
                 localmachine32.DeleteSubKeyTree($"SOFTWARE\\ASCOM\\{Test.TEST_DEVICE_TYPE} Drivers\\{progId}", false);
             }
+#pragma warning restore CA1416 // Validate platform compatibility
         }
 
         /// <summary>
@@ -64,6 +66,7 @@ namespace ASCOM.Alpaca.Tests.Profile
             object registryValue = null;
 
             // Open the local machine hive in 32bit mode
+#pragma warning disable CA1416 // Validate platform compatibility
             using (RegistryKey localmachine32 = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry32))
             {
                 // Open the required registry key
@@ -72,6 +75,7 @@ namespace ASCOM.Alpaca.Tests.Profile
                     if (driversKey != null) registryValue = driversKey.GetValue(valueName);
                 }
             }
+#pragma warning restore CA1416 // Validate platform compatibility
 
             if (registryValue is null) return null;
 

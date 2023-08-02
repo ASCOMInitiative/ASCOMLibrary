@@ -404,7 +404,7 @@ namespace ASCOM.Com.DriverAccess
                 }
 
                 // Platform 6 or earlier device so always return false.
-                return false;
+                return connecting;
             }
         }
 
