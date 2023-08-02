@@ -165,7 +165,8 @@ namespace ASCOM.Alpaca.Clients
         {
             currentOperation = Operation.AbortSlew; // Set the current operation
             DynamicClientDriver.CallMethodWithNoParameters(clientNumber, client, longDeviceResponseTimeout, URIBase, strictCasing, logger, "AbortSlew", MemberTypes.Method);
-            LogMessage(logger, clientNumber, "AbortSlew", "Slew aborted OK");
+            currentOperation = Operation.None; // Set the current operation
+            LogMessage(logger, clientNumber, "AbortSlew", $"Slew aborted OK, current operation: {currentOperation}");
         }
 
         /// <summary>

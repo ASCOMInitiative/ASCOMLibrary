@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using ASCOM.Common;
 using ASCOM.Common.Interfaces;
+using System.Threading.Tasks;
 
 namespace ASCOM.Com.DriverAccess
 {
@@ -44,7 +45,7 @@ namespace ASCOM.Com.DriverAccess
 
         #endregion
 
-        #region ISwitchV2 and ISwitchV3
+        #region ISwitchV2
 
         /// <summary>
         /// The number of switch devices managed by this driver
@@ -313,7 +314,84 @@ namespace ASCOM.Com.DriverAccess
             }
         }
 
-        #endregion  
+        #endregion
+
+        #region ISwitchV3
+
+        /// <inheritdoc />
+        public void SetAsync(short id, bool state)
+        {
+            // Check whether this device supports asynchronous methods
+            if (DeviceCapabilities.HasConnectAndDeviceState(deviceType, InterfaceVersion))
+            {
+                // Platform 7 or later device so use the device's method
+                Device.SetAsync(id, state);
+                return;
+            }
+
+            // Platform 6 or earlier device
+            throw new MethodNotImplementedException($"DriverAccess.Switch - SetAsync is not supported by this device because it exposes interface ISwitchV{InterfaceVersion}.");
+        }
+
+        /// <inheritdoc />
+        public void SetAsyncValue(short id, double value)
+        {
+            // Check whether this device supports asynchronous methods
+            if (DeviceCapabilities.HasConnectAndDeviceState(deviceType, InterfaceVersion))
+            {
+                // Platform 7 or later device so use the device's method
+                Device.SetAsyncValue(id, value);
+                return;
+            }
+
+            // Platform 6 or earlier device
+            throw new MethodNotImplementedException($"DriverAccess.Switch - SetAsyncValue is not supported by this device because it exposes interface ISwitchV{InterfaceVersion}.");
+        }
+
+        /// <inheritdoc />
+        public bool CanAsync(short id)
+        {
+            // Check whether this device supports asynchronous methods
+            if (DeviceCapabilities.HasConnectAndDeviceState(deviceType, InterfaceVersion))
+            {
+                // Platform 7 or later device so use the device's method
+                return Device.CanAsync(id);
+            }
+
+            // Platform 6 or earlier device - async is not supported so return false to show no async support.
+            return false;
+        }
+
+        /// <inheritdoc />
+        public bool StateChangeComplete(short id)
+        {
+            // Check whether this device supports asynchronous methods
+            if (DeviceCapabilities.HasConnectAndDeviceState(deviceType, InterfaceVersion))
+            {
+                // Platform 7 or later device so use the device's method
+                return Device.StateChangeComplete(id);
+            }
+
+            // Platform 6 or earlier device
+            throw new MethodNotImplementedException($"DriverAccess.Switch - StateChangeComplete is not supported by this device because it exposes interface ISwitchV{InterfaceVersion}.");
+        }
+
+        /// <inheritdoc />
+        public void CancelAsync(short id)
+        {
+            // Check whether this device supports asynchronous methods
+            if (DeviceCapabilities.HasConnectAndDeviceState(deviceType, InterfaceVersion))
+            {
+                // Platform 7 or later device so use the device's method
+                Device.CancelAsync(id);
+                return;
+            }
+
+            // Platform 6 or earlier device
+            throw new MethodNotImplementedException($"DriverAccess.Switch - CancelAsync is not supported by this device because it exposes interface ISwitchV{InterfaceVersion}.");
+        }
+
+        #endregion
 
     }
 }
