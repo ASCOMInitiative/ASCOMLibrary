@@ -2,7 +2,11 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Xunit;
 using Xunit.Abstractions;
+
+// Prevent parallelism in unit tests
+[assembly: CollectionBehavior(DisableTestParallelization = true)]
 
 namespace ASCOM.Alpaca.Tests
 {
