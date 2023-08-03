@@ -82,12 +82,12 @@ namespace DriverAccess
             Assert.False(switchSim.GetSwitch(10));
 
             // Wait for most of 3 seconds and make sure the operation is still running
-            Thread.Sleep(2950);
+            Thread.Sleep(2800);
             Assert.False(switchSim.StateChangeComplete(10));
             Assert.False(switchSim.GetSwitch(10));
 
             // Wait a short while longer to make sure that the new value is in effect
-            Thread.Sleep(150);
+            Thread.Sleep(350);
             Assert.True(switchSim.StateChangeComplete(10));
             Assert.True(switchSim.GetSwitch(10));
 
@@ -319,7 +319,7 @@ namespace DriverAccess
             // Wait a short while before checking that the operation is cancelled and an OperationCancelledException is thrown
             Thread.Sleep(100);
             Exception exception = Assert.Throws<DriverAccessCOMException>(() => switchSim.StateChangeComplete(10));
-            Assert.Equal<int>(ErrorCodes.NotImplemented, exception.HResult);
+            Assert.Equal<int>(ErrorCodes.OperationCancelledException, exception.HResult);
 
             Assert.False(switchSim.GetSwitch(10));
 

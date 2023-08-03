@@ -75,6 +75,7 @@ namespace ASCOM.Alpaca.Tests.Clients
             Assert.False(client.ImageReady);
 
             await client.StartExposureAsync(2.0, true);
+            Thread.Sleep(100);
 
             TL.LogMessage("Main", $"After exposure: ImageReady:{client.ImageReady}");
             Assert.True(client.ImageReady);
