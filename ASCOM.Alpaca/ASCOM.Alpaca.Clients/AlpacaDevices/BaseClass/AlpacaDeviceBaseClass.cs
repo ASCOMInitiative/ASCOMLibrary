@@ -6,6 +6,7 @@ using ASCOM.Common.Interfaces;
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Reflection;
 using System.Threading;
@@ -33,7 +34,6 @@ namespace ASCOM.Alpaca.Clients
         internal uint clientNumber = AlpacaClient.CLIENT_CLIENTNUMBER_DEFAULT; // Unique number for this driver within the locaL server, i.e. across all drivers that the local server is serving
 
         internal HttpClient client; // Client to send and receive REST style messages to / from the remote device
-        internal bool clientIsConnected;  // Connection state of this driver
         internal string URIBase; // URI base unique to this driver
         private bool disposedValue; // Whether or not the client has been Disposed()
         private readonly ClientConfiguration clientConfiguration; // The client configuration
@@ -199,13 +199,12 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return clientIsConnected;
+                bool response = DynamicClientDriver.GetValue<bool>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "Connected", MemberTypes.Property);
+                LogMessage(logger, clientNumber, "Connected", response.ToString());
+                return response;
             }
             set
             {
-                // Save the connected state
-                clientIsConnected = value;
-
                 // Set the device's Connected property
                 try
                 {
@@ -393,7 +392,14 @@ namespace ASCOM.Alpaca.Clients
                 if (DeviceCapabilities.HasConnectAndDeviceState(clientDeviceType, InterfaceVersion))
                 {
                     // Platform 7 or later device so return the device's value
-                    return DynamicClientDriver.GetValue<IList<IStateValue>>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "DeviceState", MemberTypes.Property);
+                    // Note use of a concrete class here necause System.Text.Json cannot deserialise to an interface, it requires a concrete class
+                    List<StateValue> response = DynamicClientDriver.GetValue<List<StateValue>>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "DeviceState", MemberTypes.Property);
+
+                    // Here we convert the device response to a type that can be returned as an ILIst<IStateValue> object.
+                    // This is done by using LINQ to cast the returned List<StateValue> objects to interface IStateValue type and then returning them as a list. Convoluted, but it works!
+                    List<IStateValue> returnValue = response.Cast<IStateValue>().ToList();
+
+                    return returnValue;
                 }
 
                 // Return an empty list for Platform 6 and earlier devices
