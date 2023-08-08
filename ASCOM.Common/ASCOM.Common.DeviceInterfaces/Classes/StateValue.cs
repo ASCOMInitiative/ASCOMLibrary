@@ -1,4 +1,6 @@
-﻿namespace ASCOM.Common.DeviceInterfaces
+﻿using System;
+
+namespace ASCOM.Common.DeviceInterfaces
 {
     /// <summary>
     /// Class to hold a state name:value pair.
@@ -19,6 +21,16 @@
         {
             Name = name;
             Value = value;
+        }
+
+        /// <summary>
+        /// Create a StateValue object whose Name property is "TimeStamp" and whose Value property is the supplied date-time value.
+        /// </summary>
+        /// <param name="dateTime">This time-stamp date-time value</param>
+        public StateValue(DateTime dateTime)
+        {
+            Name = "TimeStamp";
+            Value = dateTime;
         }
 
         /// <summary>
