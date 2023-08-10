@@ -1,8 +1,8 @@
 ﻿using ASCOM.Common.DeviceInterfaces;
 using ASCOM.Common.Interfaces;
 using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.Text.Json;
 
 namespace ASCOM.Common.DeviceStateClasses
 {
@@ -12,7 +12,7 @@ namespace ASCOM.Common.DeviceStateClasses
     public class RotatorState
     {
         // Assign the name of this class
-        string className = nameof(RotatorState);
+        readonly string className = nameof(RotatorState);
 
         /// <summary>
         /// Create a new RotatorState instance
@@ -49,7 +49,10 @@ namespace ASCOM.Common.DeviceStateClasses
                         case nameof(IRotatorV4.IsMoving):
                             try
                             {
-                                IsMoving = (bool)stateValue.Value;
+                                if (stateValue.Value is JsonElement jsonElement) // Deal with Alpaca, which returns JsonElement types instead of object
+                                    IsMoving = jsonElement.GetBoolean();
+                                else                                             // COM returns objects that can just be cast to the required type
+                                    IsMoving = (bool)stateValue.Value;
                             }
                             catch (Exception ex)
                             {
@@ -61,7 +64,10 @@ namespace ASCOM.Common.DeviceStateClasses
                         case nameof(IRotatorV4.MechanicalPosition):
                             try
                             {
-                                MechanicalPosition = (float)stateValue.Value;
+                                if (stateValue.Value is JsonElement jsonElement) // Deal with Alpaca, which returns JsonElement types instead of object
+                                    MechanicalPosition = jsonElement.GetSingle();
+                                else                                             // COM returns objects that can just be cast to the required type
+                                    MechanicalPosition = (float)stateValue.Value;
                             }
                             catch (Exception ex)
                             {
@@ -73,7 +79,10 @@ namespace ASCOM.Common.DeviceStateClasses
                         case nameof(IRotatorV4.Position):
                             try
                             {
-                                Position = (float)stateValue.Value;
+                                if (stateValue.Value is JsonElement jsonElement) // Deal with Alpaca, which returns JsonElement types instead of object
+                                    Position = jsonElement.GetSingle();
+                                else                                             // COM returns objects that can just be cast to the required type
+                                    Position = (float)stateValue.Value;
                             }
                             catch (Exception ex)
                             {
@@ -85,7 +94,10 @@ namespace ASCOM.Common.DeviceStateClasses
                         case "TimeStamp":
                             try
                             {
-                                TimeStamp = (DateTime)stateValue.Value;
+                                if (stateValue.Value is JsonElement jsonElement) // Deal with Alpaca, which returns JsonElement types instead of object
+                                    TimeStamp = jsonElement.GetDateTime();
+                                else                                             // COM returns objects that can just be cast to the required type
+                                    TimeStamp = (DateTime)stateValue.Value;
                             }
                             catch (Exception ex)
                             {

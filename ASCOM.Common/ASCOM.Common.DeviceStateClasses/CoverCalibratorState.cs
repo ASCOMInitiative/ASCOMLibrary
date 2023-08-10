@@ -1,8 +1,8 @@
 ﻿using ASCOM.Common.DeviceInterfaces;
 using ASCOM.Common.Interfaces;
 using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.Text.Json;
 
 namespace ASCOM.Common.DeviceStateClasses
 {
@@ -12,7 +12,7 @@ namespace ASCOM.Common.DeviceStateClasses
     public class CoverCalibratorState
     {
         // Assign the name of this class
-        string className = nameof(CoverCalibratorState);
+        readonly string className = nameof(CoverCalibratorState);
 
         /// <summary>
         /// Create a new CoverCalibratorState instance
@@ -47,7 +47,10 @@ namespace ASCOM.Common.DeviceStateClasses
                         case nameof(ICoverCalibratorV2.Brightness):
                             try
                             {
-                                Brightness = (int)stateValue.Value;
+                                if (stateValue.Value is JsonElement jsonElement) // Deal with Alpaca, which returns JsonElement types instead of object
+                                    Brightness = jsonElement.GetInt32();
+                                else                                             // COM returns objects that can just be cast to the required type
+                                    Brightness = (int)stateValue.Value;
                             }
                             catch (Exception ex)
                             {
@@ -59,7 +62,10 @@ namespace ASCOM.Common.DeviceStateClasses
                         case nameof(ICoverCalibratorV2.CalibratorState):
                             try
                             {
-                                CalibratorState = (CalibratorStatus)stateValue.Value;
+                                if (stateValue.Value is JsonElement jsonElement) // Deal with Alpaca, which returns JsonElement types instead of object
+                                    CalibratorState = (CalibratorStatus)jsonElement.GetInt32();
+                                else                                             // COM returns objects that can just be cast to the required type
+                                    CalibratorState = (CalibratorStatus)stateValue.Value;
                             }
                             catch (Exception ex)
                             {
@@ -71,7 +77,10 @@ namespace ASCOM.Common.DeviceStateClasses
                         case nameof(ICoverCalibratorV2.CoverState):
                             try
                             {
-                                CoverState = (CoverStatus)stateValue.Value;
+                                if (stateValue.Value is JsonElement jsonElement) // Deal with Alpaca, which returns JsonElement types instead of object
+                                    CoverState = (CoverStatus)jsonElement.GetInt32();
+                                else                                             // COM returns objects that can just be cast to the required type
+                                    CoverState = (CoverStatus)stateValue.Value;
                             }
                             catch (Exception ex)
                             {
@@ -83,7 +92,10 @@ namespace ASCOM.Common.DeviceStateClasses
                         case nameof(ICoverCalibratorV2.CalibratorReady):
                             try
                             {
-                                CalibratorReady = (bool)stateValue.Value;
+                                if (stateValue.Value is JsonElement jsonElement) // Deal with Alpaca, which returns JsonElement types instead of object
+                                    CalibratorReady = jsonElement.GetBoolean();
+                                else                                             // COM returns objects that can just be cast to the required type
+                                    CalibratorReady = (bool)stateValue.Value;
                             }
                             catch (Exception ex)
                             {
@@ -95,7 +107,10 @@ namespace ASCOM.Common.DeviceStateClasses
                         case nameof(ICoverCalibratorV2.CoverMoving):
                             try
                             {
-                                CoverMoving = (bool)stateValue.Value;
+                                if (stateValue.Value is JsonElement jsonElement) // Deal with Alpaca, which returns JsonElement types instead of object
+                                    CoverMoving = jsonElement.GetBoolean();
+                                else                                             // COM returns objects that can just be cast to the required type
+                                    CoverMoving = (bool)stateValue.Value;
                             }
                             catch (Exception ex)
                             {
@@ -107,7 +122,10 @@ namespace ASCOM.Common.DeviceStateClasses
                         case "TimeStamp":
                             try
                             {
-                                TimeStamp = (DateTime)stateValue.Value;
+                                if (stateValue.Value is JsonElement jsonElement) // Deal with Alpaca, which returns JsonElement types instead of object
+                                    TimeStamp = jsonElement.GetDateTime();
+                                else                                             // COM returns objects that can just be cast to the required type
+                                    TimeStamp = (DateTime)stateValue.Value;
                             }
                             catch (Exception ex)
                             {

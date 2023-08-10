@@ -1,6 +1,7 @@
 ﻿using ASCOM.Common;
 using ASCOM.Common.Alpaca;
 using ASCOM.Common.DeviceInterfaces;
+using ASCOM.Common.DeviceStateClasses;
 using ASCOM.Common.Interfaces;
 
 using System;
@@ -142,6 +143,26 @@ namespace ASCOM.Alpaca.Clients
             catch (Exception ex)
             {
                 LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), ex.ToString());
+            }
+        }
+
+        #endregion
+
+        #region Convenience members
+
+        /// <summary>
+        /// Dome device state
+        /// </summary>
+        public DomeState DomeState
+        {
+            get
+            {
+                // Create a state object to return.
+                DomeState domeState = new DomeState(DeviceState, logger);
+                logger.LogMessage(LogLevel.Debug, nameof(DomeState), $"Returning: '{domeState.Altitude}' '{domeState.AtHome}' '{domeState.AtPark}' '{domeState.Azimuth}' '{domeState.ShutterStatus}' '{domeState.Slewing}' '{domeState.TimeStamp}'");
+
+                // Return the device specific state class
+                return domeState;
             }
         }
 
@@ -557,6 +578,12 @@ namespace ASCOM.Alpaca.Clients
                 return DynamicClientDriver.GetValue<bool>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "Slewing", MemberTypes.Property);
             }
         }
+
+        #endregion
+
+        #region IDomeV3 implementation
+
+        // No new members
 
         #endregion
 

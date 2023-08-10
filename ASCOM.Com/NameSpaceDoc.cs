@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace ASCOM.Com
+﻿namespace ASCOM.Com
 {
     // Dummy class to hold comments that appear at the namespace level in the compiled Help file
 

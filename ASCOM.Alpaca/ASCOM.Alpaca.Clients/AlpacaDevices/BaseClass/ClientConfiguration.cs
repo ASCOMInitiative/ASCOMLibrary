@@ -2,11 +2,8 @@
 using ASCOM.Common.Interfaces;
 using ASCOM.Common;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Reflection;
 using System.Net.Http.Headers;
-using System.Net.Http;
 
 namespace ASCOM.Alpaca.Clients
 {

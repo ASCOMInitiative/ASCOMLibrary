@@ -1,8 +1,8 @@
 ﻿using ASCOM.Common.DeviceInterfaces;
 using ASCOM.Common.Interfaces;
 using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.Text.Json;
 
 namespace ASCOM.Common.DeviceStateClasses
 {
@@ -12,7 +12,7 @@ namespace ASCOM.Common.DeviceStateClasses
     public class VideoState
     {
         // Assign the name of this class
-        string className = nameof(FilterWheelState);
+        readonly string className = nameof(FilterWheelState);
 
         /// <summary>
         /// Create a new VideoState instance
@@ -49,7 +49,10 @@ namespace ASCOM.Common.DeviceStateClasses
                         case nameof(IVideoV2.CameraState):
                             try
                             {
-                                CameraState = (VideoCameraState)stateValue.Value;
+                                if (stateValue.Value is JsonElement jsonElement) // Deal with Alpaca, which returns JsonElement types instead of object
+                                    CameraState = (VideoCameraState)jsonElement.GetInt32();
+                                else                                             // COM returns objects that can just be cast to the required type
+                                    CameraState = (VideoCameraState)stateValue.Value;
                             }
                             catch (Exception ex)
                             {
@@ -61,7 +64,10 @@ namespace ASCOM.Common.DeviceStateClasses
                         case "TimeStamp":
                             try
                             {
-                                TimeStamp = (DateTime)stateValue.Value;
+                                if (stateValue.Value is JsonElement jsonElement) // Deal with Alpaca, which returns JsonElement types instead of object
+                                    TimeStamp = jsonElement.GetDateTime();
+                                else                                             // COM returns objects that can just be cast to the required type
+                                    TimeStamp = (DateTime)stateValue.Value;
                             }
                             catch (Exception ex)
                             {

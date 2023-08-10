@@ -1,7 +1,6 @@
 ﻿using ASCOM.Common.DeviceInterfaces;
 using System.Collections.Generic;
 using ASCOM.Common;
-using System.Reflection;
 using ASCOM.Common.Interfaces;
 using ASCOM.Common.DeviceStateClasses;
 
@@ -12,7 +11,7 @@ namespace ASCOM.Com.DriverAccess
     /// </summary>
     public class CoverCalibrator : ASCOMDevice, ICoverCalibratorV2
     {
-        ILogger TL = null;
+        readonly ILogger TL = null;
 
         #region Convenience members
 

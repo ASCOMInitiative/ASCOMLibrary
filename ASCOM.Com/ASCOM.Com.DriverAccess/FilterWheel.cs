@@ -11,7 +11,7 @@ namespace ASCOM.Com.DriverAccess
     /// </summary>
     public class FilterWheel : ASCOMDevice, IFilterWheelV3
     {
-        ILogger TL = null;
+        readonly ILogger TL = null;
 
         #region Convenience members
 
@@ -35,6 +35,7 @@ namespace ASCOM.Com.DriverAccess
                 return filterWheelState;
             }
         }
+
         #endregion
 
         #region Initialisers

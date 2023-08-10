@@ -1,18 +1,19 @@
 ﻿using ASCOM.Com.DriverAccess;
 using ASCOM.Common.DeviceInterfaces;
 using ASCOM.Common.DeviceStateClasses;
-using System;
+using System.Collections.Generic;
+using System.Linq;
 using Xunit;
 
-namespace DriverAccessTests
+namespace ClientToolkitTests
 {
     [Collection("CameraTests")]
-    public class CameraStateTest
+    public class ComCameraStateTest
     {
         [Fact]
         public void Camera()
         {
-            using (Camera device = new Camera("ASCOM.Simulator.Camera"))
+            using (Camera device = new("ASCOM.Simulator.Camera"))
             {
                 device.Connect();
                 do
@@ -38,12 +39,12 @@ namespace DriverAccessTests
     }
 
     [Collection("CoverCalibratorTests")]
-    public class CoverCalibratorStateTest
-    { 
+    public class ComCoverCalibratorStateTest
+    {
         [Fact]
         public void CoverCalibrator()
         {
-            using (CoverCalibrator device = new CoverCalibrator("ASCOM.Simulator.CoverCalibrator"))
+            using (CoverCalibrator device = new("ASCOM.Simulator.CoverCalibrator"))
             {
                 device.Connect();
                 do
@@ -68,12 +69,12 @@ namespace DriverAccessTests
     }
 
     [Collection("DomeTests")]
-    public class DomeStateTest
+    public class ComDomeStateTest
     {
         [Fact]
         public void Dome()
         {
-            using (Dome device = new Dome("ASCOM.Simulator.Dome"))
+            using (Dome device = new("ASCOM.Simulator.Dome"))
             {
                 device.Connect();
                 do
@@ -98,12 +99,12 @@ namespace DriverAccessTests
     }
 
     [Collection("FilterWheelTests")]
-    public class FilterWheelStateTest
+    public class ComFilterWheelStateTest
     {
         [Fact]
         public void FilterWheel()
         {
-            using (FilterWheel device = new FilterWheel("ASCOM.Simulator.FilterWheel"))
+            using (FilterWheel device = new("ASCOM.Simulator.FilterWheel"))
             {
                 device.Connect();
                 do
@@ -123,12 +124,12 @@ namespace DriverAccessTests
     }
 
     [Collection("FocuserTests")]
-    public class FocuserStateTest
+    public class ComFocuserStateTest
     {
         [Fact]
         public void Focuser()
         {
-            using (Focuser device = new Focuser("ASCOM.Simulator.Focuser"))
+            using (Focuser device = new("ASCOM.Simulator.Focuser"))
             {
                 device.Connect();
                 do
@@ -151,12 +152,12 @@ namespace DriverAccessTests
     }
 
     [Collection("ObservingConditionsTests")]
-    public class ObservingConditionsStateTest
+    public class ComObservingConditionsStateTest
     {
         [Fact]
         public void ObservingConditions()
         {
-            using (ObservingConditions device = new ObservingConditions("ASCOM.Simulator.ObservingConditions"))
+            using (ObservingConditions device = new("ASCOM.Simulator.ObservingConditions"))
             {
                 device.Connect();
                 do
@@ -189,12 +190,12 @@ namespace DriverAccessTests
     }
 
     [Collection("RotatorTests")]
-    public class RotatorStateTest
+    public class ComRotatorStateTest
     {
         [Fact]
         public void Rotator()
         {
-            using (Rotator device = new Rotator("ASCOM.Simulator.Rotator"))
+            using (Rotator device = new("ASCOM.Simulator.Rotator"))
             {
                 device.Connect();
                 do
@@ -217,12 +218,12 @@ namespace DriverAccessTests
     }
 
     [Collection("SafetyMonitorTests")]
-    public class SafetyMonitorStateTest
+    public class ComSafetyMonitorStateTest
     {
         [Fact]
         public void SafetyMonitor()
         {
-            using (SafetyMonitor device = new SafetyMonitor("ASCOM.Simulator.SafetyMonitor"))
+            using (SafetyMonitor device = new("ASCOM.Simulator.SafetyMonitor"))
             {
                 device.Connect();
                 do
@@ -243,12 +244,12 @@ namespace DriverAccessTests
     }
 
     [Collection("TelescopeTests")]
-    public class TelescopeStateTest
+    public class ComTelescopeStateTest
     {
         [Fact]
         public void Telescope()
         {
-            using (Telescope device = new Telescope("ASCOM.Simulator.Telescope"))
+            using (Telescope device = new("ASCOM.Simulator.Telescope"))
             {
                 device.Connect();
                 do
@@ -279,12 +280,12 @@ namespace DriverAccessTests
     }
 
     [Collection("VideoTests")]
-    public class VideoStateTest
+    public class ComVideoStateTest
     {
         [Fact]
         public void Video()
         {
-            using (Video device = new Video("ASCOM.Simulator.Video"))
+            using (Video device = new("ASCOM.Simulator.Video"))
             {
                 device.Connect();
                 do
@@ -304,4 +305,5 @@ namespace DriverAccessTests
         }
 
     }
+
 }

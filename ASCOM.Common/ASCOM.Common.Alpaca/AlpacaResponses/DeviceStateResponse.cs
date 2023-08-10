@@ -1,7 +1,5 @@
 ﻿using ASCOM.Common.DeviceInterfaces;
-using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Text.Json.Serialization;
 
 namespace ASCOM.Common.Alpaca
@@ -9,12 +7,12 @@ namespace ASCOM.Common.Alpaca
     /// <summary>
     /// Response that returns a collection of IStateValue objects
     /// </summary>
-    public class DeviceStateResponseConcrete : Response, IValueResponse<List<StateValue>>
+    public class DeviceStateResponse : Response, IValueResponse<List<StateValue>>
     {
         /// <summary>
         /// Create a new DeviceStateResponse with default values
         /// </summary>
-        public DeviceStateResponseConcrete()
+        public DeviceStateResponse()
         {
             Value = new List<StateValue>(); // Make sure that Value contains at least an empty collection 
         }
@@ -25,7 +23,7 @@ namespace ASCOM.Common.Alpaca
         /// <param name="clientTransactionID">Client transaction ID</param>
         /// <param name="serverTransactionID">Server transaction ID</param>
         /// <param name="value">Value to return</param>
-        public DeviceStateResponseConcrete(uint clientTransactionID, uint serverTransactionID, List<StateValue> value)
+        public DeviceStateResponse(uint clientTransactionID, uint serverTransactionID, List<StateValue> value)
         {
             base.ServerTransactionID = serverTransactionID;
             base.ClientTransactionID = clientTransactionID;
@@ -39,7 +37,7 @@ namespace ASCOM.Common.Alpaca
         /// <param name="serverTransactionID">Server transaction ID</param>
         /// <param name="errorMessage">Value to return</param>
         /// <param name="errorCode">Server transaction ID</param>
-        public DeviceStateResponseConcrete(uint clientTransactionID, uint serverTransactionID, string errorMessage, AlpacaErrors errorCode)
+        public DeviceStateResponse(uint clientTransactionID, uint serverTransactionID, string errorMessage, AlpacaErrors errorCode)
         {
             base.ServerTransactionID = serverTransactionID;
             base.ClientTransactionID = clientTransactionID;
@@ -60,7 +58,14 @@ namespace ASCOM.Common.Alpaca
         public override string ToString()
         {
             if (Value == null) return string.Empty;
-            return string.Join(", ", Value);
+
+            string response = "";
+            foreach (StateValue item in Value)
+            {
+                response += $"{item.Name} = {item.Value}, ";
+            }
+
+            return response.Trim(',', ' ');
         }
     }
 }

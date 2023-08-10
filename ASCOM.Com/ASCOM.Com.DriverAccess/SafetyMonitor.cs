@@ -11,7 +11,7 @@ namespace ASCOM.Com.DriverAccess
     /// </summary>
     public class SafetyMonitor : ASCOMDevice, ISafetyMonitorV3
     {
-        ILogger TL = null;
+        readonly ILogger TL = null;
 
         #region Convenience members
 

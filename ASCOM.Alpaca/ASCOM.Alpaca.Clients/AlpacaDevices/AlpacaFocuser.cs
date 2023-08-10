@@ -1,6 +1,7 @@
 ﻿using ASCOM.Common;
 using ASCOM.Common.Alpaca;
 using ASCOM.Common.DeviceInterfaces;
+using ASCOM.Common.DeviceStateClasses;
 using ASCOM.Common.Interfaces;
 
 using System;
@@ -148,7 +149,27 @@ namespace ASCOM.Alpaca.Clients
 
         #endregion
 
-        #region IFocuserV2 members
+        #region Convenience members
+
+        /// <summary>
+        /// Focuser device state
+        /// </summary>
+        public FocuserState FocuserState
+        {
+            get
+            {
+                // Create a state object to return.
+                FocuserState focuserState = new FocuserState(DeviceState, logger);
+                logger.LogMessage(LogLevel.Debug, nameof(FocuserState), $"Returning: '{focuserState.IsMoving}' '{focuserState.Position}' '{focuserState.Temperature}' '{focuserState.TimeStamp}'");
+
+                // Return the device specific state class
+                return focuserState;
+            }
+        }
+
+        #endregion
+
+        #region IFocuserV3 members
 
         /// <summary>
         /// True if the focuser is capable of absolute position; that is, being commanded to a specific step location.
@@ -357,6 +378,12 @@ namespace ASCOM.Alpaca.Clients
             };
             DynamicClientDriver.SendToRemoteDevice<NoReturnValue>(clientNumber, client, longDeviceResponseTimeout, URIBase, strictCasing, logger, "Move", Parameters, HttpMethod.Put, MemberTypes.Method);
         }
+
+        #endregion
+
+        #region IFocuserV4 implementation
+
+        // No new members
 
         #endregion
 

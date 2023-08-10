@@ -1,9 +1,9 @@
 ﻿using ASCOM.Common;
 using ASCOM.Common.Alpaca;
 using ASCOM.Common.DeviceInterfaces;
+using ASCOM.Common.DeviceStateClasses;
 using ASCOM.Common.Interfaces;
 using System;
-using System.Collections.Generic;
 using System.Reflection;
 
 namespace ASCOM.Alpaca.Clients
@@ -148,7 +148,27 @@ namespace ASCOM.Alpaca.Clients
 
         #endregion
 
-        #region IFilterWheel implementation
+        #region Convenience members
+
+        /// <summary>
+        /// FilterWheel device state
+        /// </summary>
+        public FilterWheelState FilterWheelState
+        {
+            get
+            {
+                // Create a state object to return.
+                FilterWheelState filterWheelState = new FilterWheelState(DeviceState, logger);
+                logger.LogMessage(LogLevel.Debug, nameof(FilterWheelState), $"Returning: '{filterWheelState.Position}' '{filterWheelState.TimeStamp}'");
+
+                // Return the device specific state class
+                return filterWheelState;
+            }
+        }
+
+        #endregion
+
+        #region IFilterWheelV2 implementation
 
         /// <summary>
         /// Focus offset of each filter in the wheel
@@ -215,5 +235,12 @@ namespace ASCOM.Alpaca.Clients
         }
 
         #endregion
+
+        #region IFilterWheelV3 implementation
+
+        // No new members
+
+        #endregion
+
     }
 }

@@ -7,12 +7,12 @@ namespace ASCOM.Common.Alpaca
     /// <summary>
     /// Response that returns a collection of IStateValue objects
     /// </summary>
-    public class DeviceStateResponse : Response, IValueResponse<IList<IStateValue>>
+    public class DeviceStateResponseIList : Response, IValueResponse<IList<IStateValue>>
     {
         /// <summary>
         /// Create a new DeviceStateResponse with default values
         /// </summary>
-        public DeviceStateResponse()
+        public DeviceStateResponseIList()
         {
             Value = new List<IStateValue>(); // Make sure that Value contains at least an empty collection 
         }
@@ -23,7 +23,7 @@ namespace ASCOM.Common.Alpaca
         /// <param name="clientTransactionID">Client transaction ID</param>
         /// <param name="serverTransactionID">Server transaction ID</param>
         /// <param name="value">Value to return</param>
-        public DeviceStateResponse(uint clientTransactionID, uint serverTransactionID, IList<IStateValue> value)
+        public DeviceStateResponseIList(uint clientTransactionID, uint serverTransactionID, IList<IStateValue> value)
         {
             base.ServerTransactionID = serverTransactionID;
             base.ClientTransactionID = clientTransactionID;
@@ -37,7 +37,7 @@ namespace ASCOM.Common.Alpaca
         /// <param name="serverTransactionID">Server transaction ID</param>
         /// <param name="errorMessage">Value to return</param>
         /// <param name="errorCode">Server transaction ID</param>
-        public DeviceStateResponse(uint clientTransactionID, uint serverTransactionID, string errorMessage, AlpacaErrors errorCode)
+        public DeviceStateResponseIList(uint clientTransactionID, uint serverTransactionID, string errorMessage, AlpacaErrors errorCode)
         {
             base.ServerTransactionID = serverTransactionID;
             base.ClientTransactionID = clientTransactionID;
@@ -58,7 +58,14 @@ namespace ASCOM.Common.Alpaca
         public override string ToString()
         {
             if (Value == null) return string.Empty;
-            return string.Join(", ", Value);
+
+            string response = "";
+            foreach (IStateValue item in Value)
+            {
+                response += $"{item.Name} = {item.Value}, ";
+            }
+
+            return response.Trim(',', ' ');
         }
     }
 }

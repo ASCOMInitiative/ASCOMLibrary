@@ -1,8 +1,6 @@
 ﻿using ASCOM.Common;
 using ASCOM.Tools;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using Xunit;
 
 namespace ASCOM.Alpaca.Tests.PlatformUtilities
@@ -101,7 +99,7 @@ namespace ASCOM.Alpaca.Tests.PlatformUtilities
         public void CreateAlpacaDevice()
         {
             string uniqueIdGuid = Guid.NewGuid().ToString();
-            TraceLogger TL = new TraceLogger("PlatformUtilities", true);
+            TraceLogger TL = new("PlatformUtilities", true);
             TL.LogMessage("CreateAlpacaDevice", "Before SetLogger");
             Com.PlatformUtilities.SetLogger(TL);
             TL.LogMessage("CreateAlpacaDevice", "Before CreateDynamicDriver");

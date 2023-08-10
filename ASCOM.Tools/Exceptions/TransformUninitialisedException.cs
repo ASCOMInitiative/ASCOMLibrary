@@ -1,5 +1,4 @@
-﻿using ASCOM.Tools;
-using System;
+﻿using System;
 
 namespace ASCOM
 {

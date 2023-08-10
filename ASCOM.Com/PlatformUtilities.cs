@@ -1,13 +1,9 @@
 ﻿using ASCOM.Common.Interfaces;
 using Microsoft.Win32;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Text;
-using static System.Net.Mime.MediaTypeNames;
 using System.Threading;
-using System.Runtime.CompilerServices;
 using System.IO;
 using static System.Environment;
 using ASCOM.Common;
@@ -43,7 +39,7 @@ namespace ASCOM.Com
         private const string PROFILE_VALUE_NAME_REMOTE_DEVICER_NUMBER = "Remote Device Number";
 
         // Variables
-        private static Version platformVersion = null;
+        private static readonly Version platformVersion = null;
         private static ILogger logger;
         private static bool driverGenerationComplete;
 

@@ -4,7 +4,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using ASCOM.Common;
-using System.Linq;
 using ASCOM.Common.Interfaces;
 using ASCOM.Common.DeviceStateClasses;
 
@@ -16,7 +15,7 @@ namespace ASCOM.Com.DriverAccess
     public class Telescope : ASCOMDevice, ITelescopeV4
     {
         Operation currentOperation = Operation.None; // Current operation name
-        ILogger TL = null;
+        readonly ILogger TL = null;
 
         #region Convenience members
 

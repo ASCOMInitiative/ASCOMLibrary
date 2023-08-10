@@ -4,8 +4,6 @@ using System;
 using System.Collections;
 using System.IO;
 using System.Runtime.InteropServices;
-using System.Threading;
-using static System.Environment;
 
 namespace ASCOM.Tools.Novas31
 {

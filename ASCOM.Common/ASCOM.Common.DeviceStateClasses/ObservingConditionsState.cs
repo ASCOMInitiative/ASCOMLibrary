@@ -1,8 +1,8 @@
 ﻿using ASCOM.Common.DeviceInterfaces;
 using ASCOM.Common.Interfaces;
 using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.Text.Json;
 
 namespace ASCOM.Common.DeviceStateClasses
 {
@@ -12,7 +12,7 @@ namespace ASCOM.Common.DeviceStateClasses
     public class ObservingConditionsState
     {
         // Assign the name of this class
-        string className = nameof(ObservingConditionsState);
+        readonly string className = nameof(ObservingConditionsState);
 
         /// <summary>
         /// Create a new ObservingConditionsState instance
@@ -49,7 +49,10 @@ namespace ASCOM.Common.DeviceStateClasses
                         case nameof(IObservingConditionsV2.CloudCover):
                             try
                             {
-                                CloudCover = (double)stateValue.Value;
+                                if (stateValue.Value is JsonElement jsonElement) // Deal with Alpaca, which returns JsonElement types instead of object
+                                    CloudCover = jsonElement.GetDouble();
+                                else                                             // COM returns objects that can just be cast to the required type
+                                    CloudCover = (double)stateValue.Value;
                             }
                             catch (Exception ex)
                             {
@@ -61,7 +64,10 @@ namespace ASCOM.Common.DeviceStateClasses
                         case nameof(IObservingConditionsV2.DewPoint):
                             try
                             {
-                                DewPoint = (double)stateValue.Value;
+                                if (stateValue.Value is JsonElement jsonElement) // Deal with Alpaca, which returns JsonElement types instead of object
+                                    DewPoint = jsonElement.GetDouble();
+                                else                                             // COM returns objects that can just be cast to the required type
+                                    DewPoint = (double)stateValue.Value;
                             }
                             catch (Exception ex)
                             {
@@ -73,7 +79,10 @@ namespace ASCOM.Common.DeviceStateClasses
                         case nameof(IObservingConditionsV2.Humidity):
                             try
                             {
-                                Humidity = (double)stateValue.Value;
+                                if (stateValue.Value is JsonElement jsonElement) // Deal with Alpaca, which returns JsonElement types instead of object
+                                    Humidity = jsonElement.GetDouble();
+                                else                                             // COM returns objects that can just be cast to the required type
+                                    Humidity = (double)stateValue.Value;
                             }
                             catch (Exception ex)
                             {
@@ -85,7 +94,10 @@ namespace ASCOM.Common.DeviceStateClasses
                         case nameof(IObservingConditionsV2.Pressure):
                             try
                             {
-                                Pressure = (double)stateValue.Value;
+                                if (stateValue.Value is JsonElement jsonElement) // Deal with Alpaca, which returns JsonElement types instead of object
+                                    Pressure = jsonElement.GetDouble();
+                                else                                             // COM returns objects that can just be cast to the required type
+                                    Pressure = (double)stateValue.Value;
                             }
                             catch (Exception ex)
                             {
@@ -97,7 +109,10 @@ namespace ASCOM.Common.DeviceStateClasses
                         case nameof(IObservingConditionsV2.RainRate):
                             try
                             {
-                                RainRate = (double)stateValue.Value;
+                                if (stateValue.Value is JsonElement jsonElement) // Deal with Alpaca, which returns JsonElement types instead of object
+                                    RainRate = jsonElement.GetDouble();
+                                else                                             // COM returns objects that can just be cast to the required type
+                                    RainRate = (double)stateValue.Value;
                             }
                             catch (Exception ex)
                             {
@@ -109,7 +124,10 @@ namespace ASCOM.Common.DeviceStateClasses
                         case nameof(IObservingConditionsV2.SkyBrightness):
                             try
                             {
-                                SkyBrightness = (double)stateValue.Value;
+                                if (stateValue.Value is JsonElement jsonElement) // Deal with Alpaca, which returns JsonElement types instead of object
+                                    SkyBrightness = jsonElement.GetDouble();
+                                else                                             // COM returns objects that can just be cast to the required type
+                                    SkyBrightness = (double)stateValue.Value;
                             }
                             catch (Exception ex)
                             {
@@ -121,7 +139,10 @@ namespace ASCOM.Common.DeviceStateClasses
                         case nameof(IObservingConditionsV2.SkyQuality):
                             try
                             {
-                                SkyQuality = (double)stateValue.Value;
+                                if (stateValue.Value is JsonElement jsonElement) // Deal with Alpaca, which returns JsonElement types instead of object
+                                    SkyQuality = jsonElement.GetDouble();
+                                else                                             // COM returns objects that can just be cast to the required type
+                                    SkyQuality = (double)stateValue.Value;
                             }
                             catch (Exception ex)
                             {
@@ -133,7 +154,10 @@ namespace ASCOM.Common.DeviceStateClasses
                         case nameof(IObservingConditionsV2.SkyTemperature):
                             try
                             {
-                                SkyTemperature = (double)stateValue.Value;
+                                if (stateValue.Value is JsonElement jsonElement) // Deal with Alpaca, which returns JsonElement types instead of object
+                                    SkyTemperature = jsonElement.GetDouble();
+                                else                                             // COM returns objects that can just be cast to the required type
+                                    SkyTemperature = (double)stateValue.Value;
                             }
                             catch (Exception ex)
                             {
@@ -145,7 +169,10 @@ namespace ASCOM.Common.DeviceStateClasses
                         case nameof(IObservingConditionsV2.StarFWHM):
                             try
                             {
-                                StarFWHM = (double)stateValue.Value;
+                                if (stateValue.Value is JsonElement jsonElement) // Deal with Alpaca, which returns JsonElement types instead of object
+                                    StarFWHM = jsonElement.GetDouble();
+                                else                                             // COM returns objects that can just be cast to the required type
+                                    StarFWHM = (double)stateValue.Value;
                             }
                             catch (Exception ex)
                             {
@@ -157,7 +184,10 @@ namespace ASCOM.Common.DeviceStateClasses
                         case nameof(IObservingConditionsV2.Temperature):
                             try
                             {
-                                Temperature = (double)stateValue.Value;
+                                if (stateValue.Value is JsonElement jsonElement) // Deal with Alpaca, which returns JsonElement types instead of object
+                                    Temperature = jsonElement.GetDouble();
+                                else                                             // COM returns objects that can just be cast to the required type
+                                    Temperature = (double)stateValue.Value;
                             }
                             catch (Exception ex)
                             {
@@ -169,7 +199,10 @@ namespace ASCOM.Common.DeviceStateClasses
                         case nameof(IObservingConditionsV2.WindDirection):
                             try
                             {
-                                WindDirection = (double)stateValue.Value;
+                                if (stateValue.Value is JsonElement jsonElement) // Deal with Alpaca, which returns JsonElement types instead of object
+                                    WindDirection = jsonElement.GetDouble();
+                                else                                             // COM returns objects that can just be cast to the required type
+                                    WindDirection = (double)stateValue.Value;
                             }
                             catch (Exception ex)
                             {
@@ -181,7 +214,10 @@ namespace ASCOM.Common.DeviceStateClasses
                         case nameof(IObservingConditionsV2.WindGust):
                             try
                             {
-                                WindGust = (double)stateValue.Value;
+                                if (stateValue.Value is JsonElement jsonElement) // Deal with Alpaca, which returns JsonElement types instead of object
+                                    WindGust = jsonElement.GetDouble();
+                                else                                             // COM returns objects that can just be cast to the required type
+                                    WindGust = (double)stateValue.Value;
                             }
                             catch (Exception ex)
                             {
@@ -193,7 +229,10 @@ namespace ASCOM.Common.DeviceStateClasses
                         case nameof(IObservingConditionsV2.WindSpeed):
                             try
                             {
-                                WindSpeed = (double)stateValue.Value;
+                                if (stateValue.Value is JsonElement jsonElement) // Deal with Alpaca, which returns JsonElement types instead of object
+                                    WindSpeed = jsonElement.GetDouble();
+                                else                                             // COM returns objects that can just be cast to the required type
+                                    WindSpeed = (double)stateValue.Value;
                             }
                             catch (Exception ex)
                             {
@@ -205,7 +244,10 @@ namespace ASCOM.Common.DeviceStateClasses
                         case "TimeStamp":
                             try
                             {
-                                TimeStamp = (DateTime)stateValue.Value;
+                                if (stateValue.Value is JsonElement jsonElement) // Deal with Alpaca, which returns JsonElement types instead of object
+                                    TimeStamp = jsonElement.GetDateTime();
+                                else                                             // COM returns objects that can just be cast to the required type
+                                    TimeStamp = (DateTime)stateValue.Value;
                             }
                             catch (Exception ex)
                             {

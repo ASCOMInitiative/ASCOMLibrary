@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace ASCOM.Common.Alpaca
+﻿namespace ASCOM.Common.Alpaca
 {
     /// <summary>
     /// Defines the base of an Alpaca response.

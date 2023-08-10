@@ -1,8 +1,8 @@
 ﻿using ASCOM.Common.DeviceInterfaces;
 using ASCOM.Common.Interfaces;
 using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.Text.Json;
 
 namespace ASCOM.Common.DeviceStateClasses
 {
@@ -12,7 +12,7 @@ namespace ASCOM.Common.DeviceStateClasses
     public class TelescopeState
     {
         // Assign the name of this class
-        string className = nameof(TelescopeState);
+        readonly string className = nameof(TelescopeState);
 
         /// <summary>
         /// Create a new TelescopeState instance
@@ -49,7 +49,10 @@ namespace ASCOM.Common.DeviceStateClasses
                         case nameof(ITelescopeV4.Altitude):
                             try
                             {
-                                Altitude = (double)stateValue.Value;
+                                if (stateValue.Value is JsonElement jsonElement) // Deal with Alpaca, which returns JsonElement types instead of object
+                                    Altitude = jsonElement.GetDouble();
+                                else                                             // COM returns objects that can just be cast to the required type
+                                    Altitude = (double)stateValue.Value;
                             }
                             catch (Exception ex)
                             {
@@ -61,7 +64,10 @@ namespace ASCOM.Common.DeviceStateClasses
                         case nameof(ITelescopeV4.AtHome):
                             try
                             {
-                                AtHome = (bool)stateValue.Value;
+                                if (stateValue.Value is JsonElement jsonElement) // Deal with Alpaca, which returns JsonElement types instead of object
+                                    AtHome = jsonElement.GetBoolean();
+                                else                                             // COM returns objects that can just be cast to the required type
+                                    AtHome = (bool)stateValue.Value;
                             }
                             catch (Exception ex)
                             {
@@ -73,7 +79,10 @@ namespace ASCOM.Common.DeviceStateClasses
                         case nameof(ITelescopeV4.AtPark):
                             try
                             {
-                                AtPark = (bool)stateValue.Value;
+                                if (stateValue.Value is JsonElement jsonElement) // Deal with Alpaca, which returns JsonElement types instead of object
+                                    AtPark = jsonElement.GetBoolean();
+                                else                                             // COM returns objects that can just be cast to the required type
+                                    AtPark = (bool)stateValue.Value;
                             }
                             catch (Exception ex)
                             {
@@ -85,7 +94,10 @@ namespace ASCOM.Common.DeviceStateClasses
                         case nameof(ITelescopeV4.Azimuth):
                             try
                             {
-                                Azimuth = (double)stateValue.Value;
+                                if (stateValue.Value is JsonElement jsonElement) // Deal with Alpaca, which returns JsonElement types instead of object
+                                    Azimuth = jsonElement.GetDouble();
+                                else                                             // COM returns objects that can just be cast to the required type
+                                    Azimuth = (double)stateValue.Value;
                             }
                             catch (Exception ex)
                             {
@@ -97,7 +109,10 @@ namespace ASCOM.Common.DeviceStateClasses
                         case nameof(ITelescopeV4.Declination):
                             try
                             {
-                                Declination = (double)stateValue.Value;
+                                if (stateValue.Value is JsonElement jsonElement) // Deal with Alpaca, which returns JsonElement types instead of object
+                                    Declination = jsonElement.GetDouble();
+                                else                                             // COM returns objects that can just be cast to the required type
+                                    Declination = (double)stateValue.Value;
                             }
                             catch (Exception ex)
                             {
@@ -109,7 +124,10 @@ namespace ASCOM.Common.DeviceStateClasses
                         case nameof(ITelescopeV4.IsPulseGuiding):
                             try
                             {
-                                IsPulseGuiding = (bool)stateValue.Value;
+                                if (stateValue.Value is JsonElement jsonElement) // Deal with Alpaca, which returns JsonElement types instead of object
+                                    IsPulseGuiding = jsonElement.GetBoolean();
+                                else                                             // COM returns objects that can just be cast to the required type
+                                    IsPulseGuiding = (bool)stateValue.Value;
                             }
                             catch (Exception ex)
                             {
@@ -121,7 +139,10 @@ namespace ASCOM.Common.DeviceStateClasses
                         case nameof(ITelescopeV4.RightAscension):
                             try
                             {
-                                RightAscension = (double)stateValue.Value;
+                                if (stateValue.Value is JsonElement jsonElement) // Deal with Alpaca, which returns JsonElement types instead of object
+                                    RightAscension = jsonElement.GetDouble();
+                                else                                             // COM returns objects that can just be cast to the required type
+                                    RightAscension = (double)stateValue.Value;
                             }
                             catch (Exception ex)
                             {
@@ -133,7 +154,10 @@ namespace ASCOM.Common.DeviceStateClasses
                         case nameof(ITelescopeV4.SideOfPier):
                             try
                             {
-                                SideOfPier = (PointingState)stateValue.Value;
+                                if (stateValue.Value is JsonElement jsonElement) // Deal with Alpaca, which returns JsonElement types instead of object
+                                    SideOfPier = (PointingState)jsonElement.GetInt32();
+                                else                                             // COM returns objects that can just be cast to the required type
+                                    SideOfPier = (PointingState)stateValue.Value;
                             }
                             catch (Exception ex)
                             {
@@ -145,7 +169,10 @@ namespace ASCOM.Common.DeviceStateClasses
                         case nameof(ITelescopeV4.SiderealTime):
                             try
                             {
-                                SiderealTime = (double)stateValue.Value;
+                                if (stateValue.Value is JsonElement jsonElement) // Deal with Alpaca, which returns JsonElement types instead of object
+                                    SiderealTime = jsonElement.GetDouble();
+                                else                                             // COM returns objects that can just be cast to the required type
+                                    SiderealTime = (double)stateValue.Value;
                             }
                             catch (Exception ex)
                             {
@@ -157,7 +184,10 @@ namespace ASCOM.Common.DeviceStateClasses
                         case nameof(ITelescopeV4.Slewing):
                             try
                             {
-                                Slewing = (bool)stateValue.Value;
+                                if (stateValue.Value is JsonElement jsonElement) // Deal with Alpaca, which returns JsonElement types instead of object
+                                    Slewing = jsonElement.GetBoolean();
+                                else                                             // COM returns objects that can just be cast to the required type
+                                    Slewing = (bool)stateValue.Value;
                             }
                             catch (Exception ex)
                             {
@@ -169,7 +199,10 @@ namespace ASCOM.Common.DeviceStateClasses
                         case nameof(ITelescopeV4.Tracking):
                             try
                             {
-                                Tracking = (bool)stateValue.Value;
+                                if (stateValue.Value is JsonElement jsonElement) // Deal with Alpaca, which returns JsonElement types instead of object
+                                    Tracking = jsonElement.GetBoolean();
+                                else                                             // COM returns objects that can just be cast to the required type
+                                    Tracking = (bool)stateValue.Value;
                             }
                             catch (Exception ex)
                             {
@@ -181,7 +214,10 @@ namespace ASCOM.Common.DeviceStateClasses
                         case nameof(ITelescopeV4.UTCDate):
                             try
                             {
-                                UTCDate = (DateTime)stateValue.Value;
+                                if (stateValue.Value is JsonElement jsonElement) // Deal with Alpaca, which returns JsonElement types instead of object
+                                    UTCDate = jsonElement.GetDateTime();
+                                else                                             // COM returns objects that can just be cast to the required type
+                                    UTCDate = (DateTime)stateValue.Value;
                             }
                             catch (Exception ex)
                             {
@@ -193,7 +229,10 @@ namespace ASCOM.Common.DeviceStateClasses
                         case "TimeStamp":
                             try
                             {
-                                TimeStamp = (DateTime)stateValue.Value;
+                                if (stateValue.Value is JsonElement jsonElement) // Deal with Alpaca, which returns JsonElement types instead of object
+                                    TimeStamp = jsonElement.GetDateTime();
+                                else                                             // COM returns objects that can just be cast to the required type
+                                    TimeStamp = (DateTime)stateValue.Value;
                             }
                             catch (Exception ex)
                             {

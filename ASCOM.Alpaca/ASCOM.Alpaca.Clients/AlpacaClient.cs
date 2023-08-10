@@ -1,5 +1,4 @@
 ﻿using ASCOM.Alpaca.Discovery;
-using ASCOM.Common;
 using ASCOM.Common.Alpaca;
 using ASCOM.Common.Interfaces;
 using System;

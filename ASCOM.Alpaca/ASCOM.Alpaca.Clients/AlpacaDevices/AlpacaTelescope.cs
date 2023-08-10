@@ -1,10 +1,10 @@
 ﻿using ASCOM.Common;
 using ASCOM.Common.Alpaca;
 using ASCOM.Common.DeviceInterfaces;
+using ASCOM.Common.DeviceStateClasses;
 using ASCOM.Common.Interfaces;
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Net.Http;
@@ -145,6 +145,27 @@ namespace ASCOM.Alpaca.Clients
             catch (Exception ex)
             {
                 LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), ex.ToString());
+            }
+        }
+
+        #endregion
+
+        #region Convenience members
+
+        /// <summary>
+        /// State response from the device
+        /// </summary>
+        public TelescopeState TelescopeState
+        {
+            get
+            {
+                // Create a state object to return.
+                TelescopeState state = new TelescopeState(DeviceState, logger);
+                logger.LogMessage(LogLevel.Debug, nameof(TelescopeState), $"Returning: '{state.Altitude}' '{state.AtHome}' '{state.AtPark}' '{state.Azimuth}' '{state.Declination}' '{state.IsPulseGuiding}' " +
+                    $"'{state.RightAscension}' '{state.SideOfPier}' '{state.SiderealTime}' '{state.Slewing}' '{state.Tracking}' '{state.UTCDate}' '{state.TimeStamp}' '{currentOperation}'");
+
+                // Return the device specific state class
+                return state;
             }
         }
 
@@ -1696,9 +1717,9 @@ namespace ASCOM.Alpaca.Clients
 
         #endregion
 
-        #region ITelescopeV4 members
+        #region ITelescopeV4 implementation
 
-        // No new telescope members
+        // No new members
 
         #endregion
 

@@ -1,8 +1,8 @@
 ﻿using ASCOM.Common.DeviceInterfaces;
 using ASCOM.Common.Interfaces;
 using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.Text.Json;
 
 namespace ASCOM.Common.DeviceStateClasses
 {
@@ -12,7 +12,7 @@ namespace ASCOM.Common.DeviceStateClasses
     public class DomeState
     {
         // Assign the name of this class
-        string className = nameof(DomeState);
+        readonly string className = nameof(DomeState);
 
         /// <summary>
         /// Create a new DomeState instance
@@ -49,7 +49,10 @@ namespace ASCOM.Common.DeviceStateClasses
                         case nameof(IDomeV3.Altitude):
                             try
                             {
-                                Altitude = (double)stateValue.Value;
+                                if (stateValue.Value is JsonElement jsonElement) // Deal with Alpaca, which returns JsonElement types instead of object
+                                    Altitude = jsonElement.GetDouble();
+                                else                                             // COM returns objects that can just be cast to the required type
+                                    Altitude = (double)stateValue.Value;
                             }
                             catch (Exception ex)
                             {
@@ -61,7 +64,10 @@ namespace ASCOM.Common.DeviceStateClasses
                         case nameof(IDomeV3.AtHome):
                             try
                             {
-                                AtHome = (bool)stateValue.Value;
+                                if (stateValue.Value is JsonElement jsonElement) // Deal with Alpaca, which returns JsonElement types instead of object
+                                    AtHome = jsonElement.GetBoolean();
+                                else                                             // COM returns objects that can just be cast to the required type
+                                    AtHome = (bool)stateValue.Value;
                             }
                             catch (Exception ex)
                             {
@@ -73,7 +79,10 @@ namespace ASCOM.Common.DeviceStateClasses
                         case nameof(IDomeV3.AtPark):
                             try
                             {
-                                AtPark = (bool)stateValue.Value;
+                                if (stateValue.Value is JsonElement jsonElement) // Deal with Alpaca, which returns JsonElement types instead of object
+                                    AtPark = jsonElement.GetBoolean();
+                                else                                             // COM returns objects that can just be cast to the required type
+                                    AtPark = (bool)stateValue.Value;
                             }
                             catch (Exception ex)
                             {
@@ -85,7 +94,10 @@ namespace ASCOM.Common.DeviceStateClasses
                         case nameof(IDomeV3.Azimuth):
                             try
                             {
-                                Azimuth = (double)stateValue.Value;
+                                if (stateValue.Value is JsonElement jsonElement) // Deal with Alpaca, which returns JsonElement types instead of object
+                                    Azimuth = jsonElement.GetDouble();
+                                else                                             // COM returns objects that can just be cast to the required type
+                                    Azimuth = (double)stateValue.Value;
                             }
                             catch (Exception ex)
                             {
@@ -97,7 +109,10 @@ namespace ASCOM.Common.DeviceStateClasses
                         case nameof(IDomeV3.ShutterStatus):
                             try
                             {
-                                ShutterStatus = (ShutterState)stateValue.Value;
+                                if (stateValue.Value is JsonElement jsonElement) // Deal with Alpaca, which returns JsonElement types instead of object
+                                    ShutterStatus = (ShutterState)jsonElement.GetInt32();
+                                else                                             // COM returns objects that can just be cast to the required type
+                                    ShutterStatus = (ShutterState)stateValue.Value;
                             }
                             catch (Exception ex)
                             {
@@ -109,7 +124,10 @@ namespace ASCOM.Common.DeviceStateClasses
                         case nameof(IDomeV3.Slewing):
                             try
                             {
-                                Slewing = (bool)stateValue.Value;
+                                if (stateValue.Value is JsonElement jsonElement) // Deal with Alpaca, which returns JsonElement types instead of object
+                                    Slewing = jsonElement.GetBoolean();
+                                else                                             // COM returns objects that can just be cast to the required type
+                                    Slewing = (bool)stateValue.Value;
                             }
                             catch (Exception ex)
                             {
@@ -122,7 +140,10 @@ namespace ASCOM.Common.DeviceStateClasses
                         case "TimeStamp":
                             try
                             {
-                                TimeStamp = (DateTime)stateValue.Value;
+                                if (stateValue.Value is JsonElement jsonElement) // Deal with Alpaca, which returns JsonElement types instead of object
+                                    TimeStamp = jsonElement.GetDateTime();
+                                else                                             // COM returns objects that can just be cast to the required type
+                                    TimeStamp = (DateTime)stateValue.Value;
                             }
                             catch (Exception ex)
                             {

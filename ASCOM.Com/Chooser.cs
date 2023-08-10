@@ -1,11 +1,7 @@
 ﻿using ASCOM.Common;
 using ASCOM.Common.Interfaces;
 using System;
-using System.Collections.Generic;
-using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading;
 
 namespace ASCOM.Com
 {

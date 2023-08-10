@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using ASCOM.Common;
 using ASCOM.Common.Interfaces;
-using System.Threading.Tasks;
 
 namespace ASCOM.Com.DriverAccess
 {
@@ -11,7 +10,7 @@ namespace ASCOM.Com.DriverAccess
     /// </summary>
     public class Switch : ASCOMDevice, ISwitchV3
     {
-        ILogger TL = null;
+        readonly ILogger TL = null;
 
         #region Convenience members
 
@@ -19,6 +18,8 @@ namespace ASCOM.Com.DriverAccess
         /// Return a list of all Switches registered in the ASCOM Profile
         /// </summary>
         public static List<ASCOMRegistration> Switches => Profile.GetDrivers(DeviceTypes.Switch);
+
+        // There is no SwitchState member because the number of switches is a dynamic, user configured value as is switch naming, which makes it impossible to model in a class with fixed properties.
 
         #endregion
 
