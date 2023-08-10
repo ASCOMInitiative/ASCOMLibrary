@@ -1,8 +1,8 @@
 ﻿using ASCOM.Common.DeviceInterfaces;
 using ASCOM.Common.Interfaces;
 using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.Text.Json;
 
 namespace ASCOM.Common.DeviceStateClasses
 {
@@ -12,7 +12,7 @@ namespace ASCOM.Common.DeviceStateClasses
     public class CameraDeviceState
     {
         // Assign the name of this class
-        string className = nameof(CameraDeviceState);
+        readonly string className = nameof(CameraDeviceState);
 
         /// <summary>
         /// Create a new CameraDeviceState instance
@@ -40,18 +40,24 @@ namespace ASCOM.Common.DeviceStateClasses
             {
                 try
                 {
-                    TL?.LogMessage(LogLevel.Debug, className, $"{stateValue.Name} = {stateValue.Value}");
+                    TL?.LogMessage(LogLevel.Debug, className, $"{stateValue.Name} = {stateValue.Value} - Incoming data type: {stateValue.Value.GetType().Name}");
 
                     switch (stateValue.Name)
                     {
                         case nameof(ICameraV4.CameraState):
                             try
                             {
-                                CameraState = (CameraState)stateValue.Value;
+                                if (stateValue.Value is JsonElement jsonElement) // Deal with Alpaca, which returns JsonElement types instead of object
+                                    CameraState = (CameraState)jsonElement.GetInt32();
+                                else                                             // COM returns objects that can just be cast to the required type
+                                    CameraState = (CameraState)stateValue.Value;
                             }
                             catch (Exception ex)
                             {
-                                TL?.LogMessage(LogLevel.Debug, className, $"CameraState - Ignoring exception: {ex.Message}");
+                                if (stateValue.Value is JsonElement jsonElement) // Deal with Alpaca, which returns JsonElement types instead of object
+                                    CameraState = (CameraState)jsonElement.GetInt32();
+                                else                                             // COM returns objects that can just be cast to the required type
+                                    TL?.LogMessage(LogLevel.Debug, className, $"CameraState - Ignoring exception: {ex.Message}");
                             }
                             TL?.LogMessage(LogLevel.Debug, className, $"CameraState has value: {CameraState.HasValue}, Value: {CameraState}");
                             break;
@@ -59,19 +65,28 @@ namespace ASCOM.Common.DeviceStateClasses
                         case nameof(ICameraV4.CCDTemperature):
                             try
                             {
-                                CCDTemperature = (double)stateValue.Value;
+                                if (stateValue.Value is JsonElement jsonElement) // Deal with Alpaca, which returns JsonElement types instead of object
+                                    CCDTemperature = jsonElement.GetDouble();
+                                else                                             // COM returns objects that can just be cast to the required type
+                                    CCDTemperature = (double)stateValue.Value;
                             }
                             catch (Exception ex)
                             {
-                                TL?.LogMessage(LogLevel.Debug, className, $"CCDTemperature - Ignoring exception: {ex.Message}");
+                                if (stateValue.Value is JsonElement jsonElement) // Deal with Alpaca, which returns JsonElement types instead of object
+                                    CameraState = (CameraState)jsonElement.GetInt32();
+                                else                                             // COM returns objects that can just be cast to the required type
+                                    TL?.LogMessage(LogLevel.Debug, className, $"CCDTemperature - Ignoring exception: {ex.Message}");
                             }
                             TL?.LogMessage(LogLevel.Debug, className, $"CCDTemperature has value: {CCDTemperature.HasValue}, Value: {CCDTemperature}");
                             break;
 
-                        case nameof(ICameraV4.CoolerPower): 
+                        case nameof(ICameraV4.CoolerPower):
                             try
                             {
-                                CoolerPower = (double)stateValue.Value;
+                                if (stateValue.Value is JsonElement jsonElement) // Deal with Alpaca, which returns JsonElement types instead of object
+                                    CoolerPower = jsonElement.GetDouble();
+                                else                                             // COM returns objects that can just be cast to the required type
+                                    CoolerPower = (double)stateValue.Value;
                             }
                             catch (Exception ex)
                             {
@@ -83,7 +98,10 @@ namespace ASCOM.Common.DeviceStateClasses
                         case nameof(ICameraV4.HeatSinkTemperature):
                             try
                             {
-                                HeatSinkTemperature = (double)stateValue.Value;
+                                if (stateValue.Value is JsonElement jsonElement) // Deal with Alpaca, which returns JsonElement types instead of object
+                                    HeatSinkTemperature = jsonElement.GetDouble();
+                                else                                             // COM returns objects that can just be cast to the required type
+                                    HeatSinkTemperature = (double)stateValue.Value;
                             }
                             catch (Exception ex)
                             {
@@ -95,7 +113,10 @@ namespace ASCOM.Common.DeviceStateClasses
                         case nameof(ICameraV4.ImageReady):
                             try
                             {
-                                ImageReady = (bool)stateValue.Value;
+                                if (stateValue.Value is JsonElement jsonElement) // Deal with Alpaca, which returns JsonElement types instead of object
+                                    ImageReady = jsonElement.GetBoolean();
+                                else                                             // COM returns objects that can just be cast to the required type
+                                    ImageReady = (bool)stateValue.Value;
                             }
                             catch (Exception ex)
                             {
@@ -107,7 +128,10 @@ namespace ASCOM.Common.DeviceStateClasses
                         case nameof(ICameraV4.IsPulseGuiding):
                             try
                             {
-                                IsPulseGuiding = (bool)stateValue.Value;
+                                if (stateValue.Value is JsonElement jsonElement) // Deal with Alpaca, which returns JsonElement types instead of object
+                                    IsPulseGuiding = jsonElement.GetBoolean();
+                                else                                             // COM returns objects that can just be cast to the required type
+                                    IsPulseGuiding = (bool)stateValue.Value;
                             }
                             catch (Exception ex)
                             {
@@ -119,7 +143,10 @@ namespace ASCOM.Common.DeviceStateClasses
                         case nameof(ICameraV4.PercentCompleted):
                             try
                             {
-                                PercentCompleted = (short)stateValue.Value;
+                                if (stateValue.Value is JsonElement jsonElement) // Deal with Alpaca, which returns JsonElement types instead of object
+                                    PercentCompleted = jsonElement.GetInt16();
+                                else                                             // COM returns objects that can just be cast to the required type
+                                    PercentCompleted = (short)stateValue.Value;
                             }
                             catch (Exception ex)
                             {
@@ -131,7 +158,10 @@ namespace ASCOM.Common.DeviceStateClasses
                         case "TimeStamp":
                             try
                             {
-                                TimeStamp = (DateTime)stateValue.Value;
+                                if (stateValue.Value is JsonElement jsonElement) // Deal with Alpaca, which returns JsonElement types instead of object
+                                    TimeStamp = jsonElement.GetDateTime();
+                                else                                             // COM returns objects that can just be cast to the required type
+                                    TimeStamp = (DateTime)stateValue.Value;
                             }
                             catch (Exception ex)
                             {

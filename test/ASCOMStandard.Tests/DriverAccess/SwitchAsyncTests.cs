@@ -1,13 +1,7 @@
 ﻿using ASCOM.Com.DriverAccess;
-using ASCOM.Common.Interfaces;
-using ASCOM.Tools;
 using ASCOM;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using Xunit.Abstractions;
 using Xunit;
 using System.Runtime.InteropServices;
@@ -17,7 +11,7 @@ namespace DriverAccess
     [Collection("SwitchTests")]
     public class SwitchAsyncTests
     {
-        private ITestOutputHelper output;
+        private readonly ITestOutputHelper output;
 
         public SwitchAsyncTests(ITestOutputHelper output)
         {
@@ -213,7 +207,7 @@ namespace DriverAccess
         public void SetAsyncDriverAccess()
         {
             // Create a Switch simulator device
-            Switch switchSim = new Switch("ASCOM.Simulator.Switch");
+            Switch switchSim = new("ASCOM.Simulator.Switch");
 
             // Connect
             switchSim.Connected = true;
@@ -251,7 +245,7 @@ namespace DriverAccess
         public void SetAsyncValueDriverAccess()
         {
             // Create a Switch simulator device
-            Switch switchSim = new Switch("ASCOM.Simulator.Switch");
+            Switch switchSim = new("ASCOM.Simulator.Switch");
 
             // Connect
             switchSim.Connected = true;
@@ -289,7 +283,7 @@ namespace DriverAccess
         public void CancelAsyncDriverAccess()
         {
             // Create a Switch simulator device
-            Switch switchSim = new Switch("ASCOM.Simulator.Switch");
+            Switch switchSim = new("ASCOM.Simulator.Switch");
 
             // Connect
             switchSim.Connected = true;

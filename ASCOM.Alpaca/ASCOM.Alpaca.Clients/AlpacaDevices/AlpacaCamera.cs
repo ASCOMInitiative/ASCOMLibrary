@@ -1,18 +1,14 @@
 ﻿using ASCOM.Common;
 using ASCOM.Common.Alpaca;
 using ASCOM.Common.DeviceInterfaces;
-using ASCOM.Common.Helpers;
+using ASCOM.Common.DeviceStateClasses;
 using ASCOM.Common.Interfaces;
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
-using System.Net;
 using System.Net.Http;
 using System.Reflection;
-using System.Threading.Tasks;
 
 namespace ASCOM.Alpaca.Clients
 {
@@ -233,6 +229,26 @@ namespace ASCOM.Alpaca.Clients
         {
             get { return imageArrayCompression; }
             set { imageArrayCompression = value; }
+        }
+
+        #endregion
+
+        #region Convenience members
+
+        /// <summary>
+        /// Camera device state
+        /// </summary>
+        public CameraDeviceState CameraDeviceState
+        {
+            get
+            {
+                // Create a state object to return.
+                CameraDeviceState cameraDeviceState = new CameraDeviceState(DeviceState, logger);
+                logger.LogMessage(LogLevel.Debug, "CameraDeviceState", $"Returning: '{cameraDeviceState.CameraState}' '{cameraDeviceState.CCDTemperature}' '{cameraDeviceState.CoolerPower}' '{cameraDeviceState.HeatSinkTemperature}' '{cameraDeviceState.ImageReady}' '{cameraDeviceState.PercentCompleted}' '{cameraDeviceState.TimeStamp}'");
+
+                // Return the device specific state class
+                return cameraDeviceState;
+            }
         }
 
         #endregion
@@ -2290,6 +2306,12 @@ namespace ASCOM.Alpaca.Clients
                 DynamicClientDriver.SetDouble(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "SubExposureDuration", value, MemberTypes.Property);
             }
         }
+
+        #endregion
+
+        #region ICameraV4 implementation
+
+        // No new members
 
         #endregion
 

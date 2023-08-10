@@ -1,6 +1,7 @@
 ﻿using ASCOM.Common;
 using ASCOM.Common.Alpaca;
 using ASCOM.Common.DeviceInterfaces;
+using ASCOM.Common.DeviceStateClasses;
 using ASCOM.Common.Interfaces;
 
 using System;
@@ -143,6 +144,26 @@ namespace ASCOM.Alpaca.Clients
             catch (Exception ex)
             {
                 LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), ex.ToString());
+            }
+        }
+
+        #endregion
+
+        #region Convenience members
+
+        /// <summary>
+        /// CoverCalibrator device state
+        /// </summary>
+        public CoverCalibratorState CoverCalibratorState
+        {
+            get
+            {
+                // Create a state object to return.
+                CoverCalibratorState deviceState = new CoverCalibratorState(DeviceState, logger);
+                logger.LogMessage(LogLevel.Debug, "CoverCalibratorState", $"Returning: '{deviceState.Brightness}' '{deviceState.CalibratorReady}' '{deviceState.CalibratorState}' '{deviceState.CoverMoving}' '{deviceState.CoverState}' '{deviceState.TimeStamp}'");
+
+                // Return the device specific state class
+                return deviceState;
             }
         }
 

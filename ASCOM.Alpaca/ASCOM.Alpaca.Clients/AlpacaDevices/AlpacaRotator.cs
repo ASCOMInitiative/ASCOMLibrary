@@ -1,6 +1,7 @@
 ﻿using ASCOM.Common;
 using ASCOM.Common.Alpaca;
 using ASCOM.Common.DeviceInterfaces;
+using ASCOM.Common.DeviceStateClasses;
 using ASCOM.Common.Interfaces;
 
 using System;
@@ -62,7 +63,7 @@ namespace ASCOM.Alpaca.Clients
                              ILogger logger = AlpacaClient.CLIENT_LOGGER_DEFAULT,
                              string userAgentProductName = null,
                              string userAgentProductVersion = null,
-                             bool trustUserGeneratedSslCertificates=AlpacaClient.TRUST_USER_GENERATED_SSL_CERTIFICATES_DEFAULT
+                             bool trustUserGeneratedSslCertificates = AlpacaClient.TRUST_USER_GENERATED_SSL_CERTIFICATES_DEFAULT
            )
         {
             this.serviceType = serviceType;
@@ -135,7 +136,7 @@ namespace ASCOM.Alpaca.Clients
                 LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"Strict casing: {strictCasing}");
                 LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"Trust user generated SSL certificates: {trustUserGeneratedSslCertificates}");
 
-                DynamicClientDriver.CreateHttpClient(ref client, serviceType, ipAddressString, portNumber, clientNumber, clientDeviceType, userName, password, ImageArrayCompression.None, 
+                DynamicClientDriver.CreateHttpClient(ref client, serviceType, ipAddressString, portNumber, clientNumber, clientDeviceType, userName, password, ImageArrayCompression.None,
                     logger, userAgentProductName, userAgentProductVersion, trustUserGeneratedSslCertificates);
                 LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), "Completed initialisation");
             }
@@ -354,6 +355,30 @@ namespace ASCOM.Alpaca.Clients
 
         #endregion
 
+        #region Convenience members
+
+        /// <summary>
+        /// Rotator device state
+        /// </summary>
+        public RotatorState RotatorState
+        {
+            get
+            {
+                // Create a state object to return.
+                RotatorState rotatorState = new RotatorState(DeviceState, logger);
+                logger.LogMessage(LogLevel.Debug, nameof(RotatorState), $"Returning: " +
+                    $"Cloud cover: '{rotatorState.IsMoving}', " +
+                    $"Dew point: '{rotatorState.MechanicalPosition}', " +
+                    $"Humidity: '{rotatorState.Position}', " +
+                    $"Time stamp: '{rotatorState.TimeStamp}'");
+
+                // Return the device specific state class
+                return rotatorState;
+            }
+        }
+
+        #endregion
+
         #region IRotatorV3 Properties and Methods
 
         /// <summary>
@@ -421,6 +446,12 @@ namespace ASCOM.Alpaca.Clients
             DynamicClientDriver.SendToRemoteDevice<NoReturnValue>(clientNumber, client, longDeviceResponseTimeout, URIBase, strictCasing, logger, "MoveMechanical", Parameters, HttpMethod.Put, MemberTypes.Method);
             LogMessage(logger, clientNumber, "MoveMechanical", $"Rotator moved to mechanical position {Position} OK");
         }
+
+        #endregion
+
+        #region IRotatorV4 implementation
+
+        // No new members
 
         #endregion
 

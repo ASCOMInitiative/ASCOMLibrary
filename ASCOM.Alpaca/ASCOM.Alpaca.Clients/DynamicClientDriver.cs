@@ -5,9 +5,7 @@ using ASCOM.Common.DeviceInterfaces;
 using ASCOM.Common.Interfaces;
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Data.Common;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -15,10 +13,8 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Net.Mime;
 using System.Net.Sockets;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -1015,7 +1011,7 @@ namespace ASCOM.Alpaca.Clients
                         }
                         if (typeof(T) == typeof(List<StateValue>)) // Used for DeviceState property
                         {
-                            DeviceStateResponseConcrete deviceStateResponse = JsonSerializer.Deserialize<DeviceStateResponseConcrete>(responseJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = !strictCasing });
+                            DeviceStateResponse deviceStateResponse = JsonSerializer.Deserialize<DeviceStateResponse>(responseJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = !strictCasing });
                             AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, string.Format(LOG_FORMAT_STRING, deviceStateResponse.ClientTransactionID, deviceStateResponse.ServerTransactionID, (deviceStateResponse.Value is null) ? "NO VALUE OR NULL VALUE RETURNED" : deviceStateResponse.Value.Count.ToString()));
                             return (T)(object)deviceStateResponse.Value;
                         }

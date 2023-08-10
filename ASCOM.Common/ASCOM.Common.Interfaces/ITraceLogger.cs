@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace ASCOM.Common.Interfaces
+﻿namespace ASCOM.Common.Interfaces
 {
 
     /// <summary>

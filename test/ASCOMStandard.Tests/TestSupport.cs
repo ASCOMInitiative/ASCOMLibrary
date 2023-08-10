@@ -1,7 +1,4 @@
-﻿using Microsoft.VisualStudio.TestPlatform.Utilities;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System;
 using Xunit;
 using Xunit.Abstractions;
 

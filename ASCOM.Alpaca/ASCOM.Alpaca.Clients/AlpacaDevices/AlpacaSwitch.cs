@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Reflection;
-using System.Threading;
 
 namespace ASCOM.Alpaca.Clients
 {
@@ -142,6 +141,12 @@ namespace ASCOM.Alpaca.Clients
                 LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), ex.ToString());
             }
         }
+
+        #endregion
+
+        #region Convenience members
+
+        // There is no SwitchState member because the number of switches is a dynamic, user configured value as is switch naming, which makes it impossible to model in a class with fixed properties.
 
         #endregion
 
@@ -386,7 +391,7 @@ namespace ASCOM.Alpaca.Clients
 
         #endregion
 
-        #region ISwitchV3
+        #region ISwitchV3 implementation
 
         /// <inheritdoc />
         public void SetAsync(short id, bool state)

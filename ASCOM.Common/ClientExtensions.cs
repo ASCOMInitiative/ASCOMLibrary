@@ -1,15 +1,9 @@
 ﻿using ASCOM.Common.DeviceInterfaces;
 using ASCOM.Common.Interfaces;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
-using System.Xml;
-using ASCOM.Common.Alpaca;
-using System.Reflection;
 using System.Linq;
 
 namespace ASCOM.Common

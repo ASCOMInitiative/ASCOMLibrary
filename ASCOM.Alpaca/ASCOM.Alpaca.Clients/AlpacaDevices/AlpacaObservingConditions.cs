@@ -1,9 +1,9 @@
 ﻿using ASCOM.Common;
 using ASCOM.Common.Alpaca;
 using ASCOM.Common.DeviceInterfaces;
+using ASCOM.Common.DeviceStateClasses;
 using ASCOM.Common.Interfaces;
 using System;
-using System.Collections.Generic;
 using System.Reflection;
 
 namespace ASCOM.Alpaca.Clients
@@ -144,7 +144,41 @@ namespace ASCOM.Alpaca.Clients
 
         #endregion
 
-        #region IObservingConditions Implementation
+        #region Convenience members
+
+        /// <summary>
+        /// ObservingConditions device state
+        /// </summary>
+        public ObservingConditionsState ObservingConditionsState
+        {
+            get
+            {
+                // Create a state object to return.
+                ObservingConditionsState observingConditionsState = new ObservingConditionsState(DeviceState, logger);
+                logger.LogMessage(LogLevel.Debug, nameof(ObservingConditionsState), $"Returning: " +
+                    $"Cloud cover: '{observingConditionsState.CloudCover}', " +
+                    $"Dew point: '{observingConditionsState.DewPoint}', " +
+                    $"Humidity: '{observingConditionsState.Humidity}', " +
+                    $"Pressure: '{observingConditionsState.Pressure}', " +
+                    $"Rain rate: '{observingConditionsState.RainRate}', " +
+                    $"Sky brightness: '{observingConditionsState.SkyBrightness}', " +
+                    $"Sky quality: '{observingConditionsState.SkyQuality}', " +
+                    $"Sky temperature'{observingConditionsState.SkyTemperature}', " +
+                    $"Star FWHM: '{observingConditionsState.StarFWHM}', " +
+                    $"Temperature: '{observingConditionsState.Temperature}', " +
+                    $"Wind direction: '{observingConditionsState.WindDirection}', " +
+                    $"Wind gust: '{observingConditionsState.WindGust}', " +
+                    $"Wind speed: '{observingConditionsState.WindSpeed}', " +
+                    $"Time stamp: '{observingConditionsState.TimeStamp}'");
+
+                // Return the device specific state class
+                return observingConditionsState;
+            }
+        }
+
+        #endregion
+
+        #region IObservingConditionsV1 Implementation
 
         /// <summary>
         /// Provides the time since the sensor value was last updated
@@ -659,6 +693,12 @@ namespace ASCOM.Alpaca.Clients
                 return DynamicClientDriver.GetValue<double>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "WindSpeed", MemberTypes.Property);
             }
         }
+
+        #endregion
+
+        #region IObservingConditionsV2 implementation
+
+        // No new members
 
         #endregion
 

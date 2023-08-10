@@ -1,13 +1,12 @@
 ﻿using ASCOM.Tools;
 using System;
-using System.IO;
 using Xunit;
 
 namespace ASCOM.Alpaca.Tests.TransformTests
 {
     public class TransformFunctionalTests
     {
-        TraceLogger TL = new TraceLogger("TransformTest", true);
+        readonly TraceLogger TL = new("TransformTest", true);
         Transform transform;
 
         [Fact]

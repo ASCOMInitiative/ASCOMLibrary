@@ -1,5 +1,4 @@
-﻿using ASCOM.Alpaca.Discovery;
-using ASCOM.Common;
+﻿using ASCOM.Common;
 using ASCOM.Common.Alpaca;
 using ASCOM.Common.DeviceInterfaces;
 using ASCOM.Common.Interfaces;
@@ -9,7 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Reflection;
-using System.Threading;
+using System.Text.Json;
 
 namespace ASCOM.Alpaca.Clients
 {
@@ -392,13 +391,17 @@ namespace ASCOM.Alpaca.Clients
                 if (DeviceCapabilities.HasConnectAndDeviceState(clientDeviceType, InterfaceVersion))
                 {
                     // Platform 7 or later device so return the device's value
-                    // Note use of a concrete class here necause System.Text.Json cannot deserialise to an interface, it requires a concrete class
+                    // Note use of a concrete class here because System.Text.Json cannot de-serialise to an interface, it requires a concrete class
                     List<StateValue> response = DynamicClientDriver.GetValue<List<StateValue>>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "DeviceState", MemberTypes.Property);
 
                     // Here we convert the device response to a type that can be returned as an ILIst<IStateValue> object.
                     // This is done by using LINQ to cast the returned List<StateValue> objects to interface IStateValue type and then returning them as a list. Convoluted, but it works!
-                    List<IStateValue> returnValue = response.Cast<IStateValue>().ToList();
+                     List<IStateValue> returnValue = response.Cast<IStateValue>().ToList();
 
+                    foreach (IStateValue value in returnValue)
+                    {
+                        logger.LogMessage(LogLevel.Debug, "AlpacaCameraBase.DeviceState", $"{value.Name} = {value.Value} - Type: {value.Value.GetType().Name}");
+                    }
                     return returnValue;
                 }
 

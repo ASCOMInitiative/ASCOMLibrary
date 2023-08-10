@@ -1,16 +1,13 @@
 ﻿using ASCOM.Common;
 using Microsoft.Win32;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading;
-using System.Xml.Linq;
 
 namespace ASCOM.Alpaca.Tests.Profile
 {
     internal static class Test
     {
-        static Random random = new Random();
+        static readonly Random random = new();
 
         public const int BAD_DEVICE_TYPE_VALUE = 99;
         public const DeviceTypes TEST_DEVICE_TYPE = DeviceTypes.Camera;
@@ -28,7 +25,7 @@ namespace ASCOM.Alpaca.Tests.Profile
         public const string TEST_VALUE_NAME4 = "Test Value 4";
         public const string TEST_VALUE4 = "Contents of test value 4";
 
-        public static Mutex TestMutex = new Mutex(false, "ProfileTestMutex");
+        public static Mutex TestMutex = new(false, "ProfileTestMutex");
 
         #region Support Code
 
