@@ -26,24 +26,9 @@ namespace ASCOM.Com
     /// </remarks>
     public class ChooserSA : IDisposable
     {
-        // ===========
-        // CHOOSER.CLS
-        // ===========
-        // 
-        // Implementation of the ASCOM telescope driver Chooser class
-        // 
-        // Written:  24-Aug-00   Robert B. Denny <rdenny@dc3.com>
-        // 
-        // Edits:
-        // 
-        // When      Who     What
-        // --------- ---     --------------------------------------------------
-        // 25-Feb-09 pwgs     5.1.0 - Refactored for Utilities
-        // ---------------------------------------------------------------------
-
         private string deviceType = "";
 
-        private ILogger logger;
+        private readonly ILogger logger;
 
         #region  New and IDisposable Support 
 
@@ -90,18 +75,10 @@ namespace ASCOM.Com
             GC.SuppressFinalize(this);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        ~ChooserSA()
-        {
-            // Do not change this code.  Put clean-up code in Dispose(ByVal disposing As Boolean) above.
-            Dispose(false);
-        }
-
         #endregion
 
-        #region IChooser Implementation
+        #region Public methods
+
         /// <summary>
         /// The type of device for which the Chooser will select a driver. (String, default = "Telescope")
         /// </summary>
@@ -163,22 +140,20 @@ namespace ASCOM.Com
             catch (DriverNotRegisteredException ex)
             {
                 MessageBox.Show("Chooser Exception: " + ex.Message);
-                EventLogCode.LogEvent("Chooser", "Exception", EventLogEntryType.Error, GlobalConstants.EventLogErrors.ChooserException, ex.ToString());
+                EventLog.LogEvent("Chooser", "Exception", EventLogEntryType.Error, GlobalConstants.EventLogErrors.ChooserException, ex.ToString());
                 selectedProgId = "";
             }
 
             catch (Exception ex)
             {
                 MessageBox.Show("Chooser Exception: " + ex.ToString());
-                EventLogCode.LogEvent("Chooser", "Exception", EventLogEntryType.Error, GlobalConstants.EventLogErrors.ChooserException, ex.ToString());
+                EventLog.LogEvent("Chooser", "Exception", EventLogEntryType.Error, GlobalConstants.EventLogErrors.ChooserException, ex.ToString());
                 selectedProgId = "";
             }
 
             return selectedProgId;
         }
-        #endregion
 
-        #region IChooserExtra Implementation
         /// <summary>
         /// Select ASCOM driver to use without pre-selecting in the dropdown list
         /// </summary>
@@ -193,6 +168,7 @@ namespace ASCOM.Com
         {
             return Choose("");
         }
+
         #endregion
 
     }

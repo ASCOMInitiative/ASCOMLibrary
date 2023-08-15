@@ -4,7 +4,7 @@ using System.Windows.Forms;
 namespace ASCOM.Com
 {
     /// <summary>
-    /// 
+    /// The Chooser's Alpaca configuration form.
     /// </summary>
     public partial class ChooserAlpacaConfigurationForm
     {
@@ -41,8 +41,9 @@ namespace ASCOM.Com
             ChkListAllDiscoveredDevices.Checked = chooserForm.AlpacaShowDiscoveredDevices;
             ChkShowDeviceDetails.Checked = chooserForm.AlpacaShowDeviceDetails;
             NumExtraChooserWidth.Value = Convert.ToDecimal(chooserForm.AlpacaChooserIncrementalWidth);
-            ChkShowCreateNewAlpacaDriverMessage.Checked = !RegistryCommonCode.GetBool(GlobalConstants.SUPPRESS_ALPACA_DRIVER_ADMIN_DIALOGUE, GlobalConstants.SUPPRESS_ALPACA_DRIVER_ADMIN_DIALOGUE_DEFAULT);
+            ChkShowCreateNewAlpacaDriverMessage.Checked = !Configuration.GetBool(GlobalConstants.SUPPRESS_ALPACA_DRIVER_ADMIN_DIALOGUE, GlobalConstants.SUPPRESS_ALPACA_DRIVER_ADMIN_DIALOGUE_DEFAULT);
             ChkMultiThreadedChooser.Checked = chooserForm.AlpacaMultiThreadedChooser;
+            
             // Set the IP v4 / v6 radio boxes
             if (chooserForm.AlpacaUseIpV4 & chooserForm.AlpacaUseIpV6) // // Both Then IPv4 And v6 are enabled so Set the "both" button
             {
@@ -53,7 +54,6 @@ namespace ASCOM.Com
                 RadIpV4.Checked = chooserForm.AlpacaUseIpV4;
                 RadIpV6.Checked = chooserForm.AlpacaUseIpV6;
             }
-
         }
 
         /// <summary>
@@ -63,7 +63,6 @@ namespace ASCOM.Com
         /// <param name="e"></param>
         private void BtnOK_Click(object sender, EventArgs e)
         {
-
             // User clicked OK so save the new values to the Chooser's variables 
             chooserForm.AlpacaNumberOfBroadcasts = Convert.ToInt32(NumDiscoveryBroadcasts.Value);
             chooserForm.AlpacaTimeout = Convert.ToInt32(NumDiscoveryDuration.Value);
@@ -72,7 +71,7 @@ namespace ASCOM.Com
             chooserForm.AlpacaShowDiscoveredDevices = ChkListAllDiscoveredDevices.Checked;
             chooserForm.AlpacaShowDeviceDetails = ChkShowDeviceDetails.Checked;
             chooserForm.AlpacaChooserIncrementalWidth = Convert.ToInt32(NumExtraChooserWidth.Value);
-            RegistryCommonCode.SetName(GlobalConstants.SUPPRESS_ALPACA_DRIVER_ADMIN_DIALOGUE, (!ChkShowCreateNewAlpacaDriverMessage.Checked).ToString());
+            Configuration.SetName(GlobalConstants.SUPPRESS_ALPACA_DRIVER_ADMIN_DIALOGUE, (!ChkShowCreateNewAlpacaDriverMessage.Checked).ToString());
             chooserForm.AlpacaMultiThreadedChooser = ChkMultiThreadedChooser.Checked;
 
             // Set the IP v4 And v6 variables as necessary
@@ -97,7 +96,6 @@ namespace ASCOM.Com
             // Indicate success so that the Chooser can persist the values
             DialogResult = DialogResult.OK;
             Close();
-
         }
 
         /// <summary>
@@ -107,11 +105,9 @@ namespace ASCOM.Com
         /// <param name="e"></param>
         private void BtnCancel_Click(object sender, EventArgs e)
         {
-
             // User clicked Cancel so changes will not be made to the Chooser variables nor will they be persisted
             DialogResult = DialogResult.Cancel;
             Close();
-
         }
     }
 }

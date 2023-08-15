@@ -8,7 +8,6 @@ namespace ASCOM.Com
     /// </summary>
     public class ChooserItem : IComparable // Provides support for the device list combo box to sort items into a display order
     {
-
         /// <summary>
         /// Base initialiser, sets all properties to default values
         /// </summary>

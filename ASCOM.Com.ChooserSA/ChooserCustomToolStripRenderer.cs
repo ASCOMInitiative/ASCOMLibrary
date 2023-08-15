@@ -8,7 +8,6 @@ namespace ASCOM.Com
     /// </summary>
     public class ChooserCustomToolStripRenderer : ToolStripProfessionalRenderer
     {
-
         /// <summary>
         /// Prevent "selected "colour changes when hovering over disabled menu items 
         /// </summary>
@@ -22,7 +21,7 @@ namespace ASCOM.Com
         }
 
         /// <summary>
-        /// Respect the BackBolor property set for labels - without this they always appear with a grey background.
+        /// Respect the BackColor property set for labels - without this they always appear with a grey background.
         /// </summary>
         /// <param name="e"></param>
         protected override void OnRenderLabelBackground(ToolStripItemRenderEventArgs e)
@@ -34,6 +33,5 @@ namespace ASCOM.Com
                 myBrush.Dispose();
             }
         }
-
     }
 }

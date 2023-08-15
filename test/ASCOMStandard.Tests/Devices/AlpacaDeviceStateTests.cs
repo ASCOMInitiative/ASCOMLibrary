@@ -1,14 +1,8 @@
 ﻿using ASCOM.Alpaca.Clients;
-using ASCOM.Com.DriverAccess;
 using ASCOM.Common.Alpaca;
-using ASCOM.Common.DeviceInterfaces;
 using ASCOM.Common.DeviceStateClasses;
 using ASCOM.Tools;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace ClientToolkitTests
