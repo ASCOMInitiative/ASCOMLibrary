@@ -9,7 +9,6 @@ namespace ASCOM.Com.Exceptions
     /// <remarks></remarks>
     public class HelperException : Exception
     {
-
         /// <summary>
         /// Create a new exception with message
         /// </summary>
@@ -38,7 +37,6 @@ namespace ASCOM.Com.Exceptions
         public HelperException(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) : base(info, context)
         {
         }
-
     }
 
     /// <summary>
@@ -47,7 +45,6 @@ namespace ASCOM.Com.Exceptions
     /// <remarks></remarks>
     public class InvalidValueException : HelperException
     {
-
         /// <summary>
         /// Create a new exception with message 
         /// </summary>
@@ -86,7 +83,6 @@ namespace ASCOM.Com.Exceptions
     /// </remarks>
     public class ProfilePersistenceException : HelperException
     {
-
         /// <summary>
         /// Create a new exception with message 
         /// </summary>
@@ -124,7 +120,6 @@ namespace ASCOM.Com.Exceptions
     /// values.</remarks>
     public class DriverNotRegisteredException : HelperException
     {
-
         /// <summary>
         /// Create a new exception with message 
         /// </summary>
@@ -154,5 +149,4 @@ namespace ASCOM.Com.Exceptions
         {
         }
     }
-
 }

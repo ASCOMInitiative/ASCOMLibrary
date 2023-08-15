@@ -1,8 +1,6 @@
 ﻿using ASCOM.Com.DriverAccess;
 using ASCOM.Common.DeviceInterfaces;
 using ASCOM.Common.DeviceStateClasses;
-using System.Collections.Generic;
-using System.Linq;
 using Xunit;
 
 namespace ClientToolkitTests
