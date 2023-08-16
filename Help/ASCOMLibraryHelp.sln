@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.6.33815.320
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{7CF6DF6D-3B04-46F8-A40B-537D21BCA0B4}") = "ASCOMLibraryHelp", "ASCOMLibraryHelp.shfbproj", "{C067ED42-D85F-42D1-A481-23887FE2E23A}"
+Project("{7CF6DF6D-3B04-46F8-A40B-537D21BCA0B4}") = "ASCOMLibraryHelp", "Library\ASCOMLibraryHelp.shfbproj", "{C067ED42-D85F-42D1-A481-23887FE2E23A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
