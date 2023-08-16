@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.6.33815.320
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{7CF6DF6D-3B04-46F8-A40B-537D21BCA0B4}") = "ASCOMLibraryHelp", "Library\ASCOMLibraryHelp.shfbproj", "{C067ED42-D85F-42D1-A481-23887FE2E23A}"
+Project("{7CF6DF6D-3B04-46F8-A40B-537D21BCA0B4}") = "ASCOMLibraryHelp", "LibraryHelp\ASCOMLibraryHelp.shfbproj", "{C067ED42-D85F-42D1-A481-23887FE2E23A}"
+EndProject
+Project("{7CF6DF6D-3B04-46F8-A40B-537D21BCA0B4}") = "ChooserSAHelp", "ChooserSAHelp\ChooserSAHelp.shfbproj", "{DA3CCBD7-06A8-4E9E-A04B-F2D4A2D1EEED}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{C067ED42-D85F-42D1-A481-23887FE2E23A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C067ED42-D85F-42D1-A481-23887FE2E23A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C067ED42-D85F-42D1-A481-23887FE2E23A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DA3CCBD7-06A8-4E9E-A04B-F2D4A2D1EEED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DA3CCBD7-06A8-4E9E-A04B-F2D4A2D1EEED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DA3CCBD7-06A8-4E9E-A04B-F2D4A2D1EEED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DA3CCBD7-06A8-4E9E-A04B-F2D4A2D1EEED}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
