@@ -46,7 +46,7 @@
     <MaximumGroupParts>2</MaximumGroupParts>
     <Preliminary>False</Preliminary>
     <CopyrightHref>www.ascom-standards.org</CopyrightHref>
-    <CopyrightText>Copyright &amp;#169%3b 2021 - 2022 ASCOM Initiative</CopyrightText>
+    <CopyrightText>Copyright &amp;#169%3b 2021 - 2023 ASCOM Initiative</CopyrightText>
     <SdkLinkTarget>Blank</SdkLinkTarget>
     <NamespaceSummaries>
       <NamespaceSummaryItem name="(global)" isDocumented="False">ASCOM Standard Root Global</NamespaceSummaryItem>
@@ -82,7 +82,8 @@
     </ApiFilter>
     <ProjectSummary>
     </ProjectSummary>
-    <FooterText>Version 1.0.52</FooterText>
+    <FooterText>
+    </FooterText>
   </PropertyGroup>
   <!-- There are no properties for these groups.  AnyCPU needs to appear in order for Visual Studio to perform
 			 the build.  The others are optional common platform types that may appear. -->

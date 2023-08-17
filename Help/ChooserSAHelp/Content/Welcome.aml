@@ -2,49 +2,70 @@
 <topic id="1984b924-4868-431c-ba07-74f312ef1f5c" revisionNumber="1">
 	<developerConceptualDocument xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5" xmlns:xlink="http://www.w3.org/1999/xlink">
 		<introduction>
-			<para>This is a sample conceptual topic.  You can use this as a starting point for adding more conceptual
-content to your help project.</para>
+			<para>
+				The stand alone Chooser is a modern replacement for the ASCOM.Utiltiies.Chooser component. The original Chooser is based on the venerable .NET 3.5  (CLR2) framework and
+				it is not possible to replace it with a version created in a later runtime version, such as .NET 4.7.2 (CLR4), because any extant CLR2 applications will fail when
+				presented with a CLR 4 component.
+			</para>
 		</introduction>
 
 		<section>
-			<title>Getting Started</title>
+			<title>Rationale</title>
 			<content>
-				<para>To get started, add a documentation source to the project (a Visual Studio solution, project, or
-assembly and XML comments file).  See the <legacyBold>Getting Started</legacyBold> topics in the Sandcastle Help
-File Builder's help file for more information.  The following default items are included in this project:</para>
+				<para>
+					Chooser functionality is core to enabling COM applications to find COM drivers that are installed on the PC. Together with the registry based Profile store, 
+					it associates human readable descriptions with the machine readable COM ProgIDs that COM uses under the hood. If we don't have Chooser functionality, applications 
+					cannot easily find installed drivers.
+				</para>
+				<para>
+					The Stand Alone Chooser is functionally equivalent to the original Platform Chooser and to the ASCOM.Com.Chooser component in the ASCOM Library,
+					which is just a wrapper around the .NET 3.5 Platform Chooser component, so why does it exist? The answer is because Microsoft currently 
+					<externalLink>
+						<linkText>
+							plans to discontinue support for .NET 3.5 in January 2029
+						</linkText>
+						<linkUri>https://learn.microsoft.com/en-us/lifecycle/products/microsoft-net-framework</linkUri>
+					</externalLink>
+					.
+				</para>
+				<para>
+					The original Platform Chooser is based on the venerable .NET 3.5  (CLR2) framework and it is not possible to replace it with a version created in a later runtime version, 
+					such as .NET 4.7.2 (CLR4), because any extant CLR2 applications will fail when presented with a CLR 4 Chooser component.
 
+				</para>
+				<para>
+					It is not yet clear what "end of support" means and the Stand Alone Chooser is a mitigation for the risk
+					that the .NET 3.5 based Chooser component may cease to work correctly at some unknown future date.
+				</para>
+			</content>
+		</section>
+
+		<section>
+			<title>ChooserSA Implementation Detail</title>
+			<content>
+				<para>
+					Unlike the remainder of the ASCOM Library, the stand alone Chooser is not targetted at .NET Standard 2.0. Instead, because it makes direct use of
+					Windows components such as Forms, it must be targetted at specific framework versions such as .NET Framework 4.7.2 and .NET 7.0.
+					The stand alone Chooser package can be used in projects that target these frameworks:
+				</para>
 				<list class="bullet">
 					<listItem>
-						<para><localUri>ContentLayout.content</localUri> - Use the content layout file to manage the
-conceptual content in the project and define its layout in the table of contents.</para>
+						<para>.NET Framework 4.7.2 (Target framework moniker (TFM): net472)</para>
 					</listItem>
 
 					<listItem>
-						<para>The <localUri>.\media</localUri> folder - Place images in this folder that you will reference
-from conceptual content using <codeInline>medialLink</codeInline> or <codeInline>mediaLinkInline</codeInline>
-elements.  If you will not have any images in the file, you may remove this folder.</para>
+						<para>.NET Framework 4.8 and later (Target framework moniker (TFM): net48)</para>
 					</listItem>
 
 					<listItem>
-						<para>The <localUri>.\icons</localUri> folder - This contains a default logo for the help file.  You
-may replace it or remove it and the folder if not wanted.  If removed or if you change the file name, update
-the <ui>Transform Args</ui> project properties page by removing or changing the filename in the
-<codeInline>logoFile</codeInline> transform argument.  Note that unlike images referenced from conceptual topics,
-the logo file should have its <legacyBold>BuildAction</legacyBold> property set to <codeInline>Content</codeInline>.</para>
+						<para>.NET 6.0 (Target framework moniker (TFM): net6.0-windows)</para>
 					</listItem>
 
 					<listItem>
-						<para>The <localUri>.\Content</localUri> folder - Use this to store your conceptual topics.  You may
-name the files and organize them however you like.  One suggestion is to lay the files out on disk as you have
-them in the content layout file as shown in this project but the choice is yours.  Files can be added via the
-Solution Explorer or from within the content layout file editor.  Files must appear in the content layout file
-in order to be compiled into the help file.</para>
+						<para>.NET 7.0 (Target framework moniker (TFM): net7.0-windows)</para>
 					</listItem>
 				</list>
 
-				<para>See the <legacyBold>Conceptual Content</legacyBold> topics in the Sandcastle Help File Builder's
-help file for more information.  See the <legacyBold> Sandcastle MAML Guide</legacyBold> for details on Microsoft
-Assistance Markup Language (MAML) which is used to create these topics.</para>
 			</content>
 		</section>
 

@@ -80,7 +80,8 @@ namespace ASCOM.Com
         #region Variables
 
         // Chooser variables
-        private string deviceTypeValue, selectedProgIdValue;
+        private DeviceTypes deviceTypeValue;
+        private string  selectedProgIdValue;
         private List<ChooserItem> chooserList;
         private string driverIsCompatible = "";
         private string currentWarningTitle, currentWarningMesage;
@@ -188,77 +189,12 @@ namespace ASCOM.Com
 
         #region Internal properties
 
-        internal string DeviceType
+        internal DeviceTypes DeviceType
         {
             set
             {
-                // Clean up the supplied device type to consistent values
-                switch (value.ToLowerInvariant() ?? "")
-                {
-                    case "camera":
-                        {
-                            deviceTypeValue = "Camera";
-                            break;
-                        }
-                    case "covercalibrator":
-                        {
-                            deviceTypeValue = "CoverCalibrator";
-                            break;
-                        }
-                    case "dome":
-                        {
-                            deviceTypeValue = "Dome";
-                            break;
-                        }
-                    case "filterwheel":
-                        {
-                            deviceTypeValue = "FilterWheel";
-                            break;
-                        }
-                    case "focuser":
-                        {
-                            deviceTypeValue = "Focuser";
-                            break;
-                        }
-                    case "observingconditions":
-                        {
-                            deviceTypeValue = "ObservingConditions";
-                            break;
-                        }
-                    case "rotator":
-                        {
-                            deviceTypeValue = "Rotator";
-                            break;
-                        }
-                    case "safetymonitor":
-                        {
-                            deviceTypeValue = "SafetyMonitor";
-                            break;
-                        }
-                    case "switch":
-                        {
-                            deviceTypeValue = "Switch";
-                            break;
-                        }
-                    case "telescope":
-                        {
-                            deviceTypeValue = "Telescope";
-                            break;
-                        }
-                    case "video":
-                        {
-                            deviceTypeValue = "Video"; // If not recognised just use as supplied for backward compatibility
-                            break;
-                        }
-
-                    default:
-                        {
-                            deviceTypeValue = value;
-                            break;
-                        }
-                }
-
-                TL?.LogMessage(LogLevel.Debug, "DeviceType Set", deviceTypeValue);
+                deviceTypeValue = value;
+                TL?.LogMessage(LogLevel.Debug, "DeviceType Set", deviceTypeValue.ToString());
                 ReadState(deviceTypeValue);
             }
         }
@@ -315,7 +251,7 @@ namespace ASCOM.Com
             {
                 // Initialise form title and message text
                 Text = "ASCOM " + deviceTypeValue + " Chooser";
-                lblTitle.Text = "Select the type of " + deviceTypeValue.ToLowerInvariant() + " you have, then be " + "sure to click the Properties... button to configure the driver for your " + deviceTypeValue.ToLowerInvariant() + ".";
+                lblTitle.Text = "Select the type of " + deviceTypeValue.ToString().ToLowerInvariant() + " you have, then be " + "sure to click the Properties... button to configure the driver for your " + deviceTypeValue.ToString().ToLowerInvariant() + ".";
 
                 // Initialise the tooltip warning for 32/64bit driver compatibility messages
                 chooserWarningToolTip = new ToolTip();
@@ -616,10 +552,8 @@ namespace ASCOM.Com
                 // SHow the admin request dialogue if it has not been suppressed by the user
                 if (!Configuration.GetBool(GlobalConstants.SUPPRESS_ALPACA_DRIVER_ADMIN_DIALOGUE, GlobalConstants.SUPPRESS_ALPACA_DRIVER_ADMIN_DIALOGUE_DEFAULT)) // The admin request coming dialogue has not been suppressed so show the dialogue
                 {
-                    using (var checkedMessageBox = new CheckedMessageBox())
-                    {
-                        userResponse = checkedMessageBox.ShowDialog();
-                    }
+                    using var checkedMessageBox = new CheckedMessageBox();
+                    userResponse = checkedMessageBox.ShowDialog();
                 }
                 else // The admin request coming dialogue has been suppressed so flag the user response as OK
                 {
@@ -635,10 +569,10 @@ namespace ASCOM.Com
                         newProgId = CreateNewAlpacaDriver(selectedChooserItem.AscomName);
 
                         // Configure the IP address, port number and Alpaca device number in the newly registered driver
-                        Profile.SetValue(Devices.StringToDeviceType(deviceTypeValue), newProgId, PROFILE_VALUE_NAME_IP_ADDRESS, selectedChooserItem.HostName);
-                        Profile.SetValue(Devices.StringToDeviceType(deviceTypeValue), newProgId, PROFILE_VALUE_NAME_PORT_NUMBER, selectedChooserItem.Port.ToString());
-                        Profile.SetValue(Devices.StringToDeviceType(deviceTypeValue), newProgId, PROFILE_VALUE_NAME_REMOTE_DEVICER_NUMBER, selectedChooserItem.DeviceNumber.ToString());
-                        Profile.SetValue(Devices.StringToDeviceType(deviceTypeValue), newProgId, PROFILE_VALUE_NAME_UNIQUEID, selectedChooserItem.DeviceUniqueID.ToString());
+                        Profile.SetValue(deviceTypeValue, newProgId, PROFILE_VALUE_NAME_IP_ADDRESS, selectedChooserItem.HostName);
+                        Profile.SetValue(deviceTypeValue, newProgId, PROFILE_VALUE_NAME_PORT_NUMBER, selectedChooserItem.Port.ToString());
+                        Profile.SetValue(deviceTypeValue, newProgId, PROFILE_VALUE_NAME_REMOTE_DEVICER_NUMBER, selectedChooserItem.DeviceNumber.ToString());
+                        Profile.SetValue(deviceTypeValue, newProgId, PROFILE_VALUE_NAME_UNIQUEID, selectedChooserItem.DeviceUniqueID.ToString());
 
                         // Flag the driver as being already configured so that it can be used immediately
                         registryAccess.WriteProfile("Chooser", $"{newProgId} Init", "True");
@@ -890,7 +824,7 @@ namespace ASCOM.Com
             bool deviceWasRegistered;
 
             // Get the current registration state for the selected ProgID
-            deviceWasRegistered = Profile.IsRegistered(Devices.StringToDeviceType(deviceTypeValue), selectedProgIdValue);
+            deviceWasRegistered = Profile.IsRegistered(deviceTypeValue, selectedProgIdValue);
 
             TL?.LogMessage(LogLevel.Debug, "ManageAlpacaDevicesClick", $"ProgID {selectedProgIdValue} of type {deviceTypeValue} is registered: {deviceWasRegistered}");
 
@@ -901,7 +835,7 @@ namespace ASCOM.Com
             if (deviceWasRegistered)
             {
                 // Unselect the ProgID if it has just been deleted
-                if (!Profile.IsRegistered(Devices.StringToDeviceType(deviceTypeValue), selectedProgIdValue))
+                if (!Profile.IsRegistered(deviceTypeValue, selectedProgIdValue))
                 {
                     selectedChooserItem = null;
                     TL?.LogMessage(LogLevel.Debug, "ManageAlpacaDevicesClick", $"ProgID {selectedProgIdValue} was registered but has been deleted");
@@ -979,10 +913,10 @@ namespace ASCOM.Com
 
         private void ReadState()
         {
-            ReadState("Telescope");
+            ReadState(DeviceTypes.Telescope);
         }
 
-        private void ReadState(string DeviceType)
+        private void ReadState(DeviceTypes DeviceType)
         {
             try
             {
@@ -1011,7 +945,7 @@ namespace ASCOM.Com
             }
         }
 
-        private void WriteState(string DeviceType)
+        private void WriteState(DeviceTypes DeviceType)
         {
             try
             {
@@ -1179,7 +1113,8 @@ namespace ASCOM.Com
                         {
                             if (AlpacaShowDeviceDetails) // Get device details from the Profile and display these
                             {
-                                driverName = $"{driverName}    ({driverProgId} ==> {Profile.GetValue(Devices.StringToDeviceType(deviceTypeValue), driverProgId, PROFILE_VALUE_NAME_IP_ADDRESS, null)}:" + $"{Profile.GetValue(Devices.StringToDeviceType(deviceTypeValue), driverProgId, PROFILE_VALUE_NAME_PORT_NUMBER, null)}/api/v1/{deviceTypeValue}/{Profile.GetValue(Devices.StringToDeviceType(deviceTypeValue), driverProgId, PROFILE_VALUE_NAME_REMOTE_DEVICER_NUMBER, null)}" + $") - {Profile.GetValue(Devices.StringToDeviceType(deviceTypeValue), driverProgId, PROFILE_VALUE_NAME_UNIQUEID, "")}"; // Annotate as Alpaca Dynamic driver to differentiate from other COM drivers
+                                driverName = $"{driverName}    ({driverProgId} ==> {Profile.GetValue(deviceTypeValue, driverProgId, PROFILE_VALUE_NAME_IP_ADDRESS, null)}:" +
+                                    $"{Profile.GetValue(deviceTypeValue, driverProgId, PROFILE_VALUE_NAME_PORT_NUMBER, null)}/api/v1/{deviceTypeValue}/{Profile.GetValue(deviceTypeValue, driverProgId, PROFILE_VALUE_NAME_REMOTE_DEVICER_NUMBER, null)}" + $") - {Profile.GetValue(deviceTypeValue, driverProgId, PROFILE_VALUE_NAME_UNIQUEID, "")}"; // Annotate as Alpaca Dynamic driver to differentiate from other COM drivers
                             }
                             else // Just annotate as an Alpaca device
                             {
@@ -1237,10 +1172,10 @@ namespace ASCOM.Com
                         foreach (AscomDevice ascomDevice in discovery.GetAscomDevices(null))
                             TL?.LogMessage(LogLevel.Debug, "DiscoverAlpacaDevices", $"FOUND {ascomDevice.AscomDeviceType} {ascomDevice.AscomDeviceName}");
 
-                        TL?.LogMessage(LogLevel.Debug, "DiscoverAlpacaDevices", $"Discovered {discovery.GetAscomDevices(deviceTypeValue.ToDeviceType()).Count} {deviceTypeValue} devices");
+                        TL?.LogMessage(LogLevel.Debug, "DiscoverAlpacaDevices", $"Discovered {discovery.GetAscomDevices(deviceTypeValue).Count} {deviceTypeValue} devices");
 
                         // Get discovered devices of the requested ASCOM device type
-                        alpacaDevices = discovery.GetAscomDevices(deviceTypeValue.ToDeviceType());
+                        alpacaDevices = discovery.GetAscomDevices(deviceTypeValue);
                     }
 
                     // Add any Alpaca devices to the list
@@ -1257,7 +1192,7 @@ namespace ASCOM.Com
                         // Get a list of dynamic drivers already configured on the system
                         bool foundDriver = false;
 
-                        foreach (ASCOMRegistration arrayListDevice in Profile.GetDrivers(Devices.StringToDeviceType(deviceTypeValue))) // Iterate over a list of all devices of the current device type
+                        foreach (ASCOMRegistration arrayListDevice in Profile.GetDrivers(deviceTypeValue)) // Iterate over a list of all devices of the current device type
                         {
                             if (arrayListDevice.ProgID.ToLowerInvariant().StartsWith(DRIVER_PROGID_BASE.ToLowerInvariant())) // This is a dynamic Alpaca COM driver
                             {
@@ -1265,7 +1200,7 @@ namespace ASCOM.Com
                                 // Get and validate the device values to compare with the discovered device
                                 try
                                 {
-                                    deviceUniqueId = Profile.GetValue(Devices.StringToDeviceType(deviceTypeValue), arrayListDevice.ProgID, PROFILE_VALUE_NAME_UNIQUEID, "");
+                                    deviceUniqueId = Profile.GetValue(deviceTypeValue, arrayListDevice.ProgID, PROFILE_VALUE_NAME_UNIQUEID, "");
                                 }
                                 catch (Exception)
                                 {
@@ -1275,7 +1210,7 @@ namespace ASCOM.Com
 
                                 try
                                 {
-                                    deviceHostName = Profile.GetValue(Devices.StringToDeviceType(deviceTypeValue), arrayListDevice.ProgID, PROFILE_VALUE_NAME_IP_ADDRESS, "");
+                                    deviceHostName = Profile.GetValue(deviceTypeValue, arrayListDevice.ProgID, PROFILE_VALUE_NAME_IP_ADDRESS, "");
                                     if (string.IsNullOrEmpty(deviceHostName))
                                     {
                                         MessageBox.Show($"{arrayListDevice.ProgID} - The device IP address is blank. This driver should be deleted and re-created", "Dynamic Driver Corrupted", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
@@ -1290,7 +1225,7 @@ namespace ASCOM.Com
 
                                 try
                                 {
-                                    deviceIPPort = Convert.ToInt32(Profile.GetValue(Devices.StringToDeviceType(deviceTypeValue), arrayListDevice.ProgID, PROFILE_VALUE_NAME_PORT_NUMBER, ""));
+                                    deviceIPPort = Convert.ToInt32(Profile.GetValue(deviceTypeValue, arrayListDevice.ProgID, PROFILE_VALUE_NAME_PORT_NUMBER, ""));
                                 }
                                 catch (Exception)
                                 {
@@ -1300,7 +1235,7 @@ namespace ASCOM.Com
 
                                 try
                                 {
-                                    deviceNumber = Convert.ToInt32(Profile.GetValue(Devices.StringToDeviceType(deviceTypeValue), arrayListDevice.ProgID, PROFILE_VALUE_NAME_REMOTE_DEVICER_NUMBER, ""));
+                                    deviceNumber = Convert.ToInt32(Profile.GetValue(deviceTypeValue, arrayListDevice.ProgID, PROFILE_VALUE_NAME_REMOTE_DEVICER_NUMBER, ""));
                                 }
                                 catch (Exception)
                                 {
