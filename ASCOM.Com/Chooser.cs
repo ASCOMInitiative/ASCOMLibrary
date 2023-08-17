@@ -143,7 +143,7 @@ namespace ASCOM.Com
             CheckOK("Choose(\"\")");
 
             string progId = chooser.Choose("Telescope");
-            LogMessage(LogLevel.Debug, "Choose", $"Returning: {((progId == null) ? "Null - No device selected" : progId)}.");
+            LogMessage(LogLevel.Debug, "Choose", $"Returning: {(progId ?? "Null - No device selected")}.");
             return progId;
         }
 
@@ -152,11 +152,12 @@ namespace ASCOM.Com
         /// </summary>
         /// <param name="progId">The driver ProgId to pre-select in the Chooser drop-down list</param>
         /// <returns>The ProgID of the selected device or an empty string if no device was chosen</returns>
+        [Obsolete()]
         public string Choose(string progId)
         {
             CheckOK($"Choose(\"{progId})\"");
             string newProgId = chooser.Choose(progId);
-            LogMessage(LogLevel.Debug, "Choose", $"Returning: {((newProgId == null) ? "Null - No device selected" : newProgId)}.");
+            LogMessage(LogLevel.Debug, "Choose", $"Returning: {(newProgId ?? "Null - No device selected")}.");
             return newProgId;
         }
 

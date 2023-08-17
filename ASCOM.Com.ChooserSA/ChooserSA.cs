@@ -1,4 +1,5 @@
 ﻿using ASCOM.Com.Exceptions;
+using ASCOM.Common;
 using ASCOM.Common.Interfaces;
 using System;
 using System.Diagnostics;
@@ -26,8 +27,6 @@ namespace ASCOM.Com
     /// </remarks>
     public class ChooserSA : IDisposable
     {
-        private string deviceType = "";
-
         private readonly ILogger logger;
 
         #region  New and IDisposable Support 
@@ -37,12 +36,10 @@ namespace ASCOM.Com
         /// <summary>
         /// Creates a new Chooser object
         /// </summary>
+        /// <param name="logger">Optional <see cref="ILogger"/> instance to which operational debug information will be reported.</param>
         /// <remarks></remarks>
         public ChooserSA(ILogger logger = null)
         {
-            // Default to Telescope chooser
-            deviceType = "Telescope";
-
             // Assign the debug logger if supplied
             this.logger = logger;
         }
@@ -85,35 +82,21 @@ namespace ASCOM.Com
         /// <value>The type of device for which the Chooser will select a driver. (String, default = "Telescope") 
         /// </value>
         /// <returns>The device type that has been set</returns>
-        /// <exception cref="Exceptions.InvalidValueException">Thrown on setting the device type to empty string</exception>
+        /// <exception cref="InvalidValueException">Thrown on setting the device type to empty string</exception>
         /// <remarks>This property changes the "personality" of the Chooser, allowing it to be used to select a driver for any arbitrary 
         /// ASCOM device type. The default value for this is "Telescope", but it could be "Focuser", "Camera", etc. 
         /// <para>This property is independent of the Profile object's DeviceType property. Setting Chooser's DeviceType 
         /// property doesn't set the DeviceType property in Profile, you must set that also when needed.</para>
         /// </remarks>
-        public string DeviceType
-        {
-            get
-            {
-                return deviceType;
-            }
-            set
-            {
-                if (string.IsNullOrEmpty(value))
-                    throw new InvalidValueException("Chooser:DeviceType-SET - The supplied device type is either null or an empty string.");
-
-                deviceType = value;
-            }
-        }
+        public DeviceTypes DeviceType { get; set; } = DeviceTypes.Telescope;
 
         /// <summary>
-        /// Select ASCOM driver to use including pre-selecting one in the drop-down list
+        /// Select an ASCOM driver to use, pre-selecting one in the drop-down list
         /// </summary>
         /// <param name="progId">Driver to preselect in the chooser dialogue</param>
         /// <returns>Driver ID of chosen driver</returns>
-        /// <exception cref="Exceptions.InvalidValueException">Thrown if the Chooser.DeviceType property has not been set before Choose is called. 
-        /// It must be set in order for Chooser to know which list of devices to display.</exception>
         /// <remarks>The supplied driver will be pre-selected in the Chooser's list when the chooser window is first opened.
+        /// <para>The device type will default to Telescope if no device type is set prior to calling this method.</para>
         /// </remarks>
         public string Choose(string progId)
         {
@@ -122,11 +105,9 @@ namespace ASCOM.Com
 
             try
             {
-                if (string.IsNullOrEmpty(deviceType))
-                    throw new InvalidValueException("Chooser.Choose - The device type has not been set.");
                 chooserFormInstance = new ChooserForm(logger)
                 {
-                    DeviceType = deviceType,
+                    DeviceType = DeviceType,
                     SelectedProgId = progId
                 }; // Initially hidden
 
@@ -158,11 +139,9 @@ namespace ASCOM.Com
         /// Select ASCOM driver to use without pre-selecting in the dropdown list
         /// </summary>
         /// <returns>Driver ID of chosen driver</returns>
-        /// <remarks>No driver will be pre-selected in the Chooser's list when the chooser window is first opened. 
-        /// <exception cref="Exceptions.InvalidValueException">Thrown if the Chooser.DeviceType property has not been set before Choose is called. 
-        /// It must be set in order for Chooser to know which list of devices to display.</exception>
-        /// <para>This overload is not available through COM, please use "Choose(ByVal DriverProgID As String)"
-        /// with an empty string parameter to achieve this effect.</para>
+        /// <remarks>
+        /// No driver will be pre-selected in the Chooser's list when the chooser window is first opened. 
+        /// <para>The device type will default to Telescope if no device type is set prior to calling this method.</para>
         /// </remarks>
         public string Choose()
         {
