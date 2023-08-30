@@ -24,7 +24,7 @@ namespace ASCOM.Common.DeviceStateClasses
         /// </summary>
         /// <param name="deviceState">The device's DeviceState response.</param>
         /// <param name="TL">Debug TraceLogger instance.</param>
-        public VideoState(IList<IStateValue> deviceState, ILogger TL)
+        public VideoState(List<StateValue> deviceState, ILogger TL)
         {
             TL?.LogMessage(LogLevel.Debug, className, $"Received {deviceState.Count} items");
 

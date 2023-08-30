@@ -411,7 +411,7 @@ namespace ASCOM.Com.DriverAccess
         /// <summary>
         /// Returns a List of device IStateValue state objects
         /// </summary>
-        public IList<IStateValue> DeviceState
+        public List<StateValue> DeviceState
         {
             get
             {
@@ -419,7 +419,7 @@ namespace ASCOM.Com.DriverAccess
                 if (DeviceCapabilities.HasConnectAndDeviceState(deviceType, InterfaceVersion))
                 {
                     // Platform 7 or later device so return the device's value
-                    List<IStateValue> deviceState = new List<IStateValue>();
+                    List<StateValue> deviceState = new List<StateValue>();
                     foreach (dynamic item in Device.DeviceState)
                     {
                         deviceState.Add(new StateValue(item.Name, item.Value));
@@ -428,7 +428,7 @@ namespace ASCOM.Com.DriverAccess
                 }
 
                 // Return an empty list for Platform 6 and earlier devices
-                return new List<IStateValue>();
+                return new List<StateValue>();
             }
         }
 

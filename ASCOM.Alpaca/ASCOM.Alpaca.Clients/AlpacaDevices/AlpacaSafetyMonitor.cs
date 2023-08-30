@@ -156,7 +156,7 @@ namespace ASCOM.Alpaca.Clients
                 // Create a state object to return.
                 SafetyMonitorState safetyMonitorState = new SafetyMonitorState(DeviceState, logger);
                 logger.LogMessage(LogLevel.Debug, nameof(SafetyMonitorState), $"Returning: " +
-                    $"Cloud cover: '{safetyMonitorState.IsSafe}', " +
+                    $"IsSafe: '{safetyMonitorState.IsSafe}', " +
                     $"Time stamp: '{safetyMonitorState.TimeStamp}'");
 
                 // Return the device specific state class

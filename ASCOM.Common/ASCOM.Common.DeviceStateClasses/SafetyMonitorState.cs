@@ -24,7 +24,7 @@ namespace ASCOM.Common.DeviceStateClasses
         /// </summary>
         /// <param name="deviceState">The device's DeviceState response.</param>
         /// <param name="TL">Debug TraceLogger instance.</param>
-        public SafetyMonitorState(IList<IStateValue> deviceState, ILogger TL)
+        public SafetyMonitorState(List<StateValue> deviceState, ILogger TL)
         {
             TL?.LogMessage(LogLevel.Debug, className, $"Received {deviceState.Count} items");
 
@@ -37,8 +37,8 @@ namespace ASCOM.Common.DeviceStateClasses
 
             TL?.LogMessage(LogLevel.Debug, className, $"List from device contained {deviceState.Count} DeviceSate items.");
 
-            // An List was supplied so process each supplied value
-            foreach (IStateValue stateValue in deviceState)
+            // A List was supplied so process each supplied value
+            foreach (StateValue stateValue in deviceState)
             {
                 try
                 {
