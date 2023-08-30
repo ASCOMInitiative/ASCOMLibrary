@@ -25,6 +25,6 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <summary>
         /// Device state
         /// </summary>
-        IList<IStateValue> DeviceState { get; }
+        List<StateValue> DeviceState { get; }
     }
 }
