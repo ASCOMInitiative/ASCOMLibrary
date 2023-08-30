@@ -1,8 +1,9 @@
 ﻿using Microsoft.Win32;
 using Xunit;
 using ASCOM.Common;
+using ASCOM;
 
-namespace ASCOM.Alpaca.Tests.Profile
+namespace Profile
 {
 
     public class ProfileComponentTests
@@ -10,23 +11,23 @@ namespace ASCOM.Alpaca.Tests.Profile
         [Fact]
         public void IsRegisteredFailTests()
         {
-            Assert.Throws<InvalidValueException>(() => Com.Profile.IsRegistered((DeviceTypes)Test.BAD_DEVICE_TYPE_VALUE, ""));
-            Assert.Throws<InvalidValueException>(() => Com.Profile.IsRegistered((DeviceTypes)Test.BAD_DEVICE_TYPE_VALUE, "Garbage"));
+            Assert.Throws<InvalidValueException>(() => ASCOM.Com.Profile.IsRegistered((DeviceTypes)Test.BAD_DEVICE_TYPE_VALUE, ""));
+            Assert.Throws<InvalidValueException>(() => ASCOM.Com.Profile.IsRegistered((DeviceTypes)Test.BAD_DEVICE_TYPE_VALUE, "Garbage"));
         }
 
         [Fact]
         public void IsRegisteredSuccessTests()
         {
-            Assert.True(Com.Profile.IsRegistered(DeviceTypes.Telescope, "ASCOM.Simulator.Telescope"));
-            Assert.False(Com.Profile.IsRegistered(DeviceTypes.Telescope, "Garbage.Garbage.Garbage.Telescope"));
+            Assert.True(ASCOM.Com.Profile.IsRegistered(DeviceTypes.Telescope, "ASCOM.Simulator.Telescope"));
+            Assert.False(ASCOM.Com.Profile.IsRegistered(DeviceTypes.Telescope, "Garbage.Garbage.Garbage.Telescope"));
         }
 
         [Fact]
         public void RegisterFailTests()
         {
-            Assert.Throws<InvalidValueException>(() => Com.Profile.Register((DeviceTypes)Test.BAD_DEVICE_TYPE_VALUE, "", ""));
-            Assert.Throws<InvalidValueException>(() => Com.Profile.Register((DeviceTypes)Test.BAD_DEVICE_TYPE_VALUE, "Garbage", ""));
-            Assert.Throws<InvalidValueException>(() => Com.Profile.Register((DeviceTypes)Test.BAD_DEVICE_TYPE_VALUE, "Garbage", "Garbage"));
+            Assert.Throws<InvalidValueException>(() => ASCOM.Com.Profile.Register((DeviceTypes)Test.BAD_DEVICE_TYPE_VALUE, "", ""));
+            Assert.Throws<InvalidValueException>(() => ASCOM.Com.Profile.Register((DeviceTypes)Test.BAD_DEVICE_TYPE_VALUE, "Garbage", ""));
+            Assert.Throws<InvalidValueException>(() => ASCOM.Com.Profile.Register((DeviceTypes)Test.BAD_DEVICE_TYPE_VALUE, "Garbage", "Garbage"));
         }
 
         [Fact]
@@ -35,7 +36,7 @@ namespace ASCOM.Alpaca.Tests.Profile
             string progId = Test.GetProgId(Test.TEST_DEVICE_TYPE);
             Test.ClearDeviceRegistration(progId);
             // Register the test device
-            Com.Profile.Register(Test.TEST_DEVICE_TYPE, progId, Test.TEST_DESCRIPTION);
+            ASCOM.Com.Profile.Register(Test.TEST_DEVICE_TYPE, progId, Test.TEST_DESCRIPTION);
 
             // Now read the Profile registry to make sure the registration entry exists
             // Open the local machine hive in 32bit mode
@@ -57,8 +58,8 @@ namespace ASCOM.Alpaca.Tests.Profile
         [Fact]
         public void UnRegisterFailTests()
         {
-            Assert.Throws<InvalidValueException>(() => Com.Profile.UnRegister((DeviceTypes)Test.BAD_DEVICE_TYPE_VALUE, ""));
-            Assert.Throws<InvalidValueException>(() => Com.Profile.UnRegister((DeviceTypes)Test.BAD_DEVICE_TYPE_VALUE, "Garbage"));
+            Assert.Throws<InvalidValueException>(() => ASCOM.Com.Profile.UnRegister((DeviceTypes)Test.BAD_DEVICE_TYPE_VALUE, ""));
+            Assert.Throws<InvalidValueException>(() => ASCOM.Com.Profile.UnRegister((DeviceTypes)Test.BAD_DEVICE_TYPE_VALUE, "Garbage"));
         }
 
         [Fact]
@@ -69,7 +70,7 @@ namespace ASCOM.Alpaca.Tests.Profile
             Test.ClearDeviceRegistration(progId);
 
             // Register the test device
-            Com.Profile.Register(Test.TEST_DEVICE_TYPE, progId, Test.TEST_DESCRIPTION);
+            ASCOM.Com.Profile.Register(Test.TEST_DEVICE_TYPE, progId, Test.TEST_DESCRIPTION);
 
             // Now read the Profile registry to make sure the registration entry exists
             // Open the local machine hive in 32bit mode
@@ -83,7 +84,7 @@ namespace ASCOM.Alpaca.Tests.Profile
             }
 
             // Now unregister the device
-            Com.Profile.UnRegister(Test.TEST_DEVICE_TYPE, progId);
+            ASCOM.Com.Profile.UnRegister(Test.TEST_DEVICE_TYPE, progId);
 
             // Make sure the entry no longer exists
             // Open the local machine hive in 32bit mode

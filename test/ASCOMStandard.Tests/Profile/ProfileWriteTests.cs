@@ -1,7 +1,8 @@
-﻿using ASCOM.Common;
+﻿using ASCOM;
+using ASCOM.Common;
 using Xunit;
 
-namespace ASCOM.Alpaca.Tests.Profile
+namespace Profile
 {
     public class ProfileWriteTests
     {
@@ -12,12 +13,12 @@ namespace ASCOM.Alpaca.Tests.Profile
 
             Test.ClearDeviceRegistration(progId);
 
-            Assert.Throws<InvalidValueException>(() => Com.Profile.SetValue((DeviceTypes)Test.BAD_DEVICE_TYPE_VALUE, null, null, null, null));
-            Assert.Throws<InvalidValueException>(() => Com.Profile.SetValue(Test.TEST_DEVICE_TYPE, null, null, null, null));
-            Assert.Throws<InvalidValueException>(() => Com.Profile.SetValue(Test.TEST_DEVICE_TYPE, progId, null, null, null));
-            Assert.Throws<InvalidValueException>(() => Com.Profile.SetValue(Test.TEST_DEVICE_TYPE, progId, Test.TEST_VALUE_NAME1, null, null));
-            Assert.Throws<InvalidValueException>(() => Com.Profile.SetValue(Test.TEST_DEVICE_TYPE, progId, Test.TEST_VALUE_NAME1, null, Test.TEST_SUBKEY1));
-            Assert.Throws<InvalidValueException>(() => Com.Profile.SetValue(Test.TEST_DEVICE_TYPE, progId, Test.TEST_VALUE_NAME1, Test.TEST_VALUE1, "  ")); // Fails because sub-key is white space
+            Assert.Throws<InvalidValueException>(() => ASCOM.Com.Profile.SetValue((DeviceTypes)Test.BAD_DEVICE_TYPE_VALUE, null, null, null, null));
+            Assert.Throws<InvalidValueException>(() => ASCOM.Com.Profile.SetValue(Test.TEST_DEVICE_TYPE, null, null, null, null));
+            Assert.Throws<InvalidValueException>(() => ASCOM.Com.Profile.SetValue(Test.TEST_DEVICE_TYPE, progId, null, null, null));
+            Assert.Throws<InvalidValueException>(() => ASCOM.Com.Profile.SetValue(Test.TEST_DEVICE_TYPE, progId, Test.TEST_VALUE_NAME1, null, null));
+            Assert.Throws<InvalidValueException>(() => ASCOM.Com.Profile.SetValue(Test.TEST_DEVICE_TYPE, progId, Test.TEST_VALUE_NAME1, null, Test.TEST_SUBKEY1));
+            Assert.Throws<InvalidValueException>(() => ASCOM.Com.Profile.SetValue(Test.TEST_DEVICE_TYPE, progId, Test.TEST_VALUE_NAME1, Test.TEST_VALUE1, "  ")); // Fails because sub-key is white space
         }
 
         [Fact]
@@ -31,11 +32,11 @@ namespace ASCOM.Alpaca.Tests.Profile
             Assert.Null(Test.ReadTestValue(Test.TEST_DEVICE_TYPE, progId, Test.TEST_SUBKEY1, Test.TEST_VALUE_NAME1));
 
             // Register the device and show that the test value is not present
-            Com.Profile.Register(Test.TEST_DEVICE_TYPE, progId, Test.TEST_DESCRIPTION);
+            ASCOM.Com.Profile.Register(Test.TEST_DEVICE_TYPE, progId, Test.TEST_DESCRIPTION);
             Assert.Null(Test.ReadTestValue(Test.TEST_DEVICE_TYPE, progId, Test.TEST_SUBKEY1, Test.TEST_VALUE_NAME1));
 
             // Write the test value and confirm that it exists and is as expected
-            Com.Profile.SetValue(Test.TEST_DEVICE_TYPE, progId, Test.TEST_VALUE_NAME1, Test.TEST_VALUE1, Test.TEST_SUBKEY1);
+            ASCOM.Com.Profile.SetValue(Test.TEST_DEVICE_TYPE, progId, Test.TEST_VALUE_NAME1, Test.TEST_VALUE1, Test.TEST_SUBKEY1);
             string readValue = Test.ReadTestValue(Test.TEST_DEVICE_TYPE, progId, Test.TEST_SUBKEY1, Test.TEST_VALUE_NAME1);
             Assert.Equal(Test.TEST_VALUE1, readValue);
 

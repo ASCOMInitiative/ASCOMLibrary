@@ -1,7 +1,8 @@
 ﻿using Xunit;
 using ASCOM.Tools;
+using System;
 
-namespace ASCOM.Alpaca.Tests.SOFA
+namespace SOFATests
 {
     public class SofaTests
     {
@@ -117,7 +118,7 @@ namespace ASCOM.Alpaca.Tests.SOFA
         {
             // Eo06a tests
             eo = Sofa.Eo06a(2400000.5, 53736.0);
-            Assert.Equal(-0.1332882371941833644e-2, eo,15);
+            Assert.Equal(-0.1332882371941833644e-2, eo, 15);
         }
 
         [Fact]
@@ -296,5 +297,17 @@ namespace ASCOM.Alpaca.Tests.SOFA
             Assert.Equal(0.8924826384444444444, u2, 12);
         }
 
+        [Fact]
+        public void Dat()
+        {
+            // Dat tests
+
+            DateTime testDate = new DateTime(2023, 8, 21, 0, 0, 0);
+            double leapSeconds = 0.0;
+            j = Sofa.Dat(testDate.Year, testDate.Month, testDate.Day, testDate.TimeOfDay.TotalHours / 24.0, ref leapSeconds);
+
+            Assert.Equal(0, j);
+            Assert.Equal(37.0, leapSeconds, 6);
+        }
     }
 }

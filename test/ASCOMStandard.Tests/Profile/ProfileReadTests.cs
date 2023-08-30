@@ -1,8 +1,9 @@
-﻿using ASCOM.Common;
+﻿using ASCOM;
+using ASCOM.Common;
 using System.Collections.Generic;
 using Xunit;
 
-namespace ASCOM.Alpaca.Tests.Profile
+namespace Profile
 {
     public class ProfileReadTests
     {
@@ -13,11 +14,11 @@ namespace ASCOM.Alpaca.Tests.Profile
 
             Test.ClearDeviceRegistration(progId);
 
-            Assert.Throws<InvalidValueException>(() => Com.Profile.GetValue((DeviceTypes)Test.BAD_DEVICE_TYPE_VALUE, null, null, null, null));
-            Assert.Throws<InvalidValueException>(() => Com.Profile.GetValue(Test.TEST_DEVICE_TYPE, null, null, null, null));
-            Assert.Throws<InvalidValueException>(() => Com.Profile.GetValue(Test.TEST_DEVICE_TYPE, progId, Test.TEST_VALUE_NAME1, null, null));
-            Assert.Throws<InvalidValueException>(() => Com.Profile.GetValue(Test.TEST_DEVICE_TYPE, progId, Test.TEST_VALUE_NAME1, null, Test.TEST_SUBKEY1));
-            Assert.Throws<InvalidValueException>(() => Com.Profile.GetValue(Test.TEST_DEVICE_TYPE, progId, Test.TEST_VALUE_NAME1, Test.TEST_VALUE1, "  ")); // Fails because sub-key is white space
+            Assert.Throws<InvalidValueException>(() => ASCOM.Com.Profile.GetValue((DeviceTypes)Test.BAD_DEVICE_TYPE_VALUE, null, null, null, null));
+            Assert.Throws<InvalidValueException>(() => ASCOM.Com.Profile.GetValue(Test.TEST_DEVICE_TYPE, null, null, null, null));
+            Assert.Throws<InvalidValueException>(() => ASCOM.Com.Profile.GetValue(Test.TEST_DEVICE_TYPE, progId, Test.TEST_VALUE_NAME1, null, null));
+            Assert.Throws<InvalidValueException>(() => ASCOM.Com.Profile.GetValue(Test.TEST_DEVICE_TYPE, progId, Test.TEST_VALUE_NAME1, null, Test.TEST_SUBKEY1));
+            Assert.Throws<InvalidValueException>(() => ASCOM.Com.Profile.GetValue(Test.TEST_DEVICE_TYPE, progId, Test.TEST_VALUE_NAME1, Test.TEST_VALUE1, "  ")); // Fails because sub-key is white space
         }
 
         [Fact]
@@ -31,11 +32,11 @@ namespace ASCOM.Alpaca.Tests.Profile
             Assert.Null(Test.ReadTestValue(Test.TEST_DEVICE_TYPE, progId, Test.TEST_SUBKEY1, Test.TEST_VALUE_NAME1));
 
             // Register the device and show that the test value is not present
-            Com.Profile.Register(Test.TEST_DEVICE_TYPE, progId, Test.TEST_DESCRIPTION);
+            ASCOM.Com.Profile.Register(Test.TEST_DEVICE_TYPE, progId, Test.TEST_DESCRIPTION);
             Assert.Null(Test.ReadTestValue(Test.TEST_DEVICE_TYPE, progId, Test.TEST_SUBKEY1, Test.TEST_VALUE_NAME1));
 
             // Test that default value can be read
-            Com.Profile.GetValue(Test.TEST_DEVICE_TYPE, progId, null, null, null);
+            ASCOM.Com.Profile.GetValue(Test.TEST_DEVICE_TYPE, progId, null, null, null);
 
             // Tidy up after test
             Test.ClearDeviceRegistration(progId);
@@ -53,11 +54,11 @@ namespace ASCOM.Alpaca.Tests.Profile
             Assert.Null(Test.ReadTestValue(Test.TEST_DEVICE_TYPE, progId, Test.TEST_SUBKEY1, Test.TEST_VALUE_NAME1));
 
             // Register the device and show that the test value is not present
-            Com.Profile.Register(Test.TEST_DEVICE_TYPE, progId, Test.TEST_DESCRIPTION);
+            ASCOM.Com.Profile.Register(Test.TEST_DEVICE_TYPE, progId, Test.TEST_DESCRIPTION);
             Assert.Null(Test.ReadTestValue(Test.TEST_DEVICE_TYPE, progId, Test.TEST_SUBKEY1, Test.TEST_VALUE_NAME1));
 
             // Test for exception when value has not yet been set
-            Assert.Throws<ValueNotSetException>(() => Com.Profile.GetValue(Test.TEST_DEVICE_TYPE, progId, Test.TEST_VALUE_NAME1, null, Test.TEST_SUBKEY1));
+            Assert.Throws<ValueNotSetException>(() => ASCOM.Com.Profile.GetValue(Test.TEST_DEVICE_TYPE, progId, Test.TEST_VALUE_NAME1, null, Test.TEST_SUBKEY1));
 
             // Tidy up after test
             Test.ClearDeviceRegistration(progId);
@@ -75,11 +76,11 @@ namespace ASCOM.Alpaca.Tests.Profile
             Assert.Null(Test.ReadTestValue(Test.TEST_DEVICE_TYPE, progId, Test.TEST_SUBKEY1, Test.TEST_VALUE_NAME1));
 
             // Register the device and show that the test value is not present
-            Com.Profile.Register(Test.TEST_DEVICE_TYPE, progId, Test.TEST_DESCRIPTION);
+            ASCOM.Com.Profile.Register(Test.TEST_DEVICE_TYPE, progId, Test.TEST_DESCRIPTION);
             Assert.Null(Test.ReadTestValue(Test.TEST_DEVICE_TYPE, progId, Test.TEST_SUBKEY1, Test.TEST_VALUE_NAME1));
 
             // Test whether the value is returned when a default is provided
-            string getValue1 = Com.Profile.GetValue(Test.TEST_DEVICE_TYPE, progId, Test.TEST_VALUE_NAME1, Test.TEST_VALUE1, Test.TEST_SUBKEY1);
+            string getValue1 = ASCOM.Com.Profile.GetValue(Test.TEST_DEVICE_TYPE, progId, Test.TEST_VALUE_NAME1, Test.TEST_VALUE1, Test.TEST_SUBKEY1);
             Assert.Equal(Test.TEST_VALUE1, getValue1);
 
             // Tidy up after test
@@ -98,15 +99,15 @@ namespace ASCOM.Alpaca.Tests.Profile
             Assert.Null(Test.ReadTestValue(Test.TEST_DEVICE_TYPE, progId, Test.TEST_SUBKEY1, Test.TEST_VALUE_NAME1));
 
             // Register the device and show that the test value is not present
-            Com.Profile.Register(Test.TEST_DEVICE_TYPE, progId, Test.TEST_DESCRIPTION);
+            ASCOM.Com.Profile.Register(Test.TEST_DEVICE_TYPE, progId, Test.TEST_DESCRIPTION);
             Assert.Null(Test.ReadTestValue(Test.TEST_DEVICE_TYPE, progId, Test.TEST_SUBKEY1, Test.TEST_VALUE_NAME1));
 
             // Test whether the value is returned when a default is provided
-            string getValue1 = Com.Profile.GetValue(Test.TEST_DEVICE_TYPE, progId, Test.TEST_VALUE_NAME1, Test.TEST_VALUE1, Test.TEST_SUBKEY1);
+            string getValue1 = ASCOM.Com.Profile.GetValue(Test.TEST_DEVICE_TYPE, progId, Test.TEST_VALUE_NAME1, Test.TEST_VALUE1, Test.TEST_SUBKEY1);
             Assert.Equal(Test.TEST_VALUE1, getValue1);
 
             // Test whether correct value is returned when no default is provided and the value already exists. (This test depends on previous test outcome.)
-            string getValue2 = Com.Profile.GetValue(Test.TEST_DEVICE_TYPE, progId, Test.TEST_VALUE_NAME1, null, Test.TEST_SUBKEY1);
+            string getValue2 = ASCOM.Com.Profile.GetValue(Test.TEST_DEVICE_TYPE, progId, Test.TEST_VALUE_NAME1, null, Test.TEST_SUBKEY1);
             Assert.Equal(Test.TEST_VALUE1, getValue2);
 
             // Tidy up after test
@@ -124,13 +125,13 @@ namespace ASCOM.Alpaca.Tests.Profile
             Assert.Null(Test.ReadTestValue(Test.TEST_DEVICE_TYPE, progId, Test.TEST_SUBKEY1, Test.TEST_VALUE_NAME1));
 
             // Register the device and initialise values
-            Com.Profile.Register(Test.TEST_DEVICE_TYPE, progId, Test.TEST_DESCRIPTION);
-            Com.Profile.SetValue(Test.TEST_DEVICE_TYPE, progId, Test.TEST_VALUE_NAME1, Test.TEST_VALUE1, null);
-            Com.Profile.SetValue(Test.TEST_DEVICE_TYPE, progId, Test.TEST_VALUE_NAME2, Test.TEST_VALUE2, null);
-            Com.Profile.SetValue(Test.TEST_DEVICE_TYPE, progId, Test.TEST_VALUE_NAME3, Test.TEST_VALUE3, null);
-            Com.Profile.SetValue(Test.TEST_DEVICE_TYPE, progId, Test.TEST_VALUE_NAME4, Test.TEST_VALUE4, null);
-
-            Dictionary<string, string> values = Com.Profile.GetValues(Test.TEST_DEVICE_TYPE, progId);
+            ASCOM.Com.Profile.Register(Test.TEST_DEVICE_TYPE, progId, Test.TEST_DESCRIPTION);
+            ASCOM.Com.Profile.SetValue(Test.TEST_DEVICE_TYPE, progId, Test.TEST_VALUE_NAME1, Test.TEST_VALUE1, null);
+            ASCOM.Com.Profile.SetValue(Test.TEST_DEVICE_TYPE, progId, Test.TEST_VALUE_NAME2, Test.TEST_VALUE2, null);
+            ASCOM.Com.Profile.SetValue(Test.TEST_DEVICE_TYPE, progId, Test.TEST_VALUE_NAME3, Test.TEST_VALUE3, null);
+            ASCOM.Com.Profile.SetValue(Test.TEST_DEVICE_TYPE, progId, Test.TEST_VALUE_NAME4, Test.TEST_VALUE4, null);
+                
+            Dictionary<string, string> values = ASCOM.Com.Profile.GetValues(Test.TEST_DEVICE_TYPE, progId);
 
             Assert.True(values.ContainsKey(""));
             Assert.True(values[""] == Test.TEST_DESCRIPTION);
@@ -147,7 +148,7 @@ namespace ASCOM.Alpaca.Tests.Profile
             Assert.True(values.ContainsKey(Test.TEST_VALUE_NAME4));
             Assert.True(values[Test.TEST_VALUE_NAME4] == Test.TEST_VALUE4);
 
-            Dictionary<string, string> values1 = Com.Profile.GetValues(Test.TEST_DEVICE_TYPE, progId, null);
+            Dictionary<string, string> values1 = ASCOM.Com.Profile.GetValues(Test.TEST_DEVICE_TYPE, progId, null);
 
             Assert.True(values1.ContainsKey(""));
             Assert.True(values1[""] == Test.TEST_DESCRIPTION);
@@ -178,13 +179,13 @@ namespace ASCOM.Alpaca.Tests.Profile
             Assert.Null(Test.ReadTestValue(Test.TEST_DEVICE_TYPE, progId, Test.TEST_SUBKEY1, Test.TEST_VALUE_NAME1));
 
             // Register the device and initialise values
-            Com.Profile.Register(Test.TEST_DEVICE_TYPE, progId, Test.TEST_DESCRIPTION);
-            Com.Profile.SetValue(Test.TEST_DEVICE_TYPE, progId, Test.TEST_VALUE_NAME1, Test.TEST_VALUE1, Test.TEST_SUBKEY1);
-            Com.Profile.SetValue(Test.TEST_DEVICE_TYPE, progId, Test.TEST_VALUE_NAME2, Test.TEST_VALUE2, Test.TEST_SUBKEY1);
-            Com.Profile.SetValue(Test.TEST_DEVICE_TYPE, progId, Test.TEST_VALUE_NAME3, Test.TEST_VALUE3, Test.TEST_SUBKEY1);
-            Com.Profile.SetValue(Test.TEST_DEVICE_TYPE, progId, Test.TEST_VALUE_NAME4, Test.TEST_VALUE4, Test.TEST_SUBKEY1);
+            ASCOM.Com.Profile.Register(Test.TEST_DEVICE_TYPE, progId, Test.TEST_DESCRIPTION);
+            ASCOM.Com.Profile.SetValue(Test.TEST_DEVICE_TYPE, progId, Test.TEST_VALUE_NAME1, Test.TEST_VALUE1, Test.TEST_SUBKEY1);
+            ASCOM.Com.Profile.SetValue(Test.TEST_DEVICE_TYPE, progId, Test.TEST_VALUE_NAME2, Test.TEST_VALUE2, Test.TEST_SUBKEY1);
+            ASCOM.Com.Profile.SetValue(Test.TEST_DEVICE_TYPE, progId, Test.TEST_VALUE_NAME3, Test.TEST_VALUE3, Test.TEST_SUBKEY1);
+            ASCOM.Com.Profile.SetValue(Test.TEST_DEVICE_TYPE, progId, Test.TEST_VALUE_NAME4, Test.TEST_VALUE4, Test.TEST_SUBKEY1);
 
-            Dictionary<string, string> values = Com.Profile.GetValues(Test.TEST_DEVICE_TYPE, progId, Test.TEST_SUBKEY1);
+            Dictionary<string, string> values = ASCOM.Com.Profile.GetValues(Test.TEST_DEVICE_TYPE, progId, Test.TEST_SUBKEY1);
 
             Assert.True(values.ContainsKey(Test.TEST_VALUE_NAME1));
             Assert.True(values[Test.TEST_VALUE_NAME1] == Test.TEST_VALUE1);
@@ -213,13 +214,13 @@ namespace ASCOM.Alpaca.Tests.Profile
             Assert.Null(Test.ReadTestValue(Test.TEST_DEVICE_TYPE, progId, Test.TEST_SUBKEY1, Test.TEST_VALUE_NAME1));
 
             // Register the device and initialise values
-            Com.Profile.Register(Test.TEST_DEVICE_TYPE, progId, Test.TEST_DESCRIPTION);
-            Com.Profile.SetValue(Test.TEST_DEVICE_TYPE, progId, Test.TEST_VALUE_NAME1, Test.TEST_VALUE1, Test.TEST_SUBKEY1);
-            Com.Profile.SetValue(Test.TEST_DEVICE_TYPE, progId, Test.TEST_VALUE_NAME2, Test.TEST_VALUE2, Test.TEST_SUBKEY2);
-            Com.Profile.SetValue(Test.TEST_DEVICE_TYPE, progId, Test.TEST_VALUE_NAME3, Test.TEST_VALUE3, Test.TEST_SUBKEY3);
-            Com.Profile.SetValue(Test.TEST_DEVICE_TYPE, progId, Test.TEST_VALUE_NAME4, Test.TEST_VALUE4, Test.TEST_SUBKEY4);
+            ASCOM.Com.Profile.Register(Test.TEST_DEVICE_TYPE, progId, Test.TEST_DESCRIPTION);
+            ASCOM.Com.Profile.SetValue(Test.TEST_DEVICE_TYPE, progId, Test.TEST_VALUE_NAME1, Test.TEST_VALUE1, Test.TEST_SUBKEY1);
+            ASCOM.Com.Profile.SetValue(Test.TEST_DEVICE_TYPE, progId, Test.TEST_VALUE_NAME2, Test.TEST_VALUE2, Test.TEST_SUBKEY2);
+            ASCOM.Com.Profile.SetValue(Test.TEST_DEVICE_TYPE, progId, Test.TEST_VALUE_NAME3, Test.TEST_VALUE3, Test.TEST_SUBKEY3);
+            ASCOM.Com.Profile.SetValue(Test.TEST_DEVICE_TYPE, progId, Test.TEST_VALUE_NAME4, Test.TEST_VALUE4, Test.TEST_SUBKEY4);
 
-            List<string> values = Com.Profile.GetSubKeys(Test.TEST_DEVICE_TYPE, progId);
+            List<string> values = ASCOM.Com.Profile.GetSubKeys(Test.TEST_DEVICE_TYPE, progId);
 
             Assert.Contains(Test.TEST_SUBKEY1, values);
             Assert.Contains(Test.TEST_SUBKEY2, values);
@@ -240,13 +241,13 @@ namespace ASCOM.Alpaca.Tests.Profile
             Assert.Null(Test.ReadTestValue(Test.TEST_DEVICE_TYPE, progId, Test.TEST_SUBKEY1, Test.TEST_VALUE_NAME1));
 
             // Register the device and initialise values
-            Com.Profile.Register(Test.TEST_DEVICE_TYPE, progId, Test.TEST_DESCRIPTION);
-            Com.Profile.SetValue(Test.TEST_DEVICE_TYPE, progId, Test.TEST_VALUE_NAME1, Test.TEST_VALUE1, $"{Test.TEST_SUBKEY1}\\{Test.TEST_SUBKEY1}");
-            Com.Profile.SetValue(Test.TEST_DEVICE_TYPE, progId, Test.TEST_VALUE_NAME2, Test.TEST_VALUE2, $"{Test.TEST_SUBKEY1}\\{Test.TEST_SUBKEY2}");
-            Com.Profile.SetValue(Test.TEST_DEVICE_TYPE, progId, Test.TEST_VALUE_NAME3, Test.TEST_VALUE3, $"{Test.TEST_SUBKEY1}\\{Test.TEST_SUBKEY3}");
-            Com.Profile.SetValue(Test.TEST_DEVICE_TYPE, progId, Test.TEST_VALUE_NAME4, Test.TEST_VALUE4, $"{Test.TEST_SUBKEY1}\\{Test.TEST_SUBKEY4}");
+            ASCOM.Com.Profile.Register(Test.TEST_DEVICE_TYPE, progId, Test.TEST_DESCRIPTION);
+            ASCOM.Com.Profile.SetValue(Test.TEST_DEVICE_TYPE, progId, Test.TEST_VALUE_NAME1, Test.TEST_VALUE1, $"{Test.TEST_SUBKEY1}\\{Test.TEST_SUBKEY1}");
+            ASCOM.Com.Profile.SetValue(Test.TEST_DEVICE_TYPE, progId, Test.TEST_VALUE_NAME2, Test.TEST_VALUE2, $"{Test.TEST_SUBKEY1}\\{Test.TEST_SUBKEY2}");
+            ASCOM.Com.Profile.SetValue(Test.TEST_DEVICE_TYPE, progId, Test.TEST_VALUE_NAME3, Test.TEST_VALUE3, $"{Test.TEST_SUBKEY1}\\{Test.TEST_SUBKEY3}");
+            ASCOM.Com.Profile.SetValue(Test.TEST_DEVICE_TYPE, progId, Test.TEST_VALUE_NAME4, Test.TEST_VALUE4, $"{Test.TEST_SUBKEY1}\\{Test.TEST_SUBKEY4}");
 
-            List<string> values = Com.Profile.GetSubKeys(Test.TEST_DEVICE_TYPE, progId, Test.TEST_SUBKEY1);
+            List<string> values = ASCOM.Com.Profile.GetSubKeys(Test.TEST_DEVICE_TYPE, progId, Test.TEST_SUBKEY1);
 
             Assert.Contains(Test.TEST_SUBKEY1, values);
             Assert.Contains(Test.TEST_SUBKEY2, values);
