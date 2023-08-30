@@ -3,7 +3,7 @@ using Microsoft.Win32;
 using System;
 using System.Threading;
 
-namespace ASCOM.Alpaca.Tests.Profile
+namespace Profile
 {
     internal static class Test
     {

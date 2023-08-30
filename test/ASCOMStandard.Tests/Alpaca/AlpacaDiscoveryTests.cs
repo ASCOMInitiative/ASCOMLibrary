@@ -24,14 +24,17 @@ namespace ASCOM.Alpaca.Tests.Alpaca
         #region Synchronous methods
 
         [Fact]
-        public void AlpacaCamera()
+        public async Task AlpacaCamera()
         {
             AlpacaDiscovery alpacaDisocvery = new();
             alpacaDisocvery.StartDiscovery(1, 100, 32227, DISCOVERY_TIME, false, true, false, ServiceType.Http);
-            do
+            await Task.Run(() =>
             {
-                Thread.Sleep(50);
-            } while (!alpacaDisocvery.DiscoveryComplete);
+                do
+                {
+                    Thread.Sleep(50);
+                } while (!alpacaDisocvery.DiscoveryComplete);
+            });
 
             Assert.NotEmpty(alpacaDisocvery.GetAscomDevices(DeviceTypes.Camera));
 
@@ -41,14 +44,17 @@ namespace ASCOM.Alpaca.Tests.Alpaca
         }
 
         [Fact]
-        public void AlpacaTelescope()
+        public async Task AlpacaTelescope()
         {
             AlpacaDiscovery alpacaDisocvery = new();
             alpacaDisocvery.StartDiscovery(1, 100, 32227, DISCOVERY_TIME, false, true, false, ServiceType.Http);
-            do
+            await Task.Run(() =>
             {
-                Thread.Sleep(50);
-            } while (!alpacaDisocvery.DiscoveryComplete);
+                do
+                {
+                    Thread.Sleep(50);
+                } while (!alpacaDisocvery.DiscoveryComplete);
+            });
 
             Assert.NotEmpty(alpacaDisocvery.GetAscomDevices(DeviceTypes.Telescope));
 
@@ -58,14 +64,17 @@ namespace ASCOM.Alpaca.Tests.Alpaca
         }
 
         [Fact]
-        public void AlpacaBadAscomDevice()
+        public async Task AlpacaBadAscomDevice()
         {
             AlpacaDiscovery alpacaDisocvery = new();
             alpacaDisocvery.StartDiscovery(1, 100, 32227, DISCOVERY_TIME, false, true, false, ServiceType.Http);
-            do
+            await Task.Run(() =>
             {
-                Thread.Sleep(50);
-            } while (!alpacaDisocvery.DiscoveryComplete);
+                do
+                {
+                    Thread.Sleep(50);
+                } while (!alpacaDisocvery.DiscoveryComplete);
+            });
 
             Assert.Throws<InvalidValueException>(() => AlpacaClient.GetDevice<AlpacaCamera>(null, 100, 100, 100, 333, null, null, true, null));
         }

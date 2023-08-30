@@ -2,7 +2,7 @@
 using System;
 using Xunit;
 
-namespace ASCOM.Alpaca.Tests.TransformTests
+namespace TransformTests
 {
     public class TransformFunctionalTests
     {
