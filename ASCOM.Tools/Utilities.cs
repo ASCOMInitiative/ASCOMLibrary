@@ -5,6 +5,7 @@ using System.Threading;
 using ASCOM.Common.Interfaces;
 using ASCOM.Common;
 using ASCOM.Tools.Novas31;
+[assembly: CLSCompliant(true)]
 
 namespace ASCOM.Tools
 {
@@ -153,7 +154,7 @@ namespace ASCOM.Tools
             #endregion
 
             // Write the title
-               LogMessageInfo("Almanac", $"                                                           ASCOM Almanac", almanacLogger);
+            LogMessageInfo("Almanac", $"                                                           ASCOM Almanac", almanacLogger);
             BlankLine(almanacLogger);
 
             // Write the almanac parameters
@@ -161,7 +162,7 @@ namespace ASCOM.Tools
             BlankLine(almanacLogger);
 
             // Write title lines
-                LogMessageInfo("Almanac", "       Jan.       Feb.       Mar.       Apr.       May        June       July       Aug.       Sept.      Oct.       Nov.       Dec.  ", almanacLogger);
+            LogMessageInfo("Almanac", "       Jan.       Feb.       Mar.       Apr.       May        June       July       Aug.       Sept.      Oct.       Nov.       Dec.  ", almanacLogger);
             if (isRiseSet)
                 LogMessageInfo("Almanac", "Day Rise  Set  Rise  Set  Rise  Set  Rise  Set  Rise  Set  Rise  Set  Rise  Set  Rise  Set  Rise  Set  Rise  Set  Rise  Set  Rise  Set", almanacLogger);
             else
@@ -773,12 +774,38 @@ namespace ASCOM.Tools
 
             // NOTE: Starting April 2018 - Please note the use of modified Julian date in the formula rather than year fraction as in previous formulae
 
-            // DATE RANGE 18th July 2023 Onwards - This is beyond the sensible extrapolation range of the most recent data analysis so revert to the basic formula: DeltaT = LeapSeconds + 32.184
-            if ((yearFraction >= 2023.55))
+            // DATE RANGE 31st December 2024 onwards - This is beyond the sensible extrapolation range of the most recent data analysis so revert to the basic formula: DeltaT = LeapSeconds + 32.184
+            if ((yearFraction >= 2025.0))
             {
-                // Ultimate fallback value if all else fails!
-                retval = LEAP_SECOND_ULTIMATE_FALLBACK_VALUE + TT_TAI_OFFSET;
+                try
+                {
+                    double currentLeapSeconds = 0.0;
+
+                    // Get the leap second value from the SOFA library
+                    DateTime utcTime = DateTime.UtcNow;
+                    short rc = Sofa.Dat(utcTime.Year, utcTime.Month, utcTime.Day, utcTime.TimeOfDay.TotalHours / 24.0, ref currentLeapSeconds);
+
+                    // Test whether the call worked correctly
+                    if (rc == 0)
+                        // Call worked correctly so use the returned value
+                        retval = currentLeapSeconds + TT_TAI_OFFSET;
+                    else
+                        // Call failed so use the ultimate fallback value
+                        retval = LEAP_SECOND_ULTIMATE_FALLBACK_VALUE + TT_TAI_OFFSET;
+                }
+                catch (Exception)
+                {
+                    // Use the ultimate fallback value
+                    retval = LEAP_SECOND_ULTIMATE_FALLBACK_VALUE + TT_TAI_OFFSET;
+                }
             }
+            else if ((yearFraction >= 2023.6))
+                retval = (+0.0 * modifiedJulianDay * modifiedJulianDay * modifiedJulianDay * modifiedJulianDay * modifiedJulianDay)
+                    + (+0.0 * modifiedJulianDay * modifiedJulianDay * modifiedJulianDay * modifiedJulianDay)
+                    + (-8.3655273366064300E-09 * modifiedJulianDay * modifiedJulianDay * modifiedJulianDay)
+                    + (+1.5133847966003900E-03 * modifiedJulianDay * modifiedJulianDay)
+                    + (-9.1260465097482900E+01 * modifiedJulianDay)
+                    + (+1.8344658890493000E+06);
             else if ((yearFraction >= 2022.55))
                 retval = (-0.000000000000528908084762244 * modifiedJulianDay * modifiedJulianDay * modifiedJulianDay * modifiedJulianDay * modifiedJulianDay)
                     + (+0.000000158529137391645 * modifiedJulianDay * modifiedJulianDay * modifiedJulianDay * modifiedJulianDay)
