@@ -15,7 +15,6 @@ namespace ASCOM.Com.DriverAccess
     public class Telescope : ASCOMDevice, ITelescopeV4
     {
         Operation currentOperation = Operation.None; // Current operation name
-        readonly ILogger TL = null;
 
         #region Convenience members
 

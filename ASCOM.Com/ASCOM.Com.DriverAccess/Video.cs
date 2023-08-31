@@ -14,7 +14,6 @@ namespace ASCOM.Com.DriverAccess
     /// </summary>
     public class Video : ASCOMDevice, IVideoV2
     {
-        readonly ILogger TL = null;
 
         #region Convenience members
 

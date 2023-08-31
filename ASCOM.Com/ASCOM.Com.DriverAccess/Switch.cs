@@ -10,7 +10,6 @@ namespace ASCOM.Com.DriverAccess
     /// </summary>
     public class Switch : ASCOMDevice, ISwitchV3
     {
-        readonly ILogger TL = null;
 
         #region Convenience members
 

@@ -13,7 +13,6 @@ namespace ASCOM.Com.DriverAccess
     /// </summary>
     public class Camera : ASCOMDevice, ICameraV4
     {
-        readonly ILogger TL = null;
 
         #region Convenience members
 

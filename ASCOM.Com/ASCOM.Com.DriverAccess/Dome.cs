@@ -11,7 +11,6 @@ namespace ASCOM.Com.DriverAccess
     /// </summary>
     public class Dome : ASCOMDevice, IDomeV3
     {
-        readonly ILogger TL = null;
 
         #region Convenience members
 
