@@ -54,10 +54,7 @@ namespace ASCOM.Common.DeviceStateClasses
                             }
                             catch (Exception ex)
                             {
-                                if (stateValue.Value is JsonElement jsonElement) // Deal with Alpaca, which returns JsonElement types instead of object
-                                    CameraState = (CameraState)jsonElement.GetInt32();
-                                else                                             // COM returns objects that can just be cast to the required type
-                                    TL?.LogMessage(LogLevel.Debug, className, $"CameraState - Ignoring exception: {ex.Message}");
+                                TL?.LogMessage(LogLevel.Debug, className, $"CameraState - Ignoring exception: {ex.Message}");
                             }
                             TL?.LogMessage(LogLevel.Debug, className, $"CameraState has value: {CameraState.HasValue}, Value: {CameraState}");
                             break;
@@ -72,10 +69,7 @@ namespace ASCOM.Common.DeviceStateClasses
                             }
                             catch (Exception ex)
                             {
-                                if (stateValue.Value is JsonElement jsonElement) // Deal with Alpaca, which returns JsonElement types instead of object
-                                    CameraState = (CameraState)jsonElement.GetInt32();
-                                else                                             // COM returns objects that can just be cast to the required type
-                                    TL?.LogMessage(LogLevel.Debug, className, $"CCDTemperature - Ignoring exception: {ex.Message}");
+                                TL?.LogMessage(LogLevel.Debug, className, $"CCDTemperature - Ignoring exception: {ex.Message}");
                             }
                             TL?.LogMessage(LogLevel.Debug, className, $"CCDTemperature has value: {CCDTemperature.HasValue}, Value: {CCDTemperature}");
                             break;

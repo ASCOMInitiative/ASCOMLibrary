@@ -5,7 +5,7 @@ using ASCOM;
 
 namespace Profile
 {
-
+    [System.Runtime.Versioning.SupportedOSPlatform("Windows")]
     public class ProfileComponentTests
     {
         [Fact]

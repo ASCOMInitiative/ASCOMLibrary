@@ -11,7 +11,6 @@ namespace ASCOM.Com.DriverAccess
     /// </summary>
     public class CoverCalibrator : ASCOMDevice, ICoverCalibratorV2
     {
-        readonly ILogger TL = null;
 
         #region Convenience members
 

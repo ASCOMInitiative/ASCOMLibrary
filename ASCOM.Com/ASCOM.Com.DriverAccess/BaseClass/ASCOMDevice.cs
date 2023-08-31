@@ -1,5 +1,6 @@
 ﻿using ASCOM.Common;
 using ASCOM.Common.DeviceInterfaces;
+using ASCOM.Common.Interfaces;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -18,6 +19,8 @@ namespace ASCOM.Com.DriverAccess
         private readonly dynamic device; // COM device
 
         internal DeviceTypes deviceType; // Device's device type
+
+        internal ILogger TL = null;
 
         private bool connecting;
         private Exception connectException;
@@ -424,7 +427,10 @@ namespace ASCOM.Com.DriverAccess
                     {
                         deviceState.Add(new StateValue(item.Name, item.Value));
                     }
-                    return deviceState;
+
+                    // Clean the returned values to make sure they are of the correct types
+                    List<StateValue> cleaned = OperationalStateProperty.Clean(deviceState, deviceType);
+                    return cleaned;
                 }
 
                 // Return an empty list for Platform 6 and earlier devices

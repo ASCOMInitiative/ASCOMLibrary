@@ -5,7 +5,6 @@ using System.Threading;
 using ASCOM.Common.Interfaces;
 using ASCOM.Common;
 using ASCOM.Tools.Novas31;
-[assembly: CLSCompliant(true)]
 
 namespace ASCOM.Tools
 {

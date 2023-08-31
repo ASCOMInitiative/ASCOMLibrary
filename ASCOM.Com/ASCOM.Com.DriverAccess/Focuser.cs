@@ -11,7 +11,6 @@ namespace ASCOM.Com.DriverAccess
     /// </summary>
     public class Focuser : ASCOMDevice, IFocuserV4
     {
-        readonly ILogger TL = null;
 
         #region Convenience members
 
