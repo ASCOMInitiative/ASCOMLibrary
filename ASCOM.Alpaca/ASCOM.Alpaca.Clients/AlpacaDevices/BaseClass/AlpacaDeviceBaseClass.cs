@@ -15,7 +15,7 @@ namespace ASCOM.Alpaca.Clients
     /// <summary>
     /// Base class for Alpaca client devices
     /// </summary>
-    public abstract class AlpacaDeviceBaseClass : IAscomDeviceV2, IDisposable
+    public abstract class AlpacaDeviceBaseClass : IAlpacaClientV2, IDisposable
     {
         // Variables common to all instances
         internal ServiceType serviceType = AlpacaClient.CLIENT_SERVICETYPE_DEFAULT;
@@ -397,84 +397,7 @@ namespace ASCOM.Alpaca.Clients
                     // Here we convert the device response to a type that can be returned as a LIst<IStateValue> object.
                     // This is done by using LINQ to cast the returned List<StateValue> objects to the StateValue type and then returning them as a list. Convoluted, but it works!
                     // The list is also cleaned to rid it of JsonElement types that are created by System.Text.Json de-serialisation
-                    List<StateValue> returnValue = StateValue.Clean(response.Cast<StateValue>().ToList(), clientDeviceType, logger);
-
-                    // Special cleaning for Switch device because its members vary depending on the number of switches
-                    if (clientDeviceType == DeviceTypes.Switch)
-                    {
-                        bool boolValue;
-                        double doubleValue;
-
-                        // Create a list to hold cleaned switch values
-                        List<StateValue> switchReturnValue = new List<StateValue>();
-
-                        // Iterate over all the values in the list
-                        foreach (StateValue stateValue in returnValue)
-                        {
-                            // Log the state value
-                            logger.LogMessage(LogLevel.Debug, "DeviceState", $"Found Switch state value {stateValue.Name} = {stateValue.Value}");
-
-                            // If the value is a JsonElement convert it to its required type, otherwise add the member to the cleaned list
-                            if (stateValue.Value is JsonElement element) // This is a JsonElement type
-                            {
-                                // Handle the different supported types
-                                switch (element.ValueKind)
-                                {
-                                    case JsonValueKind.False: // This is a bool value
-                                    case JsonValueKind.True: // This is a bool value
-                                        try
-                                        {
-                                            // Do any necessary type conversion
-                                            if (stateValue.Value is JsonElement jsonElement) // Handle System.Text.JSON, which returns JsonElement types instead of object
-                                                boolValue = jsonElement.GetBoolean();
-                                            else                                             // Handle COM objects that can just be cast to the required type
-                                                boolValue = (bool)stateValue.Value;
-
-                                            // Add the cleaned value to the return list
-                                            switchReturnValue.Add(new StateValue(stateValue.Name, boolValue));
-                                            logger.LogMessage(LogLevel.Debug, "DeviceState", $"Cleaned {stateValue.Name} has value: {boolValue}");
-
-                                        }
-                                        catch (Exception ex)
-                                        {
-                                            // Log any exception and don't add the value to the cleaned list
-                                            logger.LogMessage(LogLevel.Debug, "DeviceState", $"{stateValue.Name} - Ignoring exception: {ex.Message}");
-                                        }
-                                        break;
-
-                                    case JsonValueKind.Number: // This is a number value
-                                        try
-                                        {
-                                            // Do any necessary type conversion
-                                            if (stateValue.Value is JsonElement jsonElement) // Handle System.Text.JSON, which returns JsonElement types instead of object
-                                                doubleValue = jsonElement.GetDouble();
-                                            else                                             // Handle COM objects that can just be cast to the required type
-                                                doubleValue = (double)stateValue.Value;
-
-                                            // Add the cleaned value to the return list
-                                            switchReturnValue.Add(new StateValue(stateValue.Name, doubleValue));
-                                            logger.LogMessage(LogLevel.Debug, "DeviceState", $"Cleaned {stateValue.Name} has value: {doubleValue}");
-                                        }
-                                        catch (Exception ex)
-                                        {
-                                            // Log any exception and don't add the value to the cleaned list
-                                            logger.LogMessage(LogLevel.Debug, "DeviceState", $"{stateValue.Name} - Ignoring exception: {ex.Message}");
-                                        }
-                                        break;
-
-                                    default:
-                                        throw new InvalidValueException($"DeviceState - Unsupported member type: {element.ValueKind}");
-                                }
-                            }
-                            else // Not a JsonElement so just add the value to the cleaned list
-                            {
-                                switchReturnValue.Add(stateValue);
-                            }
-                        }
-
-                        // Assign the cleaned switch values to the return value
-                        returnValue = switchReturnValue;
-                    }
+                    List<StateValue> returnValue = OperationalStateProperty.Clean(response.Cast<StateValue>().ToList(), clientDeviceType, logger);
 
                     foreach (IStateValue value in returnValue)
                     {
