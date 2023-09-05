@@ -44,6 +44,14 @@ namespace ASCOM.Alpaca.Clients
 
         private short? interfaceVersion;
 
+        #region Variables and Constants specific to the Camera class
+
+        // Variables specific to the Camera type
+        internal ImageArrayTransferType imageArrayTransferType = AlpacaClient.CLIENT_IMAGEARRAYTRANSFERTYPE_DEFAULT;
+        internal ImageArrayCompression imageArrayCompression = AlpacaClient.CLIENT_IMAGEARRAYCOMPRESSION_DEFAULT;
+
+        #endregion
+
         /// <summary>
         /// Create a new instance of the AlpacaDeviceBaseClass passing the instance to the client configuration class
         /// </summary>
@@ -61,6 +69,17 @@ namespace ASCOM.Alpaca.Clients
         {
             get { return clientConfiguration; }
 
+        }
+
+        /// <summary>
+        /// Updates the internal HTTP client with a new instance.
+        /// </summary>
+        /// <remarks>This method must be called after changing the client configuration through the <see cref="ClientConfiguration"/> property.</remarks>
+        public void Refresh()
+        {
+            DynamicClientDriver.CreateHttpClient(ref client, ClientConfiguration.ServiceType, ClientConfiguration.IpAddress, ClientConfiguration.PortNumber, ClientConfiguration.ClientNumber,
+                ClientConfiguration.DeviceType, ClientConfiguration.UserName, ClientConfiguration.Password, ClientConfiguration.ImageArrayCompression,
+                logger, ClientConfiguration.UserAgentProductName, ClientConfiguration.UserAgentProductVersion, trustUserGeneratedSslCertificates);
         }
 
         #endregion
@@ -417,7 +436,7 @@ namespace ASCOM.Alpaca.Clients
 
         internal static void LogMessage(ILogger logger, uint instance, string prefix, string message)
         {
-            logger.LogMessage(LogLevel.Information, $"{prefix} {instance}", message);
+            logger.LogMessage(LogLevel.Debug, $"{prefix} {instance}", message);
         }
 
         internal static void LogBlankLine(ILogger logger)

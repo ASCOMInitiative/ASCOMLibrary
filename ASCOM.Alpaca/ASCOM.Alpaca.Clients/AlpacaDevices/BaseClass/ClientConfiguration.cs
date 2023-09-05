@@ -205,5 +205,23 @@ namespace ASCOM.Alpaca.Clients
                 baseClass.client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(new ProductHeaderValue(productName, productVersion)));
             }
         }
+
+        /// <summary>
+        /// Image array compression level (Camera specific)
+        /// </summary>
+        public ImageArrayCompression ImageArrayCompression
+        {
+            get { return baseClass.imageArrayCompression; }
+            set { baseClass.imageArrayCompression = value; }
+        }
+
+        /// <summary>
+        /// Image array transfer type (Camera specific)
+        /// </summary>
+        public ImageArrayTransferType ImageArrayTransferType
+        {
+            get { return baseClass.imageArrayTransferType; }
+            set { baseClass.imageArrayTransferType = value; }
+        }
     }
 }
