@@ -107,5 +107,20 @@ namespace ASCOM.Common
             // Bad value to return an exception
             throw new InvalidValueException($"Devices.ToDeviceType - Device type: {device} is not an ASCOM device type.");
         }
+
+        /// <summary>
+        /// Returns a list of valid ASCOM device types
+        /// </summary>
+        /// <returns>DeviceTypes list of ASCOM device types.</returns>
+        public static List<DeviceTypes> DeviceTypeList()
+        {
+            List<DeviceTypes> deviceTypes = new List<DeviceTypes>();
+            foreach (DeviceTypes deviceType in Enum.GetValues(typeof(DeviceTypes)))
+            {
+                deviceTypes.Add(deviceType);
+            }
+
+            return deviceTypes;
+        }
     }
 }
