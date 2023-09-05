@@ -17,14 +17,6 @@ namespace ASCOM.Alpaca.Clients
     /// </summary>
     public class AlpacaCamera : AlpacaDeviceBaseClass, ICameraV4
     {
-        #region Variables and Constants
-
-        // Variables specific to this device type
-        private ImageArrayTransferType imageArrayTransferType = AlpacaClient.CLIENT_IMAGEARRAYTRANSFERTYPE_DEFAULT;
-        private ImageArrayCompression imageArrayCompression = AlpacaClient.CLIENT_IMAGEARRAYCOMPRESSION_DEFAULT;
-
-        #endregion
-
         #region Initialiser
 
         /// <summary>
