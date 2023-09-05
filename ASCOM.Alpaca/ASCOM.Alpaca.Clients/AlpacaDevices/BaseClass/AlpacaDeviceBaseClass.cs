@@ -75,7 +75,7 @@ namespace ASCOM.Alpaca.Clients
         /// Updates the internal HTTP client with a new instance.
         /// </summary>
         /// <remarks>This method must be called after changing the client configuration through the <see cref="ClientConfiguration"/> property.</remarks>
-        public void Refresh()
+        public void RefreshClient()
         {
             DynamicClientDriver.CreateHttpClient(ref client, ClientConfiguration.ServiceType, ClientConfiguration.IpAddress, ClientConfiguration.PortNumber, ClientConfiguration.ClientNumber,
                 ClientConfiguration.DeviceType, ClientConfiguration.UserName, ClientConfiguration.Password, ClientConfiguration.ImageArrayCompression,
