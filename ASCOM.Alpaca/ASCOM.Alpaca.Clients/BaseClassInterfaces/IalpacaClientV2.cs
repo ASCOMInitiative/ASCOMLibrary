@@ -20,6 +20,6 @@ namespace ASCOM.Alpaca.Clients
         /// Updates the internal HTTP client with a new instance.
         /// </summary>
         /// <remarks>This method must be called after changing the client configuration through the <see cref="ClientConfiguration"/> property.</remarks>
-        void Refresh();
+        void RefreshClient();
     }
 }
