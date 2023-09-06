@@ -58,7 +58,7 @@ namespace ASCOM.Com
                 {
                     case Machine.I386:
                         OS32BitCompatible = true;
-                        TL?.LogMessage(LogLevel.Debug, "PEReader.MachineType", "Machine - found \"Intel 32bit\" executable. OS32BitCompatible: " + OS32BitCompatible);
+                        TL?.LogMessage(LogLevel.Debug, "PEReader.MachineType", "Machine - found \"Intel 386\" executable. OS32BitCompatible: " + OS32BitCompatible);
                         break;
 
                     case Machine.IA64:
