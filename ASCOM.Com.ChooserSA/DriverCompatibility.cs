@@ -92,26 +92,33 @@ namespace ASCOM.Com
                         }
                         else
                         {
-                            TL?.LogMessage(LogLevel.Debug, "DriverCompatibility", "     Found entry in the 64bit registry");
                             isRegistered64Bit = true;
+                            TL?.LogMessage(LogLevel.Debug, "DriverCompatibility", $"     Found entry in the 64bit registry. RK is not null: {RK is not null}, Is 64bit registered: {isRegistered64Bit}");
                         }
                         if (RK is not null) // We have a CLSID entry so process it
                         {
+                            TL?.LogMessage(LogLevel.Debug, "DriverCompatibility", $"     RK is not null");
                             RKInprocServer32 = RK.OpenSubKey("InprocServer32");
+                            TL?.LogMessage(LogLevel.Debug, "DriverCompatibility", $"     RKInprocServer32 is not null: {RKInprocServer32 is not null}");
                             RK.Close();
 
                             if (RKInprocServer32 is not null) // This is an in process server so test for compatibility
                             {
                                 inprocFilePath = RKInprocServer32.GetValue("", "").ToString(); // Get the file location from the default position
+                                TL?.LogMessage(LogLevel.Debug, "DriverCompatibility", $"     In-process file path: {inprocFilePath}");
                                 codeBase = RKInprocServer32.GetValue("CodeBase", "").ToString(); // Get the codebase if present to override the default value
+                                TL?.LogMessage(LogLevel.Debug, "DriverCompatibility", $"     Code base: {codeBase}");
+
                                 if (!string.IsNullOrEmpty(codeBase))
                                     inprocFilePath = codeBase;
+                                TL?.LogMessage(LogLevel.Debug, "DriverCompatibility", $"     Revised in-process file path: {inprocFilePath}");
 
                                 if (inprocFilePath.Trim().ToUpperInvariant() == "MSCOREE.DLL") // We have an assembly, most likely in the GAC so get the actual file location of the assembly
                                 {
-#if NETFRAMEWORK
                                     // If this assembly is in the GAC, we should have an "Assembly" registry entry with the full assembly name, 
                                     TL?.LogMessage(LogLevel.Debug, "DriverCompatibility", "     Found MSCOREE.DLL");
+#if NETFRAMEWORK
+                                    TL?.LogMessage(LogLevel.Debug, "DriverCompatibility", "     Running Framework code");
 
                                     assemblyFullName = RKInprocServer32.GetValue("Assembly", "").ToString(); // Get the full name
                                     TL?.LogMessage(LogLevel.Debug, "DriverCompatibility", "     Found full name: " + assemblyFullName);
