@@ -26,6 +26,8 @@ namespace ASCOM.Com
             {
                 using (var ASCOMKeys = localmachine32.OpenSubKey($"SOFTWARE\\ASCOM\\{Devices.DeviceTypeToString(deviceType)} Drivers", false))
                 {
+                    if (ASCOMKeys == null)
+                        return Drivers;
                     foreach (var key in ASCOMKeys.GetSubKeyNames())
                     {
                         string name = string.Empty;
