@@ -12,6 +12,7 @@ using System.Net.Sockets;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -765,7 +766,7 @@ namespace ASCOM.Alpaca.Discovery
                 // Wait for configured devices result and process it
                 string configuredDevicesJsonResponse = await httpClient.GetStringAsync($"{hostIpAndPort}/management/v1/configureddevices");
                 LogMessage("GetAlpacaDeviceInformation", $"Received JSON response from {hostIpAndPort}: {configuredDevicesJsonResponse}");
-                AlpacaConfiguredDevicesResponse configuredDevicesResponse = JsonSerializer.Deserialize<AlpacaConfiguredDevicesResponse>(configuredDevicesJsonResponse, new JsonSerializerOptions { PropertyNameCaseInsensitive = strictCasing });
+                AlpacaConfiguredDevicesResponse configuredDevicesResponse = JsonSerializer.Deserialize<AlpacaConfiguredDevicesResponse>(configuredDevicesJsonResponse, new JsonSerializerOptions { PropertyNameCaseInsensitive = strictCasing, AllowTrailingCommas = true, NumberHandling = JsonNumberHandling.AllowReadingFromString});
                 lock (deviceListLockObject) // Make sure that only one thread can update the device list dictionary at a time
                 {
                     // Add a list of available AscomDevices to the AlpacaDevice instance
