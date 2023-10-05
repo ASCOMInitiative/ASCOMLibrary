@@ -25,6 +25,9 @@ routines that are available in standard .NET namespaces.
 
 # Version History
 
+***Release 1.0.109***
+* No change.
+
 ***Release 1.0.108***
 * Added a NOVAS3.1 component to Utilities.
 * Added MoonPhase, MoonIllumination and EventTimes astrometry functions to Utilities.
