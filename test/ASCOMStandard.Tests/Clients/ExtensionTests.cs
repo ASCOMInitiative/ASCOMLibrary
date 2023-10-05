@@ -937,7 +937,7 @@ namespace ASCOM.Alpaca.Tests.Clients
             TL.LogMessage("Main", $"Slew await complete, Is parked: {client.AtPark}, Is at home: {client.AtHome}, Azimuth: {client.Azimuth}, Altitude: {client.Altitude}");
             Assert.False(client.AtHome);
             Assert.False(client.AtPark);
-            Assert.Equal(40.0, Math.Round(client.Azimuth, 1));
+            Assert.Equal(40.0, Math.Round(client.Azimuth, 1, MidpointRounding.ToZero));
             Assert.InRange<double>(client.Altitude, 49.8, 50.2);
 
             // Disconnect from the client and dispose
