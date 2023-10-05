@@ -10,6 +10,12 @@ namespace ASCOM.Alpaca.Tests.PlatformUtilities
     public class PlatformUtilitiesTests
     {
         [Fact]
+        public void IsPlatformInstalled()
+        {
+            Assert.True(Com.PlatformUtilities.IsPlatformInstalled());
+        }
+
+        [Fact]
         public void CurrentPlatformVersion()
         {
             Assert.True(Com.PlatformUtilities.PlatformVersion == "6.6");
