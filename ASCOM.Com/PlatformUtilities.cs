@@ -49,10 +49,11 @@ namespace ASCOM.Com
 
         #region Initialise
 
+        /// <summary>
+        /// initialise the internal Platform version variable if possible
+        /// </summary>
         static PlatformUtilities()
         {
-            string platformVersionString;
-
             // Populate the Platform version variable when the class is initialised
 
             // Get the detailed (four part) Platform version from the "Platform Version" value from the Profile's "Platform" key.
@@ -61,7 +62,7 @@ namespace ASCOM.Com
                 using (RegistryKey localmachine32 = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry32))
                 {
                     RegistryKey driverKey = localmachine32.OpenSubKey($"{PROFILE_ROOT_KEY}\\Platform", false);
-                    platformVersionString = (string)driverKey.GetValue("Platform Version");
+                    platformVersion = new Version((string)driverKey.GetValue("Platform Version"));
                 }
             }
             catch (Exception)
@@ -72,18 +73,14 @@ namespace ASCOM.Com
                     using (RegistryKey localmachine32 = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry32))
                     {
                         RegistryKey driverKey = localmachine32.OpenSubKey(PROFILE_ROOT_KEY, false);
-                        platformVersionString = (string)driverKey.GetValue("PlatformVersion");
+                        platformVersion = new Version((string)driverKey.GetValue("PlatformVersion"));
                     }
                 }
-                catch (Exception ex)
+                catch
                 {
-                    // Not able to get the original Platform version either so throw an exception
-                    throw new ValueNotSetException("ComUtilities.IsMinimumRequiredVersion - Unable to read the Platform version number. Is the ASCOM Platform installed? See inner exception for details.", ex);
+                    // Ignore exceptions here, platformVersion will be null.
                 }
             }
-
-            platformVersion = new Version(platformVersionString);
-
         }
 
         #endregion
@@ -234,6 +231,26 @@ namespace ASCOM.Com
                 return false;// Platform version is less than the required version
         }
 
+        /// <summary>
+        /// Determine whether the ASCOM Platform is installed.
+        /// </summary>
+        /// <returns>True if the ASCOM Platform is installed, otherwise false.</returns>
+        /// <remarks>Assumes that the Platform is not installed if we cannot determine the version number.</remarks>
+        public static bool IsPlatformInstalled()
+        {
+            try
+            {
+                CheckPlatformVersionIsOk(); // Throws an InvalidOperationException if the Platform version cannot be determined
+
+                // If we get here a valid Platform version number has been found
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         #endregion
 
         #region CreateDynamicDriver
@@ -262,6 +279,8 @@ namespace ASCOM.Com
         public static string CreateDynamicDriver(DeviceTypes deviceType, int deviceNumber, string description, string hostName, int ipPort, string deviceUniqueId)
         {
             string newProgId = ""; // Holds the ProgID of the dynamically created driver
+
+            CheckPlatformVersionIsOk(); // Throws an InvalidOperationException if the Platform version cannot be determined
 
             // Validate the Platform level: Must be 6.5 or later
             if (!IsMinimumRequiredVersion(6, 5, 0, 0)) throw new InvalidOperationException($"CreateDynamicDriver - This method requires Platform 6.5 or later. Installed Platform version: {PlatformVersion}");
@@ -313,6 +332,8 @@ namespace ASCOM.Com
             int deviceNumber;
             Type typeFromProgId;
 
+            CheckPlatformVersionIsOk(); // Throws an InvalidOperationException if the Platform version cannot be determined
+
             // Initialise to a starting value
             deviceNumber = 0;
 
@@ -333,6 +354,10 @@ namespace ASCOM.Com
 
             return newProgId; // Return the new ProgID
         }
+
+        #endregion
+
+        #region Support code
 
         /// <summary>
         /// Run the Alpaca dynamic client manager application with the supplied parameters
@@ -398,13 +423,13 @@ namespace ASCOM.Com
             driverGenerationComplete = true; // Flag that driver generation is complete
         }
 
-        #endregion
-
-        #region Support code
-
+        /// <summary>
+        /// Test whether the Platform version can be determined.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">When the Platform version cannot be determined.</exception>
         private static void CheckPlatformVersionIsOk()
         {
-            if (platformVersion is null) throw new InvalidOperationException("The Platform version could not be determined, is the ASCOM Platform installed?");
+            if (platformVersion is null) throw new InvalidOperationException("The Platform version number could not be determined, please make sure the ASCOM Platform is installed?");
         }
 
         /// <summary>
