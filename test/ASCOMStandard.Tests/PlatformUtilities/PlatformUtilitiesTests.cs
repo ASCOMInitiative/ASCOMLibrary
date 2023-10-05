@@ -18,6 +18,12 @@ namespace UtilitityTests
         }
 
         [Fact]
+        public void IsPlatformInstalled()
+        {
+            Assert.True(Com.PlatformUtilities.IsPlatformInstalled());
+        }
+
+        [Fact]
         public void CurrentPlatformVersion()
         {
             Assert.True(ASCOM.Com.PlatformUtilities.PlatformVersion == "6.6");
