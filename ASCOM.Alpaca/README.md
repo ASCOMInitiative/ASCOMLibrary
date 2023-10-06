@@ -4,6 +4,12 @@ A set of client tools to discover and access Alpaca devices. Written to .Net Sta
 
 # Version History
 
+***Release 1.0.110***
+* Re-release of version 1.0.109 without additional features and changes that are intended for a future release.
+
+***Release 1.0.109***
+* No change.
+
 ***Release 1.0.108***
 * No change.
 
