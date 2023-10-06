@@ -20,7 +20,7 @@ namespace UtilitityTests
         [Fact]
         public void IsPlatformInstalled()
         {
-            Assert.True(Com.PlatformUtilities.IsPlatformInstalled());
+            Assert.True(ASCOM.Com.PlatformUtilities.IsPlatformInstalled());
         }
 
         [Fact]
