@@ -40,6 +40,13 @@ namespace ASCOM.Com
         /// <remarks></remarks>
         public ChooserSA(ILogger logger = null)
         {
+            // Validate that the Platform is installed
+            if (!PlatformUtilities.IsPlatformInstalled())
+            {
+                logger?.LogMessage(LogLevel.Error, "ChooserSA Init", "The ASCOM Platform is not installed on this device - throwing an InvalidOperationException. The ASCOM Stand Alone Chooser requires the ASCOM Platform to be installed.");
+                throw new InvalidOperationException("The ASCOM Platform is not installed on this device; the ASCOM Stand Alone Chooser requires the ASCOM Platform to be installed.");
+            }
+
             // Assign the debug logger if supplied
             this.logger = logger;
         }

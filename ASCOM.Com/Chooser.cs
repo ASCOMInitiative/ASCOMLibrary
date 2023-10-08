@@ -36,14 +36,21 @@ namespace ASCOM.Com
         /// <exception cref="InvalidOperationException"></exception>
         public Chooser(ILogger logger)
         {
-            // SAve the supplied logger (if any)
+            // Save the supplied logger (if any)
             this.logger = logger;
 
             // This will only work on Windows so validate the OS here
             if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                LogMessage(LogLevel.Error, "Initialise", $"Chooser is only supported on Windows, throwing InvalidOperationException. This OS is: {RuntimeInformation.OSDescription}");
+                LogMessage(LogLevel.Error, "Chooser Init", $"Chooser is only supported on Windows, throwing InvalidOperationException. This OS is: {RuntimeInformation.OSDescription}");
                 throw new InvalidOperationException($"Chooser.Initialiser - Chooser is only supported on Windows. This OS is: {RuntimeInformation.OSDescription}");
+            }
+
+            // Validate that the Platform is installed
+            if (!PlatformUtilities.IsPlatformInstalled())
+            {
+                LogMessage(LogLevel.Error, "Chooser Init", "The ASCOM Platform is not installed on this device - throwing an InvalidOperationException. The ASCOM Chooser requires the ASCOM Platform to be installed.");
+                throw new InvalidOperationException("The ASCOM Platform is not installed on this device; the ASCOM Stand Alone Chooser requires the ASCOM Platform to be installed.");
             }
 
             // Get the Chooser's Type from its ProgID
