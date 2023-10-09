@@ -395,7 +395,7 @@ namespace ASCOM.Alpaca.Tests.Alpaca
         }
 
         [Fact]
-        public void ConcurrentDiscoveriesAsync()
+        public async void ConcurrentDiscoveriesAsync()
         {
             TraceLogger TL = new("ConcurrentDiscoveriesAsync", true);
             TL.LogMessage("Test", $"About to create async discovery methods");
@@ -409,7 +409,7 @@ namespace ASCOM.Alpaca.Tests.Alpaca
             TL.LogMessage("Test", $"Created camera devices task");
 
             TL.LogMessage("Test", $"Waiting for tasks to complete...");
-            Task.WaitAll(focuserDevices, telescopeDevices, cameramDevices);
+            await Task.WhenAll(focuserDevices, telescopeDevices, cameramDevices);
 
             TL.LogMessage("Test", $"Tasks completed: {focuserDevices.Status}");
 
@@ -417,23 +417,23 @@ namespace ASCOM.Alpaca.Tests.Alpaca
             Assert.Equal(TaskStatus.RanToCompletion, telescopeDevices.Status);
             Assert.Equal(TaskStatus.RanToCompletion, cameramDevices.Status);
 
-            Assert.NotEmpty(focuserDevices.Result);
-            Assert.NotEmpty(telescopeDevices.Result);
-            Assert.NotEmpty(cameramDevices.Result);
+            Assert.NotEmpty(await focuserDevices);
+            Assert.NotEmpty(await telescopeDevices);
+            Assert.NotEmpty(await cameramDevices);
 
             if (focuserDevices.Status == TaskStatus.RanToCompletion)
             {
-                TL.LogMessage("Test", $"Returned {focuserDevices.Result.Count} Focuser devices. Found: {focuserDevices.Result[0].AscomDeviceName}");
+                TL.LogMessage("Test", $"Returned {(await focuserDevices).Count} Focuser devices. Found: {(await focuserDevices)[0].AscomDeviceName}");
             }
 
             if (telescopeDevices.Status == TaskStatus.RanToCompletion)
             {
-                TL.LogMessage("Test", $"Returned {telescopeDevices.Result.Count} Telescope devices. Found: {telescopeDevices.Result[0].AscomDeviceName}");
+                TL.LogMessage("Test", $"Returned {(await telescopeDevices).Count} Telescope devices. Found: {(await telescopeDevices)[0].AscomDeviceName}");
             }
 
             if (cameramDevices.Status == TaskStatus.RanToCompletion)
             {
-                TL.LogMessage("Test", $"Returned {cameramDevices.Result.Count} Camera devices. Found: {cameramDevices.Result[0].AscomDeviceName}");
+                TL.LogMessage("Test", $"Returned {(await cameramDevices).Count}  Camera devices. Found:  {(await cameramDevices)[0].AscomDeviceName}");
             }
 
         }

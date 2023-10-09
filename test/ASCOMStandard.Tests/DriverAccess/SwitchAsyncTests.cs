@@ -5,6 +5,8 @@ using System.Threading;
 using Xunit.Abstractions;
 using Xunit;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
+using System.Runtime.CompilerServices;
 
 namespace DriverAccess
 {
@@ -50,7 +52,7 @@ namespace DriverAccess
         }
 
         [Fact]
-        public void SetAsync()
+        public async void SetAsync()
         {
             // Create a Switch simulator device
             Type switchType = Type.GetTypeFromProgID("ASCOM.Simulator.Switch");
@@ -76,12 +78,12 @@ namespace DriverAccess
             Assert.False(switchSim.GetSwitch(10));
 
             // Wait for most of 3 seconds and make sure the operation is still running
-            Thread.Sleep(2800);
+            await Task.Delay(2800);
             Assert.False(switchSim.StateChangeComplete(10));
             Assert.False(switchSim.GetSwitch(10));
 
             // Wait a short while longer to make sure that the new value is in effect
-            Thread.Sleep(350);
+            await Task.Delay(350);
             Assert.True(switchSim.StateChangeComplete(10));
             Assert.True(switchSim.GetSwitch(10));
 
@@ -120,7 +122,7 @@ namespace DriverAccess
         }
 
         [Fact]
-        public void SetAsyncValue()
+        public async void SetAsyncValue()
         {
             // Create a Switch simulator device
             Type switchType = Type.GetTypeFromProgID("ASCOM.Simulator.Switch");
@@ -146,12 +148,12 @@ namespace DriverAccess
             Assert.Equal<double>(0.0, switchSim.GetSwitchValue(10));
 
             // Wait for most of 3 seconds and make sure the operation is still running
-            Thread.Sleep(2950);
+            await Task.Delay(2950);
             Assert.False(switchSim.StateChangeComplete(10));
             Assert.Equal<double>(0.0, switchSim.GetSwitchValue(10));
 
             // Wait a short while longer to make sure that the new value is in effect
-            Thread.Sleep(150);
+            await Task.Delay(150);
             Assert.True(switchSim.StateChangeComplete(10));
             Assert.Equal<double>(5.0, switchSim.GetSwitchValue(10));
 
@@ -159,7 +161,7 @@ namespace DriverAccess
         }
 
         [Fact]
-        public void CancelAsync()
+        public async void CancelAsync()
         {
             // Create a Switch simulator device
             Type switchType = Type.GetTypeFromProgID("ASCOM.Simulator.Switch");
@@ -185,18 +187,18 @@ namespace DriverAccess
             Assert.False(switchSim.GetSwitch(10));
 
             // Wait for 2 seconds and then cancel the operation
-            Thread.Sleep(2000);
+            await Task.Delay(2000);
             Assert.False(switchSim.StateChangeComplete(10));
             Assert.False(switchSim.GetSwitch(10));
             switchSim.CancelAsync(10);
 
             // Wait a short while before checking that the operation is cancelled
-            Thread.Sleep(100);
+            await Task.Delay(100);
             Assert.Throws<COMException>(() => switchSim.StateChangeComplete(10));
             Assert.False(switchSim.GetSwitch(10));
 
             // Wait until after 3 seconds and make sure that the outcome is still the same
-            Thread.Sleep(1000);
+            await Task.Delay(1000);
             Assert.Throws<COMException>(() => switchSim.StateChangeComplete(10));
             Assert.False(switchSim.GetSwitch(10));
 
@@ -204,7 +206,7 @@ namespace DriverAccess
         }
 
         [Fact]
-        public void SetAsyncDriverAccess()
+        public async void SetAsyncDriverAccess()
         {
             // Create a Switch simulator device
             Switch switchSim = new("ASCOM.Simulator.Switch");
@@ -229,12 +231,12 @@ namespace DriverAccess
             Assert.False(switchSim.GetSwitch(10));
 
             // Wait for most of 3 seconds and make sure the operation is still running
-            Thread.Sleep(2950);
+            await Task.Delay(2950);
             Assert.False(switchSim.StateChangeComplete(10));
             Assert.False(switchSim.GetSwitch(10));
 
             // Wait a short while longer to make sure that the new value is in effect
-            Thread.Sleep(150);
+            await Task.Delay(150);
             Assert.True(switchSim.StateChangeComplete(10));
             Assert.True(switchSim.GetSwitch(10));
 
@@ -242,7 +244,7 @@ namespace DriverAccess
         }
 
         [Fact]
-        public void SetAsyncValueDriverAccess()
+        public async void  SetAsyncValueDriverAccess()
         {
             // Create a Switch simulator device
             Switch switchSim = new("ASCOM.Simulator.Switch");
@@ -267,12 +269,12 @@ namespace DriverAccess
             Assert.Equal<double>(0.0, switchSim.GetSwitchValue(10));
 
             // Wait for most of 3 seconds and make sure the operation is still running
-            Thread.Sleep(2950);
+            await Task.Delay(2950);
             Assert.False(switchSim.StateChangeComplete(10));
             Assert.Equal<double>(0.0, switchSim.GetSwitchValue(10));
 
             // Wait a short while longer to make sure that the new value is in effect
-            Thread.Sleep(150);
+            await Task.Delay(150);
             Assert.True(switchSim.StateChangeComplete(10));
             Assert.Equal<double>(5.0, switchSim.GetSwitchValue(10));
 
@@ -280,7 +282,7 @@ namespace DriverAccess
         }
 
         [Fact]
-        public void CancelAsyncDriverAccess()
+        public async void CancelAsyncDriverAccess()
         {
             // Create a Switch simulator device
             Switch switchSim = new("ASCOM.Simulator.Switch");
@@ -305,20 +307,20 @@ namespace DriverAccess
             Assert.False(switchSim.GetSwitch(10));
 
             // Wait for 2 seconds and then cancel the operation
-            Thread.Sleep(2000);
+            await Task.Delay(2000);
             Assert.False(switchSim.StateChangeComplete(10));
             Assert.False(switchSim.GetSwitch(10));
             switchSim.CancelAsync(10);
 
             // Wait a short while before checking that the operation is cancelled and an OperationCancelledException is thrown
-            Thread.Sleep(100);
+            await Task.Delay(100);
             Exception exception = Assert.Throws<DriverAccessCOMException>(() => switchSim.StateChangeComplete(10));
             Assert.Equal<int>(ErrorCodes.OperationCancelledException, exception.HResult);
 
             Assert.False(switchSim.GetSwitch(10));
 
             // Wait until after 3 seconds and make sure that the outcome is still the same
-            Thread.Sleep(1000);
+            await Task.Delay(1000);
             Assert.Throws<DriverAccessCOMException>(() => switchSim.StateChangeComplete(10));
             exception = Assert.Throws<DriverAccessCOMException>(() => switchSim.StateChangeComplete(10));
             Assert.False(switchSim.GetSwitch(10));

@@ -132,10 +132,10 @@ namespace ASCOM.Alpaca.Tests.Clients
             TL.LogMessage("Main", $"Connected set true");
 
             // Start a task that will stop the exposure after 1 second
-            Task stopExposureTask = new(() =>
+            Task stopExposureTask = new(async () =>
             {
                 TL.LogMessage("StopExposureTask", $"Starting thread sleep");
-                Thread.Sleep(1000);
+                await Task.Delay(1000);
                 TL.LogMessage("StopExposureTask", $"Sleep completed, stopping exposure.");
                 client.StopExposure();
                 TL.LogMessage("StopExposureTask", $"Exposure stopped.");
@@ -272,10 +272,10 @@ namespace ASCOM.Alpaca.Tests.Clients
             TL.LogMessage("Main", $"Connected set true");
 
             // Start a task that will halt the open after 1 second
-            Task stopOpenTask = new(() =>
+            Task stopOpenTask = new(async () =>
             {
                 TL.LogMessage("StopOpenTask", $"Starting thread sleep");
-                Thread.Sleep(1000);
+                await Task.Delay(1000);
                 TL.LogMessage("StopOpenTask", $"Sleep completed, stopping open.");
                 client.HaltCover();
                 TL.LogMessage("StopOpenTask", $"Open halted.");
@@ -1346,35 +1346,41 @@ namespace ASCOM.Alpaca.Tests.Clients
             TL.LogMessage("Main", $"Connected set true");
 
             // Ensure that the cover is in the closed state
+            TL.LogMessage("Main", $"Closing cover...");
             await client.CloseCoverAsync(pollInterval: 1000, logger: TL);
+            TL.LogMessage("Main", $"Cover closed.");
 
             // Start a task that will cancel the cover open after 1.5 seconds
+            TL.LogMessage("Main", $"Opening cover");
             Task cancelOpenTask = new(async () =>
             {
-                TL.LogMessage("CancelOpenTask", $"Starting thread sleep");
-                await Task.Delay(3500);
-                TL.LogMessage("CancelOpenTask", $"Sleep completed, cancelling open.");
+                TL.LogMessage("CancelOpenTask", $"Starting 1 second sleep");
+                await Task.Delay(3000);
+                TL.LogMessage("CancelOpenTask", $"Sleep completed, cancelling cover open task.");
                 cancellationTokenSource.Cancel();
-                TL.LogMessage("CancelOpenTask", $"Open cancelled.");
+                TL.LogMessage("CancelOpenTask", $"Open task cancelled.");
             });
             cancelOpenTask.Start();
 
             // Test the cancel
-            TL.LogMessage("Main", $"About to create task");
+            TL.LogMessage("Main", $"About to create open cover task");
             Task openCoverTask = client.OpenCoverAsync(cancellationToken, 1000, TL);
-            TL.LogMessage("Main", $"About to start task");
+            TL.LogMessage("Main", $"Task started.");
 
             for (int i = 0; i < 5; i++)
             {
-                Thread.Sleep(100);
+                await Task.Delay(100);
                 TL.LogMessage("Main", $"Doing some work: {i}");
             }
 
-            TL.LogMessage("Main", $"Waiting for task to finish...");
-            Task.WaitAny(openCoverTask);
+            await Assert.ThrowsAsync<OperationCanceledException>(async () =>
+            {
+                TL.LogMessage("Main", $"Waiting for task to finish...");
+                await openCoverTask;
+            });
+
             TL.LogMessage("Main", $"Open cover task status: {openCoverTask.Status}, Exception: {openCoverTask.Exception}");
             Assert.Equal(TaskStatus.Canceled, openCoverTask.Status);
-
 
             TL.LogMessage("Main", $"Await complete, Cover state: {client.CoverState}");
             Assert.NotEqual(CoverStatus.Open, client.CoverState);
