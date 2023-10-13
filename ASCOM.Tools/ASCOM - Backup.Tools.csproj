@@ -166,4 +166,8 @@
 		</None>
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Novas31\NOVASLibraries\" />
+	</ItemGroup>
+
 </Project>

@@ -2,7 +2,10 @@
 using ASCOM.Common.Interfaces;
 using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.Dynamic;
 using System.IO;
+using System.Reflection;
 using System.Runtime.InteropServices;
 
 namespace ASCOM.Tools.Novas31
@@ -29,10 +32,12 @@ namespace ASCOM.Tools.Novas31
 
         private static bool isInitialised = false; // Flag indicating whether the library initialisation has been run
 
+        private static string raCioFile = "NotFound"; // Location of the ra_cio.bin file
+
         #region Initialiser
 
         /// <summary>
-        /// Static intialiser
+        /// Static initialiser
         /// </summary>
         /// <exception cref="HelperException">Thrown if the JPLEPH and cio_ra.bin support files are not in the application directory.</exception>
         /// <remarks></remarks>
@@ -51,51 +56,147 @@ namespace ASCOM.Tools.Novas31
         private static void Initialise()
         {
             short rc1;
-            string RACIOFile, JPLEphFile;
+            string JPLEphFile;
             var DENumber = default(short);
             string aplicationPath;
 
             try
             {
+                // Uncomment here to enable initiator debug logging (don't leave enabled in production!)
+                //TL = new TraceLogger("NOVASLibrary", true);
+                //TL.SetMinimumLoggingLevel(LogLevel.Debug);
+                LogMessage("Initialise", "Initialise");
+
+                // Create a string list in which to collect cio_ra.bin search directories
+                SortedSet<string> searchPaths = new SortedSet<string>();
+
+                // Add several application related directories
+                try
+                {
+                    string searchPath = Environment.CurrentDirectory.TrimEnd('\\');
+                    LogMessage("Initialise", $"Environment.CurrentDirectory: {searchPath}");
+                    searchPaths.Add(searchPath);
+                }
+                catch (Exception ex)
+                {
+                    LogMessage("Initialise", $"Environment.CurrentDirectory: {ex.Message}");
+                }
+
+                try
+                {
+                    string searchPath = Directory.GetCurrentDirectory().TrimEnd('\\');
+                    LogMessage("Initialise", $"Directory.GetCurrentDirectory(): {searchPath}");
+                    searchPaths.Add(searchPath);
+                }
+                catch (Exception ex)
+                {
+                    LogMessage("Initialise", $"Directory.GetCurrentDirectory(): {ex.Message}");
+                }
+
+                try
+                {
+                    string searchPath = AppDomain.CurrentDomain.BaseDirectory.TrimEnd('\\');
+                    LogMessage("Initialise", $"AppDomain.CurrentDomain.BaseDirectory: {searchPath}");
+                    searchPaths.Add(searchPath);
+                }
+                catch (Exception ex)
+                {
+                    LogMessage("Initialise", $"AppDomain.CurrentDomain.BaseDirectory: {ex.Message}");
+                }
+
+                try
+                {
+                    string searchPath = AppContext.BaseDirectory.TrimEnd('\\');
+                    LogMessage("Initialise", $"AppContext.BaseDirectory: {searchPath}");
+                    searchPaths.Add(searchPath);
+                }
+                catch (Exception ex)
+                {
+                    LogMessage("Initialise", $"AppContext.BaseDirectory: {ex.Message}");
+                }
+
+                try
+                {
+                    // Get the locations of any binary library files
+                    if (AppContext.GetData("NATIVE_DLL_SEARCH_DIRECTORIES") is string searchDirectoriesString) // Some directories were found
+                    {
+                        LogMessage("Initialise", $"Found binary search directories: {searchDirectoriesString}");
+
+                        // Separate out the path names and add them to the search directories list
+                        char separatorChar = Path.PathSeparator;
+
+                        // Remove any leading or trailing separators
+                        searchDirectoriesString = searchDirectoriesString.Trim(separatorChar);
+
+                        string[] searchDirectories = searchDirectoriesString?.Split(separatorChar);
+                        foreach (string directory in searchDirectories)
+                        {
+                            LogMessage("Initialise", $"Found binary search directory: {directory}");
+                        }
+
+                        searchPaths.UnionWith(searchDirectories);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LogMessage("Initialise", $"NATIVE_DLL_SEARCH_DIRECTORIES: {ex.Message}");
+                }
+
+                // Search each path for the cio_ra.bin file
+                foreach (string directoryPath in searchPaths)
+                {
+                    try
+                    {
+                        LogMessage("Initialise", $"Found native directory path: {directoryPath}");
+
+                        // Create a full path to the cio_ra.bin fie
+                        string possibleFile = Path.Combine(directoryPath, RACIO_FILE);
+
+                        // Test whether the file exists
+                        if (File.Exists(possibleFile)) // File does exist
+                        {
+                            // Save the full path for use later
+                            raCioFile = possibleFile;
+
+                            // Set the path in the NOVAS 3.1 binary DLL
+                            LogMessage("Initialise", $"Found {RACIO_FILE} file at {raCioFile}!!!");
+                            SetRACIOFile(raCioFile);
+                            LogMessage("Initialise", $"Set {RACIO_FILE} file to {raCioFile}!!!!!");
+
+                            // Exit the foreach loop and don't bother with any other paths
+                            break;
+                        }
+                    }
+                    catch { }
+                }
+
                 // Get the current directory
                 aplicationPath = Directory.GetCurrentDirectory();
 
-                // Create paths to the CIO and ephemeris files.
-                RACIOFile = Path.Combine(aplicationPath, RACIO_FILE);
+                // Create a path to the ephemeris file.
                 JPLEphFile = Path.Combine(aplicationPath, JPL_EPHEM_FILE_NAME);
-                LogMessage("New", $"Current path: {aplicationPath}, RACIO file: {RACIOFile}, JPL ephemeris file: {JPLEphFile}");
-
-                // Validate that the CIO file exists
-                if (!File.Exists(RACIOFile))
-                {
-                    LogMessage("New", $"NOVAS31 Initialise - Unable to locate RACIO file: {RACIOFile}");
-                    throw new HelperException($"NOVAS31 Initialise - Unable to locate RACIO file: {RACIOFile}");
-                }
-                else
-                {
-                    LogMessage("New", $"Found RACIO file: {RACIOFile}");
-                }
+                LogMessage("Initialise", $"Current path: {aplicationPath}, RACIO file: {raCioFile}, JPL ephemeris file: {JPLEphFile}");
 
                 // Validate that the planetary ephemeris file exists
                 if (!File.Exists(JPLEphFile))
                 {
-                    LogMessage("New", $"NOVAS31 Initialise - Unable to locate JPL ephemeris file: {JPLEphFile}");
+                    LogMessage("Initialise", $"NOVAS31 Initialise - Unable to locate JPL ephemeris file: {JPLEphFile}");
                     throw new HelperException($"NOVAS31 Initialise - Unable to locate JPL ephemeris file: {JPLEphFile}");
                 }
 
                 // Open the ephemeris file and set its applicable date range
-                LogMessage("New", "Opening JPL ephemeris file: " + JPLEphFile);
+                LogMessage("Initialise", "Opening JPL ephemeris file: " + JPLEphFile);
                 double ephStart = 0.0, ephEnd = 0.0;
                 rc1 = EphemOpen(JPLEphFile, ref ephStart, ref ephEnd, ref DENumber);
 
                 if (rc1 > 0)
                 {
-                    LogMessage("New", "Unable to open ephemeris file: " + JPLEphFile + ", RC: " + rc1);
+                    LogMessage("Initialise", "Unable to open ephemeris file: " + JPLEphFile + ", RC: " + rc1);
                     throw new HelperException($"NOVAS31 Initialisation - Unable to open ephemeris file: {JPLEphFile} RC: {rc1}");
                 }
 
-                LogMessage("New", $"Ephemeris file {JPLEphFile} opened OK - DE number: {DENumber}, Start: {ephStart}, End: {ephEnd}");
-                LogMessage("New", "NOVAS31 initialised OK");
+                LogMessage("Initialise", $"Ephemeris file {JPLEphFile} opened OK - DE number: {DENumber}, Start: {ephStart}, End: {ephEnd}");
+                LogMessage("Initialise", "NOVAS31 initialised OK");
             }
 
             // Re-throw any HelperExceptions thrown above
@@ -107,7 +208,7 @@ namespace ASCOM.Tools.Novas31
             // Log any other exceptions and re-throw.
             catch (Exception ex)
             {
-                try { LogMessage("New", "Exception: " + ex.ToString()); } catch { }
+                try { LogMessage("Initialise", $"Exception: {ex.Message}\r\n{ex}"); } catch { }
                 throw;
             }
 
@@ -2216,6 +2317,9 @@ namespace ASCOM.Tools.Novas31
         #endregion
 
         #region Library Entry Points for Ephemeris and RACIOFile
+
+        [DllImport(NOVAS_LIBRARY, EntryPoint = "set_racio_file")]
+        private static extern void SetRACIOFile([MarshalAs(UnmanagedType.LPStr)] string Name);
 
         [DllImport(NOVAS_LIBRARY, EntryPoint = "ephem_close")]
         private static extern short EphemCloseLib();
