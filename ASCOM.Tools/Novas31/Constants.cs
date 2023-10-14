@@ -180,7 +180,7 @@ namespace ASCOM.Tools.Novas31
 
     }
 
-    #region AstroUtilities Enums and Structures
+    #region Utilities Enums and Structures
 
     /// <summary>
     /// Type of event for which an ephemeris is required
@@ -245,6 +245,7 @@ namespace ASCOM.Tools.Novas31
         /// </summary>
         PlutoRiseSet = 13
     }
+
     #endregion
 
     #region NOVAS Enums
