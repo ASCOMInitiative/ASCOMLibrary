@@ -1062,7 +1062,7 @@ namespace ASCOM.Tools.Novas31
             }
 
             Equ2HorLib(Jd_Ut1, DeltT, Accuracy, xp, yp, ref Location, Ra, Dec, RefOption, ref Zd, ref Az, ref RaR, ref DecR);
-            LogMessage("Equ2Hor", "  RA Dec: " + Utilities.HoursToHMS(RaR, ":", ":", "", 3) + " " + Utilities.DegreesToDMS(DecR, ":", ":", "", 3));
+            LogMessage("Equ2Hor", $"  RA Dec: {Utilities.HoursToHMS(RaR, ":", ":", "", 3)} {Utilities.DegreesToDMS(DecR, ":", ":", "", 3)}, Az El: {Utilities.DegreesToDMS(Az, ":", ":", "", 3)} {Utilities.DegreesToDMS(90.0 - Zd, ":", ":", "", 3)}");
 
         }
 
