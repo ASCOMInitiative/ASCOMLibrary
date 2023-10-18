@@ -94,73 +94,73 @@
 
 	<ItemGroup>
 		<!-- Windows 64bit Native Library -->
-		<None Update="Novas31\win-x64\libnovas.dll">
+		<None Update="NovasLibraries\win-x64\libnovas.dll">
 			<Pack>True</Pack>
 			<PackagePath>runtimes/win-x64/native</PackagePath>
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
-		<None Update="Novas31\win-x64\cio_ra.bin">
+		<None Update="NovasLibraries\win-x64\cio_ra.bin">
 			<Pack>True</Pack>
 			<PackagePath>runtimes/win-x64/native</PackagePath>
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
 
 		<!-- Windows 32bit Native Library -->
-		<None Update="Novas31\win-x86\libnovas.dll">
+		<None Update="NovasLibraries\win-x86\libnovas.dll">
 			<Pack>True</Pack>
 			<PackagePath>runtimes/win-x86/native</PackagePath>
 		</None>
-		<None Update="Novas31\win-x86\cio_ra.bin">
+		<None Update="NovasLibraries\win-x86\cio_ra.bin">
 			<Pack>True</Pack>
 			<PackagePath>runtimes/win-x86/native</PackagePath>
 		</None>
 
 		<!-- Linux Intel 64bit Native Library -->
-		<None Update="Novas31\linux-x64\libnovas.so">
+		<None Update="NovasLibraries\linux-x64\libnovas.so">
 			<Pack>True</Pack>
 			<PackagePath>runtimes/linux-x64/native</PackagePath>
 		</None>
-		<None Update="Novas31\linux-x64\cio_ra.bin">
+		<None Update="NovasLibraries\linux-x64\cio_ra.bin">
 			<Pack>True</Pack>
 			<PackagePath>runtimes/linux-x64/native</PackagePath>
 		</None>
 
 		<!-- Linux ARM Native Library -->
-		<None Update="Novas31\linux-arm\libnovas.so">
+		<None Update="NovasLibraries\linux-arm\libnovas.so">
 			<Pack>True</Pack>
 			<PackagePath>runtimes/linux-arm/native</PackagePath>
 		</None>
-		<None Update="Novas31\linux-arm\cio_ra.bin">
+		<None Update="NovasLibraries\linux-arm\cio_ra.bin">
 			<Pack>True</Pack>
 			<PackagePath>runtimes/linux-arm/native</PackagePath>
 		</None>
 
 		<!-- Linux ARM64 Native Library -->
-		<None Update="Novas31\linux-arm64\libnovas.so">
+		<None Update="NovasLibraries\linux-arm64\libnovas.so">
 			<Pack>True</Pack>
 			<PackagePath>runtimes/linux-arm64/native</PackagePath>
 		</None>
-		<None Update="Novas31\linux-arm64\cio_ra.bin">
+		<None Update="NovasLibraries\linux-arm64\cio_ra.bin">
 			<Pack>True</Pack>
 			<PackagePath>runtimes/linux-arm64/native</PackagePath>
 		</None>
 
 		<!-- OSX Intel 64bit Native Library -->
-		<None Update="Novas31\osx-x64\libnovas.dylib">
+		<None Update="NovasLibraries\osx-x64\libnovas.dylib">
 			<Pack>True</Pack>
 			<PackagePath>runtimes/osx-x64/native</PackagePath>
 		</None>
-		<None Update="Novas31\osx-x64\cio_ra.bin">
+		<None Update="NovasLibraries\osx-x64\cio_ra.bin">
 			<Pack>True</Pack>
 			<PackagePath>runtimes/osx-x64/native</PackagePath>
 		</None>
 
 		<!-- OSX Apple Silicon ARM 64bit Native Library -->
-		<None Update="Novas31\osx-arm64\libnovas.dylib">
+		<None Update="NovasLibraries\osx-arm64\libnovas.dylib">
 			<Pack>True</Pack>
 			<PackagePath>runtimes/osx-arm64/native</PackagePath>
 		</None>
-		<None Update="Novas31\osx-arm64\cio_ra.bin">
+		<None Update="NovasLibraries\osx-arm64\cio_ra.bin">
 			<Pack>True</Pack>
 			<PackagePath>runtimes/osx-arm64/native</PackagePath>
 		</None>
