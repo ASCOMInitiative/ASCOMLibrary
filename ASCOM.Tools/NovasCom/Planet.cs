@@ -1,10 +1,8 @@
-﻿using ASCOM;
-using static System.Math;
+﻿using static System.Math;
 using ASCOM.Tools.Novas31;
-using Kepler;
-using ASCOM.Tools;
+using ASCOM.Tools.Interfaces;
 
-namespace NovasCom
+namespace ASCOM.Tools
 {
     /// <summary>
     /// NOVAS-COM: Provide characteristics of a solar system body

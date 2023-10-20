@@ -1,125 +1,12 @@
 ﻿using static System.Math;
 
-namespace Kepler
+namespace ASCOM.Tools.Kepler
 {
     /// <summary>
     /// Common items for the Kepler code
     /// </summary>
     static class KeplerSupport
     {
-        #region Private Structures
-
-        internal struct plantbl
-        {
-            internal int maxargs;
-            internal int[] max_harmonic;
-            internal int max_power_of_t;
-            internal int[] arg_tbl;
-            internal double[] lon_tbl;
-            internal double[] lat_tbl;
-            internal double[] rad_tbl;
-            internal double distance;
-            internal double timescale;
-            internal double trunclvl;
-
-            internal plantbl(int ma, int[] mh, int mpt, int[] at, double[] lot, double[] lat, double[] rat, double dis, double ts, double tl)
-            {
-                maxargs = ma;
-                max_harmonic = mh;
-                max_power_of_t = mpt;
-                arg_tbl = at;
-                lon_tbl = lot;
-                lat_tbl = lat;
-                rad_tbl = rat;
-                distance = dis;
-                timescale = ts;
-                trunclvl = tl;
-            }
-        }
-
-        internal struct Orbit
-        {
-            internal string obname; // /* name of the object */
-            internal double epoch; // /* epoch of orbital elements */
-            internal double i; // /* inclination	*/
-            internal double W; // /* longitude of the ascending node */
-            internal double wp; // /* argument of the perihelion */
-            internal double a; // /* mean distance (semimajor axis) */
-            internal double dm;    // /* daily motion */
-            internal double ecc;   // /* eccentricity */
-            internal double M; // /* mean anomaly */
-            internal double equinox;   // /* epoch of equinox and ecliptic */
-            internal double mag;   // /* visual magnitude at 1AU from earth and sun */
-            internal double sdiam; // /* equatorial semi-diameter at 1au, arc seconds */
-
-            // /* The following used by perturbation formulas: */
-            internal plantbl ptable;
-            internal double L;  // /* computed mean longitude */
-            internal double r;  // /* computed radius vector */
-            internal double plat;   // /* perturbation in ecliptic latitude */
-
-            internal double semiMajorAxis; // Placeholder for the semi-major axis to disambiguate it from the perihelion distance
-            internal double perihelionDistance; // Placeholder for the perihelion distance to disambiguate it from the semi-major axis
-            internal bool eccentricityHasBeenSet;
-
-            /// <summary>
-            /// Initialiser to set the semi-major axis and perihelion distance values to default "unset" states
-            /// </summary>
-            /// <param name="dummyParameter">Dummy parameter because VB doesn't allow parameterless instance constructors</param>
-            public Orbit(double dummyParameter)
-            {
-                obname = "";
-                epoch = 0.0;
-                i = 0.0;
-                W = 0.0;
-                wp = 0.0;
-                a = 0.0;
-                dm = 0.0;
-                ecc = 0.0;
-                M = 0.0;
-                equinox = 0.0;
-                mag = 0.0;
-                sdiam = 0.0;
-                ptable = new plantbl();
-                L = 0.0;
-                r = 0.0;
-                plat = 0.0;
-                eccentricityHasBeenSet = false;
-
-
-
-                semiMajorAxis = NOT_SET;
-                perihelionDistance = NOT_SET;
-            }
-
-            internal Orbit(string obn, double ep, double i_p, double W_p, double wp_p, double a_p, double dm_p, double ecc_p, double M_p, double eq, double mg, double sd, plantbl pt, double L_p, double r_p, double pl)
-            {
-                obname = obn;
-                epoch = ep;
-                i = i_p;
-                W = W_p;
-                wp = wp_p;
-                a = a_p;
-                dm = dm_p;
-                ecc = ecc_p;
-                M = M_p;
-                equinox = eq;
-                mag = mg;
-                sdiam = sd;
-                ptable = pt;
-                L = L_p;
-                r = r_p;
-                plat = pl;
-                eccentricityHasBeenSet = true;
-
-                // Initialize the semi-major axis to default 'unset' states
-                semiMajorAxis = NOT_SET;
-                perihelionDistance = NOT_SET;
-            }
-        }
-
-        #endregion
-
         #region Constants
 
         // Constant to indicate that a value has not been set.
@@ -146,13 +33,14 @@ namespace Kepler
 
         #region Utility Routines
 
-        // ----------------
-        // Utility routines
-        // ----------------
-
-        // Obliquity of the ecliptic at Julian date J  according to the DE403 values. Refer to S. Moshier's aa54e sources.
-
-        internal static void epsiln(double J, ref double eps, ref double coseps, ref double sineps)
+        /// <summary>
+        /// Obliquity of the ecliptic at Julian date J according to the DE403 values. Refer to S. Moshier's aa54e sources.
+        /// </summary>
+        /// <param name="J"></param>
+        /// <param name="eps"></param>
+        /// <param name="coseps"></param>
+        /// <param name="sineps"></param>
+        internal static void Epsiln(double J, ref double eps, ref double coseps, ref double sineps)
         {
             double T;
 
@@ -164,35 +52,27 @@ namespace Kepler
             sineps = Sin(eps);
         }
 
-        // /* Precession of the equinox and ecliptic
-        // * from epoch Julian date J to or from J2000.0
-        // *
-        // * Program by Steve Moshier.  */
-        // 
-        // /* James G. Williams, "Contributions to the Earth's obliquity rate,
-        // precession, and nutation,"  Astron. J. 108, 711-724 (1994)  */
-
-        // /* Corrections to Williams (1994) introduced in DE403.  */
+        /// <summary>
+        /// Precession of the equinox and ecliptic from epoch Julian date J to or from J2000.0
+        /// </summary>
+        /// <remarks>
+        /// Program by Steve Moshier.  
+        /// James G. Williams, "Contributions to the Earth's obliquity rate, precession, and nutation,"  Astron. J. 108, 711-724 (1994) 
+        /// Corrections to Williams (1994) introduced in DE403. 
+        /// </remarks>
         internal static double[] pAcof = new double[] { -0.000000000866d, -0.00000004759d, 0.0000002424d, 0.000013095d, 0.00017451d, -0.0018055d, -0.235316d, 0.076d, 110.5414d, 50287.91959d };
 
         internal static double[] nodecof = new double[] { 0.00000000000000066402d, -0.00000000000000269151d, -0.000000000001547021d, 0.000000000007521313d, 0.00000000019d, -0.00000000354d, -0.00000018103d, 0.000000126d, 0.00007436169d, -0.04207794833d, 3.052115282424d };
 
         internal static double[] inclcof = new double[] { 0.00000000000000012147d, 7.3759E-17d, -0.0000000000000826287d, 0.000000000000250341d, 0.000000000024650839d, -0.000000000054000441d, 0.00000000132115526d, -0.0000006012d, -0.0000162442d, 0.00227850649d, 0.0d };
 
-        // /* Subroutine arguments:
-        // *
-        // * R = rectangular equatorial coordinate vector to be precessed.
-        // *     The result is written back into the input vector.
-        // * J = Julian date
-        // * direction =
-        // *      Precess from J to J2000: direction = 1
-        // *      Precess from J2000 to J: direction = -1
-        // * Note that if you want to precess from J1 to J2, you would
-        // * first go from J1 to J2000, then call the program again
-        // * to go from J2000 to J2.
-        // */
-
-        internal static void precess(ref double[] R, double J, int direction)
+        /// <summary>
+        /// Precess
+        /// </summary>
+        /// <param name="R">rectangular equatorial coordinate vector to be precessed. The result is written back into the input vector.</param>
+        /// <param name="J">Julian date</param>
+        /// <param name="direction">Precession direction - 1: J to J2000, -1: J2000 to J</param>
+        internal static void Precess(ref double[] R, double J, int direction)
         {
             double A, B, T, pA, W, z;
             var x = new double[4];
@@ -202,59 +82,51 @@ namespace Kepler
 
             if (J == J2000)
                 return;
-            // /* Each precession angle is specified by a polynomial in
-            // * T = Julian centuries from J2000.0.  See AA page B18.
-            // */
+
+            // /* Each precession angle is specified by a polynomial in T = Julian centuries from J2000.0.  See AA page B18.
             T = (J - J2000) / 36525.0d;
 
-            // /* Implementation by elementary rotations using Laskar's expansions.
-            // * First rotate about the x axis from the initial equator
-            // * to the ecliptic. (The input is equatorial.)
-            // */
+            // /* Implementation by elementary rotations using Laskar's expansions. First rotate about the x axis from the initial equator to the ecliptic. (The input is equatorial.)
             if (direction == 1)
             {
-                epsiln(J, ref eps, ref coseps, ref sineps); // /* To J2000 */
+                Epsiln(J, ref eps, ref coseps, ref sineps); // /* To J2000 */
             }
-            else
+            else // From J2000
             {
-                epsiln(J2000, ref eps, ref coseps, ref sineps);
-            } // /* From J2000 */
+                Epsiln(J2000, ref eps, ref coseps, ref sineps);
+            }
             x[0] = R[0];
             z = coseps * R[1] + sineps * R[2];
             x[2] = -sineps * R[1] + coseps * R[2];
             x[1] = z;
 
-            // /* Precession in longitude	 */
-            T /= 10.0d; // /* thousands of years */
+            // Precession in longitude	 */
+            T /= 10.0d; // thousands of years
             p = pAcof;
             pA = p[0];
             for (i = 1; i <= 9; i++)
                 pA = pA * T + p[i];
             pA *= STR * T;
 
-            // /* Node of the moving ecliptic on the J2000 ecliptic.*/
+            // Node of the moving ecliptic on the J2000 ecliptic.
             p = nodecof;
             W = p[0];
             for (i = 1; i <= 10; i++)
                 W = W * T + p[i];
-            // /* Rotate about z axis to the node.*/
+
+            // Rotate about z axis to the node.
             if (direction == 1)
-            {
                 z = W + pA;
-            }
             else
-            {
                 z = W;
-            }
+
             B = Cos(z);
             A = Sin(z);
             z = B * x[0] + A * x[1];
             x[1] = -A * x[0] + B * x[1];
             x[0] = z;
 
-            // /* Rotate about new x axis by the inclination of the moving
-            // * ecliptic on the J2000 ecliptic.
-            // */
+            // Rotate about new x axis by the inclination of the moving ecliptic on the J2000 ecliptic.
             p = inclcof;
             z = p[0];
             for (i = 1; i <= 10; i++)
@@ -267,15 +139,12 @@ namespace Kepler
             x[2] = -A * x[1] + B * x[2];
             x[1] = z;
 
-            // /* Rotate about new z axis back from the node.	 */
+            // Rotate about new z axis back from the node.
             if (direction == 1)
-            {
                 z = -W;
-            }
             else
-            {
                 z = -W - pA;
-            }
+
             B = Cos(z);
             A = Sin(z);
             z = B * x[0] + A * x[1];
@@ -284,13 +153,10 @@ namespace Kepler
 
             // /* Rotate about x axis to final equator.	 */
             if (direction == 1)
-            {
-                epsiln(J2000, ref eps, ref coseps, ref sineps);
-            }
+                Epsiln(J2000, ref eps, ref coseps, ref sineps);
             else
-            {
-                epsiln(J, ref eps, ref coseps, ref sineps);
-            }
+                Epsiln(J, ref eps, ref coseps, ref sineps);
+
             z = coseps * x[1] - sineps * x[2];
             x[2] = sineps * x[1] + coseps * x[2];
             x[1] = z;
@@ -299,7 +165,7 @@ namespace Kepler
                 R[i] = x[i];
         }
 
-        internal static double atan4(double x, double y)
+        internal static double Atan4(double x, double y)
         {
             double z, w = default;
             int code;
@@ -308,7 +174,7 @@ namespace Kepler
             if (x < 0.0d)
                 code = 2;
             if (y < 0.0d)
-                code = code | 1;
+                code |= 1;
 
             if (x == 0.0d)
             {
@@ -353,10 +219,12 @@ namespace Kepler
             return w + z;
         }
 
-        //
-        // Reduce x modulo 2 pi
-        //
-        internal static double modtp(double x)
+        /// <summary>
+        /// Reduce x modulo 2 pi
+        /// </summary>
+        /// <param name="x"></param>
+        /// <returns></returns>
+        internal static double ModTwoPi(double x)
         {
 
             double y;
@@ -367,13 +235,16 @@ namespace Kepler
                 y += TPI;
             while (y >= TPI)
                 y -= TPI;
+
             return y;
         }
 
-        //
-        //  Reduce x modulo 360 degrees
-        //
-        internal static double mod360(double x)
+        /// <summary>
+        /// Reduce x modulo 360 degrees
+        /// </summary>
+        /// <param name="x"></param>
+        /// <returns></returns>
+        internal static double Mod360(double x)
         {
 
             int k;
@@ -388,345 +259,235 @@ namespace Kepler
             return y;
         }
 
-        // /* Program to solve Keplerian orbit
-        // * given orbital parameters and the time.
-        // * Returns Heliocentric equatorial rectangular coordinates of
-        // * the object.
-        // *
-        // * This program detects several cases of given orbital elements.
-        // *
-        // * If a program for perturbations is pointed to, it is called
-        // * to calculate all the elements.
-        // *
-        // * If there is no program, then the mean longitude is calculated
-        // * from the mean anomaly and daily motion.
-        // *
-        // * If the daily motion is not given, it is calculated
-        // * by Kepler's law.
-        // *
-        // * If the eccentricity is given to be 1.0, it means that
-        // * mean distance is really the perihelion distance, as in a comet
-        // * specification, and the orbit is parabolic.
-        // *
-        // * Reference: Taff, L.G., "Celestial Mechanics, A Computational
-        // * Guide for the Practitioner."  Wiley, 1985.
-        // */
-
+        /// <summary>
+        /// Program to solve Keplerian orbit given orbital parameters and the time.
+        /// </summary>
+        /// <param name="J"></param>
+        /// <param name="e"></param>
+        /// <param name="rect">Returns Heliocentric equatorial rectangular coordinates of the object.</param>
+        /// <remarks>
+        /// This program detects several cases of given orbital elements. If a program for perturbations is pointed to, it is called to calculate all the elements.
+        /// If there is no program, then the mean longitude is calculated from the mean anomaly and daily motion.If the daily motion is not given, it is calculated by Kepler's law.
+        /// If the eccentricity is given to be 1.0, it means that mean distance is really the perihelion distance, as in a comet specification, and the orbit is parabolic.
+        /// Reference: Taff, L.G., "Celestial Mechanics, A Computational Guide for the Practitioner."  Wiley, 1985.
+        /// </remarks>
         internal static void KeplerCalc(double J, ref Orbit e, ref double[] rect)
         {
 
             var polar = new double[4];
             double alat, E1, M, W, temp;
-            double epoch, inclination, ascnode, argperih;
-            double meandistance, dailymotion, eccent, meananomaly;
+            double epoch, inclination, ascendingNode, argumentOfPerihelion;
+            double meanDistance, dailyMotion, eccent, meanAnomaly;
             double r, coso, sino, cosa;
             double eps = default, coseps = default, sineps = default;
-            //
+
             // Call program to compute position, if one is supplied.
-            //
             if (e.ptable.lon_tbl[0] != 0.0d)
             {
-                if (e.obname == "Earth")
-                {
-                    g3plan(J, ref e.ptable, ref polar, 3);
-                }
+                if (e.objectName == "Earth")
+                    G3Plan(J, ref e.ptable, ref polar, 3);
                 else
-                {
-                    gplan(J, ref e.ptable, ref polar);
-                }
-                E1 = polar[0]; // /* longitude */
+                    GPlan(J, ref e.ptable, ref polar);
+
+                E1 = polar[0]; // longitude
                 e.L = E1;
-                W = polar[1]; // /* latitude */
-                r = polar[2]; // /* radius */
+                W = polar[1]; // latitude
+                r = polar[2]; // radius 
                 e.r = r;
                 e.epoch = J;
                 e.equinox = J2000;
-                goto kepdon;
             }
-
-            // -----------------------------
-            // Compute from orbital elements 
-            // -----------------------------
-            e.equinox = J2000; // Always J2000 coordinates
-            epoch = e.epoch;
-            inclination = e.i;
-            ascnode = e.W * DTR;
-            argperih = e.wp;
-            meandistance = e.a; // /* semimajor axis */
-            dailymotion = e.dm;
-            eccent = e.ecc;
-            meananomaly = e.M;
-
-            // ---------
-            // Parabolic
-            // ---------
-            if (eccent == 1.0d)
+            else
             {
-                //
-                // meandistance = perihelion distance, q
-                // epoch = perihelion passage date
-                //
-                temp = meandistance * Sqrt(meandistance);
-                W = (J - epoch) * 0.0364911624d / temp;
-                //
-                // The constant above is 3 k / sqrt(2),
-                // k = Gaussian gravitational constant = 0.01720209895
-                //
-                E1 = 0.0d;
-                M = 1.0d;
-                while (Abs(M) > 0.00000000001d)
+                // Compute from orbital elements 
+                e.equinox = J2000; // Always J2000 coordinates
+                epoch = e.epoch;
+                inclination = e.i;
+                ascendingNode = e.W * DTR;
+                argumentOfPerihelion = e.wp;
+                meanDistance = e.a; // semimajor axis
+                dailyMotion = e.dm;
+                eccent = e.ecc;
+                meanAnomaly = e.M;
+
+                if (eccent == 1.0d) // Parabolic
                 {
-                    temp = E1 * E1;
-                    temp = (2.0d * E1 * temp + W) / (3.0d * (1.0d + temp));
-                    M = temp - E1;
-                    if (temp != 0.0d)
-                        M /= temp;
-                    E1 = temp;
+                    // meanDistance = perihelion distance, q
+                    // epoch = perihelion passage date
+                    temp = meanDistance * Sqrt(meanDistance);
+                    W = (J - epoch) * 0.0364911624d / temp;
+
+                    // The constant above is 3 k / sqrt(2),
+                    // k = Gaussian gravitational constant = 0.01720209895
+                    E1 = 0.0d;
+                    M = 1.0d;
+                    while (Abs(M) > 0.00000000001d)
+                    {
+                        temp = E1 * E1;
+                        temp = (2.0d * E1 * temp + W) / (3.0d * (1.0d + temp));
+                        M = temp - E1;
+                        if (temp != 0.0d)
+                            M /= temp;
+                        E1 = temp;
+                    }
+                    r = meanDistance * (1.0d + E1 * E1);
+                    M = Atan(E1);
+                    M = 2.0d * M;
+                    alat = M + DTR * argumentOfPerihelion;
                 }
-                r = meandistance * (1.0d + E1 * E1);
-                M = Atan(E1);
-                M = 2.0d * M;
-                alat = M + DTR * argperih;
+                else if (eccent > 1.0d) // Hyperbolic
+                {
+                    // The equation of the hyperbola in polar coordinates r, theta is r = a(e^2 - 1)/(1 + e cos(theta)) so the perihelion  distance q = a(e-1), the "mean distance"  a = q/(e-1).
+                    meanDistance /= (eccent - 1.0d);
+                    temp = meanDistance * Sqrt(meanDistance);
+                    W = (J - epoch) * 0.01720209895d / temp;
+
+                    // solve M = -E + e sinh E
+                    E1 = W / (eccent - 1.0d);
+                    M = 1.0d;
+                    while (Abs(M) > 0.00000000001d)
+                    {
+
+                        M = -E1 + eccent * Sinh(E1) - W;
+                        E1 += M / (1.0d - eccent * Cosh(E1));
+                    }
+                    r = meanDistance * (-1.0d + eccent * Cosh(E1));
+                    temp = (eccent + 1.0d) / (eccent - 1.0d);
+                    M = Sqrt(temp) * Tanh(0.5d * E1);
+                    M = 2.0d * Atan(M);
+                    alat = M + DTR * argumentOfPerihelion;
+                }
+                else // Ellipsoidal eccent < 1.0)
+                {
+                    // Calculate the daily motion, if it is not given.
+                    if (dailyMotion == 0.0d)
+                    {
+                        // The constant is 180 k / pi, k = Gaussian gravitational constant. Assumes object in heliocentric orbit is massless.
+                        dailyMotion = 0.9856076686d / (e.a * Sqrt(e.a));
+                    }
+                    dailyMotion *= J - epoch;
+
+                    // M is proportional to the area swept out by the radius vector of a circular orbit during the time between perihelion passage and Julian date J. It is the mean anomaly at time J.
+                    M = DTR * (meanAnomaly + dailyMotion);
+                    M = ModTwoPi(M);
+
+                    // If mean longitude was calculated, adjust it also for motion since epoch of elements.
+                    if (e.L != 0.0d)
+                    {
+                        e.L += dailyMotion;
+                        e.L = Mod360(e.L);
+                    }
+
+                    // By Kepler's second law, M must be equal to the area swept out in the same time by an elliptical orbit of same total area.
+                    // Integrate the ellipse expressed in polar coordinates r = a(1-e^2)/(1 + e cosW) with respect to the angle W to get an expression for the area swept out by the radius vector.
+                    // The area is given by the mean anomaly; the angle is solved numerically.
+                    // 
+                    // The answer is obtained in two steps.  We first solve Kepler's equation M = E - eccent*sin(E) for the eccentric anomaly E.  Then there is a closed form solution for W in terms of E.
+
+                    E1 = M; // /* Initial guess is same as circular orbit. */
+                    do
+                    {
+                        // The approximate area swept out in the ellipse minus the area swept out in the circle should be zero.  Use the derivative of the error to converge to solution by Newton's method.
+                        temp = E1 - eccent * Sin(E1) - M;
+                        E1 -= temp / (1.0d - eccent * Cos(E1));
+                    }
+                    while (Abs(temp) > 0.00000000001d);
+
+                    // The exact formula for the area in the ellipse is 2.0*atan(c2*tan(0.5*W)) - c1*eccent*sin(W)/(1+e*cos(W)) where
+                    //    c1 = sqrt( 1.0 - eccent*eccent )
+                    //    c2 = sqrt( (1.0-eccent)/(1.0+eccent) ).
+                    // Substituting the following value of W yields the exact solution.
+                    temp = Sqrt((1.0d + eccent) / (1.0d - eccent));
+                    W = 2.0d * Atan(temp * Tan(0.5d * E1));
+
+                    // The true anomaly.
+                    W = ModTwoPi(W);
+
+                    meanAnomaly *= DTR;
+
+                    // Orbital longitude measured from node (argument of latitude)
+                    if (e.L != 0.0d) // Mean longitude given
+                    {
+                        alat = e.L * DTR + W - meanAnomaly - ascendingNode;
+                    }
+                    else // Mean longitude not given
+
+                    {
+                        alat = W + DTR * argumentOfPerihelion;
+                    }
+
+                    // From the equation of the ellipse, get the radius from central focus to the object.
+                    r = meanDistance * (1.0d - eccent * eccent) / (1.0d + eccent * Cos(W));
+                }
+
+                inclination *= DTR; // Convert inclination to radians
+
+                // At this point:
+                //		alat		= argument of latitude (rad)
+                //		inclination	= inclination (rad)
+                //		r			= radius from central focus
+
+                // The heliocentric ecliptic longitude of the object is given by: tan(longitude - ascnode)  =  cos(inclination) * tan(alat)
+                coso = Cos(alat);
+                sino = Sin(alat);
+                W = sino * Cos(inclination);
+                E1 = Atan4(coso, W) + ascendingNode;
+
+                // The ecliptic latitude of the object
+                W = Asin(sino * Sin(inclination));
             }
-            // ----------
-            // Hyperbolic
-            // ----------
-            else if (eccent > 1.0d)
-            {
-                //
-                // The equation of the hyperbola in polar coordinates r, theta
-                // is r = a(e^2 - 1)/(1 + e cos(theta)) so the perihelion 
-                // distance q = a(e-1), the "mean distance"  a = q/(e-1).
-                //
-                meandistance = meandistance / (eccent - 1.0d);
-                temp = meandistance * Sqrt(meandistance);
-                W = (J - epoch) * 0.01720209895d / temp;
-                // /* solve M = -E + e sinh E */
-                E1 = W / (eccent - 1.0d);
-                M = 1.0d;
-                while (Abs(M) > 0.00000000001d)
-                {
 
-                    M = -E1 + eccent * Sinh(E1) - W;
-                    E1 += M / (1.0d - eccent * Cosh(E1));
-                }
-                r = meandistance * (-1.0d + eccent * Cosh(E1));
-                temp = (eccent + 1.0d) / (eccent - 1.0d);
-                M = Sqrt(temp) * Tanh(0.5d * E1);
-                M = 2.0d * Atan(M);
-                alat = M + DTR * argperih;
-            }
+            // At this point we have the heliocentric ecliptic polar coordinates of the body.
 
-            // -----------
-            // Ellipsoidal
-            // -----------
-            else // if(ecc < 1)
-            {
-                //
-                // Calculate the daily motion, if it is not given.
-                //
-                if (dailymotion == 0.0d)
-                {
-
-                    //
-                    // The constant is 180 k / pi, k = Gaussian gravitational 
-                    // constant. Assumes object in heliocentric orbit is 
-                    // massless.
-                    //
-                    dailymotion = 0.9856076686d / (e.a * Sqrt(e.a));
-                }
-                dailymotion *= J - epoch;
-                //
-                // M is proportional to the area swept out by the radius
-                // vector of a circular orbit during the time between
-                // perihelion passage and Julian date J.
-                // It is the mean anomaly at time J.
-                //
-                M = DTR * (meananomaly + dailymotion);
-                M = modtp(M);
-                //
-                // If mean longitude was calculated, adjust it also
-                // for motion since epoch of elements.
-                //
-                if (e.L != 0.0d)
-                {
-                    e.L += dailymotion;
-                    e.L = mod360(e.L);
-                }
-                //
-                // By Kepler's second law, M must be equal to
-                // the area swept out in the same time by an
-                // elliptical orbit of same total area.
-                // Integrate the ellipse expressed in polar coordinates
-                //     r = a(1-e^2)/(1 + e cosW)
-                // with respect to the angle W to get an expression for the
-                // area swept out by the radius vector.  The area is given
-                // by the mean anomaly; the angle is solved numerically.
-                // 
-                // The answer is obtained in two steps.  We first solve
-                // Kepler's equation
-                //    M = E - eccent*sin(E)
-                // for the eccentric anomaly E.  Then there is a
-                // closed form solution for W in terms of E.
-                //
-                E1 = M; // /* Initial guess is same as circular orbit. */
-                do
-                {
-                    // The approximate area swept out in the ellipse
-                    // ...minus the area swept out in the circle
-                    temp = E1 - eccent * Sin(E1) - M;
-                    // ...should be zero.  Use the derivative of the error
-                    //to converge to solution by Newton's method.
-                    E1 -= temp / (1.0d - eccent * Cos(E1));
-                }
-                while (Abs(temp) > 0.00000000001d);
-
-                //
-                // The exact formula for the area in the ellipse is
-                //    2.0*atan(c2*tan(0.5*W)) - c1*eccent*sin(W)/(1+e*cos(W))
-                // where
-                //    c1 = sqrt( 1.0 - eccent*eccent )
-                //    c2 = sqrt( (1.0-eccent)/(1.0+eccent) ).
-                // Substituting the following value of W
-                // yields the exact solution.
-                //
-                temp = Sqrt((1.0d + eccent) / (1.0d - eccent));
-                W = 2.0d * Atan(temp * Tan(0.5d * E1));
-
-                //
-                // The true anomaly.
-                //
-                W = modtp(W);
-
-                meananomaly *= DTR;
-                //
-                // Orbital longitude measured from node
-                // (argument of latitude)
-                //
-                if (e.L != 0.0d) // Mean longitude given
-                {
-                    alat = e.L * DTR + W - meananomaly - ascnode;
-                }
-                else
-                {
-                    alat = W + DTR * argperih;
-                } // Mean longitude not given
-                  //
-                  // From the equation of the ellipse, get the
-                  // radius from central focus to the object.
-                  //
-                r = meandistance * (1.0d - eccent * eccent) / (1.0d + eccent * Cos(W));
-            }
-            inclination *= DTR; // Convert inclination to radians
-
-            // ----------
-            // ALL ORBITS
-            // ----------
-            //
-            // At this point:
-            //
-            //		alat		= argument of latitude (rad)
-            //		inclination	= inclination (rad)
-            //		r			= radius from central focus
-            //
-            // The heliocentric ecliptic longitude of the object is given by:
-            //
-            //   tan(longitude - ascnode)  =  cos(inclination) * tan(alat)
-            //
-            coso = Cos(alat);
-            sino = Sin(alat);
-            W = sino * Cos(inclination);
-            E1 = atan4(coso, W) + ascnode;
-
-            //
-            // The ecliptic latitude of the object
-            //
-            W = Asin(sino * Sin(inclination));
-
-        // ------------------------------------
-        // Both from DE404 and from elements...
-        // ------------------------------------
-        //
-        // At this point we have the heliocentric ecliptic polar
-        // coordinates of the body.
-        //
-        kepdon:
-            ;
-
-
-            //
-            // Convert to heliocentric ecliptic rectangular coordinates, 
-            // using the perturbed latitude.
-            //
+            // Convert to heliocentric ecliptic rectangular coordinates, using the perturbed latitude.
             rect[2] = r * Sin(W);
             cosa = Cos(W);
             rect[1] = r * cosa * Sin(E1);
             rect[0] = r * cosa * Cos(E1);
 
-            //
-            // Convert from heliocentric ecliptic rectangular
-            // to heliocentric equatorial rectangular coordinates
-            // by rotating epsilon radians about the x axis.
-            //
-            epsiln(e.equinox, ref eps, ref coseps, ref sineps);
+            // Convert from heliocentric ecliptic rectangular to heliocentric equatorial rectangular coordinates by rotating epsilon radians about the x axis.
+            Epsiln(e.equinox, ref eps, ref coseps, ref sineps);
             W = coseps * rect[1] - sineps * rect[2];
             M = sineps * rect[1] + coseps * rect[2];
             rect[1] = W;
             rect[2] = M;
 
-            //
-            // Precess the equatorial (rectangular) coordinates to the
-            // ecliptic & equinox of J2000.0, if not already there.
-            //
-            precess(ref rect, e.equinox, 1);
+            // Precess the equatorial (rectangular) coordinates to the ecliptic & equinox of J2000.0, if not already there.
+            Precess(ref rect, e.equinox, 1);
 
-            //
-            // If earth, adjust from earth-moon barycenter to earth
-            // by AA page E2.
-            //
-            if (e.obname == "Earth")
-                embofs(J, ref rect, ref r); // /* see embofs() below */
+            // If earth, adjust from earth-moon barycenter to earth by AA page E2. See embofs() below
+            if (e.objectName == "Earth")
+                Embofs(J, ref rect, ref r);
         }
 
-        //
-        // Adjust position from Earth-Moon barycenter to Earth
-        //
-        // J = Julian day number
-        // emb = Equatorial rectangular coordinates of EMB.
-        // pr = Earth's distance to the Sun (au)
-        //
-        internal static void embofs(double J, ref double[] ea, ref double pr)
+        /// <summary>
+        /// Adjust position from Earth-Moon barycenter to Earth
+        /// </summary>
+        /// <param name="J">Julian day number</param>
+        /// <param name="ea">Equatorial rectangular coordinates of EMB.</param>
+        /// <param name="pr"> Earth's distance to the Sun (au)</param>
+        internal static void Embofs(double J, ref double[] ea, ref double pr)
         {
-
             double[] pm = new double[4], polm = new double[4];
             double a, b;
             int i;
 
-            //
             // Compute the vector Moon - Earth.
-            //
-            gmoon(J, ref pm, ref polm);
+            GMoon(J, ref pm, ref polm);
 
-            //
-            // Precess the lunar position
-            // to ecliptic and equinox of J2000.0
-            //
-            precess(ref pm, J, 1);
+            // Precess the lunar position to ecliptic and equinox of J2000.0
+            Precess(ref pm, J, 1);
 
-            //
             // Adjust the coordinates of the Earth
-            //
             a = 1.0d / (emrat + 1.0d);
             b = 0.0d;
             for (i = 0; i <= 2; i++)
             {
                 ea[i] = ea[i] - a * pm[i];
-                b = b + ea[i] * ea[i];
+                b += ea[i] * ea[i];
             }
 
-            //
             // Sun-Earth distance.
-            //
             pr = Sqrt(b);
         }
 
@@ -734,10 +495,8 @@ namespace Kepler
 
         #region MajElems
 
-        // /* Orbits for each planet.  The indicated orbital elements are
-        // * not actually used, since the positions are are now calculated
-        // * from a formula.  Magnitude and semidiameter are still used.
-        // */
+        // Orbits for each planet.  The indicated orbital elements are not actually used, since the positions are  now calculated from a formula.
+        // Magnitude and semi-diameter are still used.
 
 
         // /* January 5.0, 1987 */
@@ -768,22 +527,21 @@ namespace Kepler
         private static readonly double[,] ss = new double[19, 32];
         private static readonly double[,] cc = new double[19, 32];
         private static readonly double[] Args = new double[19];
-        private static double LP_equinox, NF_arcsec, Ea_arcsec, pA_precession;
+        private static double LP_equinox;
 
-        // /*   Routines to chew through tables of perturbations.  */
-        internal static double mods3600(double x)
+        // Routines to chew through tables of perturbations.
+        internal static double Mods3600(double x)
         {
             return x - 1296000.0d * Floor(x / 1296000.0d);
         }
 
-        // /* From Simon et al (1994)  */
-        // /* Arc sec per 10000 Julian years.  */
+        // From Simon et al (1994)  Arc sec per 10000 Julian years.
         internal static double[] freqs = new double[] { 53810162868.8982d, 21066413643.3548d, 12959774228.3429d, 6890507749.3988d, 1092566037.7991d, 439960985.5372d, 154248119.3933d, 78655032.0744d, 52272245.1795d };
 
-        // /* Arc sec.  */
+        // Arc sec.
         internal static double[] phases = new double[] { 252.25090552d * 3600.0d, 181.97980085d * 3600.0d, 100.46645683d * 3600.0d, 355.43299958d * 3600.0d, 34.35151874d * 3600.0d, 50.0774443d * 3600.0d, 314.05500511d * 3600.0d, 304.34866548d * 3600.0d, 860492.1546d };
 
-        internal static int gplan(double JD, ref plantbl plan, ref double[] pobj)
+        internal static int GPlan(double JD, ref PlanetTable plan, ref double[] pobj)
         {
             double su, cu, sv, cv, TI;
             double t, sl, sb, sr;
@@ -794,25 +552,26 @@ namespace Kepler
             TI = (JD - J2000) / plan.timescale;
             n = plan.maxargs;
 
-            // /* Calculate sin( i*MM ), etc. for needed multiple angles.  */
+            // Calculate sin( i*MM ), etc. for needed multiple angles.
             var loopTo = n - 1;
             for (i = 0; i <= loopTo; i++)
             {
                 j = plan.max_harmonic[i];
                 if (j > 0)
                 {
-                    sr = (mods3600(freqs[i] * TI) + phases[i]) * STR;
-                    sscc(i, sr, j);
+                    sr = (Mods3600(freqs[i] * TI) + phases[i]) * STR;
+                    Sscc(i, sr, j);
                 }
             }
 
             // /* Point to start of table of arguments. */
 
             p = 0; // p = plan.arg_tbl
-                   // /* Point to tabulated cosine and sine amplitudes.  */
-            pl = 0;   // pl = plan.lon_tbl
-            pb = 0;   // pb = plan.lat_tbl
-            pr = 0;  // pr = plan.rad_tbl
+            
+            // /* Point to tabulated cosine and sine amplitudes.  */
+            pl = 0; // pl = plan.lon_tbl
+            pb = 0; // pb = plan.lat_tbl
+            pr = 0; // pr = plan.rad_tbl
 
             sl = 0.0d;
             sb = 0.0d;
@@ -820,28 +579,28 @@ namespace Kepler
 
             do
             {
-                // /* argument of sine and cosine */
-                // /* Number of periodic arguments. */
+                // argument of sine and cosine Number of periodic arguments.
                 np = plan.arg_tbl[p];
                 p += 1;
                 if (np < 0)
                     break;
-                if (np == 0)  // /* It is a polynomial term.  */
+
+                if (np == 0)  // It is a polynomial term.
                 {
                     nt = plan.arg_tbl[p];
                     p += 1;
                     cu = plan.lon_tbl[pl];
-                    pl += 1;  // /* Longitude polynomial. */
+                    pl += 1;  // Longitude polynomial.
                     var loopTo1 = nt - 1;
                     for (ip = 0; ip <= loopTo1; ip++)
                     {
                         cu = cu * TI + plan.lon_tbl[pl];
                         pl += 1;
                     }
-                    sl += mods3600(cu);
+                    sl += Mods3600(cu);
 
                     cu = plan.lat_tbl[pb];
-                    pb += 1; // /* Latitude polynomial. */
+                    pb += 1; // Latitude polynomial.
                     var loopTo2 = nt - 1;
                     for (ip = 0; ip <= loopTo2; ip++)
                     {
@@ -851,7 +610,7 @@ namespace Kepler
                     sb += cu;
 
                     cu = plan.rad_tbl[pr];
-                    pr += 1; // /* Radius polynomial. */
+                    pr += 1; // Radius polynomial.
                     var loopTo3 = nt - 1;
                     for (ip = 0; ip <= loopTo3; ip++)
                     {
@@ -869,40 +628,40 @@ namespace Kepler
                     for (ip = 0; ip <= loopTo4; ip++)
                     {
                         j = plan.arg_tbl[p];
-                        p += 1; // /* What harmonic.  */
+                        p += 1; //What harmonic.
                         m = plan.arg_tbl[p] - 1;
-                        p += 1;  // /* Which planet.  */
+                        p += 1;  // Which planet.
                         if (j != 0)
                         {
                             k = j;
                             if (j < 0)
                                 k = -k;
                             k -= 1;
-                            su = ss[m, k]; // /* sin(k*angle) */
+                            su = ss[m, k]; //sin(k*angle)
                             if (j < 0)
                                 su = -su;
                             cu = cc[m, k];
-                            if (k1 == 0)
-                            {
-                                // /* set first angle */
+
+                            if (k1 == 0) // set first angle
+                            {                               
                                 sv = su;
                                 cv = cu;
                                 k1 = 1;
                             }
-                            else
-                            {
-                                // /* combine angles */
+                            else // combine angles
+                            {                         
                                 t = su * cv + cu * sv;
                                 cv = cu * cv - su * sv;
                                 sv = t;
                             }
                         }
                     }
-                    // /* Highest power of T.  */
+
+                    // Highest power of T.
                     nt = plan.arg_tbl[p];
                     p += 1;
                     cu = plan.lon_tbl[pl];
-                    pl += 1; // /* Longitude. */
+                    pl += 1; // Longitude.
                     su = plan.lon_tbl[pl];
                     pl += 1;
                     var loopTo5 = nt - 1;
@@ -916,7 +675,7 @@ namespace Kepler
                     sl += cu * cv + su * sv;
 
                     cu = plan.lat_tbl[pb];
-                    pb += 1; // /* Latitiude. */
+                    pb += 1; // Latitiude.
                     su = plan.lat_tbl[pb];
                     pb += 1;
                     var loopTo6 = nt;
@@ -930,7 +689,7 @@ namespace Kepler
                     sb += cu * cv + su * sv;
 
                     cu = plan.rad_tbl[pr];
-                    pr += 1; // /* Radius. */
+                    pr += 1; // Radius.
                     su = plan.rad_tbl[pr];
                     pr += 1;
                     var loopTo7 = nt;
@@ -954,10 +713,8 @@ namespace Kepler
         }
 
 
-        // /* Prepare lookup table of sin and cos ( i*Lj )
-        // * for required multiple angles
-        // */
-        internal static int sscc(int k, double arg, int n)
+        // Prepare lookup table of sin and cos ( i*Lj ) for required multiple angles
+        internal static int Sscc(int k, double arg, int n)
         {
             double cu, su, cv, sv, s;
             int i;
@@ -981,9 +738,9 @@ namespace Kepler
             }
             return 0;
         }
-        // /* Compute mean elements at Julian date J.  */
+        // Compute mean elements at Julian date J.
 
-        public static void mean_elements(double J)
+        public static void MeanElements(double J)
         {
             double x, T, T2;
 
@@ -994,72 +751,70 @@ namespace Kepler
             // /* Mean longitudes of planets (Simon et al, 1994) .047" subtracted from constant term for offset to DE403 origin. */
 
             // /* Mercury */
-            x = mods3600(538101628.68898189d * T + 908103.213d);
+            x = Mods3600(538101628.68898189d * T + 908103.213d);
             x += (0.00000639d * T - 0.0192789d) * T2;
             Args[0] = STR * x;
 
             // /* Venus */
-            x = mods3600(210664136.43354821d * T + 655127.236d);
+            x = Mods3600(210664136.43354821d * T + 655127.236d);
             x += (-0.00000627d * T + 0.0059381d) * T2;
             Args[1] = STR * x;
 
             // /* Earth  */
-            x = mods3600(129597742.283429d * T + 361679.198d);
+            x = Mods3600(129597742.283429d * T + 361679.198d);
             x += (-0.00000523d * T - 0.0204411d) * T2;
-            Ea_arcsec = x;
             Args[2] = STR * x;
 
             // /* Mars */
-            x = mods3600(68905077.493988d * T + 1279558.751d);
+            x = Mods3600(68905077.493988d * T + 1279558.751d);
             x += (-0.00001043d * T + 0.0094264d) * T2;
             Args[3] = STR * x;
 
             // /* Jupiter */
-            x = mods3600(10925660.377991d * T + 123665.42d);
+            x = Mods3600(10925660.377991d * T + 123665.42d);
             x += ((((-0.00000000034d * T + 0.0000000591d) * T + 0.000004667d) * T + 0.00005706d) * T - 0.3060378d) * T2;
             Args[4] = STR * x;
 
             // /* Saturn */
-            x = mods3600(4399609.855372d * T + 180278.752d);
+            x = Mods3600(4399609.855372d * T + 180278.752d);
             x += ((((0.00000000083d * T - 0.0000001452d) * T - 0.000011484d) * T - 0.00016618d) * T + 0.7561614d) * T2;
             Args[5] = STR * x;
 
             // /* Uranus */
-            x = mods3600(1542481.193933d * T + 1130597.971d) + (0.00002156d * T - 0.0175083d) * T2;
+            x = Mods3600(1542481.193933d * T + 1130597.971d) + (0.00002156d * T - 0.0175083d) * T2;
             Args[6] = STR * x;
 
             // /* Neptune */
-            x = mods3600(786550.320744d * T + 1095655.149d) + (-0.00000895d * T + 0.0021103d) * T2;
+            x = Mods3600(786550.320744d * T + 1095655.149d) + (-0.00000895d * T + 0.0021103d) * T2;
             Args[7] = STR * x;
 
             // /* Copied from cmoon.c, DE404 version.  */
             // /* Mean elongation of moon = D */
-            x = mods3600(1602961600.9939659d * T + 1072261.2202445078d);
+            x = Mods3600(1602961600.9939659d * T + 1072261.2202445078d);
             x += (((((-0.0000000000003207663637426d * T + 0.00000000002555243317839d) * T + 0.000000002560078201452d) * T - 0.00003702060118571d) * T + 0.0069492746836058421d) * T - 6.7352202374457519d) * T2;
             // /* D, t^2 */ 
             Args[9] = STR * x;
 
             // /* Mean distance of moon from its ascending node = F */
-            x = mods3600(1739527262.8437717d * T + 335779.5141288474d);
+            x = Mods3600(1739527262.8437717d * T + 335779.5141288474d);
             x += (((((0.0000000000004474984866301d * T + 0.00000000004189032191814d) * T - 0.000000002790392351314d) * T - 0.000002165750777942d) * T - 0.00075311878482337989d) * T - 13.117809789650071d) * T2;
             // /* F, t^2 */
-            NF_arcsec = x;
             Args[10] = STR * x;
 
             // /* Mean anomaly of sun = l' (J. Laskar) */
-            x = mods3600(129596581.0230432d * T + 1287102.7407441526d);
+            x = Mods3600(129596581.0230432d * T + 1287102.7407441526d);
             x += ((((((((1.62E-20d * T - 1.039E-17d) * T - 0.00000000000000383508d) * T + 0.0000000000004237343d) * T + 0.000000000088555011d) * T - 0.0000000477258489d) * T - 0.000011297037031d) * T + 0.0000874737173673247d) * T - 0.55281306421783094d) * T2;
 
             Args[11] = STR * x;
 
             // /* Mean anomaly of moon = l */
-            x = mods3600(1717915922.8846793d * T + 485868.17465825332d);
+            x = Mods3600(1717915922.8846793d * T + 485868.17465825332d);
             x += ((((-0.000000000001755312760154d * T + 0.00000000003452144225877d * T - 0.00000002506365935364d) * T - 0.0002536291235258d) * T + 0.052099641302735818d) * T + 31.501359071894147d) * T2;
             // /* l, t^2 */
             Args[12] = STR * x;
 
             // /* Mean longitude of moon, re mean ecliptic and equinox of date = L  */
-            x = mods3600(1732564372.0442266d * T + 785939.8092105242d);
+            x = Mods3600(1732564372.0442266d * T + 785939.8092105242d);
             x += (((((0.00000000000007200592540556d * T + 0.0000000002235210987108d) * T - 0.00000001024222633731d) * T - 0.00006073960534117d) * T + 0.006901724852838049d) * T - 5.65504600274714d) * T2;
             // /* L, t^2 */
             LP_equinox = x;
@@ -1072,20 +827,19 @@ namespace Kepler
             // /*
             // Args(13) -= x;
             // */
-            pA_precession = STR * x;
 
             // /* Free librations.  */
             // /* longitudinal libration 2.891725 years */
-            x = mods3600(44817540.9d * T + 806045.7d);
+            x = Mods3600(44817540.9d * T + 806045.7d);
             Args[14] = STR * x;
             // /* libration P, 24.2 years */
-            x = mods3600(5364867.87d * T - 391702.8d);
+            x = Mods3600(5364867.87d * T - 391702.8d);
             Args[15] = STR * x;
 
             // Args(16) = 0.0
 
             // /* libration W, 74.7 years. */
-            x = mods3600(1735730.0d * T);
+            x = Mods3600(1735730.0d * T);
             Args[17] = STR * x;
         }
 
@@ -1094,14 +848,14 @@ namespace Kepler
         // in three variables (e.g., longitude, latitude, radius)
         // of the same list of arguments.  */
 
-        internal static int g3plan(double JD, ref plantbl plan, ref double[] pobj, int objnum)
+        internal static int G3Plan(double JD, ref PlanetTable plan, ref double[] pobj, int objnum)
         {
             int i, j, k, m, n, k1, ip, np, nt;
             int p, pl, pb, pr;
             double su, cu, sv, cv;
             double TI, t, sl, sb, sr;
 
-            mean_elements(JD);
+            MeanElements(JD);
             // #If 0 Then
             // /* For librations, moon's longitude is sidereal.  */
             // If (flag) Then
@@ -1116,7 +870,7 @@ namespace Kepler
             {
                 j = plan.max_harmonic[i];
                 if (j > 0)
-                    sscc(i, Args[i], j);
+                    Sscc(i, Args[i], j);
             }
 
             // /* Point to start of table of arguments. */
@@ -1276,14 +1030,14 @@ namespace Kepler
         // /* Generic program to accumulate sum of trigonometric series
         // in two variables (e.g., longitude, radius)
         // of the same list of arguments.  */
-        internal static int g2plan(double JD, ref plantbl plan, ref double[] pobj)
+        internal static int G2Plan(double JD, ref PlanetTable plan, ref double[] pobj)
         {
             int i, j, k, m, n, k1, ip, np, nt;
             int p, pl, pr;
             double su, cu, sv, cv;
             double TI, t, sl, sr;
 
-            mean_elements(JD);
+            MeanElements(JD);
             // #If 0 Then
             // /* For librations, moon's longitude is sidereal.  */
             // If (flag) Then
@@ -1297,7 +1051,7 @@ namespace Kepler
             {
                 j = plan.max_harmonic[i];
                 if (j > 0)
-                    sscc(i, Args[i], j);
+                    Sscc(i, Args[i], j);
             }
 
             // /* Point to start of table of arguments. */
@@ -1430,7 +1184,7 @@ namespace Kepler
         // /* Generic program to accumulate sum of trigonometric series
         // in one variable.  */
 
-        internal static double g1plan(double JD, ref plantbl plan)
+        internal static double G1Plan(double JD, ref PlanetTable plan)
         {
             int i, j, k, m, k1, ip, np, nt;
             int p, pl;
@@ -1438,13 +1192,13 @@ namespace Kepler
             double TI, t, sl;
 
             TI = (JD - J2000) / plan.timescale;
-            mean_elements(JD);
+            MeanElements(JD);
             // /* Calculate sin( i*MM ), etc. for needed multiple angles.  */
             for (i = 0; i <= NARGS - 1; i++)
             {
                 j = plan.max_harmonic[i];
                 if (j > 0)
-                    sscc(i, Args[i], j);
+                    Sscc(i, Args[i], j);
             }
 
             // /* Point to start of table of arguments. */
@@ -1543,10 +1297,10 @@ namespace Kepler
             return plan.trunclvl * sl;
         }
 
-        internal static int gmoon(double J, ref double[] rect, ref double[] pol)
+        internal static int GMoon(double J, ref double[] rect, ref double[] pol)
         {
             double x, cosB, sinB, cosL, sinL, eps = default, coseps = default, sineps = default;
-            g2plan(J, ref Mlr404Data.moonlr, ref pol);
+            G2Plan(J, ref Mlr404Data.moonlr, ref pol);
             x = pol[0];
             x += LP_equinox;
             if (x < -645000.0d)
@@ -1554,12 +1308,12 @@ namespace Kepler
             if (x > 645000.0d)
                 x -= 1296000.0d;
             pol[0] = STR * x;
-            x = g1plan(J, ref Mlat404Data.moonlat);
+            x = G1Plan(J, ref Mlat404Data.moonlat);
             pol[1] = STR * x;
             x = (1.0d + STR * pol[2]) * Mlr404Data.moonlr.distance;
             pol[2] = x;
             // /* Convert ecliptic polar to equatorial rectangular coordinates.  */
-            epsiln(J, ref eps, ref coseps, ref sineps);
+            Epsiln(J, ref eps, ref coseps, ref sineps);
             cosB = Cos(pol[1]);
             sinB = Sin(pol[1]);
             cosL = Cos(pol[0]);

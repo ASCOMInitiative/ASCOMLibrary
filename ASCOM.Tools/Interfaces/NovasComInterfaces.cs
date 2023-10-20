@@ -1,9 +1,7 @@
 ﻿using System.Runtime.InteropServices;
-using ASCOM;
 using ASCOM.Tools.Novas31;
-using Kepler;
 
-namespace NovasCom
+namespace ASCOM.Tools.Interfaces
 {
     /// <summary>
     /// Interface to an Earth object that represents the "state" of the Earth at a given Terrestrial Julian date
@@ -160,7 +158,7 @@ namespace NovasCom
         /// <returns>PositionVector for the apparent place.</returns>
         /// <remarks></remarks>
         PositionVector GetApparentPosition(double tjd);
-        
+
         /// <summary>
         /// Get an astrometric position for given time
         /// </summary>

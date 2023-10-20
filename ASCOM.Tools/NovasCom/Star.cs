@@ -1,13 +1,10 @@
-﻿using ASCOM;
-using static System.Math;
+﻿using static System.Math;
 using ASCOM.Tools.Novas31;
-using ASCOM.Tools;
-using System.Threading;
 using ASCOM.Common.Interfaces;
 using ASCOM.Common;
+using ASCOM.Tools.Interfaces;
 
-
-namespace NovasCom
+namespace ASCOM.Tools
 {
     /// <summary>
     /// NOVAS-COM: Star Class

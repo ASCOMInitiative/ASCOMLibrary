@@ -1,9 +1,8 @@
-﻿using ASCOM;
-using static System.Math;
+﻿using static System.Math;
 using ASCOM.Tools.Novas31;
-using ASCOM.Tools;
+using ASCOM.Tools.Interfaces;
 
-namespace NovasCom
+namespace ASCOM.Tools
 {
     /// <summary>
     /// NOVAS-COM: PositionVector Class
@@ -22,14 +21,14 @@ namespace NovasCom
     {
         internal const double C = 173.14463348d; // Speed of light in AU/Day.
 
-        private bool xOk, yOk, zOk, RADecOk, AzElOk;
-        private double[] PosVec = new double[3];
-        private double m_RA;
-        private double m_DEC;
-        private double m_Dist;
-        private double m_Light;
-        private readonly double m_Alt;
-        private readonly double m_Az;
+        private bool xOk, yOk, zOk, rADecOk, azElOk;
+        private double[] positionVector = new double[3];
+        private double rightAscension;
+        private double declination;
+        private double distance;
+        private double light;
+        private readonly double altitude;
+        private readonly double azimuth;
 
         /// <summary>
         /// Create a new, uninitialised position vector
@@ -40,8 +39,8 @@ namespace NovasCom
             xOk = false;
             yOk = false;
             zOk = false;
-            RADecOk = false;
-            AzElOk = false;
+            rADecOk = false;
+            azElOk = false;
         }
 
         /// <summary>
@@ -59,20 +58,20 @@ namespace NovasCom
         /// <remarks></remarks>
         public PositionVector(double x, double y, double z, double RA, double DEC, double Distance, double Light, double Azimuth, double Altitude)
         {
-            PosVec[0] = x;
+            positionVector[0] = x;
             xOk = true;
-            PosVec[1] = y;
+            positionVector[1] = y;
             yOk = true;
-            PosVec[2] = z;
+            positionVector[2] = z;
             zOk = true;
-            m_RA = RA;
-            m_DEC = DEC;
-            RADecOk = true;
-            m_Dist = Distance;
-            m_Light = Light;
-            m_Az = Azimuth;
-            m_Alt = Altitude;
-            AzElOk = true;
+            rightAscension = RA;
+            declination = DEC;
+            rADecOk = true;
+            distance = Distance;
+            light = Light;
+            azimuth = Azimuth;
+            altitude = Altitude;
+            azElOk = true;
         }
 
         /// <summary>
@@ -88,18 +87,18 @@ namespace NovasCom
         /// <remarks></remarks>
         public PositionVector(double x, double y, double z, double RA, double DEC, double Distance, double Light)
         {
-            PosVec[0] = x;
+            positionVector[0] = x;
             xOk = true;
-            PosVec[1] = y;
+            positionVector[1] = y;
             yOk = true;
-            PosVec[2] = z;
+            positionVector[2] = z;
             zOk = true;
-            m_RA = RA;
-            m_DEC = DEC;
-            RADecOk = true;
-            m_Dist = Distance;
-            m_Light = Light;
-            AzElOk = false;
+            rightAscension = RA;
+            declination = DEC;
+            rADecOk = true;
+            distance = Distance;
+            light = Light;
+            azElOk = false;
         }
 
         /// <summary>
@@ -109,18 +108,18 @@ namespace NovasCom
         /// <remarks>The algorithm includes relativistic terms</remarks>
         public void Aberration(VelocityVector vel)
         {
-            double[] p = new double[3], v = new double[3];
+            double[] position = new double[3], velocity = new double[3];
             if (!(xOk & yOk & zOk))
                 throw new HelperException("PositionVector:ProperMotion - x, y or z has not been set");
 
             CheckEq();
-            p[0] = PosVec[0];
-            p[1] = PosVec[1];
-            p[2] = PosVec[2];
+            position[0] = positionVector[0];
+            position[1] = positionVector[1];
+            position[2] = positionVector[2];
 
             try
             {
-                v[0] = vel.x;
+                velocity[0] = vel.x;
             }
             catch
             {
@@ -128,7 +127,7 @@ namespace NovasCom
             }
             try
             {
-                v[1] = vel.y;
+                velocity[1] = vel.y;
             }
             catch 
             {
@@ -137,16 +136,16 @@ namespace NovasCom
             }
             try
             {
-                v[2] = vel.z;
+                velocity[2] = vel.z;
             }
             catch
             {
                 throw new HelperException("PositionVector:Aberration - VelocityVector.z is not available");
             }
 
-            Novas.Aberration(p, v, m_Light, ref PosVec);
-            RADecOk = false;
-            AzElOk = false;
+            Novas.Aberration(position, velocity, light, ref positionVector);
+            rADecOk = false;
+            azElOk = false;
         }
 
         /// <summary>
@@ -159,10 +158,10 @@ namespace NovasCom
         {
             get
             {
-                if (!AzElOk)
+                if (!azElOk)
                     throw new HelperException("PositionVector:Azimuth - Azimuth is not available");
 
-                return m_Az;
+                return azimuth;
             }
         }
 
@@ -180,7 +179,7 @@ namespace NovasCom
                     throw new HelperException("PositionVector:Declination - x, y or z has not been set");
 
                 CheckEq();
-                return m_DEC;
+                return declination;
             }
         }
 
@@ -198,7 +197,7 @@ namespace NovasCom
                     throw new HelperException("PositionVector:Distance - x, y or z has not been set");
 
                 CheckEq();
-                return m_Dist;
+                return distance;
             }
         }
 
@@ -215,10 +214,10 @@ namespace NovasCom
         {
             get
             {
-                if (!AzElOk)
+                if (!azElOk)
                     throw new HelperException("PositionVector:Elevation - Elevation is not available");
 
-                return m_Alt;
+                return altitude;
             }
         }
 
@@ -236,7 +235,7 @@ namespace NovasCom
                     throw new HelperException("PositionVector:LightTime - x, y or z has not been set");
 
                 CheckEq();
-                return m_Light;
+                return light;
             }
         }
 
@@ -248,17 +247,17 @@ namespace NovasCom
         /// <remarks>The coordinates are referred to the mean equator and equinox of the two respective epochs.</remarks>
         public void Precess(double tjd, double tjd2)
         {
-            var p = new double[3];
+            var position = new double[3];
             if (!(xOk & yOk & zOk))
                 throw new HelperException("PositionVector:Precess - x, y or z has not been set");
 
-            p[0] = PosVec[0];
-            p[1] = PosVec[1];
-            p[2] = PosVec[2];
-            Novas.Precession(tjd, p, tjd2, ref PosVec);
+            position[0] = positionVector[0];
+            position[1] = positionVector[1];
+            position[2] = positionVector[2];
+            Novas.Precession(tjd, position, tjd2, ref positionVector);
 
-            RADecOk = false;
-            AzElOk = false;
+            rADecOk = false;
+            azElOk = false;
         }
 
         /// <summary>
@@ -273,16 +272,16 @@ namespace NovasCom
         /// <exception cref="HelperException">If the supplied velocity vector does not have valid x, y and z components</exception>
         public bool ProperMotion(VelocityVector vel, double tjd1, double tjd2)
         {
-            double[] p = new double[3], v = new double[3];
+            double[] position = new double[3], velocity = new double[3];
             if (!(xOk & yOk & zOk))
                 throw new HelperException("PositionVector:ProperMotion - x, y or z has not been set");
 
-            p[0] = PosVec[0];
-            p[1] = PosVec[1];
-            p[2] = PosVec[2];
+            position[0] = positionVector[0];
+            position[1] = positionVector[1];
+            position[2] = positionVector[2];
             try
             {
-                v[0] = vel.x;
+                velocity[0] = vel.x;
             }
             catch 
             {
@@ -291,7 +290,7 @@ namespace NovasCom
 
             try
             {
-                v[1] = vel.y;
+                velocity[1] = vel.y;
             }
             catch 
             {
@@ -300,17 +299,17 @@ namespace NovasCom
 
             try
             {
-                v[2] = vel.z;
+                velocity[2] = vel.z;
             }
             catch 
             {
                 throw new HelperException("PositionVector:ProperMotion - VelocityVector.z is not available");
             }
 
-            Novas.ProperMotion(tjd1, p, v, tjd2, ref PosVec);
+            Novas.ProperMotion(tjd1, position, velocity, tjd2, ref positionVector);
 
-            RADecOk = false;
-            AzElOk = false;
+            rADecOk = false;
+            azElOk = false;
 
             return default;
         }
@@ -329,7 +328,7 @@ namespace NovasCom
                     throw new HelperException("PositionVector:RA - x, y or z has not been set");
 
                 CheckEq();
-                return m_RA;
+                return rightAscension;
             }
         }
 
@@ -350,8 +349,7 @@ namespace NovasCom
             const double KMAU = 149597870.0d; // Astronomical Unit in kilometres.
             double df2, t, sinphi, cosphi, c, s, ach, ash, stlocl, sinst, cosst;
 
-            // Compute parameters relating to geodetic to geocentric conversion.
-            df2 = Pow(1.0d - f, 2d);
+           // Validate required parameters
             try
             {
                 t = site.Latitude;
@@ -361,12 +359,6 @@ namespace NovasCom
                 throw new HelperException("PositionVector:SetFromSite - Site.Latitude is not available");
             }
 
-            t = DEG2RAD * t;
-            sinphi = Sin(t);
-            cosphi = Cos(t);
-            c = 1.0d / Sqrt(Pow(cosphi, 2.0d) + df2 * Pow(sinphi, 2.0d));
-            s = df2 * c;
-
             try
             {
                 t = site.Height;
@@ -375,11 +367,7 @@ namespace NovasCom
             {
                 throw new HelperException("PositionVector:SetFromSite - Site.Height is not available");
             }
-            t /= 1000d; // Elevation in KM
-            ach = EARTHRAD * c + t;
-            ash = EARTHRAD * s + t;
 
-            // Compute local sidereal time factors at the observer's longitude.
             try
             {
                 t = site.Longitude;
@@ -389,23 +377,36 @@ namespace NovasCom
                 throw new HelperException("PositionVector:SetFromSite - Site.Height is not available");
             }
 
+            // Compute parameters relating to geodetic to geocentric conversion.
+            df2 = Pow(1.0d - f, 2d);
+            t = DEG2RAD * t;
+            sinphi = Sin(t);
+            cosphi = Cos(t);
+            c = 1.0d / Sqrt(Pow(cosphi, 2.0d) + df2 * Pow(sinphi, 2.0d));
+            s = df2 * c;
+
+            t /= 1000d; // Elevation in KM
+            ach = EARTHRAD * c + t;
+            ash = EARTHRAD * s + t;
+
+            // Compute local sidereal time factors at the observer's longitude.
             stlocl = (gast * 15.0d + t) * DEG2RAD;
             sinst = Sin(stlocl);
             cosst = Cos(stlocl);
 
             // Compute position vector components in AU
-            PosVec[0] = ach * cosphi * cosst / KMAU;
-            PosVec[1] = ach * cosphi * sinst / KMAU;
-            PosVec[2] = ash * sinphi / KMAU;
+            positionVector[0] = ach * cosphi * cosst / KMAU;
+            positionVector[1] = ach * cosphi * sinst / KMAU;
+            positionVector[2] = ash * sinphi / KMAU;
 
-            RADecOk = false; // These really aren't interesting anyway for site vector
-            AzElOk = false;
+            rADecOk = false; // These really aren't interesting anyway for site vector
+            azElOk = false;
 
             xOk = true; // Object is valid
             yOk = true;
             zOk = true;
 
-            return default;
+            return true;
         }
 
         /// <summary>
@@ -420,7 +421,7 @@ namespace NovasCom
         public bool SetFromSiteJD(Site site, double ujd)
         {
             SetFromSiteJD(site, ujd, 0.0d);
-            return default;
+            return true;
         }
 
         /// <summary>
@@ -433,37 +434,17 @@ namespace NovasCom
         /// <remarks>The Julian date must be UTC Julian date, not terrestrial.</remarks>
         public bool SetFromSiteJD(Site site, double ujd, double delta_t)
         {
-            double dummy = default, secdiff = default, tdb, tjd, gast = default;
-            double oblm = default, oblt = default, eqeq = default, psi = default, eps = default;
+            double gast = default;
 
-            // Convert UTC Julian date to Terrestrial Julian Date then
-            // convert that to barycentric for earthtilt(), which we use
-            // to get the equation of equinoxes for sidereal_time(). Note
-            // that we're using UJD as input to the deltat(), but that is
-            // OK as the difference in time (~70 sec) is insignificant.
-            // For precise applications, the caller must specify delta_t.
-            //
-            // tjd = ujd + ((delta_t != 0.0) ? delta_t : deltat(ujd))
-            if (delta_t != 0.0d)
-            {
-                tjd = ujd + delta_t;
-            }
-            else
-            {
-                tjd = ujd + Utilities.DeltaT(ujd);
-            }
-
-            Novas.Tdb2Tt(tjd, ref dummy, ref secdiff);
-            tdb = tjd + secdiff / 86400.0d;
-            Novas.ETilt(tdb, Accuracy.Full, ref oblm, ref oblt, ref eqeq, ref psi, ref eps);
+            // Make sure we have a valid value for delta T if the user doesn't supply one
+            if (delta_t == 0.0)
+                delta_t = Utilities.DeltaT(ujd);
 
             // Get the Greenwich Apparent Sidereal Time and call our SetFromSite() method.
-            Novas.SiderealTime(ujd, 0.0d, Utilities.DeltaT(ujd), GstType.GreenwichApparentSiderealTime, Method.CIOBased, Accuracy.Full, ref gast);
-
+            Novas.SiderealTime(ujd, 0.0d, delta_t, GstType.GreenwichApparentSiderealTime, Method.EquinoxBased, Accuracy.Full, ref gast);
             SetFromSite(site, gast);
 
-            return default;
-
+            return true;
         }
 
         /// <summary>
@@ -480,7 +461,7 @@ namespace NovasCom
 
             double paralx, r, d, cra, sra, cdc, sdc;
 
-            // If parallax is unknown, undetermined, or zero, set it to 1e-7 second of arc, corresponding to a distance of 10 mega parsecs.
+            // Validate required parameters
             try
             {
                 paralx = star.Parallax;
@@ -490,48 +471,47 @@ namespace NovasCom
                 throw new HelperException("PositionVector:SetFromStar - Star.Parallax is not available");
             }
 
-            if (paralx <= 0.0d)
-                paralx = 0.0000001d;
-
-            // Convert right ascension, declination, and parallax to position vector in equatorial system with units of AU.
-            m_Dist = RAD2SEC / paralx;
             try
             {
-                m_RA = star.RightAscension;
+                rightAscension = star.RightAscension;
             }
             catch 
             {
                 throw new HelperException("PositionVector:SetFromStar - Star.RightAscension is not available");
             }
 
-            r = m_RA * 15.0d * DEG2RAD; // hrs -> deg -> rad
-
             try
             {
-                m_DEC = star.Declination;
+                declination = star.Declination;
             }
             catch 
             {
                 throw new HelperException("PositionVector:SetFromStar - Star.Declination is not available");
             }
 
-            d = m_DEC * DEG2RAD; // deg -> rad
+            // If parallax is unknown, undetermined, or zero, set it to 1e-7 second of arc, corresponding to a distance of 10 mega parsecs.
+            if (paralx <= 0.0d)
+                paralx = 0.0000001d;
 
+            // Convert right ascension, declination, and parallax to position vector in equatorial system with units of AU.
+            distance = RAD2SEC / paralx;
+            r = rightAscension * 15.0d * DEG2RAD; // hrs -> deg -> rad
+            d = declination * DEG2RAD; // deg -> rad
             cra = Cos(r);
             sra = Sin(r);
             cdc = Cos(d);
             sdc = Sin(d);
 
-            PosVec[0] = m_Dist * cdc * cra;
-            PosVec[1] = m_Dist * cdc * sra;
-            PosVec[2] = m_Dist * sdc;
+            positionVector[0] = distance * cdc * cra;
+            positionVector[1] = distance * cdc * sra;
+            positionVector[2] = distance * sdc;
 
-            RADecOk = true; // Object is valid
+            rADecOk = true; // Object is valid
             xOk = true;
             yOk = true;
             zOk = true;
 
-            return default;
+            return true;
         }
 
         /// <summary>
@@ -547,14 +527,14 @@ namespace NovasCom
                 if (!xOk)
                     throw new HelperException("PositionVector:x - x has not been set");
 
-                return PosVec[0];
+                return positionVector[0];
             }
             set
             {
-                PosVec[0] = value;
+                positionVector[0] = value;
                 xOk = true;
-                RADecOk = false;
-                AzElOk = false;
+                rADecOk = false;
+                azElOk = false;
             }
         }
 
@@ -571,14 +551,14 @@ namespace NovasCom
                 if (!yOk)
                     throw new HelperException("PositionVector:y - y has not been set");
 
-                return PosVec[1];
+                return positionVector[1];
             }
             set
             {
-                PosVec[1] = value;
+                positionVector[1] = value;
                 yOk = true;
-                RADecOk = false;
-                AzElOk = false;
+                rADecOk = false;
+                azElOk = false;
             }
         }
 
@@ -595,14 +575,14 @@ namespace NovasCom
                 if (!zOk)
                     throw new HelperException("PositionVector:z - z has not been set");
 
-                return PosVec[2];
+                return positionVector[2];
             }
             set
             {
-                PosVec[2] = value;
+                positionVector[2] = value;
                 zOk = true;
-                RADecOk = false;
-                AzElOk = false;
+                rADecOk = false;
+                azElOk = false;
             }
         }
 
@@ -610,13 +590,13 @@ namespace NovasCom
 
         private void CheckEq()
         {
-            if (RADecOk)
+            if (rADecOk)
                 return; // Equatorial data already OK
 
-            Novas.Vector2RaDec(PosVec, ref m_RA, ref m_DEC); // Calculate RA/Dec
-            m_Dist = Sqrt(Pow(PosVec[0], 2d) + Pow(PosVec[1], 2d) + Pow(PosVec[2], 2d));
-            m_Light = m_Dist / C;
-            RADecOk = true;
+            Novas.Vector2RaDec(positionVector, ref rightAscension, ref declination); // Calculate RA/Dec
+            distance = Sqrt(positionVector[0] * positionVector[0] + positionVector[1] * positionVector[1] + positionVector[2] * positionVector[2]);
+            light = distance / C;
+            rADecOk = true;
         }
 
         #endregion

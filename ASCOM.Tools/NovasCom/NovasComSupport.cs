@@ -1,8 +1,8 @@
 ﻿using static System.Math;
 using ASCOM.Tools.Novas31;
-using Kepler;
+using ASCOM.Tools.Interfaces;
 
-namespace NovasCom
+namespace ASCOM.Tools
 {
     static class NovasComSupport
     {

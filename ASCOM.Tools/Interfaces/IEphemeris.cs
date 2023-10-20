@@ -1,6 +1,6 @@
 ﻿using ASCOM.Tools.Novas31;
 
-namespace Kepler
+namespace ASCOM.Tools.Interfaces
 {
     /// <summary>
     /// Interface to the Kepler Ephemeris component
@@ -74,80 +74,80 @@ namespace Kepler
         /// more info. If you are using ACP, there are functions available to convert between UTC and 
         /// Terrestrial time, and for estimating the current value of delta-T. See the Overview page for 
         /// the Kepler.Ephemeris class for more information on time keeping systems.</remarks>
-
         double[] GetPositionAndVelocity(double tjd);
+
         /// <summary>
         /// Semi-major axis (AU)
         /// </summary>
         /// <value>Semi-major axis in AU</value>
         /// <returns>Semi-major axis in AU</returns>
         /// <remarks></remarks>
+        double SemiMajorAxis_a { get; set; }
 
-        double a { get; set; }
         /// <summary>
         /// The type of solar system body represented by this instance of the ephemeris engine (enum)
         /// </summary>
         /// <value>The type of solar system body represented by this instance of the ephemeris engine (enum)</value>
         /// <returns>0 for major planet, 1 for minor planet and 2 for comet</returns>
         /// <remarks></remarks>
-
         BodyType BodyType { get; set; }
+
         /// <summary>
         /// Orbital eccentricity
         /// </summary>
         /// <value>Orbital eccentricity </value>
         /// <returns>Orbital eccentricity </returns>
         /// <remarks></remarks>
+        double OrbitalEccentricity_e { get; set; }
 
-        double e { get; set; }
         /// <summary>
         /// Epoch of osculation of the orbital elements (terrestrial Julian date)
         /// </summary>
         /// <value>Epoch of osculation of the orbital elements</value>
         /// <returns>Terrestrial Julian date</returns>
         /// <remarks></remarks>
-
         double Epoch { get; set; }
+
         /// <summary>
         /// Slope parameter for magnitude
         /// </summary>
         /// <value>Slope parameter for magnitude</value>
         /// <returns>Slope parameter for magnitude</returns>
         /// <remarks></remarks>
+        double SlopeForMagnitude_G { get; set; }
 
-        double G { get; set; }
         /// <summary>
         /// Absolute visual magnitude
         /// </summary>
         /// <value>Absolute visual magnitude</value>
         /// <returns>Absolute visual magnitude</returns>
         /// <remarks></remarks>
+        double AbsoluteVisualMagnitude_H { get; set; }
 
-        double H { get; set; }
         /// <summary>
         /// The J2000.0 inclination (deg.)
         /// </summary>
         /// <value>The J2000.0 inclination</value>
         /// <returns>Degrees</returns>
         /// <remarks></remarks>
+        double Inclination { get; set; }
 
-        double Incl { get; set; }
         /// <summary>
         /// Mean anomaly at the epoch
         /// </summary>
         /// <value>Mean anomaly at the epoch</value>
         /// <returns>Mean anomaly at the epoch</returns>
         /// <remarks></remarks>
+        double MeanAnomolyAtEpoch_M { get; set; }
 
-        double M { get; set; }
         /// <summary>
         /// Mean daily motion (deg/day)
         /// </summary>
         /// <value>Mean daily motion</value>
         /// <returns>Degrees per day</returns>
         /// <remarks></remarks>
+        double MeanDailyMotion_n { get; set; }
 
-        double n { get; set; }
         /// <summary>
         /// The name of the body.
         /// </summary>
@@ -155,55 +155,54 @@ namespace Kepler
         /// <returns>The name of the body or packed MPC designation</returns>
         /// <remarks>If this instance represents an unnumbered minor planet, Ephemeris.Name must be the 
         /// packed MPC designation. For other types, this is for display only.</remarks>
-
         string Name { get; set; }
+
         /// <summary>
         /// The J2000.0 longitude of the ascending node (deg.)
         /// </summary>
         /// <value>The J2000.0 longitude of the ascending node</value>
         /// <returns>Degrees</returns>
         /// <remarks></remarks>
-
         double Node { get; set; }
+
         /// <summary>
         /// The major or minor planet number
         /// </summary>
         /// <value>The major or minor planet number</value>
         /// <returns>Number or zero if not numbered</returns>
         /// <remarks></remarks>
-
         Body Number { get; set; }
+
         /// <summary>
         /// Orbital period (years)
         /// </summary>
         /// <value>Orbital period</value>
         /// <returns>Years</returns>
         /// <remarks></remarks>
+        double OrbitalPeriod_P { get; set; }
 
-        double P { get; set; }
         /// <summary>
         /// The J2000.0 argument of perihelion (deg.)
         /// </summary>
         /// <value>The J2000.0 argument of perihelion</value>
         /// <returns>Degrees</returns>
         /// <remarks></remarks>
+        double ArghumentOfPerihelion { get; set; }
 
-        double Peri { get; set; }
         /// <summary>
         /// Perihelion distance (AU)
         /// </summary>
         /// <value>Perihelion distance</value>
         /// <returns>AU</returns>
         /// <remarks></remarks>
+        double PerihelionDistance_q { get; set; }
 
-        double q { get; set; }
         /// <summary>
         /// Reciprocal semi-major axis (1/AU)
         /// </summary>
         /// <value>Reciprocal semi-major axis</value>
         /// <returns>1/AU</returns>
         /// <remarks></remarks>
-
-        double z { get; set; }
+        double ReciprocalSemiMajorAxis_z { get; set; }
     }
 }

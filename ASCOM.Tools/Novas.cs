@@ -3,9 +3,7 @@ using ASCOM.Common.Interfaces;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Dynamic;
 using System.IO;
-using System.Reflection;
 using System.Runtime.InteropServices;
 
 namespace ASCOM.Tools.Novas31

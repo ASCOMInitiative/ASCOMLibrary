@@ -1,7 +1,8 @@
-﻿using ASCOM;
+﻿using ASCOM.Tools.Interfaces;
 using ASCOM.Tools.Novas31;
+using ASCOM.Tools.Kepler;
 
-namespace Kepler
+namespace ASCOM.Tools
 {
 
     // NOTE on changed behaviour for elliptical orbit comet calculations with - Peter Simpson January 2023
@@ -108,12 +109,12 @@ namespace Kepler
         private const double DTVEL = 0.01d;
 
         // Ephemeris variables
-        private string m_Name; // Name of body
-        private Body m_Number; // Number of body
-        private bool m_bNumberValid;
-        private BodyType m_Type; // Type of body
-        private bool m_bTypeValid;
-        private KeplerSupport.Orbit m_e = new KeplerSupport.Orbit(0.0d); // Elements, etc for minor planets/comets, etc.
+        private string bodyName; // Name of body
+        private Body bodyNumber; // Number of body
+        private bool bodyNumberIsValid;
+        private BodyType bodyType; // Type of body
+        private bool bodyTypeIsValid;
+        private Orbit orbit = new Orbit(); // Elements, etc for minor planets/comets, etc.
 
         /// <summary>
         /// Create a new Ephemeris component and initialise it
@@ -121,11 +122,11 @@ namespace Kepler
         /// <remarks></remarks>
         public Ephemeris()
         {
-            m_bTypeValid = false;
-            m_Name = ""; // Sentinel
-            m_Type = default;
-            m_e.ptable.lon_tbl = new double[] { 0.0d }; // Initialise orbit arrays
-            m_e.ptable.lat_tbl = new double[] { 0.0d };
+            bodyTypeIsValid = false;
+            bodyName = ""; // Sentinel
+            bodyType = default;
+            orbit.ptable.lon_tbl = new double[] { 0.0d }; // Initialise orbit arrays
+            orbit.ptable.lat_tbl = new double[] { 0.0d };
         }
 
         /// <summary>
@@ -134,23 +135,23 @@ namespace Kepler
         /// <value>Semi-major axis in AU</value>
         /// <returns>Semi-major axis in AU</returns>
         /// <remarks></remarks>
-        public double a
+        public double SemiMajorAxis_a
         {
             get
             {
-                if (double.IsNaN(m_e.semiMajorAxis))
+                if (double.IsNaN(orbit.semiMajorAxis))
                 {
                     return 0.0d;
                 }
                 else
                 {
-                    return m_e.semiMajorAxis;
+                    return orbit.semiMajorAxis;
                 }
             }
             set
             {
-                m_e.semiMajorAxis = value;
-                m_e.a = value;
+                orbit.semiMajorAxis = value;
+                orbit.a = value;
             }
         }
 
@@ -160,23 +161,23 @@ namespace Kepler
         /// <value>Perihelion distance</value>
         /// <returns>AU</returns>
         /// <remarks></remarks>
-        public double q
+        public double PerihelionDistance_q
         {
             get
             {
-                if (double.IsNaN(m_e.perihelionDistance))
+                if (double.IsNaN(orbit.perihelionDistance))
                 {
                     return 0.0d;
                 }
                 else
                 {
-                    return m_e.perihelionDistance;
+                    return orbit.perihelionDistance;
                 }
             }
             set
             {
-                m_e.perihelionDistance = value;
-                m_e.a = value;
+                orbit.perihelionDistance = value;
+                orbit.a = value;
             }
         }
 
@@ -190,15 +191,15 @@ namespace Kepler
         {
             get
             {
-                if (!m_bTypeValid)
+                if (!bodyTypeIsValid)
                     throw new HelperException("KEPLER:BodyType - BodyType has not been set");
 
-                return m_Type;
+                return bodyType;
             }
             set
             {
-                m_Type = value;
-                m_bTypeValid = true;
+                bodyType = value;
+                bodyTypeIsValid = true;
             }
         }
 
@@ -208,16 +209,16 @@ namespace Kepler
         /// <value>Orbital eccentricity </value>
         /// <returns>Orbital eccentricity </returns>
         /// <remarks></remarks>
-        public double e
+        public double OrbitalEccentricity_e
         {
             get
             {
-                return m_e.ecc;
+                return orbit.ecc;
             }
             set
             {
-                m_e.ecc = value;
-                m_e.eccentricityHasBeenSet = true; // Record that an eccentricity value has been set (used for parameter validation in GetPositionAndVelocity())
+                orbit.ecc = value;
+                orbit.eccentricityHasBeenSet = true; // Record that an eccentricity value has been set (used for parameter validation in GetPositionAndVelocity())
             }
         }
 
@@ -231,11 +232,11 @@ namespace Kepler
         {
             get
             {
-                return m_e.epoch;
+                return orbit.epoch;
             }
             set
             {
-                m_e.epoch = value;
+                orbit.epoch = value;
             }
         }
 
@@ -245,7 +246,7 @@ namespace Kepler
         /// <value>Slope parameter for magnitude</value>
         /// <returns>Slope parameter for magnitude</returns>
         /// <remarks></remarks>
-        public double G
+        public double SlopeForMagnitude_G
         {
             get
             {
@@ -270,64 +271,58 @@ namespace Kepler
         /// the Kepler.Ephemeris class for more information on time keeping systems.</remarks>
         public double[] GetPositionAndVelocity(double tjd)
         {
-            var posvec = new double[6];
-            var ai = new int[2];
-            var pos = new double[4, 4];
-            var op = new KeplerSupport.Orbit();
+            Orbit orbit = new Orbit();
             int i;
 
-            if (!m_bTypeValid)
+            if (!bodyTypeIsValid)
                 throw new HelperException("Kepler:GetPositionAndVelocity - Body type has not been set");
 
-            switch (m_Type)
+            switch (bodyType)
             {
                 case BodyType.MajorPlanet: // MAJOR PLANETS [unimpl. SUN, MOON]
-                    switch (m_Number)
+                    switch (bodyNumber)
                     {
                         case Body.Mercury:
-                            op = KeplerSupport.mercury;
+                            orbit = KeplerSupport.mercury;
                             break;
                         case Body.Venus:
-                            op = KeplerSupport.venus;
+                            orbit = KeplerSupport.venus;
                             break;
                         case Body.Earth:
-                            op = KeplerSupport.earthplanet;
+                            orbit = KeplerSupport.earthplanet;
                             break;
                         case Body.Mars:
-                            op = KeplerSupport.mars;
+                            orbit = KeplerSupport.mars;
                             break;
                         case Body.Jupiter:
-                            op = KeplerSupport.jupiter;
+                            orbit = KeplerSupport.jupiter;
                             break;
                         case Body.Saturn:
-                            op = KeplerSupport.saturn;
+                            orbit = KeplerSupport.saturn;
                             break;
                         case Body.Uranus:
-                            op = KeplerSupport.uranus;
+                            orbit = KeplerSupport.uranus;
                             break;
                         case Body.Neptune:
-                            op = KeplerSupport.neptune;
+                            orbit = KeplerSupport.neptune;
                             break;
                         case Body.Pluto:
-                            op = KeplerSupport.pluto;
+                            orbit = KeplerSupport.pluto;
                             break;
 
                         default:
-                            throw new InvalidValueException("Kepler:GetPositionAndVelocity - Invalid value for planet number: " + ((int)m_Number).ToString());
+                            throw new InvalidValueException("Kepler:GetPositionAndVelocity - Invalid value for planet number: " + ((int)bodyNumber).ToString());
                     }
                     break;
 
                 case BodyType.MinorPlanet: // MINOR PLANET
-                    //TODO: Check elements
-
-                    op = m_e;
+                    orbit = this.orbit;
                     break;
 
                 case BodyType.Comet: // COMET
-                                     //TODO: Check elements
-
+                                    
                     // Test whether this comet is in an elliptical orbit as opposed to parabolic or hyperbolic
-                    if (m_e.ecc < 1.0d)
+                    if (this.orbit.ecc < 1.0d)
                     {
                         // TL?.LogMessage("GetPositionAndVelocity1", $"Perihelion distance: {m_e.perihelionDistance}, Semi-major axis: {m_e.semiMajorAxis}, m_e.a: {m_e.a}, Eccentricity has been set: {m_e.eccentricityHasBeenSet}, Eccentricity: {m_e.ecc}")
                         // For comets in elliptical orbits (ecc < 1.0) ensure that we use the semi-major axis instead of the perihelion distance.
@@ -336,37 +331,37 @@ namespace Kepler
                         // 2) Set        Un-set
                         // 3) Un-set     Set
                         // 4) Set        Set
-                        if (double.IsNaN(m_e.semiMajorAxis)) // Semi-major axis is not set
+                        if (double.IsNaN(this.orbit.semiMajorAxis)) // Semi-major axis is not set
                         {
-                            if (double.IsNaN(m_e.perihelionDistance)) // No semi-major axis or perihelion distance
+                            if (double.IsNaN(this.orbit.perihelionDistance)) // No semi-major axis or perihelion distance
                             {
                                 // Throw an exception because we can't calculate the orbit without either the semi-major axis value or the perihelion distance value.
-                                throw new ASCOM.InvalidOperationException($"Kepler.GetPositionAndVelocity - Cannot calculate comet position because neither the semi-major axis nor the perihelion distance have been provided.");
+                                throw new InvalidOperationException($"Kepler.GetPositionAndVelocity - Cannot calculate comet position because neither the semi-major axis nor the perihelion distance have been provided.");
                             }
                             else
                             {
                                 // No semi-major axis but we do have perihelion distance so calculate semi-major axis from the formula: SemiMajorAxis = PerihelionDistance / (1 - OrbitalEccentricity) and use this
 
                                 // Validate that the calculation can be completed
-                                if (!m_e.eccentricityHasBeenSet)
-                                    throw new ASCOM.InvalidOperationException($"Kepler.GetPositionAndVelocity - Cannot calculate comet position because the orbit eccentricity has not been provided.");
+                                if (!this.orbit.eccentricityHasBeenSet)
+                                    throw new InvalidOperationException($"Kepler.GetPositionAndVelocity - Cannot calculate comet position because the orbit eccentricity has not been provided.");
 
-                                m_e.a = m_e.perihelionDistance / (1.0d - m_e.ecc);
-                                m_e.semiMajorAxis = m_e.a;
+                                this.orbit.a = this.orbit.perihelionDistance / (1.0d - this.orbit.ecc);
+                                this.orbit.semiMajorAxis = this.orbit.a;
                             }
                         }
                         else // Semi-major axis has been set so use this
                         {
-                            m_e.a = m_e.semiMajorAxis;
+                            this.orbit.a = this.orbit.semiMajorAxis;
 
-                            if (double.IsNaN(m_e.perihelionDistance))
+                            if (double.IsNaN(this.orbit.perihelionDistance))
                             {
                                 // Update perihelion distance from the formula: PerihelionDistance  = SemiMajorAxis * (1 - OrbitalEccentricity) and use this
 
                                 // Validate that the calculation can be completed, otherwise ignore because the orbit can still be calculated
-                                if (m_e.eccentricityHasBeenSet)
+                                if (this.orbit.eccentricityHasBeenSet)
                                 {
-                                    m_e.perihelionDistance = m_e.semiMajorAxis * (1.0d - m_e.ecc);
+                                    this.orbit.perihelionDistance = this.orbit.semiMajorAxis * (1.0d - this.orbit.ecc);
                                 }
                             }
 
@@ -376,37 +371,41 @@ namespace Kepler
                             }
                         }
                     }
-                    else if (!double.IsNaN(m_e.semiMajorAxis)) // Eccentricity is >=1.0 and this is a parabolic or hyperbolic orbit so there is no major axis
+                    else if (!double.IsNaN(this.orbit.semiMajorAxis)) // Eccentricity is >=1.0 and this is a parabolic or hyperbolic orbit so there is no major axis
                     {
-                        throw new ASCOM.InvalidOperationException($"Kepler.GetPositionAndVelocity - Eccentricity is >=1.0 {m_e.ecc} (parabolic or hyperbolic trajectory, not an elliptical orbit) but a semi-major axis value has been set implying an orbit.");
+                        throw new InvalidOperationException($"Kepler.GetPositionAndVelocity - Eccentricity is >=1.0 {this.orbit.ecc} (parabolic or hyperbolic trajectory, not an elliptical orbit) but a semi-major axis value has been set implying an orbit.");
                     }
 
-                    op = m_e;
+                    orbit = this.orbit;
                     break;
             }
 
+            var tempPosVec = new double[4, 4];
+
+            // Calculate position vectors slightly before and slightly after the required time so that velocity can be calculated from change in distance in the give time 
             for (i = 0; i <= 2; i++)
             {
-                var p = new double[3];
-                double qjd;
-                qjd = tjd + (i - 1) * DTVEL;
+                double[] calculatedPositionVector = new double[3];
+                double calculatedJulianDate = tjd + (i - 1) * DTVEL;
 
-                KeplerSupport.KeplerCalc(qjd, ref op, ref p);
+                KeplerSupport.KeplerCalc(calculatedJulianDate, ref orbit, ref calculatedPositionVector);
 
-                pos[i, 0] = p[0];
-                pos[i, 1] = p[1];
-                pos[i, 2] = p[2];
+                tempPosVec[i, 0] = calculatedPositionVector[0];
+                tempPosVec[i, 1] = calculatedPositionVector[1];
+                tempPosVec[i, 2] = calculatedPositionVector[2];
             }
 
-            // pos(1,x) contains the pos vector
-            // pos(0,x) and pos(2,x) are used to determine the velocity based on position change with time!
+            double[] resultPositionVector = new double[6];
+
+            // tempPosVec(1,x) contains the pos vector
+            // tempPosVec(0,x) and tempPosVec(2,x) are used to determine the velocity based on position change with time!
             for (i = 0; i <= 2; i++)
             {
-                posvec[i] = pos[1, i];
-                posvec[3 + i] = (pos[2, i] - pos[0, i]) / (2.0d * DTVEL);
+                resultPositionVector[i] = tempPosVec[1, i];
+                resultPositionVector[3 + i] = (tempPosVec[2, i] - tempPosVec[0, i]) / (2.0d * DTVEL);
             }
 
-            return posvec;
+            return resultPositionVector;
         }
 
         /// <summary>
@@ -415,7 +414,7 @@ namespace Kepler
         /// <value>Absolute visual magnitude</value>
         /// <returns>Absolute visual magnitude</returns>
         /// <remarks></remarks>
-        public double H
+        public double AbsoluteVisualMagnitude_H
         {
             get
             {
@@ -433,15 +432,15 @@ namespace Kepler
         /// <value>The J2000.0 inclination</value>
         /// <returns>Degrees</returns>
         /// <remarks></remarks>
-        public double Incl
+        public double Inclination
         {
             get
             {
-                return m_e.i;
+                return orbit.i;
             }
             set
             {
-                m_e.i = value;
+                orbit.i = value;
             }
         }
 
@@ -451,15 +450,15 @@ namespace Kepler
         /// <value>Mean anomaly at the epoch</value>
         /// <returns>Mean anomaly at the epoch</returns>
         /// <remarks></remarks>
-        public double M
+        public double MeanAnomolyAtEpoch_M
         {
             get
             {
-                return m_e.M;
+                return orbit.M;
             }
             set
             {
-                m_e.M = value;
+                orbit.M = value;
             }
         }
 
@@ -469,15 +468,15 @@ namespace Kepler
         /// <value>Mean daily motion</value>
         /// <returns>Degrees per day</returns>
         /// <remarks></remarks>
-        public double n
+        public double MeanDailyMotion_n
         {
             get
             {
-                return m_e.dm;
+                return orbit.dm;
             }
             set
             {
-                m_e.dm = value;
+                orbit.dm = value;
             }
         }
 
@@ -492,14 +491,14 @@ namespace Kepler
         {
             get
             {
-                if (string.IsNullOrEmpty(m_Name))
+                if (string.IsNullOrEmpty(bodyName))
                     throw new HelperException("Kepler:Name - Name has not been set");
 
-                return m_Name;
+                return bodyName;
             }
             set
             {
-                m_Name = value;
+                bodyName = value;
             }
         }
 
@@ -513,11 +512,11 @@ namespace Kepler
         {
             get
             {
-                return m_e.W;
+                return orbit.W;
             }
             set
             {
-                m_e.W = value;
+                orbit.W = value;
             }
         }
 
@@ -531,15 +530,15 @@ namespace Kepler
         {
             get
             {
-                if (!m_bNumberValid)
+                if (!bodyNumberIsValid)
                     throw new HelperException("KEPLER:Number - Planet number has not been set");
 
-                return m_Number;
+                return bodyNumber;
             }
             set
             {
-                m_Number = value;
-                m_bNumberValid = true;
+                bodyNumber = value;
+                bodyNumberIsValid = true;
             }
         }
 
@@ -549,7 +548,7 @@ namespace Kepler
         /// <value>Orbital period</value>
         /// <returns>Years</returns>
         /// <remarks></remarks>
-        public double P
+        public double OrbitalPeriod_P
         {
             get
             {
@@ -567,15 +566,15 @@ namespace Kepler
         /// <value>The J2000.0 argument of perihelion</value>
         /// <returns>Degrees</returns>
         /// <remarks></remarks>
-        public double Peri
+        public double ArghumentOfPerihelion
         {
             get
             {
-                return m_e.wp;
+                return orbit.wp;
             }
             set
             {
-                m_e.wp = value;
+                orbit.wp = value;
             }
         }
 
@@ -585,15 +584,15 @@ namespace Kepler
         /// <value>Reciprocal semi-major axis</value>
         /// <returns>1/AU</returns>
         /// <remarks></remarks>
-        public double z
+        public double ReciprocalSemiMajorAxis_z
         {
             get
             {
-                return 1.0d / m_e.a;
+                return 1.0d / orbit.a;
             }
             set
             {
-                m_e.a = 1.0d / value;
+                orbit.a = 1.0d / value;
             }
         }
     }

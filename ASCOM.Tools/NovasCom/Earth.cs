@@ -1,7 +1,7 @@
-﻿using ASCOM.Tools.Novas31;
-using Kepler;
+﻿using ASCOM.Tools.Interfaces;
+using ASCOM.Tools.Novas31;
 
-namespace NovasCom
+namespace ASCOM.Tools
 {
     /// <summary>
     /// NOVAS-COM: Represents the "state" of the Earth at a given Terrestrial Julian date
@@ -21,11 +21,11 @@ namespace NovasCom
     /// </para></remarks>
     public class Earth : IEarth
     {
-        private readonly PositionVector m_BaryPos = new PositionVector(), m_HeliPos = new PositionVector();
-        private readonly VelocityVector m_BaryVel = new VelocityVector(), m_HeliVel = new VelocityVector();
-        private double m_BaryTime, m_MeanOb, m_EquOfEqu, m_NutLong, m_NutObl, m_TrueOb;
-        private IEphemeris m_EarthEph;
-        private bool m_Valid; // Object has valid values
+        private readonly PositionVector barycentricPosition = new PositionVector(), heliocentricPosition = new PositionVector();
+        private readonly VelocityVector barycentricVelocity = new VelocityVector(), heliocentricVelicity = new VelocityVector();
+        private double barycentricTime, meanObliquity, equationOfEquinoxes, nutationLongitude, nutationObliquity, trueObliquity;
+        private IEphemeris earthEphemeris;
+        private bool isValid; // Object has valid values
 
         /// <summary>
         /// Create a new instance of the Earth object
@@ -33,13 +33,13 @@ namespace NovasCom
         /// <remarks></remarks>
         public Earth()
         {
-            m_EarthEph = new Ephemeris
+            earthEphemeris = new Ephemeris
             {
                 BodyType = BodyType.MajorPlanet,
                 Number = Body.Earth,
                 Name = "Earth"
             };
-            m_Valid = false; // Object is invalid
+            isValid = false; // Object is invalid
         }
 
         /// <summary>
@@ -52,7 +52,7 @@ namespace NovasCom
         {
             get
             {
-                return m_BaryPos;
+                return barycentricPosition;
             }
         }
 
@@ -66,7 +66,7 @@ namespace NovasCom
         {
             get
             {
-                return m_BaryTime;
+                return barycentricTime;
             }
         }
 
@@ -80,7 +80,7 @@ namespace NovasCom
         {
             get
             {
-                return m_BaryVel;
+                return barycentricVelocity;
             }
         }
 
@@ -95,11 +95,11 @@ namespace NovasCom
         {
             get
             {
-                return m_EarthEph;
+                return earthEphemeris;
             }
             set
             {
-                m_EarthEph = value;
+                earthEphemeris = value;
             }
         }
 
@@ -113,7 +113,7 @@ namespace NovasCom
         {
             get
             {
-                return m_EquOfEqu;
+                return equationOfEquinoxes;
             }
         }
 
@@ -127,7 +127,7 @@ namespace NovasCom
         {
             get
             {
-                return m_HeliPos;
+                return heliocentricPosition;
             }
         }
 
@@ -141,7 +141,7 @@ namespace NovasCom
         {
             get
             {
-                return m_HeliVel;
+                return heliocentricVelicity;
             }
         }
 
@@ -155,7 +155,7 @@ namespace NovasCom
         {
             get
             {
-                return m_MeanOb;
+                return meanObliquity;
             }
         }
 
@@ -169,7 +169,7 @@ namespace NovasCom
         {
             get
             {
-                return m_NutLong;
+                return nutationLongitude;
             }
         }
 
@@ -183,7 +183,7 @@ namespace NovasCom
         {
             get
             {
-                return m_NutObl;
+                return nutationObliquity;
             }
         }
 
@@ -195,28 +195,28 @@ namespace NovasCom
         /// <remarks></remarks>
         public bool SetForTime(double tjd)
         {
-            double[] m_peb = new double[3], m_veb = new double[3], m_pes = new double[3], m_ves = new double[3];
+            double[] basycentricPosition = new double[3], barycentricVelocity = new double[3], heliocentricPosition = new double[3], heliocentricVelocity = new double[3];
 
-            NovasComSupport.get_earth_nov(ref m_EarthEph, tjd, ref m_BaryTime, ref m_peb, ref m_veb, ref m_pes, ref m_ves);
-            Novas.ETilt(tjd, Accuracy.Full, ref m_MeanOb, ref m_TrueOb, ref m_EquOfEqu, ref m_NutLong, ref m_NutObl);
+            NovasComSupport.get_earth_nov(ref earthEphemeris, tjd, ref barycentricTime, ref basycentricPosition, ref barycentricVelocity, ref heliocentricPosition, ref heliocentricVelocity);
+            Novas.ETilt(tjd, Accuracy.Full, ref meanObliquity, ref trueObliquity, ref equationOfEquinoxes, ref nutationLongitude, ref nutationObliquity);
 
-            m_BaryPos.x = m_peb[0];
-            m_BaryPos.y = m_peb[1];
-            m_BaryPos.z = m_peb[2];
-            m_BaryVel.x = m_veb[0];
-            m_BaryVel.y = m_veb[1];
-            m_BaryVel.z = m_veb[2];
+            barycentricPosition.x = basycentricPosition[0];
+            barycentricPosition.y = basycentricPosition[1];
+            barycentricPosition.z = basycentricPosition[2];
+            this.barycentricVelocity.x = barycentricVelocity[0];
+            this.barycentricVelocity.y = barycentricVelocity[1];
+            this.barycentricVelocity.z = barycentricVelocity[2];
 
-            m_HeliPos.x = m_pes[0];
-            m_HeliPos.y = m_pes[1];
-            m_HeliPos.z = m_pes[2];
-            m_HeliVel.x = m_ves[0];
-            m_HeliVel.y = m_ves[1];
-            m_HeliVel.z = m_ves[2];
+            this.heliocentricPosition.x = heliocentricPosition[0];
+            this.heliocentricPosition.y = heliocentricPosition[1];
+            this.heliocentricPosition.z = heliocentricPosition[2];
+            heliocentricVelicity.x = heliocentricVelocity[0];
+            heliocentricVelicity.y = heliocentricVelocity[1];
+            heliocentricVelicity.z = heliocentricVelocity[2];
 
-            m_Valid = true;
+            isValid = true;
 
-            return m_Valid;
+            return isValid;
         }
 
         /// <summary>
@@ -229,7 +229,7 @@ namespace NovasCom
         {
             get
             {
-                return m_TrueOb;
+                return trueObliquity;
             }
         }
     }
