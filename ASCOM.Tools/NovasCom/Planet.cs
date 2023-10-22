@@ -2,7 +2,7 @@
 using ASCOM.Tools.Novas31;
 using ASCOM.Tools.Interfaces;
 
-namespace ASCOM.Tools
+namespace ASCOM.Tools.NovasCom
 {
     /// <summary>
     /// NOVAS-COM: Provide characteristics of a solar system body
@@ -37,7 +37,7 @@ namespace ASCOM.Tools
     /// which correspond to the Type, Name, and Number properties of Novas.Planet. 
     /// </para>
     /// </remarks>
-    public class Planet : IPlanet
+    public class Planet
     {
         internal const double C = 173.14463348d; // Speed of light in AU/Day.
 

@@ -2,7 +2,7 @@
 using ASCOM.Tools.Novas31;
 using ASCOM.Tools.Interfaces;
 
-namespace ASCOM.Tools
+namespace ASCOM.Tools.NovasCom
 {
     /// <summary>
     /// NOVAS-COM: PositionVector Class
@@ -17,7 +17,7 @@ namespace ASCOM.Tools
     /// proper motion. Thus, a PositionVector object gives access to some of the lower-level NOVAS functions. 
     /// <para><b>Note:</b> The equatorial coordinate properties of this object are dependent variables, and thus are read-only. Changing any Cartesian coordinate will cause the equatorial coordinates to be recalculated. 
     /// </para></remarks>
-    public class PositionVector : IPositionVector
+    public class PositionVector
     {
         internal const double C = 173.14463348d; // Speed of light in AU/Day.
 

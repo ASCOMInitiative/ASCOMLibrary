@@ -1,7 +1,7 @@
 ﻿using ASCOM.Tools.Interfaces;
 using ASCOM.Tools.Novas31;
 
-namespace ASCOM.Tools
+namespace ASCOM.Tools.NovasCom
 {
     /// <summary>
     /// NOVAS-COM: Represents the "state" of the Earth at a given Terrestrial Julian date
@@ -19,7 +19,7 @@ namespace ASCOM.Tools
     /// (KM/sec.). In addition, it must support three read/write properties BodyType, Name, and Number, 
     /// which correspond to the Type, Name, and Number properties of Novas.Planet. 
     /// </para></remarks>
-    public class Earth : IEarth
+    public class Earth
     {
         private readonly PositionVector barycentricPosition = new PositionVector(), heliocentricPosition = new PositionVector();
         private readonly VelocityVector barycentricVelocity = new VelocityVector(), heliocentricVelicity = new VelocityVector();

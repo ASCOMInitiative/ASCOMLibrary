@@ -1,6 +1,6 @@
 ﻿using ASCOM.Tools.Interfaces;
 
-namespace ASCOM.Tools
+namespace ASCOM.Tools.NovasCom
 {
     /// <summary>
     /// NOVAS-COM: Site Class
@@ -9,7 +9,7 @@ namespace ASCOM.Tools
     /// ellipsoid. Properties are latitude, longitude, height above mean sea level, the ambient temperature 
     /// and the sea-level barometric pressure. The latter two are used only for optional refraction corrections. 
     /// Latitude and longitude are (common) geodetic, not geocentric. </remarks>
-    public class Site : ISite
+    public class Site
     {
         private double vHeight, vLatitude, vLongitude, vPressure, vTemperature;
         private bool HeightValid, LatitudeValid, LongitudeValid, PressureValid, TemperatureValid;

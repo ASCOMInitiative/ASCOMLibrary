@@ -2,7 +2,7 @@
 using ASCOM.Tools.Novas31;
 using ASCOM.Tools.Interfaces;
 
-namespace ASCOM.Tools
+namespace ASCOM.Tools.NovasCom
 {
     static class NovasComSupport
     {

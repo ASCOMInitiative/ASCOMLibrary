@@ -4,7 +4,7 @@ using ASCOM.Common.Interfaces;
 using ASCOM.Common;
 using ASCOM.Tools.Interfaces;
 
-namespace ASCOM.Tools
+namespace ASCOM.Tools.NovasCom
 {
     /// <summary>
     /// NOVAS-COM: Star Class
@@ -19,7 +19,7 @@ namespace ASCOM.Tools
     /// time, the (optionally refracted) alt-az coordinates are calculated, and are also contained within 
     /// the returned PositionVector. <b>Note that Alt/Az is available in PositionVectors returned from calling 
     /// GetTopocentricPosition().</b></para></remarks>
-    public class Star : IStar
+    public class Star
     {
         const double J2000BASE = 2451545.0d; // TDB Julian date of epoch J2000.0.
 

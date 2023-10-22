@@ -1,8 +1,7 @@
 ﻿using static System.Math;
 using ASCOM.Tools.Novas31;
-using ASCOM.Tools.Interfaces;
 
-namespace ASCOM.Tools
+namespace ASCOM.Tools.NovasCom
 {
     /// <summary>
     /// NOVAS-COM: VelocityVector Class
@@ -14,7 +13,7 @@ namespace ASCOM.Tools
     /// a Star object (essentially an FK5 or HIP catalog entry) or a Site (lat/long/height). For the star 
     /// object the proper motions, distance and radial velocity are used, for a site, the velocity is that 
     /// of the observer with respect to the Earth's center of mass. </remarks>
-    public class VelocityVector : IVelocityVector
+    public class VelocityVector
     {
         private bool m_xv, m_yv, m_zv, m_cv;
         private readonly double[] m_v = new double[3];
