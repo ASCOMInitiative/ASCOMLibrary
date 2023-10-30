@@ -254,6 +254,9 @@ namespace ASCOM.Tools.Novas31
             var VVel = new VelVector();
             short rc;
 
+            // Initialise if necessary
+            if (!isInitialised) Initialise();
+
             JdHp.JDPart1 = Tjd[0];
             JdHp.JDPart2 = Tjd[1];
             rc = PlanetEphemerisLib(ref JdHp, Target, Center, ref VPos, ref VVel);
@@ -337,6 +340,9 @@ namespace ASCOM.Tools.Novas31
             var VVel = new VelVector();
             short rc;
 
+            // Initialise if necessary
+            if (!isInitialised) Initialise();
+
             rc = SolarSystemLib(Tjd, (short)Body, (short)Origin, ref VPos, ref VVel);
 
             PosVecToArr(VPos, ref Pos);
@@ -382,6 +388,9 @@ namespace ASCOM.Tools.Novas31
             var VPos = new PosVector();
             var VVel = new VelVector();
             short rc;
+
+            // Initialise if necessary
+            if (!isInitialised) Initialise();
 
             JdHp.JDPart1 = Jed[0];
             JdHp.JDPart2 = Jed[1];
