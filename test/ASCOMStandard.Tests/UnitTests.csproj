@@ -39,4 +39,13 @@
       <ProjectReference Include="..\..\ASCOM.Tools\ASCOM.Tools.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Update="cio_ra.bin">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="libnovas.dll">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
 </Project>

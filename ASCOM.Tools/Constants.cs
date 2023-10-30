@@ -296,76 +296,15 @@ namespace ASCOM.Tools.Novas31
         /// <summary>
         /// Centre of mass of the solar system
         /// </summary>
-        /// <remarks></remarks>
         Barycentric = 0,
         /// <summary>
         /// Centre of mass of the Sun
         /// </summary>
-        /// <remarks></remarks>
-        Heliocentric = 1
-    }
-
-    /// <summary>
-    /// Body number starting with Mercury = 1
-    /// </summary>
-    /// <remarks></remarks>
-    public enum Body : int
-    {
+        Heliocentric = 1,
         /// <summary>
-        /// Mercury
+        /// Centre of mass of the earth
         /// </summary>
-        /// <remarks></remarks>
-        Mercury = 1,
-        /// <summary>
-        /// Venus
-        /// </summary>
-        /// <remarks></remarks>
-        Venus = 2,
-        /// <summary>
-        /// Earth
-        /// </summary>
-        /// <remarks></remarks>
-        Earth = 3,
-        /// <summary>
-        /// Mars
-        /// </summary>
-        /// <remarks></remarks>
-        Mars = 4,
-        /// <summary>
-        /// Jupiter
-        /// </summary>
-        /// <remarks></remarks>
-        Jupiter = 5,
-        /// <summary>
-        /// Saturn
-        /// </summary>
-        /// <remarks></remarks>
-        Saturn = 6,
-        /// <summary>
-        /// Uranus
-        /// </summary>
-        /// <remarks></remarks>
-        Uranus = 7,
-        /// <summary>
-        /// Neptune
-        /// </summary>
-        /// <remarks></remarks>
-        Neptune = 8,
-        /// <summary>
-        /// Pluto
-        /// </summary>
-        /// <remarks></remarks>
-        Pluto = 9,
-        /// <summary>
-        /// Sun
-        /// </summary>
-        /// <remarks></remarks>
-        Sun = 10,
-        /// <summary>
-        /// Moon
-        /// </summary>
-        /// <remarks></remarks>
-        Moon = 11
+        GeoCentric=2
     }
 
     /// <summary>
@@ -816,7 +755,7 @@ namespace ASCOM.Tools.Novas31
     #endregion
 
     #region Public NOVAS Structures
-
+    [StructLayout(LayoutKind.Sequential)]
     /// <summary>
     /// Structure to hold a position vector
     /// </summary>
