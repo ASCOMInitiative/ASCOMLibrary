@@ -2,8 +2,52 @@
 
 namespace ASCOM.Common.DeviceInterfaces
 {
+    /// <summary>
+    /// Methods that report whether a capability is present in a given device and interface version
+    /// </summary>
     public static class DeviceCapabilities
     {
+        /// <summary>
+        /// Returns <see langword="true"/> for all devices except IFocuserV1 devices that do not have the Connected property
+        /// </summary>
+        /// <param name="deviceType">Device type.</param>
+        /// <param name="driverInterfaceVersion">Interface version of this driver (Int16)</param>
+        /// <returns></returns>
+        /// <exception cref="InvalidValueException"></exception>
+        public static bool HasConnected(DeviceTypes? deviceType, short driverInterfaceVersion)
+        {
+            return HasConnected(deviceType, Convert.ToInt32(driverInterfaceVersion));
+        }
+
+        /// <summary>
+        /// Returns <see langword="true"/> for all devices except IFocuserV1 devices that do not have the Connected property
+        /// </summary>
+        /// <param name="deviceType">Device type.</param>
+        /// <param name="driverInterfaceVersion">Interface version of this driver (Int32)</param>
+        /// <returns>True for all device interfaces except IFocuserV1</returns>
+        /// <exception cref="InvalidValueException"></exception>
+        public static bool HasConnected(DeviceTypes? deviceType, int driverInterfaceVersion)
+        {
+            // Throw an exception if no device type is supplied
+            if (!deviceType.HasValue)
+                throw new InvalidValueException("ASCOMLibrary.DeviceCapabilities.HasConnected - Supplied device type is null.");
+
+            // Switch on the device type 
+            switch (deviceType)
+            {
+                // Focuser only has Connected in IFocuserV2 and later
+                case DeviceTypes.Focuser: // Focuser device
+                    if (driverInterfaceVersion ==1) // IFocuserV1 so return false
+                        return false;
+                    else // IFocuserV2 or later so return true
+                        return true;
+
+                // All other device types and interface versions have Connected so return true.
+                default: // All other device types
+                    return true;
+            }
+        }
+
         /// <summary>
         /// Returns <see langword="true"/> if the device has a Platform 7 or later interface that supports asynchronous Switch methods
         /// </summary>
