@@ -7,6 +7,10 @@
     public enum Body : int
     {
         /// <summary>
+        /// Default uninitialised body value
+        /// </summary>
+        Uninitialised=0,
+        /// <summary>
         /// Mercury
         /// </summary>
         /// <remarks></remarks>

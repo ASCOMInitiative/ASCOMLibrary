@@ -19,6 +19,16 @@ namespace ASCOM.Tools
     public class SolarSystem
     {
         private readonly Body body;
+        private SetBy setBy = SetBy.None;
+
+        private enum SetBy
+        {
+            None = 0,
+            PlanetSunMoon = 1,
+            Comet = 2,
+            MinorPlanet = 3
+        }
+
 
         /// <summary>
         /// Create a SolarSystem object for a specified target body
@@ -27,10 +37,34 @@ namespace ASCOM.Tools
         /// <exception cref="HelperException">When earth is specified as the target body.</exception>
         public SolarSystem(Body body)
         {
-            //if (body == Body.Earth)
-            //    throw new HelperException("Solarsystem.Initialise - Cannot set earth as the target body!");
+            // Validate the body parameter
+            if (body == Body.Uninitialised)
+                throw new HelperException($"The supplied body value is invalid: {body}.");
+
+            if (((int)body < 1) | ((int)body > 11))
+                throw new HelperException($"The supplied body value is invalid: {(int)body}.");
+
             this.body = body;
+            setBy = SetBy.PlanetSunMoon;
         }
+
+        public SolarSystem(BodyType bodyType, string MpcOrbitString)
+        {
+            switch (bodyType)
+            {
+                case BodyType.Comet:
+                    setBy = SetBy.Comet;
+                    break;
+
+                case BodyType.MinorPlanet:
+                    setBy = SetBy.MinorPlanet;
+                    break;
+
+                default:
+                    throw new HelperException($"This constructor only supports comets and minor planets. Please use the SolarSystem(Body body) constructor for the major planets, sun and moon.");
+            }
+        }
+
 
         /// <summary>
         /// Site latitude (North positive)
@@ -255,7 +289,7 @@ namespace ASCOM.Tools
 
         private void ValidateBodyIsNotEarth(string methodName)
         {
-            if (body==Body.Earth)
+            if (body == Body.Earth)
                 throw new InvalidOperationException($"SolarSystem.{methodName} - Cannot use {methodName} when the target body is Earth.");
         }
         #endregion
