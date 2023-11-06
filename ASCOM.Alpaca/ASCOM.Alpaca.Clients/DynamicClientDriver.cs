@@ -894,17 +894,8 @@ namespace ASCOM.Alpaca.Clients
                                     }
                                     else if (ascomCOMErrorNumber == ASCOM.ErrorCodes.NotImplemented) // Handle PropertyNotImplementedException and MethodNotImplementedException (both have the same error code)
                                     {
-                                        // Throw the relevant exception depending on whether this is a property or a method
-                                        if (memberType == MemberTypes.Property) // Calling member is a property so throw a PropertyNotImplementedException
-                                        {
-                                            AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"Alpaca property not implemented error, throwing PropertyNotImplementedException - ErrorMessage: \"{errorResponse.ErrorMessage}\", ErrorNumber: 0x{ascomCOMErrorNumber:X8}");
-                                            throw new PropertyNotImplementedException(CultureInfo.CurrentCulture.TextInfo.ToTitleCase(method), httpMethod == HttpMethod.Put, errorResponse.ErrorMessage);
-                                        }
-                                        else // Calling member is a method so throw a MethodNotImplementedException
-                                        {
-                                            AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $" Alpaca method not implemented error, throwing MethodNotImplementedException - ErrorMessage: \"{errorResponse.ErrorMessage}\", ErrorNumber: 0x{ascomCOMErrorNumber:X8}");
-                                            throw new MethodNotImplementedException(CultureInfo.CurrentCulture.TextInfo.ToTitleCase(method), errorResponse.ErrorMessage);
-                                        }
+                                            AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"Alpaca member not implemented error, throwing NotImplementedException - ErrorMessage: \"{errorResponse.ErrorMessage}\", ErrorNumber: 0x{ascomCOMErrorNumber:X8}");
+                                            throw new NotImplementedException(errorResponse.ErrorMessage);
                                     }
                                     else if (ascomCOMErrorNumber == ASCOM.ErrorCodes.ValueNotSet) // Handle ValueNotSetException
                                     {

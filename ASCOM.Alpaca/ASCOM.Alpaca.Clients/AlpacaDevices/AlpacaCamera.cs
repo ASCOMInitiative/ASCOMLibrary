@@ -259,7 +259,7 @@ namespace ASCOM.Alpaca.Clients
         /// <item><description>Must NOT throw an exception if the camera is already idle.</description></item>
         /// </list> </para>
         /// </remarks>
-        /// <exception cref="MethodNotImplementedException">If CanAbortExposure is false.</exception>
+        /// <exception cref="NotImplementedException">If CanAbortExposure is false.</exception>
         /// <exception cref="InvalidOperationException">Thrown if abort is not currently possible (e.g. during download).</exception>
         /// <exception cref="NotConnectedException">Thrown if the driver is not connected.</exception>
         /// <exception cref="DriverException">Thrown if a communications error occurs, or if the abort fails.</exception>

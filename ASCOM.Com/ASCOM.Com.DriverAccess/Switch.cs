@@ -330,7 +330,7 @@ namespace ASCOM.Com.DriverAccess
             }
 
             // Platform 6 or earlier device
-            throw new MethodNotImplementedException($"DriverAccess.Switch - SetAsync is not supported by this device because it exposes interface ISwitchV{InterfaceVersion}.");
+            throw new NotImplementedException($"DriverAccess.Switch - SetAsync is not supported by this device because it exposes interface ISwitchV{InterfaceVersion}.");
         }
 
         /// <inheritdoc />
@@ -345,7 +345,7 @@ namespace ASCOM.Com.DriverAccess
             }
 
             // Platform 6 or earlier device
-            throw new MethodNotImplementedException($"DriverAccess.Switch - SetAsyncValue is not supported by this device because it exposes interface ISwitchV{InterfaceVersion}.");
+            throw new NotImplementedException($"DriverAccess.Switch - SetAsyncValue is not supported by this device because it exposes interface ISwitchV{InterfaceVersion}.");
         }
 
         /// <inheritdoc />
@@ -373,7 +373,7 @@ namespace ASCOM.Com.DriverAccess
             }
 
             // Platform 6 or earlier device
-            throw new MethodNotImplementedException($"DriverAccess.Switch - StateChangeComplete is not supported by this device because it exposes interface ISwitchV{InterfaceVersion}.");
+            throw new NotImplementedException($"DriverAccess.Switch - StateChangeComplete is not supported by this device because it exposes interface ISwitchV{InterfaceVersion}.");
         }
 
         /// <inheritdoc />
@@ -388,7 +388,7 @@ namespace ASCOM.Com.DriverAccess
             }
 
             // Platform 6 or earlier device
-            throw new MethodNotImplementedException($"DriverAccess.Switch - CancelAsync is not supported by this device because it exposes interface ISwitchV{InterfaceVersion}.");
+            throw new NotImplementedException($"DriverAccess.Switch - CancelAsync is not supported by this device because it exposes interface ISwitchV{InterfaceVersion}.");
         }
 
         #endregion
