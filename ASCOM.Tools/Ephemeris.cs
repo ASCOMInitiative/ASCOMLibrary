@@ -135,7 +135,7 @@ namespace ASCOM.Tools
         /// <value>Semi-major axis in AU</value>
         /// <returns>Semi-major axis in AU</returns>
         /// <remarks></remarks>
-        public double SemiMajorAxis_a
+        public double a_SemiMajorAxis
         {
             get
             {
@@ -161,7 +161,7 @@ namespace ASCOM.Tools
         /// <value>Perihelion distance</value>
         /// <returns>AU</returns>
         /// <remarks></remarks>
-        public double PerihelionDistance_q
+        public double q_PerihelionDistance
         {
             get
             {
@@ -209,7 +209,7 @@ namespace ASCOM.Tools
         /// <value>Orbital eccentricity </value>
         /// <returns>Orbital eccentricity </returns>
         /// <remarks></remarks>
-        public double OrbitalEccentricity_e
+        public double e_OrbitalEccentricity
         {
             get
             {
@@ -246,7 +246,7 @@ namespace ASCOM.Tools
         /// <value>Slope parameter for magnitude</value>
         /// <returns>Slope parameter for magnitude</returns>
         /// <remarks></remarks>
-        public double SlopeForMagnitude_G
+        public double G_SlopeForMagnitude
         {
             get
             {
@@ -273,6 +273,7 @@ namespace ASCOM.Tools
         {
             Orbit orbit = new Orbit();
             int i;
+            double[] resultPositionVector = new double[6];
 
             if (!bodyTypeIsValid)
                 throw new HelperException("Kepler:GetPositionAndVelocity - Body type has not been set");
@@ -313,7 +314,19 @@ namespace ASCOM.Tools
                         default:
                             throw new InvalidValueException("Kepler:GetPositionAndVelocity - Invalid value for planet number: " + ((int)bodyNumber).ToString());
                     }
-                    break;
+
+                    double[] position = new double[3] { 0.0,0.0,0.0};
+                    double[] velocity = new double[3] { 0.0, 0.0, 0.0 };
+                    short rc = Novas.SolarSystem(tjd, bodyNumber, Origin.Heliocentric, ref position, ref velocity);
+
+                    resultPositionVector[0] = position[0];
+                    resultPositionVector[1] = position[1];
+                    resultPositionVector[2] = position[2];
+                    resultPositionVector[3] = velocity[0];
+                    resultPositionVector[4] = velocity[1];
+                    resultPositionVector[5] = velocity[2];
+
+                    return resultPositionVector;
 
                 case BodyType.MinorPlanet: // MINOR PLANET
                     orbit = this.orbit;
@@ -395,7 +408,6 @@ namespace ASCOM.Tools
                 tempPosVec[i, 2] = calculatedPositionVector[2];
             }
 
-            double[] resultPositionVector = new double[6];
 
             // tempPosVec(1,x) contains the pos vector
             // tempPosVec(0,x) and tempPosVec(2,x) are used to determine the velocity based on position change with time!
@@ -414,7 +426,7 @@ namespace ASCOM.Tools
         /// <value>Absolute visual magnitude</value>
         /// <returns>Absolute visual magnitude</returns>
         /// <remarks></remarks>
-        public double AbsoluteVisualMagnitude_H
+        public double H_AbsoluteVisualMagnitude
         {
             get
             {
@@ -432,7 +444,7 @@ namespace ASCOM.Tools
         /// <value>The J2000.0 inclination</value>
         /// <returns>Degrees</returns>
         /// <remarks></remarks>
-        public double Inclination
+        public double i_Inclination
         {
             get
             {
@@ -450,7 +462,7 @@ namespace ASCOM.Tools
         /// <value>Mean anomaly at the epoch</value>
         /// <returns>Mean anomaly at the epoch</returns>
         /// <remarks></remarks>
-        public double MeanAnomolyAtEpoch_M
+        public double M_MeanAnomalyAtEpoch
         {
             get
             {
@@ -468,7 +480,7 @@ namespace ASCOM.Tools
         /// <value>Mean daily motion</value>
         /// <returns>Degrees per day</returns>
         /// <remarks></remarks>
-        public double MeanDailyMotion_n
+        public double n_MeanDailyMotion
         {
             get
             {
@@ -548,7 +560,7 @@ namespace ASCOM.Tools
         /// <value>Orbital period</value>
         /// <returns>Years</returns>
         /// <remarks></remarks>
-        public double OrbitalPeriod_P
+        public double P_OrbitalPeriod
         {
             get
             {
@@ -566,7 +578,7 @@ namespace ASCOM.Tools
         /// <value>The J2000.0 argument of perihelion</value>
         /// <returns>Degrees</returns>
         /// <remarks></remarks>
-        public double ArghumentOfPerihelion
+        public double w_PerihelionArgument
         {
             get
             {
@@ -584,7 +596,7 @@ namespace ASCOM.Tools
         /// <value>Reciprocal semi-major axis</value>
         /// <returns>1/AU</returns>
         /// <remarks></remarks>
-        public double ReciprocalSemiMajorAxis_z
+        public double z_ReciprocalSemiMajorAxis
         {
             get
             {

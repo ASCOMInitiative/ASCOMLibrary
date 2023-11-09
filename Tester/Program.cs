@@ -19,9 +19,9 @@ namespace Tester
 
                 DateTime dateTime = DateTime.Parse("2023-07-01T12:00:00.0000000Z", CultureInfo.CreateSpecificCulture("en-uk"), DateTimeStyles.AssumeUniversal);
                 DateTime dateTimeUtc = dateTime.ToUniversalTime();
-                SolarSystem venus = new SolarSystem(Body.Venus);
+                SolarSystemBody venus = new SolarSystemBody(Body.Venus);
 
-                BodyPositionVelocity bodyPV = venus.Position(dateTimeUtc, Origin.Barycentric);
+                BodyPositionVelocity bodyPV = venus.HelioPosition(dateTimeUtc, Origin.Barycentric);
                 Console.WriteLine($"Sun distance on {dateTimeUtc} {dateTimeUtc.Kind} - {bodyPV.Distance} AU, {bodyPV.X} {bodyPV.Y} {bodyPV.Z} {bodyPV.VelocityX} {bodyPV.VelocityY} {bodyPV.VelocityZ}");
 
                 TestKeplerComet();
@@ -43,10 +43,10 @@ namespace Tester
         {
             // Define the comet to be examined
             //string text = "    CK22U020  2023 01 14.2204  1.328037  0.986161  147.9085  304.4758   48.2504  20230113  16.0  4.0  C / 2022 U2(ATLAS)                                        MPEC 2023 - A16";
-            //DateTime targetTime = new DateTime(2023, 1, 8, 14, 22, 12, DateTimeKind.Utc);
+            DateTime targetTime = new DateTime(2023, 1, 8, 14, 22, 12, DateTimeKind.Utc);
 
             string text = "    CK23H020  2023 10 29.1890  0.894406  0.996374  150.6494  217.0444  113.7538  20231031  14.0  4.0  C/2023 H2 (Lemmon)                                       MPEC 2023-UR6";
-            DateTime targetTime = DateTime.UtcNow;
+            //DateTime targetTime = DateTime.UtcNow;
 
 
             // Set test parameters
@@ -70,28 +70,28 @@ namespace Tester
 
             kt.Epoch = Utilities.JulianDateFromDateTime(elements.PerihelionPassage);
 
-            kt.OrbitalEccentricity_e = elements.OrbitalEccentricity;
+            kt.e_OrbitalEccentricity = elements.OrbitalEccentricity;
             //kt.G = 0;
             //kt.H = 0;
-            kt.MeanAnomolyAtEpoch_M = 0;
-            kt.MeanDailyMotion_n = 0;
-            kt.ArghumentOfPerihelion = elements.ArgOfPerihelion;
+            kt.M_MeanAnomalyAtEpoch = 0;
+            kt.n_MeanDailyMotion = 0;
+            kt.w_PerihelionArgument = elements.ArgOfPerihelion;
             kt.Node = elements.LongitudeOfAscNode;
-            kt.Inclination = elements.Inclination;
-            kt.PerihelionDistance_q = elements.PeriDistance;
+            kt.i_Inclination = elements.Inclination;
+            kt.q_PerihelionDistance = elements.PeriDistance;
 
             // Extra code to set the semi-major axis
             //if (semiMajorAxis != 0.0) kt.a = semiMajorAxis;
-            LogMessage($"Perihelion distance: {kt.PerihelionDistance_q} - Semi-major axis: {kt.SemiMajorAxis_a}");
+            LogMessage($"Perihelion distance: {kt.q_PerihelionDistance} - Semi-major axis: {kt.a_SemiMajorAxis}");
 
             double[] cometPv = kt.GetPositionAndVelocity(targetJdTT);
 
             double cometSunDistance = Math.Sqrt(cometPv[0] * cometPv[0] + cometPv[1] * cometPv[1] + cometPv[2] * cometPv[2]);
             LogMessage($"Comet-Sun distance: {cometSunDistance} AU = {cometSunDistance * AU2KM:0}km");
 
-            SolarSystem earth = new(Body.Earth);
+            SolarSystemBody earth = new(Body.Earth);
 
-            BodyPositionVelocity earthPv = earth.Position(targetTime, Origin.Heliocentric);
+            BodyPositionVelocity earthPv = earth.HelioPosition(targetTime, Origin.Heliocentric);
             double earthSunDistance = Math.Sqrt(earthPv.X * earthPv.X + earthPv.Y * earthPv.Y + earthPv.Z * earthPv.Z);
             LogMessage($"Earth-Sun distance: {earthSunDistance}");
 
@@ -125,7 +125,6 @@ namespace Tester
 
 
             double julianEpoch = Utilities.JulianDateFromDateTime(epoch);
-            //double meanAnomoly = double.Parse(asteroidString.Substring(26, 9));
             double argumentOfperihelion = double.Parse(asteroidString.Substring(37, 9));
             double longitudeofAscendingNode = double.Parse(asteroidString.Substring(48, 9));
             double inclination = double.Parse(asteroidString.Substring(59, 9));
@@ -133,10 +132,10 @@ namespace Tester
             double meanDailyMotion = double.Parse(asteroidString.Substring(80, 11));
             double semiMajorAxis = double.Parse(asteroidString.Substring(92, 11));
 
-            double meanAnomoly = GetParameter("Mean anomaly", 26, 9, asteroidString);
+            double meanAnomaly = GetParameter("Mean anomaly", 26, 9, asteroidString);
 
             LogMessage($"Asteroid parameters at epoch {epoch} Julian day: {julianEpoch}\r\n" +
-                $"Mean anomaly: {meanAnomoly}\r\n" +
+                $"Mean anomaly: {meanAnomaly}\r\n" +
                 $"Argument of perihelion: {argumentOfperihelion}\r\n" +
                 $"Longitude of ascending node: {longitudeofAscendingNode}\r\n" +
                 $"Inclination: {inclination}\r\n" +
@@ -145,16 +144,16 @@ namespace Tester
                 $"Semi major axis: {semiMajorAxis}");
 
             Ephemeris asteroidEphemeris = new Ephemeris();
-            asteroidEphemeris.ArghumentOfPerihelion = argumentOfperihelion;
+            asteroidEphemeris.w_PerihelionArgument = argumentOfperihelion;
             asteroidEphemeris.BodyType = BodyType.MinorPlanet;
             asteroidEphemeris.Epoch = julianEpoch;
-            asteroidEphemeris.Inclination = inclination;
-            asteroidEphemeris.MeanAnomolyAtEpoch_M = meanAnomoly;
-            asteroidEphemeris.MeanDailyMotion_n = meanDailyMotion;
+            asteroidEphemeris.i_Inclination = inclination;
+            asteroidEphemeris.M_MeanAnomalyAtEpoch = meanAnomaly;
+            asteroidEphemeris.n_MeanDailyMotion = meanDailyMotion;
             asteroidEphemeris.Name = "Ceres";
             asteroidEphemeris.Node = longitudeofAscendingNode;
-            asteroidEphemeris.OrbitalEccentricity_e = eccentricity;
-            asteroidEphemeris.SemiMajorAxis_a = semiMajorAxis;
+            asteroidEphemeris.e_OrbitalEccentricity = eccentricity;
+            asteroidEphemeris.a_SemiMajorAxis = semiMajorAxis;
 
 
             double[] asteroidPv = asteroidEphemeris.GetPositionAndVelocity(targetJdTT);
@@ -167,7 +166,7 @@ namespace Tester
             LogMessage($"Asteroid-Sun vector: {asteroidPv[0]} {asteroidPv[1]} {asteroidPv[2]}");
 
 
-            earthPv = earth.Position(targetTime, Origin.Heliocentric);
+            earthPv = earth.HelioPosition(targetTime, Origin.Heliocentric);
             double earthSunDistance2 = Math.Sqrt(earthPv.X * earthPv.X + earthPv.Y * earthPv.Y + earthPv.Z * earthPv.Z);
 
             LogMessage($"Earth-Sun distance: {earthSunDistance2} AU = {earthSunDistance2 * AU2KM:0}km");

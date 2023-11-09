@@ -16,8 +16,8 @@ namespace Tester
             ParseElements(def);
         }
 
-        public string Name { get; set; }
-        public string Description { get; set; }
+        public string Name { get; set; } = "";
+        public string Description { get; set; } = "";
         public DateTime PerihelionPassage { get; set; }
         public double Epoch { get; set; }
         public double PeriDistance { get; set; }

@@ -1,4 +1,5 @@
-﻿using static System.Math;
+﻿using ASCOM.Tools.Novas31;
+using static System.Math;
 
 namespace ASCOM.Tools.Kepler
 {
@@ -453,7 +454,8 @@ namespace ASCOM.Tools.Kepler
             rect[2] = M;
 
             // Precess the equatorial (rectangular) coordinates to the ecliptic & equinox of J2000.0, if not already there.
-            Precess(ref rect, e.equinox, 1);
+            //Precess(ref rect, e.equinox, 1);
+            Novas.Precession(e.equinox, rect, J2000, ref rect);
 
             // If earth, adjust from earth-moon barycenter to earth by AA page E2. See embofs() below
             if (e.objectName == "Earth")
@@ -567,7 +569,7 @@ namespace ASCOM.Tools.Kepler
             // /* Point to start of table of arguments. */
 
             p = 0; // p = plan.arg_tbl
-            
+
             // /* Point to tabulated cosine and sine amplitudes.  */
             pl = 0; // pl = plan.lon_tbl
             pb = 0; // pb = plan.lat_tbl
@@ -643,13 +645,13 @@ namespace ASCOM.Tools.Kepler
                             cu = cc[m, k];
 
                             if (k1 == 0) // set first angle
-                            {                               
+                            {
                                 sv = su;
                                 cv = cu;
                                 k1 = 1;
                             }
                             else // combine angles
-                            {                         
+                            {
                                 t = su * cv + cu * sv;
                                 cv = cu * cv - su * sv;
                                 sv = t;

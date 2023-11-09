@@ -82,7 +82,7 @@ namespace ASCOM.Tools.Interfaces
         /// <value>Semi-major axis in AU</value>
         /// <returns>Semi-major axis in AU</returns>
         /// <remarks></remarks>
-        double SemiMajorAxis_a { get; set; }
+        double a_SemiMajorAxis { get; set; }
 
         /// <summary>
         /// The type of solar system body represented by this instance of the ephemeris engine (enum)
@@ -98,7 +98,7 @@ namespace ASCOM.Tools.Interfaces
         /// <value>Orbital eccentricity </value>
         /// <returns>Orbital eccentricity </returns>
         /// <remarks></remarks>
-        double OrbitalEccentricity_e { get; set; }
+        double e_OrbitalEccentricity { get; set; }
 
         /// <summary>
         /// Epoch of osculation of the orbital elements (terrestrial Julian date)
@@ -114,7 +114,7 @@ namespace ASCOM.Tools.Interfaces
         /// <value>Slope parameter for magnitude</value>
         /// <returns>Slope parameter for magnitude</returns>
         /// <remarks></remarks>
-        double SlopeForMagnitude_G { get; set; }
+        double G_SlopeForMagnitude { get; set; }
 
         /// <summary>
         /// Absolute visual magnitude
@@ -122,7 +122,7 @@ namespace ASCOM.Tools.Interfaces
         /// <value>Absolute visual magnitude</value>
         /// <returns>Absolute visual magnitude</returns>
         /// <remarks></remarks>
-        double AbsoluteVisualMagnitude_H { get; set; }
+        double H_AbsoluteVisualMagnitude { get; set; }
 
         /// <summary>
         /// The J2000.0 inclination (deg.)
@@ -130,7 +130,7 @@ namespace ASCOM.Tools.Interfaces
         /// <value>The J2000.0 inclination</value>
         /// <returns>Degrees</returns>
         /// <remarks></remarks>
-        double Inclination { get; set; }
+        double i_Inclination { get; set; }
 
         /// <summary>
         /// Mean anomaly at the epoch
@@ -138,7 +138,7 @@ namespace ASCOM.Tools.Interfaces
         /// <value>Mean anomaly at the epoch</value>
         /// <returns>Mean anomaly at the epoch</returns>
         /// <remarks></remarks>
-        double MeanAnomolyAtEpoch_M { get; set; }
+        double M_MeanAnomalyAtEpoch { get; set; }
 
         /// <summary>
         /// Mean daily motion (deg/day)
@@ -146,7 +146,7 @@ namespace ASCOM.Tools.Interfaces
         /// <value>Mean daily motion</value>
         /// <returns>Degrees per day</returns>
         /// <remarks></remarks>
-        double MeanDailyMotion_n { get; set; }
+        double n_MeanDailyMotion { get; set; }
 
         /// <summary>
         /// The name of the body.
@@ -179,7 +179,7 @@ namespace ASCOM.Tools.Interfaces
         /// <value>Orbital period</value>
         /// <returns>Years</returns>
         /// <remarks></remarks>
-        double OrbitalPeriod_P { get; set; }
+        double P_OrbitalPeriod { get; set; }
 
         /// <summary>
         /// The J2000.0 argument of perihelion (deg.)
@@ -187,7 +187,7 @@ namespace ASCOM.Tools.Interfaces
         /// <value>The J2000.0 argument of perihelion</value>
         /// <returns>Degrees</returns>
         /// <remarks></remarks>
-        double ArghumentOfPerihelion { get; set; }
+        double w_PerihelionArgument { get; set; }
 
         /// <summary>
         /// Perihelion distance (AU)
@@ -195,7 +195,7 @@ namespace ASCOM.Tools.Interfaces
         /// <value>Perihelion distance</value>
         /// <returns>AU</returns>
         /// <remarks></remarks>
-        double PerihelionDistance_q { get; set; }
+        double q_PerihelionDistance { get; set; }
 
         /// <summary>
         /// Reciprocal semi-major axis (1/AU)
@@ -203,6 +203,6 @@ namespace ASCOM.Tools.Interfaces
         /// <value>Reciprocal semi-major axis</value>
         /// <returns>1/AU</returns>
         /// <remarks></remarks>
-        double ReciprocalSemiMajorAxis_z { get; set; }
+        double z_ReciprocalSemiMajorAxis { get; set; }
     }
 }

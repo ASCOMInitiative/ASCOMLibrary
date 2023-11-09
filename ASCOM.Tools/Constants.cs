@@ -755,12 +755,12 @@ namespace ASCOM.Tools.Novas31
     #endregion
 
     #region Public NOVAS Structures
-    [StructLayout(LayoutKind.Sequential)]
     /// <summary>
     /// Structure to hold a position vector
     /// </summary>
     /// <remarks>Object position vector
     /// </remarks>
+    [StructLayout(LayoutKind.Sequential)]
     public struct PosVector
     {
         /// <summary>

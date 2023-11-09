@@ -46,6 +46,21 @@ namespace ASCOM.Tools
         }
 
         /// <summary>
+        /// Set the object using position and velocity vector arrays
+        /// </summary>
+        /// <param name="positionVelocity">X, Y and Z coordinates and velocities as a six element 1D array. XPos, YPos, ZPos, XVel, YVel, ZVel.</param>
+        public BodyPositionVelocity(double[] positionVelocity)
+        {
+            X = positionVelocity[0];
+            Y = positionVelocity[1];
+            Z = positionVelocity[2];
+
+            VelocityX = positionVelocity[3];
+            VelocityY = positionVelocity[4];
+            VelocityZ = positionVelocity[5];
+        }
+
+        /// <summary>
         /// X Coordinate
         /// </summary>
         public double X { get; } = 0.0;
