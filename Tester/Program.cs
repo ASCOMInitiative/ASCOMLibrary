@@ -21,7 +21,7 @@ namespace Tester
                 DateTime dateTimeUtc = dateTime.ToUniversalTime();
                 SolarSystemBody venus = new SolarSystemBody(Body.Venus);
 
-                BodyPositionVelocity bodyPV = venus.HelioPosition(dateTimeUtc, Origin.Barycentric);
+                BodyPositionVelocity bodyPV = venus.HelioCentricPosition(dateTimeUtc);
                 Console.WriteLine($"Sun distance on {dateTimeUtc} {dateTimeUtc.Kind} - {bodyPV.Distance} AU, {bodyPV.X} {bodyPV.Y} {bodyPV.Z} {bodyPV.VelocityX} {bodyPV.VelocityY} {bodyPV.VelocityZ}");
 
                 TestKeplerComet();
@@ -91,7 +91,7 @@ namespace Tester
 
             SolarSystemBody earth = new(Body.Earth);
 
-            BodyPositionVelocity earthPv = earth.HelioPosition(targetTime, Origin.Heliocentric);
+            BodyPositionVelocity earthPv = earth.HelioCentricPosition(targetTime);
             double earthSunDistance = Math.Sqrt(earthPv.X * earthPv.X + earthPv.Y * earthPv.Y + earthPv.Z * earthPv.Z);
             LogMessage($"Earth-Sun distance: {earthSunDistance}");
 
@@ -166,7 +166,7 @@ namespace Tester
             LogMessage($"Asteroid-Sun vector: {asteroidPv[0]} {asteroidPv[1]} {asteroidPv[2]}");
 
 
-            earthPv = earth.HelioPosition(targetTime, Origin.Heliocentric);
+            earthPv = earth.HelioCentricPosition(targetTime);
             double earthSunDistance2 = Math.Sqrt(earthPv.X * earthPv.X + earthPv.Y * earthPv.Y + earthPv.Z * earthPv.Z);
 
             LogMessage($"Earth-Sun distance: {earthSunDistance2} AU = {earthSunDistance2 * AU2KM:0}km");
