@@ -29,7 +29,7 @@ namespace ASCOM.Com
 
         // Constants for CreateDynamicDriver method
         private const string DRIVER_PROGID_BASE = "ASCOM.AlpacaDynamic";
-        private const string ALPACA_DYNAMIC_CLIENT_MANAGER_RELATIVE_PATH = @"ASCOM\Platform 7\Tools\AlpacaDynamicClientManager";
+        private const string ALPACA_DYNAMIC_CLIENT_MANAGER_RELATIVE_PATH = @"ASCOM\Platform\Tools\AlpacaDynamicClientManager";
         private const string ALPACA_DYNAMIC_CLIENT_MANAGER_EXE_NAME = "ASCOM.AlpacaDynamicClientManager.exe";
 
         // Alpaca driver Profile store value names
