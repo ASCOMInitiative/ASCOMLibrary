@@ -90,10 +90,14 @@
 			<Pack>True</Pack>
 			<PackagePath>runtimes/win-x86/native</PackagePath>
 		</None>
+		<None Update="SOFALibraries\win-arm64\libsofa.dll">
+			<Pack>True</Pack>
+			<PackagePath>runtimes/win-arm64/native</PackagePath>
+		</None>
 	</ItemGroup>
 
 	<ItemGroup>
-		<!-- Windows 64bit Native Library -->
+		<!-- Windows x64 64bit Native Library -->
 		<None Update="NovasLibraries\win-x64\libnovas.dll">
 			<Pack>True</Pack>
 			<PackagePath>runtimes/win-x64/native</PackagePath>
@@ -105,7 +109,7 @@
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
 
-		<!-- Windows 32bit Native Library -->
+		<!-- Windows x86 32bit Native Library -->
 		<None Update="NovasLibraries\win-x86\libnovas.dll">
 			<Pack>True</Pack>
 			<PackagePath>runtimes/win-x86/native</PackagePath>
@@ -113,6 +117,18 @@
 		<None Update="NovasLibraries\win-x86\cio_ra.bin">
 			<Pack>True</Pack>
 			<PackagePath>runtimes/win-x86/native</PackagePath>
+		</None>
+
+		<!-- Windows arm64 64bit Native Library -->
+		<None Update="NovasLibraries\win-arm64\libnovas.dll">
+			<Pack>True</Pack>
+			<PackagePath>runtimes/win-arm64/native</PackagePath>
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="NovasLibraries\win-arm64\cio_ra.bin">
+			<Pack>True</Pack>
+			<PackagePath>runtimes/win-arm64/native</PackagePath>
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
 
 		<!-- Linux Intel 64bit Native Library -->

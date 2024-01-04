@@ -1,7 +1,9 @@
 ﻿using ASCOM.Alpaca.Clients;
 using ASCOM.Common.Alpaca;
+using ASCOM.Common.DeviceInterfaces;
 using ASCOM.Common.DeviceStateClasses;
 using ASCOM.Tools;
+using System.Collections.Generic;
 using System.Linq;
 using Xunit;
 
@@ -26,11 +28,9 @@ namespace ClientToolkitTests
 
                     Assert.True(device.Connected);
                     logger.LogMessage("AlpacaCamera", $"Connected OK");
-
-                    int count = device.DeviceState.Count();
-
-                    Assert.True(count > 0);
-                    logger.LogMessage("AlpacaCamera", $"Device state count: {count}");
+                    List<StateValue> values = device.DeviceState;
+                    logger.LogMessage("AlpacaCamera", $"Got device state OK - Count: {values.Count}");
+                    Assert.True(values.Count > 0);
 
                     CameraDeviceState deviceState = device.CameraDeviceState;
 

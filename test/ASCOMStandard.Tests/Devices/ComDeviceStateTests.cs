@@ -1,6 +1,7 @@
 ﻿using ASCOM.Com.DriverAccess;
 using ASCOM.Common.DeviceInterfaces;
 using ASCOM.Common.DeviceStateClasses;
+using ASCOM.Tools;
 using Xunit;
 
 namespace ClientToolkitTests
@@ -72,26 +73,43 @@ namespace ClientToolkitTests
         [Fact]
         public void Dome()
         {
-            using (Dome device = new("ASCOM.Simulator.Dome"))
+            using (TraceLogger traceLogger = new("ComDomeStateTest", true))
             {
-                device.Connect();
-                do
+                traceLogger.LogMessage("ComDomeStateTest", $"Created logger");
+                using (Dome device = new("ASCOM.Simulator.Dome", traceLogger))
                 {
-                    System.Threading.Thread.Sleep(100);
-                } while (device.Connecting);
-                Assert.True(device.Connected);
+                    traceLogger.LogMessage("ComDomeStateTest", $"Created Dome device");
+                    device.Connect();
+                    traceLogger.LogMessage("ComDomeStateTest", $"Connecting to device");
 
-                DomeState deviceState = device.DomeState;
+                    do
+                    {
+                        System.Threading.Thread.Sleep(100);
+                    } while (device.Connecting);
+                    Assert.True(device.Connected);
+                    traceLogger.LogMessage("ComDomeStateTest", $"Connected to device");
+                    DomeState deviceState=new DomeState();
+                    try
+                    {
+                        deviceState = device.DomeState;
+                        traceLogger.LogMessage("ComDomeStateTest", $"Got device state");
 
-                Assert.True(deviceState.Altitude.HasValue);
-                Assert.True(deviceState.AtHome.HasValue);
-                Assert.True(deviceState.AtPark.HasValue);
-                Assert.True(deviceState.Azimuth.HasValue);
-                Assert.True(deviceState.ShutterStatus.HasValue);
-                Assert.True(deviceState.Slewing.HasValue);
-                Assert.True(deviceState.TimeStamp.HasValue);
+                    }
+                    catch (System.Exception ex)
+                    {
+                        traceLogger.LogMessage("ComDomeStateTest", $"Exception: {ex}");
+                    }
 
-                device.Disconnect();
+                    Assert.True(deviceState.Altitude.HasValue);
+                    Assert.True(deviceState.AtHome.HasValue);
+                    Assert.True(deviceState.AtPark.HasValue);
+                    Assert.True(deviceState.Azimuth.HasValue);
+                    Assert.True(deviceState.ShutterStatus.HasValue);
+                    Assert.True(deviceState.Slewing.HasValue);
+                    Assert.True(deviceState.TimeStamp.HasValue);
+
+                    device.Disconnect();
+                }
             }
         }
     }
