@@ -315,7 +315,7 @@ namespace DriverAccess
             // Wait a short while before checking that the operation is cancelled and an OperationCancelledException is thrown
             await Task.Delay(100);
             Exception exception = Assert.Throws<DriverAccessCOMException>(() => switchSim.StateChangeComplete(10));
-            Assert.Equal<int>(ErrorCodes.OperationCancelledException, exception.HResult);
+            Assert.Equal<int>(ErrorCodes.OperationCancelled, exception.HResult);
 
             Assert.False(switchSim.GetSwitch(10));
 

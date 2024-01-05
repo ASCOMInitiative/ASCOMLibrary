@@ -30,9 +30,9 @@
 	  <Content Include="..\ASCOMBoarderless.png" Link="ASCOMBoarderless.png" />
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="ASCOM.Alpaca.Components" Version="1.0.111-rc.2" />
-		<PackageReference Include="ASCOM.Com.Components" Version="1.0.111-rc.2" />
-		<PackageReference Include="ASCOM.Exception.Library" Version="6.6.2-rc.3767" />
+		<PackageReference Include="ASCOM.Alpaca.Components" Version="1.0.113-rc.4" />
+		<PackageReference Include="ASCOM.Com.Components" Version="1.0.113-rc.4" />
+		<PackageReference Include="ASCOM.Exception.Library" Version="7.0.0-rc.16" />
 	</ItemGroup>
 	<ItemGroup>
 	  <Compile Update="Properties\Resources.Designer.cs">

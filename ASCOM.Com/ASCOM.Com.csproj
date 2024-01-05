@@ -43,7 +43,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="ASCOM.Exception.Library" Version="6.6.2-rc.3725" />
+		<PackageReference Include="ASCOM.Exception.Library" Version="7.0.0-rc.16" />
 		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
 		<PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
 	</ItemGroup>

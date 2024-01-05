@@ -64,7 +64,7 @@ namespace TransformTests
             transform.SetJ2000(AstroRA, AstroDEC);
 
             // Set a specific date for the calculation
-            double testJulianDate = Utilities.JulianDateFromDateTime(new DateTime(2022, 1, 1, 03, 0, 0, DateTimeKind.Utc));
+            double testJulianDate = AstroUtilities.JulianDateFromDateTime(new DateTime(2022, 1, 1, 03, 0, 0, DateTimeKind.Utc));
             transform.JulianDateUTC = testJulianDate;
             TL.LogMessage("TransformTest", $"Test Julian Date: {testJulianDate}");
 

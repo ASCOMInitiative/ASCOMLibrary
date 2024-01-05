@@ -438,7 +438,7 @@ namespace ASCOM.Tools.NovasCom
 
             // Make sure we have a valid value for delta T if the user doesn't supply one
             if (delta_t == 0.0)
-                delta_t = Utilities.DeltaT(ujd);
+                delta_t = AstroUtilities.DeltaT(ujd);
 
             // Get the Greenwich Apparent Sidereal Time and call our SetFromSite() method.
             Novas.SiderealTime(ujd, 0.0d, delta_t, GstType.GreenwichApparentSiderealTime, Method.EquinoxBased, Accuracy.Full, ref gast);

@@ -54,7 +54,7 @@ namespace Tester
             DateTime dt = new DateTime(ppYear, ppMonth, 1);
             PerihelionPassage = dt.AddDays(ppDay - 1);
 
-            Epoch = Utilities.JulianDateFromDateTime(PerihelionPassage);
+            Epoch = AstroUtilities.JulianDateFromDateTime(PerihelionPassage);
 
             // Extract Perihelion distance
 

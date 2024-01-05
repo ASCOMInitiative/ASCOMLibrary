@@ -389,7 +389,7 @@ namespace ASCOM.Tools.NovasCom
             }
             else
             {
-                ujd = tjd - Utilities.DeltaT(tjd) / 86400.0d;
+                ujd = tjd - AstroUtilities.DeltaT(tjd) / 86400.0d;
             }
 
             cat.RA = m_ra;
@@ -505,7 +505,7 @@ namespace ASCOM.Tools.NovasCom
             }
             else
             {
-                ujd = tjd - Utilities.DeltaT(tjd) / 86400.0d;
+                ujd = tjd - AstroUtilities.DeltaT(tjd) / 86400.0d;
             }
 
             // Get the observer's site info
@@ -588,7 +588,7 @@ namespace ASCOM.Tools.NovasCom
             }
             else
             {
-                Novas.Equ2Hor(ujd, Utilities.DeltaT(tjd), Accuracy.Full, 0.0d, 0.0d, st, ra, dec, refractionOption, ref zd, ref az, ref rra, ref rdec);
+                Novas.Equ2Hor(ujd, AstroUtilities.DeltaT(tjd), Accuracy.Full, 0.0d, 0.0d, st, ra, dec, refractionOption, ref zd, ref az, ref rra, ref rdec);
             }
 
             // If we refracted, we now must compute new Cartesian components

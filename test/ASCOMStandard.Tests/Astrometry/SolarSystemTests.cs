@@ -89,7 +89,7 @@ namespace ASCOM.Alpaca.Tests.Astrometry
             DateTime targetTime = new DateTime(2023, 11, 6, 22, 00, 00, DateTimeKind.Utc);
 
             output.WriteLine(
-                $"  Epoch: {comet.Ephemeris.Epoch} ({Utilities.JulianDateToDateTime(comet.Ephemeris.Epoch)}) , \r\n" +
+                $"  Epoch: {comet.Ephemeris.Epoch} ({AstroUtilities.JulianDateToDateTime(comet.Ephemeris.Epoch)}) , \r\n" +
                 $"q Perihelion distance: {comet.Ephemeris.q_PerihelionDistance}, \r\n" +
                 $"e Orbit eccentricity: {comet.Ephemeris.e_OrbitalEccentricity}, \r\n" +
                 $"i Inclination: {comet.Ephemeris.i_Inclination}, \r\n" +
@@ -131,7 +131,7 @@ namespace ASCOM.Alpaca.Tests.Astrometry
             SolarSystemBody asteroid = new SolarSystemBody();
             asteroid.Ephemeris = ephemeris;
             output.WriteLine(
-                $"  Epoch: {asteroid.Ephemeris.Epoch} ({Utilities.JulianDateToDateTime(asteroid.Ephemeris.Epoch)}) , \r\n" +
+                $"  Epoch: {asteroid.Ephemeris.Epoch} ({AstroUtilities.JulianDateToDateTime(asteroid.Ephemeris.Epoch)}) , \r\n" +
                 $"a Semi-major axis: {asteroid.Ephemeris.a_SemiMajorAxis}, \r\n" +
                 $"e Orbit eccentricity: {asteroid.Ephemeris.e_OrbitalEccentricity}, \r\n" +
                 $"i Inclination: {asteroid.Ephemeris.i_Inclination}, \r\n" +
@@ -164,7 +164,7 @@ namespace ASCOM.Alpaca.Tests.Astrometry
             DateTime targetTime = new DateTime(2023, 11, 6, 22, 00, 00, DateTimeKind.Utc);
 
             output.WriteLine(
-                $"  Epoch: {comet.Ephemeris.Epoch} ({Utilities.JulianDateToDateTime(comet.Ephemeris.Epoch)}) , \r\n" +
+                $"  Epoch: {comet.Ephemeris.Epoch} ({AstroUtilities.JulianDateToDateTime(comet.Ephemeris.Epoch)}) , \r\n" +
                 $"q Perihelion distance: {comet.Ephemeris.q_PerihelionDistance}, \r\n" +
                 $"e Orbit eccentricity: {comet.Ephemeris.e_OrbitalEccentricity}, \r\n" +
                 $"i Inclination: {comet.Ephemeris.i_Inclination}, \r\n" +
@@ -189,7 +189,7 @@ namespace ASCOM.Alpaca.Tests.Astrometry
             const double TEST_TOLERANCE = 0.0015; // Degrees
             SolarSystemBody asteroid = new SolarSystemBody(SolarSystemBody.OrbitDataSource.MpcAsteroidOrbit, "00001    3.33  0.15 K239D  60.07881   73.42179   80.25496   10.58688  0.0789126  0.21410680   2.7672543  0 E2023-F87  7283 123 1801-2023 0.65 M-v 30k MPCLINUX   0000      (1) Ceres              20230321");
             output.WriteLine(
-                $"  Epoch: {asteroid.Ephemeris.Epoch} ({Utilities.JulianDateToDateTime(asteroid.Ephemeris.Epoch)}) , \r\n" +
+                $"  Epoch: {asteroid.Ephemeris.Epoch} ({AstroUtilities.JulianDateToDateTime(asteroid.Ephemeris.Epoch)}) , \r\n" +
                 $"a Semi-major axis: {asteroid.Ephemeris.a_SemiMajorAxis}, \r\n" +
                 $"e Orbit eccentricity: {asteroid.Ephemeris.e_OrbitalEccentricity}, \r\n" +
                 $"i Inclination: {asteroid.Ephemeris.i_Inclination}, \r\n" +
@@ -227,7 +227,7 @@ namespace ASCOM.Alpaca.Tests.Astrometry
             //00001    3.33  0.15 K239D  60.07881   73.42179   80.25496   10.58688  0.0789126  0.21410680   2.7672543  0 E2023-F87  7283 123 1801-2023 0.65 M-v 30k MPCLINUX   0000      (1) Ceres              20230321
             SolarSystemBody asteroid = new SolarSystemBody(SolarSystemBody.OrbitDataSource.MpcAsteroidOrbit, "00001    3.33  0.15 K239D  60.07881   73.42179   80.25496   10.58688  0.0789126  0.21410680   2.7672543  0 E2023-F87  7283 123 1801-2023 0.65 M-v 30k MPCLINUX   0000      (1) Ceres              20230321");
             output.WriteLine(
-                $"  Epoch: {asteroid.Ephemeris.Epoch} ({Utilities.JulianDateToDateTime(asteroid.Ephemeris.Epoch)}) , \r\n" +
+                $"  Epoch: {asteroid.Ephemeris.Epoch} ({AstroUtilities.JulianDateToDateTime(asteroid.Ephemeris.Epoch)}) , \r\n" +
                 $"a Semi-major axis: {asteroid.Ephemeris.a_SemiMajorAxis}, \r\n" +
                 $"e Orbit eccentricity: {asteroid.Ephemeris.e_OrbitalEccentricity}, \r\n" +
                 $"i Inclination: {asteroid.Ephemeris.i_Inclination}, \r\n" +
@@ -244,7 +244,7 @@ namespace ASCOM.Alpaca.Tests.Astrometry
 
             DateTime targetTime = new DateTime(2023, 11, 8, 14, 00, 00, DateTimeKind.Utc);
 
-            double epochJulianDay = Utilities.JulianDateFromDateTime(targetTime);
+            double epochJulianDay = AstroUtilities.JulianDateFromDateTime(targetTime);
             output.WriteLine($"Target time Julian day number: {epochJulianDay}");
 
             Coordinates asteroidCoordinates = asteroid.TopocentricCoordinates(targetTime);
@@ -290,7 +290,7 @@ namespace ASCOM.Alpaca.Tests.Astrometry
             DateTime targetTime = new DateTime(2023, 11, 6, 22, 00, 00, DateTimeKind.Utc);
 
             output.WriteLine(
-                $"  Epoch: {comet.Ephemeris.Epoch} ({Utilities.JulianDateToDateTime(comet.Ephemeris.Epoch)}) , \r\n" +
+                $"  Epoch: {comet.Ephemeris.Epoch} ({AstroUtilities.JulianDateToDateTime(comet.Ephemeris.Epoch)}) , \r\n" +
                 $"q Perihelion distance: {comet.Ephemeris.q_PerihelionDistance}, \r\n" +
                 $"e Orbit eccentricity: {comet.Ephemeris.e_OrbitalEccentricity}, \r\n" +
                 $"i Inclination: {comet.Ephemeris.i_Inclination}, \r\n" +
@@ -335,7 +335,7 @@ namespace ASCOM.Alpaca.Tests.Astrometry
             const double TEST_TOLERANCE = 0.0015; // Degrees
             SolarSystemBody asteroid = new SolarSystemBody(SolarSystemBody.OrbitDataSource.JplUnNumberedAsteroidOrbit, "  1993 BC16   60200   5.2120059 0.13592842  17.34267 226.41108 132.56253 333.9285365 13.13 0.15 JPL 24");
             output.WriteLine(
-                $"  Epoch: {asteroid.Ephemeris.Epoch} ({Utilities.JulianDateToDateTime(asteroid.Ephemeris.Epoch)}) , \r\n" +
+                $"  Epoch: {asteroid.Ephemeris.Epoch} ({AstroUtilities.JulianDateToDateTime(asteroid.Ephemeris.Epoch)}) , \r\n" +
                 $"a Semi-major axis: {asteroid.Ephemeris.a_SemiMajorAxis}, \r\n" +
                 $"e Orbit eccentricity: {asteroid.Ephemeris.e_OrbitalEccentricity}, \r\n" +
                 $"i Inclination: {asteroid.Ephemeris.i_Inclination}, \r\n" +
@@ -365,7 +365,7 @@ namespace ASCOM.Alpaca.Tests.Astrometry
             const double TEST_TOLERANCE = 0.0015; // Degrees
             SolarSystemBody asteroid = new SolarSystemBody(SolarSystemBody.OrbitDataSource.LowellAsteroid, "     1 Ceres              L.H. Wasserman   3.33  0.15 0.72 848.4 G?      0   0   0   0   0   0 81218 6833 20231222  81.513198  73.391274  80.253704 10.587314 0.07897659   2.76719926 20230804 1.1E-02 -2.8E-06 20231107 2.3E-02 20240707 2.7E-02 20320228 2.7E-02 20320228");
             output.WriteLine(
-                $"  Epoch: {asteroid.Ephemeris.Epoch} ({Utilities.JulianDateToDateTime(asteroid.Ephemeris.Epoch)}) , \r\n" +
+                $"  Epoch: {asteroid.Ephemeris.Epoch} ({AstroUtilities.JulianDateToDateTime(asteroid.Ephemeris.Epoch)}) , \r\n" +
                 $"a Semi-major axis: {asteroid.Ephemeris.a_SemiMajorAxis}, \r\n" +
                 $"e Orbit eccentricity: {asteroid.Ephemeris.e_OrbitalEccentricity}, \r\n" +
                 $"i Inclination: {asteroid.Ephemeris.i_Inclination}, \r\n" +

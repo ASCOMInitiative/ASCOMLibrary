@@ -636,7 +636,7 @@ namespace ASCOM.Tools
                         LogMessage("JulianDateTT Set", "TaiUtc - Bad return code");
                     julianDateUTCValue = utc1 + utc2;
 
-                    LogMessage("JulianDateTT Set", julianDateTTValue.ToString() + " " + Utilities.JulianDateToDateTime(julianDateTTValue).ToString(DATE_FORMAT) + ", JDUTC: " + Utilities.JulianDateToDateTime(julianDateUTCValue).ToString(DATE_FORMAT));
+                    LogMessage("JulianDateTT Set", julianDateTTValue.ToString() + " " + AstroUtilities.JulianDateToDateTime(julianDateTTValue).ToString(DATE_FORMAT) + ", JDUTC: " + AstroUtilities.JulianDateToDateTime(julianDateUTCValue).ToString(DATE_FORMAT));
                 }
                 else
                 {
@@ -679,7 +679,7 @@ namespace ASCOM.Tools
                         LogMessage("JulianDateUTC Set", "TaiTt - Bad return code");
                     julianDateTTValue = tt1 + tt2;
 
-                    LogMessage("JulianDateUTC Set", $"JDUTC: {julianDateUTCValue} ({Utilities.JulianDateToDateTime(julianDateUTCValue).ToString(DATE_FORMAT)}), JDTT: {julianDateTTValue} ({Utilities.JulianDateToDateTime(julianDateTTValue).ToString(DATE_FORMAT)})");
+                    LogMessage("JulianDateUTC Set", $"JDUTC: {julianDateUTCValue} ({AstroUtilities.JulianDateToDateTime(julianDateUTCValue).ToString(DATE_FORMAT)}), JDTT: {julianDateTTValue} ({AstroUtilities.JulianDateToDateTime(julianDateTTValue).ToString(DATE_FORMAT)})");
                 }
                 else
                 {
@@ -969,12 +969,12 @@ namespace ASCOM.Tools
                 }
 
                 Retval = utc1 + utc2;
-                LogMessage("  GetJDUTCSofa", "  Current Julian Date: " + Retval.ToString() + " " + Utilities.JulianDateToDateTime(Retval).ToString(DATE_FORMAT));
+                LogMessage("  GetJDUTCSofa", "  Current Julian Date: " + Retval.ToString() + " " + AstroUtilities.JulianDateToDateTime(Retval).ToString(DATE_FORMAT));
             }
             else
             {
                 Retval = julianDateUTCValue;
-                LogMessage("  GetJDUTCSofa", "  Set Julian Date: " + Retval.ToString() + " " + Utilities.JulianDateToDateTime(Retval).ToString(DATE_FORMAT));
+                LogMessage("  GetJDUTCSofa", "  Set Julian Date: " + Retval.ToString() + " " + AstroUtilities.JulianDateToDateTime(Retval).ToString(DATE_FORMAT));
             }
 
             return Retval;
@@ -1001,7 +1001,7 @@ namespace ASCOM.Tools
             }
             else
                 Retval = julianDateTTValue;
-            LogMessage("  GetJDTTSofa", "  " + Retval.ToString() + " " + Utilities.JulianDateToDateTime(Retval).ToString(DATE_FORMAT));
+            LogMessage("  GetJDTTSofa", "  " + Retval.ToString() + " " + AstroUtilities.JulianDateToDateTime(Retval).ToString(DATE_FORMAT));
             return Retval;
         }
 

@@ -246,7 +246,7 @@ namespace ASCOM.Tools.NovasCom
             // Compute 'ujd', the UT1 Julian date corresponding to 'tjd'.
             if (!m_bDTValid) // April 2012 - corrected bug, delta t was not treated as seconds and also adapted to work with Novas31
             {
-                m_deltat = Utilities.DeltaT(tjd);
+                m_deltat = AstroUtilities.DeltaT(tjd);
             }
             ujd = tjd - m_deltat / 86400.0d;
 
@@ -363,7 +363,7 @@ namespace ASCOM.Tools.NovasCom
             // Compute 'ujd', the UT1 Julian date corresponding to 'tjd'.
             if (!m_bDTValid) // April 2012 - corrected bug, delta t was not treated as seconds and also adapted to work with Novas31
             {
-                m_deltat = Utilities.DeltaT(tjd);
+                m_deltat = AstroUtilities.DeltaT(tjd);
             }
             ujd = tjd - m_deltat / 86400.0d;
 
@@ -487,7 +487,7 @@ namespace ASCOM.Tools.NovasCom
             }
             else
             {
-                Novas.Equ2Hor(ujd, Utilities.DeltaT(tjd), Accuracy.Full, 0.0d, 0.0d, st, ra, dec, @ref, ref zd, ref az, ref rra, ref rdec);
+                Novas.Equ2Hor(ujd, AstroUtilities.DeltaT(tjd), Accuracy.Full, 0.0d, 0.0d, st, ra, dec, @ref, ref zd, ref az, ref rra, ref rdec);
             }
 
             // If we refracted, we now must compute new Cartesian components - Distance does not change...

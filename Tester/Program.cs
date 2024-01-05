@@ -50,8 +50,8 @@ namespace Tester
 
 
             // Set test parameters
-            double targetJd = Utilities.JulianDateFromDateTime(targetTime);
-            double targetJdTT = targetJd + Utilities.DeltaT(targetJd) / 86400;
+            double targetJd = AstroUtilities.JulianDateFromDateTime(targetTime);
+            double targetJdTT = targetJd + AstroUtilities.DeltaT(targetJd) / 86400;
 
             LogMessage($"Target time is {targetTime}, JD = {targetJd:f5}, JDTT = {targetJdTT:f5}");
 
@@ -68,7 +68,7 @@ namespace Tester
             kt.Name = elements.Name;
 
 
-            kt.Epoch = Utilities.JulianDateFromDateTime(elements.PerihelionPassage);
+            kt.Epoch = AstroUtilities.JulianDateFromDateTime(elements.PerihelionPassage);
 
             kt.e_OrbitalEccentricity = elements.OrbitalEccentricity;
             //kt.G = 0;
@@ -124,7 +124,7 @@ namespace Tester
             DateTime epoch = DateTime.Parse("2023 02 25", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal);
 
 
-            double julianEpoch = Utilities.JulianDateFromDateTime(epoch);
+            double julianEpoch = AstroUtilities.JulianDateFromDateTime(epoch);
             double argumentOfperihelion = double.Parse(asteroidString.Substring(37, 9));
             double longitudeofAscendingNode = double.Parse(asteroidString.Substring(48, 9));
             double inclination = double.Parse(asteroidString.Substring(59, 9));

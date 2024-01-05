@@ -13,12 +13,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="..\ASCOM.Tools\SOFALibraries\win-x64\libsofa.dll" Link="libsofa.dll">
+    <None Include="..\ASCOM.AstrometryTools\SOFALibraries\win-x64\libsofa.dll" Link="libsofa.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ASCOM.AstrometryTools\ASCOM.AstrometryTools.csproj" />
     <ProjectReference Include="..\ASCOM.Tools\ASCOM.Tools.csproj" />
   </ItemGroup>
 

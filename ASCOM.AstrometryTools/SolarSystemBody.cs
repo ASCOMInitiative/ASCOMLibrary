@@ -132,7 +132,7 @@ namespace ASCOM.Tools
                     int month = GetIntParameter("Perihelion month", 19, 2, orbitString);
                     double day = GetParameter("Perihelion day", 22, 7, orbitString);
                     DateTime perihelionPassageTT = new DateTime(year, month, 1).AddDays(day - 1);
-                    Ephemeris.Epoch = Utilities.JulianDateFromDateTime(perihelionPassageTT);
+                    Ephemeris.Epoch = AstroUtilities.JulianDateFromDateTime(perihelionPassageTT);
 
                     // Set remaining parameters
                     Ephemeris.q_PerihelionDistance = GetParameter("Perihelion distance (q)", 30, 9, orbitString); // Double.Parse(orbitString.Substring(30, 9));
@@ -202,7 +202,7 @@ namespace ASCOM.Tools
                     month = GetIntParameter("Perihelion month", 109, 2, orbitString);
                     day = GetParameter("Perihelion day", 111, 8, orbitString);
                     perihelionPassageTT = new DateTime(year, month, 1).AddDays(day - 1);
-                    Ephemeris.Epoch = Utilities.JulianDateFromDateTime(perihelionPassageTT);
+                    Ephemeris.Epoch = AstroUtilities.JulianDateFromDateTime(perihelionPassageTT);
 
                     // Set remaining parameters
                     Ephemeris.q_PerihelionDistance = GetParameter("Perihelion distance (q)", 52, 11, orbitString); // Double.Parse(orbitString.Substring(30, 9));
@@ -294,7 +294,7 @@ namespace ASCOM.Tools
                     month = GetIntParameter("Epoch month", 110, 2, orbitString);
                     day = GetParameter("Epoch day", 112, 2, orbitString);
                     DateTime epoch = new DateTime(year, month, 1).AddDays(day - 1);
-                    Ephemeris.Epoch = Utilities.JulianDateFromDateTime(epoch);
+                    Ephemeris.Epoch = AstroUtilities.JulianDateFromDateTime(epoch);
 
                     // Set the asteroid orbit parameters
                     Ephemeris.a_SemiMajorAxis = GetParameter("Semi-major axis", 168, 13, orbitString);
@@ -389,11 +389,11 @@ namespace ASCOM.Tools
         public Coordinates AstrometricCoordinates(DateTime observationTime)
         {
             // Calculate UTC and Terrestrial time Julian day numbers
-            double julianDateUtc = Utilities.JulianDateFromDateTime(observationTime.ToUniversalTime());
-            double julianDateTT = julianDateUtc + Utilities.DeltaT(julianDateUtc) / 86400.0;
+            double julianDateUtc = AstroUtilities.JulianDateFromDateTime(observationTime.ToUniversalTime());
+            double julianDateTT = julianDateUtc + AstroUtilities.DeltaT(julianDateUtc) / 86400.0;
 
             // Calculate Terrestrial time date-time value
-            DateTime observationTimeTT = observationTime.AddSeconds(Utilities.DeltaT(julianDateUtc));
+            DateTime observationTimeTT = observationTime.AddSeconds(AstroUtilities.DeltaT(julianDateUtc));
 
             // Initialise a Coordinates object to receive the result
             Coordinates result = new Coordinates();
@@ -434,7 +434,7 @@ namespace ASCOM.Tools
                         double[] observerVelocity = new double[3] { 0.0, 0.0, 0.0 };
 
                         // Get the position vector of the observer on the earth's surface relative to the geocentre
-                        short geoPosVelRc = Novas.GeoPosVel(julianDateTT, Utilities.DeltaT(julianDateUtc), Accuracy.Full, observer, ref earthToObserverPv, ref observerVelocity);
+                        short geoPosVelRc = Novas.GeoPosVel(julianDateTT, AstroUtilities.DeltaT(julianDateUtc), Accuracy.Full, observer, ref earthToObserverPv, ref observerVelocity);
 
                         // Throw an exception if something went wrong with the calculation
                         if (geoPosVelRc > 0)
@@ -489,8 +489,8 @@ namespace ASCOM.Tools
         public Coordinates TopocentricCoordinates(DateTime observationTime)
         {
             // Calculate UTC and Terrestrial time Julian day numbers
-            double julianDateUtc = Utilities.JulianDateFromDateTime(observationTime.ToUniversalTime());
-            double julianDateTT = julianDateUtc + Utilities.DeltaT(julianDateUtc) / 86400.0;
+            double julianDateUtc = AstroUtilities.JulianDateFromDateTime(observationTime.ToUniversalTime());
+            double julianDateTT = julianDateUtc + AstroUtilities.DeltaT(julianDateUtc) / 86400.0;
 
             switch (setBy)
             {
@@ -525,7 +525,7 @@ namespace ASCOM.Tools
                     Coordinates topocentricCoordinates = new Coordinates();
 
                     //Calculate the topocentric position of the planet, placing the result RA/Dec in results object
-                    short rc = Novas.TopoPlanet(julianDateTT, planet, Utilities.DeltaT(julianDateUtc), location, Accuracy.Full, ref topocentricCoordinates.RightAscension, ref topocentricCoordinates.Declination, ref topocentricCoordinates.Distance);
+                    short rc = Novas.TopoPlanet(julianDateTT, planet, AstroUtilities.DeltaT(julianDateUtc), location, Accuracy.Full, ref topocentricCoordinates.RightAscension, ref topocentricCoordinates.Declination, ref topocentricCoordinates.Distance);
 
                     // Throw an exception if the calculation failed for some reason
                     if (rc != 0)
@@ -562,7 +562,7 @@ namespace ASCOM.Tools
                     topocentricCoordinates = new Coordinates();
 
                     //Calculate the topocentric position of the asteroid, placing the result RA/Dec in results object
-                    short rcAsteroid = Novas.TopoStar(julianDateTT, Utilities.DeltaT(julianDateUtc), catEntry3, onSurface, Accuracy.Full, ref topocentricCoordinates.RightAscension, ref topocentricCoordinates.Declination);
+                    short rcAsteroid = Novas.TopoStar(julianDateTT, AstroUtilities.DeltaT(julianDateUtc), catEntry3, onSurface, Accuracy.Full, ref topocentricCoordinates.RightAscension, ref topocentricCoordinates.Declination);
 
                     // Throw an exception if the calculation failed for some reason
                     if (rcAsteroid != 0)
@@ -590,8 +590,8 @@ namespace ASCOM.Tools
             ValidateSiteLocation(nameof(AltAzCoordinates));
 
             // Calculate UTC and Terrestrial time Julian day numbers
-            double julianDateUtc = Utilities.JulianDateFromDateTime(observationTime.ToUniversalTime());
-            double julianDateTT = julianDateUtc + Utilities.DeltaT(julianDateUtc) / 86400.0;
+            double julianDateUtc = AstroUtilities.JulianDateFromDateTime(observationTime.ToUniversalTime());
+            double julianDateTT = julianDateUtc + AstroUtilities.DeltaT(julianDateUtc) / 86400.0;
 
             // Create an OnSurface object
             OnSurface location = new OnSurface
@@ -623,7 +623,7 @@ namespace ASCOM.Tools
             double zenithDistance = 0.0;
 
             // Calculate AltAz coordinates from the topocentric coordinates
-            Novas.Equ2Hor(julianDateUtc, Utilities.DeltaT(julianDateUtc), Accuracy.Full, 0.0, 0.0, location, topocentricCoordinates.RightAscension, topocentricCoordinates.Declination, refractionOption, ref zenithDistance, ref result.Azimuth, ref result.RightAscension, ref result.Declination);
+            Novas.Equ2Hor(julianDateUtc, AstroUtilities.DeltaT(julianDateUtc), Accuracy.Full, 0.0, 0.0, location, topocentricCoordinates.RightAscension, topocentricCoordinates.Declination, refractionOption, ref zenithDistance, ref result.Azimuth, ref result.RightAscension, ref result.Declination);
 
             // Add the altitude calculated from the returned zenith distance
             result.Altitude = 90.0 - zenithDistance;
@@ -646,8 +646,8 @@ namespace ASCOM.Tools
             double[] velocity = new double[3] { 0.0, 0.0, 0.0 };
 
             // Calculate UTC and Terrestrial time Julian day numbers
-            double julianDateUtc = Utilities.JulianDateFromDateTime(observationTime.ToUniversalTime());
-            double julianDateTT = julianDateUtc + Utilities.DeltaT(julianDateUtc) / 86400.0;
+            double julianDateUtc = AstroUtilities.JulianDateFromDateTime(observationTime.ToUniversalTime());
+            double julianDateTT = julianDateUtc + AstroUtilities.DeltaT(julianDateUtc) / 86400.0;
 
             double[] helioCentricPositionVelocity = ephemeris.GetPositionAndVelocity(julianDateTT);
 
@@ -669,8 +669,8 @@ namespace ASCOM.Tools
             double[] earthBodyPVv = new double[6];
 
             // Calculate UTC and Terrestrial time Julian day numbers
-            double julianDateUtc = Utilities.JulianDateFromDateTime(observationTime.ToUniversalTime());
-            double julianDateTT = julianDateUtc + Utilities.DeltaT(julianDateUtc) / 86400.0;
+            double julianDateUtc = AstroUtilities.JulianDateFromDateTime(observationTime.ToUniversalTime());
+            double julianDateTT = julianDateUtc + AstroUtilities.DeltaT(julianDateUtc) / 86400.0;
 
             // Get the body's heliocentric position and velocity
             double[] bodyHelioCentricPVv = ephemeris.GetPositionAndVelocity(julianDateTT);
@@ -737,7 +737,7 @@ namespace ASCOM.Tools
             year += int.Parse(packed.Substring(1, 2));
             int month = PCODE.IndexOf(packed[3]) + 1;
             int day = PCODE.IndexOf(packed[4]) + 1;
-            double julianDate = Utilities.JulianDateFromDateTime(new DateTime(year, month, day));
+            double julianDate = AstroUtilities.JulianDateFromDateTime(new DateTime(year, month, day));
             return julianDate;
         }
 

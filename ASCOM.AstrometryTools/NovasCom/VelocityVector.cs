@@ -207,7 +207,7 @@ namespace ASCOM.Tools.NovasCom
             }
             else
             {
-                tjd = ujd + Utilities.DeltaT(ujd);
+                tjd = ujd + AstroUtilities.DeltaT(ujd);
             }
 
             Novas.Tdb2Tt(tjd, ref dummy, ref secdiff);
@@ -215,7 +215,7 @@ namespace ASCOM.Tools.NovasCom
             Novas.ETilt(tdb, Accuracy.Full, ref oblm, ref oblt, ref eqeq, ref psi, ref eps);
 
             // Get the Greenwich Apparent Sidereal Time and call our SetFromSite() method.
-            Novas.SiderealTime(ujd, 0.0d, Utilities.DeltaT(ujd), GstType.GreenwichApparentSiderealTime, Method.CIOBased, Accuracy.Full, ref gast);
+            Novas.SiderealTime(ujd, 0.0d, AstroUtilities.DeltaT(ujd), GstType.GreenwichApparentSiderealTime, Method.CIOBased, Accuracy.Full, ref gast);
 
             SetFromSite(site, gast);
             return true;

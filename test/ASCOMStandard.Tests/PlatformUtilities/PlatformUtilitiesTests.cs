@@ -128,7 +128,7 @@ namespace UtilitityTests
         [Fact]
         public void JulianDateUtc()
         {
-            double julianDateUtc = Utilities.JulianDateUtc;
+            double julianDateUtc = AstroUtilities.JulianDateUtc;
             Assert.Equal(DateTime.UtcNow.ToOADate() + 2415018.5, julianDateUtc, 6);
         }
 
@@ -138,7 +138,7 @@ namespace UtilitityTests
             // Current leap second value - needs to be updated whenever the number of leap seconds changes
             const double CURRENT_LEAP_SECONDS = 37.0;
 
-            double deltatDifference = Math.Abs(Utilities.DeltaT(Utilities.JulianDateUtc) - CURRENT_LEAP_SECONDS - 32.184);
+            double deltatDifference = Math.Abs(AstroUtilities.DeltaT(AstroUtilities.JulianDateUtc) - CURRENT_LEAP_SECONDS - 32.184);
             output.WriteLine($"Delta difference: {deltatDifference}");
 
             Assert.True(deltatDifference < 0.5);
