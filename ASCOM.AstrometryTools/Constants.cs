@@ -6,7 +6,6 @@ namespace ASCOM.Tools.Novas31
 
     static class Constants
     {
-        internal const double ABSOLUTE_ZERO_CELSIUS = -273.15; // Absolute zero on the Celsius temperature scale
         internal const double LEAP_SECONDS_DEFAULT = 37.0; // Current number of leap seconds
 
         // Physical constants
@@ -37,147 +36,17 @@ namespace ASCOM.Tools.Novas31
         internal const double AU2KILOMETRE = 149597870.691d;
 
         // NOVAS.COM Constants
-        internal const short FN1 = 1;
-        internal const short FN0 = 0;
-        internal const double J2000BASE = 2451545.0d; // TDB Julian date of epoch J2000.0.
-        internal const double KMAU = 149597870.0d; // Astronomical Unit in kilometres.
-        internal const double MAU = 149597870000.0d; // Astronomical Unit in meters.
-        internal const double C = 173.14463348d; // Speed of light in AU/Day.
-        internal const double GS = 1.32712438E+20d; // Heliocentric gravitational constant.
-        internal const double EARTHRAD = 6378.14d; // Radius of Earth in kilometres.
-        internal const double F = 0.00335281d; // Earth ellipsoid flattening.
-        internal const double OMEGA = 0.00007292115d; // Rotational angular velocity of Earth in radians/sec.
-        internal const double TWOPI = 6.2831853071795862d; // Value of pi in radians.
-        internal const double RAD2SEC = 206264.80624709636d; // Angle conversion constants.
         internal const double DEG2RAD = 0.017453292519943295d;
         internal const double RAD2DEG = 57.295779513082323d;
 
         // General constants
-        internal const double TT_TAI_OFFSET = 32.184d; // 32.184 seconds
-        internal const double MODIFIED_JULIAN_DAY_OFFSET = 2400000.5d; // This is the offset of Modified Julian dates from true Julian dates
-        internal const double SECPERDAY = 86400.0d;
-        internal const double DELTAUT1_BOUND = 0.9d; // Used to validate delta UT1 values input manually or automatically downloaded, which must line in the range -DELTAUT1_BOUND to +DELTAUT1_BOUND
-        internal const double TROPICAL_YEAR_IN_DAYS = 365.24219d;
-
         internal const double OLE_AUTOMATION_JULIAN_DATE_OFFSET = 2415018.5d; // Offset of OLE automation dates from Julian dates
-        internal const double JULIAN_DATE_MINIMUM_VALUE = -657435.0d + OLE_AUTOMATION_JULIAN_DATE_OFFSET; // Minimum valid Julian date value (1/1/0100 00:00:00) - because DateTime.FromOADate has this limit
-        internal const double JULIAN_DATE_MAXIMUM_VALUE = 2958465.99999999d + OLE_AUTOMATION_JULIAN_DATE_OFFSET; // Maximum valid Julian date value (31/12/9999 23:59:59.999) - because DateTime.FromOADate has this limit
         internal const double JULIAN_DAY_WHEN_GREGORIAN_CALENDAR_WAS_INTRODUCED = 2299161.0; // Julian day number of the day on which the Gregorian calendar was first used - 15th October 1582
 
         internal const double RACIO_DEFAULT_VALUE = double.NaN; // NOVAS3: Default value that if still present will indicate that this value was not updated
 
         // Profile store Key names
         internal const string ASTROMETRY_SUBKEY = "Astrometry";
-        internal const string AUTOMATIC_UPDATE_DELTAUT1_SUBKEY_NAME = ASTROMETRY_SUBKEY + @"\Latest Delta UT1 Data"; // Name of the Profile\Astrometry subkey in which automatically downloaded Delta UT1 predicted values will be stored
-        internal const string AUTOMATIC_UPDATE_LEAP_SECOND_HISTORY_SUBKEY_NAME = ASTROMETRY_SUBKEY + @"\Latest Leap Second Data"; // Name of the Profile\Astrometry subkey in which automatically downloaded historic leap second values will be stored
-
-        // Profile store value names
-        internal const string UPDATE_TYPE_VALUE_NAME = "UTC and UT1 Data Update Method"; // Value name in Profile/Astrometry that determines how earth rotation data is updated: None, Automatic download, Manual entry, Built-in prediction.
-        internal const string EARTH_ROTATION_DATA_LAST_UPDATED_VALUE_NAME = "Automatic Data Last Updated"; // Value name for the date and time that the scheduled task was last run
-        internal const string MANUAL_LEAP_SECONDS_VALUENAME = "Manual Leap Seconds"; // Name of the manually updated leap second value
-        internal const string MANUAL_DELTAUT1_VALUE_NAME = "Manual Delta UT1"; // Value name in Astrometry for manually entered Delta UT1 values
-        internal const string AUTOMATIC_LEAP_SECONDS_VALUENAME = "Automatic Leap Seconds"; // Name of the automatically updated leap second value
-        internal const string NEXT_LEAP_SECONDS_VALUENAME = "Automatic Next Leap Seconds"; // Name of the automatically updated next leap second value
-        internal const string NEXT_LEAP_SECONDS_DATE_VALUENAME = "Automatic Next Leap Seconds Date"; // Name of the automatically updated next leap second commencement date value
-        internal const string DELTAUT1_VALUE_NAME_FORMAT = "Delta UT1 Prediction for {0} - {1} - {2}"; // Format string for automatically downloaded delta UT1 value names. The 0, 1 and 2 placeholders are for year, month and day integers
-        internal const string DELTAUT1_VALUE_NAME_YEAR_FORMAT = "0000"; // Format string for the year component of automatically downloaded delta UT1 value names.
-        internal const string DELTAUT1_VALUE_NAME_MONTH_FORMAT = "00"; // Format string for the month component of automatically downloaded delta UT1 value names.
-        internal const string DELTAUT1_VALUE_NAME_DAY_FORMAT = "00"; // Format string for the day component of automatically downloaded delta UT1 value names.
-        internal const string DOWNLOAD_TASK_DATA_SOURCE_VALUE_NAME = "Download Task Data Source"; // Name of the automatic data source profile value
-        internal const string DOWNLOAD_TASK_TIMEOUT_VALUE_NAME = "Download Task Timeout"; // Name of the automatic update timeout profile value
-        internal const string DOWNLOAD_TASK_SCHEDULED_TIME_VALUE_NAME = "Download Task Scheduled Time"; // Value name for the scheduled job run time
-        internal const string DOWNLOAD_TASK_REPEAT_FREQUENCY_VALUE_NAME = "Download Task Repeat Frequency"; // Value name for the scheduled job run time
-        internal const string DOWNLOAD_TASK_TRACE_ENABLED_VALUE_NAME = "Download Task Trace Enabled"; // Value name for the scheduled job run time
-        internal const string DOWNLOAD_TASK_TRACE_PATH_VALUE_NAME = "Download Task Trace Path"; // Value name for the path to the scheduled job trace file
-
-        // Earth rotation data source names
-        internal const string UPDATE_BUILTIN_LEAP_SECONDS_PREDICTED_DELTAUT1 = "Built-in leap seconds and predicted delta UT1"; // Alternative value for earth rotation data source
-        internal const string UPDATE_MANUAL_LEAP_SECONDS_MANUAL_DELTAUT1 = "Specified leap seconds and specified delta UT1"; // Alternative value for earth rotation data source
-        internal const string UPDATE_MANUAL_LEAP_SECONDS_PREDICTED_DELTAUT1 = "Specified leap seconds and predicted delta UT1"; // Alternative value for earth rotation data source
-        internal const string UPDATE_ON_DEMAND_LEAP_SECONDS_AND_DELTAUT1 = "Manual on demand Internet update"; // Alternative value for earth rotation data source
-        internal const string UPDATE_AUTOMATIC_LEAP_SECONDS_AND_DELTAUT1 = "Automatic scheduled Internet update"; // Alternative value for earth rotation data source
-
-        // Delta UT1 filename and format
-        internal const string DELTAUT1_FILE = "finals.daily"; // Name of the IERS file containing Delta UT1 predictions
-        internal const int DELTAUT1_YEAR_START = 0;
-        internal const int DELTAUT1_YEAR_LENGTH = 2; // Start position and length of the YEAR field in the finals.daily data line
-        internal const int DELTAUT1_MONTH_START = 2;
-        internal const int DELTAUT1_MONTH_LENGTH = 2; // Start position and length of the MONTH field in the finals.daily data line
-        internal const int DELTAUT1_DAY_START = 4;
-        internal const int DELTAUT1_DAY_LENGTH = 2; // Start position and length of the DAY field in the finals.daily data line
-        internal const int DELTAUT1_JULIAN_DATE_START = 7;
-        internal const int DELTAUT1_JULIAN_DATE_LENGTH = 8; // Start position and length of the JULKIAN DATE field in the finals.daily data line
-        internal const int DELTAUT1_START = 58;
-        internal const int DELTAUT1_LENGTH = 10; // Start position and length of the DELTAUT1 field in the finals.daily data line
-
-        // Leap seconds filename and format
-        // Friend Const LEAP_SECONDS_FILE As String = "leapsec.dat" ' Name of the IERS file containing leap second historic and future values
-        internal const string LEAP_SECONDS_FILE = "tai-utc.dat"; // Name of the IERS file containing leap second historic and future values
-        internal const int LEAP_SECONDS_YEAR_START = 0;
-        internal const int LEAP_SECONDS_YEAR_LENGTH = 5; // Start position and length of the YEAR field in the tai-utc.dat data line
-        internal const int LEAP_SECONDS_MONTH_START = 5;
-        internal const int LEAP_SECONDS_MONTH_LENGTH = 4; // Start position and length of the MONTH field in the tai-utc.dat data line
-        internal const int LEAP_SECONDS_DAY_START = 9;
-        internal const int LEAP_SECONDS_DAY_LENGTH = 4; // Start position and length of the DAY field in the tai-utc.dat data line
-        internal const int LEAP_SECONDS_JULIAN_DATE_START = 17;
-        internal const int LEAP_SECONDS_JULIAN_DATE_LENGTH = 10; // Start position and length of the JULIAN DATE field in the tai-utc.dat data line
-        internal const int LEAP_SECONDS_LEAPSECONDS_START = 36;
-        internal const int LEAP_SECONDS_LEAPSECONDS_LENGTH = 12; // Start position and length of the NUMBER OF LEAP SECONDS field in the tai-utc.dat data line
-
-        // Earth rotation data download configuration options
-        internal const string EARTH_ROTATION_INTERNET_DATA_SOURCE_0 = "https://download.ascom-standards.org/earthrot/"; // Internet source options for earth rotation files
-        internal const string EARTH_ROTATION_INTERNET_DATA_SOURCE_1 = "http://toshi.nofs.navy.mil/ser7/";
-        internal const string EARTH_ROTATION_INTERNET_DATA_SOURCE_2 = "ftp://cddis.gsfc.nasa.gov/pub/products/iers/";
-        internal const string EARTH_ROTATION_INTERNET_DATA_SOURCE_3 = "ftp://maia.usno.navy.mil/ser7/";
-        internal const string EARTH_ROTATION_INTERNET_DATA_SOURCE_4 = "https://cddis.nasa.gov/archive/products/iers/";
-        internal const string SCHEDULE_REPEAT_NONE = "None"; // Options for automatic update schedule repeat frequency
-        internal const string SCHEDULE_REPEAT_DAILY = "Repeat daily";
-        internal const string SCHEDULE_REPEAT_WEEKLY = "Repeat weekly";
-        internal const string SCHEDULE_REPEAT_MONTHLY = "Repeat monthly";
-        internal const string URI_PREFIX_HTTP = "http://";
-        internal const string URI_PREFIX_HTTPS = "https://";
-        internal const string URI_PREFIX_FTP = "ftp://";
-
-        // Download task configuration
-        internal const string DOWNLOAD_TASK_TRACE_LOG_FILETYPE = "EarthRotationUpdate";
-        internal const string DOWNLOAD_TASK_NAME = "ASCOM - Update Earth Rotation Data"; // Name of the schedule job that runs the automatic download task
-        internal const string DOWNLOAD_TASK_PATH = @"\" + DOWNLOAD_TASK_NAME; // Full schedule job path within the scheduler job tree. Has to be in the root for backward compatibility with XP!
-        internal const string DOWNLOAD_TASK_EXECUTABLE_NAME = @"\ASCOM\Platform 6\Tools\EarthRotationUpdate.exe"; // File system location of the automatic download executable that is started by the scheduled task. The exe is placed here by the installer
-        internal const string DOWNLOAD_TASK_NEXT_LEAP_SECONDS_NOT_PUBLISHED_MESSAGE = "Not published"; // Value to use for next leap seconds and its effective date before these are published
-        internal const string DOWNLOAD_TASK_TIME_FORMAT = "dddd dd MMM yyyy - HH:mm:ss";
-        internal const string DOWNLOAD_TASK_TRACE_DEFAULT_PATH_FORMAT = @"{0}\ASCOM\" + DOWNLOAD_TASK_TRACE_LOG_FILETYPE;
-        internal const string DOWNLOAD_TASK_TRACE_FILE_NAME_FORMAT = @"{0}\Log {1}-{2}-{3} {4}{5}{6}";
-        internal const string DOWNLOAD_TASK_USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36 Edge/15.15063";
-        internal const int DOWNLOAD_TASK_TRACE_LOGGER_IDENTIFIER_FIELD_WIDTH = 35;
-        internal const int DOWNLOAD_TASK_NUMBER_OF_BACK_DAYS_OF_DELTAUT1_DATA_TO_LOAD = 20; // The download task will include this number of days of historic data as well as the current and all future data
-
-        // Automatic update test configuration parameters - MUST BE SET TO 0 FOR PRODUCTION BUILDS!
-        internal const int TEST_HISTORIC_DAYS_OFFSET = 0; // 1700 ' Offset in days to force the automatic update program to interpret historic leap second values as current and future values
-        internal const int TEST_UTC_DAYS_OFFSET = 0; // 1011 ' Offset in days subtracted from the current time to force it to appear earlier than present in order to test correct leap second and DeltaUT1 values when leap seconds change
-        internal const int TEST_UTC_HOURS_OFFSET = 0; // 10 ' Offset from current midnight in hours to be used to force the current time to appear as a specified value earlier than present in order to test correct leap second and DeltaUT1 values when leap seconds change
-        internal const int TEST_UTC_MINUTES_OFFSET = 0; // 48 ' Offset in minutes to force the current time to appear earlier than present in order to test correct leap second and DeltaUT1 values when leap seconds change
-
-        // Default values
-        internal const string UPDATE_TYPE_DEFAULT = UPDATE_AUTOMATIC_LEAP_SECONDS_AND_DELTAUT1; // Default value for earth rotation data source
-        internal const string EARTH_ROTATION_DATA_LAST_UPDATED_DEFAULT = NEVER_UPDATED; // Default value for the scheduled job last run time
-        internal const double MANUAL_DELTAUT1_DEFAULT = 0.0d; // Default value for the manual delta UT1 value
-        internal const string AUTOMATIC_LEAP_SECONDS_NOT_AVAILABLE_DEFAULT = NOT_DOWNLOADED; // Default value for the automatically downloaded number of leap seconds
-        internal const string NEXT_LEAP_SECONDS_NOT_AVAILABLE_DEFAULT = NOT_DOWNLOADED; // Default value for the next leap second
-        internal const string NEXT_LEAP_SECONDS_DATE_NOT_AVAILABLE_DEFAULT = NOT_DOWNLOADED; // Default value for the next leap second effective date
-        internal const string DOWNLOAD_TASK_INTERNET_DATA_SOURCE_DEFAULT = EARTH_ROTATION_INTERNET_DATA_SOURCE_0; // Default source for earth rotation files - JULY 2020 Changed to NASA because all USNO sites are unavailable until end of 2020
-        internal const string DOWNLOAD_TASK_REPEAT_DEFAULT = SCHEDULE_REPEAT_WEEKLY; // Default repeat frequency for the automatic data download task
-        internal const double DOWNLOAD_TASK_TIMEOUT_DEFAULT = 30.0d; // Default timeout in seconds for data transfers from earth rotation data sources
-        internal const bool DOWNLOAD_TASK_TRACE_ENABLED_DEFAULT = true; // Initial state for download task trace output
-
-        // Not available constants
-        internal const double DOUBLE_VALUE_NOT_AVAILABLE = double.MinValue;
-        internal readonly static DateTime DATE_VALUE_NOT_AVAILABLE = new DateTime(1, 1, 1);
-        internal const string NOT_DOWNLOADED = "Not downloaded";
-        internal const string NEVER_UPDATED = "Never";
-
-        // Ultimate fallback-back value for number of leap seconds if all else fails
-        internal const double LEAP_SECOND_ULTIMATE_FALLBACK_VALUE = 37.0d;
-
     }
 
     #region Utilities Enums and Structures
