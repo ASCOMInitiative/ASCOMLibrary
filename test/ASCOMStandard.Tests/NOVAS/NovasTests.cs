@@ -21,6 +21,58 @@ namespace NOVAS
         }
 
         [Fact]
+        public void AstroSun()
+        {
+            double[] pVec = new double[3];
+            double[] vVec = new double[3];
+            double[] tJd = new double[2];
+            tJd[0] = AstroUtilities.JulianDateFromDateTime(new DateTime(2024, 1, 5, 12, 0, 0, DateTimeKind.Utc));
+            tJd[1] = 0.0;
+
+            short rc = Novas.PlanetEphemeris(ref tJd, Target.Sun, Target.Earth, ref pVec, ref vVec);
+            Assert.Equal(0, rc);
+
+            output.WriteLine($"pVec[0]: {pVec[0]}, pVec[1]: {pVec[1]}, pVec[2]: {pVec[2]}, ");
+            double ra = 0.0, declination = 0.0;
+            Novas.Vector2RaDec(pVec, ref ra, ref declination);
+
+            double distance = Math.Sqrt(pVec[0] * pVec[0] + pVec[1] * pVec[1] + pVec[2] * pVec[2]);
+            output.WriteLine($"RA: {Utilities.HoursToHMS(ra, ":", ":", "", 3)}, Declination: {Utilities.DegreesToDMS(declination, ":", ":", "", 2)}, Distance: {distance}.");
+            output.WriteLine($"RA: {ra}, Declination: {declination}, Distance: {distance}.");
+
+            // Checked against USNO calculated values
+            Assert.Equal(19.034812946523772, ra, 0.00001);
+            Assert.Equal(-22.66925328023557, declination, 0.00001);
+            Assert.Equal(0.9833228326873881, distance, 0.00001);
+        }
+
+        [Fact]
+        public void AstroMoon()
+        {
+            double[] pVec = new double[3];
+            double[] vVec = new double[3];
+            double[] tJd = new double[2];
+            tJd[0] = AstroUtilities.JulianDateFromDateTime(new DateTime(2024, 1, 5, 12, 0, 0, DateTimeKind.Utc));
+            tJd[1] = 0.0;
+
+            short rc = Novas.PlanetEphemeris(ref tJd, Target.Moon, Target.Earth, ref pVec, ref vVec);
+            Assert.Equal(0, rc);
+
+            output.WriteLine($"pVec[0]: {pVec[0]}, pVec[1]: {pVec[1]}, pVec[2]: {pVec[2]}, ");
+            double ra = 0.0, declination = 0.0;
+            Novas.Vector2RaDec(pVec, ref ra, ref declination);
+
+            double distance = Math.Sqrt(pVec[0] * pVec[0] + pVec[1] * pVec[1] + pVec[2] * pVec[2]);
+            output.WriteLine($"RA: {Utilities.HoursToHMS(ra, ":", ":", "", 3)}, Declination: {Utilities.DegreesToDMS(declination, ":", ":", "", 2)}, Distance: {distance}.");
+            output.WriteLine($"RA: {ra}, Declination: {declination}, Distance: {distance}.");
+
+            // Checked against USNO calculated values
+            Assert.Equal(13.798986920309332, ra, 0.00001);
+            Assert.Equal(-11.945808611853149, declination, 0.00001);
+            Assert.Equal(0.0026454218448406347, distance, 0.00001);
+        }
+
+        [Fact]
         public void AstroMercury()
         {
             double[] pVec = new double[3];
@@ -206,7 +258,6 @@ namespace NOVAS
             Assert.Equal(-3.1931055649394424, declination, 0.00001);
             Assert.Equal(30.21711818951698, distance, 0.00001);
         }
-
 
         [Fact]
         public void AstroPluto()

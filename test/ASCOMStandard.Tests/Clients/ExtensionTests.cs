@@ -970,7 +970,7 @@ namespace ASCOM.Alpaca.Tests.Clients
             client.Tracking = true;
             TL.LogMessage("Main", $"Tracking set true");
 
-            double targetRa = client.SiderealTime - 2.456;
+            double targetRa = (client.SiderealTime - 2.456 + 24.0) % 24.0;
 
             // Slew somewhere that is not likely to be the test position
             TL.LogMessage("Main", $"Slewing to somewhere that is not likely to be the test position");
