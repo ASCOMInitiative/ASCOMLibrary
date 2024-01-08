@@ -114,7 +114,7 @@ namespace ASCOM.Alpaca.Clients
                 clientDeviceType = DeviceTypes.ObservingConditions;
 
                 URIBase = $"{AlpacaConstants.API_URL_BASE}{AlpacaConstants.API_VERSION_V1}/{clientDeviceType}/{remoteDeviceNumber}/";
-                Version version = Assembly.GetEntryAssembly().GetName().Version;
+
 
                 // List parameter values
                 LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"Service type: {serviceType}");

@@ -114,9 +114,7 @@ namespace ASCOM.Alpaca.Clients
                 clientDeviceType = DeviceTypes.FilterWheel;
 
                 URIBase = $"{AlpacaConstants.API_URL_BASE}{AlpacaConstants.API_VERSION_V1}/{clientDeviceType}/{remoteDeviceNumber}/";
-                Version version = Assembly.GetEntryAssembly().GetName().Version;
 
-                LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), "Starting initialisation, Version: " + version.ToString());
                 LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), "This devices's base URI: " + URIBase);
 
                 // List parameter values
