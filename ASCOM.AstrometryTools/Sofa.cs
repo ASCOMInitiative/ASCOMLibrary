@@ -13,10 +13,10 @@ namespace ASCOM.Tools
         const string SOFA_LIBRARY = "libsofa";
 
         // Release and revision constants
-        private const int SOFA_RELEASE_NUMBER = 18;
-        private const string SOFA_ISSUE_DATE = "2021-05-12";
+        private const int SOFA_RELEASE_NUMBER = 19;
+        private const string SOFA_ISSUE_DATE = "2023-10-11";
         private const int SOFA_REVISION_NUMBER = 0; 
-        private const string SOFA_REVISION_DATE = "2021-05-12";
+        private const string SOFA_REVISION_DATE = "2023-10-11";
 
         #region ASCOM Sofa component metadata members
 

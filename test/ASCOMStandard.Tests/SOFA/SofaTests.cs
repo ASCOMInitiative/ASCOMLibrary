@@ -11,22 +11,24 @@ namespace SOFATests
         double rc, dc, pr, pd, px, rv, utc1, utc2, dut1, elong, phi, hm, xp, yp, phpa, tc, rh, wl, aob, zob, hob, dob, rob, eo;
         double ri, di, a, u1, u2, a1, a2, ob1, ob2, anp;
 
+        DateTime sofaDatTestDate = new DateTime(2024, 1, 1, 0, 0, 0); // This should be the first day of the year following the SOFA release
+
         [Fact]
         public void ReleaseNumber()
         {
-            Assert.Equal("18", Sofa.SofaReleaseNumber().ToString());
+            Assert.Equal("19", Sofa.SofaReleaseNumber().ToString());
         }
 
         [Fact]
         public void IssueDate()
         {
-            Assert.Equal("2021-05-12", Sofa.SofaIssueDate());
+            Assert.Equal("2023-10-11", Sofa.SofaIssueDate());
         }
 
         [Fact]
         public void RevisionDate()
         {
-            Assert.Equal("2021-05-12", Sofa.SofaRevisionDate());
+            Assert.Equal("2023-10-11", Sofa.SofaRevisionDate());
         }
         [Fact]
         public void RevisionNumber()
@@ -302,11 +304,24 @@ namespace SOFATests
         {
             // Dat tests
 
-            DateTime testDate = new DateTime(2023, 8, 21, 0, 0, 0);
+            DateTime testDate = sofaDatTestDate;
             double leapSeconds = 0.0;
             j = Sofa.Dat(testDate.Year, testDate.Month, testDate.Day, testDate.TimeOfDay.TotalHours / 24.0, ref leapSeconds);
 
-            Assert.Equal(0, j);
+            Assert.Equal(0, j); // Return code is 0 when called for dates that are less than 5 years after the SOFA release year
+            Assert.Equal(37.0, leapSeconds, 6);
+        }
+
+        [Fact]
+        public void DatPlusFiveYears()
+        {
+            // Dat tests
+
+            DateTime testDate = sofaDatTestDate.AddYears(5);
+            double leapSeconds = 0.0;
+            j = Sofa.Dat(testDate.Year, testDate.Month, testDate.Day, testDate.TimeOfDay.TotalHours / 24.0, ref leapSeconds);
+
+            Assert.Equal(1, j); // The return code is 1 when called for dates that are 5 years or more after the SOFA release year
             Assert.Equal(37.0, leapSeconds, 6);
         }
     }

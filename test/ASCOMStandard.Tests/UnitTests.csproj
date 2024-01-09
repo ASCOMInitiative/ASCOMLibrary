@@ -17,6 +17,9 @@
 
     <ItemGroup>
       <None Include="..\..\.editorconfig" Link=".editorconfig" />
+      <None Include="..\..\ASCOM.AstrometryTools\NovasLibraries\win-x64\libnovas.dll" Link="libnovas.dll">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
       <None Include="..\..\ASCOM.AstrometryTools\SOFALibraries\win-x64\libsofa.dll" Link="libsofa.dll">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
@@ -43,9 +46,6 @@
 
     <ItemGroup>
       <None Update="cio_ra.bin">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
-      <None Update="libnovas.dll">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
     </ItemGroup>
