@@ -2,6 +2,14 @@
 
 A set of client tools to discover and access Alpaca devices. Written to .Net Standard 2.0 for maximum applicability.
 
+PLease note that you will need to add this PropertyGroup:
+```xml
+    <PropertyGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
+        <UseNativeHttpHandler>false</UseNativeHttpHandler>
+    </PropertyGroup>
+```
+to .NET MAUI projects that target Android or IOS in order for Alpaca discovery to work as expected.
+
 # Version History
 
 ***Release 1.0.111***
