@@ -27,6 +27,7 @@
       <DocumentationSource sourceFile="..\..\ASCOM.Tools\NamespaceDocs.xml" />
       <DocumentationSource sourceFile="..\..\ASCOM.AstrometryTools\ASCOM.AstrometryTools.csproj" />
       <DocumentationSource sourceFile="..\PackageAccessProject\bin\Debug\net8.0\ASCOM.Exceptions.dll" />
+      <DocumentationSource sourceFile="..\PackageAccessProject\bin\Debug\net8.0\ASCOM.Exceptions.xml" />
     </DocumentationSources>
     <HelpFileFormat>HtmlHelp1, Website</HelpFileFormat>
     <SyntaxFilters>C#, Visual Basic</SyntaxFilters>
@@ -135,10 +136,5 @@
   </ItemGroup>
   <ItemGroup>
     <ContentLayout Include="ASCOMLibrary.content" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="ASCOM.Exception.Library">
-      <Version>7.0.0-rc.16</Version>
-    </PackageReference>
   </ItemGroup>
 </Project>
