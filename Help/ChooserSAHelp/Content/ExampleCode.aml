@@ -1,0 +1,93 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<topic id="83138159-26f3-4ab1-a8ea-3e6ba4e9c5c5" revisionNumber="1">
+	<developerConceptualDocument
+	  xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5"
+	  xmlns:xlink="http://www.w3.org/1999/xlink">
+
+		<introduction>
+			<para>To install the Stand Alone Chooser, search for "ASCOM" in the Visual Studio NuGet package manager and select the "Stand Alone Chooser" package.</para>
+			<para>
+				The only technical difference to the Platform Chooser is that, like the ASCOM Library Chooser component, the Stand Alone Chooser uses the DeviceTypes enum
+				to specify the device type rather than a string device type name.
+			</para>
+
+			<para>
+				The example code below shows how to:
+			</para>
+			<list class="bullet">
+				<listItem>
+					<para>
+						Create a Stand Alone Chooser instance
+					</para>
+				</listItem>
+				<listItem>
+					<para>
+						Set a device type
+					</para>
+				</listItem>
+				<listItem>
+					<para>
+						Pre-select a specific device
+					</para>
+				</listItem>
+				<listItem>
+					<para>
+						Retrieve the ProgID of the device that the user selects.
+					</para>
+				</listItem>
+				<listItem>
+					<para>
+						Convert a string device type name to a DeviceTypes enum value using the .ToDeviceType() Library extension method
+					</para>
+				</listItem>
+				<listItem>
+					<para>
+						Convert a DeviceTypes enum value to a string device type name using the .ToDeviceString() Library extension method
+					</para>
+				</listItem>
+			</list>
+			<code language="c#">
+				using ASCOM.Com;
+				using ASCOM.Common;
+
+				namespace StandAloneChooser
+				{
+					internal class Program
+					{
+						static void Main(string[] args)
+						{
+							// Create a stand alone Chooser instance that is configured to display Camera devices
+							ChooserSA chooser = new()
+							{
+								DeviceType = ASCOM.Common.DeviceTypes.Camera
+							};
+
+							// Present a Chooser dialogue with e Platform Camera simulator pre-selected
+							string progId = chooser.Choose("ASCOM.Simulator.Camera");
+
+							// List the driver that the user chose
+							Console.WriteLine($"The user selected this ProgID: {progId}");
+
+							// Illustrate the Library extension method for converting a string device type name to a DeviceTypes enum value
+							const string DEVICE_TYPE_NAME = "ObservingConditions";
+							DeviceTypes deviceType = DEVICE_TYPE_NAME.ToDeviceType();
+							Console.WriteLine($"The DeviceTypes enum value of the string device type name: {DEVICE_TYPE_NAME} is: {deviceType}");
+
+							// Illustrate the Library extension method for converting a DeviceTypes enum value to a string device type name
+							string deviceTypeString = deviceType.ToDeviceString();
+							Console.WriteLine($"The DeviceTypes enum value of the string device type name: {deviceType} is: {deviceTypeString}");
+
+							// Wait for a key press before closing the program
+							Console.ReadKey();
+						}
+					}
+				}
+			</code>
+		</introduction>
+
+		<relatedTopics>
+			<link xlink:href="65154813-964d-4e41-9025-f3718abfa158" />
+		</relatedTopics>
+
+	</developerConceptualDocument>
+</topic>

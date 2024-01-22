@@ -1,7 +1,7 @@
 ﻿namespace ASCOM.Tools
 {
     /// <summary>
-    /// 
+    /// Solar system body coordinates.
     /// </summary>
     public class Coordinates
     {

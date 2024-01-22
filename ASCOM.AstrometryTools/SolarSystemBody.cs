@@ -42,7 +42,7 @@ namespace ASCOM.Tools
         /// <summary>
         /// Create a SolarSystem object for a specified target body
         /// </summary>
-        /// <param name="body"></param>
+        /// <param name="body">Solar system body that this instance will represent.</param>
         /// <exception cref="HelperException">When earth is specified as the target body.</exception>
         public SolarSystemBody(Body body) : this()
         {

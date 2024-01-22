@@ -1,5 +1,8 @@
 ﻿namespace ASCOM.Common.DeviceInterfaces
 {
+    /// <summary>
+    /// Switch interface version 3, which incorporates the new members in IAscomDeviceV2 and the members present in ISwitchV2 plus the new ISwitchV3 asynchronous methods.
+    /// </summary>
     public interface ISwitchV3 : IAscomDeviceV2, ISwitchV2
     {
         /// <summary>

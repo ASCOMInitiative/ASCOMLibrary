@@ -44,7 +44,6 @@
       <DocumentationSource sourceFile="..\..\ASCOM.Com.ChooserSA\ASCOM.Com.ChooserSA.csproj" xmlns="" />
       <DocumentationSource sourceFile="..\..\ASCOM.Common\bin\Debug\netstandard2.0\ASCOM.Common.xml" />
       <DocumentationSource sourceFile="..\..\ASCOM.Common\bin\Debug\netstandard2.0\ASCOM.Common.dll" />
-      <DocumentationSource sourceFile="..\..\..\ASCOMPlatform\Interfaces\ASCOMExceptions\ASCOM.Exceptions.csproj" />
     </DocumentationSources>
     <HelpFileFormat>HtmlHelp1, Website</HelpFileFormat>
     <SyntaxFilters>C#, Visual Basic, Managed C++</SyntaxFilters>
@@ -67,30 +66,31 @@
     <VisibleItems>InheritedMembers, InheritedFrameworkMembers, ProtectedInternalAsProtected, NonBrowsable</VisibleItems>
     <ApiFilter>
       <Filter entryType="Namespace" fullName="ASCOM" isExposed="False">
-  <Filter entryType="Class" fullName="ASCOM.DriverException" filterName="DriverException" isExposed="True" />
-  <Filter entryType="Class" fullName="ASCOM.ErrorCodes" filterName="ErrorCodes" isExposed="False">
-    <Filter entryType="Field" fullName="ASCOM.ErrorCodes.InvalidValue" filterName="InvalidValue" isExposed="True" />
-    <Filter entryType="Field" fullName="ASCOM.ErrorCodes.UnspecifiedError" filterName="UnspecifiedError" isExposed="True" />
-  </Filter>
-  <Filter entryType="Class" fullName="ASCOM.InvalidValueException" filterName="InvalidValueException" isExposed="True" />
-</Filter>
-<Filter entryType="Namespace" fullName="ASCOM.Alpaca.Discovery" isExposed="False" />
-<Filter entryType="Namespace" fullName="ASCOM.Com" isExposed="False">
-  <Filter entryType="Class" fullName="ASCOM.Com.ChooserSA" filterName="ChooserSA" isExposed="True" />
-</Filter>
-<Filter entryType="Namespace" fullName="ASCOM.Com.Exceptions" isExposed="False" />
-<Filter entryType="Namespace" fullName="ASCOM.Common" isExposed="False">
-  <Filter entryType="Enumeration" fullName="ASCOM.Common.DeviceTypes" filterName="DeviceTypes" isExposed="True" />
-</Filter>
-<Filter entryType="Namespace" fullName="ASCOM.Common.Alpaca" isExposed="False" />
-<Filter entryType="Namespace" fullName="ASCOM.Common.Com" isExposed="False" />
-<Filter entryType="Namespace" fullName="ASCOM.Common.DeviceInterfaces" isExposed="False" />
-<Filter entryType="Namespace" fullName="ASCOM.Common.DeviceStateClasses" isExposed="False" />
-<Filter entryType="Namespace" fullName="ASCOM.Common.Helpers" isExposed="False" />
-<Filter entryType="Namespace" fullName="ASCOM.Common.Interfaces" isExposed="False">
-  <Filter entryType="Interface" fullName="ASCOM.Common.Interfaces.ILogger" filterName="ILogger" isExposed="True" />
-  <Filter entryType="Enumeration" fullName="ASCOM.Common.Interfaces.LogLevel" filterName="LogLevel" isExposed="True" />
-</Filter></ApiFilter>
+        <Filter entryType="Class" fullName="ASCOM.DriverException" filterName="DriverException" isExposed="True" />
+        <Filter entryType="Class" fullName="ASCOM.ErrorCodes" filterName="ErrorCodes" isExposed="False">
+          <Filter entryType="Field" fullName="ASCOM.ErrorCodes.InvalidValue" filterName="InvalidValue" isExposed="True" />
+          <Filter entryType="Field" fullName="ASCOM.ErrorCodes.UnspecifiedError" filterName="UnspecifiedError" isExposed="True" />
+        </Filter>
+        <Filter entryType="Class" fullName="ASCOM.InvalidValueException" filterName="InvalidValueException" isExposed="True" />
+      </Filter>
+      <Filter entryType="Namespace" fullName="ASCOM.Alpaca.Discovery" isExposed="False" />
+      <Filter entryType="Namespace" fullName="ASCOM.Com" isExposed="False">
+        <Filter entryType="Class" fullName="ASCOM.Com.ChooserSA" filterName="ChooserSA" isExposed="True" />
+      </Filter>
+      <Filter entryType="Namespace" fullName="ASCOM.Com.Exceptions" isExposed="False" />
+      <Filter entryType="Namespace" fullName="ASCOM.Common" isExposed="False">
+        <Filter entryType="Enumeration" fullName="ASCOM.Common.DeviceTypes" filterName="DeviceTypes" isExposed="True" />
+      </Filter>
+      <Filter entryType="Namespace" fullName="ASCOM.Common.Alpaca" isExposed="False" />
+      <Filter entryType="Namespace" fullName="ASCOM.Common.Com" isExposed="False" />
+      <Filter entryType="Namespace" fullName="ASCOM.Common.DeviceInterfaces" isExposed="False" />
+      <Filter entryType="Namespace" fullName="ASCOM.Common.DeviceStateClasses" isExposed="False" />
+      <Filter entryType="Namespace" fullName="ASCOM.Common.Helpers" isExposed="False" />
+      <Filter entryType="Namespace" fullName="ASCOM.Common.Interfaces" isExposed="False">
+        <Filter entryType="Interface" fullName="ASCOM.Common.Interfaces.ILogger" filterName="ILogger" isExposed="True" />
+        <Filter entryType="Enumeration" fullName="ASCOM.Common.Interfaces.LogLevel" filterName="LogLevel" isExposed="True" />
+      </Filter>
+    </ApiFilter>
     <RootNamespaceTitle>ASCOM Stand Alone Chooser Component</RootNamespaceTitle>
     <HeaderText>
     </HeaderText>
@@ -105,29 +105,30 @@
     </ProjectSummary>
     <NamespaceSummaries>
       <NamespaceSummaryItem name="ASCOM.Alpaca.Discovery" isDocumented="True" />
-<NamespaceSummaryItem name="ASCOM.Com" isDocumented="True">This namespace contains components that support COM applications and drivers that run on Windows.</NamespaceSummaryItem>
-<NamespaceSummaryItem name="ASCOM.Com.Exceptions" isDocumented="True">Common exceptions for all devices.</NamespaceSummaryItem>
-<NamespaceSummaryItem name="ASCOM.Common" isDocumented="True">Common components for all devices.</NamespaceSummaryItem>
-<NamespaceSummaryItem name="ASCOM.Common.Alpaca" isDocumented="True" />
-<NamespaceSummaryItem name="ASCOM.Common.Com" isDocumented="True" />
-<NamespaceSummaryItem name="ASCOM.Common.DeviceInterfaces" isDocumented="True" />
-<NamespaceSummaryItem name="ASCOM.Common.DeviceStateClasses" isDocumented="True" />
-<NamespaceSummaryItem name="ASCOM.Common.Helpers" isDocumented="True" />
-<NamespaceSummaryItem name="ASCOM.Common.Interfaces" isDocumented="True" />
-<NamespaceSummaryItem name="(global)" isDocumented="True" />
-<NamespaceSummaryItem name="ASCOM" isDocumented="True">This namespace contains ASCOM developer components.</NamespaceSummaryItem>
-<NamespaceSummaryItem name="ASCOM.Common (Group)" isGroup="True" isDocumented="True">Common components for all devices.</NamespaceSummaryItem></NamespaceSummaries>
+      <NamespaceSummaryItem name="ASCOM.Com" isDocumented="True">This namespace contains components that support COM applications and drivers that run on Windows.</NamespaceSummaryItem>
+      <NamespaceSummaryItem name="ASCOM.Com.Exceptions" isDocumented="True">Common exceptions for all devices.</NamespaceSummaryItem>
+      <NamespaceSummaryItem name="ASCOM.Common" isDocumented="True">Common components for all devices.</NamespaceSummaryItem>
+      <NamespaceSummaryItem name="ASCOM.Common.Alpaca" isDocumented="True" />
+      <NamespaceSummaryItem name="ASCOM.Common.Com" isDocumented="True" />
+      <NamespaceSummaryItem name="ASCOM.Common.DeviceInterfaces" isDocumented="True" />
+      <NamespaceSummaryItem name="ASCOM.Common.DeviceStateClasses" isDocumented="True" />
+      <NamespaceSummaryItem name="ASCOM.Common.Helpers" isDocumented="True" />
+      <NamespaceSummaryItem name="ASCOM.Common.Interfaces" isDocumented="True" />
+      <NamespaceSummaryItem name="(global)" isDocumented="True" />
+      <NamespaceSummaryItem name="ASCOM" isDocumented="True">This namespace contains ASCOM developer components.</NamespaceSummaryItem>
+      <NamespaceSummaryItem name="ASCOM.Common (Group)" isGroup="True" isDocumented="True">Common components for all devices.</NamespaceSummaryItem>
+    </NamespaceSummaries>
     <CopyrightHref>www.ascom-standards.org</CopyrightHref>
     <CopyrightText>Copyright &amp;#169%3b 2021 - 2023 ASCOM Initiative</CopyrightText>
     <ComponentConfigurations>
       <ComponentConfig id="Code Block Component" enabled="True" xmlns="">
         <component id="Code Block Component">
-  <basePath value="{@HtmlEncProjectFolder}" />
-  <outputPaths>{@HelpFormatOutputPaths}</outputPaths>
-  <allowMissingSource value="false" />
-  <removeRegionMarkers value="false" />
-  <colorizer syntaxFile="{@CoreComponentsFolder}Colorizer\highlight.xml" styleFile="{@CoreComponentsFolder}Colorizer\highlight.xsl" stylesheet="{@CoreComponentsFolder}Colorizer\highlight.css" scriptFile="{@CoreComponentsFolder}Colorizer\highlight.js" disabled="{@DisableCodeBlockComponent}" language="cs" tabSize="0" numberLines="false" outlining="false" keepSeeTags="false" defaultTitle="true" />
-</component>
+          <basePath value="{@HtmlEncProjectFolder}" />
+          <outputPaths>{@HelpFormatOutputPaths}</outputPaths>
+          <allowMissingSource value="false" />
+          <removeRegionMarkers value="false" />
+          <colorizer syntaxFile="{@CoreComponentsFolder}Colorizer\highlight.xml" styleFile="{@CoreComponentsFolder}Colorizer\highlight.xsl" stylesheet="{@CoreComponentsFolder}Colorizer\highlight.css" scriptFile="{@CoreComponentsFolder}Colorizer\highlight.js" disabled="{@DisableCodeBlockComponent}" language="cs" tabSize="0" numberLines="false" outlining="false" keepSeeTags="false" defaultTitle="true" />
+        </component>
       </ComponentConfig>
     </ComponentConfigurations>
   </PropertyGroup>

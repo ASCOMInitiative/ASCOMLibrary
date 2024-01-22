@@ -203,14 +203,14 @@ namespace ASCOM.Tools.NovasCom
         /// <summary>
         /// Obtains the barycentric and heliocentric positions and velocities of the Earth from the solar system ephemeris.
         /// </summary>
-        /// <param name="tjd"></param>
-        /// <param name="earth"></param>
-        /// <param name="tdb"></param>
-        /// <param name="bary_earthp"></param>
-        /// <param name="bary_earthv"></param>
-        /// <param name="helio_earthp"></param>
-        /// <param name="helio_earthv"></param>
-        /// <returns></returns>
+        /// <param name="tjd">Terrestrial Julian date</param>
+        /// <param name="earth">Earth body structure</param>
+        /// <param name="tdb">Dynamic barycentric time corresponding to the provided Julian date.</param>
+        /// <param name="bary_earthp">Barycentric position vector of Earth at 'tjd'; equatorial rectangular coordinates in AU referred to the mean equator and equinox of J2000.0.</param>
+        /// <param name="bary_earthv">Barycentric velocity vector of Earth at 'tjd'; equatorial rectangular system referred to the mean equator and equinox of J2000.0, in AU/Day.</param>
+        /// <param name="helio_earthp">Heliocentric position vector of Earth at 'tjd'; equatorial rectangular coordinates in AU referred to the mean equator and equinox of J2000.0.</param>
+        /// <param name="helio_earthv">Heliocentric velocity vector of Earth at 'tjd'; equatorial rectangular system referred to the mean equator and equinox of J2000.0, in AU/Day.</param>
+        /// <returns>0...Everything OK or >0...Error code from function 'solarsystem'.</returns>
         /// <remarks>
         /// PURPOSE:
         ///    Obtains the barycentric and heliocentric positions and velocities

@@ -12,7 +12,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// </summary>
         /// <param name="deviceType">Device type.</param>
         /// <param name="driverInterfaceVersion">Interface version of this driver (Int16)</param>
-        /// <returns></returns>
+        /// <returns>True for all device interfaces except IFocuserV1</returns>
         /// <exception cref="InvalidValueException"></exception>
         public static bool HasConnected(DeviceTypes? deviceType, short driverInterfaceVersion)
         {
@@ -52,7 +52,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// Returns <see langword="true"/> if the device has a Platform 7 or later interface that supports asynchronous Switch methods
         /// </summary>
         /// <param name="driverInterfaceVersion">Interface version of this driver (Int16)</param>
-        /// <returns></returns>
+        /// <returns>True when the interface version supports AsyncSwitch methods.</returns>
         /// <exception cref="InvalidValueException">The supplied interface version is 0 or less.</exception>
         public static bool HasAsyncSwitch(int driverInterfaceVersion)
         {
@@ -63,12 +63,12 @@ namespace ASCOM.Common.DeviceInterfaces
             return driverInterfaceVersion >= 3;
         }
 
-
         /// <summary>
         /// Returns <see langword="true"/> if the device has a Platform 7 or later interface that supports Connect / Disconnect and DeviceState
         /// </summary>
         /// <param name="deviceType">Device type.</param>
         /// <param name="driverInterfaceVersion">Interface version of this driver (Int16)</param>
+        /// <returns>True when the interface version supports Connect / Disconnect</returns>
         public static bool HasConnectAndDeviceState(DeviceTypes? deviceType, short driverInterfaceVersion)
         {
             return HasConnectAndDeviceState(deviceType, Convert.ToInt32(driverInterfaceVersion));
@@ -79,6 +79,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// </summary>
         /// <param name="deviceType">Device type.</param>
         /// <param name="driverInterfaceVersion">Interface version of this driver (Int32)</param>
+        /// <returns>True when the interface version supports Connect / Disconnect</returns>
         public static bool HasConnectAndDeviceState(DeviceTypes? deviceType, int driverInterfaceVersion)
         {
             if (!deviceType.HasValue)
