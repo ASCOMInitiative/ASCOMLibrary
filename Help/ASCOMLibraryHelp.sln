@@ -7,6 +7,8 @@ Project("{7CF6DF6D-3B04-46F8-A40B-537D21BCA0B4}") = "ASCOMLibraryHelp", "Library
 EndProject
 Project("{7CF6DF6D-3B04-46F8-A40B-537D21BCA0B4}") = "ChooserSAHelp", "ChooserSAHelp\ChooserSAHelp.shfbproj", "{DA3CCBD7-06A8-4E9E-A04B-F2D4A2D1EEED}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PackageAccessProject", "PackageAccessProject\PackageAccessProject.csproj", "{B10CE410-5570-4058-AE0A-0A75DD3D6A56}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{DA3CCBD7-06A8-4E9E-A04B-F2D4A2D1EEED}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DA3CCBD7-06A8-4E9E-A04B-F2D4A2D1EEED}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DA3CCBD7-06A8-4E9E-A04B-F2D4A2D1EEED}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B10CE410-5570-4058-AE0A-0A75DD3D6A56}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B10CE410-5570-4058-AE0A-0A75DD3D6A56}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B10CE410-5570-4058-AE0A-0A75DD3D6A56}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B10CE410-5570-4058-AE0A-0A75DD3D6A56}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

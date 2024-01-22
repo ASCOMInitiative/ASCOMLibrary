@@ -26,6 +26,7 @@
       <DocumentationSource sourceFile="..\..\ASCOM.Tools\ASCOM.Tools.csproj" />
       <DocumentationSource sourceFile="..\..\ASCOM.Tools\NamespaceDocs.xml" />
       <DocumentationSource sourceFile="..\..\ASCOM.AstrometryTools\ASCOM.AstrometryTools.csproj" />
+      <DocumentationSource sourceFile="..\PackageAccessProject\bin\Debug\net8.0\ASCOM.Exceptions.dll" />
     </DocumentationSources>
     <HelpFileFormat>HtmlHelp1, Website</HelpFileFormat>
     <SyntaxFilters>C#, Visual Basic</SyntaxFilters>
@@ -80,7 +81,7 @@
     </ComponentConfigurations>
     <PlugInConfigurations>
     </PlugInConfigurations>
-    <VisibleItems>ExplicitInterfaceImplementations, InheritedMembers, Protected, ProtectedInternalAsProtected, NonBrowsable</VisibleItems>
+    <VisibleItems>ExplicitInterfaceImplementations, InheritedMembers, ProtectedInternalAsProtected</VisibleItems>
     <ApiFilter>
     </ApiFilter>
     <ProjectSummary>
