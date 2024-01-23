@@ -116,7 +116,7 @@
   <PropertyGroup>
     <PreBuildEvent>
     </PreBuildEvent>
-    <PostBuildEvent>"$(OutputPath)ASCOMLibrary.chm"</PostBuildEvent>
+    <PostBuildEvent></PostBuildEvent>
     <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
   </PropertyGroup>
   <ItemGroup>
