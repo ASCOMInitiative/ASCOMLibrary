@@ -37,7 +37,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="ASCOM.Exception.Library" Version="7.0.0-rc.18" />
+		<PackageReference Include="ASCOM.Exception.Library" Version="7.0.0-rc.20" />
 		<PackageReference Include="System.Text.Json" Version="8.0.0" />
 	</ItemGroup>
 
