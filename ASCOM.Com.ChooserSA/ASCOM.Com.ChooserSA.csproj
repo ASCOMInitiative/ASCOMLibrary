@@ -25,6 +25,7 @@
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageIcon>ASCOMBoarderless.png</PackageIcon>
 		<PackageTags>ascom;alpaca;com;chooser</PackageTags>
+		<GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
 	</PropertyGroup>
 	<ItemGroup>
 	  <Content Include="..\ASCOMBoarderless.png" Link="ASCOMBoarderless.png" />
@@ -33,6 +34,7 @@
 		<PackageReference Include="ASCOM.Alpaca.Components" Version="2.0.0-rc.2" />
 		<PackageReference Include="ASCOM.Com.Components" Version="2.0.0-rc.2" />
 		<PackageReference Include="ASCOM.Exception.Library" Version="7.0.0-rc.20" />
+		<PackageReference Include="System.Resources.Extensions" Version="8.0.0" />
 	</ItemGroup>
 	<ItemGroup>
 	  <Compile Update="Properties\Resources.Designer.cs">
