@@ -894,8 +894,13 @@ namespace ASCOM.Alpaca.Clients
                                     }
                                     else if (ascomCOMErrorNumber == ASCOM.ErrorCodes.NotImplemented) // Handle PropertyNotImplementedException and MethodNotImplementedException (both have the same error code)
                                     {
-                                            AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"Alpaca member not implemented error, throwing NotImplementedException - ErrorMessage: \"{errorResponse.ErrorMessage}\", ErrorNumber: 0x{ascomCOMErrorNumber:X8}");
-                                            throw new NotImplementedException(errorResponse.ErrorMessage);
+                                        AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"Alpaca member not implemented error, throwing NotImplementedException - ErrorMessage: \"{errorResponse.ErrorMessage}\", ErrorNumber: 0x{ascomCOMErrorNumber:X8}");
+                                        throw new NotImplementedException(errorResponse.ErrorMessage);
+                                    }
+                                    else if (ascomCOMErrorNumber == ASCOM.ErrorCodes.OperationCancelled) // Handle OperationCancelledException
+                                    {
+                                        AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $" Alpaca operation cancelled error, throwing OperationCancelledException - ErrorMessage: \"{errorResponse.ErrorMessage}\", ErrorNumber: 0x{ascomCOMErrorNumber:X8}");
+                                        throw new OperationCancelledException(errorResponse.ErrorMessage);
                                     }
                                     else if (ascomCOMErrorNumber == ASCOM.ErrorCodes.ValueNotSet) // Handle ValueNotSetException
                                     {

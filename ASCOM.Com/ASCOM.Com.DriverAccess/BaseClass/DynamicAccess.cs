@@ -191,6 +191,13 @@ namespace ASCOM.Com.DriverAccess
             }
 
             //Throw the appropriate exception based on the inner exception of the TargetInvocationException
+            if (HResult == ErrorCodes.ActionNotImplementedException)
+            {
+                message = e.InnerException.Message;
+                FakeLogger.LogMessageCrLf(memberName, "  Throwing ActionNotImplementedException: '" + message + "'");
+                throw new ActionNotImplementedException(message);
+            }
+
             if (HResult == ErrorCodes.InvalidOperationException)
             {
                 message = e.InnerException.Message;
@@ -231,6 +238,13 @@ namespace ASCOM.Com.DriverAccess
                 message = e.InnerException.Message;
                 FakeLogger.LogMessageCrLf(memberName, "  Throwing SlavedException: '" + message + "'");
                 throw new SlavedException(message);
+            }
+
+            if (HResult == ErrorCodes.OperationCancelled)
+            {
+                message = e.InnerException.Message;
+                FakeLogger.LogMessageCrLf(memberName, "  Throwing OperationCancelledException: '" + message + "'");
+                throw new OperationCanceledException(message);
             }
 
             if (HResult == ErrorCodes.ValueNotSet)
