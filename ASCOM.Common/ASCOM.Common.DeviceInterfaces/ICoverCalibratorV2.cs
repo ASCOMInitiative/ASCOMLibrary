@@ -6,9 +6,9 @@
     public interface ICoverCalibratorV2  : IAscomDeviceV2, ICoverCalibratorV1
     {
         /// <summary>
-        /// False while the calibrator brightness is not stable.
+        /// True while the calibrator brightness is not stable.
         /// </summary>
-        bool CalibratorReady { get; }
+        bool CalibratorChanging { get; }
 
         /// <summary>
         /// True while the cover is in motion.

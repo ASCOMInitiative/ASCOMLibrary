@@ -75,7 +75,7 @@ namespace ASCOM.Common.DeviceInterfaces
             new OperationalStateProperty(DeviceTypes.CoverCalibrator, nameof(ICoverCalibratorV2.Brightness), nameof(Int32)),
             new OperationalStateProperty(DeviceTypes.CoverCalibrator, nameof(ICoverCalibratorV2.CalibratorState), nameof(CalibratorStatus)),
             new OperationalStateProperty(DeviceTypes.CoverCalibrator, nameof(ICoverCalibratorV2.CoverState), nameof(CoverStatus)),
-            new OperationalStateProperty(DeviceTypes.CoverCalibrator, nameof(ICoverCalibratorV2.CalibratorReady), nameof(Boolean)),
+            new OperationalStateProperty(DeviceTypes.CoverCalibrator, nameof(ICoverCalibratorV2.CalibratorChanging), nameof(Boolean)),
             new OperationalStateProperty(DeviceTypes.CoverCalibrator, nameof(ICoverCalibratorV2.CoverMoving), nameof(Boolean)),
             new OperationalStateProperty(DeviceTypes.CoverCalibrator, TIME_STAMP, nameof(DateTime)),
 

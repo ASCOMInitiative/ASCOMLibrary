@@ -89,19 +89,19 @@ namespace ASCOM.Common.DeviceStateClasses
                             TL?.LogMessage(LogLevel.Debug, className, $"CoverState has value: {CoverState.HasValue}, Value: {CoverState}");
                             break;
 
-                        case nameof(ICoverCalibratorV2.CalibratorReady):
+                        case nameof(ICoverCalibratorV2.CalibratorChanging):
                             try
                             {
                                 if (stateValue.Value is JsonElement jsonElement) // Deal with Alpaca, which returns JsonElement types instead of object
-                                    CalibratorReady = jsonElement.GetBoolean();
+                                    CalibratorChanging = jsonElement.GetBoolean();
                                 else                                             // COM returns objects that can just be cast to the required type
-                                    CalibratorReady = (bool)stateValue.Value;
+                                    CalibratorChanging = (bool)stateValue.Value;
                             }
                             catch (Exception ex)
                             {
-                                TL?.LogMessage(LogLevel.Debug, className, $"CalibratorReady - Ignoring exception: {ex.Message}");
+                                TL?.LogMessage(LogLevel.Debug, className, $"CalibratorChanging - Ignoring exception: {ex.Message}");
                             }
-                            TL?.LogMessage(LogLevel.Debug, className, $"CalibratorReady has value: {CalibratorReady.HasValue}, Value: {CalibratorReady}");
+                            TL?.LogMessage(LogLevel.Debug, className, $"CalibratorChanging has value: {CalibratorChanging.HasValue}, Value: {CalibratorChanging}");
                             break;
 
                         case nameof(ICoverCalibratorV2.CoverMoving):
@@ -162,9 +162,9 @@ namespace ASCOM.Common.DeviceStateClasses
         public CoverStatus? CoverState { get; set; } = null;
 
         /// <summary>
-        /// The device's CalibratorReady state
+        /// The device's CalibratorChanging state
         /// </summary>
-        public bool? CalibratorReady { get; set; } = null;
+        public bool? CalibratorChanging { get; set; } = null;
 
         /// <summary>
         /// The device's CoverMoving state
