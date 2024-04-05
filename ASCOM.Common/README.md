@@ -10,6 +10,9 @@ This is a set of data classes and utility functions to support writing ALpaca de
 
 # Version History
 
+***Release 1.0.112***
+* No change.
+
 ***Release 1.0.111***
 * No change.
 

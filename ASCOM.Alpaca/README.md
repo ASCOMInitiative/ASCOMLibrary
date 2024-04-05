@@ -4,7 +4,10 @@ A set of client tools to discover and access Alpaca devices. Written to .Net Sta
 
 # Version History
 
-***Release 1.0.111***
+***Release 1.0.112***
+* Fix issue where Alpaca clients did not query the device to determine its Connected state.
+
+* ***Release 1.0.111***
 * Fix issue that caused Alpaca client initialisation to fail on Android and similar AOT compile platforms.
 
 ***Release 1.0.110***

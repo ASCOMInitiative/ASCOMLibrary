@@ -25,6 +25,9 @@ routines that are available in standard .NET namespaces.
 
 # Version History
 
+***Release 1.0.112***
+* No change.
+
 ***Release 1.0.111***
 * No change.
 

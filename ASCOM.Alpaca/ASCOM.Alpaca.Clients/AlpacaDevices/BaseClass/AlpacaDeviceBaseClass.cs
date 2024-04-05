@@ -198,7 +198,9 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return clientIsConnected;
+                bool response = DynamicClientDriver.GetValue<bool>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "Connected", MemberTypes.Property);
+                LogMessage(logger, clientNumber, "Connected", response.ToString());
+                return response;
             }
             set
             {
