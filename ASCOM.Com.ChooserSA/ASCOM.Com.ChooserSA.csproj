@@ -31,9 +31,7 @@
 	  <Content Include="..\ASCOMBoarderless.png" Link="ASCOMBoarderless.png" />
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="ASCOM.Alpaca.Components" Version="2.0.0-rc.14" />
-		<PackageReference Include="ASCOM.Com.Components" Version="2.0.0-rc.14" />
-		<PackageReference Include="ASCOM.Exception.Library" Version="7.0.0-rc.21" />
+		<PackageReference Include="ASCOM.Exception.Library" Version="7.0.0-rc.22" />
 		<PackageReference Include="System.Resources.Extensions" Version="8.0.0" />
 	</ItemGroup>
 	<ItemGroup>
@@ -58,6 +56,10 @@
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
 		</None>
+	</ItemGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\ASCOM.Alpaca\ASCOM.Alpaca.csproj" />
+	  <ProjectReference Include="..\ASCOM.Com\ASCOM.Com.csproj" />
 	</ItemGroup>
 
 </Project>
