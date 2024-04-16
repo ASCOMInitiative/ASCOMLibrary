@@ -9,14 +9,9 @@ using System.Threading;
 namespace DriverAccess
 {
     [Collection("SwitchTests")]
-    public class SwitchAsyncTests
+    public class SwitchAsyncTests(ITestOutputHelper output)
     {
-        private readonly ITestOutputHelper output;
-
-        public SwitchAsyncTests(ITestOutputHelper output)
-        {
-            this.output = output;
-        }
+        private readonly ITestOutputHelper output = output;
 
         [Fact]
         public void SetSwitch()
@@ -222,51 +217,54 @@ namespace DriverAccess
         public async void SetAsyncDriverAccess()
         {
             // Create a Switch simulator device
-            Switch switchSim = new("ASCOM.Simulator.Switch");
+            using (Switch switchSim = new("ASCOM.Simulator.Switch"))
+            {
 
-            // Connect
-            switchSim.Connected = true;
-            Assert.True(switchSim.Connected);
+                // Connect
+                switchSim.Connected = true;
+                Assert.True(switchSim.Connected);
 
-            // Confirm that some devices are configured
-            Assert.Equal<short>(11, switchSim.MaxSwitch);
+                // Confirm that some devices are configured
+                Assert.Equal<short>(11, switchSim.MaxSwitch);
 
-            // Confirm that device 10 is async
-            Assert.False(switchSim.CanAsync(9));
-            Assert.True(switchSim.CanAsync(10));
+                // Confirm that device 10 is async
+                Assert.False(switchSim.CanAsync(9));
+                Assert.True(switchSim.CanAsync(10));
 
-            // Confirm that the current value is false
-            Assert.False(switchSim.GetSwitch(10));
+                // Confirm that the current value is false
+                Assert.False(switchSim.GetSwitch(10));
 
-            // Set the value true asynchronously (should take 3 seconds to complete)
-            switchSim.SetAsync(10, true);
-            Assert.False(switchSim.StateChangeComplete(10));
-            Assert.False(switchSim.GetSwitch(10));
+                // Set the value true asynchronously (should take 3 seconds to complete)
+                switchSim.SetAsync(10, true);
+                Assert.False(switchSim.StateChangeComplete(10));
+                Assert.False(switchSim.GetSwitch(10));
 
-            // Wait for most of 3 seconds and make sure the operation is still running
-            await Task.Delay(2950);
-            Assert.False(switchSim.StateChangeComplete(10));
-            Assert.False(switchSim.GetSwitch(10));
+                // Wait for most of 3 seconds and make sure the operation is still running
+                await Task.Delay(2950);
+                Assert.False(switchSim.StateChangeComplete(10));
+                Assert.False(switchSim.GetSwitch(10));
 
-            // Wait a short while longer to make sure that the new value is in effect
-            await Task.Delay(150);
-            Assert.True(switchSim.StateChangeComplete(10));
-            Assert.True(switchSim.GetSwitch(10));
+                // Wait a short while longer to make sure that the new value is in effect
+                await Task.Delay(150);
+                Assert.True(switchSim.StateChangeComplete(10));
+                Assert.True(switchSim.GetSwitch(10));
 
-            switchSim.Connected = false;
+                switchSim.Connected = false;
+            }
 
             // Wait to make sure test is complete
             SwitchDelay();
         }
 
         [Fact]
-        public async void  SetAsyncValueDriverAccess()
+        public async void SetAsyncValueDriverAccess()
         {
             // Create a Switch simulator device
-            Switch switchSim = new("ASCOM.Simulator.Switch");
-
-            // Connect
-            switchSim.Connected = true;
+            Switch switchSim = new("ASCOM.Simulator.Switch")
+            {
+                // Connect
+                Connected = true
+            };
             Assert.True(switchSim.Connected);
 
             // Confirm that some devices are configured
@@ -304,10 +302,11 @@ namespace DriverAccess
         public async void CancelAsyncDriverAccess()
         {
             // Create a Switch simulator device
-            Switch switchSim = new("ASCOM.Simulator.Switch");
-
-            // Connect
-            switchSim.Connected = true;
+            Switch switchSim = new("ASCOM.Simulator.Switch")
+            {
+                // Connect
+                Connected = true
+            };
             Assert.True(switchSim.Connected);
 
             // Confirm that some devices are configured
@@ -348,7 +347,7 @@ namespace DriverAccess
             SwitchDelay();
         }
 
-        private void SwitchDelay()
+        private static void SwitchDelay()
         {
             Thread.Sleep(3000);
         }

@@ -11,6 +11,12 @@ namespace ASCOM.Alpaca.Tests
     {
         internal static bool CompareBytes(byte[] supplied, byte[] required, ITestOutputHelper output)
         {
+            // Remove compiler info warning about unused parameter
+            if (output==null)
+            {
+                
+            }
+
             //if (required.Length != supplied.Length) return false;
             for (int i = 0; i < required.Length; i++)
             {
