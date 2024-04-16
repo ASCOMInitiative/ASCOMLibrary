@@ -1,12 +1,10 @@
 ﻿using ASCOM.Com.DriverAccess;
-using ASCOM;
 using System;
-using System.Threading;
 using Xunit.Abstractions;
 using Xunit;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using System.Runtime.CompilerServices;
+using System.Threading;
 
 namespace DriverAccess
 {
@@ -49,6 +47,9 @@ namespace DriverAccess
             Assert.True(switchSim.GetSwitch(10));
 
             switchSim.Connected = false;
+
+            // Wait to make sure test is complete
+            SwitchDelay();
         }
 
         [Fact]
@@ -88,6 +89,9 @@ namespace DriverAccess
             Assert.True(switchSim.GetSwitch(10));
 
             switchSim.Connected = false;
+
+            // Wait to make sure test is complete
+            SwitchDelay();
         }
 
         [Fact]
@@ -119,6 +123,9 @@ namespace DriverAccess
             Assert.Equal<double>(5.0, switchSim.GetSwitchValue(10));
 
             switchSim.Connected = false;
+
+            // Wait to make sure test is complete
+            SwitchDelay();
         }
 
         [Fact]
@@ -158,6 +165,9 @@ namespace DriverAccess
             Assert.Equal<double>(5.0, switchSim.GetSwitchValue(10));
 
             switchSim.Connected = false;
+
+            // Wait to make sure test is complete
+            SwitchDelay();
         }
 
         [Fact]
@@ -203,6 +213,9 @@ namespace DriverAccess
             Assert.False(switchSim.GetSwitch(10));
 
             switchSim.Connected = false;
+
+            // Wait to make sure test is complete
+            SwitchDelay();
         }
 
         [Fact]
@@ -241,6 +254,9 @@ namespace DriverAccess
             Assert.True(switchSim.GetSwitch(10));
 
             switchSim.Connected = false;
+
+            // Wait to make sure test is complete
+            SwitchDelay();
         }
 
         [Fact]
@@ -279,6 +295,9 @@ namespace DriverAccess
             Assert.Equal<double>(5.0, switchSim.GetSwitchValue(10));
 
             switchSim.Connected = false;
+
+            // Wait to make sure test is complete
+            SwitchDelay();
         }
 
         [Fact]
@@ -314,19 +333,24 @@ namespace DriverAccess
 
             // Wait a short while before checking that the operation is cancelled and an OperationCancelledException is thrown
             await Task.Delay(100);
-            Exception exception = Assert.Throws<DriverAccessCOMException>(() => switchSim.StateChangeComplete(10));
-            Assert.Equal<int>(ErrorCodes.OperationCancelled, exception.HResult);
+            Assert.Throws<OperationCanceledException>(() => switchSim.StateChangeComplete(10));
 
             Assert.False(switchSim.GetSwitch(10));
 
             // Wait until after 3 seconds and make sure that the outcome is still the same
             await Task.Delay(1000);
-            Assert.Throws<DriverAccessCOMException>(() => switchSim.StateChangeComplete(10));
-            exception = Assert.Throws<DriverAccessCOMException>(() => switchSim.StateChangeComplete(10));
+            Assert.Throws<OperationCanceledException>(() => switchSim.StateChangeComplete(10));
             Assert.False(switchSim.GetSwitch(10));
 
             switchSim.Connected = false;
+
+            // Wait to make sure test is complete
+            SwitchDelay();
         }
 
+        private void SwitchDelay()
+        {
+            Thread.Sleep(3000);
+        }
     }
 }

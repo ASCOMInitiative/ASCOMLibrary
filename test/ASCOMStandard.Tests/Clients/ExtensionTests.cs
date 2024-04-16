@@ -13,14 +13,10 @@ using Xunit.Abstractions;
 namespace ASCOM.Alpaca.Tests.Clients
 {
     [Collection("CameraTests")]
-    public class MiscellaneousTests
+    //public class MiscellaneousTests(ITestOutputHelper output)
+    public class MiscellaneousTests()
     {
-        private readonly ITestOutputHelper output;
-
-        public MiscellaneousTests(ITestOutputHelper output)
-        {
-            this.output = output;
-        }
+        // private readonly ITestOutputHelper output = output;
 
         [Fact]
         public static async Task BadCameraStartExposureTest()
@@ -236,23 +232,23 @@ namespace ASCOM.Alpaca.Tests.Clients
             // Create a COM client
             TL.LogMessage("Main", $"About to create device");
             CoverCalibrator client = new("ASCOM.Simulator.CoverCalibrator");
-            TL.LogMessage("Main", $"{Thread.CurrentThread.ManagedThreadId:00} Device created");
+            TL.LogMessage("Main", $"{Environment.CurrentManagedThreadId:00} Device created");
             Assert.NotNull(client);
 
             // Set connected to true
             client.Connected = true;
-            TL.LogMessage("Main", $"{Thread.CurrentThread.ManagedThreadId:00} Connected set true");
+            TL.LogMessage("Main", $"{Environment.CurrentManagedThreadId:00} Connected set true");
 
             // Test the client
-            TL.LogMessage("Main", $"{Thread.CurrentThread.ManagedThreadId:00} About to await method");
+            TL.LogMessage("Main", $"{Environment.CurrentManagedThreadId:00} About to await method");
             await client.OpenCoverAsync(pollInterval: 100, logger: TL);
-            TL.LogMessage("Main", $"{Thread.CurrentThread.ManagedThreadId:00} Await complete");
+            TL.LogMessage("Main", $"{Environment.CurrentManagedThreadId:00} Await complete");
             Assert.Equal(CoverStatus.Open, client.CoverState);
 
             // Disconnect from the client and dispose
             client.Connected = false;
             client.Dispose();
-            TL.LogMessage("Main", $"{Thread.CurrentThread.ManagedThreadId:00} Finished");
+            TL.LogMessage("Main", $"{Environment.CurrentManagedThreadId:00} Finished");
         }
 
         [Fact]
@@ -277,7 +273,7 @@ namespace ASCOM.Alpaca.Tests.Clients
                 TL.LogMessage("StopOpenTask", $"Starting thread sleep");
                 await Task.Delay(1000);
                 TL.LogMessage("StopOpenTask", $"Sleep completed, stopping open.");
-                client.HaltCover();
+                await client.HaltCoverAsync(pollInterval: 100, logger: TL);
                 TL.LogMessage("StopOpenTask", $"Open halted.");
             });
             stopOpenTask.Start();

@@ -91,7 +91,7 @@ namespace ASCOM.Common
 
         #endregion
 
-        #region CoverCalibrator extensions
+        #region ICoverCalibratorV1 extensions
 
         /// <summary>
         /// Returns an awaitable, running, <see cref="Task"/> that turns the calibrator off
@@ -236,6 +236,166 @@ namespace ASCOM.Common
                 processTask = Task.Run(() =>
                 {
                     ProcessTask(() => { device.OpenCover(); }, () => { return (device.CoverState == CoverStatus.Moving) | (device.CoverState == CoverStatus.Closed); }, pollInterval, cancellationToken, logger, $"{nameof(ICoverCalibratorV1)}.{nameof(OpenCoverAsync)}");
+                });
+
+                WaitForProcessTask(processTask, logger, callingMethodName, cancellationToken);
+            });
+
+            CheckOutcome(processTask, logger, callingMethodName, cancellationToken);
+        }
+
+        #endregion
+
+        #region ICoverCalibratorV2 extensions
+
+        /// <summary>
+        /// Returns an awaitable, running, <see cref="Task"/> that turns the calibrator off. (Polls ICoverCalibratorV2.CalibratroChanging)
+        /// </summary>
+        /// <param name="device">The CoverCalibrator device</param>
+        /// <param name="cancellationToken">Cancellation token - Default: <see cref="CancellationToken.None"/></param>
+        /// <param name="pollInterval">Interval between polls of the completion variable (milliseconds) - Default: 1000 milliseconds.</param>
+        /// <param name="logger">ILogger instance that will receive operation messages from the method - Default: No logger</param>
+        /// <returns>Awaitable task that ends when the calibrator is off</returns>
+        /// <remarks>
+        /// <para>Initiator: <see cref="ICoverCalibratorV1.CalibratorOff"/></para>
+        /// <para>Complete when: <see cref="ICoverCalibratorV2.CalibratorChanging"/> is  False </para>
+        /// <para>Only available for ICoverCalibratorV2 and later devices.</para>
+        /// </remarks>
+        public static async Task CalibratorOffAsync(this ICoverCalibratorV2 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
+        {
+            Task processTask = null;
+            string callingMethodName = $"[Lib].{GetCurrentMethod()}";
+
+            await Task.Run(() =>
+            {
+                processTask = Task.Run(() =>
+                {
+                    ProcessTask(() => { device.CalibratorOff(); }, () => { return device.CalibratorChanging; }, pollInterval, cancellationToken, logger, $"{nameof(ICoverCalibratorV2)}.{nameof(CalibratorOffAsync)}");
+                });
+
+                WaitForProcessTask(processTask, logger, callingMethodName, cancellationToken);
+            });
+
+            CheckOutcome(processTask, logger, callingMethodName, cancellationToken);
+        }
+
+        /// <summary>
+        /// Returns an awaitable, running, <see cref="Task"/> that turns the calibrator on. (Polls ICoverCalibratorV2.CalibratroChanging)
+        /// </summary>
+        /// <param name="device">The CoverCalibrator device</param>
+        /// <param name="brightness">Required brightness level</param>
+        /// <param name="cancellationToken">Cancellation token - Default: <see cref="CancellationToken.None"/></param>
+        /// <param name="pollInterval">Interval between polls of the completion variable (milliseconds) - Default: 1000 milliseconds.</param>
+        /// <param name="logger">ILogger instance that will receive operation messages from the method - Default: No logger</param>
+        /// <returns>Awaitable task that ends when the calibrator is on</returns>
+        /// <remarks>
+        /// <para>Initiator: <see cref="ICoverCalibratorV1.CalibratorOn"/></para>
+        /// <para>Complete when: <see cref="ICoverCalibratorV2.CalibratorChanging"/> is  False </para>
+        /// <para>Only available for ICoverCalibratorV2 and later devices.</para>
+        /// </remarks>
+        public static async Task CalibratorOnAsync(this ICoverCalibratorV2 device, int brightness, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
+        {
+            Task processTask = null;
+            string callingMethodName = $"[Lib].{GetCurrentMethod()}";
+
+            await Task.Run(() =>
+            {
+                processTask = Task.Run(() =>
+                {
+                    ProcessTask(() => { device.CalibratorOn(brightness); }, () => { return device.CalibratorChanging; }, pollInterval, cancellationToken, logger, $"{nameof(ICoverCalibratorV2)}.{nameof(CalibratorOnAsync)}");
+                });
+
+                WaitForProcessTask(processTask, logger, callingMethodName, cancellationToken);
+            });
+
+            CheckOutcome(processTask, logger, callingMethodName, cancellationToken);
+        }
+
+        /// <summary>
+        /// Returns an awaitable, running, <see cref="Task"/> that closes the cover. (Polls ICoverCalibratorV2.CoverMoving)
+        /// </summary>
+        /// <param name="device">The CoverCalibrator device</param>
+        /// <param name="cancellationToken">Cancellation token - Default: <see cref="CancellationToken.None"/></param>
+        /// <param name="pollInterval">Interval between polls of the completion variable (milliseconds) - Default: 1000 milliseconds.</param>
+        /// <param name="logger">ILogger instance that will receive operation messages from the method - Default: No logger</param>
+        /// <returns>Awaitable task that ends when the cover is closed</returns>
+        /// <remarks>
+        /// <para>Initiator: <see cref="ICoverCalibratorV1.CloseCover"/></para>
+        /// <para>Complete when: <see cref="ICoverCalibratorV2.CoverMoving"/> is False.</para>
+        /// <para>Only available for ICoverCalibratorV2 and later devices.</para>
+        /// </remarks>
+        public static async Task CloseCoverAsync(this ICoverCalibratorV2 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
+        {
+            Task processTask = null;
+            string callingMethodName = $"[Lib].{GetCurrentMethod()}";
+
+            await Task.Run(() =>
+            {
+                processTask = Task.Run(() =>
+                {
+                    ProcessTask(() => { device.CloseCover(); }, () => { return device.CoverMoving; }, pollInterval, cancellationToken, logger, $"{nameof(ICoverCalibratorV2)}.{nameof(CloseCoverAsync)}");
+                });
+
+                WaitForProcessTask(processTask, logger, callingMethodName, cancellationToken);
+            });
+
+            CheckOutcome(processTask, logger, callingMethodName, cancellationToken);
+        }
+
+        /// <summary>
+        /// Returns an awaitable, running, <see cref="Task"/> that halts cover movement
+        /// </summary>
+        /// <param name="device">The CoverCalibrator device</param>
+        /// <param name="cancellationToken">Cancellation token - Default: <see cref="CancellationToken.None"/></param>
+        /// <param name="pollInterval">Interval between polls of the completion variable (milliseconds) - Default: 1000 milliseconds.</param>
+        /// <param name="logger">ILogger instance that will receive operation messages from the method - Default: No logger</param>
+        /// <returns>Awaitable task that ends when cover movement has stopped</returns>
+        /// <remarks>
+        /// <para>Initiator: <see cref="ICoverCalibratorV1.HaltCover"/></para>
+        /// <para>Complete when: <see cref="ICoverCalibratorV2.CoverMoving"/> is False.</para>
+        /// <para>Only available for ICoverCalibratorV2 and later devices.</para>
+        /// </remarks>
+        public static async Task HaltCoverAsync(this ICoverCalibratorV2 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
+        {
+            Task processTask = null;
+            string callingMethodName = $"[Lib].{GetCurrentMethod()}";
+
+            await Task.Run(() =>
+            {
+                processTask = Task.Run(() =>
+                {
+                    ProcessTask(() => { device.HaltCover(); }, () => { return device.CoverMoving; }, pollInterval, cancellationToken, logger, $"{nameof(ICoverCalibratorV2)}.{nameof(HaltCoverAsync)}");
+                });
+
+                WaitForProcessTask(processTask, logger, callingMethodName, cancellationToken);
+            });
+
+            CheckOutcome(processTask, logger, callingMethodName, cancellationToken);
+        }
+
+        /// <summary>
+        /// Returns an awaitable, running, <see cref="Task"/> that opens the cover
+        /// </summary>
+        /// <param name="device">The CoverCalibrator device</param>
+        /// <param name="cancellationToken">Cancellation token - Default: <see cref="CancellationToken.None"/></param>
+        /// <param name="pollInterval">Interval between polls of the completion variable (milliseconds) - Default: 1000 milliseconds.</param>
+        /// <param name="logger">ILogger instance that will receive operation messages from the method - Default: No logger</param>
+        /// <returns>Awaitable task that ends when the cover is open</returns>
+        /// <remarks>
+        /// <para>Initiator: <see cref="ICoverCalibratorV1.OpenCover"/></para>
+        /// <para>Complete when: <see cref="ICoverCalibratorV2.CoverMoving"/> is False.</para>
+        /// <para>Only available for ICoverCalibratorV2 and later devices.</para>
+        /// </remarks>
+        public static async Task OpenCoverAsync(this ICoverCalibratorV2 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
+        {
+            Task processTask = null;
+            string callingMethodName = $"[Lib].{GetCurrentMethod()}";
+
+            await Task.Run(() =>
+            {
+                processTask = Task.Run(() =>
+                {
+                    ProcessTask(() => { device.OpenCover(); }, () => { return device.CoverMoving; }, pollInterval, cancellationToken, logger, $"{nameof(ICoverCalibratorV2)}.{nameof(OpenCoverAsync)}");
                 });
 
                 WaitForProcessTask(processTask, logger, callingMethodName, cancellationToken);
@@ -701,9 +861,74 @@ namespace ASCOM.Common
 
         #endregion
 
-        #region Switch extensions
+        #region ISwitchV3 extensions
 
-        // No asynchronous methods
+        /// <summary>
+        /// Returns an awaitable, running, <see cref="Task"/> that sets the switch to a given boolean state
+        /// </summary>
+        /// <param name="device">The Switch device</param>
+        /// <param name="id">The switch ID number</param>
+        /// <param name="state">The desired boolean state</param>
+        /// <param name="cancellationToken">Cancellation token - Default: <see cref="CancellationToken.None"/></param>
+        /// <param name="pollInterval">Interval between polls of the completion variable (milliseconds) - Default: 1000 milliseconds.</param>
+        /// <param name="logger">ILogger instance that will receive operation messages from the method - Default: No logger</param>
+        /// <returns>Awaitable task that ends when the switch has changed to the designated state</returns>
+        /// <remarks>
+        /// <para>Initiator: <see cref="ISwitchV3.SetAsync(short, bool)"/></para>
+        /// <para>Complete when: <see cref="ISwitchV3.StateChangeComplete(short)"/> is <see langword="true"/></para>
+        /// <para>Only available for ISwitchV3 and later devices.</para>
+        /// </remarks>
+        public static async Task SetAsync(this ISwitchV3 device, short id, bool state, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
+        {
+            Task processTask = null;
+            string callingMethodName = $"[Lib].{GetCurrentMethod()}";
+
+            await Task.Run(() =>
+            {
+                processTask = Task.Run(() =>
+                {
+                    ProcessTask(() => { device.SetAsync(id, state); }, () => { return !device.StateChangeComplete(id); }, pollInterval, cancellationToken, logger, $"{nameof(ISwitchV3)}.{nameof(SetAsync)}", () => { return $"State is changing: {!device.StateChangeComplete(id)}"; });
+                });
+
+                WaitForProcessTask(processTask, logger, callingMethodName, cancellationToken);
+            });
+
+            CheckOutcome(processTask, logger, callingMethodName, cancellationToken);
+        }
+
+        /// <summary>
+        /// Returns an awaitable, running, <see cref="Task"/> that sets the switch to a given value
+        /// </summary>
+        /// <param name="device">The Switch device</param>
+        /// <param name="id">The switch ID number</param>
+        /// <param name="value">The new switch value</param>
+        /// <param name="cancellationToken">Cancellation token - Default: <see cref="CancellationToken.None"/></param>
+        /// <param name="pollInterval">Interval between polls of the completion variable (milliseconds) - Default: 1000 milliseconds.</param>
+        /// <param name="logger">ILogger instance that will receive operation messages from the method - Default: No logger</param>
+        /// <returns>Awaitable task that ends when the switch has changed to the designated state</returns>
+        /// <remarks>
+        /// <para>Initiator: <see cref="ISwitchV3.SetAsync(short, bool)"/></para>
+        /// <para>Complete when: <see cref="ISwitchV3.StateChangeComplete(short)"/> is <see langword="true"/></para>
+        /// <para>Only available for ISwitchV3 and later devices.</para>
+        /// </remarks>
+        public static async Task SetAsyncValue(this ISwitchV3 device, short id, double value, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
+        {
+            Task processTask = null;
+            string callingMethodName = $"[Lib].{GetCurrentMethod()}";
+
+            await Task.Run(() =>
+            {
+                processTask = Task.Run(() =>
+                {
+                    ProcessTask(() => { device.SetAsyncValue(id, value); }, () => { return !device.StateChangeComplete(id); }, pollInterval, cancellationToken, logger, $"{nameof(ISwitchV3)}.{nameof(SetAsync)}", () => { return $"State is changing: {!device.StateChangeComplete(id)}"; });
+                });
+
+                WaitForProcessTask(processTask, logger, callingMethodName, cancellationToken);
+            });
+
+            CheckOutcome(processTask, logger, callingMethodName, cancellationToken);
+        }
+
 
         #endregion
 
@@ -934,8 +1159,9 @@ namespace ASCOM.Common
         /// <summary>
         /// Returns the current method name
         /// </summary>
+        /// <param name="callerName">The caller's name.</param>
         /// <returns>Callers method name</returns>
-        public static string GetCurrentMethod([CallerMemberName] string callerName = "")
+        private static string GetCurrentMethod([CallerMemberName] string callerName = "")
         {
             return callerName;
         }
@@ -999,29 +1225,29 @@ namespace ASCOM.Common
         {
             // Create and run a task to periodically test whether the cancellation token has been activated by the user or by timing out.
             Task timeoutTask = Task.Run(() =>
-                            {
-                                do
-                                {
-                                    logger?.LogMessage(LogLevel.Debug, callingMethodName, $"{Thread.CurrentThread.ManagedThreadId:00} {nameof(WaitForProcessTask)} - Loop - Process status: {processTask.Status}, Cancellation requested: {cancellationToken.IsCancellationRequested}");
+            {
+                do
+                {
+                    logger?.LogMessage(LogLevel.Debug, callingMethodName, $"{Thread.CurrentThread.ManagedThreadId:00} {nameof(WaitForProcessTask)} - Loop - Process status: {processTask.Status}, Cancellation requested: {cancellationToken.IsCancellationRequested}");
 
-                                    // Test whether the operation has been cancelled or has timed out
-                                    if (cancellationToken.IsCancellationRequested) // The operation has been cancelled or has timed out so log the information and exit the polling loop.
-                                    {
-                                        logger?.LogMessage(LogLevel.Information, callingMethodName, $"{Thread.CurrentThread.ManagedThreadId:00} {nameof(WaitForProcessTask)} - Loop - Cancellation requested - Process status: {processTask.Status}, Cancellation requested: {cancellationToken.IsCancellationRequested}");
-                                        break;
-                                    }
-                                    if (processTask?.Status >= TaskStatus.RanToCompletion) // The operation has completed or faulted so log the information and exit the polling loop.
-                                    {
-                                        logger?.LogMessage(LogLevel.Information, callingMethodName, $"{Thread.CurrentThread.ManagedThreadId:00} {nameof(WaitForProcessTask)} - Loop - Process ran to completion - Process status: {processTask.Status}, Cancellation requested: {cancellationToken.IsCancellationRequested}");
-                                        break;
-                                    }
+                    // Test whether the operation has been cancelled or has timed out
+                    if (cancellationToken.IsCancellationRequested) // The operation has been cancelled or has timed out so log the information and exit the polling loop.
+                    {
+                        logger?.LogMessage(LogLevel.Information, callingMethodName, $"{Thread.CurrentThread.ManagedThreadId:00} {nameof(WaitForProcessTask)} - Loop - Cancellation requested - Process status: {processTask.Status}, Cancellation requested: {cancellationToken.IsCancellationRequested}");
+                        break;
+                    }
+                    if (processTask?.Status >= TaskStatus.RanToCompletion) // The operation has completed or faulted so log the information and exit the polling loop.
+                    {
+                        logger?.LogMessage(LogLevel.Information, callingMethodName, $"{Thread.CurrentThread.ManagedThreadId:00} {nameof(WaitForProcessTask)} - Loop - Process ran to completion - Process status: {processTask.Status}, Cancellation requested: {cancellationToken.IsCancellationRequested}");
+                        break;
+                    }
 
-                                    //Wait for 100ms before polling again
-                                    Thread.Sleep(100);
-                                } while (true); // Loop for ever until one of the if statements above becomes true
+                    //Wait for 100ms before polling again
+                    Thread.Sleep(100);
+                } while (true); // Loop for ever until one of the if statements above becomes true
 
-                                // End of the timeout task
-                            });
+                // End of the timeout task
+            });
 
             // Wait for either the process to complete or the timeout task to complete (Note that WaitAny does NOT automatically throw an exception if the process faults.)
             Task.WaitAny(processTask, timeoutTask);
