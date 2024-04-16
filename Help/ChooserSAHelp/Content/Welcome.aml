@@ -3,9 +3,7 @@
 	<developerConceptualDocument xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5" xmlns:xlink="http://www.w3.org/1999/xlink">
 		<introduction>
 			<para>
-				The stand alone Chooser is a modern replacement for the ASCOM.Utiltiies.Chooser component. The original Chooser is based on the venerable .NET 3.5  (CLR2) framework and
-				it is not possible to replace it with a version created in a later runtime version, such as .NET 4.7.2 (CLR4), because any extant CLR2 applications will fail when
-				presented with a CLR 4 component.
+				The stand alone Chooser is a functionally equivalent replacement for the .NET Framework 3.5 ASCOM.Utiltiies.Chooser component that is distributed in the ASCOM Platform.
 			</para>
 		</introduction>
 
@@ -13,29 +11,28 @@
 			<title>Rationale</title>
 			<content>
 				<para>
-					Chooser functionality is core to enabling COM applications to find COM drivers that are installed on the PC. Together with the registry based Profile store, 
-					it associates human readable descriptions with the machine readable COM ProgIDs that COM uses under the hood. If we don't have Chooser functionality, applications 
-					cannot easily find installed drivers.
-				</para>
-				<para>
-					The Stand Alone Chooser is functionally equivalent to the original Platform Chooser and to the ASCOM.Com.Chooser component in the ASCOM Library,
-					which is just a wrapper around the .NET 3.5 Platform Chooser component, so why does it exist? The answer is because Microsoft currently 
+					The .NET Core based stand alone Chooser exists because Microsoft currently
 					<externalLink>
 						<linkText>
-							plans to discontinue support for .NET 3.5 in January 2029
+							plans to discontinue support for .NET Framework 3.5 in January 2029
 						</linkText>
 						<linkUri>https://learn.microsoft.com/en-us/lifecycle/products/microsoft-net-framework</linkUri>
 					</externalLink>
 					.
 				</para>
 				<para>
-					The original Platform Chooser is based on the venerable .NET 3.5  (CLR2) framework and it is not possible to replace it with a version created in a later runtime version, 
-					such as .NET 4.7.2 (CLR4), because any extant CLR2 applications will fail when presented with a CLR 4 Chooser component.
-
+					It is not yet clear what "end of support" means, and the Stand Alone Chooser is a mitigation for the risk
+					that the .NET 3.5 based Chooser component may cease to work correctly at some unknown future date.
 				</para>
 				<para>
-					It is not yet clear what "end of support" means and the Stand Alone Chooser is a mitigation for the risk
-					that the .NET 3.5 based Chooser component may cease to work correctly at some unknown future date.
+					Chooser functionality is core to enabling ASCOM COM applications to find ASCOM COM drivers that are installed on the PC. Together with the registry based Profile store, 
+					it associates human readable descriptions with the machine readable COM ProgIDs that COM uses under the hood. Put simply, if we don't have Chooser functionality, applications 
+					cannot find installed drivers.
+				</para>
+
+				<para>
+					The original Platform Chooser is based on the venerable .NET 3.5  (CLR2) framework and it is not possible to replace it with a version created in a later runtime version, 
+					such as .NET 4.7.2 (CLR4), because any extant CLR2 applications will fail when presented with a CLR 4 Chooser component.
 				</para>
 			</content>
 		</section>
@@ -45,7 +42,7 @@
 			<content>
 				<para>
 					Unlike the remainder of the ASCOM Library, the stand alone Chooser is not targetted at .NET Standard 2.0. Instead, because it makes direct use of
-					Windows components such as Forms, it must be targetted at specific framework versions such as .NET Framework 4.7.2 and .NET 7.0.
+					Windows components such as Forms, it must be targetted at specific versions such as .NET Framework 4.7.2 and .NET 7.0.
 					The stand alone Chooser package can be used in projects that target these frameworks:
 				</para>
 				<list class="bullet">
@@ -63,6 +60,10 @@
 
 					<listItem>
 						<para>.NET 7.0 (Target framework moniker (TFM): net7.0-windows)</para>
+					</listItem>
+
+					<listItem>
+						<para>.NET 8.0 (Target framework moniker (TFM): net8.0-windows)</para>
 					</listItem>
 				</list>
 

@@ -27,4 +27,4 @@ This is a set of data classes and utility functions to support writing ALpaca de
 
 ***Release 1.0.106***
 * A new base class has been introduced in the Alpaca response classes to enable just error keys to be extracted
-from JSON responses. This is expected to be a non-breaking backward compatibile change.
+from JSON responses. This is expected to be a non-breaking backward compatible change.
