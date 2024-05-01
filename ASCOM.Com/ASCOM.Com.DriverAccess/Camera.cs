@@ -895,7 +895,9 @@ namespace ASCOM.Com.DriverAccess
                 {
                     throw new ASCOM.NotImplementedException("Gains is only supported by Interface Versions 2 and above.");
                 }
-                return (Device.Gains as IEnumerable).Cast<string>().ToList();
+                // ASCOM.DSLR driver returns an array of integers, not strings. ASCOM Platform hid this issue by converting to strings
+                // so this code should forgive the same issue by converting the contents of whatever is returned by the underlying driver to strings
+                return (Device.Gains as IEnumerable).OfType<object>().Select(x => x.ToString()).ToList();
             }
         }
 
