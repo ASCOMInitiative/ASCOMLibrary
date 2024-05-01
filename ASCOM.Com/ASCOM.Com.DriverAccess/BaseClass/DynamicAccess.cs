@@ -195,63 +195,63 @@ namespace ASCOM.Com.DriverAccess
             {
                 message = e.InnerException.Message;
                 FakeLogger.LogMessageCrLf(memberName, "  Throwing ActionNotImplementedException: '" + message + "'");
-                throw new ActionNotImplementedException(message);
+                throw new ActionNotImplementedException(message,e.InnerException);
             }
 
             if (HResult == ErrorCodes.InvalidOperationException)
             {
                 message = e.InnerException.Message;
                 FakeLogger.LogMessageCrLf(memberName, "  Throwing InvalidOperationException: '" + message + "'");
-                throw new InvalidOperationException(message);
+                throw new InvalidOperationException(message,e.InnerException);
             }
 
             if (HResult == ErrorCodes.InvalidValue)
             {
                 message = e.InnerException.Message;
                 FakeLogger.LogMessageCrLf(memberName, "  Throwing InvalidValueException: '" + message + "'");
-                throw new InvalidValueException(message);
+                throw new InvalidValueException(message, e.InnerException);
             }
 
             if (HResult == ErrorCodes.NotConnected)
             {
                 message = e.InnerException.Message;
                 FakeLogger.LogMessageCrLf(memberName, "  Throwing NotConnectedException: '" + message + "'");
-                throw new NotConnectedException(message);
+                throw new NotConnectedException(message, e.InnerException);
             }
 
             if (HResult == ErrorCodes.NotImplemented)
             {
                 message = e.InnerException.Message;
                 FakeLogger.LogMessageCrLf(memberName, "  Throwing NotImplementedException: '" + message + "'");
-                throw new NotImplementedException(message);
+                throw new NotImplementedException(message, e.InnerException);
             }
 
             if (HResult == ErrorCodes.InvalidWhileParked)
             {
                 message = e.InnerException.Message;
                 FakeLogger.LogMessageCrLf(memberName, "  Throwing ParkedException: '" + message + "'");
-                throw new ParkedException(message);
+                throw new ParkedException(message, e.InnerException);
             }
 
             if (HResult == ErrorCodes.InvalidWhileSlaved)
             {
                 message = e.InnerException.Message;
                 FakeLogger.LogMessageCrLf(memberName, "  Throwing SlavedException: '" + message + "'");
-                throw new SlavedException(message);
+                throw new SlavedException(message, e.InnerException);
             }
 
             if (HResult == ErrorCodes.OperationCancelled)
             {
                 message = e.InnerException.Message;
                 FakeLogger.LogMessageCrLf(memberName, "  Throwing OperationCancelledException: '" + message + "'");
-                throw new OperationCanceledException(message);
+                throw new OperationCanceledException(message, e.InnerException);
             }
 
             if (HResult == ErrorCodes.ValueNotSet)
             {
                 message = e.InnerException.Message;
                 FakeLogger.LogMessageCrLf(memberName, "  Throwing ValueNotSetException: '" + message + "'");
-                throw new ValueNotSetException(message);
+                throw new ValueNotSetException(message, e.InnerException);
             }
 
             if (HResult >= ErrorCodes.DriverBase && HResult <= ErrorCodes.DriverMax)
@@ -259,7 +259,7 @@ namespace ASCOM.Com.DriverAccess
                 message = e.InnerException.Message;
 
                 FakeLogger.LogMessageCrLf(memberName, "  Throwing DriverException: '" + message + "'");
-                throw new DriverException(message);
+                throw new DriverException(message, e.InnerException);
             }
 
             if (e.InnerException is COMException)
