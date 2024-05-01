@@ -12,7 +12,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// </summary>
         /// <param name="deviceType">Device type.</param>
         /// <param name="interfaceVersion">Interface version of this device (Int16)</param>
-        /// <returns>True for all device interfaces except IFocuserV1</returns>
+        /// <returns><see langword="true"/> for all device interfaces except IFocuserV1</returns>
         /// <exception cref="InvalidValueException"></exception>
         public static bool HasConnected(DeviceTypes? deviceType, short interfaceVersion)
         {
@@ -24,7 +24,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// </summary>
         /// <param name="deviceType">Device type.</param>
         /// <param name="interfaceVersion">Interface version of this device (Int32)</param>
-        /// <returns>True for all device interfaces except IFocuserV1</returns>
+        /// <returns><see langword="true"/> for all device interfaces except IFocuserV1</returns>
         /// <exception cref="InvalidValueException"></exception>
         public static bool HasConnected(DeviceTypes? deviceType, int interfaceVersion)
         {
@@ -37,7 +37,7 @@ namespace ASCOM.Common.DeviceInterfaces
             {
                 // Focuser only has Connected in IFocuserV2 and later
                 case DeviceTypes.Focuser: // Focuser device
-                    if (interfaceVersion ==1) // IFocuserV1 so return false
+                    if (interfaceVersion == 1) // IFocuserV1 so return false
                         return false;
                     else // IFocuserV2 or later so return true
                         return true;
@@ -49,10 +49,10 @@ namespace ASCOM.Common.DeviceInterfaces
         }
 
         /// <summary>
-        /// Returns <see langword="true"/> if the device has a Platform 7 or later interface that supports asynchronous Switch methods
+        /// Indicates whether this Switch interface version supports asynchronous Switch methods
         /// </summary>
         /// <param name="interfaceVersion">Interface version of this device (Int16)</param>
-        /// <returns>True when the interface version supports AsyncSwitch methods.</returns>
+        /// <returns><see langword="true"/> when the interface version supports AsyncSwitch methods.</returns>
         /// <exception cref="InvalidValueException">The supplied interface version is 0 or less.</exception>
         public static bool HasAsyncSwitch(int interfaceVersion)
         {
@@ -64,10 +64,10 @@ namespace ASCOM.Common.DeviceInterfaces
         }
 
         /// <summary>
-        /// Returns <see langword="true"/> if the device has a Platform 7 or later interface that supports the CoverCalibrator.CalibratorChanging property
+        /// Indicates whether this CoverCalibrator interface version supports the CoverCalibrator.CalibratorChanging property
         /// </summary>
         /// <param name="interfaceVersion">Interface version of this device</param>
-        /// <returns>True when the interface version supports CoverCalibrator.CalibratorChanging.</returns>
+        /// <returns><see langword="true"/> when the interface version supports CoverCalibrator.CalibratorChanging.</returns>
         /// <exception cref="InvalidValueException">The supplied interface version is 0 or less.</exception>
         public static bool HasCalibratorChanging(int interfaceVersion)
         {
@@ -79,10 +79,11 @@ namespace ASCOM.Common.DeviceInterfaces
         }
 
         /// <summary>
-        /// Returns <see langword="true"/> if the device has a Platform 7 or later interface that supports the CoverCalibrator.HasCoverMoving property
+        /// Indicates whether this CoverCalibrator interface version supports the CoverCalibrator.CoverMoving property
+        /// Returns <see langword="true"/> if the device has a Platform 7 or later interface that supports the CoverCalibrator.CoverMoving property
         /// </summary>
         /// <param name="interfaceVersion">Interface version of this device</param>
-        /// <returns>True when the interface version supports CoverCalibrator.HasCoverMoving.</returns>
+        /// <returns><see langword="true"/> when the interface version supports CoverCalibrator.CoverMoving.</returns>
         /// <exception cref="InvalidValueException">The supplied interface version is 0 or less.</exception>
         public static bool HasCoverMoving(int interfaceVersion)
         {
@@ -94,22 +95,22 @@ namespace ASCOM.Common.DeviceInterfaces
         }
 
         /// <summary>
-        /// Returns <see langword="true"/> if the device has a Platform 7 or later interface that supports Connect / Disconnect and DeviceState
+        /// Returns <see langword="true"/> if the interface version of the specified device type supports Connect / Disconnect and DeviceState
         /// </summary>
         /// <param name="deviceType">Device type.</param>
         /// <param name="interfaceVersion">Interface version of this device (Int16)</param>
-        /// <returns>True when the interface version supports Connect / Disconnect</returns>
+        /// <returns><see langword="true"/> when the interface version supports Connect / Disconnect</returns>
         public static bool HasConnectAndDeviceState(DeviceTypes? deviceType, short interfaceVersion)
         {
             return HasConnectAndDeviceState(deviceType, Convert.ToInt32(interfaceVersion));
         }
 
         /// <summary>
-        /// Returns <see langword="true"/> if the device has a Platform 7 or later interface that supports Connect / Disconnect and DeviceState
+        /// Returns <see langword="true"/> if the interface version of the specified device type supports Connect / Disconnect and DeviceState
         /// </summary>
         /// <param name="deviceType">Device type.</param>
         /// <param name="interfaceVersion">Interface version of this device (Int32)</param>
-        /// <returns>True when the interface version supports Connect / Disconnect</returns>
+        /// <returns><see langword="true"/> when the interface version supports Connect / Disconnect</returns>
         public static bool HasConnectAndDeviceState(DeviceTypes? deviceType, int interfaceVersion)
         {
             if (!deviceType.HasValue)
@@ -192,6 +193,28 @@ namespace ASCOM.Common.DeviceInterfaces
 
             // Device has a Platform 6 or earlier interface
             return false;
+        }
+
+        /// <summary>
+        /// Indicates whether the interface version of the specified device type is Platform 7 or later
+        /// </summary>
+        /// <param name="deviceType">Device type.</param>
+        /// <param name="interfaceVersion">Interface version of this device (Int32)</param>
+        /// <returns><see langword="true"/> when the device implements a Platform 7 or later interface</returns>
+        public static bool IsPlatform7OrLater(DeviceTypes? deviceType, int interfaceVersion)
+        {
+            return HasConnectAndDeviceState(deviceType, interfaceVersion);
+        }
+
+        /// <summary>
+        /// Indicates whether the interface version of the specified device type is Platform 7 or later
+        /// </summary>
+        /// <param name="deviceType">Device type.</param>
+        /// <param name="interfaceVersion">Interface version of this device (Int16)</param>
+        /// <returns><see langword="true"/> when the device implements a Platform 7 or later interface</returns>
+        public static bool IsPlatform7OrLater(DeviceTypes? deviceType, short interfaceVersion)
+        {
+            return HasConnectAndDeviceState(deviceType, Convert.ToInt32(interfaceVersion));
         }
     }
 }
