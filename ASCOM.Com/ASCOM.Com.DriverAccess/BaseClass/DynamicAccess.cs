@@ -172,7 +172,7 @@ namespace ASCOM.Com.DriverAccess
             string message;
             // Deal with the possibility that DriverAccess is being used in both driver and client so remove the outer
             // DriverAccessCOMException exception if present
-            if (e.InnerException is DriverAccessCOMException)
+            if (e.InnerException is DriverAccessCOMException && e.InnerException.InnerException != null)
             {
                 message = e.InnerException.InnerException.Message;
                 FakeLogger.LogMessageCrLf(memberName, "  *** Found DriverAccessCOMException so stripping this off and reprocessing through CheckDotNetExceptions: '" + message + "'");
@@ -272,7 +272,7 @@ namespace ASCOM.Com.DriverAccess
             }
 
             // Default behavior if its not one of the exceptions above
-            message = e.InnerException.Message;
+            message = (e.InnerException ?? e).Message;
 
             FakeLogger.LogMessageCrLf(memberName, "  Throwing Default DriverException: '" + message + "'");
             throw new DriverException(message, e.InnerException);
