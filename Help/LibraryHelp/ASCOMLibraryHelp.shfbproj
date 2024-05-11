@@ -20,15 +20,14 @@
     <Language>en-US</Language>
     <DocumentationSources>
       <DocumentationSource sourceFile="..\..\ASCOM.Alpaca\ASCOM.Alpaca.csproj" />
-      <DocumentationSource sourceFile="..\..\ASCOM.Alpaca.Device\ASCOM.Alpaca.Device.csproj" />
-      <DocumentationSource sourceFile="..\..\ASCOM.Com\ASCOM.Com.csproj" />
-      <DocumentationSource sourceFile="..\..\ASCOM.Common\ASCOM.Common.csproj" />
-      <DocumentationSource sourceFile="..\..\ASCOM.Tools\ASCOM.Tools.csproj" />
-      <DocumentationSource sourceFile="..\..\ASCOM.Tools\NamespaceDocs.xml" />
-      <DocumentationSource sourceFile="..\..\ASCOM.AstrometryTools\ASCOM.AstrometryTools.csproj" />
-      <DocumentationSource sourceFile="..\PackageAccessProject\bin\Debug\net8.0\ASCOM.Exceptions.dll" />
-      <DocumentationSource sourceFile="..\PackageAccessProject\bin\Debug\net8.0\ASCOM.Exceptions.xml" />
-    </DocumentationSources>
+<DocumentationSource sourceFile="..\..\ASCOM.Alpaca.Device\ASCOM.Alpaca.Device.csproj" />
+<DocumentationSource sourceFile="..\..\ASCOM.Com\ASCOM.Com.csproj" />
+<DocumentationSource sourceFile="..\..\ASCOM.Common\ASCOM.Common.csproj" />
+<DocumentationSource sourceFile="..\..\ASCOM.Tools\ASCOM.Tools.csproj" />
+<DocumentationSource sourceFile="..\..\ASCOM.Tools\NamespaceDocs.xml" />
+<DocumentationSource sourceFile="..\..\ASCOM.AstrometryTools\ASCOM.AstrometryTools.csproj" />
+<DocumentationSource sourceFile="..\PackageAccessProject\ASCOM.Exceptions.dll" />
+<DocumentationSource sourceFile="..\PackageAccessProject\ASCOM.Exceptions.xml" /></DocumentationSources>
     <HelpFileFormat>HtmlHelp1, Website</HelpFileFormat>
     <SyntaxFilters>C#, Visual Basic</SyntaxFilters>
     <PresentationStyle>VS2013</PresentationStyle>
@@ -116,7 +115,8 @@
   <PropertyGroup>
     <PreBuildEvent>
     </PreBuildEvent>
-    <PostBuildEvent></PostBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
     <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
   </PropertyGroup>
   <ItemGroup>

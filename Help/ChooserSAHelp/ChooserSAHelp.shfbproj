@@ -44,8 +44,8 @@
       <DocumentationSource sourceFile="..\..\ASCOM.Com.ChooserSA\ASCOM.Com.ChooserSA.csproj" xmlns="" />
       <DocumentationSource sourceFile="..\..\ASCOM.Common\bin\Debug\netstandard2.0\ASCOM.Common.xml" />
       <DocumentationSource sourceFile="..\..\ASCOM.Common\bin\Debug\netstandard2.0\ASCOM.Common.dll" />
-      <DocumentationSource sourceFile="..\PackageAccessProject\bin\Debug\net8.0\ASCOM.Exceptions.dll" />
-      <DocumentationSource sourceFile="..\PackageAccessProject\bin\Debug\net8.0\ASCOM.Exceptions.xml" />
+      <DocumentationSource sourceFile="..\PackageAccessProject\ASCOM.Exceptions.dll" />
+      <DocumentationSource sourceFile="..\PackageAccessProject\ASCOM.Exceptions.xml" />
     </DocumentationSources>
     <HelpFileFormat>HtmlHelp1, Website</HelpFileFormat>
     <SyntaxFilters>C#, Visual Basic, Managed C++</SyntaxFilters>
