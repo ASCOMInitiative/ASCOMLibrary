@@ -402,12 +402,12 @@ namespace ASCOM.Tools
                     else // We are running on a non-Windows OS
                     {
                         // Define the fallback log file directory name as the user's home directory
-                        string fallbackDirectoryName = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+                        string fallbackDirectoryName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), AUTO_PATH_BASE_DIRECTORY_LINUX);
 
                         // Get the user specified log file directory name from the ASCOM_LOGPATH path environment variable
                         string directoryName = Environment.GetEnvironmentVariable(Environment.ExpandEnvironmentVariables(ASCOM_LOGPATH));
 
-                       // Use the fallback directory if the environment variable is not set
+                        // Use the fallback directory if the environment variable is not set
                         if (directoryName is null)
                             directoryName = fallbackDirectoryName;
 
