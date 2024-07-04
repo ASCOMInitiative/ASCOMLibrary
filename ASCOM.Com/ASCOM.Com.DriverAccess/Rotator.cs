@@ -279,6 +279,9 @@ namespace ASCOM.Com.DriverAccess
         /// <param name="Position">Relative position to move in degrees from current <see cref="Position" />.</param>
         /// <remarks>
         /// <p style="color:red;margin-bottom:0"><b>Must be implemented.</b></p>
+        /// <para>This is an asynchronous method that returns as soon as the rotation operation has been successfully started, with the
+        /// <see cref="IsMoving"/> property True (unless already at the requested position). After the requested angle is successfully reached and motion stops, 
+        /// the <see cref="IsMoving"/> property must become False.</para>
         /// <para>Calling <see cref="Move">Move</see> causes the <see cref="TargetPosition" /> property to change to the sum of the current angular position
         /// and the value of the <see cref="Position" /> parameter (modulo 360 degrees), then starts rotation to <see cref="TargetPosition" />.</para>
         /// <para><b>NOTE</b></para>
@@ -298,7 +301,9 @@ namespace ASCOM.Com.DriverAccess
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
         /// <p style="color:red;margin-bottom:0"><b>Must be implemented.</b></p>
-        /// <p style="color:red"><b>SPECIFICATION REVISION - IRotatorV3 - Platform 6.5</b></p>
+        /// <para>This is an asynchronous method that returns as soon as the rotation operation has been successfully started, with the
+        /// <see cref="IsMoving"/> property True (unless already at the requested position). After the requested angle is successfully reached and motion stops, 
+        /// the <see cref="IsMoving"/> property must become False.</para>
         /// <para>
         /// Calling <see cref="MoveAbsolute"/> causes the <see cref="TargetPosition" /> property to change to the value of the
         /// <see cref="Position" /> parameter, then starts rotation to <see cref="TargetPosition" />. 
@@ -320,7 +325,9 @@ namespace ASCOM.Com.DriverAccess
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
         /// <p style="color:red"><b>Must be implemented.</b></p>
-        /// <p style="color:red"><b>Introduced in IRotatorV3.</b></p>
+        /// <para>This is an asynchronous method that returns as soon as the rotation operation has been successfully started, with the
+        /// <see cref="IsMoving"/> property True (unless already at the requested position). After the requested angle is successfully reached and motion stops, 
+        /// the <see cref="IsMoving"/> property must become False.</para>
         /// <para>Moves the rotator to the requested mechanical angle, independent of any sync offset that may have been set. This method is to address requirements that need a physical rotation
         /// angle such as taking sky flats.</para>
         /// <para>Client applications should use the <see cref="MoveAbsolute(float)"/> method in preference to this method when imaging.</para>

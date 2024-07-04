@@ -69,6 +69,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks>
         /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
+        /// <para>This is the correct property to use to determine successful completion of the (asynchronous) <see cref="FindHome"/> operation.</para>
         /// This is only available for telescope Interface Versions 2 and later.
         /// </remarks>
         bool AtHome { get; }
@@ -243,8 +244,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks>
         /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
-        /// If this is true, then only the synchronous equatorial slewing methods are guaranteed to be supported.
-        /// See the <see cref="CanSlewAsync" /> property for the asynchronous slewing capability flag. 
+        /// If this is true, the <see cref="CanSlewAsync" /> property must also return true because all drivers must implement asynchronous slewing in this interface version.
         /// May raise an error if the telescope is not connected. 
         /// </remarks>
         bool CanSlew { get; }
@@ -256,8 +256,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks>
         /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
-        /// If this is true, then only the synchronous local horizontal slewing methods are guaranteed to be supported.
-        /// See the <see cref="CanSlewAltAzAsync" /> property for the asynchronous slewing capability flag. 
+        /// If this is true, the <see cref="CanSlewAltAzAsync" /> property must also return true because all drivers must implement asynchronous slewing in this interface version.
         /// May raise an error if the telescope is not connected. 
         /// </remarks>
         bool CanSlewAltAz { get; }
@@ -269,8 +268,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks>
         /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
-        /// This indicates the asynchronous local horizontal slewing methods are supported.
-        /// If this is True, then <see cref="CanSlewAltAz" /> will also be true. 
+        /// If this is true, the <see cref="CanSlewAltAz" /> property must also return true because all drivers must implement synchronous slewing in this interface version to ensure backward compatibility with older clients..
         /// May raise an error if the telescope is not connected. 
         /// </remarks>
         bool CanSlewAltAzAsync { get; }
@@ -282,8 +280,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks>
         /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
-        /// This indicates the asynchronous equatorial slewing methods are supported.
-        /// If this is True, then <see cref="CanSlew" /> will also be true.
+        /// If this is true, the <see cref="CanSlew" /> property must also return true because all drivers must implement synchronous slewing in this interface version to ensure backward compatibility with older clients..
         /// May raise an error if the telescope is not connected. 
         /// </remarks>
         bool CanSlewAsync { get; }
@@ -433,8 +430,8 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks>
-        /// Returns only after the home position has been found.
-        /// At this point the <see cref="AtHome" /> property will be True.
+        /// <para>This is an asynchronous method: Use the <see cref="Slewing"/> property to monitor the operation's progress. 
+        /// When the mount has successfully reached its home position, <see cref="Slewing"/> becomes False and <see cref="AtHome"/> becomes True.</para>
         /// Raises an error if there is a problem. 
         /// Raises an error if AtPark is true. 
         /// <para>This is only available for telescope Interface Versions 2 and later.</para>
@@ -553,6 +550,8 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks>
+        /// <para>This is an asynchronous method: Use the <see cref="Slewing"/> property to monitor the operation's progress. 
+        /// When the mount has successfully reached its home position, <see cref="Slewing"/> becomes False and <see cref="AtPark"/> becomes True.</para>
         /// Raises an error if there is a problem communicating with the telescope or if parking fails. Parking should put the telescope into a state where its pointing accuracy 
         /// will not be lost if it is power-cycled (without moving it).Some telescopes must be power-cycled before unparking. Others may be unparked by simply calling the <see cref="Unpark" /> method.
         /// Calling this with <see cref="AtPark" /> = True does nothing (harmless) 
@@ -571,8 +570,9 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks>
-        /// This method returns immediately if the hardware is capable of back-to-back moves,
-        /// i.e. dual-axis moves. For hardware not having the dual-axis capability,
+        /// This method is asynchronous and should return quickly using IsPulseGuiding as the completion property. 
+        /// If the hardware is not capable of simultaneous asynchronous north-south and east-west moves, the guide movements must be effected sequentially and <see cref="IsPulseGuiding"/> must remain 
+        /// True until both moves have completed.
         /// the method returns only after the move has completed. 
         /// <para>
         /// <b>NOTES:</b>
@@ -654,6 +654,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks>
+        /// <para>This is an asynchronous method and <see cref="Slewing"/> should be set True while the operation is in progress.</para>
         /// <para>For historical reasons, this property's name does not reflect its true meaning. The name will not be changed (so as to preserve 
         /// compatibility), but the meaning has since become clear. All conventional mounts have two pointing states for a given equatorial (sky) position. 
         /// Mechanical limitations often make it impossible for the mount to position the optics at given HA/Dec in one of the two pointing 
@@ -818,8 +819,13 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks>
+        /// <p style="color:red"><b>Deprecated for client applications.</b></p>
+        /// <para>This method must not be used by applications, use the asynchronous <see cref="SlewToAltAzAsync(double, double)"/> method instead.
+        /// If the mount is capable of slewing, drivers must implement this method to ensure backward compatibility with older clients.</para>
+        /// <para>
         /// This Method must be implemented if <see cref="CanSlewAltAz" /> returns True. Raises an error if the slew fails. The slew may fail if the target coordinates are beyond limits imposed within the driver component.
         /// Such limits include mechanical constraints imposed by the mount or attached instruments, building or dome enclosure restrictions, etc.
+        /// </para>
         /// <para>The <see cref="TargetRightAscension" /> and <see cref="TargetDeclination" /> properties are not changed by this method. 
         /// Raises an error if <see cref="AtPark" /> is True, or if <see cref="Tracking" /> is True. This is only available for telescope Interface Versions 2 and later.</para>
         /// </remarks>
@@ -845,6 +851,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// The <see cref="TargetRightAscension" /> and <see cref="TargetDeclination" /> properties are not changed by this method. 
         /// <para>Raises an error if <see cref="AtPark" /> is True, or if <see cref="Tracking" /> is True.</para>
         /// <para>This is only available for telescope Interface Versions 2 and later.</para>
+        /// <para>For drivers, <see cref="SlewToAltAz(double, double)"/> must also be implemented and <see cref="CanSlewAltAz"/> must return True when this method is implemented.</para>
         /// </remarks>
         void SlewToAltAzAsync(double Azimuth, double Altitude);
 
@@ -855,16 +862,23 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <param name="RightAscension">The destination right ascension (hours). Copied to <see cref="TargetRightAscension" />.</param>
         /// <param name="Declination">The destination declination (degrees, positive North). Copied to <see cref="TargetDeclination" />.</param>
         /// <exception cref="NotImplementedException">If the method is not implemented and <see cref="CanSlew" /> is False</exception>
-		/// <exception cref="ParkedException">If the telescope is parked</exception>
+        /// <exception cref="ParkedException">If the telescope is parked</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks>
-        /// This Method must be implemented if <see cref="CanSlew" /> returns True. Raises an error if the slew fails. 
+        /// <p style="color:red"><b>Deprecated for client applications.</b></p>
+        /// <para>This method must not be used by applications, use the asynchronous <see cref="SlewToCoordinates(double, double)"/> method instead.
+        /// If the mount is capable of slewing, drivers must implement this method to ensure backward compatibility with older clients.
+        /// </para>
+        /// <para>
+        /// This Method must be implemented if <see cref="CanSlew" /> returns True. Raises an error if the slew fails.
         /// The slew may fail if the target coordinates are beyond limits imposed within the driver component.
         /// Such limits include mechanical constraints imposed by the mount or attached instruments,
         /// building or dome enclosure restrictions, etc. The target coordinates are copied to
-        /// <see cref="TargetRightAscension" /> and <see cref="TargetDeclination" /> whether or not the slew succeeds. 
-        /// <para>Raises an error if <see cref="AtPark" /> is True, or if <see cref="Tracking" /> is False.</para>
+        /// <see cref="TargetRightAscension" /> and <see cref="TargetDeclination" /> whether or not the slew succeeds.
+        /// </para>
+        /// <para>Raises an error if <see cref="AtPark" /> is True, or if <see cref="Tracking" /> is False.
+        /// </para>
         /// </remarks>
         void SlewToCoordinates(double RightAscension, double Declination);
 
@@ -888,6 +902,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <para>The target coordinates are copied to <see cref="TargetRightAscension" /> and <see cref="TargetDeclination" />
         /// whether or not the slew succeeds. 
         /// Raises an error if <see cref="AtPark" /> is True, or if <see cref="Tracking" /> is False.</para>
+        /// <para>For drivers, <see cref="SlewToCoordinates(double, double)"/> must also be implemented and <see cref="CanSlew"/> must return True when this method is implemented.</para>
         /// </remarks>
         void SlewToCoordinatesAsync(double RightAscension, double Declination);
 
@@ -899,11 +914,14 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks>
-        /// This Method must be implemented if <see cref="CanSlew" /> returns True. Raises an error if the slew fails. 
+        /// <p style="color:red"><b>Deprecated for client applications.</b></p>
+        /// <para>This method must not be used by applications, use the asynchronous <see cref="SlewToTargetAsync"/> method instead.
+        /// If the mount is capable of slewing, drivers must implement this method to ensure backward compatibility with older clients.</para>
+        /// <para>This Method must be implemented if <see cref="CanSlew" /> returns True. Raises an error if the slew fails.
         /// The slew may fail if the target coordinates are beyond limits imposed within the driver component.
         /// Such limits include mechanical constraints imposed by the mount or attached
-        /// instruments, building or dome enclosure restrictions, etc. 
-        /// Raises an error if <see cref="AtPark" /> is True, or if <see cref="Tracking" /> is False. 
+        /// instruments, building or dome enclosure restrictions, etc.</para>
+        /// <para>Raises an error if <see cref="AtPark" /> is True, or if <see cref="Tracking" /> is False.</para>
         /// </remarks>
         void SlewToTarget();
 
@@ -921,6 +939,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// and Slewing properties during the slew. When the slew completes,  <see cref="Slewing" /> becomes False. The slew may fail to start if the target coordinates are beyond limits imposed within 
         /// the driver component. Such limits include mechanical constraints imposed by the mount or attached instruments, building or dome enclosure restrictions, etc. 
         /// Raises an error if <see cref="AtPark" /> is True, or if <see cref="Tracking" /> is False. 
+        /// <para>For drivers, <see cref="SlewToTarget()"/> must also be implemented and <see cref="CanSlew"/> must return True when this method is implemented.</para>
         /// </remarks>
         void SlewToTargetAsync();
 
@@ -1056,8 +1075,14 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks>
-        /// The state of <see cref="Tracking" /> after unparking is undetermined. Valid only after <see cref="Park" />. Applications must check and change Tracking as needed after unparking. 
-        /// Raises an error if unparking fails. Calling this with <see cref="AtPark" /> = False does nothing (harmless) 
+        /// <para>
+        /// This is an asynchronous method and <see cref="Slewing"/> must be set True while the mount is parking and False when the operation is complete. 
+        /// <see cref="AtPark"/> will be set True when the mount has parked successfully.
+        /// </para>
+        /// <para>
+        /// The state of <see cref="Tracking" /> after unparking is undetermined. Valid only after <see cref="Park" />. Applications must check and change Tracking as needed after unparking.
+        /// Raises an error if unparking fails. Calling this with <see cref="AtPark" /> = False does nothing (harmless)
+        /// </para>
         /// </remarks>
         void Unpark();
 

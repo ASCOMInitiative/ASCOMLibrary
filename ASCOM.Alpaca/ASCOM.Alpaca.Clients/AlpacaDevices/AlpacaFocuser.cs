@@ -341,7 +341,8 @@ namespace ASCOM.Alpaca.Clients
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
-        /// <p style="color:red"><b>Can throw a not implemented exception</b></p>Some focusers may not support this function, in which case an exception will be raised. 
+        /// <p style="color:red"><b>Can throw a not implemented exception</b></p>Some focusers may not support this function, in which case an exception will be raised.
+        /// <para>This method must be short-lived; it is defined as synchronous in this specification.</para>
         /// <para><b>Recommendation:</b> Host software should call this method upon initialization and,
         /// if it fails, disable the Halt button in the user interface.</para>
         /// </remarks>
