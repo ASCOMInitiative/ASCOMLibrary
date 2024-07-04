@@ -52,40 +52,49 @@ namespace ASCOM.Com.DriverAccess
         public bool Connected { get => Device.Connected; set => Device.Connected = value; }
 
         /// <summary>
-        /// Returns a description of the driver, such as manufacturer and model
-        /// number. Any ASCII characters may be used. The string shall not exceed 68
-        /// characters (for compatibility with FITS headers).
+        /// Returns a description of the driver, such as manufacturer and model number.
         /// </summary>
         /// <value>The description.</value>
-        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+        /// <exception cref="NotConnectedException">When <see cref="Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
+        /// <remarks>
+        /// Any ASCII characters may be used. The string must not exceed 68 characters (for compatibility with FITS headers).
+        /// </remarks>
         public string Description => Device.Description;
 
         /// <summary>
         /// Descriptive and version information about this ASCOM driver.
+        /// </summary>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
+        /// <remarks>
         /// This string may contain line endings and may be hundreds to thousands of characters long.
         /// It is intended to display detailed information on the ASCOM driver, including version and copyright data.
         /// See the Description property for descriptive info on the telescope itself.
         /// To get the driver version in a parseable string, use the DriverVersion property.
-        /// </summary>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
+        /// </remarks>
         public string DriverInfo => Device.DriverInfo;
 
         /// <summary>
-        /// A string containing only the major and minor version of the driver.
-        /// This must be in the form "n.n".
-        /// Not to be confused with the InterfaceVersion property, which is the version of this specification supported by the driver (currently 2). 
+        /// A string in the form "n.n" containing only the major and minor version of the driver.
         /// </summary>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
+        /// <remarks>
+        /// Not to be confused with the InterfaceVersion property, which is the version of this specification supported by the driver (currently 2). 
+        /// </remarks>
         public string DriverVersion => Device.DriverVersion;
 
         /// <summary>
-        /// The version of this interface. Will return 2 for this version.
-        /// Clients can detect legacy V1 drivers by trying to read ths property.
-        /// If the driver raises an error, it is a V1 driver. V1 did not specify this property. A driver may also return a value of 1. 
-        /// In other words, a raised error or a return value of 1 indicates that the driver is a V1 driver. 
+        /// The interface version number that this device implements.
         /// </summary>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
+        /// <remarks>
+        /// <para>E.g. a device that implements IDeviceV3 should return 3.</para>
+        /// <para>
+        /// Clients can detect legacy V1 drivers by trying to read this property.
+        /// If the driver raises an error, it is a V1 driver. V1 did not specify this property. A driver may also return a value of 1. 
+        /// In other words, a raised error or a return value of 1 indicates that the driver is a V1 driver. 
+        /// </para>
+        /// </remarks>
         public short InterfaceVersion
         {
             get
@@ -412,7 +421,7 @@ namespace ASCOM.Com.DriverAccess
         }
 
         /// <summary>
-        /// Returns a List of device IStateValue state objects
+        /// Returns a List of device operational state values as IStateValue objects.
         /// </summary>
         public List<StateValue> DeviceState
         {

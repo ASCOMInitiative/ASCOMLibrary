@@ -1266,14 +1266,12 @@ namespace ASCOM.Com.DriverAccess
         /// <param name="Duration">The duration of the guide-rate motion (milliseconds)</param>
         /// <exception cref="NotImplementedException">If the method is not implemented and <see cref="CanPulseGuide" /> is False</exception>
         /// <exception cref="InvalidValueException">If an invalid direction or duration is given.</exception>
-        /// <exception cref="InvalidOperationException">If the pulse guide cannot be effected e.g. if the telescope is slewing or is not tracking.</exception>
+        /// <exception cref="InvalidOperationException">If the pulse guide cannot be effected e.g. if the telescope is slewing or is not tracking or a pulse guide is already in progress and a second cannot be started asynchronously.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
         /// This method is asynchronous and should return quickly using IsPulseGuiding as the completion property. 
-        /// If the hardware is not capable of simultaneous asynchronous north-south and east-west moves, the guide movements must be effected sequentially and <see cref="IsPulseGuiding"/> must remain 
-        /// True until both moves have completed.
-        /// the method returns only after the move has completed. 
+        /// If the mount cannot have simultaneous PulseGuide operations in both RightAscension and Declination, it must throw InvalidOperationException when the overlapping operation is attempted.
         /// <para>
         /// <b>NOTES:</b>
         /// <list type="bullet">

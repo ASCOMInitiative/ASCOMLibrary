@@ -89,11 +89,8 @@ namespace ASCOM.Alpaca.Clients
         /// <summary>
         /// Invokes the specified device-specific action.
         /// </summary>
-        /// <param name="actionName">
-        /// A well known name agreed by interested parties that represents the action to be carried out. 
-        /// </param>
-        /// <param name="actionParameters">List of required parameters or an <see cref="String.Empty">Empty String</see> if none are required.
-        /// </param>
+        /// <param name="actionName">A well known name agreed by interested parties that represents the action to be carried out.</param>
+        /// <param name="actionParameters">List of required parameters or an <see cref="String.Empty">Empty String</see> if none are required.</param>
         /// <returns>A string response. The meaning of returned strings is set by the driver author.</returns>
         /// <exception cref="NotImplementedException">Throws this exception if an action name is not supported.
         /// of driver capabilities, but the driver must still throw an ASCOM.ActionNotImplemented exception if it is asked to 
@@ -239,13 +236,14 @@ namespace ASCOM.Alpaca.Clients
         }
 
         /// <summary>
-        /// Returns a description of the driver, such as manufacturer and model
-        /// number. Any ASCII characters may be used. The string shall not exceed 68
-        /// characters (for compatibility with FITS headers).
+        /// Returns a description of the driver, such as manufacturer and model number.
         /// </summary>
         /// <value>The description.</value>
         /// <exception cref="NotConnectedException">When <see cref="Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
+        /// <remarks>
+        /// Any ASCII characters may be used. The string must not exceed 68 characters (for compatibility with FITS headers).
+        /// </remarks>
         public string Description
         {
             get
@@ -258,12 +256,14 @@ namespace ASCOM.Alpaca.Clients
 
         /// <summary>
         /// Descriptive and version information about this ASCOM driver.
+        /// </summary>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
+        /// <remarks>
         /// This string may contain line endings and may be hundreds to thousands of characters long.
         /// It is intended to display detailed information on the ASCOM driver, including version and copyright data.
         /// See the Description property for descriptive info on the telescope itself.
         /// To get the driver version in a parseable string, use the DriverVersion property.
-        /// </summary>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
+        /// </remarks>
         public string DriverInfo
         {
             get
@@ -273,11 +273,12 @@ namespace ASCOM.Alpaca.Clients
         }
 
         /// <summary>
-        /// A string containing only the major and minor version of the driver.
-        /// This must be in the form "n.n".
-        /// Not to be confused with the InterfaceVersion property, which is the version of this specification supported by the driver (currently 2). 
+        /// A string in the form "n.n" containing only the major and minor version of the driver.
         /// </summary>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
+        /// <remarks>
+        /// Not to be confused with the InterfaceVersion property, which is the version of this specification supported by the driver (currently 2). 
+        /// </remarks>
         public string DriverVersion
         {
             get
@@ -287,12 +288,17 @@ namespace ASCOM.Alpaca.Clients
         }
 
         /// <summary>
-        /// The version of this interface. Will return 2 for this version.
+        /// The interface version number that this device implements.
+        /// </summary>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <remarks>
+        /// <para>E.g. a device that implements IDeviceV3 should return 3.</para>
+        /// <para>
         /// Clients can detect legacy V1 drivers by trying to read this property.
         /// If the driver raises an error, it is a V1 driver. V1 did not specify this property. A driver may also return a value of 1. 
         /// In other words, a raised error or a return value of 1 indicates that the driver is a V1 driver. 
-        /// </summary>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
+        /// </para>
+        /// </remarks>
         public short InterfaceVersion
         {
             get
@@ -400,7 +406,7 @@ namespace ASCOM.Alpaca.Clients
         }
 
         /// <summary>
-        /// Returns a List of device IStateValue state objects
+        /// Returns a List of device operational state values as IStateValue objects.
         /// </summary>
         public List<StateValue> DeviceState
         {
