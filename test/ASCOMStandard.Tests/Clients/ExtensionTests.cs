@@ -1,7 +1,5 @@
 ﻿using ASCOM.Common.DeviceInterfaces;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using Xunit;
 using ASCOM.Common;
 using System.Threading.Tasks;
@@ -10,23 +8,89 @@ using ASCOM.Com.DriverAccess;
 using ASCOM.Common.Interfaces;
 using System.Threading;
 using System.Diagnostics;
-using ASCOM.Alpaca.Clients;
-using System.Dynamic;
+using Xunit.Abstractions;
 
 namespace ASCOM.Alpaca.Tests.Clients
 {
+    [Collection("CameraTests")]
+    //public class MiscellaneousTests(ITestOutputHelper output)
+    public class MiscellaneousTests()
+    {
+        // private readonly ITestOutputHelper output = output;
 
+        [Fact]
+        public static async Task BadCameraStartExposureTest()
+        {
+            TraceLogger TL = new("BadCameraStartExposure", true, 64, LogLevel.Debug);
+
+            // Create a task completion source and token so that the task can be cancelled
+            CancellationTokenSource cancellationTokenSource = new();
+            CancellationToken cancellationToken = cancellationTokenSource.Token;
+
+            // Create a COM client
+            TL.LogMessage("Main", $"About to create device");
+            Camera client = new("ASCOM.Simulator.Camera");
+            TL.LogMessage("Main", $"Device created");
+            Assert.NotNull(client);
+
+            // Set connected to true
+            client.Connected = true;
+            TL.LogMessage("Main", $"Connected set true");
+
+            await Assert.ThrowsAsync<InvalidValueException>(async () =>
+            {
+                await client.StartExposureAsync(-10.0, true, CancellationToken.None, 100, TL);
+            });
+
+            // Disconnect from the client and dispose
+            client.Connected = false;
+            client.Dispose();
+            TL.LogMessage("Main", $"Finished");
+        }
+
+        [Fact]
+        public static async Task DefaultValuesTest()
+        {
+            TraceLogger TL = new("DefaultValues", true, 64, LogLevel.Debug);
+
+            // Create a COM client
+            TL.LogMessage("Main", $"About to create device");
+            Camera client = new("ASCOM.Simulator.Camera");
+            TL.LogMessage("Main", $"Device created");
+            Assert.NotNull(client);
+
+            // Set connected to true
+            client.Connected = true;
+            TL.LogMessage("Main", $"Connected set true");
+
+            TL.LogMessage("Main", $"Before exposure: ImageReady:{client.ImageReady}");
+            Assert.False(client.ImageReady);
+
+            await client.StartExposureAsync(2.0, true);
+            Thread.Sleep(100);
+
+            TL.LogMessage("Main", $"After exposure: ImageReady:{client.ImageReady}");
+            Assert.True(client.ImageReady);
+
+            // Disconnect from the client and dispose
+            client.Connected = false;
+            client.Dispose();
+            TL.LogMessage("Main", $"Finished");
+        }
+    }
+
+    [Collection("CameraTests")]
     public static class CameraTests
     {
         [Fact]
         public static async Task CameraStartExposureTest()
         {
             // Create a TraceLogger to record activity
-            TraceLogger TL = new TraceLogger("CameraStartExposure", true, 64, LogLevel.Debug);
+            TraceLogger TL = new("CameraStartExposure", true, 64, LogLevel.Debug);
 
             // Create a COM client
             TL.LogMessage("Main", $"About to create device");
-            Camera client = new Camera("ASCOM.Simulator.Camera");
+            Camera client = new("ASCOM.Simulator.Camera");
             TL.LogMessage("Main", $"Device created");
             Assert.NotNull(client);
 
@@ -49,13 +113,13 @@ namespace ASCOM.Alpaca.Tests.Clients
         [Fact]
         public static async Task CameraStopExposureTest()
         {
-            Stopwatch sw = new Stopwatch();
+            Stopwatch sw = new();
             // Create a TraceLogger to record activity
-            TraceLogger TL = new TraceLogger("CameraStopExposure", true, 64, LogLevel.Debug);
+            TraceLogger TL = new("CameraStopExposure", true, 64, LogLevel.Debug);
 
             // Create a COM client
             TL.LogMessage("Main", $"About to create device");
-            Camera client = new Camera("ASCOM.Simulator.Camera");
+            Camera client = new("ASCOM.Simulator.Camera");
             TL.LogMessage("Main", $"Device created");
             Assert.NotNull(client);
 
@@ -64,10 +128,10 @@ namespace ASCOM.Alpaca.Tests.Clients
             TL.LogMessage("Main", $"Connected set true");
 
             // Start a task that will stop the exposure after 1 second
-            Task stopExposureTask = new Task(() =>
+            Task stopExposureTask = new(async () =>
             {
                 TL.LogMessage("StopExposureTask", $"Starting thread sleep");
-                Thread.Sleep(1000);
+                await Task.Delay(1000);
                 TL.LogMessage("StopExposureTask", $"Sleep completed, stopping exposure.");
                 client.StopExposure();
                 TL.LogMessage("StopExposureTask", $"Exposure stopped.");
@@ -90,17 +154,18 @@ namespace ASCOM.Alpaca.Tests.Clients
         }
     }
 
+    [Collection("CoverCalibratorTests")]
     public static class CoverCalibratorCalibratorTests
     {
         [Fact]
         public static async Task CoverCalibratorCalibratorOnTest()
         {
             // Create a TraceLogger to record activity
-            TraceLogger TL = new TraceLogger("CoverCalibratorCalibratorOn", true, 64, LogLevel.Debug);
+            TraceLogger TL = new("CoverCalibratorCalibratorOn", true, 64, LogLevel.Debug);
 
             // Create a COM client
             TL.LogMessage("Main", $"About to create device");
-            CoverCalibrator client = new CoverCalibrator("ASCOM.Simulator.CoverCalibrator");
+            CoverCalibrator client = new("ASCOM.Simulator.CoverCalibrator");
             TL.LogMessage("Main", $"Device created");
             Assert.NotNull(client);
 
@@ -124,11 +189,11 @@ namespace ASCOM.Alpaca.Tests.Clients
         public static async Task CoverCalibratorCalibratorOffTest()
         {
             // Create a TraceLogger to record activity
-            TraceLogger TL = new TraceLogger("CoverCalibratorCalibratorOff", true, 64, LogLevel.Debug);
+            TraceLogger TL = new("CoverCalibratorCalibratorOff", true, 64, LogLevel.Debug);
 
             // Create a COM client
             TL.LogMessage("Main", $"About to create device");
-            CoverCalibrator client = new CoverCalibrator("ASCOM.Simulator.CoverCalibrator");
+            CoverCalibrator client = new("ASCOM.Simulator.CoverCalibrator");
             TL.LogMessage("Main", $"Device created");
             Assert.NotNull(client);
 
@@ -155,45 +220,46 @@ namespace ASCOM.Alpaca.Tests.Clients
         }
     }
 
+    [Collection("CoverCalibratorTests")]
     public static class CoverCalibratorCoverTests
     {
         [Fact]
         public static async Task CoverCalibratorOpenCoverTest()
         {
             // Create a TraceLogger to record activity
-            TraceLogger TL = new TraceLogger("CoverCalibratorOpenCover", true, 64, LogLevel.Debug);
+            TraceLogger TL = new("CoverCalibratorOpenCover", true, 64, LogLevel.Debug);
 
             // Create a COM client
             TL.LogMessage("Main", $"About to create device");
-            CoverCalibrator client = new CoverCalibrator("ASCOM.Simulator.CoverCalibrator");
-            TL.LogMessage("Main", $"{Thread.CurrentThread.ManagedThreadId:00} Device created");
+            CoverCalibrator client = new("ASCOM.Simulator.CoverCalibrator");
+            TL.LogMessage("Main", $"{Environment.CurrentManagedThreadId:00} Device created");
             Assert.NotNull(client);
 
             // Set connected to true
             client.Connected = true;
-            TL.LogMessage("Main", $"{Thread.CurrentThread.ManagedThreadId:00} Connected set true");
+            TL.LogMessage("Main", $"{Environment.CurrentManagedThreadId:00} Connected set true");
 
             // Test the client
-            TL.LogMessage("Main", $"{Thread.CurrentThread.ManagedThreadId:00} About to await method");
+            TL.LogMessage("Main", $"{Environment.CurrentManagedThreadId:00} About to await method");
             await client.OpenCoverAsync(pollInterval: 100, logger: TL);
-            TL.LogMessage("Main", $"{Thread.CurrentThread.ManagedThreadId:00} Await complete");
+            TL.LogMessage("Main", $"{Environment.CurrentManagedThreadId:00} Await complete");
             Assert.Equal(CoverStatus.Open, client.CoverState);
 
             // Disconnect from the client and dispose
             client.Connected = false;
             client.Dispose();
-            TL.LogMessage("Main", $"{Thread.CurrentThread.ManagedThreadId:00} Finished");
+            TL.LogMessage("Main", $"{Environment.CurrentManagedThreadId:00} Finished");
         }
 
         [Fact]
         public static async Task CoverCalibratorHaltCoverTest()
         {
             // Create a TraceLogger to record activity
-            TraceLogger TL = new TraceLogger("CoverCalibratorHaltCover", true, 64, LogLevel.Debug);
+            TraceLogger TL = new("CoverCalibratorHaltCover", true, 64, LogLevel.Debug);
 
             // Create a COM client
             TL.LogMessage("Main", $"About to create device");
-            CoverCalibrator client = new CoverCalibrator("ASCOM.Simulator.CoverCalibrator");
+            CoverCalibrator client = new("ASCOM.Simulator.CoverCalibrator");
             TL.LogMessage("Main", $"Device created");
             Assert.NotNull(client);
 
@@ -202,12 +268,12 @@ namespace ASCOM.Alpaca.Tests.Clients
             TL.LogMessage("Main", $"Connected set true");
 
             // Start a task that will halt the open after 1 second
-            Task stopOpenTask = new Task(() =>
+            Task stopOpenTask = new(async () =>
             {
                 TL.LogMessage("StopOpenTask", $"Starting thread sleep");
-                Thread.Sleep(1000);
+                await Task.Delay(1000);
                 TL.LogMessage("StopOpenTask", $"Sleep completed, stopping open.");
-                client.HaltCover();
+                await client.HaltCoverAsync(pollInterval: 100, logger: TL);
                 TL.LogMessage("StopOpenTask", $"Open halted.");
             });
             stopOpenTask.Start();
@@ -228,11 +294,11 @@ namespace ASCOM.Alpaca.Tests.Clients
         public static async Task CoverCalibratorCloseCoverTest()
         {
             // Create a TraceLogger to record activity
-            TraceLogger TL = new TraceLogger("CoverCalibratorCloseCover", true, 64, LogLevel.Debug);
+            TraceLogger TL = new("CoverCalibratorCloseCover", true, 64, LogLevel.Debug);
 
             // Create a COM client
             TL.LogMessage("Main", $"About to create device");
-            CoverCalibrator client = new CoverCalibrator("ASCOM.Simulator.CoverCalibrator");
+            CoverCalibrator client = new("ASCOM.Simulator.CoverCalibrator");
             TL.LogMessage("Main", $"Device created");
             Assert.NotNull(client);
 
@@ -259,6 +325,7 @@ namespace ASCOM.Alpaca.Tests.Clients
         }
     }
 
+    [Collection("DomeTests")]
     public static class DomeTests
     {
         [Fact]
@@ -268,11 +335,11 @@ namespace ASCOM.Alpaca.Tests.Clients
             const double SLEW_AZIMUTH = 296.4;
 
             // Create a TraceLogger to record activity
-            TraceLogger TL = new TraceLogger("DomeSlewToAzimuth", true, 64, LogLevel.Debug);
+            TraceLogger TL = new("DomeSlewToAzimuth", true, 64, LogLevel.Debug);
 
             // Create a COM client
             TL.LogMessage("Main", $"About to create device");
-            Dome client = new Dome("ASCOM.Simulator.Dome");
+            Dome client = new("ASCOM.Simulator.Dome");
             TL.LogMessage("Main", $"Device created");
             Assert.NotNull(client);
 
@@ -301,11 +368,11 @@ namespace ASCOM.Alpaca.Tests.Clients
             const double SLEW_ALTITUDE = 76.4;
 
             // Create a TraceLogger to record activity
-            TraceLogger TL = new TraceLogger("DomeSlewToAzimuth", true, 64, LogLevel.Debug);
+            TraceLogger TL = new("DomeSlewToAzimuth", true, 64, LogLevel.Debug);
 
             // Create a COM client
             TL.LogMessage("Main", $"About to create device");
-            Dome client = new Dome("ASCOM.Simulator.Dome");
+            Dome client = new("ASCOM.Simulator.Dome");
             TL.LogMessage("Main", $"Device created");
             Assert.NotNull(client);
 
@@ -335,11 +402,11 @@ namespace ASCOM.Alpaca.Tests.Clients
         public static async Task DomeOpenShutterTest()
         {
             // Create a TraceLogger to record activity
-            TraceLogger TL = new TraceLogger("DomeOpenShutter", true, 64, LogLevel.Debug);
+            TraceLogger TL = new("DomeOpenShutter", true, 64, LogLevel.Debug);
 
             // Create a COM client
             TL.LogMessage("Main", $"About to create device");
-            Dome client = new Dome("ASCOM.Simulator.Dome");
+            Dome client = new("ASCOM.Simulator.Dome");
             TL.LogMessage("Main", $"Device created");
             Assert.NotNull(client);
 
@@ -363,11 +430,11 @@ namespace ASCOM.Alpaca.Tests.Clients
         public static async Task DomeCloseShutterTest()
         {
             // Create a TraceLogger to record activity
-            TraceLogger TL = new TraceLogger("DomeCloseShutter", true, 64, LogLevel.Debug);
+            TraceLogger TL = new("DomeCloseShutter", true, 64, LogLevel.Debug);
 
             // Create a COM client
             TL.LogMessage("Main", $"About to create device");
-            Dome client = new Dome("ASCOM.Simulator.Dome");
+            Dome client = new("ASCOM.Simulator.Dome");
             TL.LogMessage("Main", $"Device created");
             Assert.NotNull(client);
 
@@ -397,11 +464,11 @@ namespace ASCOM.Alpaca.Tests.Clients
         public static async Task DomeAbortShutterOpenTest()
         {
             // Create a TraceLogger to record activity
-            TraceLogger TL = new TraceLogger("DomeAbortShutterOpen", true, 64, LogLevel.Debug);
+            TraceLogger TL = new("DomeAbortShutterOpen", true, 64, LogLevel.Debug);
 
             // Create a COM client
             TL.LogMessage("Main", $"About to create device");
-            Dome client = new Dome("ASCOM.Simulator.Dome");
+            Dome client = new("ASCOM.Simulator.Dome");
             TL.LogMessage("Main", $"Device created");
             Assert.NotNull(client);
 
@@ -410,7 +477,7 @@ namespace ASCOM.Alpaca.Tests.Clients
             TL.LogMessage("Main", $"Connected set true");
 
             // Start a task that will abort the open after 1 second
-            Task abortOpenTask = new Task(async () =>
+            Task abortOpenTask = new(async () =>
             {
                 TL.LogMessage("AbortOpenTask", $"Starting thread sleep");
                 await Task.Delay(1000);
@@ -439,11 +506,11 @@ namespace ASCOM.Alpaca.Tests.Clients
             const double SLEW_AZIMUTH = 297.6;
 
             // Create a TraceLogger to record activity
-            TraceLogger TL = new TraceLogger("DomePark", true, 64, LogLevel.Debug);
+            TraceLogger TL = new("DomePark", true, 64, LogLevel.Debug);
 
             // Create a COM client
             TL.LogMessage("Main", $"About to create device");
-            Dome client = new Dome("ASCOM.Simulator.Dome");
+            Dome client = new("ASCOM.Simulator.Dome");
             TL.LogMessage("Main", $"Device created");
             Assert.NotNull(client);
 
@@ -477,11 +544,11 @@ namespace ASCOM.Alpaca.Tests.Clients
             const double SLEW_AZIMUTH = 248.5;
 
             // Create a TraceLogger to record activity
-            TraceLogger TL = new TraceLogger("DomeFindHome", true, 64, LogLevel.Debug);
+            TraceLogger TL = new("DomeFindHome", true, 64, LogLevel.Debug);
 
             // Create a COM client
             TL.LogMessage("Main", $"About to create device");
-            Dome client = new Dome("ASCOM.Simulator.Dome");
+            Dome client = new("ASCOM.Simulator.Dome");
             TL.LogMessage("Main", $"Device created");
             Assert.NotNull(client);
 
@@ -509,17 +576,18 @@ namespace ASCOM.Alpaca.Tests.Clients
         }
     }
 
+    [Collection("FilterWheelTests")]
     public static class FilterWheelTests
     {
         [Fact]
         public static async Task FilterWheelPositionTest()
         {
             // Create a TraceLogger to record activity
-            TraceLogger TL = new TraceLogger("FilterWheelPosition", true, 64, LogLevel.Debug);
+            TraceLogger TL = new("FilterWheelPosition", true, 64, LogLevel.Debug);
 
             // Create a COM client
             TL.LogMessage("Main", $"About to create device");
-            FilterWheel client = new FilterWheel("ASCOM.Simulator.FilterWheel");
+            FilterWheel client = new("ASCOM.Simulator.FilterWheel");
             TL.LogMessage("Main", $"Device created");
             Assert.NotNull(client);
 
@@ -551,6 +619,7 @@ namespace ASCOM.Alpaca.Tests.Clients
         }
     }
 
+    [Collection("FocuserTests")]
     public static class FocuserTests
     {
         [Fact]
@@ -562,11 +631,11 @@ namespace ASCOM.Alpaca.Tests.Clients
             int testPosition;
 
             // Create a TraceLogger to record activity
-            TraceLogger TL = new TraceLogger("FocuserMove", true, 64, LogLevel.Debug);
+            TraceLogger TL = new("FocuserMove", true, 64, LogLevel.Debug);
 
             // Create a COM client
             TL.LogMessage("Main", $"About to create device");
-            Focuser client = new Focuser("ASCOM.Simulator.Focuser");
+            Focuser client = new("ASCOM.Simulator.Focuser");
             //AlpacaFocuser client = new AlpacaFocuser();
             TL.LogMessage("Main", $"Device created");
             Assert.NotNull(client);
@@ -603,7 +672,7 @@ namespace ASCOM.Alpaca.Tests.Clients
         public static async Task FocuserAbortMoveTest()
         {
             // Create a TraceLogger to record activity
-            TraceLogger TL = new TraceLogger("FocuserAbortMove", true, 64, LogLevel.Debug);
+            TraceLogger TL = new("FocuserAbortMove", true, 64, LogLevel.Debug);
 
             try
             {
@@ -615,7 +684,7 @@ namespace ASCOM.Alpaca.Tests.Clients
 
                 // Create a COM client
                 TL.LogMessage("Main", $"About to create device");
-                Focuser client = new Focuser("ASCOM.Simulator.Focuser");
+                Focuser client = new("ASCOM.Simulator.Focuser");
 
                 //AlpacaFocuser client = new AlpacaFocuser();
                 TL.LogMessage("Main", $"Device created");
@@ -626,7 +695,7 @@ namespace ASCOM.Alpaca.Tests.Clients
                 TL.LogMessage("Main", $"Connected set true, Position: {client.Position}");
 
                 // Start a task that will halt the move after 1 second
-                Task haltMoveTask = new Task(async () =>
+                Task haltMoveTask = new(async () =>
                 {
                     TL.LogMessage("HaltMoveTask", $"Starting thread sleep");
                     await Task.Delay(1000);
@@ -667,6 +736,7 @@ namespace ASCOM.Alpaca.Tests.Clients
         }
     }
 
+    [Collection("RotatorTests")]
     public static class RotatorTests
     {
         [Fact]
@@ -675,11 +745,11 @@ namespace ASCOM.Alpaca.Tests.Clients
             const double RELATIVE_MOVE = 45.0;
 
             // Create a TraceLogger to record activity
-            TraceLogger TL = new TraceLogger("RotatorMove", true, 64, LogLevel.Debug);
+            TraceLogger TL = new("RotatorMove", true, 64, LogLevel.Debug);
 
             // Create a COM client
             TL.LogMessage("Main", $"About to create device");
-            Rotator client = new Rotator("ASCOM.Simulator.Rotator");
+            Rotator client = new("ASCOM.Simulator.Rotator");
             TL.LogMessage("Main", $"Device created");
             Assert.NotNull(client);
 
@@ -711,11 +781,11 @@ namespace ASCOM.Alpaca.Tests.Clients
             const double RELATIVE_MOVE = 27.0;
 
             // Create a TraceLogger to record activity
-            TraceLogger TL = new TraceLogger("RotatorMoveAbsolute", true, 64, LogLevel.Debug);
+            TraceLogger TL = new("RotatorMoveAbsolute", true, 64, LogLevel.Debug);
 
             // Create a COM client
             TL.LogMessage("Main", $"About to create device");
-            Rotator client = new Rotator("ASCOM.Simulator.Rotator");
+            Rotator client = new("ASCOM.Simulator.Rotator");
             TL.LogMessage("Main", $"Device created");
             Assert.NotNull(client);
 
@@ -747,11 +817,11 @@ namespace ASCOM.Alpaca.Tests.Clients
             const double RELATIVE_MOVE = 59.0;
 
             // Create a TraceLogger to record activity
-            TraceLogger TL = new TraceLogger("RotatorMoveMechanical", true, 64, LogLevel.Debug);
+            TraceLogger TL = new("RotatorMoveMechanical", true, 64, LogLevel.Debug);
 
             // Create a COM client
             TL.LogMessage("Main", $"About to create device");
-            Rotator client = new Rotator("ASCOM.Simulator.Rotator");
+            Rotator client = new("ASCOM.Simulator.Rotator");
             TL.LogMessage("Main", $"Device created");
             Assert.NotNull(client);
 
@@ -783,11 +853,11 @@ namespace ASCOM.Alpaca.Tests.Clients
             const double RELATIVE_MOVE = 170.0;
 
             // Create a TraceLogger to record activity
-            TraceLogger TL = new TraceLogger("RotatorHalt", true, 64, LogLevel.Debug);
+            TraceLogger TL = new("RotatorHalt", true, 64, LogLevel.Debug);
 
             // Create a COM client
             TL.LogMessage("Main", $"About to create device");
-            Rotator client = new Rotator("ASCOM.Simulator.Rotator");
+            Rotator client = new("ASCOM.Simulator.Rotator");
             TL.LogMessage("Main", $"Device created");
             Assert.NotNull(client);
 
@@ -802,7 +872,7 @@ namespace ASCOM.Alpaca.Tests.Clients
             Assert.NotEqual(expectedPosition, startPosition);
 
             // Start a task that will halt the move after 500ms
-            Task haltMoveTask = new Task(async () =>
+            Task haltMoveTask = new(async () =>
             {
                 TL.LogMessage("HaltMoveTask", $"Starting thread sleep");
                 await Task.Delay(250);
@@ -825,17 +895,18 @@ namespace ASCOM.Alpaca.Tests.Clients
         }
     }
 
+    [Collection("TelescopeTests")]
     public static class TelescopeTests
     {
         [Fact]
         public static async Task TelescopeSlewToAltAzTest()
         {
             // Create a TraceLogger to record activity
-            TraceLogger TL = new TraceLogger("TelescopeSlewToAltAz", true, 64, LogLevel.Debug);
+            TraceLogger TL = new("TelescopeSlewToAltAz", true, 64, LogLevel.Debug);
 
             // Create a COM client
             TL.LogMessage("Main", $"About to create device");
-            Telescope client = new Telescope("ASCOM.Simulator.Telescope");
+            Telescope client = new("ASCOM.Simulator.Telescope");
             TL.LogMessage("Main", $"Device created");
             Assert.NotNull(client);
 
@@ -863,7 +934,7 @@ namespace ASCOM.Alpaca.Tests.Clients
             Assert.False(client.AtHome);
             Assert.False(client.AtPark);
             Assert.Equal(40.0, Math.Round(client.Azimuth, 1));
-            Assert.Equal(50.0, Math.Round(client.Altitude, 1));
+            Assert.InRange<double>(client.Altitude, 49.8, 50.2);
 
             // Disconnect from the client and dispose
             client.Connected = false;
@@ -875,11 +946,11 @@ namespace ASCOM.Alpaca.Tests.Clients
         public static async Task TelescopeSlewToCoordinatesTest()
         {
             // Create a TraceLogger to record activity
-            TraceLogger TL = new TraceLogger("TelescopeSlewToCoordinates", true, 64, LogLevel.Debug);
+            TraceLogger TL = new("TelescopeSlewToCoordinates", true, 64, LogLevel.Debug);
 
             // Create a COM client
             TL.LogMessage("Main", $"About to create device");
-            Telescope client = new Telescope("ASCOM.Simulator.Telescope");
+            Telescope client = new("ASCOM.Simulator.Telescope");
             TL.LogMessage("Main", $"Device created");
             Assert.NotNull(client);
 
@@ -895,7 +966,7 @@ namespace ASCOM.Alpaca.Tests.Clients
             client.Tracking = true;
             TL.LogMessage("Main", $"Tracking set true");
 
-            double targetRa = client.SiderealTime - 2.456;
+            double targetRa = (client.SiderealTime - 2.456 + 24.0) % 24.0;
 
             // Slew somewhere that is not likely to be the test position
             TL.LogMessage("Main", $"Slewing to somewhere that is not likely to be the test position");
@@ -921,11 +992,11 @@ namespace ASCOM.Alpaca.Tests.Clients
         public static async Task TelescopeSlewToTargetTest()
         {
             // Create a TraceLogger to record activity
-            TraceLogger TL = new TraceLogger("TelescopeSlewToTarget", true, 64, LogLevel.Debug);
+            TraceLogger TL = new("TelescopeSlewToTarget", true, 64, LogLevel.Debug);
 
             // Create a COM client
             TL.LogMessage("Main", $"About to create device");
-            Telescope client = new Telescope("ASCOM.Simulator.Telescope");
+            Telescope client = new("ASCOM.Simulator.Telescope");
             TL.LogMessage("Main", $"Device created");
             Assert.NotNull(client);
 
@@ -970,11 +1041,11 @@ namespace ASCOM.Alpaca.Tests.Clients
         public static async Task TelescopeFindHomeTest()
         {
             // Create a TraceLogger to record activity
-            TraceLogger TL = new TraceLogger("TelescopeFindHome", true, 64, LogLevel.Debug);
+            TraceLogger TL = new("TelescopeFindHome", true, 64, LogLevel.Debug);
 
             // Create a COM client
             TL.LogMessage("Main", $"About to create device");
-            Telescope client = new Telescope("ASCOM.Simulator.Telescope");
+            Telescope client = new("ASCOM.Simulator.Telescope");
             TL.LogMessage("Main", $"Device created");
             Assert.NotNull(client);
 
@@ -1013,11 +1084,11 @@ namespace ASCOM.Alpaca.Tests.Clients
         public static async Task TelescopeParkTest()
         {
             // Create a TraceLogger to record activity
-            TraceLogger TL = new TraceLogger("TelescopePark", true, 64, LogLevel.Debug);
+            TraceLogger TL = new("TelescopePark", true, 64, LogLevel.Debug);
 
             // Create a COM client
             TL.LogMessage("Main", $"About to create device");
-            Telescope client = new Telescope("ASCOM.Simulator.Telescope");
+            Telescope client = new("ASCOM.Simulator.Telescope");
             TL.LogMessage("Main", $"Device created");
             Assert.NotNull(client);
 
@@ -1056,11 +1127,11 @@ namespace ASCOM.Alpaca.Tests.Clients
         public static async Task TelescopeUnParkTest()
         {
             // Create a TraceLogger to record activity
-            TraceLogger TL = new TraceLogger("TelescopeUnPark", true, 64, LogLevel.Debug);
+            TraceLogger TL = new("TelescopeUnPark", true, 64, LogLevel.Debug);
 
             // Create a COM client
             TL.LogMessage("Main", $"About to create device");
-            Telescope client = new Telescope("ASCOM.Simulator.Telescope");
+            Telescope client = new("ASCOM.Simulator.Telescope");
             TL.LogMessage("Main", $"Device created");
             Assert.NotNull(client);
 
@@ -1105,11 +1176,11 @@ namespace ASCOM.Alpaca.Tests.Clients
         public static async Task TelescopeAbortSlewTest()
         {
             // Create a TraceLogger to record activity
-            TraceLogger TL = new TraceLogger("TelescopeAbortSlew", true, 64, LogLevel.Debug);
+            TraceLogger TL = new("TelescopeAbortSlew", true, 64, LogLevel.Debug);
 
             // Create a COM client
             TL.LogMessage("Main", $"About to create device");
-            Telescope client = new Telescope("ASCOM.Simulator.Telescope");
+            Telescope client = new("ASCOM.Simulator.Telescope");
             TL.LogMessage("Main", $"Device created");
             Assert.NotNull(client);
 
@@ -1125,15 +1196,11 @@ namespace ASCOM.Alpaca.Tests.Clients
             client.Tracking = true;
             TL.LogMessage("Main", $"Tracking set true");
 
-            double targetRa = (client.SiderealTime - 3.771 + 24.0) % 24.0;
-
-            // Slew somewhere that is the test position
-            TL.LogMessage("Main", $"Slewing to somewhere that is not likely to be the test position");
-            await client.SlewToCoordinatesTaskAsync(targetRa - 3.0, 5.0, pollInterval: 100, logger: TL);
-            TL.LogMessage("Main", $"Slew await complete, Is parked: {client.AtPark}, Is at home: {client.AtHome}, RA: {client.RightAscension}, Declination: {client.Declination}");
+            // Create a target that is 3 hours away from the current RA
+            double targetRa = (client.RightAscension - 3.0 + 24.0) % 24.0;
 
             // Start a task that will halt the slew after 1 second
-            Task abortSlewTask = new Task(async () =>
+            Task abortSlewTask = new(async () =>
             {
                 TL.LogMessage("AbortSlewTask", $"Starting thread sleep");
                 await Task.Delay(1000);
@@ -1143,14 +1210,15 @@ namespace ASCOM.Alpaca.Tests.Clients
             });
             abortSlewTask.Start();
 
-            // Slew to the target 
-            TL.LogMessage("Main", $"Slewing to the target ALt/Az (0.0, 0.0)");
-            await client.SlewToCoordinatesTaskAsync(targetRa, 0.0, pollInterval: 100, logger: TL);
+            // Start the slew that is to be aborted
+            TL.LogMessage("Main", $"Slewing to somewhere that is 3 hours away form the current RA");
+            await client.SlewToCoordinatesTaskAsync(targetRa, 5.0, pollInterval: 100, logger: TL);
             TL.LogMessage("Main", $"Slew await complete, Is parked: {client.AtPark}, Is at home: {client.AtHome}, RA: {client.RightAscension}, Declination: {client.Declination}");
+
             Assert.False(client.AtHome);
             Assert.False(client.AtPark);
-            Assert.NotEqual(Math.Round(targetRa, 3), Math.Round(client.RightAscension, 3));
-            Assert.NotEqual(0.0, Math.Round(client.Declination, 3));
+            Assert.NotEqual<double>(targetRa, client.RightAscension);
+            Assert.NotEqual<double>(0.0, client.Declination);
 
             // Disconnect from the client and dispose
             client.Connected = false;
@@ -1159,21 +1227,22 @@ namespace ASCOM.Alpaca.Tests.Clients
         }
     }
 
+    [Collection("CoverCalibratorTests")]
     public static class CancelTests
     {
         [Fact]
         public static async Task CancelTaskTest()
         {
             // Create a TraceLogger to record activity
-            TraceLogger TL = new TraceLogger("CancelTask", true, 64, LogLevel.Debug);
+            TraceLogger TL = new("CancelTask", true, 64, LogLevel.Debug);
 
             // Create a task completion source and token so that the task can be cancelled
-            CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+            CancellationTokenSource cancellationTokenSource = new();
             CancellationToken cancellationToken = cancellationTokenSource.Token;
 
             // Create a COM client
             TL.LogMessage("Main", $"About to create device");
-            CoverCalibrator client = new CoverCalibrator("ASCOM.Simulator.CoverCalibrator");
+            CoverCalibrator client = new("ASCOM.Simulator.CoverCalibrator");
             TL.LogMessage("Main", $"Device created");
             Assert.NotNull(client);
 
@@ -1185,7 +1254,7 @@ namespace ASCOM.Alpaca.Tests.Clients
             await client.CloseCoverAsync(pollInterval: 1000, logger: TL);
 
             // Start a task that will cancel the cover open after 1 second
-            Task cancelOpenTask = new Task(async () =>
+            Task cancelOpenTask = new(async () =>
             {
                 TL.LogMessage("CancelOpenTask", $"Starting thread sleep");
                 await Task.Delay(3500);
@@ -1216,11 +1285,11 @@ namespace ASCOM.Alpaca.Tests.Clients
         public static async Task CancelTaskTimeoutTest()
         {
             // Create a TraceLogger to record activity
-            TraceLogger TL = new TraceLogger("CancelTaskTimeout", true, 64, LogLevel.Debug);
+            TraceLogger TL = new("CancelTaskTimeout", true, 64, LogLevel.Debug);
 
             // Create a COM client
             TL.LogMessage("Main", $"About to create device");
-            CoverCalibrator client = new CoverCalibrator("ASCOM.Simulator.CoverCalibrator");
+            CoverCalibrator client = new("ASCOM.Simulator.CoverCalibrator");
             TL.LogMessage("Main", $"Device created");
             Assert.NotNull(client);
 
@@ -1235,7 +1304,7 @@ namespace ASCOM.Alpaca.Tests.Clients
             await Assert.ThrowsAsync<OperationCanceledException>(async () =>
             {
                 // Create a task completion source and token so that the task can be cancelled
-                CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+                CancellationTokenSource cancellationTokenSource = new();
                 cancellationTokenSource.CancelAfter(1500);
                 CancellationToken cancellationToken = cancellationTokenSource.Token;
 
@@ -1256,15 +1325,15 @@ namespace ASCOM.Alpaca.Tests.Clients
         [Fact]
         public static async Task CancelTaskWhileWaitingTest()
         {
-            TraceLogger TL = new TraceLogger("CancelTaskWhileWaiting", true, 64, LogLevel.Debug);
+            TraceLogger TL = new("CancelTaskWhileWaiting", true, 64, LogLevel.Debug);
 
             // Create a task completion source and token so that the task can be cancelled
-            CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+            CancellationTokenSource cancellationTokenSource = new();
             CancellationToken cancellationToken = cancellationTokenSource.Token;
 
             // Create a COM client
             TL.LogMessage("Main", $"About to create device");
-            CoverCalibrator client = new CoverCalibrator("ASCOM.Simulator.CoverCalibrator");
+            CoverCalibrator client = new("ASCOM.Simulator.CoverCalibrator");
             TL.LogMessage("Main", $"Device created");
             Assert.NotNull(client);
 
@@ -1273,35 +1342,41 @@ namespace ASCOM.Alpaca.Tests.Clients
             TL.LogMessage("Main", $"Connected set true");
 
             // Ensure that the cover is in the closed state
+            TL.LogMessage("Main", $"Closing cover...");
             await client.CloseCoverAsync(pollInterval: 1000, logger: TL);
+            TL.LogMessage("Main", $"Cover closed.");
 
             // Start a task that will cancel the cover open after 1.5 seconds
-            Task cancelOpenTask = new Task(async () =>
+            TL.LogMessage("Main", $"Opening cover");
+            Task cancelOpenTask = new(async () =>
             {
-                TL.LogMessage("CancelOpenTask", $"Starting thread sleep");
-                await Task.Delay(3500);
-                TL.LogMessage("CancelOpenTask", $"Sleep completed, cancelling open.");
+                TL.LogMessage("CancelOpenTask", $"Starting 1 second sleep");
+                await Task.Delay(3000);
+                TL.LogMessage("CancelOpenTask", $"Sleep completed, cancelling cover open task.");
                 cancellationTokenSource.Cancel();
-                TL.LogMessage("CancelOpenTask", $"Open cancelled.");
+                TL.LogMessage("CancelOpenTask", $"Open task cancelled.");
             });
             cancelOpenTask.Start();
 
             // Test the cancel
-            TL.LogMessage("Main", $"About to create task");
+            TL.LogMessage("Main", $"About to create open cover task");
             Task openCoverTask = client.OpenCoverAsync(cancellationToken, 1000, TL);
-            TL.LogMessage("Main", $"About to start task");
+            TL.LogMessage("Main", $"Task started.");
 
             for (int i = 0; i < 5; i++)
             {
-                Thread.Sleep(100);
+                await Task.Delay(100);
                 TL.LogMessage("Main", $"Doing some work: {i}");
             }
 
-            TL.LogMessage("Main", $"Waiting for task to finish...");
-            Task.WaitAny(openCoverTask);
+            await Assert.ThrowsAsync<OperationCanceledException>(async () =>
+            {
+                TL.LogMessage("Main", $"Waiting for task to finish...");
+                await openCoverTask;
+            });
+
             TL.LogMessage("Main", $"Open cover task status: {openCoverTask.Status}, Exception: {openCoverTask.Exception}");
             Assert.Equal(TaskStatus.Canceled, openCoverTask.Status);
-
 
             TL.LogMessage("Main", $"Await complete, Cover state: {client.CoverState}");
             Assert.NotEqual(CoverStatus.Open, client.CoverState);
@@ -1313,65 +1388,4 @@ namespace ASCOM.Alpaca.Tests.Clients
         }
     }
 
-    public static class MiscellaneousTests
-    {
-        [Fact]
-        public static async Task BadCameraStartExposureTest()
-        {
-            TraceLogger TL = new TraceLogger("BadCameraStartExposure", true, 64, LogLevel.Debug);
-
-            // Create a task completion source and token so that the task can be cancelled
-            CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-            CancellationToken cancellationToken = cancellationTokenSource.Token;
-
-            // Create a COM client
-            TL.LogMessage("Main", $"About to create device");
-            Camera client = new Camera("ASCOM.Simulator.Camera");
-            TL.LogMessage("Main", $"Device created");
-            Assert.NotNull(client);
-
-            // Set connected to true
-            client.Connected = true;
-            TL.LogMessage("Main", $"Connected set true");
-
-            await Assert.ThrowsAsync<InvalidValueException>(async () =>
-            {
-                await client.StartExposureAsync(-10.0, true, CancellationToken.None, 100, TL);
-            });
-
-            // Disconnect from the client and dispose
-            client.Connected = false;
-            client.Dispose();
-            TL.LogMessage("Main", $"Finished");
-        }
-        [Fact]
-        public static async Task DefaultValuesTest()
-        {
-            TraceLogger TL = new TraceLogger("DefaultValues", true, 64, LogLevel.Debug);
-
-            // Create a COM client
-            TL.LogMessage("Main", $"About to create device");
-            Camera client = new Camera("ASCOM.Simulator.Camera");
-            TL.LogMessage("Main", $"Device created");
-            Assert.NotNull(client);
-
-            // Set connected to true
-            client.Connected = true;
-            TL.LogMessage("Main", $"Connected set true");
-
-            Assert.False(client.ImageReady);
-
-            TL.LogMessage("Main", $"Before exposure: ImageReady:{client.ImageReady}");
-
-            await client.StartExposureAsync(1.0, true);
-            Assert.True(client.ImageReady);
-
-            TL.LogMessage("Main", $"After exposure: ImageReady:{client.ImageReady}");
-
-            // Disconnect from the client and dispose
-            client.Connected = false;
-            client.Dispose();
-            TL.LogMessage("Main", $"Finished");
-        }
-    }
 }

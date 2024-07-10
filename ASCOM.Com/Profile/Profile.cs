@@ -1,13 +1,7 @@
-﻿using ASCOM.Com.DriverAccess;
-using Microsoft.Win32;
+﻿using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text.RegularExpressions;
-using System.Threading;
 using ASCOM.Common;
-using System.Xml.Linq;
 
 namespace ASCOM.Com
 {
@@ -16,6 +10,8 @@ namespace ASCOM.Com
     /// </summary>
     public class Profile : IDisposable
     {
+        static bool? platformIsInstalled = null;
+
         #region Profile information
 
         /// <summary>
@@ -73,6 +69,9 @@ namespace ASCOM.Com
         /// <exception cref="InvalidValueException">If the device is not a valid ASCOM device type.</exception>
         public static void Register(DeviceTypes deviceType, string progId, string description)
         {
+            //Check that the Platform is installed
+            CheckPlatformIsInstalled();
+
             // Validate parameters
             if (!Devices.IsValidDeviceType(deviceType)) throw new InvalidValueException($"Profile.Register - Device type {deviceType} is not a valid device type.");
             if (string.IsNullOrWhiteSpace(progId)) throw new InvalidValueException("Profile.Register - Supplied ProgId is null or empty.");
@@ -96,6 +95,9 @@ namespace ASCOM.Com
         /// <remarks>This method will succeed (no exception will be thrown) regardless of whether or not the device is registered.</remarks>
         public static void UnRegister(DeviceTypes deviceType, string progId)
         {
+            //Check that the Platform is installed
+            CheckPlatformIsInstalled();
+
             // Validate parameters
             if (!Devices.IsValidDeviceType(deviceType)) throw new InvalidValueException($"UnRegister.Register - Device type {deviceType} is not a valid device type.");
             if (string.IsNullOrWhiteSpace(progId)) throw new InvalidValueException("Profile.UnRegister - Supplied ProgId is null or empty.");
@@ -117,6 +119,9 @@ namespace ASCOM.Com
         /// <exception cref="InvalidValueException">If the device type is not a valid ASCOM device type.</exception>
         public static bool IsRegistered(DeviceTypes deviceType, string progId)
         {
+            //Check that the Platform is installed
+            CheckPlatformIsInstalled();
+
             // Validate parameters
             if (!Devices.IsValidDeviceType(deviceType)) throw new InvalidValueException($"Profile.IsRegistered - Device type {deviceType} is not a valid device type.");
             if (string.IsNullOrWhiteSpace(progId)) throw new InvalidValueException("Profile.IsRegistered - Supplied ProgId is null or empty.");
@@ -187,6 +192,9 @@ namespace ASCOM.Com
         public static string GetValue(DeviceTypes deviceType, string progId, string valueName, string defaultValue, string subKey)
         {
             object returnValue = null;
+
+            //Check that the Platform is installed
+            CheckPlatformIsInstalled();
 
             // Validate parameters
             if (!Devices.IsValidDeviceType(deviceType)) throw new InvalidValueException($"Profile.GetValue - Device type {deviceType} is not a valid device type.");
@@ -278,6 +286,9 @@ namespace ASCOM.Com
         {
             Dictionary<string, string> returnValue = new Dictionary<string, string>();
 
+            //Check that the Platform is installed
+            CheckPlatformIsInstalled();
+
             // Validate parameters
             if (string.IsNullOrWhiteSpace(progId)) throw new InvalidValueException("Profile.GetValues - Supplied ProgId is null or empty.");
             if (!Devices.IsValidDeviceType(deviceType)) throw new InvalidValueException($"Profile.GetValues - Device type {deviceType} is not a valid device type.");
@@ -352,6 +363,9 @@ namespace ASCOM.Com
         {
             List<string> returnValue = new List<string>();
 
+            //Check that the Platform is installed
+            CheckPlatformIsInstalled();
+
             // Validate parameters
             if (!Devices.IsValidDeviceType(deviceType)) throw new InvalidValueException($"Profile.GetSubKeys - Device type {deviceType} is not a valid device type.");
             if (string.IsNullOrWhiteSpace(progId)) throw new InvalidValueException("Profile.GetSubKeys - Supplied ProgId is null or empty.");
@@ -424,6 +438,9 @@ namespace ASCOM.Com
         /// <exception cref="InvalidValueException">If the sub-key only contains white space.</exception>
         public static void SetValue(DeviceTypes deviceType, string progId, string valueName, string value, string subkey)
         {
+            //Check that the Platform is installed
+            CheckPlatformIsInstalled();
+
             // Validate parameters
             if (!Devices.IsValidDeviceType(deviceType)) throw new InvalidValueException($"Profile.SetValue - Device type {deviceType} is not a valid device type.");
             if (string.IsNullOrWhiteSpace(progId)) throw new InvalidValueException("Profile.SetValue - Supplied ProgId is null or empty.");
@@ -496,6 +513,9 @@ namespace ASCOM.Com
         /// <exception cref="InvalidValueException">If the sub-key only contains white space.</exception>
         public static void DeleteValue(DeviceTypes deviceType, string progId, string valueName, string subKey)
         {
+            //Check that the Platform is installed
+            CheckPlatformIsInstalled();
+
             // Validate parameters
             if (!Devices.IsValidDeviceType(deviceType)) throw new InvalidValueException($"Profile.DeleteValue - Device type {deviceType} is not a valid device type.");
             if (string.IsNullOrWhiteSpace(progId)) throw new InvalidValueException("Profile.DeleteValue - Supplied ProgId is null or empty.");
@@ -553,6 +573,9 @@ namespace ASCOM.Com
         /// <exception cref="InvalidOperationException">If the Device's Profile root key cannot be opened for writing.</exception>
         public static void CreateSubKey(DeviceTypes deviceType, string progId, string subKey)
         {
+            //Check that the Platform is installed
+            CheckPlatformIsInstalled();
+
             // Validate parameters
             if (!Devices.IsValidDeviceType(deviceType)) throw new InvalidValueException($"Profile.CreateSubKey - Device type {deviceType} is not a valid device type.");
             if (string.IsNullOrWhiteSpace(progId)) throw new InvalidValueException("Profile.CreateSubKey - Supplied ProgId is null or empty.");
@@ -594,6 +617,9 @@ namespace ASCOM.Com
         /// <exception cref="InvalidOperationException">If the Device's Profile root key cannot be opened for writing.</exception>
         public static void DeleteSubKey(DeviceTypes deviceType, string progId, string subKey)
         {
+            //Check that the Platform is installed
+            CheckPlatformIsInstalled();
+
             // Validate parameters
             if (!Devices.IsValidDeviceType(deviceType)) throw new InvalidValueException($"Profile.DeleteSubKey - Device type {deviceType} is not a valid device type.");
             if (string.IsNullOrWhiteSpace(progId)) throw new InvalidValueException("Profile.DeleteSubKey - Supplied ProgId is null or empty.");
@@ -627,6 +653,18 @@ namespace ASCOM.Com
 
         #region Private support code
 
+        // Check whether the Platform is installed and cache the result for efficiency
+        private static void CheckPlatformIsInstalled()
+        {
+            // Test whether we have already checked whether the Platform is installed
+            if (!platformIsInstalled.HasValue)
+                // We have not yet checked so run the check now
+                platformIsInstalled = PlatformUtilities.IsPlatformInstalled();
+
+            // If the Platform is not installed throw an exception
+            if (!platformIsInstalled.Value)
+                throw new InvalidOperationException("The ASCOM Platform is not installed on this device; the ASCOM Library Profile functions require the ASCOM Platform to be installed.");
+        }
 
         #endregion
 

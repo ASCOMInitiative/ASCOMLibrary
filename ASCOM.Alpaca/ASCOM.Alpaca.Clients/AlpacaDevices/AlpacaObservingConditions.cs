@@ -1,9 +1,9 @@
 ﻿using ASCOM.Common;
 using ASCOM.Common.Alpaca;
 using ASCOM.Common.DeviceInterfaces;
+using ASCOM.Common.DeviceStateClasses;
 using ASCOM.Common.Interfaces;
 using System;
-using System.Collections.Generic;
 using System.Reflection;
 
 namespace ASCOM.Alpaca.Clients
@@ -11,7 +11,7 @@ namespace ASCOM.Alpaca.Clients
     /// <summary>
     /// ASCOM Alpaca ObservingConditions client
     /// </summary>
-    public class AlpacaObservingConditions : AlpacaDeviceBaseClass, IObservingConditions
+    public class AlpacaObservingConditions : AlpacaDeviceBaseClass, IObservingConditionsV2
     {
         #region Variables and Constants
 
@@ -144,7 +144,41 @@ namespace ASCOM.Alpaca.Clients
 
         #endregion
 
-        #region IObservingConditions Implementation
+        #region Convenience members
+
+        /// <summary>
+        /// ObservingConditions device state
+        /// </summary>
+        public ObservingConditionsState ObservingConditionsState
+        {
+            get
+            {
+                // Create a state object to return.
+                ObservingConditionsState observingConditionsState = new ObservingConditionsState(DeviceState, logger);
+                logger.LogMessage(LogLevel.Debug, nameof(ObservingConditionsState), $"Returning: " +
+                    $"Cloud cover: '{observingConditionsState.CloudCover}', " +
+                    $"Dew point: '{observingConditionsState.DewPoint}', " +
+                    $"Humidity: '{observingConditionsState.Humidity}', " +
+                    $"Pressure: '{observingConditionsState.Pressure}', " +
+                    $"Rain rate: '{observingConditionsState.RainRate}', " +
+                    $"Sky brightness: '{observingConditionsState.SkyBrightness}', " +
+                    $"Sky quality: '{observingConditionsState.SkyQuality}', " +
+                    $"Sky temperature'{observingConditionsState.SkyTemperature}', " +
+                    $"Star FWHM: '{observingConditionsState.StarFWHM}', " +
+                    $"Temperature: '{observingConditionsState.Temperature}', " +
+                    $"Wind direction: '{observingConditionsState.WindDirection}', " +
+                    $"Wind gust: '{observingConditionsState.WindGust}', " +
+                    $"Wind speed: '{observingConditionsState.WindSpeed}', " +
+                    $"Time stamp: '{observingConditionsState.TimeStamp}'");
+
+                // Return the device specific state class
+                return observingConditionsState;
+            }
+        }
+
+        #endregion
+
+        #region IObservingConditionsV1 Implementation
 
         /// <summary>
         /// Provides the time since the sensor value was last updated
@@ -194,8 +228,10 @@ namespace ASCOM.Alpaca.Clients
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
-        /// <p style="color:red"><b>Optional method, can throw a NotImplementedException</b></p>
-        /// </remarks>
+        /// <p style="color:red"><b>Optional method, can throw a MethodNotImplementedException</b></p>
+        /// <para>This must be a short-lived synchronous call that triggers a refresh. It must not wait for long running processes to complete. 
+		/// It is the client's responsibility to poll , <see cref="TimeSinceLastUpdate(string)"/> to determine whether / when the data has been refreshed.</para>
+		/// </remarks>
         public void Refresh()
         {
             DynamicClientDriver.CallMethodWithNoParameters(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "Refresh", MemberTypes.Method);
@@ -659,6 +695,12 @@ namespace ASCOM.Alpaca.Clients
                 return DynamicClientDriver.GetValue<double>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "WindSpeed", MemberTypes.Property);
             }
         }
+
+        #endregion
+
+        #region IObservingConditionsV2 implementation
+
+        // No new members
 
         #endregion
 

@@ -1,26 +1,51 @@
 ﻿using ASCOM.Common.DeviceInterfaces;
 using System.Collections.Generic;
 using ASCOM.Common;
+using ASCOM.Common.Interfaces;
 
 namespace ASCOM.Com.DriverAccess
 {
     /// <summary>
     /// Switch device class
     /// </summary>
-    public class Switch : ASCOMDevice, ISwitchV2
+    public class Switch : ASCOMDevice, ISwitchV3
     {
+
+        #region Convenience members
+
         /// <summary>
         /// Return a list of all Switches registered in the ASCOM Profile
         /// </summary>
         public static List<ASCOMRegistration> Switches => Profile.GetDrivers(DeviceTypes.Switch);
 
+        // There is no SwitchState member because the number of switches is a dynamic, user configured value as is switch naming, which makes it impossible to model in a class with fixed properties.
+
+        #endregion
+
+        #region Initialisers
         /// <summary>
         /// Initialise Switch device
         /// </summary>
         /// <param name="ProgID">COM ProgID of the device.</param>
         public Switch(string ProgID) : base(ProgID)
         {
+            deviceType = DeviceTypes.Switch;
         }
+
+        /// <summary>
+        /// Initialise Switch device with a debug logger
+        /// </summary>
+        /// <param name="ProgID">ProgID of the driver</param>
+        /// <param name="logger">Logger instance to receive debug information.</param>
+        public Switch(string ProgID, ILogger logger) : base(ProgID)
+        {
+            deviceType = DeviceTypes.Switch;
+            TL = logger;
+        }
+
+        #endregion
+
+        #region ISwitchV2
 
         /// <summary>
         /// The number of switch devices managed by this driver
@@ -30,7 +55,7 @@ namespace ASCOM.Com.DriverAccess
         /// <returns>The number of devices managed by this driver.</returns>
         /// <remarks><p style="color:red"><b>Must be implemented, must not throw a <see cref="NotImplementedException"/></b></p> 
         /// <p>Devices are numbered from 0 to <see cref="MaxSwitch"/> - 1</p></remarks>
-        public short MaxSwitch => base.Device.MaxSwitch;
+        public short MaxSwitch => Device.MaxSwitch;
 
         /// <summary>
         /// Return the name of switch device n.
@@ -44,7 +69,7 @@ namespace ASCOM.Com.DriverAccess
         /// <para>Devices are numbered from 0 to <see cref="MaxSwitch"/> - 1</para></remarks>
         public string GetSwitchName(short id)
         {
-            return base.Device.GetSwitchName(id);
+            return Device.GetSwitchName(id);
         }
 
         /// <summary>
@@ -61,7 +86,7 @@ namespace ASCOM.Com.DriverAccess
         /// </remarks>
         public void SetSwitchName(short id, string name)
         {
-            base.Device.SetSwitchName(id, name);
+            Device.SetSwitchName(id, name);
         }
 
         /// <summary>
@@ -81,7 +106,7 @@ namespace ASCOM.Com.DriverAccess
         /// </remarks>
         public string GetSwitchDescription(short id)
         {
-            return base.Device.GetSwitchDescription(id);
+            return Device.GetSwitchDescription(id);
         }
 
         /// <summary>
@@ -101,7 +126,7 @@ namespace ASCOM.Com.DriverAccess
         /// </remarks>
         public bool CanWrite(short id)
         {
-            return base.Device.CanWrite(id);
+            return Device.CanWrite(id);
         }
 
         /// <summary>
@@ -126,7 +151,7 @@ namespace ASCOM.Com.DriverAccess
         /// <para>Devices are numbered from 0 to <see cref="MaxSwitch"/> - 1</para></remarks>
         public bool GetSwitch(short id)
         {
-            return base.Device.GetSwitch(id);
+            return Device.GetSwitch(id);
         }
 
         /// <summary>
@@ -143,7 +168,7 @@ namespace ASCOM.Com.DriverAccess
         /// <para>Devices are numbered from 0 to <see cref="MaxSwitch"/> - 1</para></remarks>
         public void SetSwitch(short id, bool state)
         {
-            base.Device.SetSwitch(id, state);
+            Device.SetSwitch(id, state);
         }
 
         /// <summary>
@@ -163,7 +188,7 @@ namespace ASCOM.Com.DriverAccess
         {
             try
             {
-                return base.Device.MaxSwitchValue(id);
+                return Device.MaxSwitchValue(id);
             }
             catch (ASCOM.NotImplementedException)
             {
@@ -188,7 +213,7 @@ namespace ASCOM.Com.DriverAccess
         {
             try
             {
-                return base.Device.MinSwitchValue(id);
+                return Device.MinSwitchValue(id);
             }
             catch (ASCOM.NotImplementedException)
             {
@@ -218,7 +243,7 @@ namespace ASCOM.Com.DriverAccess
         {
             try
             {
-                return base.Device.SwitchStep(id);
+                return Device.SwitchStep(id);
             }
             catch (ASCOM.NotImplementedException)
             {
@@ -251,7 +276,7 @@ namespace ASCOM.Com.DriverAccess
         {
             try
             {
-                return base.Device.GetSwitchValue(id);
+                return Device.GetSwitchValue(id);
             }
             catch (ASCOM.NotImplementedException)
             {
@@ -280,7 +305,7 @@ namespace ASCOM.Com.DriverAccess
         {
             try
             {
-                base.Device.SetSwitchValue(id, value);
+                Device.SetSwitchValue(id, value);
             }
             catch (ASCOM.NotImplementedException)
             {
@@ -288,5 +313,85 @@ namespace ASCOM.Com.DriverAccess
                 this.SetSwitch(id, bv);
             }
         }
+
+        #endregion
+
+        #region ISwitchV3
+
+        /// <inheritdoc />
+        public void SetAsync(short id, bool state)
+        {
+            // Check whether this device supports asynchronous methods
+            if (DeviceCapabilities.HasConnectAndDeviceState(deviceType, InterfaceVersion))
+            {
+                // Platform 7 or later device so use the device's method
+                Device.SetAsync(id, state);
+                return;
+            }
+
+            // Platform 6 or earlier device
+            throw new NotImplementedException($"DriverAccess.Switch - SetAsync is not supported by this device because it exposes interface ISwitchV{InterfaceVersion}.");
+        }
+
+        /// <inheritdoc />
+        public void SetAsyncValue(short id, double value)
+        {
+            // Check whether this device supports asynchronous methods
+            if (DeviceCapabilities.HasConnectAndDeviceState(deviceType, InterfaceVersion))
+            {
+                // Platform 7 or later device so use the device's method
+                Device.SetAsyncValue(id, value);
+                return;
+            }
+
+            // Platform 6 or earlier device
+            throw new NotImplementedException($"DriverAccess.Switch - SetAsyncValue is not supported by this device because it exposes interface ISwitchV{InterfaceVersion}.");
+        }
+
+        /// <inheritdoc />
+        public bool CanAsync(short id)
+        {
+            // Check whether this device supports asynchronous methods
+            if (DeviceCapabilities.HasConnectAndDeviceState(deviceType, InterfaceVersion))
+            {
+                // Platform 7 or later device so use the device's method
+                return Device.CanAsync(id);
+            }
+
+            // Platform 6 or earlier device - async is not supported so return false to show no async support.
+            return false;
+        }
+
+        /// <inheritdoc />
+        public bool StateChangeComplete(short id)
+        {
+            // Check whether this device supports asynchronous methods
+            if (DeviceCapabilities.HasConnectAndDeviceState(deviceType, InterfaceVersion))
+            {
+                // Platform 7 or later device so use the device's method
+                return Device.StateChangeComplete(id);
+            }
+
+            // Platform 6 or earlier device
+            throw new NotImplementedException($"DriverAccess.Switch - StateChangeComplete is not supported by this device because it exposes interface ISwitchV{InterfaceVersion}.");
+        }
+
+        /// <inheritdoc />
+        public void CancelAsync(short id)
+        {
+            // Check whether this device supports asynchronous methods
+            if (DeviceCapabilities.HasConnectAndDeviceState(deviceType, InterfaceVersion))
+            {
+                // Platform 7 or later device so use the device's method
+                Device.CancelAsync(id);
+                return;
+            }
+
+            // Platform 6 or earlier device
+            throw new NotImplementedException($"DriverAccess.Switch - CancelAsync is not supported by this device because it exposes interface ISwitchV{InterfaceVersion}.");
+        }
+
+        #endregion
+
     }
 }

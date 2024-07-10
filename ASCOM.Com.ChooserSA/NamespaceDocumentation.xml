@@ -1,0 +1,52 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<doc>
+  <assembly>
+    <name>ASCOM.Com.ChooserSA</name>
+    <summary>
+      NAMESPACE - ASSEMBLY - Stand alone Chooser
+    </summary>
+  </assembly>
+  
+  <members>
+    <member name="N:ASCOM.Common.Com">
+      <summary>
+        <h2>ASCOM.Common.Com Namespace</h2>
+        <h3>Summary</h3>
+        <p>
+          This namespace contains components that support COM applications and drivers that run on Windows.
+        </p>
+      </summary>
+    </member>
+
+	  <member name="N:ASCOM">
+		  <summary>
+			  <h2>ASCOM Namespace</h2>
+			  <h3>Summary</h3>
+			  <p>
+				  This namespace contains ASCOM developer components.
+			  </p>
+		  </summary>
+	  </member>
+
+	  <member name="N:ASCOM.Com">
+		  <summary>
+			  <h2>ASCOM.Com Namespace</h2>
+			  <h3>Summary</h3>
+			  <p>
+				  This namespace contains components that support COM applications and drivers that run on Windows.
+			  </p>
+		  </summary>
+	  </member>
+
+	  <member name="N:ASCOM.Common.Com">
+		  <summary>
+			  <h2>ASCOM.Common.Com Namespace</h2>
+			  <h3>Summary</h3>
+			  <p>
+				  This namespace contains components that support COM applications and drivers that run on Windows.
+			  </p>
+		  </summary>
+	  </member>
+  </members>
+
+</doc>

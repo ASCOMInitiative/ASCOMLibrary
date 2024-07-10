@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>netcoreapp3.1</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
 
         <IsPackable>false</IsPackable>
 
@@ -17,16 +17,20 @@
 
     <ItemGroup>
       <None Include="..\..\.editorconfig" Link=".editorconfig" />
-      <None Include="..\..\ASCOM.Tools\SOFALibraries\win-x64\libsofa.dll" Link="libsofa.dll">
+      <None Include="..\..\ASCOM.AstrometryTools\NovasLibraries\win-x64\libnovas.dll" Link="libnovas.dll">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Include="..\..\ASCOM.AstrometryTools\SOFALibraries\win-x64\libsofa.dll" Link="libsofa.dll">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.3.2" />
+        <PackageReference Include="ASCOM.Exception.Library" Version="7.0.0-rc.21" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
         <PackageReference Include="System.Runtime.Extensions" Version="4.3.1" />
-        <PackageReference Include="xunit" Version="2.4.2" />
-        <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5">
+        <PackageReference Include="xunit" Version="2.7.0" />
+        <PackageReference Include="xunit.runner.visualstudio" Version="2.5.7">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
@@ -34,9 +38,16 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\ASCOM.Alpaca\ASCOM.Alpaca.csproj" />
+      <ProjectReference Include="..\..\ASCOM.AstrometryTools\ASCOM.AstrometryTools.csproj" />
       <ProjectReference Include="..\..\ASCOM.Common\ASCOM.Common.csproj" />
       <ProjectReference Include="..\..\ASCOM.Com\ASCOM.Com.csproj" />
       <ProjectReference Include="..\..\ASCOM.Tools\ASCOM.Tools.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Update="cio_ra.bin">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
 </Project>

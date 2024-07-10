@@ -1,6 +1,7 @@
 ﻿using ASCOM.Common;
 using ASCOM.Common.Alpaca;
 using ASCOM.Common.DeviceInterfaces;
+using ASCOM.Common.DeviceStateClasses;
 using ASCOM.Common.Interfaces;
 
 using System;
@@ -14,7 +15,7 @@ namespace ASCOM.Alpaca.Clients
     /// <summary>
     /// ASCOM Alpaca CoverCalibrator client
     /// </summary>
-    public class AlpacaCoverCalibrator : AlpacaDeviceBaseClass, ICoverCalibratorV1
+    public class AlpacaCoverCalibrator : AlpacaDeviceBaseClass, ICoverCalibratorV2
     {
         #region Variables and Constants
 
@@ -148,17 +149,40 @@ namespace ASCOM.Alpaca.Clients
 
         #endregion
 
+        #region Convenience members
+
+        /// <summary>
+        /// CoverCalibrator device state
+        /// </summary>
+        public CoverCalibratorState CoverCalibratorState
+        {
+            get
+            {
+                // Create a state object to return.
+                CoverCalibratorState deviceState = new CoverCalibratorState(DeviceState, logger);
+                logger.LogMessage(LogLevel.Debug, "CoverCalibratorState", $"Returning: '{deviceState.Brightness}' '{deviceState.CalibratorChanging}' '{deviceState.CalibratorState}' '{deviceState.CoverMoving}' '{deviceState.CoverState}' '{deviceState.TimeStamp}'");
+
+                // Return the device specific state class
+                return deviceState;
+            }
+        }
+
+        #endregion
+
         #region ICoverCalibratorV1 Implementation
 
         /// <summary>
         /// Returns the state of the device cover, if present, otherwise returns "NotPresent"
         /// </summary>
         /// <remarks>
-        /// <para>This is a mandatory property that must return a value, it must not throw a <see cref="NotImplementedException"/>.</para>
+        /// <para>This is a mandatory property that must return a value, it must not throw a <see cref="PropertyNotImplementedException"/>.</para>
+        /// <para>Whenever the cover is moving both <see cref="CoverMoving"/> must be True and CoverState must be <see cref="CoverStatus.Moving"/>.</para>
         /// <para>The <see cref="CoverStatus.Unknown"/> state must only be returned if the device is unaware of the cover's state e.g. if the hardware does not report the open / closed state and the cover has just been powered on.
         /// Clients do not need to take special action if this state is returned, they must carry on as usual, issuing  <see cref="OpenCover"/> or <see cref="CloseCover"/> commands as required.</para>
         /// <para>If the cover hardware cannot report its state, the device could mimic this by recording the last configured state and returning this. Driver authors or device manufacturers may also wish to offer users
         /// the capability of powering up in a known state e.g. Open or Closed and driving the hardware to this state when Connected is set <see langword="true"/>.</para>
+        /// <para>This property is intended to be available under all but the most disastrous driver conditions.If something has gone wrong, the CoverState must be <see cref="CoverStatus.Error"/>
+        /// rather than throwing an exception.</para>
         /// </remarks>
         public CoverStatus CoverState
         {
@@ -172,12 +196,15 @@ namespace ASCOM.Alpaca.Clients
         /// Returns the state of the calibration device, if present, otherwise returns "NotPresent"
         /// </summary>
         /// <remarks>
-        /// <para>This is a mandatory property that must return a value, it must not throw a <see cref="NotImplementedException"/>.</para>
+        /// <para>This is a mandatory property that must return a value, it must not throw a <see cref="PropertyNotImplementedException"/>.</para>
+        /// <para>Whenever the calibrator is changing both <see cref="CalibratorChanging"/> must be True and CalibratorState must be <see cref="CalibratorStatus.NotReady"/>.</para>
         /// <para>The <see cref="CalibratorStatus.Unknown"/> state must only be returned if the device is unaware of the calibrator's state e.g. if the hardware does not report the device's state and 
         /// the calibrator has just been powered on. Clients do not need to take special action if this state is returned, they must carry on as usual, issuing <see cref="CalibratorOn(int)"/> and 
         /// <see cref="CalibratorOff"/> commands as required.</para>
         /// <para>If the calibrator hardware cannot report its state, the device could mimic this by recording the last configured state and returning this. Driver authors or device manufacturers may also wish to offer users
         /// the capability of powering up in a known state and driving the hardware to this state when Connected is set <see langword="true"/>.</para>
+        /// <para>This property is intended to be available under all but the most disastrous driver conditions.If something has gone wrong, the CoverState must be <see cref="CalibratorStatus.Error"/>
+        /// rather than throwing an exception.</para>
         /// </remarks>
         public CalibratorStatus CalibratorState
         {
@@ -317,6 +344,67 @@ namespace ASCOM.Alpaca.Clients
         {
             DynamicClientDriver.CallMethodWithNoParameters(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "CalibratorOff", MemberTypes.Method);
             LogMessage(logger, clientNumber, "AbortSlew", $"Calibrator off OK");
+        }
+
+        #endregion
+
+        #region ICoverCalibratorV2 Implementation
+
+        /// <summary>
+        /// Flag showing whether a calibrator brightness state change is in progress. 
+        /// </summary>
+        /// <exception cref="NotConnectedException">If the device is not connected</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception> 
+        /// <returns>
+        /// True while the calibrator brightness is not stable following a <see cref="CalibratorOn(int)"/> or <see cref="CalibratorOff"/> command.
+        /// </returns>
+        /// <remarks>
+        /// <p style="color:red"><b>This is a mandatory property and must not throw a <see cref="PropertyNotImplementedException"/>.</b></p>
+        /// <para>
+        /// This property must throw an exception ff an issue arises while changing calibrator brightness. The exception must continue to be thrown until a new <see cref="CalibratorOn(int)"/> or
+        /// <see cref="CalibratorOff"/> command is received.</para>
+        /// </remarks>
+        public bool CalibratorChanging
+        {
+            get
+            {
+                // Check whether this device supports Connect / Disconnect
+                if (DeviceCapabilities.HasConnectAndDeviceState(clientDeviceType, InterfaceVersion))
+                {
+                    // Platform 7 or later device so return the device's CalibratorChanging property
+                    return DynamicClientDriver.GetValue<bool>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "CalibratorChanging", MemberTypes.Property);
+                }
+
+                // Platform 6 or earlier device so use CalibratorState to determine the movement state.
+                return CalibratorState == CalibratorStatus.NotReady;
+            }
+        }
+
+        /// <summary>
+        /// Flag showing whether the cover is moving. 
+        /// </summary>
+        /// <exception cref="NotConnectedException">If the device is not connected</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception> 
+        /// <returns>
+        /// True while the cover is in motion following an <see cref="OpenCover"/> or <see cref="CloseCover"/> command.
+        /// </returns>
+        /// <remarks>
+        /// <p style="color:red"><b>This is a mandatory property and must not throw a <see cref="PropertyNotImplementedException"/>.</b></p>
+        /// </remarks>
+        public bool CoverMoving
+        {
+            get
+            {
+                // Check whether this device supports Connect / Disconnect
+                if (DeviceCapabilities.HasConnectAndDeviceState(clientDeviceType, InterfaceVersion))
+                {
+                    // Platform 7 or later device so return the device's CoverMoving property
+                    return DynamicClientDriver.GetValue<bool>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "CoverMoving", MemberTypes.Property);
+                }
+
+                // Platform 6 or earlier device so use CoverState to determine the movement state.
+                return CoverState == CoverStatus.Moving;
+            }
         }
 
         #endregion

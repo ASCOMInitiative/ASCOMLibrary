@@ -1,0 +1,65 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<AssemblyTitle>ASCOM Stand Alone Chooser</AssemblyTitle>
+		<Authors>Peter Simpson</Authors>
+		<Company>ASCOM Initiative</Company>
+		<Product>ASCOM Stand Alone Chooser</Product>
+		<Description>Stand alone Chooser for use with .NET Framework 4.7.2 and later and .NET 5 and later projects.</Description>
+		<Copyright>(c) ASCOM Initiative 2009-2023</Copyright>
+		<LangVersion>latest</LangVersion>
+		<RootNamespace>ASCOM.Com</RootNamespace>
+		<AssemblyName>ASCOM.Com.ChooserSA</AssemblyName>
+		<TargetFrameworks>net472;net48;net6.0-windows;net7.0-windows;net8.0-windows</TargetFrameworks>
+		<UseWindowsForms>true</UseWindowsForms>
+		<SignAssembly>True</SignAssembly>
+		<PublishUrl>publish\</PublishUrl>
+		<ProjectGuid>{CC0CD0AD-ACB0-0280-39C4-CF1D76CC0845}</ProjectGuid>
+		<DocumentationFile></DocumentationFile>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<Title>ASCOM Stand Alone Chooser</Title>
+		<DebugType>embedded</DebugType>
+		<GenerateDocumentationFile>True</GenerateDocumentationFile>
+		<AssemblyOriginatorKeyFile>ASCOM.snk</AssemblyOriginatorKeyFile>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageIcon>ASCOMBoarderless.png</PackageIcon>
+		<PackageTags>ascom;alpaca;com;chooser</PackageTags>
+		<GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
+	</PropertyGroup>
+	<ItemGroup>
+	  <Content Include="..\ASCOMBoarderless.png" Link="ASCOMBoarderless.png" />
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="ASCOM.Exception.Library" Version="7.0.0-rc.22" />
+		<PackageReference Include="System.Resources.Extensions" Version="8.0.0" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Compile Update="Properties\Resources.Designer.cs">
+	    <DesignTime>True</DesignTime>
+	    <AutoGen>True</AutoGen>
+	    <DependentUpon>Resources.resx</DependentUpon>
+	  </Compile>
+	</ItemGroup>
+	<ItemGroup>
+	  <EmbeddedResource Update="Properties\Resources.resx">
+	    <Generator>ResXFileCodeGenerator</Generator>
+	    <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+	  </EmbeddedResource>
+	</ItemGroup>
+	<ItemGroup>
+		<None Include="..\ASCOMBoarderless.png">
+			<Pack>True</Pack>
+			<PackagePath></PackagePath>
+		</None>
+		<None Include="README.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\ASCOM.Alpaca\ASCOM.Alpaca.csproj" />
+	  <ProjectReference Include="..\ASCOM.Com\ASCOM.Com.csproj" />
+	</ItemGroup>
+
+</Project>

@@ -1,8 +1,9 @@
-﻿using Microsoft.VisualStudio.TestPlatform.Utilities;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System;
+using Xunit;
 using Xunit.Abstractions;
+
+// Prevent parallelism in unit tests
+//[assembly: CollectionBehavior(DisableTestParallelization = true)]
 
 namespace ASCOM.Alpaca.Tests
 {
@@ -10,6 +11,12 @@ namespace ASCOM.Alpaca.Tests
     {
         internal static bool CompareBytes(byte[] supplied, byte[] required, ITestOutputHelper output)
         {
+            // Remove compiler info warning about unused parameter
+            if (output==null)
+            {
+                
+            }
+
             //if (required.Length != supplied.Length) return false;
             for (int i = 0; i < required.Length; i++)
             {

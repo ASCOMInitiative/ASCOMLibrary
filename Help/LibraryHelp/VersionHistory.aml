@@ -1,0 +1,156 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<topic id="cf197185-7fa2-4b56-bb1a-75aaebd459bb" revisionNumber="1">
+	<developerConceptualDocument xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5" xmlns:xlink="http://www.w3.org/1999/xlink">
+		<introduction></introduction>
+		<section address="v2.0.0">
+			<title>Version 2.0.0</title>
+			<content>
+				<list class="bullet">
+					<listItem>
+						<para>
+							<legacyBold>ASCOM.Tools Package - Breaking Change:</legacyBold> All astrometry related functions including Transform, SOFA and NOVAS, have been moved into a
+							new package: ASCOM.AstrometryTools in order to reduce the size and complexity of the ASCOM.Tools package and increase convenience for
+							developers who don't require astrometry features.
+						</para>
+						<para>
+							Class and object names (including namespace) have been retained as far as possible, the major naming change is that astrometry features in the ASCOM.Tools.Utilities component
+							are now in a new ASCOM.Tools.AstroUtilities component in the ASCOM.AstroUtilities package.
+						</para>
+						<para>
+							The principle developer changes required are to:
+						</para>
+						<list class="bullet">
+							<listItem>
+								<para>Install the new ASCOM.AstrometryTools package from NuGet</para>
+							</listItem>
+							<listItem>
+								<para>Add the package to the project</para>
+							</listItem>
+							<listItem>
+								<para>Add a "using ASCOM.AstrometryTools;" reference to relevant classes</para>
+							</listItem>
+							<listItem>
+								<para>In the codebase, change ASCOM.Tools.Utilities component astrometry function references from Utilities.XXX() to AstroUtilities.XXX()</para>
+							</listItem>
+						</list>
+					</listItem>
+					<listItem>
+						<para>Added support for Platform 7 interface changes.</para>
+					</listItem>
+				</list>
+			</content>
+		</section>
+		<section address="v1.0.111">
+			<title>Version 1.0.111</title>
+			<content>
+				<list class="bullet">
+					<listItem>
+						<para>Alpaca Clients - Fix issue that caused Alpaca client initialisation to fail on Android and similar AOT compile platforms.</para>
+					</listItem>
+				</list>
+			</content>
+		</section>
+		<section address="v1.0.110">
+			<title>Version 1.0.110</title>
+			<content>
+				<list class="bullet">
+					<listItem>
+						<para>Re-release of version 1.0.109 without additional features and changes that are intended for a future release.</para>
+					</listItem>
+				</list>
+			</content>
+		</section>
+		<section address="v1.0.109">
+			<title>Version 1.0.109</title>
+			<content>
+				<list class="bullet">
+					<listItem>
+						<para>
+							ASCOM.COM - Added PlatformUtilities.IsPlatformInstalled() function.
+						</para>
+					</listItem>
+					<listItem>
+						<para>
+							ASCOM.COM - Profile.GetDrivers() now returns an empty list instead of an exception if no drivers are found.
+						</para>
+					</listItem>
+				</list>
+			</content>
+		</section>
+		<section address="v1.0.108">
+			<title>Version 1.0.108</title>
+			<content>
+				<list class="bullet">
+					<listItem>
+						<para>
+							ASCOM.COM - Fixed an issue where interface version 1 Focusers would have Connected called instead of Link
+						</para>
+					</listItem>
+					<listItem>
+						<para>
+							ASCOM.Tools - Added a NOVAS3.1 component to Utilities.
+						</para>
+					</listItem>
+					<listItem>
+						<para>ASCOM.Tools - Added MoonPhase, MoonIllumination and EventTimes astrometry functions to Utilities.</para>
+					</listItem>
+					<listItem>
+						<para>
+							Added an Almanac generator to Utilities. This writes a whole year almanac for a particular event to an ILogger instance. Supported events are:
+						</para>
+						<list class="bullet">
+							<listItem>
+								<para>
+									Rise and set times for the planets, sun and moon
+								</para>
+							</listItem>
+							<listItem>
+								<para>
+									Start and end times for Civil, Nautical and Astronomical twilight
+								</para>
+							</listItem>
+						</list>
+					</listItem>
+				</list>
+			</content>
+		</section>
+		<section address="v1.0.107">
+			<title>Version 1.0.107</title>
+			<content>
+				<list class="bullet">
+					<listItem>
+						<para>ASCOM.Tools - Added missing linux-arm32 native SOFA library.</para>
+					</listItem>
+				</list>
+			</content>
+		</section>
+		<section address="v1.0.106">
+			<title>Version 1.0.106</title>
+			<content>
+				<list class="bullet">
+					<listItem>
+						<para>Alpaca Clients - Refactored base class to enable error number and message to be extracted more easily.</para>
+					</listItem>
+					<listItem>
+						<para>Alpaca Clients - Added support for trusting user generated certificates.</para>
+					</listItem>
+					<listItem>
+						<para>Alpaca Clients - Improved handling of Alpaca management information during discovery on Linux, Arm and MacOS operating systems.</para>
+					</listItem>
+				</list>
+			</content>
+		</section>
+		<section address="v1.0.52">
+			<title>Version 1.0.52</title>
+			<content>
+				<list class="bullet">
+					<listItem>
+						<para>First production release.</para>
+					</listItem>
+				</list>
+			</content>
+		</section>
+		<bibliography></bibliography>
+		<relatedTopics></relatedTopics>
+	</developerConceptualDocument>
+</topic>

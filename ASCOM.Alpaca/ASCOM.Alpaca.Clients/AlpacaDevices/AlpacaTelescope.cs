@@ -1,6 +1,7 @@
 ﻿using ASCOM.Common;
 using ASCOM.Common.Alpaca;
 using ASCOM.Common.DeviceInterfaces;
+using ASCOM.Common.DeviceStateClasses;
 using ASCOM.Common.Interfaces;
 
 using System;
@@ -14,9 +15,11 @@ namespace ASCOM.Alpaca.Clients
     /// <summary>
     /// ASCOM Alpaca Telescope client
     /// </summary>
-    public class AlpacaTelescope : AlpacaDeviceBaseClass, ITelescopeV3
+    public class AlpacaTelescope : AlpacaDeviceBaseClass, ITelescopeV4
     {
         #region Variables and Constants
+
+        Operation currentOperation = Operation.None; // Current operation name
 
         #endregion
 
@@ -62,7 +65,7 @@ namespace ASCOM.Alpaca.Clients
                                ILogger logger = AlpacaClient.CLIENT_LOGGER_DEFAULT,
                                string userAgentProductName = null,
                                string userAgentProductVersion = null,
-                               bool trustUserGeneratedSslCertificates=AlpacaClient.TRUST_USER_GENERATED_SSL_CERTIFICATES_DEFAULT
+                               bool trustUserGeneratedSslCertificates = AlpacaClient.TRUST_USER_GENERATED_SSL_CERTIFICATES_DEFAULT
             )
         {
             this.serviceType = serviceType;
@@ -134,7 +137,7 @@ namespace ASCOM.Alpaca.Clients
                 LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"Strict casing: {strictCasing}");
                 LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"Trust user generated SSL certificates: {trustUserGeneratedSslCertificates}");
 
-                DynamicClientDriver.CreateHttpClient(ref client, serviceType, ipAddressString, portNumber, clientNumber, clientDeviceType, userName, password, ImageArrayCompression.None, 
+                DynamicClientDriver.CreateHttpClient(ref client, serviceType, ipAddressString, portNumber, clientNumber, clientDeviceType, userName, password, ImageArrayCompression.None,
                     logger, userAgentProductName, userAgentProductVersion, trustUserGeneratedSslCertificates);
                 LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), "Completed initialisation");
             }
@@ -146,7 +149,28 @@ namespace ASCOM.Alpaca.Clients
 
         #endregion
 
-        #region ITelescope Implementation
+        #region Convenience members
+
+        /// <summary>
+        /// State response from the device
+        /// </summary>
+        public TelescopeState TelescopeState
+        {
+            get
+            {
+                // Create a state object to return.
+                TelescopeState state = new TelescopeState(DeviceState, logger);
+                logger.LogMessage(LogLevel.Debug, nameof(TelescopeState), $"Returning: '{state.Altitude}' '{state.AtHome}' '{state.AtPark}' '{state.Azimuth}' '{state.Declination}' '{state.IsPulseGuiding}' " +
+                    $"'{state.RightAscension}' '{state.SideOfPier}' '{state.SiderealTime}' '{state.Slewing}' '{state.Tracking}' '{state.UTCDate}' '{state.TimeStamp}' '{currentOperation}'");
+
+                // Return the device specific state class
+                return state;
+            }
+        }
+
+        #endregion
+
+        #region ITelescopeV3 Implementation
         /// <summary>
         /// Stops a slew in progress.
         /// </summary>
@@ -159,8 +183,10 @@ namespace ASCOM.Alpaca.Clients
         /// </remarks>
         public void AbortSlew()
         {
+            currentOperation = Operation.AbortSlew; // Set the current operation
             DynamicClientDriver.CallMethodWithNoParameters(clientNumber, client, longDeviceResponseTimeout, URIBase, strictCasing, logger, "AbortSlew", MemberTypes.Method);
-            LogMessage(logger, clientNumber, "AbortSlew", "Slew aborted OK");
+            currentOperation = Operation.None; // Set the current operation
+            LogMessage(logger, clientNumber, "AbortSlew", $"Slew aborted OK, current operation: {currentOperation}");
         }
 
         /// <summary>
@@ -236,6 +262,7 @@ namespace ASCOM.Alpaca.Clients
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
         /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
+        /// <para>This is the correct property to use to determine successful completion of the (asynchronous) <see cref="FindHome"/> operation.</para>
         /// This is only available for telescope Interface Versions 2 and later.
         /// </remarks>
         public bool AtHome
@@ -496,8 +523,7 @@ namespace ASCOM.Alpaca.Clients
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
         /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
-        /// If this is true, then only the synchronous equatorial slewing methods are guaranteed to be supported.
-        /// See the <see cref="CanSlewAsync" /> property for the asynchronous slewing capability flag. 
+        /// If this is true, the <see cref="CanSlewAsync" /> property must also return true because all drivers must implement asynchronous slewing in this interface version.
         /// May raise an error if the telescope is not connected. 
         /// </remarks>
         public bool CanSlew
@@ -515,8 +541,7 @@ namespace ASCOM.Alpaca.Clients
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
         /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
-        /// If this is true, then only the synchronous local horizontal slewing methods are guaranteed to be supported.
-        /// See the <see cref="CanSlewAltAzAsync" /> property for the asynchronous slewing capability flag. 
+        /// If this is true, the <see cref="CanSlewAltAzAsync" /> property must also return true because all drivers must implement asynchronous slewing in this interface version.
         /// May raise an error if the telescope is not connected. 
         /// </remarks>
         public bool CanSlewAltAz
@@ -534,8 +559,7 @@ namespace ASCOM.Alpaca.Clients
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
         /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
-        /// This indicates the asynchronous local horizontal slewing methods are supported.
-        /// If this is True, then <see cref="CanSlewAltAz" /> will also be true. 
+        /// If this is true, the <see cref="CanSlewAltAz" /> property must also return true because all drivers must implement synchronous slewing in this interface version to ensure backward compatibility with older clients..
         /// May raise an error if the telescope is not connected. 
         /// </remarks>
         public bool CanSlewAltAzAsync
@@ -553,8 +577,7 @@ namespace ASCOM.Alpaca.Clients
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
         /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
-        /// This indicates the asynchronous equatorial slewing methods are supported.
-        /// If this is True, then <see cref="CanSlew" /> will also be true.
+        /// If this is true, the <see cref="CanSlew" /> property must also return true because all drivers must implement synchronous slewing in this interface version to ensure backward compatibility with older clients..
         /// May raise an error if the telescope is not connected. 
         /// </remarks>
         public bool CanSlewAsync
@@ -768,14 +791,15 @@ namespace ASCOM.Alpaca.Clients
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
-        /// Returns only after the home position has been found.
-        /// At this point the <see cref="AtHome" /> property will be True.
+        /// <para>This is an asynchronous method: Use the <see cref="Slewing"/> property to monitor the operation's progress. 
+        /// When the mount has successfully reached its home position, <see cref="Slewing"/> becomes False and <see cref="AtHome"/> becomes True.</para>
         /// Raises an error if there is a problem. 
         /// Raises an error if AtPark is true. 
         /// <para>This is only available for telescope Interface Versions 2 and later.</para>
         /// </remarks>
         public void FindHome()
         {
+            currentOperation = Operation.FindHome; // Set the current operation
             DynamicClientDriver.CallMethodWithNoParameters(clientNumber, client, longDeviceResponseTimeout, URIBase, strictCasing, logger, "FindHome", MemberTypes.Method);
             LogMessage(logger, clientNumber, "FindHome", "Home found OK");
         }
@@ -917,6 +941,7 @@ namespace ASCOM.Alpaca.Clients
         /// </remarks>
         public void MoveAxis(TelescopeAxis Axis, double Rate)
         {
+            currentOperation = Operation.MoveAxis; // Set the current operation
             Dictionary<string, string> Parameters = new Dictionary<string, string>
             {
                 { AlpacaConstants.AXIS_PARAMETER_NAME, ((int)Axis).ToString(CultureInfo.InvariantCulture) },
@@ -932,12 +957,15 @@ namespace ASCOM.Alpaca.Clients
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
+        /// <para>This is an asynchronous method: Use the <see cref="Slewing"/> property to monitor the operation's progress. 
+        /// When the mount has successfully reached its home position, <see cref="Slewing"/> becomes False and <see cref="AtPark"/> becomes True.</para>
         /// Raises an error if there is a problem communicating with the telescope or if parking fails. Parking should put the telescope into a state where its pointing accuracy 
         /// will not be lost if it is power-cycled (without moving it).Some telescopes must be power-cycled before unparking. Others may be unparked by simply calling the <see cref="Unpark" /> method.
         /// Calling this with <see cref="AtPark" /> = True does nothing (harmless) 
         /// </remarks>
         public void Park()
         {
+            currentOperation = Operation.Park; // Set the current operation
             DynamicClientDriver.CallMethodWithNoParameters(clientNumber, client, longDeviceResponseTimeout, URIBase, strictCasing, logger, "Park", MemberTypes.Method);
             LogMessage(logger, clientNumber, "Park", "Parked OK");
         }
@@ -950,13 +978,12 @@ namespace ASCOM.Alpaca.Clients
         /// <param name="Duration">The duration of the guide-rate motion (milliseconds)</param>
         /// <exception cref="NotImplementedException">If the method is not implemented and <see cref="CanPulseGuide" /> is False</exception>
         /// <exception cref="InvalidValueException">If an invalid direction or duration is given.</exception>
-        /// <exception cref="InvalidOperationException">If the pulse guide cannot be effected e.g. if the telescope is slewing or is not tracking.</exception>
+        /// <exception cref="InvalidOperationException">If the pulse guide cannot be effected e.g. if the telescope is slewing or is not tracking or a pulse guide is already in progress and a second cannot be started asynchronously.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
-        /// This method returns immediately if the hardware is capable of back-to-back moves,
-        /// i.e. dual-axis moves. For hardware not having the dual-axis capability,
-        /// the method returns only after the move has completed. 
+        /// This method is asynchronous and should return quickly using IsPulseGuiding as the completion property. 
+        /// If the mount cannot have simultaneous PulseGuide operations in both RightAscension and Declination, it must throw InvalidOperationException when the overlapping operation is attempted.
         /// <para>
         /// <b>NOTES:</b>
         /// <list type="bullet">
@@ -973,6 +1000,7 @@ namespace ASCOM.Alpaca.Clients
         /// </remarks>
         public void PulseGuide(GuideDirection Direction, int Duration)
         {
+            currentOperation = Operation.PulseGuide; // Set the current operation
             Dictionary<string, string> Parameters = new Dictionary<string, string>
             {
                 { AlpacaConstants.DIRECTION_PARAMETER_NAME, ((int)Direction).ToString(CultureInfo.InvariantCulture) },
@@ -1065,6 +1093,7 @@ namespace ASCOM.Alpaca.Clients
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
+        /// <para>This is an asynchronous method and <see cref="Slewing"/> should be set True while the operation is in progress.</para>
         /// <para>For historical reasons, this property's name does not reflect its true meaning. The name will not be changed (so as to preserve 
         /// compatibility), but the meaning has since become clear. All conventional mounts have two pointing states for a given equatorial (sky) position. 
         /// Mechanical limitations often make it impossible for the mount to position the optics at given HA/Dec in one of the two pointing 
@@ -1138,6 +1167,7 @@ namespace ASCOM.Alpaca.Clients
             }
             set
             {
+                currentOperation = Operation.SideOfPier; // Set the current operation
                 Dictionary<string, string> Parameters = new Dictionary<string, string>
                 {
                     { AlpacaConstants.SIDEOFPIER_PARAMETER_NAME, ((int)value).ToString(CultureInfo.InvariantCulture) }
@@ -1275,8 +1305,13 @@ namespace ASCOM.Alpaca.Clients
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
+        /// <p style="color:red"><b>Deprecated for client applications.</b></p>
+        /// <para>This method must not be used by applications, use the asynchronous <see cref="SlewToAltAzAsync(double, double)"/> method instead.
+        /// If the mount is capable of slewing, drivers must implement this method to ensure backward compatibility with older clients.</para>
+        /// <para>
         /// This Method must be implemented if <see cref="CanSlewAltAz" /> returns True. Raises an error if the slew fails. The slew may fail if the target coordinates are beyond limits imposed within the driver component.
         /// Such limits include mechanical constraints imposed by the mount or attached instruments, building or dome enclosure restrictions, etc.
+        /// </para>
         /// <para>The <see cref="TargetRightAscension" /> and <see cref="TargetDeclination" /> properties are not changed by this method. 
         /// Raises an error if <see cref="AtPark" /> is True, or if <see cref="Tracking" /> is True. This is only available for telescope Interface Versions 2 and later.</para>
         /// </remarks>
@@ -1310,9 +1345,11 @@ namespace ASCOM.Alpaca.Clients
         /// The <see cref="TargetRightAscension" /> and <see cref="TargetDeclination" /> properties are not changed by this method. 
         /// <para>Raises an error if <see cref="AtPark" /> is True, or if <see cref="Tracking" /> is True.</para>
         /// <para>This is only available for telescope Interface Versions 2 and later.</para>
+        /// <para>For drivers, <see cref="SlewToAltAz(double, double)"/> must also be implemented and <see cref="CanSlewAltAz"/> must return True when this method is implemented.</para>
         /// </remarks>
         public void SlewToAltAzAsync(double Azimuth, double Altitude)
         {
+            currentOperation = Operation.SlewToAltAzAsync; // Set the current operation
             Dictionary<string, string> Parameters = new Dictionary<string, string>
             {
                 { AlpacaConstants.AZ_PARAMETER_NAME, Azimuth.ToString(CultureInfo.InvariantCulture) },
@@ -1332,12 +1369,19 @@ namespace ASCOM.Alpaca.Clients
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
-        /// This Method must be implemented if <see cref="CanSlew" /> returns True. Raises an error if the slew fails. 
+        /// <p style="color:red"><b>Deprecated for client applications.</b></p>
+        /// <para>This method must not be used by applications, use the asynchronous <see cref="SlewToCoordinates(double, double)"/> method instead.
+        /// If the mount is capable of slewing, drivers must implement this method to ensure backward compatibility with older clients.
+        /// </para>
+        /// <para>
+        /// This Method must be implemented if <see cref="CanSlew" /> returns True. Raises an error if the slew fails.
         /// The slew may fail if the target coordinates are beyond limits imposed within the driver component.
         /// Such limits include mechanical constraints imposed by the mount or attached instruments,
         /// building or dome enclosure restrictions, etc. The target coordinates are copied to
-        /// <see cref="TargetRightAscension" /> and <see cref="TargetDeclination" /> whether or not the slew succeeds. 
-        /// <para>Raises an error if <see cref="AtPark" /> is True, or if <see cref="Tracking" /> is False.</para>
+        /// <see cref="TargetRightAscension" /> and <see cref="TargetDeclination" /> whether or not the slew succeeds.
+        /// </para>
+        /// <para>Raises an error if <see cref="AtPark" /> is True, or if <see cref="Tracking" /> is False.
+        /// </para>
         /// </remarks>
         public void SlewToCoordinates(double RightAscension, double Declination)
         {
@@ -1369,9 +1413,11 @@ namespace ASCOM.Alpaca.Clients
         /// <para>The target coordinates are copied to <see cref="TargetRightAscension" /> and <see cref="TargetDeclination" />
         /// whether or not the slew succeeds. 
         /// Raises an error if <see cref="AtPark" /> is True, or if <see cref="Tracking" /> is False.</para>
+        /// <para>For drivers, <see cref="SlewToCoordinates(double, double)"/> must also be implemented and <see cref="CanSlew"/> must return True when this method is implemented.</para>
         /// </remarks>
         public void SlewToCoordinatesAsync(double RightAscension, double Declination)
         {
+            currentOperation = Operation.SlewToCoordinatesAsync; // Set the current operation
             Dictionary<string, string> Parameters = new Dictionary<string, string>
             {
                 { AlpacaConstants.RA_PARAMETER_NAME, RightAscension.ToString(CultureInfo.InvariantCulture) },
@@ -1387,11 +1433,14 @@ namespace ASCOM.Alpaca.Clients
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
-        /// This Method must be implemented if <see cref="CanSlew" /> returns True. Raises an error if the slew fails. 
+        /// <p style="color:red"><b>Deprecated for client applications.</b></p>
+        /// <para>This method must not be used by applications, use the asynchronous <see cref="SlewToTargetAsync"/> method instead.
+        /// If the mount is capable of slewing, drivers must implement this method to ensure backward compatibility with older clients.</para>
+        /// <para>This Method must be implemented if <see cref="CanSlew" /> returns True. Raises an error if the slew fails.
         /// The slew may fail if the target coordinates are beyond limits imposed within the driver component.
         /// Such limits include mechanical constraints imposed by the mount or attached
-        /// instruments, building or dome enclosure restrictions, etc. 
-        /// Raises an error if <see cref="AtPark" /> is True, or if <see cref="Tracking" /> is False. 
+        /// instruments, building or dome enclosure restrictions, etc.</para>
+        /// <para>Raises an error if <see cref="AtPark" /> is True, or if <see cref="Tracking" /> is False.</para>
         /// </remarks>
         public void SlewToTarget()
         {
@@ -1413,9 +1462,11 @@ namespace ASCOM.Alpaca.Clients
         /// and Slewing properties during the slew. When the slew completes,  <see cref="Slewing" /> becomes False. The slew may fail to start if the target coordinates are beyond limits imposed within 
         /// the driver component. Such limits include mechanical constraints imposed by the mount or attached instruments, building or dome enclosure restrictions, etc. 
         /// Raises an error if <see cref="AtPark" /> is True, or if <see cref="Tracking" /> is False. 
+        /// <para>For drivers, <see cref="SlewToTarget()"/> must also be implemented and <see cref="CanSlew"/> must return True when this method is implemented.</para>
         /// </remarks>
         public void SlewToTargetAsync()
         {
+            currentOperation = Operation.SlewToTargetAsync; // Set the current operation
             DynamicClientDriver.CallMethodWithNoParameters(clientNumber, client, longDeviceResponseTimeout, URIBase, strictCasing, logger, "SlewToTargetAsync", MemberTypes.Method);
             LogMessage(logger, clientNumber, "SlewToTargetAsync", "Slew completed OK");
         }
@@ -1670,14 +1721,27 @@ namespace ASCOM.Alpaca.Clients
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
-        /// The state of <see cref="Tracking" /> after unparking is undetermined. Valid only after <see cref="Park" />. Applications must check and change Tracking as needed after unparking. 
-        /// Raises an error if unparking fails. Calling this with <see cref="AtPark" /> = False does nothing (harmless) 
+        /// <para>
+        /// This is an asynchronous method and <see cref="Slewing"/> must be set True while the mount is parking and False when the operation is complete. 
+        /// <see cref="AtPark"/> will be set True when the mount has parked successfully.
+        /// </para>
+        /// <para>
+        /// The state of <see cref="Tracking" /> after unparking is undetermined. Valid only after <see cref="Park" />. Applications must check and change Tracking as needed after unparking.
+        /// Raises an error if unparking fails. Calling this with <see cref="AtPark" /> = False does nothing (harmless)
+        /// </para>
         /// </remarks>
         public void Unpark()
         {
+            currentOperation = Operation.Unpark; // Set the current operation
             DynamicClientDriver.CallMethodWithNoParameters(clientNumber, client, longDeviceResponseTimeout, URIBase, strictCasing, logger, "UnPark", MemberTypes.Method);
             LogMessage(logger, clientNumber, "UnPark", "Unparked OK");
         }
+
+        #endregion
+
+        #region ITelescopeV4 implementation
+
+        // No new members
 
         #endregion
 

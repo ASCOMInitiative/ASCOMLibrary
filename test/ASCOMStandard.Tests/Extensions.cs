@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using ASCOM.Tools;
+using System;
 using System.Runtime.InteropServices;
-using System.Text;
 
 namespace ASCOM.Alpaca.Tests
 {
@@ -57,6 +56,17 @@ namespace ASCOM.Alpaca.Tests
 
             return structure;
         }
+
+        internal static string ToHMS(this double value)
+        {
+            return Utilities.HoursToHMS(value, ":", ":", "", 3);
+        }
+
+        internal static string ToDMS(this double value)
+        {
+            return Utilities.DegreesToDMS(value, ":", ":", "", 2);
+        }
+
 
         #endregion
 

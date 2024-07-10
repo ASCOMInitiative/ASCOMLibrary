@@ -1,13 +1,12 @@
 ﻿using ASCOM.Tools;
 using System;
-using System.IO;
 using Xunit;
 
-namespace ASCOM.Alpaca.Tests.TransformTests
+namespace TransformTests
 {
     public class TransformFunctionalTests
     {
-        TraceLogger TL = new TraceLogger("TransformTest", true);
+        readonly TraceLogger TL = new("TransformTest", true);
         Transform transform;
 
         [Fact]
@@ -65,7 +64,7 @@ namespace ASCOM.Alpaca.Tests.TransformTests
             transform.SetJ2000(AstroRA, AstroDEC);
 
             // Set a specific date for the calculation
-            double testJulianDate = Utilities.JulianDateFromDateTime(new DateTime(2022, 1, 1, 03, 0, 0, DateTimeKind.Utc));
+            double testJulianDate = AstroUtilities.JulianDateFromDateTime(new DateTime(2022, 1, 1, 03, 0, 0, DateTimeKind.Utc));
             transform.JulianDateUTC = testJulianDate;
             TL.LogMessage("TransformTest", $"Test Julian Date: {testJulianDate}");
 

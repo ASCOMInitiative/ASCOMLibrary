@@ -1,8 +1,6 @@
 ﻿using ASCOM.Common.Alpaca;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Text;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -10,7 +8,7 @@ namespace ASCOM.Alpaca.Tests.ImageArray
 {
     public class ImageArray2DObjectInt16
     {
-        private ITestOutputHelper output;
+        private readonly ITestOutputHelper output;
 
         public ImageArray2DObjectInt16(ITestOutputHelper output)
         {

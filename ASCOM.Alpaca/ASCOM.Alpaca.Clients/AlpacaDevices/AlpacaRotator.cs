@@ -1,6 +1,7 @@
 ﻿using ASCOM.Common;
 using ASCOM.Common.Alpaca;
 using ASCOM.Common.DeviceInterfaces;
+using ASCOM.Common.DeviceStateClasses;
 using ASCOM.Common.Interfaces;
 
 using System;
@@ -14,7 +15,7 @@ namespace ASCOM.Alpaca.Clients
     /// <summary>
     /// ASCOM Alpaca Rotator client
     /// </summary>
-    public class AlpacaRotator : AlpacaDeviceBaseClass, IRotatorV3
+    public class AlpacaRotator : AlpacaDeviceBaseClass, IRotatorV4
     {
         #region Variables and Constants
 
@@ -62,7 +63,7 @@ namespace ASCOM.Alpaca.Clients
                              ILogger logger = AlpacaClient.CLIENT_LOGGER_DEFAULT,
                              string userAgentProductName = null,
                              string userAgentProductVersion = null,
-                             bool trustUserGeneratedSslCertificates=AlpacaClient.TRUST_USER_GENERATED_SSL_CERTIFICATES_DEFAULT
+                             bool trustUserGeneratedSslCertificates = AlpacaClient.TRUST_USER_GENERATED_SSL_CERTIFICATES_DEFAULT
            )
         {
             this.serviceType = serviceType;
@@ -135,7 +136,7 @@ namespace ASCOM.Alpaca.Clients
                 LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"Strict casing: {strictCasing}");
                 LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"Trust user generated SSL certificates: {trustUserGeneratedSslCertificates}");
 
-                DynamicClientDriver.CreateHttpClient(ref client, serviceType, ipAddressString, portNumber, clientNumber, clientDeviceType, userName, password, ImageArrayCompression.None, 
+                DynamicClientDriver.CreateHttpClient(ref client, serviceType, ipAddressString, portNumber, clientNumber, clientDeviceType, userName, password, ImageArrayCompression.None,
                     logger, userAgentProductName, userAgentProductVersion, trustUserGeneratedSslCertificates);
                 LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), "Completed initialisation");
             }
@@ -310,6 +311,9 @@ namespace ASCOM.Alpaca.Clients
         /// <param name="Position">Relative position to move in degrees from current <see cref="Position" />.</param>
         /// <remarks>
         /// <p style="color:red;margin-bottom:0"><b>Must be implemented.</b></p>
+        /// <para>This is an asynchronous method that returns as soon as the rotation operation has been successfully started, with the
+        /// <see cref="IsMoving"/> property True (unless already at the requested position). After the requested angle is successfully reached and motion stops, 
+        /// the <see cref="IsMoving"/> property must become False.</para>
         /// <para>Calling <see cref="Move">Move</see> causes the <see cref="TargetPosition" /> property to change to the sum of the current angular position
         /// and the value of the <see cref="Position" /> parameter (modulo 360 degrees), then starts rotation to <see cref="TargetPosition" />.</para>
         /// <para><b>NOTE</b></para>
@@ -334,7 +338,9 @@ namespace ASCOM.Alpaca.Clients
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
         /// <p style="color:red;margin-bottom:0"><b>Must be implemented.</b></p>
-        /// <p style="color:red"><b>SPECIFICATION REVISION - IRotatorV3 - Platform 6.5</b></p>
+        /// <para>This is an asynchronous method that returns as soon as the rotation operation has been successfully started, with the
+        /// <see cref="IsMoving"/> property True (unless already at the requested position). After the requested angle is successfully reached and motion stops, 
+        /// the <see cref="IsMoving"/> property must become False.</para>
         /// <para>
         /// Calling <see cref="MoveAbsolute"/> causes the <see cref="TargetPosition" /> property to change to the value of the
         /// <see cref="Position" /> parameter, then starts rotation to <see cref="TargetPosition" />. 
@@ -350,6 +356,30 @@ namespace ASCOM.Alpaca.Clients
             };
             DynamicClientDriver.SendToRemoteDevice<NoReturnValue>(clientNumber, client, longDeviceResponseTimeout, URIBase, strictCasing, logger, "MoveAbsolute", Parameters, HttpMethod.Put, MemberTypes.Method);
             LogMessage(logger, clientNumber, "MoveAbsolute", $"Rotator moved to absolute position {Position} OK");
+        }
+
+        #endregion
+
+        #region Convenience members
+
+        /// <summary>
+        /// Rotator device state
+        /// </summary>
+        public RotatorState RotatorState
+        {
+            get
+            {
+                // Create a state object to return.
+                RotatorState rotatorState = new RotatorState(DeviceState, logger);
+                logger.LogMessage(LogLevel.Debug, nameof(RotatorState), $"Returning: " +
+                    $"Cloud cover: '{rotatorState.IsMoving}', " +
+                    $"Dew point: '{rotatorState.MechanicalPosition}', " +
+                    $"Humidity: '{rotatorState.Position}', " +
+                    $"Time stamp: '{rotatorState.TimeStamp}'");
+
+                // Return the device specific state class
+                return rotatorState;
+            }
         }
 
         #endregion
@@ -407,7 +437,9 @@ namespace ASCOM.Alpaca.Clients
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
         /// <p style="color:red"><b>Must be implemented.</b></p>
-        /// <p style="color:red"><b>Introduced in IRotatorV3.</b></p>
+        /// <para>This is an asynchronous method that returns as soon as the rotation operation has been successfully started, with the
+        /// <see cref="IsMoving"/> property True (unless already at the requested position). After the requested angle is successfully reached and motion stops, 
+        /// the <see cref="IsMoving"/> property must become False.</para>
         /// <para>Moves the rotator to the requested mechanical angle, independent of any sync offset that may have been set. This method is to address requirements that need a physical rotation
         /// angle such as taking sky flats.</para>
         /// <para>Client applications should use the <see cref="MoveAbsolute(float)"/> method in preference to this method when imaging.</para>
@@ -421,6 +453,12 @@ namespace ASCOM.Alpaca.Clients
             DynamicClientDriver.SendToRemoteDevice<NoReturnValue>(clientNumber, client, longDeviceResponseTimeout, URIBase, strictCasing, logger, "MoveMechanical", Parameters, HttpMethod.Put, MemberTypes.Method);
             LogMessage(logger, clientNumber, "MoveMechanical", $"Rotator moved to mechanical position {Position} OK");
         }
+
+        #endregion
+
+        #region IRotatorV4 implementation
+
+        // No new members
 
         #endregion
 

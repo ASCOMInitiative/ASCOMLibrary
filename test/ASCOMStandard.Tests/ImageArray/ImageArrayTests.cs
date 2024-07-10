@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using Xunit;
 using ASCOM.Common.Alpaca;
 using Xunit.Abstractions;
-using System.Runtime.InteropServices;
 using System.Diagnostics;
 using System.Threading.Tasks;
 
@@ -12,7 +9,7 @@ namespace ASCOM.Alpaca.Tests.ImageArray
 {
     public class ImageArrayTests
     {
-        private ITestOutputHelper output;
+        private readonly ITestOutputHelper output;
 
         public ImageArrayTests(ITestOutputHelper output)
         {
@@ -462,6 +459,8 @@ namespace ASCOM.Alpaca.Tests.ImageArray
             const int IMAGE_WIDTH = 4000;
             const int IMAGE_HEIGHT = 3000;
 
+            Stopwatch sw = Stopwatch.StartNew();
+
             Object[,,] imageArray = new Object[IMAGE_WIDTH, IMAGE_HEIGHT, 3];
             Parallel.For(0, IMAGE_WIDTH, (i) =>
             {
@@ -473,16 +472,16 @@ namespace ASCOM.Alpaca.Tests.ImageArray
                     }
                 }
             });
-
-            Stopwatch sw = Stopwatch.StartNew();
+            output.WriteLine($"Time to create Int16 array: {sw.Elapsed.TotalMilliseconds:0.0}");
+            sw.Restart();
 
             byte[] bytes = imageArray.ToByteArray(1, 0, 0, AlpacaErrors.AlpacaNoError, "");
             output.WriteLine($"Time to create byte array: {sw.Elapsed.TotalMilliseconds:0.0}");
 
             ArrayMetadataV1 metadata = bytes.GetMetadataV1();
             Assert.True(metadata.TransmissionElementType == ImageArrayElementTypes.UInt16);
-
             sw.Restart();
+
             Object[,,] responseArray = (Object[,,])bytes.ToImageArray();
             output.WriteLine($"Time to create return array: {sw.Elapsed.TotalMilliseconds:0.0}");
             Assert.True(CompareArrays(imageArray, responseArray, false));
@@ -1198,7 +1197,7 @@ namespace ASCOM.Alpaca.Tests.ImageArray
             const int IMAGE_WIDTH = 3;
             const int IMAGE_HEIGHT = 4;
 
-            Stopwatch sw = new Stopwatch();
+            Stopwatch sw = new();
             sw.Start();
 
             Int32[,,] imageArray = new Int32[IMAGE_WIDTH, IMAGE_HEIGHT, 3];
@@ -1422,7 +1421,7 @@ namespace ASCOM.Alpaca.Tests.ImageArray
                     }
                 }
             }
-            Stopwatch sw = new Stopwatch();
+            Stopwatch sw = new();
             sw.Start();
 
             byte[] bytes = imageArray.ToByteArray(1, 0, 0, AlpacaErrors.AlpacaNoError, "");
@@ -1496,7 +1495,7 @@ namespace ASCOM.Alpaca.Tests.ImageArray
                     }
                 }
             }
-            Stopwatch sw = new Stopwatch();
+            Stopwatch sw = new();
             sw.Start();
 
             byte[] bytes = imageArray.ToByteArray(1, 0, 0, AlpacaErrors.AlpacaNoError, "");
@@ -1702,7 +1701,7 @@ namespace ASCOM.Alpaca.Tests.ImageArray
         {
 
 
-            ArrayMetadataV1 metadata = new ArrayMetadataV1(AlpacaErrors.AlpacaNoError, 128, 255, ImageArrayElementTypes.Int32, ImageArrayElementTypes.UInt16, 3, 4, 3, 3);
+            ArrayMetadataV1 metadata = new(AlpacaErrors.AlpacaNoError, 128, 255, ImageArrayElementTypes.Int32, ImageArrayElementTypes.UInt16, 3, 4, 3, 3);
             byte[] metadataBytes = metadata.ToByteArray<ArrayMetadataV1>();
 
             for (int i = 0; i < metadataBytes.Length; i++)

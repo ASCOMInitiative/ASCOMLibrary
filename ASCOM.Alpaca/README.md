@@ -2,6 +2,15 @@
 
 A set of client tools to discover and access Alpaca devices. Written to .Net Standard 2.0 for maximum applicability.
 
+PLease note that you will need to add this PropertyGroup to .NET projects that target Android in order for Alpaca discovery to work as expected:
+```xml
+    <PropertyGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
+        <UseNativeHttpHandler>false</UseNativeHttpHandler>
+    </PropertyGroup>
+```
+
+This may also be the case for projects that target IOS, but has not yet been confirmed.
+
 # Version History
 
 ***Release 1.0.112***

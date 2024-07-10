@@ -56,6 +56,8 @@ namespace ASCOM.Common.Helpers
                     return new NotImplementedException(message);
                 case AlpacaErrors.ActionNotImplementedException:
                     return new ActionNotImplementedException(message);
+                case AlpacaErrors.OperationCancelledException:
+                    return new OperationCancelledException(message);
                 case AlpacaErrors.AlpacaNoError:
                 //No Error
                 default:

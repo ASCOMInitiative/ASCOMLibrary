@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace ASCOM.Common
 {
@@ -60,14 +59,7 @@ namespace ASCOM.Common
         /// <exception cref="InvalidValueException">If the supplied device type is not valid.</exception>
         public static DeviceTypes StringToDeviceType(string device)
         {
-            // Validate the supplied string device name
-            if (Enum.TryParse<DeviceTypes>(device, true, out DeviceTypes deviceType))
-            {
-                return deviceType; // OK
-            }
-
-            // Bad value to return an exception
-            throw new InvalidValueException($"Devices.StringToDeviceType - Device type: {device} is not an ASCOM device type.");
+            return device.ToDeviceType();
         }
 
         /// <summary>
@@ -78,13 +70,57 @@ namespace ASCOM.Common
         /// <exception cref="InvalidValueException">If the supplied device type is not valid.</exception>
         public static string DeviceTypeToString(DeviceTypes deviceType)
         {
-            string deviceTypeString= Enum.GetName(typeof(DeviceTypes), deviceType);
+            return deviceType.ToDeviceString();
+        }
+
+        /// <summary>
+        /// Extension method that converts a <see cref="DeviceTypes"/> enum value to a string
+        /// </summary>
+        /// <param name="deviceType">Device type</param>
+        /// <returns>String device type name corresponding to the given DeviceTypes enum value</returns>
+        /// <exception cref="InvalidValueException">If the supplied device type is not valid.</exception>
+        public static string ToDeviceString(this DeviceTypes deviceType)
+        {
+            string deviceTypeString = Enum.GetName(typeof(DeviceTypes), deviceType);
 
             // Validate the supplied DeviceTypes enum value
             if (deviceTypeString != null) return deviceTypeString; // OK
 
             // Bad value to return an exception
-            throw new InvalidValueException($"Devices.DeviceTypeToString - Supplied DeviceTypes enum value {(int) deviceType} is not a valid member of the DeviceTypes enum.");
+            throw new InvalidValueException($"Devices.ToDeviceString - Supplied DeviceTypes enum value {(int)deviceType} is not a valid member of the DeviceTypes enum.");
+        }
+
+        /// <summary>
+        /// Extension method that converts a string device name to a <see cref="DeviceTypes"/> enum value.
+        /// </summary>
+        /// <param name="device">Device type</param>
+        /// <returns>DeviceTypes enum value corresponding to the given string device name</returns>
+        /// <exception cref="InvalidValueException">If the supplied device type is not valid.</exception>
+        public static DeviceTypes ToDeviceType(this string device)
+        {
+            // Validate the supplied string device name
+            if (Enum.TryParse<DeviceTypes>(device, true, out DeviceTypes deviceType))
+            {
+                return deviceType; // OK
+            }
+
+            // Bad value to return an exception
+            throw new InvalidValueException($"Devices.ToDeviceType - Device type: {device} is not an ASCOM device type.");
+        }
+
+        /// <summary>
+        /// Returns a list of valid ASCOM device types
+        /// </summary>
+        /// <returns>DeviceTypes list of ASCOM device types.</returns>
+        public static List<DeviceTypes> DeviceTypeList()
+        {
+            List<DeviceTypes> deviceTypes = new List<DeviceTypes>();
+            foreach (DeviceTypes deviceType in Enum.GetValues(typeof(DeviceTypes)))
+            {
+                deviceTypes.Add(deviceType);
+            }
+
+            return deviceTypes;
         }
     }
 }

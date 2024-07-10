@@ -86,6 +86,11 @@ namespace ASCOM.Common.Alpaca
         */
 
         /// <summary>
+        /// Reserved error code (0x40E) to indicate that an in-progress asynchronous operation has been cancelled.
+        /// </summary>
+        OperationCancelledException = 0x40E,
+
+        /// <summary>
         /// Reserved 'catch-all' error code (0x4FF) used when nothing else was specified.
         /// </summary>
         UnspecifiedError = 0x4FF,

@@ -4,18 +4,45 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using ASCOM.Common;
+using ASCOM.Common.Interfaces;
+using ASCOM.Common.DeviceStateClasses;
 
 namespace ASCOM.Com.DriverAccess
 {
     /// <summary>
     /// Telescope device class
     /// </summary>
-    public class Telescope : ASCOMDevice, ITelescopeV3
+    public class Telescope : ASCOMDevice, ITelescopeV4
     {
+        Operation currentOperation = Operation.None; // Current operation name
+
+        #region Convenience members
+
         /// <summary>
         /// Return a list of all Telescopes registered in the ASCOM Profile
         /// </summary>
         public static List<ASCOMRegistration> Telescopes => Profile.GetDrivers(DeviceTypes.Telescope);
+
+        /// <summary>
+		/// State response from the device
+		/// </summary>
+		public TelescopeState TelescopeState
+        {
+            get
+            {
+                // Create a state object to return.
+                TelescopeState state = new TelescopeState(DeviceState, TL);
+                TL.LogMessage(LogLevel.Debug,nameof(TelescopeState), $"Returning: '{state.Altitude}' '{state.AtHome}' '{state.AtPark}' '{state.Azimuth}' '{state.Declination}' '{state.IsPulseGuiding}' " +
+                    $"'{state.RightAscension}' '{state.SideOfPier}' '{state.SiderealTime}' '{state.Slewing}' '{state.Tracking}' '{state.UTCDate}' '{state.TimeStamp}' '{currentOperation}'");
+
+                // Return the device specific state class
+                return state;
+            }
+        }
+
+        #endregion
+
+        #region Initialisers
 
         /// <summary>
         /// Initialise Telescope device
@@ -23,7 +50,22 @@ namespace ASCOM.Com.DriverAccess
         /// <param name="ProgID">COM ProgID of the device.</param>
         public Telescope(string ProgID) : base(ProgID)
         {
+            deviceType = DeviceTypes.Telescope;
         }
+        /// <summary>
+        /// Initialise Telescope device with a debug logger
+        /// </summary>
+        /// <param name="ProgID">ProgID of the driver</param>
+        /// <param name="logger">Logger instance to receive debug information.</param>
+        public Telescope(string ProgID, ILogger logger) : base(ProgID)
+        {
+            deviceType = DeviceTypes.Telescope;
+            TL = logger;
+        }
+
+        #endregion
+
+        #region ITelescopeV3
 
         /// <summary>
         /// Returns the list of action names supported by this driver.
@@ -71,7 +113,7 @@ namespace ASCOM.Com.DriverAccess
                 {
                     throw new ASCOM.NotImplementedException("AlignmentMode is only supported by Interface Versions 2 and above.");
                 }
-                return (AlignmentMode)base.Device.AlignmentMode;
+                return (AlignmentMode)Device.AlignmentMode;
             }
         }
 
@@ -81,7 +123,7 @@ namespace ASCOM.Com.DriverAccess
         /// <exception cref="NotImplementedException">If the property is not implemented</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
-        public double Altitude => base.Device.Altitude;
+        public double Altitude => Device.Altitude;
 
         /// <summary>
         /// The area of the telescope's aperture, taking into account any obstructions (square meters)
@@ -100,7 +142,7 @@ namespace ASCOM.Com.DriverAccess
                 {
                     throw new ASCOM.NotImplementedException("ApertureArea is only supported by Interface Versions 2 and above.");
                 }
-                return base.Device.ApertureArea;
+                return Device.ApertureArea;
             }
         }
 
@@ -121,7 +163,7 @@ namespace ASCOM.Com.DriverAccess
                 {
                     throw new ASCOM.NotImplementedException("ApertureDiameter is only supported by Interface Versions 2 and above.");
                 }
-                return base.Device.ApertureDiameter;
+                return Device.ApertureDiameter;
             }
         }
 
@@ -133,9 +175,10 @@ namespace ASCOM.Com.DriverAccess
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
         /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
+        /// <para>This is the correct property to use to determine successful completion of the (asynchronous) <see cref="FindHome"/> operation.</para>
         /// This is only available for telescope Interface Versions 2 and later.
         /// </remarks>
-        public bool AtHome => base.Device.AtHome;
+        public bool AtHome => Device.AtHome;
 
         /// <summary>
         /// True if the telescope has been put into the parked state by the see <see cref="Park" /> method. Set False by calling the Unpark() method.
@@ -159,7 +202,7 @@ namespace ASCOM.Com.DriverAccess
                 {
                     return false;
                 }
-                return base.Device.AtPark;
+                return Device.AtPark;
             }
         }
 
@@ -169,7 +212,7 @@ namespace ASCOM.Com.DriverAccess
         /// <exception cref="NotImplementedException">If the property is not implemented</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
-        public double Azimuth => base.Device.Azimuth;
+        public double Azimuth => Device.Azimuth;
 
         /// <summary>
         /// True if this telescope is capable of programmed finding its home position (<see cref="FindHome" /> method).
@@ -189,7 +232,7 @@ namespace ASCOM.Com.DriverAccess
                 {
                     return false;
                 }
-                return base.Device.CanFindHome;
+                return Device.CanFindHome;
             }
         }
 
@@ -211,7 +254,7 @@ namespace ASCOM.Com.DriverAccess
                 {
                     return false;
                 }
-                return base.Device.CanPark;
+                return Device.CanPark;
             }
         }
 
@@ -224,7 +267,7 @@ namespace ASCOM.Com.DriverAccess
         /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
         /// May raise an error if the telescope is not connected. 
         /// </remarks>
-        public bool CanPulseGuide => base.Device.CanPulseGuide;
+        public bool CanPulseGuide => Device.CanPulseGuide;
 
         /// <summary>
         /// True if the <see cref="DeclinationRate" /> property can be changed to provide offset tracking in the declination axis.
@@ -235,7 +278,7 @@ namespace ASCOM.Com.DriverAccess
         /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
         /// May raise an error if the telescope is not connected. 
         /// </remarks>
-        public bool CanSetDeclinationRate => base.Device.CanSetDeclinationRate;
+        public bool CanSetDeclinationRate => Device.CanSetDeclinationRate;
 
         /// <summary>
         /// True if the guide rate properties used for <see cref="PulseGuide" /> can be adjusted.
@@ -255,7 +298,7 @@ namespace ASCOM.Com.DriverAccess
                 {
                     return false;
                 }
-                return base.Device.CanSetGuideRates;
+                return Device.CanSetGuideRates;
             }
         }
 
@@ -277,7 +320,7 @@ namespace ASCOM.Com.DriverAccess
                 {
                     return false;
                 }
-                return base.Device.CanSetPark;
+                return Device.CanSetPark;
             }
         }
 
@@ -300,7 +343,7 @@ namespace ASCOM.Com.DriverAccess
                 {
                     return false;
                 }
-                return base.Device.CanSetPierSide;
+                return Device.CanSetPierSide;
             }
         }
 
@@ -313,7 +356,7 @@ namespace ASCOM.Com.DriverAccess
         /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
         /// May raise an error if the telescope is not connected. 
         /// </remarks>
-        public bool CanSetRightAscensionRate => base.Device.CanSetRightAscensionRate;
+        public bool CanSetRightAscensionRate => Device.CanSetRightAscensionRate;
 
         /// <summary>
         /// True if the <see cref="Tracking" /> property can be changed, turning telescope sidereal tracking on and off.
@@ -324,7 +367,7 @@ namespace ASCOM.Com.DriverAccess
         /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
         /// May raise an error if the telescope is not connected. 
         /// </remarks>
-        public bool CanSetTracking => base.Device.CanSetTracking;
+        public bool CanSetTracking => Device.CanSetTracking;
 
         /// <summary>
         /// True if this telescope is capable of programmed slewing (synchronous or asynchronous) to equatorial coordinates
@@ -333,11 +376,10 @@ namespace ASCOM.Com.DriverAccess
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
         /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
-        /// If this is true, then only the synchronous equatorial slewing methods are guaranteed to be supported.
-        /// See the <see cref="CanSlewAsync" /> property for the asynchronous slewing capability flag. 
+        /// If this is true, the <see cref="CanSlewAsync" /> property must also return true because all drivers must implement asynchronous slewing in this interface version.
         /// May raise an error if the telescope is not connected. 
         /// </remarks>
-        public bool CanSlew => base.Device.CanSlew;
+        public bool CanSlew => Device.CanSlew;
 
         /// <summary>
         /// True if this telescope is capable of programmed slewing (synchronous or asynchronous) to local horizontal coordinates
@@ -346,11 +388,10 @@ namespace ASCOM.Com.DriverAccess
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
         /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
-        /// If this is true, then only the synchronous local horizontal slewing methods are guaranteed to be supported.
-        /// See the <see cref="CanSlewAltAzAsync" /> property for the asynchronous slewing capability flag. 
+        /// If this is true, the <see cref="CanSlewAltAzAsync" /> property must also return true because all drivers must implement asynchronous slewing in this interface version.
         /// May raise an error if the telescope is not connected. 
         /// </remarks>
-        public bool CanSlewAltAz => base.Device.CanSlewAltAz;
+        public bool CanSlewAltAz => Device.CanSlewAltAz;
 
         /// <summary>
         /// True if this telescope is capable of programmed asynchronous slewing to local horizontal coordinates
@@ -359,11 +400,10 @@ namespace ASCOM.Com.DriverAccess
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
         /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
-        /// This indicates the asynchronous local horizontal slewing methods are supported.
-        /// If this is True, then <see cref="CanSlewAltAz" /> will also be true. 
+        /// If this is true, the <see cref="CanSlewAltAz" /> property must also return true because all drivers must implement synchronous slewing in this interface version to ensure backward compatibility with older clients..
         /// May raise an error if the telescope is not connected. 
         /// </remarks>
-        public bool CanSlewAltAzAsync => base.Device.CanSlewAltAzAsync;
+        public bool CanSlewAltAzAsync => Device.CanSlewAltAzAsync;
 
         /// <summary>
         /// True if this telescope is capable of programmed asynchronous slewing to equatorial coordinates.
@@ -372,11 +412,10 @@ namespace ASCOM.Com.DriverAccess
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
         /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
-        /// This indicates the asynchronous equatorial slewing methods are supported.
-        /// If this is True, then <see cref="CanSlew" /> will also be true.
+        /// If this is true, the <see cref="CanSlew" /> property must also return true because all drivers must implement synchronous slewing in this interface version to ensure backward compatibility with older clients..
         /// May raise an error if the telescope is not connected. 
         /// </remarks>
-        public bool CanSlewAsync => base.Device.CanSlewAsync;
+        public bool CanSlewAsync => Device.CanSlewAsync;
 
         /// <summary>
         /// True if this telescope is capable of programmed synching to equatorial coordinates.
@@ -387,7 +426,7 @@ namespace ASCOM.Com.DriverAccess
         /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
         /// May raise an error if the telescope is not connected. 
         /// </remarks>
-        public bool CanSync => base.Device.CanSync;
+        public bool CanSync => Device.CanSync;
 
         /// <summary>
         /// True if this telescope is capable of programmed synching to local horizontal coordinates
@@ -398,7 +437,7 @@ namespace ASCOM.Com.DriverAccess
         /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
         /// May raise an error if the telescope is not connected. 
         /// </remarks>
-        public bool CanSyncAltAz => base.Device.CanSyncAltAz;
+        public bool CanSyncAltAz => Device.CanSyncAltAz;
 
         /// <summary>
         /// True if this telescope is capable of programmed unparking (<see cref="Unpark" /> method).
@@ -418,7 +457,7 @@ namespace ASCOM.Com.DriverAccess
                 {
                     return false;
                 }
-                return base.Device.CanUnpark;
+                return Device.CanUnpark;
             }
         }
 
@@ -431,7 +470,7 @@ namespace ASCOM.Com.DriverAccess
         /// <remarks>
         /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
         /// </remarks>
-        public double Declination => base.Device.Declination;
+        public double Declination => Device.Declination;
 
         /// <summary>
         /// The declination tracking rate (arcseconds per SI second, default = 0.0)
@@ -467,7 +506,7 @@ namespace ASCOM.Com.DriverAccess
         ///     This is not a required feature of this specification, however it is desirable. 
         /// </para>
         /// </remarks>
-        public double DeclinationRate { get => base.Device.DeclinationRate; set => base.Device.DeclinationRate = value; }
+        public double DeclinationRate { get => Device.DeclinationRate; set => Device.DeclinationRate = value; }
 
         /// <summary>
         /// True if the telescope or driver applies atmospheric refraction to coordinates.
@@ -493,7 +532,7 @@ namespace ASCOM.Com.DriverAccess
         /// </list>
         /// </para>
         /// </remarks>
-        public bool DoesRefraction { get => base.Device.DoesRefraction; set => base.Device.DoesRefraction = value; }
+        public bool DoesRefraction { get => Device.DoesRefraction; set => Device.DoesRefraction = value; }
 
         /// <summary>
         /// Equatorial coordinate system used by this telescope (e.g. Topocentric or J2000).
@@ -517,7 +556,7 @@ namespace ASCOM.Com.DriverAccess
                 {
                     throw new ASCOM.NotImplementedException("EquatorialSystem is only supported by Interface Versions 2 and above.");
                 }
-                return (EquatorialCoordinateType)base.Device.EquatorialSystem;
+                return (EquatorialCoordinateType)Device.EquatorialSystem;
             }
         }
 
@@ -539,7 +578,7 @@ namespace ASCOM.Com.DriverAccess
                 {
                     throw new ASCOM.NotImplementedException("FocalLength is only supported by Interface Versions 2 and above.");
                 }
-                return base.Device.FocalLength;
+                return Device.FocalLength;
             }
         }
 
@@ -573,7 +612,7 @@ namespace ASCOM.Com.DriverAccess
                 {
                     throw new ASCOM.NotImplementedException("GuideRateDeclination is only supported by Interface Versions 2 and above.");
                 }
-                return base.Device.GuideRateDeclination;
+                return Device.GuideRateDeclination;
             }
             set
             {
@@ -581,7 +620,7 @@ namespace ASCOM.Com.DriverAccess
                 {
                     throw new ASCOM.NotImplementedException("GuideRateDeclination is only supported by Interface Versions 2 and above.");
                 }
-                base.Device.GuideRateDeclination = value;
+                Device.GuideRateDeclination = value;
             }
         }
 
@@ -615,7 +654,7 @@ namespace ASCOM.Com.DriverAccess
                 {
                     throw new ASCOM.NotImplementedException("GuideRateRightAscension is only supported by Interface Versions 2 and above.");
                 }
-                return base.Device.GuideRateRightAscension;
+                return Device.GuideRateRightAscension;
             }
             set
             {
@@ -623,7 +662,7 @@ namespace ASCOM.Com.DriverAccess
                 {
                     throw new ASCOM.NotImplementedException("GuideRateRightAscension is only supported by Interface Versions 2 and above.");
                 }
-                base.Device.GuideRateRightAscension = value;
+                Device.GuideRateRightAscension = value;
             }
         }
 
@@ -636,7 +675,7 @@ namespace ASCOM.Com.DriverAccess
         /// <remarks>
         /// Raises an error if the value of the <see cref="CanPulseGuide" /> property is false (the driver does not support the <see cref="PulseGuide" /> method). 
         /// </remarks>
-        public bool IsPulseGuiding => base.Device.IsPulseGuiding;
+        public bool IsPulseGuiding => Device.IsPulseGuiding;
 
         /// <summary>
         /// The right ascension (hours) of the telescope's current equatorial coordinates,
@@ -648,7 +687,7 @@ namespace ASCOM.Com.DriverAccess
         /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
         /// Reading the property will raise an error if the value is unavailable. 
         /// </remarks>
-        public double RightAscension => base.Device.RightAscension;
+        public double RightAscension => Device.RightAscension;
 
         /// <summary>
         /// The right ascension tracking rate offset from sidereal (seconds per sidereal second, default = 0.0)
@@ -684,7 +723,7 @@ namespace ASCOM.Com.DriverAccess
         /// </list>
         /// </para>
         /// </remarks>
-        public double RightAscensionRate { get => base.Device.RightAscensionRate; set => base.Device.RightAscensionRate = value; }
+        public double RightAscensionRate { get => Device.RightAscensionRate; set => Device.RightAscensionRate = value; }
 
         /// <summary>
         /// Indicates the pointing state of the mount.
@@ -694,6 +733,7 @@ namespace ASCOM.Com.DriverAccess
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
+        /// <para>This is an asynchronous method and <see cref="Slewing"/> should be set True while the operation is in progress.</para>
         /// <para>For historical reasons, this property's name does not reflect its true meaning. The name will not be changed (so as to preserve 
         /// compatibility), but the meaning has since become clear. All conventional mounts have two pointing states for a given equatorial (sky) position. 
         /// Mechanical limitations often make it impossible for the mount to position the optics at given HA/Dec in one of the two pointing 
@@ -759,7 +799,15 @@ namespace ASCOM.Com.DriverAccess
         /// to physical side of pier for German equatorial telescopes. It also includes details of the tests performed by Conform to determine whether 
         /// the driver correctly reports the pointing state as defined above.</para>
         /// </remarks>
-        public PointingState SideOfPier { get => (PointingState)base.Device.SideOfPier; set => base.Device.SideOfPier = value; }
+        public PointingState SideOfPier
+        {
+            get => (PointingState)Device.SideOfPier;
+            set
+            {
+                currentOperation = Operation.SideOfPier;
+                Device.SideOfPier = value;
+            }
+        }
 
         /// <summary>
         /// The local apparent sidereal time from the telescope's internal clock (hours, sidereal)
@@ -773,7 +821,7 @@ namespace ASCOM.Com.DriverAccess
         /// time used for pointing telescopes, and thus must be calculated from the Greenwich Mean
         /// Sidereal time, longitude, nutation in longitude and true ecliptic obliquity. 
         /// </remarks>
-        public double SiderealTime => base.Device.SiderealTime;
+        public double SiderealTime => Device.SiderealTime;
 
         /// <summary>
         /// The elevation above mean sea level (meters) of the site at which the telescope is located
@@ -796,7 +844,7 @@ namespace ASCOM.Com.DriverAccess
                 {
                     throw new ASCOM.NotImplementedException("SiteElevation is only supported by Interface Versions 2 and above.");
                 }
-                return base.Device.SiteElevation;
+                return Device.SiteElevation;
             }
             set
             {
@@ -804,7 +852,7 @@ namespace ASCOM.Com.DriverAccess
                 {
                     throw new ASCOM.NotImplementedException("SiteElevation is only supported by Interface Versions 2 and above.");
                 }
-                base.Device.SiteElevation = value;
+                Device.SiteElevation = value;
             }
         }
 
@@ -829,7 +877,7 @@ namespace ASCOM.Com.DriverAccess
                 {
                     throw new ASCOM.NotImplementedException("SiteLatitude is only supported by Interface Versions 2 and above.");
                 }
-                return base.Device.SiteLatitude;
+                return Device.SiteLatitude;
             }
             set
             {
@@ -837,7 +885,7 @@ namespace ASCOM.Com.DriverAccess
                 {
                     throw new ASCOM.NotImplementedException("SiteLatitude is only supported by Interface Versions 2 and above.");
                 }
-                base.Device.SiteLatitude = value;
+                Device.SiteLatitude = value;
             }
         }
 
@@ -863,7 +911,7 @@ namespace ASCOM.Com.DriverAccess
                 {
                     throw new ASCOM.NotImplementedException("SiteLongitude is only supported by Interface Versions 2 and above.");
                 }
-                return base.Device.SiteLongitude;
+                return Device.SiteLongitude;
             }
             set
             {
@@ -871,7 +919,7 @@ namespace ASCOM.Com.DriverAccess
                 {
                     throw new ASCOM.NotImplementedException("SiteLongitude is only supported by Interface Versions 2 and above.");
                 }
-                base.Device.SiteLongitude = value;
+                Device.SiteLongitude = value;
             }
         }
 
@@ -887,7 +935,7 @@ namespace ASCOM.Com.DriverAccess
         /// The definition of "slewing" excludes motion caused by sidereal tracking, <see cref="PulseGuide">PulseGuide</see>, <see cref="RightAscensionRate" />, and <see cref="DeclinationRate" />.
         /// It reflects only motion caused by one of the Slew commands, flipping caused by changing the <see cref="SideOfPier" /> property, or <see cref="MoveAxis" />. 
         /// </remarks>
-        public bool Slewing => base.Device.Slewing;
+        public bool Slewing => Device.Slewing;
 
         /// <summary>
         /// Specifies a post-slew settling time (sec.).
@@ -901,7 +949,7 @@ namespace ASCOM.Com.DriverAccess
         /// and the <see cref="Slewing" /> property will not become False, until the slew completes and the SlewSettleTime has elapsed.
         /// This feature (if supported) may be used with mounts that require extra settling time after a slew. 
         /// </remarks>
-        public short SlewSettleTime { get => base.Device.SlewSettleTime; set => base.Device.SlewSettleTime = value; }
+        public short SlewSettleTime { get => Device.SlewSettleTime; set => Device.SlewSettleTime = value; }
 
         /// <summary>
         /// The declination (degrees, positive North) for the target of an equatorial slew or sync operation
@@ -914,7 +962,7 @@ namespace ASCOM.Com.DriverAccess
         /// <remarks>
         /// Setting this property will raise an error if the given value is outside the range -90 to +90 degrees. Reading the property will raise an error if the value has never been set or is otherwise unavailable. 
         /// </remarks>
-        public double TargetDeclination { get => base.Device.TargetDeclination; set => base.Device.TargetDeclination = value; }
+        public double TargetDeclination { get => Device.TargetDeclination; set => Device.TargetDeclination = value; }
 
         /// <summary>
         /// The right ascension (hours) for the target of an equatorial slew or sync operation
@@ -927,7 +975,7 @@ namespace ASCOM.Com.DriverAccess
         /// <remarks>
         /// Setting this property will raise an error if the given value is outside the range 0 to 24 hours. Reading the property will raise an error if the value has never been set or is otherwise unavailable. 
         /// </remarks>
-        public double TargetRightAscension { get => base.Device.TargetRightAscension; set => base.Device.TargetRightAscension = value; }
+        public double TargetRightAscension { get => Device.TargetRightAscension; set => Device.TargetRightAscension = value; }
 
         /// <summary>
         /// The state of the telescope's sidereal tracking drive.
@@ -943,7 +991,7 @@ namespace ASCOM.Com.DriverAccess
         /// and thus may not support turning tracking on and off.
         /// See the <see cref="CanSetTracking" /> property. 
         /// </remarks>
-        public bool Tracking { get => base.Device.Tracking; set => base.Device.Tracking = value; }
+        public bool Tracking { get => Device.Tracking; set => Device.Tracking = value; }
 
         /// <summary>
         /// The current tracking rate of the telescope's sidereal drive
@@ -971,7 +1019,7 @@ namespace ASCOM.Com.DriverAccess
                 {
                     throw new ASCOM.NotImplementedException("TrackingRate is only supported by Interface Versions 2 and above.");
                 }
-                return (DriveRate)base.Device.TrackingRate;
+                return (DriveRate)Device.TrackingRate;
             }
             set
             {
@@ -979,7 +1027,7 @@ namespace ASCOM.Com.DriverAccess
                 {
                     throw new ASCOM.NotImplementedException("TrackingRate is only supported by Interface Versions 2 and above.");
                 }
-                base.Device.TrackingRate = value;
+                Device.TrackingRate = value;
             }
         }
 
@@ -1005,7 +1053,7 @@ namespace ASCOM.Com.DriverAccess
 
                 TrackingRates rates = new TrackingRates();
 
-                foreach (var rate in (base.Device.TrackingRates))
+                foreach (var rate in (Device.TrackingRates))
                 {
                     try
                     {
@@ -1038,7 +1086,7 @@ namespace ASCOM.Com.DriverAccess
         /// However, it is permitted to change the telescope's internal UTC clock if it is being used for this property. This allows clients to adjust the telescope's UTC clock as needed for accuracy. Reading the property
         /// will raise an error if the value has never been set or is otherwise unavailable. 
         /// </remarks>
-        public DateTime UTCDate { get => base.Device.UTCDate; set => base.Device.UTCDate = value; }
+        public DateTime UTCDate { get => Device.UTCDate; set => Device.UTCDate = value; }
 
         /// <summary>
         /// Stops a slew in progress.
@@ -1052,7 +1100,8 @@ namespace ASCOM.Com.DriverAccess
         /// </remarks>
         public void AbortSlew()
         {
-            base.Device.AbortSlew();
+            currentOperation = Operation.AbortSlew;
+            Device.AbortSlew();
         }
 
         /// <summary>
@@ -1080,7 +1129,7 @@ namespace ASCOM.Com.DriverAccess
             }
             AxisRates rates = new AxisRates();
 
-            foreach (var rate in base.Device.AxisRates(Axis))
+            foreach (var rate in Device.AxisRates(Axis))
             {
                 rates.Add(rate.Minimum, rate.Maximum);
             }
@@ -1103,7 +1152,7 @@ namespace ASCOM.Com.DriverAccess
         /// </remarks>
         public bool CanMoveAxis(TelescopeAxis Axis)
         {
-            return base.Device.CanMoveAxis(Axis);
+            return Device.CanMoveAxis(Axis);
         }
 
         /// <summary>
@@ -1125,7 +1174,7 @@ namespace ASCOM.Com.DriverAccess
             {
                 throw new ASCOM.NotImplementedException("AtPark is only supported by Interface Versions 2 and above.");
             }
-            return (PointingState)base.Device.DestinationSideOfPier(RightAscension, Declination);
+            return (PointingState)Device.DestinationSideOfPier(RightAscension, Declination);
         }
 
         /// <summary>
@@ -1135,8 +1184,8 @@ namespace ASCOM.Com.DriverAccess
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
-        /// Returns only after the home position has been found.
-        /// At this point the <see cref="AtHome" /> property will be True.
+        /// <para>This is an asynchronous method: Use the <see cref="Slewing"/> property to monitor the operation's progress. 
+        /// When the mount has successfully reached its home position, <see cref="Slewing"/> becomes False and <see cref="AtHome"/> becomes True.</para>
         /// Raises an error if there is a problem. 
         /// Raises an error if AtPark is true. 
         /// <para>This is only available for telescope Interface Versions 2 and later.</para>
@@ -1147,7 +1196,9 @@ namespace ASCOM.Com.DriverAccess
             {
                 throw new ASCOM.NotImplementedException("FindHome is only supported by Interface Versions 2 and above.");
             }
-            base.Device.FindHome();
+
+            currentOperation = Operation.FindHome;
+            Device.FindHome();
         }
 
         /// <summary>
@@ -1184,7 +1235,8 @@ namespace ASCOM.Com.DriverAccess
         /// </remarks>
         public void MoveAxis(TelescopeAxis Axis, double Rate)
         {
-            base.Device.MoveAxis(Axis, Rate);
+            currentOperation = Operation.MoveAxis;
+            Device.MoveAxis(Axis, Rate);
         }
 
         /// <summary>
@@ -1194,13 +1246,16 @@ namespace ASCOM.Com.DriverAccess
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
+        /// <para>This is an asynchronous method: Use the <see cref="Slewing"/> property to monitor the operation's progress. 
+        /// When the mount has successfully reached its home position, <see cref="Slewing"/> becomes False and <see cref="AtPark"/> becomes True.</para>
         /// Raises an error if there is a problem communicating with the telescope or if parking fails. Parking should put the telescope into a state where its pointing accuracy 
         /// will not be lost if it is power-cycled (without moving it).Some telescopes must be power-cycled before unparking. Others may be unparked by simply calling the <see cref="Unpark" /> method.
         /// Calling this with <see cref="AtPark" /> = True does nothing (harmless) 
         /// </remarks>
         public void Park()
         {
-            base.Device.Park();
+            currentOperation = Operation.Park;
+            Device.Park();
         }
 
         /// <summary>
@@ -1211,13 +1266,12 @@ namespace ASCOM.Com.DriverAccess
         /// <param name="Duration">The duration of the guide-rate motion (milliseconds)</param>
         /// <exception cref="NotImplementedException">If the method is not implemented and <see cref="CanPulseGuide" /> is False</exception>
         /// <exception cref="InvalidValueException">If an invalid direction or duration is given.</exception>
-        /// <exception cref="InvalidOperationException">If the pulse guide cannot be effected e.g. if the telescope is slewing or is not tracking.</exception>
+        /// <exception cref="InvalidOperationException">If the pulse guide cannot be effected e.g. if the telescope is slewing or is not tracking or a pulse guide is already in progress and a second cannot be started asynchronously.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
-        /// This method returns immediately if the hardware is capable of back-to-back moves,
-        /// i.e. dual-axis moves. For hardware not having the dual-axis capability,
-        /// the method returns only after the move has completed. 
+        /// This method is asynchronous and should return quickly using IsPulseGuiding as the completion property. 
+        /// If the mount cannot have simultaneous PulseGuide operations in both RightAscension and Declination, it must throw InvalidOperationException when the overlapping operation is attempted.
         /// <para>
         /// <b>NOTES:</b>
         /// <list type="bullet">
@@ -1234,7 +1288,8 @@ namespace ASCOM.Com.DriverAccess
         /// </remarks>
         public void PulseGuide(GuideDirection Direction, int Duration)
         {
-            base.Device.PulseGuide(Direction, Duration);
+            currentOperation = Operation.PulseGuide;
+            Device.PulseGuide(Direction, Duration);
         }
 
         /// <summary>
@@ -1245,7 +1300,7 @@ namespace ASCOM.Com.DriverAccess
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         public void SetPark()
         {
-            base.Device.SetPark();
+            Device.SetPark();
         }
 
         /// <summary>
@@ -1257,8 +1312,13 @@ namespace ASCOM.Com.DriverAccess
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
+        /// <p style="color:red"><b>Deprecated for client applications.</b></p>
+        /// <para>This method must not be used by applications, use the asynchronous <see cref="SlewToAltAzAsync(double, double)"/> method instead.
+        /// If the mount is capable of slewing, drivers must implement this method to ensure backward compatibility with older clients.</para>
+        /// <para>
         /// This Method must be implemented if <see cref="CanSlewAltAz" /> returns True. Raises an error if the slew fails. The slew may fail if the target coordinates are beyond limits imposed within the driver component.
         /// Such limits include mechanical constraints imposed by the mount or attached instruments, building or dome enclosure restrictions, etc.
+        /// </para>
         /// <para>The <see cref="TargetRightAscension" /> and <see cref="TargetDeclination" /> properties are not changed by this method. 
         /// Raises an error if <see cref="AtPark" /> is True, or if <see cref="Tracking" /> is True. This is only available for telescope Interface Versions 2 and later.</para>
         /// </remarks>
@@ -1270,7 +1330,7 @@ namespace ASCOM.Com.DriverAccess
             {
                 throw new ASCOM.NotImplementedException("SlewToAltAz is only supported by Interface Versions 2 and above.");
             }
-            base.Device.SlewToAltAz(Azimuth, Altitude);
+            Device.SlewToAltAz(Azimuth, Altitude);
         }
 
         /// <summary>
@@ -1291,6 +1351,7 @@ namespace ASCOM.Com.DriverAccess
         /// The <see cref="TargetRightAscension" /> and <see cref="TargetDeclination" /> properties are not changed by this method. 
         /// <para>Raises an error if <see cref="AtPark" /> is True, or if <see cref="Tracking" /> is True.</para>
         /// <para>This is only available for telescope Interface Versions 2 and later.</para>
+        /// <para>For drivers, <see cref="SlewToAltAz(double, double)"/> must also be implemented and <see cref="CanSlewAltAz"/> must return True when this method is implemented.</para>
         /// </remarks>
         public void SlewToAltAzAsync(double Azimuth, double Altitude)
         {
@@ -1298,7 +1359,9 @@ namespace ASCOM.Com.DriverAccess
             {
                 throw new ASCOM.NotImplementedException("SlewToAltAzAsync is only supported by Interface Versions 2 and above.");
             }
-            base.Device.SlewToAltAzAsync(Azimuth, Altitude);
+
+            currentOperation = Operation.SlewToAltAzAsync;
+            Device.SlewToAltAzAsync(Azimuth, Altitude);
         }
 
         /// <summary>
@@ -1312,16 +1375,23 @@ namespace ASCOM.Com.DriverAccess
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
-        /// This Method must be implemented if <see cref="CanSlew" /> returns True. Raises an error if the slew fails. 
+        /// <p style="color:red"><b>Deprecated for client applications.</b></p>
+        /// <para>This method must not be used by applications, use the asynchronous <see cref="SlewToCoordinates(double, double)"/> method instead.
+        /// If the mount is capable of slewing, drivers must implement this method to ensure backward compatibility with older clients.
+        /// </para>
+        /// <para>
+        /// This Method must be implemented if <see cref="CanSlew" /> returns True. Raises an error if the slew fails.
         /// The slew may fail if the target coordinates are beyond limits imposed within the driver component.
         /// Such limits include mechanical constraints imposed by the mount or attached instruments,
         /// building or dome enclosure restrictions, etc. The target coordinates are copied to
-        /// <see cref="TargetRightAscension" /> and <see cref="TargetDeclination" /> whether or not the slew succeeds. 
-        /// <para>Raises an error if <see cref="AtPark" /> is True, or if <see cref="Tracking" /> is False.</para>
+        /// <see cref="TargetRightAscension" /> and <see cref="TargetDeclination" /> whether or not the slew succeeds.
+        /// </para>
+        /// <para>Raises an error if <see cref="AtPark" /> is True, or if <see cref="Tracking" /> is False.
+        /// </para>
         /// </remarks>
         public void SlewToCoordinates(double RightAscension, double Declination)
         {
-            base.Device.SlewToCoordinates(RightAscension, Declination);
+            Device.SlewToCoordinates(RightAscension, Declination);
         }
 
         /// <summary>
@@ -1344,10 +1414,12 @@ namespace ASCOM.Com.DriverAccess
         /// <para>The target coordinates are copied to <see cref="TargetRightAscension" /> and <see cref="TargetDeclination" />
         /// whether or not the slew succeeds. 
         /// Raises an error if <see cref="AtPark" /> is True, or if <see cref="Tracking" /> is False.</para>
+        /// <para>For drivers, <see cref="SlewToCoordinates(double, double)"/> must also be implemented and <see cref="CanSlew"/> must return True when this method is implemented.</para>
         /// </remarks>
         public void SlewToCoordinatesAsync(double RightAscension, double Declination)
         {
-            base.Device.SlewToCoordinatesAsync(RightAscension, Declination);
+            currentOperation = Operation.SlewToCoordinatesAsync;
+            Device.SlewToCoordinatesAsync(RightAscension, Declination);
         }
 
         /// <summary>
@@ -1358,15 +1430,18 @@ namespace ASCOM.Com.DriverAccess
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
-        /// This Method must be implemented if <see cref="CanSlew" /> returns True. Raises an error if the slew fails. 
+        /// <p style="color:red"><b>Deprecated for client applications.</b></p>
+        /// <para>This method must not be used by applications, use the asynchronous <see cref="SlewToTargetAsync"/> method instead.
+        /// If the mount is capable of slewing, drivers must implement this method to ensure backward compatibility with older clients.</para>
+        /// <para>This Method must be implemented if <see cref="CanSlew" /> returns True. Raises an error if the slew fails.
         /// The slew may fail if the target coordinates are beyond limits imposed within the driver component.
         /// Such limits include mechanical constraints imposed by the mount or attached
-        /// instruments, building or dome enclosure restrictions, etc. 
-        /// Raises an error if <see cref="AtPark" /> is True, or if <see cref="Tracking" /> is False. 
+        /// instruments, building or dome enclosure restrictions, etc.</para>
+        /// <para>Raises an error if <see cref="AtPark" /> is True, or if <see cref="Tracking" /> is False.</para>
         /// </remarks>
         public void SlewToTarget()
         {
-            base.Device.SlewToTarget();
+            Device.SlewToTarget();
         }
 
         /// <summary>
@@ -1383,10 +1458,12 @@ namespace ASCOM.Com.DriverAccess
         /// and Slewing properties during the slew. When the slew completes,  <see cref="Slewing" /> becomes False. The slew may fail to start if the target coordinates are beyond limits imposed within 
         /// the driver component. Such limits include mechanical constraints imposed by the mount or attached instruments, building or dome enclosure restrictions, etc. 
         /// Raises an error if <see cref="AtPark" /> is True, or if <see cref="Tracking" /> is False. 
+        /// <para>For drivers, <see cref="SlewToTarget()"/> must also be implemented and <see cref="CanSlew"/> must return True when this method is implemented.</para>
         /// </remarks>
         public void SlewToTargetAsync()
         {
-            base.Device.SlewToTargetAsync();
+            currentOperation = Operation.SlewToTargetAsync;
+            Device.SlewToTargetAsync();
         }
 
         /// <summary>
@@ -1410,7 +1487,7 @@ namespace ASCOM.Com.DriverAccess
             {
                 throw new ASCOM.NotImplementedException("SyncToAltAz is only supported by Interface Versions 2 and above.");
             }
-            base.Device.SyncToAltAz(Azimuth, Altitude);
+            Device.SyncToAltAz(Azimuth, Altitude);
         }
 
         /// <summary>
@@ -1431,7 +1508,7 @@ namespace ASCOM.Com.DriverAccess
         /// </remarks>
         public void SyncToCoordinates(double RightAscension, double Declination)
         {
-            base.Device.SyncToCoordinates(RightAscension, Declination);
+            Device.SyncToCoordinates(RightAscension, Declination);
         }
 
         /// <summary>
@@ -1449,7 +1526,7 @@ namespace ASCOM.Com.DriverAccess
         /// </remarks>
         public void SyncToTarget()
         {
-            base.Device.SyncToTarget();
+            Device.SyncToTarget();
         }
 
         /// <summary>
@@ -1460,13 +1537,29 @@ namespace ASCOM.Com.DriverAccess
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
-        /// The state of <see cref="Tracking" /> after unparking is undetermined. Valid only after <see cref="Park" />. Applications must check and change Tracking as needed after unparking. 
-        /// Raises an error if unparking fails. Calling this with <see cref="AtPark" /> = False does nothing (harmless) 
+        /// <para>
+        /// This is an asynchronous method and <see cref="Slewing"/> must be set True while the mount is parking and False when the operation is complete. 
+        /// <see cref="AtPark"/> will be set True when the mount has parked successfully.
+        /// </para>
+        /// <para>
+        /// The state of <see cref="Tracking" /> after unparking is undetermined. Valid only after <see cref="Park" />. Applications must check and change Tracking as needed after unparking.
+        /// Raises an error if unparking fails. Calling this with <see cref="AtPark" /> = False does nothing (harmless)
+        /// </para>
         /// </remarks>
         public void Unpark()
         {
-            base.Device.Unpark();
+            currentOperation = Operation.Unpark;
+
+            Device.Unpark();
         }
+
+        #endregion
+
+        #region ITelescopeV4
+
+        // No new telescope members
+
+        #endregion
     }
 
     /// <summary>

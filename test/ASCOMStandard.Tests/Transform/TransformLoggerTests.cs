@@ -1,13 +1,11 @@
 ﻿using ASCOM.Tools;
-using System;
-using System.IO;
 using Xunit;
 
-namespace ASCOM.Alpaca.Tests.TransformTests
+namespace TransformTests
 {
     public class TransformLoggerTests
     {
-        TraceLogger TL = new TraceLogger("TransformTest1", true);
+        readonly TraceLogger TL = new("TransformTest1", true);
         Transform transform;
 
         [Fact]
@@ -22,13 +20,13 @@ namespace ASCOM.Alpaca.Tests.TransformTests
 
 
 
-            ConsoleLogger consLogger = new ConsoleLogger();
-            consLogger.SetMinimumLoggingLevel(Common.Interfaces.LogLevel.Debug);
-            consLogger.Log(Common.Interfaces.LogLevel.Debug, "Console logger created");
-            transform = new Tools.Transform(consLogger);
+            ConsoleLogger consLogger = new();
+            consLogger.SetMinimumLoggingLevel(ASCOM.Common.Interfaces.LogLevel.Debug);
+            consLogger.Log(ASCOM.Common.Interfaces.LogLevel.Debug, "Console logger created");
+            transform = new Transform(consLogger);
             Assert.NotNull(transform);
 
-            transform = new Tools.Transform(TL);
+            transform = new Transform(TL);
             Assert.NotNull(transform);
 
             Assert.Equal(0.0, transform.DeltaUT1);

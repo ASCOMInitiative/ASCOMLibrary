@@ -1,34 +1,22 @@
 ﻿using ASCOM.Common;
 using ASCOM.Common.Alpaca;
 using ASCOM.Common.DeviceInterfaces;
-using ASCOM.Common.Helpers;
+using ASCOM.Common.DeviceStateClasses;
 using ASCOM.Common.Interfaces;
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
-using System.Net;
 using System.Net.Http;
 using System.Reflection;
-using System.Threading.Tasks;
 
 namespace ASCOM.Alpaca.Clients
 {
     /// <summary>
     /// ASCOM Alpaca Camera client
     /// </summary>
-    public class AlpacaCamera : AlpacaDeviceBaseClass, ICameraV3
+    public class AlpacaCamera : AlpacaDeviceBaseClass, ICameraV4
     {
-        #region Variables and Constants
-
-        // Variables specific to this device type
-        private ImageArrayTransferType imageArrayTransferType = AlpacaClient.CLIENT_IMAGEARRAYTRANSFERTYPE_DEFAULT;
-        private ImageArrayCompression imageArrayCompression = AlpacaClient.CLIENT_IMAGEARRAYCOMPRESSION_DEFAULT;
-
-        #endregion
-
         #region Initialiser
 
         /// <summary>
@@ -236,6 +224,26 @@ namespace ASCOM.Alpaca.Clients
 
         #endregion
 
+        #region Convenience members
+
+        /// <summary>
+        /// Camera device state
+        /// </summary>
+        public CameraDeviceState CameraDeviceState
+        {
+            get
+            {
+                // Create a state object to return.
+                CameraDeviceState cameraDeviceState = new CameraDeviceState(DeviceState, logger);
+                logger.LogMessage(LogLevel.Debug, "CameraDeviceState", $"Returning: '{cameraDeviceState.CameraState}' '{cameraDeviceState.CCDTemperature}' '{cameraDeviceState.CoolerPower}' '{cameraDeviceState.HeatSinkTemperature}' '{cameraDeviceState.ImageReady}' '{cameraDeviceState.PercentCompleted}' '{cameraDeviceState.TimeStamp}'");
+
+                // Return the device specific state class
+                return cameraDeviceState;
+            }
+        }
+
+        #endregion
+
         #region ICameraV2 Implementation
 
         /// <summary>
@@ -250,7 +258,7 @@ namespace ASCOM.Alpaca.Clients
         /// <item><description>Must NOT throw an exception if the camera is already idle.</description></item>
         /// </list> </para>
         /// </remarks>
-        /// <exception cref="MethodNotImplementedException">If CanAbortExposure is false.</exception>
+        /// <exception cref="NotImplementedException">If CanAbortExposure is false.</exception>
         /// <exception cref="InvalidOperationException">Thrown if abort is not currently possible (e.g. during download).</exception>
         /// <exception cref="NotConnectedException">Thrown if the driver is not connected.</exception>
         /// <exception cref="DriverException">Thrown if a communications error occurs, or if the abort fails.</exception>
@@ -264,7 +272,7 @@ namespace ASCOM.Alpaca.Clients
         /// </summary>
         /// <remarks>
         /// <p style="color:red"><b>May throw a not implemented exception if this camera does not support PulseGuide</b></p>
-        /// <para>This method returns only after the move has completed.</para>
+        /// <para>This method must be implemented asynchronously using <see cref="IsPulseGuiding"/>  as the completion property.</para>
         /// <para>
         /// The (symbolic) values for GuideDirections are:
         /// <list type="bullet">
@@ -282,8 +290,8 @@ namespace ASCOM.Alpaca.Clients
         /// <param name="Direction">The direction of movement.</param>
         /// <param name="Duration">The duration of movement in milli-seconds.</param>
         /// <exception cref="NotImplementedException">PulseGuide command is unsupported</exception>
-		/// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-		/// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         public void PulseGuide(GuideDirection Direction, int Duration)
         {
             Dictionary<string, string> Parameters = new Dictionary<string, string>
@@ -299,6 +307,7 @@ namespace ASCOM.Alpaca.Clients
         /// </summary>
         /// <remarks>
         /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
+        /// <para>Must be implemented asynchronously using <see cref="ImageReady"/> to determine if the exposure has been successfully completed and the image data is ready for access via <see cref="ImageArray"/>.</para>
         /// <para>A dark frame or bias exposure may be shorter than the V2 <see cref="ExposureMin" /> value and for a bias frame can be zero.
         /// Check the value of <see cref="StartExposure">Light</see> and allow exposures down to 0 seconds
         /// if <see cref="StartExposure">Light</see> is <c>false</c>.  If the hardware will not
@@ -327,6 +336,7 @@ namespace ASCOM.Alpaca.Clients
         /// </summary>
         /// <remarks>
         /// <p style="color:red"><b>May throw a not implemented exception</b></p>
+        /// <para>Must be implemented asynchronously using <see cref="ImageReady"/> to determine if the exposure has been successfully completed and the image data is ready for access via <see cref="ImageArray"/>.</para>
         /// <para>If an exposure is in progress, the readout process is initiated.  Ignored if readout is already in process.</para>
         /// </remarks>
         /// <exception cref="NotImplementedException">Must throw an exception if CanStopExposure is <c>false</c></exception>
@@ -694,9 +704,12 @@ namespace ASCOM.Alpaca.Clients
         }
 
         /// <summary>
-        /// Returns a safearray of integers of size <see cref="NumX" /> * <see cref="NumY" /> containing the pixel values from the last exposure.
+        /// Returns an array of int of size <see cref="NumX" /> * <see cref="NumY" /> containing the pixel values from the last exposure.
         /// </summary>
         /// <remarks>
+        /// <para>This is a synchronous call and clients should be prepared for it to take a long time to complete when large images are being transferred.</para>
+        /// <para>Drivers written in C++ must return the image as a SafeArray.</para>
+        /// <para>Developers of Alpaca camera devices are strongly advised to implement the ImageBytes mechanic, which is specified in the Alpaca API Reference, to ensure fast image transfer to the client.</para>>
         /// The application must inspect the Safearray parameters to determine the dimensions.
         /// <para>Note: if <see cref="NumX" /> or <see cref="NumY" /> is changed after a call to <see cref="StartExposure">StartExposure</see> it will
         /// have no effect on the size of this array. This is the preferred method for programs (not scripts) to download
@@ -717,15 +730,18 @@ namespace ASCOM.Alpaca.Clients
         }
 
         /// <summary>
-        /// Returns a safearray of Variant of size <see cref="NumX" /> * <see cref="NumY" /> containing the pixel values from the last exposure.
+        /// Returns an array of COM-Variant of size <see cref="NumX" /> * <see cref="NumY" /> containing the pixel values from the last exposure.
         /// </summary>
+        /// <value>The image array variant.</value>
         /// <remarks>
-        /// The application must inspect the Safearray parameters to
-        /// determine the dimensions. Note: if <see cref="NumX" /> or <see cref="NumY" /> is changed after a call to
+        /// <para>This property is used only in Windows ASCOM/COM drivers. Alpaca drivers and stand-alone Alpaca cameras must raise a <see cref="PropertyNotImplementedException"/>.</para>
+        /// <para>This is a synchronous call and clients should be prepared for it to take a long time to complete when large images are being transferred.</para>
+        /// <para>Drivers written in C++ must return the image as a SafeArray.</para>
+        /// <para>Note: if <see cref="NumX" /> or <see cref="NumY" /> is changed after a call to
         /// <see cref="StartExposure">StartExposure</see> it will have no effect on the size of this array. This property
         /// should only be used from scripts due to the extremely high memory utilization on
         /// large image arrays (26 bytes per pixel). Pixels values should be in Short, int,
-        /// or Double format.
+        /// or Double format.</para>
         /// <para>For colour or multispectral cameras, will produce an array of <see cref="NumX" /> * <see cref="NumY" /> *
         /// NumPlanes.  If the application cannot handle multispectral images, it should use
         /// just the first plane.</para>
@@ -942,7 +958,7 @@ namespace ASCOM.Alpaca.Clients
         }
 
         /// <summary>
-        /// Sets the camera cooler setpoint in degrees Celsius, and returns the current setpoint.
+        /// Sets the camera cooler set-point in degrees Celsius, and returns the current set-point.
         /// </summary>
         /// <remarks>
         /// <para>The driver should throw an <see cref="InvalidValueException" /> if an attempt is made to set <see cref="SetCCDTemperature" />
@@ -2289,6 +2305,12 @@ namespace ASCOM.Alpaca.Clients
                 DynamicClientDriver.SetDouble(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "SubExposureDuration", value, MemberTypes.Property);
             }
         }
+
+        #endregion
+
+        #region ICameraV4 implementation
+
+        // No new members
 
         #endregion
 

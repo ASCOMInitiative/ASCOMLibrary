@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<topic id="1984b924-4868-431c-ba07-74f312ef1f5c" revisionNumber="1">
+	<developerConceptualDocument xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5" xmlns:xlink="http://www.w3.org/1999/xlink">
+		<introduction>
+			<para>
+				The stand alone Chooser is a functionally equivalent replacement for the .NET Framework 3.5 ASCOM.Utiltiies.Chooser component that is distributed in the ASCOM Platform.
+			</para>
+		</introduction>
+
+		<section>
+			<title>Rationale</title>
+			<content>
+				<para>
+					The .NET Core based stand alone Chooser exists because Microsoft currently
+					<externalLink>
+						<linkText>
+							plans to discontinue support for .NET Framework 3.5 in January 2029
+						</linkText>
+						<linkUri>https://learn.microsoft.com/en-us/lifecycle/products/microsoft-net-framework</linkUri>
+					</externalLink>
+					.
+				</para>
+				<para>
+					It is not yet clear what "end of support" means, and the Stand Alone Chooser is a mitigation for the risk
+					that the .NET 3.5 based Chooser component may cease to work correctly at some unknown future date.
+				</para>
+				<para>
+					Chooser functionality is core to enabling ASCOM COM applications to find ASCOM COM drivers that are installed on the PC. Together with the registry based Profile store, 
+					it associates human readable descriptions with the machine readable COM ProgIDs that COM uses under the hood. Put simply, if we don't have Chooser functionality, applications 
+					cannot find installed drivers.
+				</para>
+
+				<para>
+					The original Platform Chooser is based on the venerable .NET 3.5  (CLR2) framework and it is not possible to replace it with a version created in a later runtime version, 
+					such as .NET 4.7.2 (CLR4), because any extant CLR2 applications will fail when presented with a CLR 4 Chooser component.
+				</para>
+			</content>
+		</section>
+
+		<section>
+			<title>ChooserSA Implementation Detail</title>
+			<content>
+				<para>
+					Unlike the remainder of the ASCOM Library, the stand alone Chooser is not targetted at .NET Standard 2.0. Instead, because it makes direct use of
+					Windows components such as Forms, it must be targetted at specific versions such as .NET Framework 4.7.2 and .NET 7.0.
+					The stand alone Chooser package can be used in projects that target these frameworks:
+				</para>
+				<list class="bullet">
+					<listItem>
+						<para>.NET Framework 4.7.2 (Target framework moniker (TFM): net472)</para>
+					</listItem>
+
+					<listItem>
+						<para>.NET Framework 4.8 and later (Target framework moniker (TFM): net48)</para>
+					</listItem>
+
+					<listItem>
+						<para>.NET 6.0 (Target framework moniker (TFM): net6.0-windows)</para>
+					</listItem>
+
+					<listItem>
+						<para>.NET 7.0 (Target framework moniker (TFM): net7.0-windows)</para>
+					</listItem>
+
+					<listItem>
+						<para>.NET 8.0 (Target framework moniker (TFM): net8.0-windows)</para>
+					</listItem>
+				</list>
+
+			</content>
+		</section>
+
+		<relatedTopics>
+			<link xlink:href="65154813-964d-4e41-9025-f3718abfa158" />
+		</relatedTopics>
+	</developerConceptualDocument>
+</topic>

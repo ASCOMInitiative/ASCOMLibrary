@@ -1,24 +1,23 @@
-﻿using ASCOM.Alpaca.Discovery;
-using ASCOM.Common;
+﻿using ASCOM.Common;
 using ASCOM.Common.Alpaca;
+using ASCOM.Common.DeviceInterfaces;
 using ASCOM.Common.Interfaces;
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Reflection;
-using System.Threading;
+using System.Text.Json;
 
 namespace ASCOM.Alpaca.Clients
 {
     /// <summary>
     /// Base class for Alpaca client devices
     /// </summary>
-    public abstract class AlpacaDeviceBaseClass : IDisposable
+    public abstract class AlpacaDeviceBaseClass : IAlpacaClientV2, IDisposable
     {
         // Variables common to all instances
-
-        // Set default values
         internal ServiceType serviceType = AlpacaClient.CLIENT_SERVICETYPE_DEFAULT;
         internal string ipAddressString = AlpacaClient.CLIENT_IPADDRESS_DEFAULT;
         internal decimal portNumber = AlpacaClient.CLIENT_IPPORT_DEFAULT;
@@ -29,12 +28,11 @@ namespace ASCOM.Alpaca.Clients
         internal string userName = AlpacaClient.CLIENT_USERNAME_DEFAULT;
         internal string password = AlpacaClient.CLIENT_PASSWORD_DEFAULT;
         internal bool strictCasing = true; // Strict or flexible interpretation of casing in device JSON responses
-        internal ILogger logger=AlpacaClient.CLIENT_LOGGER_DEFAULT; // Private variable to hold the trace logger object
+        internal ILogger logger = AlpacaClient.CLIENT_LOGGER_DEFAULT; // Private variable to hold the trace logger object
         internal DeviceTypes clientDeviceType = DeviceTypes.Telescope; // Variable to hold the device type, which is set in each device type class
         internal uint clientNumber = AlpacaClient.CLIENT_CLIENTNUMBER_DEFAULT; // Unique number for this driver within the locaL server, i.e. across all drivers that the local server is serving
 
         internal HttpClient client; // Client to send and receive REST style messages to / from the remote device
-        internal bool clientIsConnected;  // Connection state of this driver
         internal string URIBase; // URI base unique to this driver
         private bool disposedValue; // Whether or not the client has been Disposed()
         private readonly ClientConfiguration clientConfiguration; // The client configuration
@@ -43,6 +41,16 @@ namespace ASCOM.Alpaca.Clients
         internal string userAgentProductVersion;
 
         internal bool trustUserGeneratedSslCertificates;
+
+        private short? interfaceVersion;
+
+        #region Variables and Constants specific to the Camera class
+
+        // Variables specific to the Camera type
+        internal ImageArrayTransferType imageArrayTransferType = AlpacaClient.CLIENT_IMAGEARRAYTRANSFERTYPE_DEFAULT;
+        internal ImageArrayCompression imageArrayCompression = AlpacaClient.CLIENT_IMAGEARRAYCOMPRESSION_DEFAULT;
+
+        #endregion
 
         /// <summary>
         /// Create a new instance of the AlpacaDeviceBaseClass passing the instance to the client configuration class
@@ -63,18 +71,26 @@ namespace ASCOM.Alpaca.Clients
 
         }
 
+        /// <summary>
+        /// Updates the internal HTTP client with a new instance.
+        /// </summary>
+        /// <remarks>This method must be called after changing the client configuration through the <see cref="ClientConfiguration"/> property.</remarks>
+        public void RefreshClient()
+        {
+            DynamicClientDriver.CreateHttpClient(ref client, ClientConfiguration.ServiceType, ClientConfiguration.IpAddress, ClientConfiguration.PortNumber, ClientConfiguration.ClientNumber,
+                ClientConfiguration.DeviceType, ClientConfiguration.UserName, ClientConfiguration.Password, ClientConfiguration.ImageArrayCompression,
+                logger, ClientConfiguration.UserAgentProductName, ClientConfiguration.UserAgentProductVersion, trustUserGeneratedSslCertificates);
+        }
+
         #endregion
 
-        #region Common properties and methods.
+        #region IAscomDevice common properties and methods.
 
         /// <summary>
         /// Invokes the specified device-specific action.
         /// </summary>
-        /// <param name="actionName">
-        /// A well known name agreed by interested parties that represents the action to be carried out. 
-        /// </param>
-        /// <param name="actionParameters">List of required parameters or an <see cref="String.Empty">Empty String</see> if none are required.
-        /// </param>
+        /// <param name="actionName">A well known name agreed by interested parties that represents the action to be carried out.</param>
+        /// <param name="actionParameters">List of required parameters or an <see cref="String.Empty">Empty String</see> if none are required.</param>
         /// <returns>A string response. The meaning of returned strings is set by the driver author.</returns>
         /// <exception cref="NotImplementedException">Throws this exception if an action name is not supported.
         /// of driver capabilities, but the driver must still throw an ASCOM.ActionNotImplemented exception if it is asked to 
@@ -204,9 +220,6 @@ namespace ASCOM.Alpaca.Clients
             }
             set
             {
-                // Save the connected state
-                clientIsConnected = value;
-
                 // Set the device's Connected property
                 try
                 {
@@ -223,13 +236,14 @@ namespace ASCOM.Alpaca.Clients
         }
 
         /// <summary>
-        /// Returns a description of the driver, such as manufacturer and model
-        /// number. Any ASCII characters may be used. The string shall not exceed 68
-        /// characters (for compatibility with FITS headers).
+        /// Returns a description of the driver, such as manufacturer and model number.
         /// </summary>
         /// <value>The description.</value>
         /// <exception cref="NotConnectedException">When <see cref="Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
+        /// <remarks>
+        /// Any ASCII characters may be used. The string must not exceed 68 characters (for compatibility with FITS headers).
+        /// </remarks>
         public string Description
         {
             get
@@ -242,12 +256,14 @@ namespace ASCOM.Alpaca.Clients
 
         /// <summary>
         /// Descriptive and version information about this ASCOM driver.
+        /// </summary>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
+        /// <remarks>
         /// This string may contain line endings and may be hundreds to thousands of characters long.
         /// It is intended to display detailed information on the ASCOM driver, including version and copyright data.
         /// See the Description property for descriptive info on the telescope itself.
         /// To get the driver version in a parseable string, use the DriverVersion property.
-        /// </summary>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
+        /// </remarks>
         public string DriverInfo
         {
             get
@@ -257,11 +273,12 @@ namespace ASCOM.Alpaca.Clients
         }
 
         /// <summary>
-        /// A string containing only the major and minor version of the driver.
-        /// This must be in the form "n.n".
-        /// Not to be confused with the InterfaceVersion property, which is the version of this specification supported by the driver (currently 2). 
+        /// A string in the form "n.n" containing only the major and minor version of the driver.
         /// </summary>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
+        /// <remarks>
+        /// Not to be confused with the InterfaceVersion property, which is the version of this specification supported by the driver (currently 2). 
+        /// </remarks>
         public string DriverVersion
         {
             get
@@ -271,17 +288,29 @@ namespace ASCOM.Alpaca.Clients
         }
 
         /// <summary>
-        /// The version of this interface. Will return 2 for this version.
+        /// The interface version number that this device implements.
+        /// </summary>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <remarks>
+        /// <para>E.g. a device that implements IDeviceV3 should return 3.</para>
+        /// <para>
         /// Clients can detect legacy V1 drivers by trying to read this property.
         /// If the driver raises an error, it is a V1 driver. V1 did not specify this property. A driver may also return a value of 1. 
         /// In other words, a raised error or a return value of 1 indicates that the driver is a V1 driver. 
-        /// </summary>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
+        /// </para>
+        /// </remarks>
         public short InterfaceVersion
         {
             get
             {
-                return DynamicClientDriver.InterfaceVersion(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger);
+                // Test whether the interface version has already been retrieved
+                if (!interfaceVersion.HasValue) // This is the first time the method has been called so get the interface version number from the driver and cache it
+                {
+                    try { interfaceVersion = DynamicClientDriver.InterfaceVersion(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger); } // Get the interface version
+                    catch { interfaceVersion = 1; } // The method failed so assume that the driver has a version 1 interface where the InterfaceVersion method is not implemented
+                }
+
+                return interfaceVersion.Value; // Return the newly retrieved or already cached value
             }
         }
 
@@ -321,11 +350,99 @@ namespace ASCOM.Alpaca.Clients
 
         #endregion
 
+        #region IAscomDeviceV2 common properties and methods
+
+        /// <summary>
+        /// Connect to a device asynchronously
+        /// </summary>
+        public void Connect()
+        {
+            // Check whether this device supports Connect / Disconnect
+            if (DeviceCapabilities.HasConnectAndDeviceState(clientDeviceType, InterfaceVersion))
+            {
+                // Platform 7 or later device so use the device's Connect method
+                DynamicClientDriver.CallMethodWithNoParameters(clientNumber, client, longDeviceResponseTimeout, URIBase, strictCasing, logger, "Connect", MemberTypes.Method);
+                return;
+            }
+
+            // Platform 6 or earlier device so use the Connected property
+            DynamicClientDriver.SetBool(clientNumber, client, establishConnectionTimeout, URIBase, strictCasing, logger, "Connected", true, MemberTypes.Property);
+        }
+
+        /// <summary>
+        /// Disconnect from a device asynchronously
+        /// </summary>
+        public void Disconnect()
+        {
+            // Check whether this device supports Connect / Disconnect
+            if (DeviceCapabilities.HasConnectAndDeviceState(clientDeviceType, InterfaceVersion))
+            {
+                // Platform 7 or later device so use the device's Disconnect method
+                DynamicClientDriver.CallMethodWithNoParameters(clientNumber, client, longDeviceResponseTimeout, URIBase, strictCasing, logger, "Disconnect", MemberTypes.Method);
+                return;
+            }
+
+            // Platform 6 or earlier device so use the Connected property
+            DynamicClientDriver.SetBool(clientNumber, client, establishConnectionTimeout, URIBase, strictCasing, logger, "Connected", false, MemberTypes.Property);
+        }
+
+        /// <summary>
+        /// Asynchronous connection completion variable.
+        /// </summary>
+        public bool Connecting
+        {
+            get
+            {
+                // Check whether this device supports Connect / Disconnect
+                if (DeviceCapabilities.HasConnectAndDeviceState(clientDeviceType, InterfaceVersion))
+                {
+                    // Platform 7 or later device so return the device's Connecting property
+                    return DynamicClientDriver.GetValue<bool>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "Connecting", MemberTypes.Property);
+                }
+
+                // Always return false for Platform 6 and earlier devices
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Returns a List of device operational state values as IStateValue objects.
+        /// </summary>
+        public List<StateValue> DeviceState
+        {
+            get
+            {
+                // Check whether this device supports Connect / Disconnect
+                if (DeviceCapabilities.HasConnectAndDeviceState(clientDeviceType, InterfaceVersion))
+                {
+                    // Platform 7 or later device so return the device's value
+                    // Note use of a concrete class here because System.Text.Json cannot de-serialise to an interface, it requires a concrete class
+                    List<StateValue> response = DynamicClientDriver.GetValue<List<StateValue>>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "DeviceState", MemberTypes.Property);
+
+                    // Here we convert the device response to a type that can be returned as a LIst<IStateValue> object.
+                    // This is done by using LINQ to cast the returned List<StateValue> objects to the StateValue type and then returning them as a list. Convoluted, but it works!
+                    // The list is also cleaned to rid it of JsonElement types that are created by System.Text.Json de-serialisation
+                    List<StateValue> returnValue = OperationalStateProperty.Clean(response.Cast<StateValue>().ToList(), clientDeviceType, logger);
+
+                    foreach (IStateValue value in returnValue)
+                    {
+                        logger.LogMessage(LogLevel.Debug, "DeviceState", $"{value.Name} = {value.Value} - Type: {value.Value.GetType().Name}");
+                    }
+                    return returnValue;
+                }
+
+                // Return an empty list for Platform 6 and earlier devices
+                return new List<StateValue>();
+            }
+        }
+
+        #endregion
+
         #region Support code
 
         internal static void LogMessage(ILogger logger, uint instance, string prefix, string message)
         {
-            logger.LogMessage(LogLevel.Information, $"{prefix} {instance}", message);
+            logger.LogMessage(LogLevel.Debug, $"{prefix} {instance}", message);
         }
 
         internal static void LogBlankLine(ILogger logger)

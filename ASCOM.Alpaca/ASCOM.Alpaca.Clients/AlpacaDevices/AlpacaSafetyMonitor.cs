@@ -1,9 +1,9 @@
 ﻿using ASCOM.Common;
 using ASCOM.Common.Alpaca;
 using ASCOM.Common.DeviceInterfaces;
+using ASCOM.Common.DeviceStateClasses;
 using ASCOM.Common.Interfaces;
 using System;
-using System.Collections.Generic;
 using System.Reflection;
 
 namespace ASCOM.Alpaca.Clients
@@ -11,7 +11,7 @@ namespace ASCOM.Alpaca.Clients
     /// <summary>
     /// ASCOM Alpaca SafetyMonitor client
     /// </summary>
-    public class AlpacaSafetyMonitor : AlpacaDeviceBaseClass, ISafetyMonitor
+    public class AlpacaSafetyMonitor : AlpacaDeviceBaseClass, ISafetyMonitorV3
     {
         #region Variables and Constants
 
@@ -144,7 +144,29 @@ namespace ASCOM.Alpaca.Clients
 
         #endregion
 
-        #region ISafetyMonitor Implementation
+        #region Convenience members
+
+        /// <summary>
+        /// SafetyMonitor device state
+        /// </summary>
+        public SafetyMonitorState SafetyMonitorState
+        {
+            get
+            {
+                // Create a state object to return.
+                SafetyMonitorState safetyMonitorState = new SafetyMonitorState(DeviceState, logger);
+                logger.LogMessage(LogLevel.Debug, nameof(SafetyMonitorState), $"Returning: " +
+                    $"IsSafe: '{safetyMonitorState.IsSafe}', " +
+                    $"Time stamp: '{safetyMonitorState.TimeStamp}'");
+
+                // Return the device specific state class
+                return safetyMonitorState;
+            }
+        }
+
+        #endregion
+
+        #region ISafetyMonitorV2 Implementation
 
         /// <summary>
         /// Indicates whether the monitored state is safe for use.
@@ -162,6 +184,12 @@ namespace ASCOM.Alpaca.Clients
                 return DynamicClientDriver.GetValue<bool>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "IsSafe", MemberTypes.Property);
             }
         }
+
+        #endregion
+
+        #region ISafetyMonitorV3 implementation
+
+        // No new members
 
         #endregion
 

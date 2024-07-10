@@ -1,13 +1,9 @@
 ﻿using ASCOM.Common.Interfaces;
 using Microsoft.Win32;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Text;
-using static System.Net.Mime.MediaTypeNames;
 using System.Threading;
-using System.Runtime.CompilerServices;
 using System.IO;
 using static System.Environment;
 using ASCOM.Common;
@@ -21,7 +17,7 @@ namespace ASCOM.Com
     {
         // Constants for Version functions
         const int MINIMUM_VALID_PLATFORM_VERSION = 1;
-        const int MAXIMUM_VALID_PLATFORM_VERSION = 6;
+        const int MAXIMUM_VALID_PLATFORM_VERSION = 7;
         const int MINIMUM_VALID_MINOR_VERSION = 0;
         const int MAXIMUM_VALID_MINOR_VERSION = 6;
         const int MINIMUM_VALID_SERVICEPACK_VERSION = 0;
@@ -29,11 +25,11 @@ namespace ASCOM.Com
         const int MINIMUM_BUILD_NUMBER = 0;
         const int MAXIMUM_BUILD_NUMBER = 65535;
 
-        const string PROFILE_ROOT_KEY = "SOFTWARE\\ASCOM";
+        const string PROFILE_ROOT_KEY = @"SOFTWARE\ASCOM";
 
         // Constants for CreateDynamicDriver method
         private const string DRIVER_PROGID_BASE = "ASCOM.AlpacaDynamic";
-        private const string ALPACA_DYNAMIC_CLIENT_MANAGER_RELATIVE_PATH = "ASCOM\\Platform 6\\Tools\\AlpacaDynamicClientManager";
+        private const string ALPACA_DYNAMIC_CLIENT_MANAGER_RELATIVE_PATH = @"ASCOM\Platform\Tools\AlpacaDynamicClientManager";
         private const string ALPACA_DYNAMIC_CLIENT_MANAGER_EXE_NAME = "ASCOM.AlpacaDynamicClientManager.exe";
 
         // Alpaca driver Profile store value names
@@ -41,9 +37,10 @@ namespace ASCOM.Com
         private const string PROFILE_VALUE_NAME_IP_ADDRESS = "IP Address";
         private const string PROFILE_VALUE_NAME_PORT_NUMBER = "Port Number";
         private const string PROFILE_VALUE_NAME_REMOTE_DEVICER_NUMBER = "Remote Device Number";
+        private const string PROFILE_VALUE_NAME_COM_GUID = "COM Guid"; // This value must match the same named constant in the Dynamic Client Local Server project LocalServer.cs file
 
         // Variables
-        private static Version platformVersion = null;
+        private static readonly Version platformVersion = null;
         private static ILogger logger;
         private static bool driverGenerationComplete;
 
@@ -316,12 +313,14 @@ namespace ASCOM.Com
             }
             catch (Win32Exception ex) when ((uint)ex.ErrorCode == 0x80004005)
             {
+                LogMessage("CreateDynamicDriver", $"Security approval not given, returning empoty string: \r\n{ex}");
                 // Security approval was not given by the user
                 return "";
             }
             catch (Exception ex)
             {
                 LogMessage("CreateDynamicDriver", $"Exception: \r\n{ex}");
+                throw;
             }
             return newProgId;
         }
@@ -340,19 +339,31 @@ namespace ASCOM.Com
             // Try successive ProgIDs until one is found that is not COM registered
             do
             {
+                // Increment the device number
                 deviceNumber += 1;
+
+                // Create the new ProgID to be tested
                 newProgId = $"{DRIVER_PROGID_BASE}{deviceNumber}.{Devices.DeviceTypeToString(deviceType)}";
+
+                // Try to get the type with the new ProgID
                 typeFromProgId = Type.GetTypeFromProgID(newProgId);
                 LogMessage("CreateAlpacaClient", $"Testing ProgID: {newProgId} Type name: {typeFromProgId?.Name}");
             }
-            while ((!(typeFromProgId == null)))// Increment the device number// Create the new ProgID to be tested// Try to get the type with the new ProgID
-        ; // Loop until the returned type is null indicating that this type is not COM registered
-
+            while (!(typeFromProgId is null)); // Loop until the returned type is null indicating that this type is not COM registered
             LogMessage("CreateAlpacaClient", $"Creating new ProgID: {newProgId}");
 
+            // Register the new ProgID so that the local server will register it
+            Profile.Register(deviceType, newProgId, deviceDescription);
+
+            // Create a new COM GUID for this driver if one does not already exist.
+            // At this point, we aren't interested in the returned value, only that a value exists. This is ensured by use of the default value: Guid.NewGuid().
+            Profile.GetValue(deviceType, newProgId, PROFILE_VALUE_NAME_COM_GUID, "", Guid.NewGuid().ToString());
+
+            // Call the dynamic client manager to run the local server to register the new ProgID device
             RunDynamicClientManager($@"\CreateAlpacaClient {deviceType} {deviceNumber} {newProgId} ""{deviceDescription}""");
 
-            return newProgId; // Return the new ProgID
+            // Return the new ProgID
+            return newProgId;
         }
 
         #endregion
@@ -370,7 +381,7 @@ namespace ASCOM.Com
             Process clientManagerProcess;
 
             // Construct path to the executable that will dynamically create a new Alpaca COM client
-            clientManagerWorkingDirectory = $@"{Environment.GetFolderPath(SpecialFolder.ProgramFilesX86)}\{ALPACA_DYNAMIC_CLIENT_MANAGER_RELATIVE_PATH}";
+            clientManagerWorkingDirectory = $@"{GetFolderPath(SpecialFolder.ProgramFilesX86)}\{ALPACA_DYNAMIC_CLIENT_MANAGER_RELATIVE_PATH}";
             clientManagerExeFile = $@"{clientManagerWorkingDirectory}\{ALPACA_DYNAMIC_CLIENT_MANAGER_EXE_NAME}";
 
             LogMessage("RunDynamicClientManager", $"Generator parameters: '{parameterString}'");

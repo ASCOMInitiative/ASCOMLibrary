@@ -14,7 +14,7 @@ namespace ASCOM.Common.DeviceInterfaces
     public enum PointingState
     {
         /// <summary>
-        /// Normal pointing state - For GEMs, OTA above the counterweights, on the West side of pier looking East
+        /// Normal pointing state - For GEMs, OTA above the counterweights, Mount on the West side of pier looking East
         /// </summary>
         Normal = 0,
 

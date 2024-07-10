@@ -1,18 +1,43 @@
 ﻿using ASCOM.Common.DeviceInterfaces;
 using System.Collections.Generic;
 using ASCOM.Common;
+using ASCOM.Common.Interfaces;
+using ASCOM.Common.DeviceStateClasses;
 
 namespace ASCOM.Com.DriverAccess
 {
     /// <summary>
     /// Dome device class
     /// </summary>
-    public class Dome : ASCOMDevice, IDomeV2
+    public class Dome : ASCOMDevice, IDomeV3
     {
+
+        #region Convenience members
+
         /// <summary>
         /// Return a list of all Dome devices registered in the ASCOM Profile
         /// </summary>
         public static List<ASCOMRegistration> Domes => Profile.GetDrivers(DeviceTypes.Dome);
+
+        /// <summary>
+        /// Dome device state
+        /// </summary>
+        public DomeState DomeState
+        {
+            get
+            {
+                // Create a state object to return.
+                DomeState domeState = new DomeState(DeviceState, TL);
+                TL.LogMessage(LogLevel.Debug, nameof(DomeState), $"Returning: '{domeState.Altitude}' '{domeState.AtHome}' '{domeState.AtPark}' '{domeState.Azimuth}' '{domeState.ShutterStatus}' '{domeState.Slewing}' '{domeState.TimeStamp}'");
+
+                // Return the device specific state class
+                return domeState;
+            }
+        }
+
+        #endregion
+
+        #region Initialisers
 
         /// <summary>
         /// Initialise Dome device
@@ -20,8 +45,23 @@ namespace ASCOM.Com.DriverAccess
         /// <param name="ProgID">COM ProgID of the device.</param>
         public Dome(string ProgID) : base(ProgID)
         {
-
+            deviceType = DeviceTypes.Dome;
         }
+
+        /// <summary>
+        /// Initialise Dome device with a debug logger
+        /// </summary>
+        /// <param name="ProgID">ProgID of the driver</param>
+        /// <param name="logger">Logger instance to receive debug information.</param>
+        public Dome(string ProgID, ILogger logger) : base(ProgID)
+        {
+            deviceType = DeviceTypes.Dome;
+            TL = logger;
+        }
+
+        #endregion
+
+        #region IDomeV2 and IDomeV3
 
         /// <summary>
         /// A string containing only the major and minor version of the driver.
@@ -50,7 +90,7 @@ namespace ASCOM.Com.DriverAccess
         /// <remarks>
         /// Raises an error only if no altitude control. If actual dome altitude can not be read, then reports back the last slew position. 
         /// </remarks>
-        public double Altitude => base.Device.Altitude;
+        public double Altitude => Device.Altitude;
 
         /// <summary>
         /// Indicates whether the dome is in the home position. Raises an error if not supported. 
@@ -72,7 +112,7 @@ namespace ASCOM.Com.DriverAccess
         /// Because of these potential differences in behaviour, applications should not rely on the reported azimuth position being identical each time <see cref="AtHome" /> is set <c>true</c>.</para>
         /// </remarks>
         /// [ASCOM-135] TPL - Updated documentation
-        public bool AtHome => base.Device.AtHome;
+        public bool AtHome => Device.AtHome;
 
         /// <summary>
         /// True if the dome is in the programmed park position.
@@ -83,7 +123,7 @@ namespace ASCOM.Com.DriverAccess
         /// <remarks>
         /// Set only following a <see cref="Park" /> operation and reset with any slew operation. Raises an error if not supported. 
         /// </remarks>
-        public bool AtPark => base.Device.AtPark;
+        public bool AtPark => Device.AtPark;
 
         /// <summary>
         /// The dome azimuth (degrees, North zero and increasing clockwise, i.e., 90 East, 180 South, 270 West)
@@ -92,7 +132,7 @@ namespace ASCOM.Com.DriverAccess
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>Raises an error only if no azimuth control. If actual dome azimuth can not be read, then reports back last slew position</remarks>
-        public double Azimuth => base.Device.Azimuth;
+        public double Azimuth => Device.Azimuth;
 
         /// <summary>
         /// True if driver can do a search for home position.
@@ -102,7 +142,7 @@ namespace ASCOM.Com.DriverAccess
         /// <remarks>
         /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
         /// </remarks>
-        public bool CanFindHome => base.Device.CanFindHome;
+        public bool CanFindHome => Device.CanFindHome;
 
         /// <summary>
         /// True if driver is capable of setting dome altitude.
@@ -112,7 +152,7 @@ namespace ASCOM.Com.DriverAccess
         /// <remarks>
         /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
         /// </remarks>
-        public bool CanPark => base.Device.CanPark;
+        public bool CanPark => Device.CanPark;
 
         /// <summary>
         /// True if driver is capable of setting dome altitude.
@@ -122,7 +162,7 @@ namespace ASCOM.Com.DriverAccess
         /// <remarks>
         /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
         /// </remarks>
-        public bool CanSetAltitude => base.Device.CanSetAltitude;
+        public bool CanSetAltitude => Device.CanSetAltitude;
 
         /// <summary>
         /// True if driver is capable of setting dome azimuth.
@@ -132,7 +172,7 @@ namespace ASCOM.Com.DriverAccess
         /// <remarks>
         /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
         /// </remarks>
-        public bool CanSetAzimuth => base.Device.CanSetAzimuth;
+        public bool CanSetAzimuth => Device.CanSetAzimuth;
 
         /// <summary>
         /// True if driver can set the dome park position.
@@ -142,7 +182,7 @@ namespace ASCOM.Com.DriverAccess
         /// <remarks>
         /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
         /// </remarks>
-        public bool CanSetPark => base.Device.CanSetPark;
+        public bool CanSetPark => Device.CanSetPark;
 
         /// <summary>
         /// True if driver is capable of automatically operating shutter.
@@ -152,7 +192,7 @@ namespace ASCOM.Com.DriverAccess
         /// <remarks>
         /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
         /// </remarks>
-        public bool CanSetShutter => base.Device.CanSetShutter;
+        public bool CanSetShutter => Device.CanSetShutter;
 
         /// <summary>
         /// True if the dome hardware supports slaving to a telescope.
@@ -163,7 +203,7 @@ namespace ASCOM.Com.DriverAccess
         /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
         /// See the notes for the <see cref="Slaved" /> property.
         /// </remarks>
-        public bool CanSlave => base.Device.CanSlave;
+        public bool CanSlave => Device.CanSlave;
 
         /// <summary>
         /// True if driver is capable of synchronizing the dome azimuth position using the <see cref="SyncToAzimuth" /> method.
@@ -173,7 +213,7 @@ namespace ASCOM.Com.DriverAccess
         /// <remarks>
         /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
         /// </remarks>
-        public bool CanSyncAzimuth => base.Device.CanSyncAzimuth;
+        public bool CanSyncAzimuth => Device.CanSyncAzimuth;
 
         /// <summary>
         /// Status of the dome shutter or roll-off roof.
@@ -184,7 +224,7 @@ namespace ASCOM.Com.DriverAccess
         /// <remarks>
         /// Raises an error only if no shutter control. If actual shutter status can not be read, then reports back the last shutter state. 
         /// </remarks>
-        public ShutterState ShutterStatus => (ShutterState)base.Device.ShutterStatus;
+        public ShutterState ShutterStatus => (ShutterState)Device.ShutterStatus;
 
         /// <summary>
         /// True if the dome is slaved to the telescope in its hardware, else False.
@@ -198,7 +238,7 @@ namespace ASCOM.Com.DriverAccess
         /// Set this property to True to enable dome-telescope hardware slaving, if supported (see <see cref="CanSlave" />). Raises an exception on any attempt to set 
         /// this property if hardware slaving is not supported). Always returns False if hardware slaving is not supported. 
         /// </remarks>
-        public bool Slaved { get => base.Device.Slaved; set => base.Device.Slaved = value; }
+        public bool Slaved { get => Device.Slaved; set => Device.Slaved = value; }
 
         /// <summary>
         /// True if any part of the dome is currently moving, False if all dome components are steady.
@@ -209,7 +249,7 @@ namespace ASCOM.Com.DriverAccess
         /// <p style="color:red;margin-bottom:0"><b>Slewing must be implemented and must not throw a NotImplementedException. </b></p>
         /// Raises an error if <see cref="Slaved" /> is True, if not supported, if a communications failure occurs, or if the dome can not reach indicated azimuth. 
         /// </remarks>
-        public bool Slewing => base.Device.Slewing;
+        public bool Slewing => Device.Slewing;
 
         /// <summary>
         /// Immediately cancel current dome operation.
@@ -222,7 +262,7 @@ namespace ASCOM.Com.DriverAccess
         /// </remarks>
         public void AbortSlew()
         {
-            base.Device.AbortSlew();
+            Device.AbortSlew();
         }
 
         /// <summary>
@@ -233,7 +273,7 @@ namespace ASCOM.Com.DriverAccess
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         public void CloseShutter()
         {
-            base.Device.CloseShutter();
+            Device.CloseShutter();
         }
 
         /// <summary>
@@ -249,7 +289,7 @@ namespace ASCOM.Com.DriverAccess
         /// </remarks>
         public void FindHome()
         {
-            base.Device.FindHome();
+            Device.FindHome();
         }
 
         /// <summary>
@@ -263,7 +303,7 @@ namespace ASCOM.Com.DriverAccess
         /// </remarks>
         public void OpenShutter()
         {
-            base.Device.OpenShutter();
+            Device.OpenShutter();
         }
 
         /// <summary>
@@ -277,7 +317,7 @@ namespace ASCOM.Com.DriverAccess
         /// </remarks>
         public void Park()
         {
-            base.Device.Park();
+            Device.Park();
         }
 
         /// <summary>
@@ -291,7 +331,7 @@ namespace ASCOM.Com.DriverAccess
         /// </remarks>
         public void SetPark()
         {
-            base.Device.SetPark();
+            Device.SetPark();
         }
 
         /// <summary>
@@ -307,7 +347,7 @@ namespace ASCOM.Com.DriverAccess
         /// <param name="Altitude">Target dome altitude (degrees, horizon zero and increasing positive to 90 zenith)</param>
         public void SlewToAltitude(double Altitude)
         {
-            base.Device.SlewToAltitude(Altitude);
+            Device.SlewToAltitude(Altitude);
         }
 
         /// <summary>
@@ -324,7 +364,7 @@ namespace ASCOM.Com.DriverAccess
         /// <param name="Azimuth">Target azimuth (degrees, North zero and increasing clockwise. i.e., 90 East, 180 South, 270 West)</param>
         public void SlewToAzimuth(double Azimuth)
         {
-            base.Device.SlewToAzimuth(Azimuth);
+            Device.SlewToAzimuth(Azimuth);
         }
 
         /// <summary>
@@ -340,7 +380,10 @@ namespace ASCOM.Com.DriverAccess
         /// <param name="Azimuth">Target azimuth (degrees, North zero and increasing clockwise. i.e., 90 East, 180 South, 270 West)</param>
         public void SyncToAzimuth(double Azimuth)
         {
-            base.Device.SyncToAzimuth(Azimuth);
+            Device.SyncToAzimuth(Azimuth);
         }
+
+        #endregion
+
     }
 }

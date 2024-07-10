@@ -172,7 +172,7 @@ namespace ASCOM.Com.DriverAccess
             string message;
             // Deal with the possibility that DriverAccess is being used in both driver and client so remove the outer
             // DriverAccessCOMException exception if present
-            if (e.InnerException is DriverAccessCOMException)
+            if (e.InnerException is DriverAccessCOMException && e.InnerException.InnerException != null)
             {
                 message = e.InnerException.InnerException.Message;
                 FakeLogger.LogMessageCrLf(memberName, "  *** Found DriverAccessCOMException so stripping this off and reprocessing through CheckDotNetExceptions: '" + message + "'");
@@ -191,53 +191,67 @@ namespace ASCOM.Com.DriverAccess
             }
 
             //Throw the appropriate exception based on the inner exception of the TargetInvocationException
+            if (HResult == ErrorCodes.ActionNotImplementedException)
+            {
+                message = e.InnerException.Message;
+                FakeLogger.LogMessageCrLf(memberName, "  Throwing ActionNotImplementedException: '" + message + "'");
+                throw new ActionNotImplementedException(message,e.InnerException);
+            }
+
             if (HResult == ErrorCodes.InvalidOperationException)
             {
                 message = e.InnerException.Message;
                 FakeLogger.LogMessageCrLf(memberName, "  Throwing InvalidOperationException: '" + message + "'");
-                throw new InvalidOperationException(message);
+                throw new InvalidOperationException(message,e.InnerException);
             }
 
             if (HResult == ErrorCodes.InvalidValue)
             {
                 message = e.InnerException.Message;
                 FakeLogger.LogMessageCrLf(memberName, "  Throwing InvalidValueException: '" + message + "'");
-                throw new InvalidValueException(message);
+                throw new InvalidValueException(message, e.InnerException);
             }
 
             if (HResult == ErrorCodes.NotConnected)
             {
                 message = e.InnerException.Message;
                 FakeLogger.LogMessageCrLf(memberName, "  Throwing NotConnectedException: '" + message + "'");
-                throw new NotConnectedException(message);
+                throw new NotConnectedException(message, e.InnerException);
             }
 
             if (HResult == ErrorCodes.NotImplemented)
             {
                 message = e.InnerException.Message;
                 FakeLogger.LogMessageCrLf(memberName, "  Throwing NotImplementedException: '" + message + "'");
-                throw new NotImplementedException(message);
+                throw new NotImplementedException(message, e.InnerException);
             }
 
             if (HResult == ErrorCodes.InvalidWhileParked)
             {
                 message = e.InnerException.Message;
                 FakeLogger.LogMessageCrLf(memberName, "  Throwing ParkedException: '" + message + "'");
-                throw new ParkedException(message);
+                throw new ParkedException(message, e.InnerException);
             }
 
             if (HResult == ErrorCodes.InvalidWhileSlaved)
             {
                 message = e.InnerException.Message;
                 FakeLogger.LogMessageCrLf(memberName, "  Throwing SlavedException: '" + message + "'");
-                throw new SlavedException(message);
+                throw new SlavedException(message, e.InnerException);
+            }
+
+            if (HResult == ErrorCodes.OperationCancelled)
+            {
+                message = e.InnerException.Message;
+                FakeLogger.LogMessageCrLf(memberName, "  Throwing OperationCancelledException: '" + message + "'");
+                throw new OperationCanceledException(message, e.InnerException);
             }
 
             if (HResult == ErrorCodes.ValueNotSet)
             {
                 message = e.InnerException.Message;
                 FakeLogger.LogMessageCrLf(memberName, "  Throwing ValueNotSetException: '" + message + "'");
-                throw new ValueNotSetException(message);
+                throw new ValueNotSetException(message, e.InnerException);
             }
 
             if (HResult >= ErrorCodes.DriverBase && HResult <= ErrorCodes.DriverMax)
@@ -245,7 +259,7 @@ namespace ASCOM.Com.DriverAccess
                 message = e.InnerException.Message;
 
                 FakeLogger.LogMessageCrLf(memberName, "  Throwing DriverException: '" + message + "'");
-                throw new DriverException(message);
+                throw new DriverException(message, e.InnerException);
             }
 
             if (e.InnerException is COMException)
@@ -258,7 +272,7 @@ namespace ASCOM.Com.DriverAccess
             }
 
             // Default behavior if its not one of the exceptions above
-            message = e.InnerException.Message;
+            message = (e.InnerException ?? e).Message;
 
             FakeLogger.LogMessageCrLf(memberName, "  Throwing Default DriverException: '" + message + "'");
             throw new DriverException(message, e.InnerException);

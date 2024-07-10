@@ -1,6 +1,7 @@
 ﻿using ASCOM.Common;
 using ASCOM.Common.Alpaca;
 using ASCOM.Common.DeviceInterfaces;
+using ASCOM.Common.DeviceStateClasses;
 using ASCOM.Common.Interfaces;
 
 using System;
@@ -14,7 +15,7 @@ namespace ASCOM.Alpaca.Clients
     /// <summary>
     /// ASCOM Alpaca Focuser client
     /// </summary>
-    public class AlpacaFocuser : AlpacaDeviceBaseClass, IFocuserV3
+    public class AlpacaFocuser : AlpacaDeviceBaseClass, IFocuserV4
     {
         #region Variables and Constants
 
@@ -148,7 +149,27 @@ namespace ASCOM.Alpaca.Clients
 
         #endregion
 
-        #region IFocuserV2 members
+        #region Convenience members
+
+        /// <summary>
+        /// Focuser device state
+        /// </summary>
+        public FocuserState FocuserState
+        {
+            get
+            {
+                // Create a state object to return.
+                FocuserState focuserState = new FocuserState(DeviceState, logger);
+                logger.LogMessage(LogLevel.Debug, nameof(FocuserState), $"Returning: '{focuserState.IsMoving}' '{focuserState.Position}' '{focuserState.Temperature}' '{focuserState.TimeStamp}'");
+
+                // Return the device specific state class
+                return focuserState;
+            }
+        }
+
+        #endregion
+
+        #region IFocuserV3 members
 
         /// <summary>
         /// True if the focuser is capable of absolute position; that is, being commanded to a specific step location.
@@ -320,7 +341,8 @@ namespace ASCOM.Alpaca.Clients
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>
-        /// <p style="color:red"><b>Can throw a not implemented exception</b></p>Some focusers may not support this function, in which case an exception will be raised. 
+        /// <p style="color:red"><b>Can throw a not implemented exception</b></p>Some focusers may not support this function, in which case an exception will be raised.
+        /// <para>This method must be short-lived; it is defined as synchronous in this specification.</para>
         /// <para><b>Recommendation:</b> Host software should call this method upon initialization and,
         /// if it fails, disable the Halt button in the user interface.</para>
         /// </remarks>
@@ -357,6 +379,12 @@ namespace ASCOM.Alpaca.Clients
             };
             DynamicClientDriver.SendToRemoteDevice<NoReturnValue>(clientNumber, client, longDeviceResponseTimeout, URIBase, strictCasing, logger, "Move", Parameters, HttpMethod.Put, MemberTypes.Method);
         }
+
+        #endregion
+
+        #region IFocuserV4 implementation
+
+        // No new members
 
         #endregion
 

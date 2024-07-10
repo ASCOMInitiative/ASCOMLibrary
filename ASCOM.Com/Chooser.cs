@@ -1,11 +1,7 @@
 ﻿using ASCOM.Common;
 using ASCOM.Common.Interfaces;
 using System;
-using System.Collections.Generic;
-using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading;
 
 namespace ASCOM.Com
 {
@@ -40,14 +36,21 @@ namespace ASCOM.Com
         /// <exception cref="InvalidOperationException"></exception>
         public Chooser(ILogger logger)
         {
-            // SAve the supplied logger (if any)
+            // Save the supplied logger (if any)
             this.logger = logger;
 
             // This will only work on Windows so validate the OS here
             if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                LogMessage(LogLevel.Error, "Initialise", $"Chooser is only supported on Windows, throwing InvalidOperationException. This OS is: {RuntimeInformation.OSDescription}");
+                LogMessage(LogLevel.Error, "Chooser Init", $"Chooser is only supported on Windows, throwing InvalidOperationException. This OS is: {RuntimeInformation.OSDescription}");
                 throw new InvalidOperationException($"Chooser.Initialiser - Chooser is only supported on Windows. This OS is: {RuntimeInformation.OSDescription}");
+            }
+
+            // Validate that the Platform is installed
+            if (!PlatformUtilities.IsPlatformInstalled())
+            {
+                LogMessage(LogLevel.Error, "Chooser Init", "The ASCOM Platform is not installed on this device - throwing an InvalidOperationException. The ASCOM Chooser requires the ASCOM Platform to be installed.");
+                throw new InvalidOperationException("The ASCOM Platform is not installed on this device; the ASCOM Stand Alone Chooser requires the ASCOM Platform to be installed.");
             }
 
             // Get the Chooser's Type from its ProgID
@@ -147,7 +150,7 @@ namespace ASCOM.Com
             CheckOK("Choose(\"\")");
 
             string progId = chooser.Choose("Telescope");
-            LogMessage(LogLevel.Debug, "Choose", $"Returning: {((progId == null) ? "Null - No device selected" : progId)}.");
+            LogMessage(LogLevel.Debug, "Choose", $"Returning: {(progId ?? "Null - No device selected")}.");
             return progId;
         }
 
@@ -156,11 +159,12 @@ namespace ASCOM.Com
         /// </summary>
         /// <param name="progId">The driver ProgId to pre-select in the Chooser drop-down list</param>
         /// <returns>The ProgID of the selected device or an empty string if no device was chosen</returns>
+        [Obsolete()]
         public string Choose(string progId)
         {
             CheckOK($"Choose(\"{progId})\"");
             string newProgId = chooser.Choose(progId);
-            LogMessage(LogLevel.Debug, "Choose", $"Returning: {((newProgId == null) ? "Null - No device selected" : newProgId)}.");
+            LogMessage(LogLevel.Debug, "Choose", $"Returning: {(newProgId ?? "Null - No device selected")}.");
             return newProgId;
         }
 

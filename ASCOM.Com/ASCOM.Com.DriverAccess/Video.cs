@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using ASCOM.Common;
+using ASCOM.Common.Interfaces;
+using ASCOM.Common.DeviceStateClasses;
 
 namespace ASCOM.Com.DriverAccess
 {
@@ -10,12 +12,37 @@ namespace ASCOM.Com.DriverAccess
     /// <summary>
     /// Video device class
     /// </summary>
-    public class Video : ASCOMDevice, IVideo
+    public class Video : ASCOMDevice, IVideoV2
     {
+
+        #region Convenience members
+
         /// <summary>
         /// Return a list of all Video devices registered in the ASCOM Profile
         /// </summary>
         public static List<ASCOMRegistration> Videos => Profile.GetDrivers(DeviceTypes.Video);
+
+        /// <summary>
+        /// VideoState device state
+        /// </summary>
+        public VideoState VideoState
+        {
+            get
+            {
+                // Create a state object to return.
+                VideoState videoState = new VideoState(DeviceState, TL);
+                TL.LogMessage(LogLevel.Debug,nameof(VideoState), $"Returning: " +
+                    $"CameraState: '{videoState.CameraState}', " +
+                    $"Time stamp: '{videoState.TimeStamp}'");
+
+                // Return the device specific state class
+                return videoState;
+            }
+        }
+
+        #endregion
+
+        #region Initialisers
 
         /// <summary>
         /// Initialise Video device
@@ -23,8 +50,23 @@ namespace ASCOM.Com.DriverAccess
         /// <param name="ProgID">COM ProgID of the device.</param>
         public Video(string ProgID) : base(ProgID)
         {
-
+            deviceType = DeviceTypes.Video;
         }
+
+        /// <summary>
+        /// Initialise Video device with a debug logger
+        /// </summary>
+        /// <param name="ProgID">ProgID of the driver</param>
+        /// <param name="logger">Logger instance to receive debug information.</param>
+        public Video(string ProgID, ILogger logger) : base(ProgID)
+        {
+            deviceType = DeviceTypes.Video;
+            TL = logger;
+        }
+
+        #endregion
+
+        #region IVideoV1 and IVideov2
 
         /// <summary>
         /// Reports the bit depth the camera can produce.
@@ -35,7 +77,7 @@ namespace ASCOM.Com.DriverAccess
         /// <remarks>
         /// <p style="color:red"><b>Must be implemented, must not throw an ASCOM.NotImplementedException.</b></p>
         /// </remarks>
-        public int BitDepth => base.Device.BitDepth;
+        public int BitDepth => Device.BitDepth;
 
         /// <summary>
         /// Returns the current camera operational state.
@@ -58,7 +100,7 @@ namespace ASCOM.Com.DriverAccess
         /// <value>The state of the camera.</value>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
-        public VideoCameraState CameraState => (VideoCameraState)base.Device.CameraState;
+        public VideoCameraState CameraState => (VideoCameraState)Device.CameraState;
 
         /// <summary>
         /// Returns True if the driver supports custom device properties configuration via the <see cref="IVideo.ConfigureDeviceProperties"/> method.
@@ -67,7 +109,7 @@ namespace ASCOM.Com.DriverAccess
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks><p style="color:red"><b>Must be implemented, must not throw an ASCOM.NotImplementedException.</b></p>
         /// </remarks>
-        public bool CanConfigureDeviceProperties => base.Device.CanConfigureDeviceProperties;
+        public bool CanConfigureDeviceProperties => Device.CanConfigureDeviceProperties;
 
         /// <summary>
         /// The maximum supported exposure (integration time) in seconds.
@@ -78,7 +120,7 @@ namespace ASCOM.Com.DriverAccess
         /// <p style="color:red"><b>Must be implemented, must not throw an ASCOM.NotImplementedException.</b></p>
         /// This value is for information purposes only. The exposure cannot be set directly in seconds, use <see cref="IntegrationRate"/> property to change the exposure.
         /// </remarks>
-        public double ExposureMax => base.Device.ExposureMax;
+        public double ExposureMax => Device.ExposureMax;
 
         /// <summary>
         /// The minimum supported exposure (integration time) in seconds.
@@ -89,7 +131,7 @@ namespace ASCOM.Com.DriverAccess
         /// <p style="color:red"><b>Must be implemented, must not throw an ASCOM.NotImplementedException.</b></p>
         /// This value is for information purposes only. The exposure cannot be set directly in seconds, use <see cref="IntegrationRate"/> property to change the exposure.
         /// </remarks>
-        public double ExposureMin => base.Device.ExposureMin;
+        public double ExposureMin => Device.ExposureMin;
 
         /// <summary>
         /// The frame rate at which the camera is running.
@@ -102,7 +144,7 @@ namespace ASCOM.Com.DriverAccess
         /// Digital cameras usually can run at a variable frame rate. This value is for information purposes only and cannot be set. The FrameRate has the same value during the entire operation of the device.
         /// Changing the <see cref="IntegrationRate"/> property may change the actual variable frame rate but cannot change the return value of this property.
         /// </remarks>
-        public VideoCameraFrameRate FrameRate => (VideoCameraFrameRate)base.Device.FrameRate;
+        public VideoCameraFrameRate FrameRate => (VideoCameraFrameRate)Device.FrameRate;
 
         /// <summary>
         /// Index into the <see cref="Gains"/> array for the selected camera gain.
@@ -124,8 +166,8 @@ namespace ASCOM.Com.DriverAccess
         /// </remarks>
         public short Gain
         {
-            get => base.Device.Gain;
-            set => base.Device.Gain = value;
+            get => Device.Gain;
+            set => Device.Gain = value;
         }
 
         /// <summary>
@@ -143,7 +185,7 @@ namespace ASCOM.Com.DriverAccess
         /// <para>It is recommended that this function be called only after a <see cref="IAscomDevice.Connected">connection</see> is established with the camera hardware, to ensure
         /// that the driver is aware of the capabilities of the specific camera model.</para>
         /// </remarks>
-        public short GainMax => base.Device.GainMax;
+        public short GainMax => Device.GainMax;
 
         /// <summary>
         /// Minimum value of <see cref="Gain"/>.
@@ -159,7 +201,7 @@ namespace ASCOM.Com.DriverAccess
         /// <para>It is recommended that this function be called only after a <see cref="IAscomDevice.Connected">connection</see> is established with the camera hardware, to ensure
         /// that the driver is aware of the capabilities of the specific camera model.</para>
         /// </remarks>
-        public short GainMin => base.Device.GainMin;
+        public short GainMin => Device.GainMin;
 
         /// <summary>
         /// Gains supported by the camera.
@@ -176,7 +218,7 @@ namespace ASCOM.Com.DriverAccess
         /// <para>It is recommended that this function be called only after a <see cref="IAscomDevice.Connected">connection</see> is established with the camera hardware,
         /// to ensure that the driver is aware of the capabilities of the specific camera model.</para>
         /// </remarks>
-        public IList<string> Gains => (base.Device.Gains as IEnumerable).Cast<string>().ToList();
+        public IList<string> Gains => (Device.Gains as IEnumerable).Cast<string>().ToList();
 
         /// <summary>
         /// Index into the <see cref="Gammas"/> array for the selected camera gamma.
@@ -198,8 +240,8 @@ namespace ASCOM.Com.DriverAccess
         /// </remarks>
         public short Gamma
         {
-            get => base.Device.Gamma;
-            set => base.Device.Gamma = value;
+            get => Device.Gamma;
+            set => Device.Gamma = value;
         }
 
         /// <summary>
@@ -217,7 +259,7 @@ namespace ASCOM.Com.DriverAccess
         /// <para>It is recommended that this function be called only after a <see cref="IAscomDevice.Connected">connection</see> is established with the camera hardware, to ensure
         /// that the driver is aware of the capabilities of the specific camera model.</para>
         /// </remarks>
-        public short GammaMax => base.Device.GammaMax;
+        public short GammaMax => Device.GammaMax;
 
         /// <summary>
         /// Minimum value of <see cref="Gamma"/>.
@@ -233,7 +275,7 @@ namespace ASCOM.Com.DriverAccess
         /// <para>It is recommended that this function be called only after a <see cref="IAscomDevice.Connected">connection</see> is established with the camera hardware, to ensure
         /// that the driver is aware of the capabilities of the specific camera model.</para>
         /// </remarks>
-        public short GammaMin => base.Device.GammaMin;
+        public short GammaMin => Device.GammaMin;
 
         /// <summary>
         /// Gammas supported by the camera.
@@ -250,7 +292,7 @@ namespace ASCOM.Com.DriverAccess
         /// <para>It is recommended that this function be called only after a <see cref="IAscomDevice.Connected">connection</see> is established with the camera hardware,
         /// to ensure that the driver is aware of the capabilities of the specific camera model.</para>
         /// </remarks>
-        public IList<string> Gammas => (base.Device.Gammas as IEnumerable).Cast<string>().ToList();
+        public IList<string> Gammas => (Device.Gammas as IEnumerable).Cast<string>().ToList();
 
         /// <summary>
         /// Returns the height of the video frame in pixels.
@@ -262,7 +304,7 @@ namespace ASCOM.Com.DriverAccess
         /// <p style="color:red"><b>Must be implemented, must not throw an ASCOM.NotImplementedException.</b></p>
         /// For analogue video cameras working via a frame grabber the dimensions of the video frames may be different than the dimension of the CCD chip
         /// </remarks>
-        public int Height => base.Device.Height;
+        public int Height => Device.Height;
 
         /// <summary>
         /// Index into the <see cref="SupportedIntegrationRates"/> array for the selected camera integration rate.
@@ -280,8 +322,8 @@ namespace ASCOM.Com.DriverAccess
         /// </remarks>
         public int IntegrationRate
         {
-            get => base.Device.IntegrationRate;
-            set => base.Device.IntegrationRate = value;
+            get => Device.IntegrationRate;
+            set => Device.IntegrationRate = value;
         }
 
         /// <summary>
@@ -298,7 +340,7 @@ namespace ASCOM.Com.DriverAccess
         {
             get
             {
-                var frame = base.Device.LastVideoFrame;
+                var frame = Device.LastVideoFrame;
 
                 //Convert the ASCOM KeyValuePair to the .Net System version
                 List<KeyValuePair<string, string>> metadata = new List<KeyValuePair<string, string>>();
@@ -340,7 +382,7 @@ namespace ASCOM.Com.DriverAccess
         /// <exception cref="NotImplementedException">Must throw exception if not implemented.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
-        public double PixelSizeX => base.Device.PixelSizeX;
+        public double PixelSizeX => Device.PixelSizeX;
 
         /// <summary>
         /// Returns the height of the CCD chip pixels in microns.
@@ -349,7 +391,7 @@ namespace ASCOM.Com.DriverAccess
         /// <exception cref="NotImplementedException">Must throw exception if not implemented.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
-        public double PixelSizeY => base.Device.PixelSizeY;
+        public double PixelSizeY => Device.PixelSizeY;
 
         /// <summary>
         /// Sensor name.
@@ -375,7 +417,7 @@ namespace ASCOM.Com.DriverAccess
         /// <para>It is recommended that this function be called only after a <see cref="IAscomDevice.Connected">connection</see> is established with
         /// the camera hardware, to ensure that the driver is aware of the capabilities of the specific camera model.</para>
         /// </remarks>
-        public string SensorName => base.Device.SensorName;
+        public string SensorName => Device.SensorName;
 
         /// <summary>
         /// Type of colour information returned by the camera sensor.
@@ -643,7 +685,7 @@ namespace ASCOM.Com.DriverAccess
         /// <para>It is recommended that this function be called only after a <see cref="IAscomDevice.Connected">connection</see> is established with the camera hardware, to ensure that
         /// the driver is aware of the capabilities of the specific camera model.</para>
         /// </remarks>
-        public SensorType SensorType => (SensorType)base.Device.SensorType;
+        public SensorType SensorType => (SensorType)Device.SensorType;
 
         /// <summary>
         /// Returns the list of integration rates supported by the video camera.
@@ -657,7 +699,7 @@ namespace ASCOM.Com.DriverAccess
         /// return a range of useful supported exposures. For many video cameras the supported exposures (integration rates) increase by a factor of 2 from a base exposure e.g. 1, 2, 4, 8, 16 sec or 0.04, 0.08, 0.16, 0.32, 0.64, 1.28, 2.56, 5.12, 10.24 sec.
         /// If the cameras supports only one exposure that cannot be changed (such as all non integrating PAL or NTSC video cameras) then this property must throw <see cref="NotImplementedException"/>.
         /// </remarks>
-        public IList<double> SupportedIntegrationRates => (base.Device.SupportedIntegrationRates as IEnumerable).Cast<double>().ToList();
+        public IList<double> SupportedIntegrationRates => (Device.SupportedIntegrationRates as IEnumerable).Cast<double>().ToList();
 
         /// <summary>
         /// The name of the video capture device when such a device is used.
@@ -667,7 +709,7 @@ namespace ASCOM.Com.DriverAccess
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         /// <remarks>For analogue video this is usually the video capture card or dongle attached to the computer.
         /// </remarks>
-        public string VideoCaptureDeviceName => base.Device.VideoCaptureDeviceName;
+        public string VideoCaptureDeviceName => Device.VideoCaptureDeviceName;
 
         /// <summary>
         /// Returns the video codec used to record the video file.
@@ -678,7 +720,7 @@ namespace ASCOM.Com.DriverAccess
         /// <remarks>For AVI files this is usually the FourCC identifier of the codec- e.g. XVID, DVSD, YUY2, HFYU etc.
         /// If the recorded video file doesn't use codecs an empty string must be returned.
         /// </remarks>
-        public string VideoCodec => base.Device.VideoCodec;
+        public string VideoCodec => Device.VideoCodec;
 
         /// <summary>
         /// Returns the file format of the recorded video file, e.g. AVI, MPEG, ADV etc.
@@ -688,7 +730,7 @@ namespace ASCOM.Com.DriverAccess
         /// <remarks>
         /// <p style="color:red"><b>Must be implemented, must not throw an ASCOM.NotImplementedException.</b></p>
         /// </remarks>
-        public string VideoFileFormat => base.Device.VideoFileFormat;
+        public string VideoFileFormat => Device.VideoFileFormat;
 
         /// <summary>
         /// The size of the video frame buffer.
@@ -700,7 +742,7 @@ namespace ASCOM.Com.DriverAccess
         /// the driver may use a buffer to queue the frames waiting to be read by the client. This property returns the size of the buffer in frames or
         /// if no buffering is supported then the value of less than 2 should be returned. The size of the buffer can be controlled by the end user from the driver setup dialog.
         /// </remarks>
-        public int VideoFramesBufferSize => base.Device.VideoFramesBufferSize;
+        public int VideoFramesBufferSize => Device.VideoFramesBufferSize;
 
         /// <summary>
         /// Returns the width of the video frame in pixels.
@@ -712,7 +754,7 @@ namespace ASCOM.Com.DriverAccess
         /// <p style="color:red"><b>Must be implemented, must not throw an ASCOM.NotImplementedException.</b></p>
         /// For analogue video cameras working via a frame grabber the dimensions of the video frames may be different than the dimension of the CCD chip
         /// </remarks>
-        public int Width => base.Device.Width;
+        public int Width => Device.Width;
 
         /// <summary>
         /// Displays a device properties configuration dialog that allows the configuration of specialized settings.
@@ -731,7 +773,7 @@ namespace ASCOM.Com.DriverAccess
         /// </remarks>
         public void ConfigureDeviceProperties()
         {
-            base.Device.ConfigureDeviceProperties();
+            Device.ConfigureDeviceProperties();
         }
 
         /// <summary>
@@ -745,7 +787,7 @@ namespace ASCOM.Com.DriverAccess
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         public string StartRecordingVideoFile(string PreferredFileName)
         {
-            return base.Device.StartRecordingVideoFile(PreferredFileName);
+            return Device.StartRecordingVideoFile(PreferredFileName);
         }
 
         /// <summary>
@@ -757,7 +799,10 @@ namespace ASCOM.Com.DriverAccess
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
         public void StopRecordingVideoFile()
         {
-            base.Device.StopRecordingVideoFile();
+            Device.StopRecordingVideoFile();
         }
+
+        #endregion
+
     }
 }

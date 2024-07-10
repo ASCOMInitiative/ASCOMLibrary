@@ -1,7 +1,4 @@
-﻿using ASCOM.Common.Com;
-using System;
-using System.ComponentModel;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace ASCOM.Common.Alpaca
 {
