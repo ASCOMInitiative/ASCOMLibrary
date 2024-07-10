@@ -969,8 +969,8 @@ namespace ASCOM.Alpaca.Tests.Clients
             double targetRa = (client.SiderealTime - 2.456 + 24.0) % 24.0;
 
             // Slew somewhere that is not likely to be the test position
-            TL.LogMessage("Main", $"Slewing to somewhere that is not likely to be the test position");
-            await client.SlewToCoordinatesTaskAsync(targetRa - 1.0, 5.0, pollInterval: 100, logger: TL);
+            TL.LogMessage("Main", $"Slewing to somewhere that is not likely to be the test position: RA: {targetRa}, Sidereal time: {client.SiderealTime}");
+            await client.SlewToCoordinatesTaskAsync(targetRa, 5.0, pollInterval: 100, logger: TL);
             TL.LogMessage("Main", $"Slew await complete, Is parked: {client.AtPark}, Is at home: {client.AtHome}, RA: {client.RightAscension}, Declination: {client.Declination}");
 
             // Slew to the target 
