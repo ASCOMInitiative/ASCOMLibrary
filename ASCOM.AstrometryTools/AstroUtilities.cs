@@ -1059,7 +1059,7 @@ namespace ASCOM.Tools
             int rc;
 
             // Revised to use SOFA to calculate the Julian date
-            rc = Sofa.Dtf2d("UTC", ObservationDateTime.Year, ObservationDateTime.Month, ObservationDateTime.Day, ObservationDateTime.Hour, ObservationDateTime.Minute, ObservationDateTime.Second + ObservationDateTime.Millisecond / 1000.0d, ref jd1, ref jd2);
+            rc = Sofa.Dtf2d("UTC", ObservationDateTime.Year, ObservationDateTime.Month, ObservationDateTime.Day, ObservationDateTime.Hour, ObservationDateTime.Minute, ObservationDateTime.Second + Convert.ToDouble(ObservationDateTime.Millisecond) / 1000.0d, ref jd1, ref jd2);
             if (rc > 1) // rc==0 is OK, rc==1 is a warning that the data may not be reliable but a valid result is returned
                 throw new HelperException($"UTCJulianDate- Bad return code from Sofa.Dtf2d: {rc} for date: {ObservationDateTime:dddd dd MMMM yyyy HH:mm:ss.fff}");
 
