@@ -13,6 +13,14 @@ This may also be the case for projects that target IOS, but has not yet been con
 
 # Version History
 
+***Release 2.0.0-rc.23***
+* Add support for new Platform 7 interface members.
+* Added client async task extensions ConnectAsync() and DisconnectAsync().
+* New device state convenience members that package device state in an easy to use form.
+* New ClientRefresh() method to effect configuration changes made through the client configuration instance returned by ClientConfiguration
+* Fix - Four MethodNotImplementedException replaced with NotImplementedExceptions to match the Library standard.
+* Fix - Client async methods now respect timeouts if the target driver/device locks up and does not return from the initiator or polling variable.
+
 ***Release 1.0.112***
 * Fix issue where Alpaca clients did not query the device to determine its Connected state.
 

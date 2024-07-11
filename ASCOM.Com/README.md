@@ -4,6 +4,15 @@ A set of tools to access ASCOM COM drivers. Written to .Net Standard 2.0 for max
 
 # Version History
 
+***Release 2.0.0-rc.23***
+* Add support for new Platform 7 interface members.
+* Add device state convenience members that package device state in an easy to use form.
+* Fix - Four MethodNotImplementedException replaced with NotImplementedExceptions to match the Library standard.
+* Fix - Include the driver's original exception as an inner exception when throwing exceptions from Com.DriverAccess to make behaviour consistent with Platform behaviour.
+* Fix - Prevent two unintended NullReferenceExceptions in Com.DriverAccess when handling exceptions returned by drivers.
+* Fix - Accept an array of integers for Gains to ensure that drivers remain usable when clients use the ASCOM Library.
+* Client async methods now respect timeouts if the target driver/device locks up and does not return from the initiator or polling variable.
+
 ***Release 1.0.112***
 * No change.
 

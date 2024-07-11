@@ -25,6 +25,11 @@ routines that are available in standard .NET namespaces.
 
 # Version History
 
+***Release 2.0.0-rc.23***
+* Moved astrometry functions to new ASCOM.AstrometryTools package to reduced size and complexity of the ASCOM.Tools package.
+* The ASCOM global default log file location can now be customised to a value other than Documents\ASCOM (Documents/ascom on Unix based OS)
+by setting the ASCOM_LOGPATH variable.
+
 ***Release 1.0.112***
 * No change.
 

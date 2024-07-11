@@ -10,7 +10,15 @@ This is a set of data classes and utility functions to support writing ALpaca de
 
 # Version History
 
-***Release 1.0.112***
+***Release 2.0.0-rc.23***
+* Add support for Platform 7 interface changes.
+* Added JSON response classes for new interface members.
+* Added further discovery members to DeviceCapabilities such as IsPlatform7Orlater(), HasConnectAndDeviceState() and HasCoverMoving().
+* Added client async task extensions ConnectAsync() and DisconnectAsync().
+* Fix - A MethodNotImplementedException was replaced by a NotImplementedException in line with Library policy.
+* Fix - Client async methods now respect timeouts if the target driver/device locks up and does not return from the initiator or polling variable.
+
+* ***Release 1.0.112***
 * No change.
 
 ***Release 1.0.111***

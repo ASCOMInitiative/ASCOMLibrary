@@ -11,5 +11,10 @@ A set of cross-platform tools to support astrometry requirements. The components
 
 # Version History
 
-***Release 2.0.0***
-* Initial release after migration from the ASCOM.Tools package.
+***Release 2.0.0-rc.23***
+* Initial release after migration of features from the ASCOM.Tools package.
+* Significantly reduced package size by restricting NOVAS Planet ephemeris data to start at the year 2020 rather than 1900
+* Extended the range of NOVAS Planet ephemeris data to the year 2050 from 2035.
+* SOFA updated to Release 19 dated 11th October 2023.
+* Fix - AstroUtilities.JulianDateFromDateTime extended to handle dates more than 5 years in the future.
+* Fix - Removed very small error (6th decimal place) in AstroUtilities.JulianDate function
