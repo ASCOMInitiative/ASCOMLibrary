@@ -12,6 +12,83 @@ using Xunit.Abstractions;
 
 namespace ASCOM.Alpaca.Tests.Clients
 {
+    [Collection("CommonTests")]
+    public class CommonTests()    //public class CommonTests(ITestOutputHelper output)
+    {
+        // private readonly ITestOutputHelper output = output;
+
+        [Fact]
+        public static async Task ConnectTest()
+        {
+            TraceLogger TL = new("ConnectTest", true, 64, LogLevel.Debug);
+
+            // Create a task completion source and token so that the task can be cancelled
+            CancellationTokenSource cancellationTokenSource = new();
+            CancellationToken cancellationToken = cancellationTokenSource.Token;
+
+            // Create a COM client
+            TL.LogMessage("Main", $"About to create device");
+            Camera client = new("ASCOM.Simulator.Camera");
+            TL.LogMessage("Main", $"Device created");
+
+            // Confirm that the device was created and is not connected
+            Assert.NotNull(client);
+            Assert.False(client.Connected);
+
+            // Connect asynchronously
+            TL.LogMessage("Main", $"Connecting to device...");
+            await client.ConnectAsync();
+            TL.LogMessage("Main", $"Connection complete");
+
+            // Confirm, that the device is connected
+            Assert.True(client.Connected);
+            TL.LogMessage("Main", $"Connected OK");
+
+            // Disconnect from the client and dispose
+            client.Connected = false;
+            client.Dispose();
+            TL.LogMessage("Main", $"Finished");
+        }
+
+        [Fact]
+        public static async Task DisconnectTest()
+        {
+            TraceLogger TL = new("DisconnectTest", true, 64, LogLevel.Debug);
+
+            // Create a task completion source and token so that the task can be cancelled
+            CancellationTokenSource cancellationTokenSource = new();
+            CancellationToken cancellationToken = cancellationTokenSource.Token;
+
+            // Create a COM client
+            TL.LogMessage("Main", $"About to create device");
+            Camera client = new("ASCOM.Simulator.Camera");
+            TL.LogMessage("Main", $"Device created");
+
+            // Confirm that the device was created and is not connected
+            Assert.NotNull(client);
+            Assert.False(client.Connected);
+
+            // Connect to the device
+            TL.LogMessage("Main", $"Connecting to device...");
+            client.Connected= true;
+            TL.LogMessage("Main", $"Connection complete");
+
+            // Disconnect asynchronously
+            TL.LogMessage("Main", $"Disconnecting from device...");
+            await client.DisconnectAsync();
+            TL.LogMessage("Main", $"Disconnection complete");
+
+            // Confirm, that the device is disconnected
+            Assert.False(client.Connected);
+            TL.LogMessage("Main", $"Disconnected OK");
+
+            // Disconnect from the client and dispose
+            client.Connected = false;
+            client.Dispose();
+            TL.LogMessage("Main", $"Finished");
+        }
+    }
+
     [Collection("CameraTests")]
     //public class MiscellaneousTests(ITestOutputHelper output)
     public class MiscellaneousTests()

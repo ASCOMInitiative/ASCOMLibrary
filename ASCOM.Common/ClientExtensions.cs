@@ -17,7 +17,67 @@ namespace ASCOM.Common
 
         #region Common methods (IAscomDevice)
 
-        // No long running common methods
+        /// <summary>
+        /// Returns an awaitable, running, <see cref="Task"/> that connects to the device. (Polls IAscomDeviceV2.Connecting)
+        /// </summary>
+        /// <param name="device">A device that implements IAscomDeviceV2.</param>
+        /// <param name="cancellationToken">Cancellation token - Default: <see cref="CancellationToken.None"/></param>
+        /// <param name="pollInterval">Interval between polls of the completion variable (milliseconds) - Default: 1000 milliseconds.</param>
+        /// <param name="logger">ILogger instance that will receive operation messages from the method - Default: No logger</param>
+        /// <returns>Awaitable task that ends when the device has connected.</returns>
+        /// <remarks>
+        /// <para>Initiator: <see cref="IAscomDeviceV2.Connect"/></para>
+        /// <para>Complete when: <see cref="IAscomDeviceV2.Connecting"/> is  False </para>
+        /// <para>Only available for IAscomDeviceV2 and later interfaces.</para>
+        /// </remarks>
+        public static async Task ConnectAsync(this IAscomDeviceV2 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
+        {
+            Task processTask = null;
+            string callingMethodName = $"[Lib].{GetCurrentMethod()}";
+
+            await Task.Run(() =>
+            {
+                processTask = Task.Run(() =>
+                {
+                    ProcessTask(() => { device.Connect(); }, () => { return device.Connecting; }, pollInterval, cancellationToken, logger, $"{nameof(IAscomDeviceV2)}.{nameof(ConnectAsync)}");
+                });
+
+                WaitForProcessTask(processTask, logger, callingMethodName, cancellationToken);
+            });
+
+            CheckOutcome(processTask, logger, callingMethodName, cancellationToken);
+        }
+
+        /// <summary>
+        /// Returns an awaitable, running, <see cref="Task"/> that disconnects from the device. (Polls IAscomDeviceV2.Connecting)
+        /// </summary>
+        /// <param name="device">A device that implements IAscomDeviceV2.</param>
+        /// <param name="cancellationToken">Cancellation token - Default: <see cref="CancellationToken.None"/></param>
+        /// <param name="pollInterval">Interval between polls of the completion variable (milliseconds) - Default: 1000 milliseconds.</param>
+        /// <param name="logger">ILogger instance that will receive operation messages from the method - Default: No logger</param>
+        /// <returns>Awaitable task that ends when the device has dis connected.</returns>
+        /// <remarks>
+        /// <para>Initiator: <see cref="IAscomDeviceV2.Disconnect"/></para>
+        /// <para>Complete when: <see cref="IAscomDeviceV2.Connecting"/> is  False </para>
+        /// <para>Only available for IAscomDeviceV2 and later interfaces.</para>
+        /// </remarks>
+        public static async Task DisconnectAsync(this IAscomDeviceV2 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
+        {
+            Task processTask = null;
+            string callingMethodName = $"[Lib].{GetCurrentMethod()}";
+
+            await Task.Run(() =>
+            {
+                processTask = Task.Run(() =>
+                {
+                    ProcessTask(() => { device.Disconnect(); }, () => { return device.Connecting; }, pollInterval, cancellationToken, logger, $"{nameof(IAscomDeviceV2)}.{nameof(DisconnectAsync)}");
+                });
+
+                WaitForProcessTask(processTask, logger, callingMethodName, cancellationToken);
+            });
+
+            CheckOutcome(processTask, logger, callingMethodName, cancellationToken);
+        }
 
         #endregion
 
