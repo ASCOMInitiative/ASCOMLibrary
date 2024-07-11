@@ -8,12 +8,15 @@
 				<list class="bullet">
 					<listItem>
 						<para>
-							<legacyBold>ASCOM.Tools Package - Breaking Change:</legacyBold> All astrometry related functions including Transform, SOFA and NOVAS, have been moved into a
-							new package: ASCOM.AstrometryTools in order to reduce the size and complexity of the ASCOM.Tools package and increase convenience for
+							<legacyBold>ASCOM.Tools Package - Breaking Change</legacyBold>
+						</para>
+						<para>
+							All astrometry related functions including Transform, SOFA and NOVAS, have been moved into a
+							new package: <legacyBold>ASCOM.AstrometryTools</legacyBold> in order to reduce the size and complexity of the ASCOM.Tools package and increase convenience for
 							developers who don't require astrometry features.
 						</para>
 						<para>
-							Class and object names (including namespace) have been retained as far as possible, the major naming change is that astrometry features in the ASCOM.Tools.Utilities component
+							Class and object names (including namespaces) have been retained as far as possible, the major naming change is that astrometry features in the ASCOM.Tools.Utilities component
 							are now in a new ASCOM.Tools.AstroUtilities component in the ASCOM.AstroUtilities package.
 						</para>
 						<para>
@@ -30,12 +33,39 @@
 								<para>Add a "using ASCOM.AstrometryTools;" reference to relevant classes</para>
 							</listItem>
 							<listItem>
-								<para>In the codebase, change ASCOM.Tools.Utilities component astrometry function references from Utilities.XXX() to AstroUtilities.XXX()</para>
+								<para>In the codebase, change astrometry function references from ASCOM.Tools.Utilities.XXX() to ASCOM.Tools.AstroUtilities.XXX()</para>
 							</listItem>
 						</list>
 					</listItem>
 					<listItem>
-						<para>Added support for Platform 7 interface changes.</para>
+						<para>Added - Support for Platform 7 interfaces including Connect(), Disconnect(), DeviceState, SwitchAsync() and SwitchValueAsync().</para>
+					</listItem>
+					<listItem>
+						<para>Added - Client Toolkit awaitable Task extensions for the Connect(), Disconnect(), SwitchAsync() and SwitchValueAsync() methods.</para>
+					</listItem>
+					<listItem>
+						<para>Added - Windows ARM64 support for NOVAS and SOFA components.</para>
+					</listItem>
+					<listItem>
+						<para>Added - DeviceCapabilities.IsPlatform7OrLater function and improved help text for other DeviceCapabiities methods.</para>
+					</listItem>
+					<listItem>
+						<para>Updated - SOFA to release 19 - 11th October 2023.</para>
+					</listItem>
+					<listItem>
+						<para>Fix - Include the driver's original exception as an inner exception when throwing exceptions from Com.DriverAccess to make behaviour consistent with Platform behaviour.</para>
+					</listItem>
+					<listItem>
+						<para>Fix - Prevent two unintended NullReferenceExceptions in Com.DriverAccess when handling exceptions returned by drivers.</para>
+					</listItem>
+					<listItem>
+						<para>Fix - Accept an array of integers for Gains to ensure that drivers remain usable when clients use the ASCOM Library.</para>
+					</listItem>
+					<listItem>
+						<para>Fix - The default TraceLogger log path on non-Windows systems is once again "Documents/ascom"; it unintentionally became "Documents" in the 1.0.111 release from October 2023.</para>
+					</listItem>
+					<listItem>
+						<para>Fix - Remove a small error (6th decimal place) in AstroUtililties JulianDate function.</para>
 					</listItem>
 				</list>
 			</content>

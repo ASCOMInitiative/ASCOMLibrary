@@ -48,7 +48,7 @@
     <MaximumGroupParts>2</MaximumGroupParts>
     <Preliminary>False</Preliminary>
     <CopyrightHref>www.ascom-standards.org</CopyrightHref>
-    <CopyrightText>Copyright &amp;#169%3b 2021 - 2023 ASCOM Initiative</CopyrightText>
+    <CopyrightText>Copyright &amp;#169%3b 2021 - 2024 ASCOM Initiative</CopyrightText>
     <SdkLinkTarget>Blank</SdkLinkTarget>
     <NamespaceSummaries>
       <NamespaceSummaryItem name="(global)" isDocumented="False">ASCOM Standard Root Global</NamespaceSummaryItem>
