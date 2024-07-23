@@ -2325,236 +2325,236 @@ namespace ASCOM.Tools.Novas31
 
         #region Library Entry Points for Ephemeris and RACIOFile
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "set_racio_file")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "set_racio_file")]
         private static extern void SetRACIOFile([MarshalAs(UnmanagedType.LPStr)] string Name);
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "ephem_close")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ephem_close")]
         private static extern short EphemCloseLib();
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "ephem_open")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ephem_open")]
         private static extern short EphemOpenLib([MarshalAs(UnmanagedType.LPStr)] string Ephem_Name, ref double JD_Begin, ref double JD_End, ref short DENumber);
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "planet_ephemeris")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "planet_ephemeris")]
         private static extern short PlanetEphemerisLib(ref JDHighPrecision Tjd, Target Target, Target Center, ref PosVector Position, ref VelVector Velocity);
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "readeph")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "readeph")]
         private static extern IntPtr ReadEphLib(int Mp, [MarshalAs(UnmanagedType.LPStr)] string Name, double Jd, ref int Err);
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "cleaneph")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "cleaneph")]
         private static extern void CleanEphLib();
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "solarsystem")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "solarsystem")]
         private static extern short SolarSystemLib(double tjd, short body, short origin, ref PosVector pos, ref VelVector vel);
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "state")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "state")]
         private static extern short StateLib(ref JDHighPrecision Jed, Target Target, ref PosVector TargetPos, ref VelVector TargetVel);
         #endregion
 
         #region Library Entry Points for NOVAS
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "aberration")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "aberration")]
         private static extern void AberrationLib(ref PosVector Pos, ref VelVector Vel, double LightTime, ref PosVector Pos2);
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "app_planet")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "app_planet")]
         private static extern short AppPlanetLib(double JdTt, ref Object3Internal SsBody, Accuracy Accuracy, ref double Ra, ref double Dec, ref double Dis);
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "app_star")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "app_star")]
         private static extern short AppStarLib(double JdTt, ref CatEntry3 Star, Accuracy Accuracy, ref double Ra, ref double Dec);
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "astro_planet")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "astro_planet")]
         private static extern short AstroPlanetLib(double JdTt, ref Object3Internal SsBody, Accuracy Accuracy, ref double Ra, ref double Dec, ref double Dis);
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "astro_star")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "astro_star")]
         private static extern short AstroStarLib(double JdTt, ref CatEntry3 Star, Accuracy Accuracy, ref double Ra, ref double Dec);
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "bary2obs")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "bary2obs")]
         private static extern void Bary2ObsLib(ref PosVector Pos, ref PosVector PosObs, ref PosVector Pos2, ref double Lighttime);
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "cal_date")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "cal_date")]
         private static extern void CalDateLib(double Tjd, ref short Year, ref short Month, ref short Day, ref double Hour);
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "cel2ter")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "cel2ter")]
         private static extern short Cel2TerLib(double JdHigh, double JdLow, double DeltaT, Method Method, Accuracy Accuracy, OutputVectorOption OutputOption, double x, double y, ref PosVector VecT, ref PosVector VecC);
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "cel_pole")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "cel_pole")]
         private static extern short CelPoleLib(double Tjd, PoleOffsetCorrection Type, double Dpole1, double Dpole2);
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "cio_array")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "cio_array")]
         private static extern short CioArrayLib(double JdTdb, int NPts, ref RAOfCioArray Cio);
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "cio_basis")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "cio_basis")]
         private static extern short CioBasisLib(double JdTdbEquionx, double RaCioEquionx, ReferenceSystem RefSys, Accuracy Accuracy, ref double x, ref double y, ref double z);
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "cio_location")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "cio_location")]
         private static extern short CioLocationLib(double JdTdb, Accuracy Accuracy, ref double RaCio, ref ReferenceSystem RefSys);
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "cio_ra")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "cio_ra")]
         private static extern short CioRaLib(double JdTt, Accuracy Accuracy, ref double RaCio);
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "d_light")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "d_light")]
         private static extern double DLightLib(ref PosVector Pos1, ref PosVector PosObs);
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "e_tilt")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "e_tilt")]
         private static extern void ETiltLib(double JdTdb, Accuracy Accuracy, ref double Mobl, ref double Tobl, ref double Ee, ref double Dpsi, ref double Deps);
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "ecl2equ_vec")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ecl2equ_vec")]
         private static extern short Ecl2EquVecLib(double JdTt, CoordSys CoordSys, Accuracy Accuracy, ref PosVector Pos1, ref PosVector Pos2);
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "ee_ct")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ee_ct")]
         private static extern double EeCtLib(double JdHigh, double JdLow, Accuracy Accuracy);
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "ephemeris")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ephemeris")]
         private static extern short EphemerisLib(ref JDHighPrecision Jd, ref Object3Internal CelObj, Origin Origin, Accuracy Accuracy, ref PosVector Pos, ref VelVector Vel);
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "equ2ecl")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "equ2ecl")]
         private static extern short Equ2EclLib(double JdTt, CoordSys CoordSys, Accuracy Accuracy, double Ra, double Dec, ref double ELon, ref double ELat);
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "equ2ecl_vec")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "equ2ecl_vec")]
         private static extern short Equ2EclVecLib(double JdTt, CoordSys CoordSys, Accuracy Accuracy, ref PosVector Pos1, ref PosVector Pos2);
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "equ2gal")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "equ2gal")]
         private static extern void Equ2GalLib(double RaI, double DecI, ref double GLon, ref double GLat);
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "equ2hor")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "equ2hor")]
         private static extern void Equ2HorLib(double Jd_Ut1, double DeltT, Accuracy Accuracy, double x, double y, ref OnSurface Location, double Ra, double Dec, RefractionOption RefOption, ref double Zd, ref double Az, ref double RaR, ref double DecR);
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "era")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "era")]
         private static extern double EraLib(double JdHigh, double JdLow);
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "frame_tie")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "frame_tie")]
         private static extern void FrameTieLib(ref PosVector Pos1, FrameConversionDirection Direction, ref PosVector Pos2);
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "fund_args")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "fund_args")]
         private static extern void FundArgsLib(double t, ref FundamentalArgs a);
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "gcrs2equ")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gcrs2equ")]
         private static extern short Gcrs2EquLib(double JdTt, CoordSys CoordSys, Accuracy Accuracy, double RaG, double DecG, ref double Ra, ref double Dec);
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "geo_posvel")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "geo_posvel")]
         private static extern short GeoPosVelLib(double JdTt, double DeltaT, Accuracy Accuracy, ref Observer Obs, ref PosVector Pos, ref VelVector Vel);
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "grav_def")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "grav_def")]
         private static extern short GravDefLib(double JdTdb, EarthDeflection LocCode, Accuracy Accuracy, ref PosVector Pos1, ref PosVector PosObs, ref PosVector Pos2);
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "grav_vec")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "grav_vec")]
         private static extern void GravVecLib(ref PosVector Pos1, ref PosVector PosObs, ref PosVector PosBody, double RMass, ref PosVector Pos2);
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "ira_equinox")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ira_equinox")]
         private static extern double IraEquinoxLib(double JdTdb, EquinoxType Equinox, Accuracy Accuracy);
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "julian_date")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "julian_date")]
         private static extern double JulianDateLib(short Year, short Month, short Day, double Hour);
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "light_time")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "light_time")]
         private static extern short LightTimeLib(double JdTdb, ref Object3Internal SsObject, ref PosVector PosObs, double TLight0, Accuracy Accuracy, ref PosVector Pos, ref double TLight);
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "limb_angle")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "limb_angle")]
         private static extern void LimbAngleLib(ref PosVector PosObj, ref PosVector PosObs, ref double LimbAng, ref double NadirAng);
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "local_planet")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "local_planet")]
         private static extern short LocalPlanetLib(double JdTt, ref Object3Internal SsBody, double DeltaT, ref OnSurface Position, Accuracy Accuracy, ref double Ra, ref double Dec, ref double Dis);
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "local_star")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "local_star")]
         private static extern short LocalStarLib(double JdTt, double DeltaT, ref CatEntry3 Star, ref OnSurface Position, Accuracy Accuracy, ref double Ra, ref double Dec);
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "make_cat_entry")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "make_cat_entry")]
         private static extern void MakeCatEntryLib([MarshalAs(UnmanagedType.LPStr)] string StarName, [MarshalAs(UnmanagedType.LPStr)] string Catalog, int StarNum, double Ra, double Dec, double PmRa, double PmDec, double Parallax, double RadVel, ref CatEntry3 Star);
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "make_in_space")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "make_in_space")]
         private static extern void MakeInSpaceLib(ref PosVector ScPos, ref VelVector ScVel, ref InSpace ObsSpace);
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "make_object")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "make_object")]
         private static extern short MakeObjectLib(ObjectType Type, short Number, [MarshalAs(UnmanagedType.LPStr)] string Name, ref CatEntry3 StarData, ref Object3Internal CelObj);
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "make_observer")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "make_observer")]
         private static extern short MakeObserverLib(ObserverLocation Where, ref OnSurface ObsSurface, ref InSpace ObsSpace, ref Observer Obs);
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "make_observer_at_geocenter")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "make_observer_at_geocenter")]
         private static extern void MakeObserverAtGeocenterLib(ref Observer ObsAtGeocenter);
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "make_observer_in_space")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "make_observer_in_space")]
         private static extern void MakeObserverInSpaceLib(ref PosVector ScPos, ref VelVector ScVel, ref Observer ObsInSpace);
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "make_observer_on_surface")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "make_observer_on_surface")]
         private static extern void MakeObserverOnSurfaceLib(double Latitude, double Longitude, double Height, double Temperature, double Pressure, ref Observer ObsOnSurface);
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "make_on_surface")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "make_on_surface")]
         private static extern void MakeOnSurfaceLib(double Latitude, double Longitude, double Height, double Temperature, double Pressure, ref OnSurface ObsSurface);
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "mean_obliq")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "mean_obliq")]
         private static extern double MeanObliqLib(double JdTdb);
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "mean_star")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "mean_star")]
         private static extern short MeanStarLib(double JdTt, double Ra, double Dec, Accuracy Accuracy, ref double IRa, ref double IDec);
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "norm_ang")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "norm_ang")]
         private static extern double NormAngLib(double Angle);
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "nutation")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "nutation")]
         private static extern void NutationLib(double JdTdb, NutationDirection Direction, Accuracy Accuracy, ref PosVector Pos, ref PosVector Pos2);
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "nutation_angles")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "nutation_angles")]
         private static extern void NutationAnglesLib(double t, Accuracy Accuracy, ref double DPsi, ref double DEps);
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "place")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "place")]
         private static extern short PlaceLib(double JdTt, ref Object3Internal CelObject, ref Observer Location, double DeltaT, CoordSys CoordSys, Accuracy Accuracy, ref SkyPos Output);
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "precession")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "precession")]
         private static extern short PrecessionLib(double JdTdb1, ref PosVector Pos1, double JdTdb2, ref PosVector Pos2);
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "proper_motion")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "proper_motion")]
         private static extern void ProperMotionLib(double JdTdb1, ref PosVector Pos, ref VelVector Vel, double JdTdb2, ref PosVector Pos2);
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "rad_vel")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "rad_vel")]
         private static extern void RadVelLib(ref Object3Internal CelObject, ref PosVector Pos, ref VelVector Vel, ref VelVector VelObs, double DObsGeo, double DObsSun, double DObjSun, ref double Rv);
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "radec2vector")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "radec2vector")]
         private static extern void RaDec2VectorLib(double Ra, double Dec, double Dist, ref PosVector Vector);
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "refract")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "refract")]
         private static extern double RefractLib(ref OnSurface Location, RefractionOption RefOption, double ZdObs);
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "sidereal_time")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "sidereal_time")]
         private static extern short SiderealTimeLib(double JdHigh, double JdLow, double DeltaT, GstType GstType, Method Method, Accuracy Accuracy, ref double Gst);
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "spin")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "spin")]
         private static extern void SpinLib(double Angle, ref PosVector Pos1, ref PosVector Pos2);
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "starvectors")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "starvectors")]
         private static extern void StarVectorsLib(ref CatEntry3 Star, ref PosVector Pos, ref VelVector Vel);
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "tdb2tt")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "tdb2tt")]
         private static extern void Tdb2TtLib(double TdbJd, ref double TtJd, ref double SecDiff);
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "ter2cel")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ter2cel")]
         private static extern short Ter2CelLib(double JdHigh, double JdLow, double DeltaT, Method Method, Accuracy Accuracy, OutputVectorOption OutputOption, double x, double y, ref PosVector VecT, ref PosVector VecC);
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "terra")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "terra")]
         private static extern void TerraLib(ref OnSurface Location, double St, ref PosVector Pos, ref VelVector Vel);
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "topo_planet")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "topo_planet")]
         private static extern short TopoPlanetLib(double JdTt, ref Object3Internal SsBody, double DeltaT, ref OnSurface Position, Accuracy Accuracy, ref double Ra, ref double Dec, ref double Dis);
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "topo_star")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "topo_star")]
         private static extern short TopoStarLib(double JdTt, double DeltaT, ref CatEntry3 Star, ref OnSurface Position, Accuracy Accuracy, ref double Ra, ref double Dec);
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "transform_cat")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "transform_cat")]
 
         private static extern short TransformCatLib(TransformationOption3 TransformOption, double DateInCat, ref CatEntry3 InCat, double DateNewCat, [MarshalAs(UnmanagedType.LPStr)] string NewCatId, ref CatEntry3 NewCat);
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "transform_hip")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "transform_hip")]
         private static extern void TransformHipLib(ref CatEntry3 Hipparcos, ref CatEntry3 Hip2000);
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "vector2radec")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "vector2radec")]
         private static extern short Vector2RaDecLib(ref PosVector Pos, ref double Ra, ref double Dec);
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "virtual_planet")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "virtual_planet")]
         private static extern short VirtualPlanetLib(double JdTt, ref Object3Internal SsBody, Accuracy Accuracy, ref double Ra, ref double Dec, ref double Dis);
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "virtual_star")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "virtual_star")]
         private static extern short VirtualStarLib(double JdTt, ref CatEntry3 Star, Accuracy Accuracy, ref double Ra, ref double Dec);
 
-        [DllImport(NOVAS_LIBRARY, EntryPoint = "wobble")]
+        [DllImport(NOVAS_LIBRARY, CallingConvention = CallingConvention.Cdecl, EntryPoint = "wobble")]
         private static extern void WobbleLib(double Tjd, short Direction, double x, double y, ref PosVector Pos1, ref PosVector Pos2);
         #endregion
 

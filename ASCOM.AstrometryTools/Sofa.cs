@@ -15,7 +15,7 @@ namespace ASCOM.Tools
         // Release and revision constants
         private const int SOFA_RELEASE_NUMBER = 19;
         private const string SOFA_ISSUE_DATE = "2023-10-11";
-        private const int SOFA_REVISION_NUMBER = 0; 
+        private const int SOFA_REVISION_NUMBER = 0;
         private const string SOFA_REVISION_DATE = "2023-10-11";
 
         #region ASCOM Sofa component metadata members
@@ -81,7 +81,7 @@ namespace ASCOM.Tools
         /// <item><description>If there are multiple errors, the status value reflects only the first, the smallest taking precedence.</description></item>
         /// </list>
         /// </remarks>
-        [DllImport(SOFA_LIBRARY, EntryPoint = "iauAf2a")]
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauAf2a", CallingConvention = CallingConvention.Cdecl)]
         public static extern short Af2a(char s, short ideg, short iamin, double asec, ref double rad);
 
         /// <summary>
@@ -90,7 +90,7 @@ namespace ASCOM.Tools
         /// <param name="a">Angle (radians)</param>
         /// <returns>Angle in range 0-2pi</returns>
         /// <remarks></remarks>
-        [DllImport(SOFA_LIBRARY, EntryPoint = "iauAnp")]
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauAnp", CallingConvention = CallingConvention.Cdecl)]
         public static extern double Anp(double a);
 
         /// <summary>
@@ -225,7 +225,7 @@ namespace ASCOM.Tools
         /// RA = RI - EO. (The Anp function can then be applied, as required, to keep the result in the conventional 0-2pi range.)</description></item>
         /// </list>
         /// </remarks>
-        [DllImport(SOFA_LIBRARY, EntryPoint = "iauAtci13")]
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauAtci13", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Atci13(double rc, double dc, double pr, double pd, double px, double rv, double date1, double date2, ref double ri, ref double di, ref double eo);
 
         /// <summary>
@@ -280,7 +280,7 @@ namespace ASCOM.Tools
         /// <item><description>It is advisable to take great care with units, as even unlikely values of the input parameters are accepted and processed in accordance with the models used.</description></item>
         /// </list>
         /// </remarks>
-        [DllImport(SOFA_LIBRARY, EntryPoint = "iauAtco13")]
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauAtco13", CallingConvention = CallingConvention.Cdecl)]
         public static extern short Atco13(double rc, double dc, double pr, double pd, double px, double rv, double utc1, double utc2, double dut1, double elong, double phi, double hm, double xp, double yp, double phpa, double tc, double rh, double wl, ref double aob, ref double zob, ref double hob, ref double dob, ref double rob, ref double eo);
 
         /// <summary>
@@ -411,7 +411,7 @@ namespace ASCOM.Tools
         /// RA = RI - EO.  (The Anp function can then be applied, as required, to keep the result in the conventional 0-2pi range.)</description></item>
         /// </list>
         /// </remarks>
-        [DllImport(SOFA_LIBRARY, EntryPoint = "iauAtic13")]
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauAtic13", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Atic13(double ri, double di, double date1, double date2, ref double rc, ref double dc, ref double eo);
 
         /// <summary>
@@ -464,7 +464,7 @@ namespace ASCOM.Tools
         /// <item><description>It is advisable to take great care with units, as even unlikely values of the input parameters are accepted and processed in accordance with the models used.</description></item>
         /// </list>
         /// </remarks>
-        [DllImport(SOFA_LIBRARY, EntryPoint = "iauAtoc13")]
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauAtoc13", CallingConvention = CallingConvention.Cdecl)]
         public static extern short Atoc13(string type, double ob1, double ob2, double utc1, double utc2, double dut1, double elong, double phi, double hm, double xp, double yp, double phpa, double tc, double rh, double wl, ref double rc, ref double dc);
 
         /// <summary>
@@ -516,7 +516,7 @@ namespace ASCOM.Tools
         /// <item><description>It is advisable to take great care with units, as even unlikely values of the input parameters are accepted and processed in accordance with the models used.</description></item>
         /// </list>
         /// </remarks>
-        [DllImport(SOFA_LIBRARY, EntryPoint = "iauAtio13")]
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauAtio13", CallingConvention = CallingConvention.Cdecl)]
         public static extern short Atio13(double ri, double di, double utc1, double utc2, double dut1, double elong, double phi, double hm, double xp, double yp, double phpa, double tc, double rh, double wl, ref double aob, ref double zob, ref double hob, ref double dob, ref double rob);
 
         /// <summary>
@@ -573,7 +573,7 @@ namespace ASCOM.Tools
         /// <item><description>It is advisable to take great care with units, as even unlikely values of the input parameters are accepted and processed in accordance with the models used.</description></item>
         /// </list>
         /// </remarks>
-        [DllImport(SOFA_LIBRARY, EntryPoint = "iauAtoi13")]
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauAtoi13", CallingConvention = CallingConvention.Cdecl)]
         public static extern short Atoi13(string type, double ob1, double ob2, double utc1, double utc2, double dut1, double elong, double phi, double hm, double xp, double yp, double phpa, double tc, double rh, double wl, ref double ri, ref double di);
 
         /// <summary>
@@ -603,7 +603,7 @@ namespace ASCOM.Tools
         /// used with circumspection;  in particular the difference between two such results cannot be interpreted as a precise time interval.</description></item>
         /// </list>
         /// </remarks>
-        [DllImport(SOFA_LIBRARY, EntryPoint = "iauDtf2d")]
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauDtf2d", CallingConvention = CallingConvention.Cdecl)]
         public static extern short Dtf2d(string scale, int iy, int im, int id, int ihr, int imn, double sec, ref double d1, ref double d2);
 
         /// <summary>
@@ -724,7 +724,7 @@ namespace ASCOM.Tools
         /// apparent sidereal time (ERA-GST).  It comprises the precession (since J2000.0) in right ascension plus the equation of the equinoxes (including the small correction terms).</description></item>
         /// </list>
         /// </remarks>
-        [DllImport(SOFA_LIBRARY, EntryPoint = "iauEo06a")]
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauEo06a", CallingConvention = CallingConvention.Cdecl)]
         public static extern double Eo06a(double date1, double date2);
 
         /// <summary>
@@ -742,7 +742,7 @@ namespace ASCOM.Tools
         /// tt1,tt2 follow suit.</description></item>
         /// </list>
         /// </remarks>
-        [DllImport(SOFA_LIBRARY, EntryPoint = "iauTaitt")]
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauTaitt", CallingConvention = CallingConvention.Cdecl)]
         public static extern short Taitt(double tai1, double tai2, ref double tt1, ref double tt2);
 
         /// <summary>
@@ -759,7 +759,7 @@ namespace ASCOM.Tools
         /// <item><description>tt1+tt2 is Julian Date, apportioned in any convenient way between the two arguments, for example where tt1 is the Julian Day Number and tt2 is the fraction of a day.  The returned tai1,tai2 follow suit.</description></item>
         /// </list>
         /// </remarks>
-        [DllImport(SOFA_LIBRARY, EntryPoint = "iauTttai")]
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauTttai", CallingConvention = CallingConvention.Cdecl)]
         public static extern short Tttai(double tt1, double tt2, ref double tai1, ref double tai2);
 
         /// <summary>
@@ -779,7 +779,7 @@ namespace ASCOM.Tools
         /// <item><description>If there are multiple errors, the status value reflects only the first, the smallest taking precedence.</description></item>
         /// </list>
         /// </remarks>
-        [DllImport(SOFA_LIBRARY, EntryPoint = "iauTf2a")]
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauTf2a", CallingConvention = CallingConvention.Cdecl)]
         public static extern short Tf2a(char s, short ihour, short imin, double sec, ref double rad);
 
         /// <summary>
@@ -801,7 +801,7 @@ namespace ASCOM.Tools
         /// <item><description>The returned TAI1,TAI2 are such that their sum is the TAI Julian Date.</description></item>
         /// </list>
         /// </remarks>
-        [DllImport(SOFA_LIBRARY, EntryPoint = "iauUtctai")]
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauUtctai", CallingConvention = CallingConvention.Cdecl)]
         public static extern short Utctai(double utc1, double utc2, ref double tai1, ref double tai2);
 
         /// <summary>
@@ -823,7 +823,7 @@ namespace ASCOM.Tools
         /// <item><description>The warning status "dubious year" flags UTCs that predate the introduction of the time scale or that are too far in the future to be trusted.  See iauDat for further details.</description></item>
         /// </list>
         /// </remarks>
-        [DllImport(SOFA_LIBRARY, EntryPoint = "iauTaiutc")]
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauTaiutc", CallingConvention = CallingConvention.Cdecl)]
         public static extern short Taiutc(double tai1, double tai2, ref double utc1, ref double utc2);
 
         /// <summary>
@@ -835,7 +835,7 @@ namespace ASCOM.Tools
         /// <param name="DayFraction">Fraction of a day</param>
         /// <param name="ReturnedLeapSeconds">Out: Leap seconds</param>
         /// <returns>status: 1 = dubious year, 0 = OK, −1 = bad year, −2 = bad month, −3 = bad day, −4 = bad fraction, −5 = internal error</returns>
-        [DllImport(SOFA_LIBRARY, EntryPoint = "iauDat")]
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauDat", CallingConvention = CallingConvention.Cdecl)]
         public static extern short Dat(int Year, int Month, int Day, double DayFraction, ref double ReturnedLeapSeconds);
 
         #endregion
