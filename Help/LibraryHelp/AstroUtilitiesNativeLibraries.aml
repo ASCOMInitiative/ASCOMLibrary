@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<topic id="579581F9-CA99-4D4D-A170-4E35731D7F61" revisionNumber="1">
+	<developerConceptualDocument
+	  xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5"
+	  xmlns:xlink="http://www.w3.org/1999/xlink">
+
+		<introduction>
+			<para>
+				The AstroUtities package relies on native SOFA and NOVAS libraries that are individually compiled for each supported platform and processor architecture. Your application
+				will not work correctly if incorrect versions of the native libraries are installed.
+			</para>
+			<para>
+				The extent of Visual Studio compile time tooling support for including the correct native libraries in the compiled output varies by both project file
+				format (original .NET Framework or newer SDK format) and target framework (.NET Framework or .NET 5 onward). The following sections describe how to ensure that
+				the compiler creates functional applications that can be run from within Visual Studio.
+			</para>
+		</introduction>
+
+		<section address="DotNet5Onward">
+			<title>.NET 5 and later projects</title>
+			<content>
+				<para>These projects work out of the box with the native libraries appearing in a \runtimes folder in the application output folder.</para>
+			</content>
+		</section>
+
+		<section address="FrameworkProjects">
+			<title>.NET Framework projects</title>
+			<content>
+				<para>
+					<legacyBold>PLEASE NOTE</legacyBold>: To use the AstroUtilities package successfully <legacyBold>it is essential</legacyBold> that the Platform Target on the project Build tab is set 
+					to "x86", "x64" or some other explicit value and NOT to "Any CPU".
+				</para>
+				<para>
+					.NET Framework projects support the "Any CPU" and "Prefer 32bit" build options that can be selected on the project's "Build" tab. 
+					However, the .NET Framework build system lacks support for native libraries in packages when building for "Any CPU" and doesn't copy native libraries to the 
+					compiled application output folder. This results in "missing file" and "library not found" exceptions being thrown at run time.
+				</para>
+				<para>
+					Take care not to confuse the "Platform Target" on the "Build" tab with the solution level configuration target that is set in the Visual Studio toolbar. 
+					Whatever configuration is set on the toolbar, please check that the settings on the project "Build" tab are as indicated above.
+				</para>
+			</content>
+		</section>
+		<relatedTopics>
+		</relatedTopics>
+	</developerConceptualDocument>
+</topic>

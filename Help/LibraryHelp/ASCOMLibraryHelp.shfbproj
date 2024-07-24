@@ -121,6 +121,7 @@
     <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
   </PropertyGroup>
   <ItemGroup>
+    <None Include="AstroUtilitiesNativeLibraries.aml" />
     <None Include="Async Methods.aml" />
     <None Include="AlpacaAndAscomDevices.aml" />
     <None Include="AsyncClientExtensions.aml" />
