@@ -11,6 +11,10 @@ A set of cross-platform tools to support astrometry requirements. The components
 
 # Version History
 
+***Release 2.0.0-rc.28***
+* Native library calling convention for SOFA and NOVAS changed to CDecl in order to remove an "imbalanced stack" condition when calls return. The issue seems 
+* to have been handled transparently in Release but was reported in Debug configurations.
+
 ***Release 2.0.0-rc.23***
 * Initial release after migration of features from the ASCOM.Tools package.
 * Significantly reduced package size by restricting NOVAS Planet ephemeris data to start at the year 2020 rather than 1900

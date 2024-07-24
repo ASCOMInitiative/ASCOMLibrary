@@ -4,6 +4,9 @@ A set of tools to access ASCOM COM drivers. Written to .Net Standard 2.0 for max
 
 # Version History
 
+***Release 2.0.0-rc.28***
+* No change.
+
 ***Release 2.0.0-rc.23***
 * Add support for new Platform 7 interface members.
 * Add device state convenience members that package device state in an easy to use form.

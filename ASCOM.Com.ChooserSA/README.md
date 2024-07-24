@@ -6,6 +6,9 @@ Please note that this component only works on Windows operating systems and requ
 
 # Version History
 
+***Release 2.0.0-rc.28***
+* No change.
+
 ***Release 2.0.0-rc.23***
 * No changes.
 

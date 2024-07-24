@@ -13,6 +13,9 @@ This may also be the case for projects that target IOS, but has not yet been con
 
 # Version History
 
+***Release 2.0.0-rc.28***
+* No change.
+
 ***Release 2.0.0-rc.23***
 * Add support for new Platform 7 interface members.
 * Added client async task extensions ConnectAsync() and DisconnectAsync().
