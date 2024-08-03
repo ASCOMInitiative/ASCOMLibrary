@@ -110,12 +110,20 @@ namespace ASCOM.Common.DeviceInterfaces
         /// </summary>
         /// <param name="deviceType">Device type.</param>
         /// <param name="interfaceVersion">Interface version of this device (Int32)</param>
+        /// <exception cref="InvalidValueException">When deviceType is null.</exception>
+        /// <exception cref="InvalidValueException">When interfaceVersion is 0 or negative.</exception>
         /// <returns><see langword="true"/> when the interface version supports Connect / Disconnect</returns>
         public static bool HasConnectAndDeviceState(DeviceTypes? deviceType, int interfaceVersion)
         {
-            if (!deviceType.HasValue)
+            // Validate inputs
+            if (!deviceType.HasValue) // The device type is a null value
             {
-                throw new InvalidValueException("ASCOMLibrary.DeviceCapabilities.HasConnectAndDeviceState - Supplied device type is null.");
+                throw new InvalidValueException("ASCOMLibrary.DeviceCapabilities.HasConnectAndDeviceState - The device type parameter is null.");
+            }
+
+            if (interfaceVersion < 1) // The interface version is 0 or negative
+            {
+                throw new InvalidValueException($"ASCOMLibrary.DeviceCapabilities.HasConnectAndDeviceState - The Interface version parameter is 0 or negative: {interfaceVersion}.");
             }
 
             // Switch on the type of this device
@@ -192,6 +200,117 @@ namespace ASCOM.Common.DeviceInterfaces
             }
 
             // Device has a Platform 6 or earlier interface
+            return false;
+        }
+
+        /// <summary>
+        /// Returns <see langword="true"/> if the interface version of the specified device type is a Platform 6 interface version
+        /// </summary>
+        /// <param name="deviceType">Device type.</param>
+        /// <param name="interfaceVersion">Interface version of this device (Int16, short)</param>
+        /// <exception cref="InvalidValueException">When deviceType is null.</exception>
+        /// <exception cref="InvalidValueException">When interfaceVersion is 0 or negative.</exception>
+        /// <returns><see langword="true"/> when the interface version is a Platform 6 interface version.</returns>
+        public static bool IsPlatform6Interface(DeviceTypes? deviceType, short interfaceVersion)
+        {
+            return IsPlatform6Interface(deviceType, (int)interfaceVersion);
+        }
+
+        /// <summary>
+        /// Returns <see langword="true"/> if the interface version of the specified device type is a Platform 6 interface version
+        /// </summary>
+        /// <param name="deviceType">Device type.</param>
+        /// <param name="interfaceVersion">Interface version of this device (Int32, int)</param>
+        /// <exception cref="InvalidValueException">When deviceType is null.</exception>
+        /// <exception cref="InvalidValueException">When interfaceVersion is 0 or negative.</exception>
+        /// <returns><see langword="true"/> when the interface version is a Platform 6 interface version.</returns>
+        public static bool IsPlatform6Interface(DeviceTypes? deviceType, int interfaceVersion)
+        {
+            // Validate inputs
+            if (!deviceType.HasValue) // The device type is a null value
+            {
+                throw new InvalidValueException("ASCOMLibrary.DeviceCapabilities.IsPlatform6Interface - The device type parameter is null.");
+            }
+
+            if (interfaceVersion < 1) // The interface version is 0 or negative
+            {
+                throw new InvalidValueException($"ASCOMLibrary.DeviceCapabilities.IsPlatform6Interface - The Interface version parameter is 0 or negative: {interfaceVersion}.");
+            }
+
+            // Switch on the type of this device
+            switch (deviceType)
+            {
+                // True if interface version is 3
+                case DeviceTypes.Camera:
+                    if (interfaceVersion == 3)
+                        return true;
+                    break;
+
+                // True if interface version is  1
+                case DeviceTypes.CoverCalibrator:
+                    if (interfaceVersion == 1)
+                        return true;
+                    break;
+
+                // True if interface version is 2
+                case DeviceTypes.Dome:
+                    if (interfaceVersion == 2)
+                        return true;
+                    break;
+
+                // True if interface version is 2
+                case DeviceTypes.FilterWheel:
+                    if (interfaceVersion == 2)
+                        return true;
+                    break;
+
+                // True if interface version is 3
+                case DeviceTypes.Focuser:
+                    if (interfaceVersion == 3)
+                        return true;
+                    break;
+
+                // True if interface version is 1
+                case DeviceTypes.ObservingConditions:
+                    if (interfaceVersion == 1)
+                        return true;
+                    break;
+
+                // True if interface version is 3
+                case DeviceTypes.Rotator:
+                    if (interfaceVersion == 3)
+                        return true;
+                    break;
+
+                // True if interface version is greater than 2
+                case DeviceTypes.SafetyMonitor:
+                    if (interfaceVersion == 2)
+                        return true;
+                    break;
+
+                // True if interface version is 2
+                case DeviceTypes.Switch:
+                    if (interfaceVersion == 2)
+                        return true;
+                    break;
+
+                // True if interface version is 3
+                case DeviceTypes.Telescope:
+                    if (interfaceVersion == 3)
+                        return true;
+                    break;
+
+                // True if interface version is 1
+                case DeviceTypes.Video:
+                    if (interfaceVersion == 1)
+                        return true;
+                    break;
+
+                default:
+                    throw new InvalidValueException($"DeviceCapabillities.HasConnectAndDeviceState - Unsupported device type: {deviceType}. Please update the Library code to add support.");
+            }
+
+            // Device has a Platform 5 or 5.5 or earlier interface
             return false;
         }
 
