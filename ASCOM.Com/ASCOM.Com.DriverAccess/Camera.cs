@@ -1023,7 +1023,7 @@ namespace ASCOM.Com.DriverAccess
         /// <returns>The name of the sensor used within the camera.</returns>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
-        /// <remarks><p style="color:red"><b>May throw a NotImplementedException if the sensor's name is not known.</b></p>
+        /// <remarks><p style="color:red"><b>Must return an empty string if the sensor's name is not known.</b></p>
         /// <para>Returns the name (data sheet part number) of the sensor, e.g. ICX285AL.  The format is to be exactly as shown on
         /// manufacturer data sheet, subject to the following rules:
         /// <list type="bullet">
