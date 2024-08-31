@@ -992,7 +992,7 @@ namespace ASCOM.Common
 
         #endregion
 
-        #region Telescope extensions
+        #region ITelescopeV3 extensions
 
         /// <summary>
         /// Returns an awaitable, running, <see cref="Task"/> that slews the telescope to the specified altitude / azimuth coordinates
@@ -1178,6 +1178,194 @@ namespace ASCOM.Common
             CheckOutcome(processTask, logger, callingMethodName, cancellationToken);
         }
 
+        #endregion
+
+        #region ITelescopeV4 extensions
+
+        /// <summary>
+        /// Returns an awaitable, running, <see cref="Task"/> that slews the telescope to the specified altitude / azimuth coordinates
+        /// </summary>
+        /// <param name="device">The Telescope device</param>
+        /// <param name="azimuth">The required azimuth</param>
+        /// <param name="altitude">The required altitude</param>
+        /// <param name="cancellationToken">Cancellation token - Default: <see cref="CancellationToken.None"/></param>
+        /// <param name="pollInterval">Interval between polls of the completion variable (milliseconds) - Default: 1000 milliseconds.</param>
+        /// <param name="logger">ILogger instance that will receive operation messages from the method - Default: No logger</param>
+        /// <returns>Awaitable task that ends when the telescope is at the required coordinates</returns>
+        /// <remarks>
+        /// <para>Initiator: <see cref="ITelescopeV4.SlewToAltAzAsync(double, double)"/></para>
+        /// <para>Complete when: <see cref="ITelescopeV4.Slewing"/> is <see langword="false"/></para>
+        /// </remarks>
+        public static async Task SlewToAltAzTaskAsync(this ITelescopeV4 device, double azimuth, double altitude, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
+        {
+            Task processTask = null;
+            string callingMethodName = $"[Lib].{GetCurrentMethod()}";
+
+            await Task.Run(() =>
+            {
+                processTask = Task.Run(() =>
+                {
+                    ProcessTask(() => { device.SlewToAltAzAsync(azimuth, altitude); }, () => { return device.Slewing; }, pollInterval, cancellationToken, logger, $"{nameof(ITelescopeV4)}.{nameof(SlewToAltAzTaskAsync)}", () => { return $"Altitude: {device.Altitude}, Azimuth: {device.Azimuth}"; });
+                });
+
+                WaitForProcessTask(processTask, logger, callingMethodName, cancellationToken);
+            });
+
+            CheckOutcome(processTask, logger, callingMethodName, cancellationToken);
+        }
+
+        /// <summary>
+        /// Returns an awaitable, running, <see cref="Task"/> that slews the telescope to the specified RA/Dec coordinates
+        /// </summary>
+        /// <param name="device">The Telescope device</param>
+        /// <param name="rightAscension">The required right ascension</param>
+        /// <param name="declination">The required declination</param>
+        /// <param name="cancellationToken">Cancellation token - Default: <see cref="CancellationToken.None"/></param>
+        /// <param name="pollInterval">Interval between polls of the completion variable (milliseconds) - Default: 1000 milliseconds.</param>
+        /// <param name="logger">ILogger instance that will receive operation messages from the method - Default: No logger</param>
+        /// <returns>Awaitable task that ends when the telescope is at the required coordinates</returns>
+        /// <remarks>
+        /// <para>Initiator: <see cref="ITelescopeV4.SlewToCoordinatesAsync(double, double)"/></para>
+        /// <para>Complete when: <see cref="ITelescopeV4.Slewing"/> is <see langword="false"/></para>
+        /// </remarks>
+        public static async Task SlewToCoordinatesTaskAsync(this ITelescopeV4 device, double rightAscension, double declination, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
+        {
+            Task processTask = null;
+            string callingMethodName = $"[Lib].{GetCurrentMethod()}";
+
+            await Task.Run(() =>
+            {
+                processTask = Task.Run(() =>
+                {
+                    ProcessTask(() => { device.SlewToCoordinatesAsync(rightAscension, declination); }, () => { return device.Slewing; }, pollInterval, cancellationToken, logger, $"{nameof(ITelescopeV4)}.{nameof(SlewToCoordinatesTaskAsync)}", () => { return $"RA: {device.RightAscension}, Declination: {device.Declination}"; });
+                });
+
+                WaitForProcessTask(processTask, logger, callingMethodName, cancellationToken);
+            });
+
+            CheckOutcome(processTask, logger, callingMethodName, cancellationToken);
+        }
+
+        /// <summary>
+        /// Returns an awaitable, running, <see cref="Task"/> that slews the telescope to the coordinates specified by the TargetRA and TargetDeclination properties
+        /// </summary>
+        /// <param name="device">The Telescope device</param>
+        /// <param name="cancellationToken">Cancellation token - Default: <see cref="CancellationToken.None"/></param>
+        /// <param name="pollInterval">Interval between polls of the completion variable (milliseconds) - Default: 1000 milliseconds.</param>
+        /// <param name="logger">ILogger instance that will receive operation messages from the method - Default: No logger</param>
+        /// <returns>Awaitable task that ends when the telescope is at the required coordinates</returns>
+        /// <remarks>
+        /// <para>Initiator: <see cref="ITelescopeV4.SlewToTargetAsync()"/></para>
+        /// <para>Complete when: <see cref="ITelescopeV4.Slewing"/> is <see langword="false"/></para>
+        /// </remarks>
+        public static async Task SlewToTargetTaskAsync(this ITelescopeV4 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
+        {
+            Task processTask = null;
+            string callingMethodName = $"[Lib].{GetCurrentMethod()}";
+
+            await Task.Run(() =>
+            {
+                processTask = Task.Run(() =>
+                {
+                    ProcessTask(() => { device.SlewToTargetAsync(); }, () => { return device.Slewing; }, pollInterval, cancellationToken, logger, $"{nameof(ITelescopeV4)}.{nameof(SlewToTargetTaskAsync)}", () => { return $"RA: {device.RightAscension}, Declination: {device.Declination}"; });
+                });
+
+                WaitForProcessTask(processTask, logger, callingMethodName, cancellationToken);
+            });
+
+            CheckOutcome(processTask, logger, callingMethodName, cancellationToken);
+        }
+
+        /// <summary>
+        /// Returns an awaitable, running, <see cref="Task"/> that stops telescope slewing movement
+        /// </summary>
+        /// <param name="device">The Telescope device</param>
+        /// <param name="cancellationToken">Cancellation token - Default: <see cref="CancellationToken.None"/></param>
+        /// <param name="pollInterval">Interval between polls of the completion variable (milliseconds) - Default: 1000 milliseconds.</param>
+        /// <param name="logger">ILogger instance that will receive operation messages from the method - Default: No logger</param>
+        /// <returns>Awaitable task that ends when telescope slewing has stopped</returns>
+        /// <remarks>
+        /// <para>Initiator: <see cref="ITelescopeV4.AbortSlew()"/></para>
+        /// <para>Complete when: <see cref="ITelescopeV4.Slewing"/> is <see langword="false"/></para>
+        /// </remarks>
+        public static async Task AbortSlewAsync(this ITelescopeV4 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
+        {
+            Task processTask = null;
+            string callingMethodName = $"[Lib].{GetCurrentMethod()}";
+
+            await Task.Run(() =>
+            {
+                processTask = Task.Run(() =>
+                {
+                    ProcessTask(() => { device.AbortSlew(); }, () => { return device.Slewing; }, pollInterval, cancellationToken, logger, $"{nameof(ITelescopeV4)}.{nameof(AbortSlewAsync)}");
+                });
+
+                WaitForProcessTask(processTask, logger, callingMethodName, cancellationToken);
+            });
+
+            CheckOutcome(processTask, logger, callingMethodName, cancellationToken);
+        }
+
+        /// <summary>
+        /// Returns an awaitable, running, <see cref="Task"/> that moves the telescope to the home position
+        /// </summary>
+        /// <param name="device">The Telescope device</param>
+        /// <param name="cancellationToken">Cancellation token - Default: <see cref="CancellationToken.None"/></param>
+        /// <param name="pollInterval">Interval between polls of the completion variable (milliseconds) - Default: 1000 milliseconds.</param>
+        /// <param name="logger">ILogger instance that will receive operation messages from the method - Default: No logger</param>
+        /// <returns>Awaitable task that ends when telescope is at home</returns>
+        /// <remarks>
+        /// <para>Initiator: <see cref="ITelescopeV4.FindHome()"/></para>
+        /// <para>Complete when: <see cref="ITelescopeV4.Slewing"/> is <see langword="false"/></para>
+        /// </remarks>
+        public static async Task FindHomeAsync(this ITelescopeV4 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
+        {
+            Task processTask = null;
+            string callingMethodName = $"[Lib].{GetCurrentMethod()}";
+
+            await Task.Run(() =>
+            {
+                processTask = Task.Run(() =>
+                {
+                    ProcessTask(() => { device.FindHome(); }, () => { return device.Slewing; }, pollInterval, cancellationToken, logger, $"{nameof(ITelescopeV4)}.{nameof(FindHomeAsync)}", () => { return $"RA: {device.RightAscension}, Declination: {device.Declination}"; });
+                });
+
+                WaitForProcessTask(processTask, logger, callingMethodName, cancellationToken);
+            });
+
+            CheckOutcome(processTask, logger, callingMethodName, cancellationToken);
+        }
+
+        /// <summary>
+        /// Returns an awaitable, running, <see cref="Task"/> that parks the telescope
+        /// </summary>
+        /// <param name="device">The Telescope device</param>
+        /// <param name="cancellationToken">Cancellation token - Default: <see cref="CancellationToken.None"/></param>
+        /// <param name="pollInterval">Interval between polls of the completion variable (milliseconds) - Default: 1000 milliseconds.</param>
+        /// <param name="logger">ILogger instance that will receive operation messages from the method - Default: No logger</param>
+        /// <returns>Awaitable task that ends when telescope is at the park position</returns>
+        /// <remarks>
+        /// <para>Initiator: <see cref="ITelescopeV4.Park()"/></para>
+        /// <para>Complete when: <see cref="ITelescopeV4.AtPark"/> is <see langword="true"/></para>
+        /// </remarks>
+        public static async Task ParkAsync(this ITelescopeV4 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
+        {
+            Task processTask = null;
+            string callingMethodName = $"[Lib].{GetCurrentMethod()}";
+
+            await Task.Run(() =>
+            {
+                processTask = Task.Run(() =>
+                {
+                    ProcessTask(() => { device.Park(); }, () => { return !device.AtPark; }, pollInterval, cancellationToken, logger, $"{nameof(ITelescopeV4)}.{nameof(ParkAsync)}", () => { return $"RA: {device.RightAscension}, Declination: {device.Declination}"; });
+                });
+
+                WaitForProcessTask(processTask, logger, callingMethodName, cancellationToken);
+            });
+
+            CheckOutcome(processTask, logger, callingMethodName, cancellationToken);
+        }
+
         /// <summary>
         /// Returns an awaitable, running, <see cref="Task"/> that un-parks the telescope
         /// </summary>
@@ -1187,8 +1375,8 @@ namespace ASCOM.Common
         /// <param name="logger">ILogger instance that will receive operation messages from the method - Default: No logger</param>
         /// <returns>Awaitable task that ends when telescope is un-parked</returns>
         /// <remarks>
-        /// <para>Initiator: <see cref="ITelescopeV3.Unpark()"/></para>
-        /// <para>Complete when: <see cref="ITelescopeV3.AtPark"/> is <see langword="false"/></para>
+        /// <para>Initiator: <see cref="ITelescopeV4.Unpark()"/></para>
+        /// <para>Complete when: <see cref="ITelescopeV4.AtPark"/> is <see langword="false"/></para>
         /// </remarks>
         public static async Task UnparkAsync(this ITelescopeV4 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
@@ -1199,7 +1387,7 @@ namespace ASCOM.Common
             {
                 processTask = Task.Run(() =>
                 {
-                    ProcessTask(() => { device.Unpark(); }, () => { return device.AtPark; }, pollInterval, cancellationToken, logger, $"{nameof(ITelescopeV3)}.{nameof(UnparkAsync)}");
+                    ProcessTask(() => { device.Unpark(); }, () => { return device.AtPark; }, pollInterval, cancellationToken, logger, $"{nameof(ITelescopeV4)}.{nameof(UnparkAsync)}");
                 });
 
                 WaitForProcessTask(processTask, logger, callingMethodName, cancellationToken);
