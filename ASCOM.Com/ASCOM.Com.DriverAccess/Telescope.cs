@@ -14,8 +14,6 @@ namespace ASCOM.Com.DriverAccess
     /// </summary>
     public class Telescope : ASCOMDevice, ITelescopeV4
     {
-        Operation currentOperation = Operation.None; // Current operation name
-
         #region Convenience members
 
         /// <summary>
@@ -33,7 +31,7 @@ namespace ASCOM.Com.DriverAccess
                 // Create a state object to return.
                 TelescopeState state = new TelescopeState(DeviceState, TL);
                 TL.LogMessage(LogLevel.Debug,nameof(TelescopeState), $"Returning: '{state.Altitude}' '{state.AtHome}' '{state.AtPark}' '{state.Azimuth}' '{state.Declination}' '{state.IsPulseGuiding}' " +
-                    $"'{state.RightAscension}' '{state.SideOfPier}' '{state.SiderealTime}' '{state.Slewing}' '{state.Tracking}' '{state.UTCDate}' '{state.TimeStamp}' '{currentOperation}'");
+                    $"'{state.RightAscension}' '{state.SideOfPier}' '{state.SiderealTime}' '{state.Slewing}' '{state.Tracking}' '{state.UTCDate}' '{state.TimeStamp}'");
 
                 // Return the device specific state class
                 return state;
@@ -808,7 +806,6 @@ namespace ASCOM.Com.DriverAccess
             get => (PointingState)Device.SideOfPier;
             set
             {
-                currentOperation = Operation.SideOfPier;
                 Device.SideOfPier = value;
             }
         }
@@ -1104,7 +1101,6 @@ namespace ASCOM.Com.DriverAccess
         /// </remarks>
         public void AbortSlew()
         {
-            currentOperation = Operation.AbortSlew;
             Device.AbortSlew();
         }
 
@@ -1201,8 +1197,6 @@ namespace ASCOM.Com.DriverAccess
             {
                 throw new ASCOM.NotImplementedException("FindHome is only supported by Interface Versions 2 and above.");
             }
-
-            currentOperation = Operation.FindHome;
             Device.FindHome();
         }
 
@@ -1240,7 +1234,6 @@ namespace ASCOM.Com.DriverAccess
         /// </remarks>
         public void MoveAxis(TelescopeAxis Axis, double Rate)
         {
-            currentOperation = Operation.MoveAxis;
             Device.MoveAxis(Axis, Rate);
         }
 
@@ -1259,7 +1252,6 @@ namespace ASCOM.Com.DriverAccess
         /// </remarks>
         public void Park()
         {
-            currentOperation = Operation.Park;
             Device.Park();
         }
 
@@ -1293,7 +1285,6 @@ namespace ASCOM.Com.DriverAccess
         /// </remarks>
         public void PulseGuide(GuideDirection Direction, int Duration)
         {
-            currentOperation = Operation.PulseGuide;
             Device.PulseGuide(Direction, Duration);
         }
 
@@ -1364,8 +1355,6 @@ namespace ASCOM.Com.DriverAccess
             {
                 throw new ASCOM.NotImplementedException("SlewToAltAzAsync is only supported by Interface Versions 2 and above.");
             }
-
-            currentOperation = Operation.SlewToAltAzAsync;
             Device.SlewToAltAzAsync(Azimuth, Altitude);
         }
 
@@ -1423,7 +1412,6 @@ namespace ASCOM.Com.DriverAccess
         /// </remarks>
         public void SlewToCoordinatesAsync(double RightAscension, double Declination)
         {
-            currentOperation = Operation.SlewToCoordinatesAsync;
             Device.SlewToCoordinatesAsync(RightAscension, Declination);
         }
 
@@ -1467,7 +1455,6 @@ namespace ASCOM.Com.DriverAccess
         /// </remarks>
         public void SlewToTargetAsync()
         {
-            currentOperation = Operation.SlewToTargetAsync;
             Device.SlewToTargetAsync();
         }
 
@@ -1553,8 +1540,6 @@ namespace ASCOM.Com.DriverAccess
         /// </remarks>
         public void Unpark()
         {
-            currentOperation = Operation.Unpark;
-
             Device.Unpark();
         }
 

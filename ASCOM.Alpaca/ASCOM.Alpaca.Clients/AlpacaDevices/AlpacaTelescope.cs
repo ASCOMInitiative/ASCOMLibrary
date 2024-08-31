@@ -19,8 +19,6 @@ namespace ASCOM.Alpaca.Clients
     {
         #region Variables and Constants
 
-        Operation currentOperation = Operation.None; // Current operation name
-
         #endregion
 
         #region Initialiser
@@ -161,7 +159,7 @@ namespace ASCOM.Alpaca.Clients
                 // Create a state object to return.
                 TelescopeState state = new TelescopeState(DeviceState, logger);
                 logger.LogMessage(LogLevel.Debug, nameof(TelescopeState), $"Returning: '{state.Altitude}' '{state.AtHome}' '{state.AtPark}' '{state.Azimuth}' '{state.Declination}' '{state.IsPulseGuiding}' " +
-                    $"'{state.RightAscension}' '{state.SideOfPier}' '{state.SiderealTime}' '{state.Slewing}' '{state.Tracking}' '{state.UTCDate}' '{state.TimeStamp}' '{currentOperation}'");
+                    $"'{state.RightAscension}' '{state.SideOfPier}' '{state.SiderealTime}' '{state.Slewing}' '{state.Tracking}' '{state.UTCDate}' '{state.TimeStamp}'");
 
                 // Return the device specific state class
                 return state;
@@ -183,10 +181,8 @@ namespace ASCOM.Alpaca.Clients
         /// </remarks>
         public void AbortSlew()
         {
-            currentOperation = Operation.AbortSlew; // Set the current operation
             DynamicClientDriver.CallMethodWithNoParameters(clientNumber, client, longDeviceResponseTimeout, URIBase, strictCasing, logger, "AbortSlew", MemberTypes.Method);
-            currentOperation = Operation.None; // Set the current operation
-            LogMessage(logger, clientNumber, "AbortSlew", $"Slew aborted OK, current operation: {currentOperation}");
+            LogMessage(logger, clientNumber, "AbortSlew", $"Slew aborted OK.");
         }
 
         /// <summary>
@@ -800,7 +796,6 @@ namespace ASCOM.Alpaca.Clients
         /// </remarks>
         public void FindHome()
         {
-            currentOperation = Operation.FindHome; // Set the current operation
             DynamicClientDriver.CallMethodWithNoParameters(clientNumber, client, longDeviceResponseTimeout, URIBase, strictCasing, logger, "FindHome", MemberTypes.Method);
             LogMessage(logger, clientNumber, "FindHome", "Home found OK");
         }
@@ -942,7 +937,6 @@ namespace ASCOM.Alpaca.Clients
         /// </remarks>
         public void MoveAxis(TelescopeAxis Axis, double Rate)
         {
-            currentOperation = Operation.MoveAxis; // Set the current operation
             Dictionary<string, string> Parameters = new Dictionary<string, string>
             {
                 { AlpacaConstants.AXIS_PARAMETER_NAME, ((int)Axis).ToString(CultureInfo.InvariantCulture) },
@@ -966,7 +960,6 @@ namespace ASCOM.Alpaca.Clients
         /// </remarks>
         public void Park()
         {
-            currentOperation = Operation.Park; // Set the current operation
             DynamicClientDriver.CallMethodWithNoParameters(clientNumber, client, longDeviceResponseTimeout, URIBase, strictCasing, logger, "Park", MemberTypes.Method);
             LogMessage(logger, clientNumber, "Park", "Parked OK");
         }
@@ -1001,7 +994,6 @@ namespace ASCOM.Alpaca.Clients
         /// </remarks>
         public void PulseGuide(GuideDirection Direction, int Duration)
         {
-            currentOperation = Operation.PulseGuide; // Set the current operation
             Dictionary<string, string> Parameters = new Dictionary<string, string>
             {
                 { AlpacaConstants.DIRECTION_PARAMETER_NAME, ((int)Direction).ToString(CultureInfo.InvariantCulture) },
@@ -1172,7 +1164,6 @@ namespace ASCOM.Alpaca.Clients
             }
             set
             {
-                currentOperation = Operation.SideOfPier; // Set the current operation
                 Dictionary<string, string> Parameters = new Dictionary<string, string>
                 {
                     { AlpacaConstants.SIDEOFPIER_PARAMETER_NAME, ((int)value).ToString(CultureInfo.InvariantCulture) }
@@ -1354,7 +1345,6 @@ namespace ASCOM.Alpaca.Clients
         /// </remarks>
         public void SlewToAltAzAsync(double Azimuth, double Altitude)
         {
-            currentOperation = Operation.SlewToAltAzAsync; // Set the current operation
             Dictionary<string, string> Parameters = new Dictionary<string, string>
             {
                 { AlpacaConstants.AZ_PARAMETER_NAME, Azimuth.ToString(CultureInfo.InvariantCulture) },
@@ -1422,7 +1412,6 @@ namespace ASCOM.Alpaca.Clients
         /// </remarks>
         public void SlewToCoordinatesAsync(double RightAscension, double Declination)
         {
-            currentOperation = Operation.SlewToCoordinatesAsync; // Set the current operation
             Dictionary<string, string> Parameters = new Dictionary<string, string>
             {
                 { AlpacaConstants.RA_PARAMETER_NAME, RightAscension.ToString(CultureInfo.InvariantCulture) },
@@ -1471,7 +1460,6 @@ namespace ASCOM.Alpaca.Clients
         /// </remarks>
         public void SlewToTargetAsync()
         {
-            currentOperation = Operation.SlewToTargetAsync; // Set the current operation
             DynamicClientDriver.CallMethodWithNoParameters(clientNumber, client, longDeviceResponseTimeout, URIBase, strictCasing, logger, "SlewToTargetAsync", MemberTypes.Method);
             LogMessage(logger, clientNumber, "SlewToTargetAsync", "Slew completed OK");
         }
@@ -1737,7 +1725,6 @@ namespace ASCOM.Alpaca.Clients
         /// </remarks>
         public void Unpark()
         {
-            currentOperation = Operation.Unpark; // Set the current operation
             DynamicClientDriver.CallMethodWithNoParameters(clientNumber, client, longDeviceResponseTimeout, URIBase, strictCasing, logger, "UnPark", MemberTypes.Method);
             LogMessage(logger, clientNumber, "UnPark", "Unparked OK");
         }

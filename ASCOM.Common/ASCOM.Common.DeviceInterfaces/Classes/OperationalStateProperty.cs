@@ -18,48 +18,8 @@ namespace ASCOM.Common.DeviceInterfaces
         // field to hold any supplied operational message logger
         private static ILogger logger;
 
-        /// <summary>
-        /// Default initialiser for the OperationalStateProperty class
-        /// </summary>
-        public OperationalStateProperty()
-        {
-            DeviceType = DeviceTypes.Telescope;
-            StateName = "State name not set";
-            TypeName = "Type name not set";
-        }
-
-        /// <summary>
-        /// Initialise the device type, operational state name  and data type
-        /// </summary>
-        /// <param name="deviceType">ASCOM device type</param>
-        /// <param name="stateName">operational state name.</param>
-        /// <param name="typeName">Date type name e.g. Boolean, Double, DateTime etc. This must be the CLR type name not the C# shortcut name e.g. It must be "Boolean" and not "bool".</param>
-        public OperationalStateProperty(DeviceTypes deviceType, string stateName, string typeName)
-        {
-            DeviceType = deviceType;
-            StateName = stateName;
-            TypeName = typeName;
-        }
-
-        /// <summary>
-        /// ASCOM device type
-        /// </summary>
-        public DeviceTypes DeviceType;
-
-        /// <summary>
-        /// operational state name
-        /// </summary>
-        public string StateName;
-
-        /// <summary>
-        /// Date type name e.g. Boolean, Double, DateTime etc. This must be the CLR type name not the C# shortcut name e.g. It must be "Boolean" and not "bool".
-        /// </summary>
-        public string TypeName;
-
-        /// <summary>
-        /// Definitive list of valid operational state names and associated data types for each ASCOM device type
-        /// </summary>
-        public static List<OperationalStateProperty> Members = new List<OperationalStateProperty>()
+        // Definitive list of valid operational state names and associated data types for each ASCOM device type
+        private static readonly List<OperationalStateProperty> members = new List<OperationalStateProperty>()
         {
             // Camera operational state properties
             new OperationalStateProperty(DeviceTypes.Camera, nameof(ICameraV4.CameraState), nameof(CameraState)),
@@ -147,19 +107,69 @@ namespace ASCOM.Common.DeviceInterfaces
             new OperationalStateProperty(DeviceTypes.Video, TIME_STAMP, nameof(DateTime))
         };
 
+        #region Initialisers
+
         /// <summary>
-        /// Ensures that returned state values are of the expected type
+        /// Default initialiser for the OperationalStateProperty class
+        /// </summary>
+        internal OperationalStateProperty()
+        {
+            DeviceType = DeviceTypes.Telescope;
+            Name = "State name not set";
+            DataType = "Type name not set";
+        }
+
+        /// <summary>
+        /// Initialise the device type, operational state name  and data type
+        /// </summary>
+        /// <param name="deviceType">ASCOM device type</param>
+        /// <param name="stateName">operational state name.</param>
+        /// <param name="typeName">Date type name e.g. Boolean, Double, DateTime etc. This must be the CLR type name not the C# shortcut name e.g. It must be "Boolean" and not "bool".</param>
+        internal OperationalStateProperty(DeviceTypes deviceType, string stateName, string typeName)
+        {
+            DeviceType = deviceType;
+            Name = stateName;
+            DataType = typeName;
+        }
+
+        #endregion
+
+        #region Public properties
+
+        /// <summary>
+        /// ASCOM device type that supplies this operational property.
+        /// </summary>
+        public DeviceTypes DeviceType { get; private set; }
+
+        /// <summary>
+        /// Name of the operational state property.
+        /// </summary>
+        public string Name { get; private set; }
+
+        /// <summary>
+        /// Data type of the operational state property.
+        /// </summary>
+        /// <remarks>
+        /// This will be the CLR type name not the C# shortcut name e.g. It will be <see cref="Boolean"/> and not <see langword="bool"/>, <see cref="Int32"/> and not <see langword="int"/>.</remarks>
+        public string DataType { get; private set; }
+
+        #endregion
+
+        #region Public methods
+
+        /// <summary>
+        /// Helper method to ensure that <see cref="StateValue.Value"/> properties are of the expected type after de=serialisation by <see cref="JsonSerializer.Deserialize{TValue}(string, JsonSerializerOptions)"/>
         /// </summary>
         /// <param name="deviceState">List of device state values returned by the device</param>
         /// <param name="deviceType">The device type (Camera,Telescope etc.)</param>
-        /// <param name="TL">Optional ILogger instance to receive operational log messages (defaults to null)</param>
+        /// <param name="logger">Optional ILogger instance to receive operational log messages (defaults to null)</param>
         /// <returns>A cleaned list of device state values</returns>
         /// <exception cref="InvalidValueException">If the supplied device type is not supported.</exception>
-        /// <remarks>When de-serialising a List of StateValue objects, System.Text.JSON returns list entries with the object variable set to the 
-        /// JsonElement type rather than the expected object type. This method parses the list entries and converts all JsonElement types to the expected 
-        /// int, double, string, DateTime etc. types.
+        /// <remarks>When de-serialising StateValue objects in a DeviceState response, System.Text.JSON returns the <see cref="StateValue.Value"/> property as type <see cref="JsonElement"/> 
+        /// rather than the type sent by the device, which may have been <see langword="int"/>, <see langword="double"/>, <see langword="string"/>, <see cref="DateTime"/> etc.
+        /// This method parses a list of <see cref="StateValue"/> objects and converts all <see cref="JsonElement"/> types in <see cref="StateValue.Value"/> to the expected data type.
         /// </remarks>
-        public static List<StateValue> Clean(List<StateValue> deviceState, DeviceTypes deviceType, ILogger TL = null)
+        public static List<StateValue> Clean(List<StateValue> deviceState, DeviceTypes deviceType, ILogger logger = null)
         {
             // Define supported value types
             bool boolValue;
@@ -177,7 +187,7 @@ namespace ASCOM.Common.DeviceInterfaces
             VideoCameraState videoCameraStateValue;
 
             // Save the supplied logger instance, if any
-            logger = TL;
+            OperationalStateProperty.logger = logger;
 
             // Handle null List
             if (deviceState is null) // No list was supplied
@@ -195,13 +205,13 @@ namespace ASCOM.Common.DeviceInterfaces
             foreach (StateValue stateValue in deviceState)
             {
                 // Find the matching member definition based on the device type and the name of the state value
-                OperationalStateProperty member = OperationalStateProperty.Members.Where<OperationalStateProperty>(x => x.DeviceType == deviceType & x.StateName == stateValue.Name).FirstOrDefault();
+                OperationalStateProperty member = OperationalStateProperty.members.Where<OperationalStateProperty>(x => x.DeviceType == deviceType & x.Name == stateValue.Name).FirstOrDefault();
 
                 // Process the member if one is found, otherwise just add it to the list
                 if (member != null) // A supported state value was found
                 {
                     // Handle the different supported types
-                    switch (member.TypeName)
+                    switch (member.DataType)
                     {
                         case nameof(Boolean): // This is a bool value
                             try
@@ -213,13 +223,13 @@ namespace ASCOM.Common.DeviceInterfaces
                                     boolValue = (bool)stateValue.Value;
 
                                 // Add the cleaned value to the return list
-                                cleaned.Add(new StateValue(member.StateName, boolValue));
-                                LogMessage($"Cleaned {member.TypeName} {member.StateName} has value: {boolValue}");
+                                cleaned.Add(new StateValue(member.Name, boolValue));
+                                LogMessage($"Cleaned {member.DataType} {member.Name} has value: {boolValue}");
                             }
                             catch (Exception ex)
                             {
                                 // Log any exception and don't add the value to the cleaned list
-                                LogMessage($"{member.StateName} - Ignoring exception: {ex.Message}");
+                                LogMessage($"{member.Name} - Ignoring exception: {ex.Message}");
                             }
                             break;
 
@@ -233,13 +243,13 @@ namespace ASCOM.Common.DeviceInterfaces
                                     stringValue = (string)stateValue.Value;
 
                                 // Add the cleaned value to the return list
-                                cleaned.Add(new StateValue(member.StateName, stringValue));
-                                LogMessage($"Cleaned {member.TypeName} {member.StateName} has value: {stringValue}");
+                                cleaned.Add(new StateValue(member.Name, stringValue));
+                                LogMessage($"Cleaned {member.DataType} {member.Name} has value: {stringValue}");
                             }
                             catch (Exception ex)
                             {
                                 // Log any exception and don't add the value to the cleaned list
-                                LogMessage($"{member.StateName} - Ignoring exception: {ex.Message}");
+                                LogMessage($"{member.Name} - Ignoring exception: {ex.Message}");
                             }
                             break;
 
@@ -253,13 +263,13 @@ namespace ASCOM.Common.DeviceInterfaces
                                     shortValue = (short)stateValue.Value;
 
                                 // Add the cleaned value to the return list
-                                cleaned.Add(new StateValue(member.StateName, shortValue));
-                                LogMessage($"Cleaned {member.TypeName} {member.StateName} has value: {shortValue}");
+                                cleaned.Add(new StateValue(member.Name, shortValue));
+                                LogMessage($"Cleaned {member.DataType} {member.Name} has value: {shortValue}");
                             }
                             catch (Exception ex)
                             {
                                 // Log any exception and don't add the value to the cleaned list
-                                LogMessage($"{member.StateName} - Ignoring exception: {ex.Message}");
+                                LogMessage($"{member.Name} - Ignoring exception: {ex.Message}");
                             }
                             break;
 
@@ -273,13 +283,13 @@ namespace ASCOM.Common.DeviceInterfaces
                                     intValue = (int)stateValue.Value;
 
                                 // Add the cleaned value to the return list
-                                cleaned.Add(new StateValue(member.StateName, intValue));
-                                LogMessage($"Cleaned {member.TypeName} {member.StateName} has value: {intValue}");
+                                cleaned.Add(new StateValue(member.Name, intValue));
+                                LogMessage($"Cleaned {member.DataType} {member.Name} has value: {intValue}");
                             }
                             catch (Exception ex)
                             {
                                 // Log any exception and don't add the value to the cleaned list
-                                LogMessage($"{member.StateName} - Ignoring exception: {ex.Message}");
+                                LogMessage($"{member.Name} - Ignoring exception: {ex.Message}");
                             }
                             break;
 
@@ -293,13 +303,13 @@ namespace ASCOM.Common.DeviceInterfaces
                                     floatValue = (float)stateValue.Value;
 
                                 // Add the cleaned value to the return list
-                                cleaned.Add(new StateValue(member.StateName, floatValue));
-                                LogMessage($"Cleaned {member.TypeName} {member.StateName} has value: {floatValue}");
+                                cleaned.Add(new StateValue(member.Name, floatValue));
+                                LogMessage($"Cleaned {member.DataType} {member.Name} has value: {floatValue}");
                             }
                             catch (Exception ex)
                             {
                                 // Log any exception and don't add the value to the cleaned list
-                                LogMessage($"{member.StateName} - Ignoring exception: {ex.Message}");
+                                LogMessage($"{member.Name} - Ignoring exception: {ex.Message}");
                             }
                             break;
 
@@ -313,13 +323,13 @@ namespace ASCOM.Common.DeviceInterfaces
                                     doubleValue = (double)stateValue.Value;
 
                                 // Add the cleaned value to the return list
-                                cleaned.Add(new StateValue(member.StateName, doubleValue));
-                                LogMessage($"Cleaned {member.TypeName} {member.StateName} has value: {doubleValue}");
+                                cleaned.Add(new StateValue(member.Name, doubleValue));
+                                LogMessage($"Cleaned {member.DataType} {member.Name} has value: {doubleValue}");
                             }
                             catch (Exception ex)
                             {
                                 // Log any exception and don't add the value to the cleaned list
-                                LogMessage($"{member.StateName} - Ignoring exception: {ex.Message}");
+                                LogMessage($"{member.Name} - Ignoring exception: {ex.Message}");
                             }
                             break;
 
@@ -333,13 +343,13 @@ namespace ASCOM.Common.DeviceInterfaces
                                     dateTimeValue = (DateTime)stateValue.Value;
 
                                 // Add the cleaned value to the return list
-                                cleaned.Add(new StateValue(member.StateName, dateTimeValue));
-                                LogMessage($"Cleaned {member.StateName} has value: {dateTimeValue}");
+                                cleaned.Add(new StateValue(member.Name, dateTimeValue));
+                                LogMessage($"Cleaned {member.Name} has value: {dateTimeValue}");
                             }
                             catch (Exception ex)
                             {
                                 // Log any exception and don't add the value to the cleaned list
-                                LogMessage($"{member.StateName} - Ignoring exception: {ex.Message}");
+                                LogMessage($"{member.Name} - Ignoring exception: {ex.Message}");
                             }
                             break;
 
@@ -353,13 +363,13 @@ namespace ASCOM.Common.DeviceInterfaces
                                     cameraStateValue = (CameraState)stateValue.Value;
 
                                 // Add the cleaned value to the return list
-                                cleaned.Add(new StateValue(member.StateName, cameraStateValue));
-                                LogMessage($"Cleaned {member.StateName} has value: {cameraStateValue}");
+                                cleaned.Add(new StateValue(member.Name, cameraStateValue));
+                                LogMessage($"Cleaned {member.Name} has value: {cameraStateValue}");
                             }
                             catch (Exception ex)
                             {
                                 // Log any exception and don't add the value to the cleaned list
-                                LogMessage($"{member.StateName} - Ignoring exception: {ex.Message}");
+                                LogMessage($"{member.Name} - Ignoring exception: {ex.Message}");
                             }
                             break;
 
@@ -373,13 +383,13 @@ namespace ASCOM.Common.DeviceInterfaces
                                     calibrationStatusValue = (CalibratorStatus)stateValue.Value;
 
                                 // Add the cleaned value to the return list
-                                cleaned.Add(new StateValue(member.StateName, calibrationStatusValue));
-                                LogMessage($"Cleaned {member.StateName} has value: {calibrationStatusValue}");
+                                cleaned.Add(new StateValue(member.Name, calibrationStatusValue));
+                                LogMessage($"Cleaned {member.Name} has value: {calibrationStatusValue}");
                             }
                             catch (Exception ex)
                             {
                                 // Log any exception and don't add the value to the cleaned list
-                                LogMessage($"{member.StateName} - Ignoring exception: {ex.Message}");
+                                LogMessage($"{member.Name} - Ignoring exception: {ex.Message}");
                             }
                             break;
 
@@ -393,13 +403,13 @@ namespace ASCOM.Common.DeviceInterfaces
                                     coverStatusValue = (CoverStatus)stateValue.Value;
 
                                 // Add the cleaned value to the return list
-                                cleaned.Add(new StateValue(member.StateName, coverStatusValue));
-                                LogMessage($"Cleaned {member.StateName} has value: {coverStatusValue}");
+                                cleaned.Add(new StateValue(member.Name, coverStatusValue));
+                                LogMessage($"Cleaned {member.Name} has value: {coverStatusValue}");
                             }
                             catch (Exception ex)
                             {
                                 // Log any exception and don't add the value to the cleaned list
-                                LogMessage($"{member.StateName} - Ignoring exception: {ex.Message}");
+                                LogMessage($"{member.Name} - Ignoring exception: {ex.Message}");
                             }
                             break;
 
@@ -413,13 +423,13 @@ namespace ASCOM.Common.DeviceInterfaces
                                     shutterStateValue = (ShutterState)stateValue.Value;
 
                                 // Add the cleaned value to the return list
-                                cleaned.Add(new StateValue(member.StateName, shutterStateValue));
-                                LogMessage($"Cleaned {member.StateName} has value: {shutterStateValue}");
+                                cleaned.Add(new StateValue(member.Name, shutterStateValue));
+                                LogMessage($"Cleaned {member.Name} has value: {shutterStateValue}");
                             }
                             catch (Exception ex)
                             {
                                 // Log any exception and don't add the value to the cleaned list
-                                LogMessage($"{member.StateName} - Ignoring exception: {ex.Message}");
+                                LogMessage($"{member.Name} - Ignoring exception: {ex.Message}");
                             }
                             break;
 
@@ -433,13 +443,13 @@ namespace ASCOM.Common.DeviceInterfaces
                                     pointingStateValue = (PointingState)stateValue.Value;
 
                                 // Add the cleaned value to the return list
-                                cleaned.Add(new StateValue(member.StateName, pointingStateValue));
-                                LogMessage($"Cleaned {member.StateName} has value: {pointingStateValue}");
+                                cleaned.Add(new StateValue(member.Name, pointingStateValue));
+                                LogMessage($"Cleaned {member.Name} has value: {pointingStateValue}");
                             }
                             catch (Exception ex)
                             {
                                 // Log any exception and don't add the value to the cleaned list
-                                LogMessage($"{member.StateName} - Ignoring exception: {ex.Message}");
+                                LogMessage($"{member.Name} - Ignoring exception: {ex.Message}");
                             }
                             break;
 
@@ -453,18 +463,18 @@ namespace ASCOM.Common.DeviceInterfaces
                                     videoCameraStateValue = (VideoCameraState)stateValue.Value;
 
                                 // Add the cleaned value to the return list
-                                cleaned.Add(new StateValue(member.StateName, videoCameraStateValue));
-                                LogMessage($"Cleaned {member.StateName} has value: {videoCameraStateValue}");
+                                cleaned.Add(new StateValue(member.Name, videoCameraStateValue));
+                                LogMessage($"Cleaned {member.Name} has value: {videoCameraStateValue}");
                             }
                             catch (Exception ex)
                             {
                                 // Log any exception and don't add the value to the cleaned list
-                                LogMessage($"{member.StateName} - Ignoring exception: {ex.Message}");
+                                LogMessage($"{member.Name} - Ignoring exception: {ex.Message}");
                             }
                             break;
 
                         default:
-                            throw new InvalidValueException($"Unsupported member type: {member.TypeName}");
+                            throw new InvalidValueException($"Unsupported member type: {member.DataType}");
                     }
                 }
                 else // Not recognised so just add it to the list
@@ -483,7 +493,7 @@ namespace ASCOM.Common.DeviceInterfaces
                 foreach (StateValue stateValue in cleaned)
                 {
                     // Log the state value
-                    logger.LogMessage(LogLevel.Debug, "DeviceState", $"Found Switch state value {stateValue.Name} = {stateValue.Value}");
+                    OperationalStateProperty.logger.LogMessage(LogLevel.Debug, "DeviceState", $"Found Switch state value {stateValue.Name} = {stateValue.Value}");
 
                     // If the value is a JsonElement convert it to its required type, otherwise add the member to the cleaned list
                     if (stateValue.Value is JsonElement element) // This is a JsonElement type
@@ -503,13 +513,13 @@ namespace ASCOM.Common.DeviceInterfaces
 
                                     // Add the cleaned value to the return list
                                     switchReturnValue.Add(new StateValue(stateValue.Name, boolValue));
-                                    logger.LogMessage(LogLevel.Debug, "DeviceState", $"Cleaned {stateValue.Name} has value: {boolValue}");
+                                    OperationalStateProperty.logger.LogMessage(LogLevel.Debug, "DeviceState", $"Cleaned {stateValue.Name} has value: {boolValue}");
 
                                 }
                                 catch (Exception ex)
                                 {
                                     // Log any exception and don't add the value to the cleaned list
-                                    logger.LogMessage(LogLevel.Debug, "DeviceState", $"{stateValue.Name} - Ignoring exception: {ex.Message}");
+                                    OperationalStateProperty.logger.LogMessage(LogLevel.Debug, "DeviceState", $"{stateValue.Name} - Ignoring exception: {ex.Message}");
                                 }
                                 break;
 
@@ -524,12 +534,12 @@ namespace ASCOM.Common.DeviceInterfaces
 
                                     // Add the cleaned value to the return list
                                     switchReturnValue.Add(new StateValue(stateValue.Name, doubleValue));
-                                    logger.LogMessage(LogLevel.Debug, "DeviceState", $"Cleaned {stateValue.Name} has value: {doubleValue}");
+                                    OperationalStateProperty.logger.LogMessage(LogLevel.Debug, "DeviceState", $"Cleaned {stateValue.Name} has value: {doubleValue}");
                                 }
                                 catch (Exception ex)
                                 {
                                     // Log any exception and don't add the value to the cleaned list
-                                    logger.LogMessage(LogLevel.Debug, "DeviceState", $"{stateValue.Name} - Ignoring exception: {ex.Message}");
+                                    OperationalStateProperty.logger.LogMessage(LogLevel.Debug, "DeviceState", $"{stateValue.Name} - Ignoring exception: {ex.Message}");
                                 }
                                 break;
 
@@ -552,6 +562,33 @@ namespace ASCOM.Common.DeviceInterfaces
         }
 
         /// <summary>
+        /// Returns the list of operational state property names and return types for all devices as a list of <see cref="OperationalStateProperty"/> values
+        /// </summary>
+        /// <returns>A generic list of <see cref="OperationalStateProperty"/> values for all devices.</returns>
+        public static List<OperationalStateProperty> GetAllOperationalProperties()
+        {
+            // Return a copy of the member list so that the master list cannot be changed from the outside
+            return new List<OperationalStateProperty>(members);
+        }
+
+        /// <summary>
+        /// Returns a list of operational state property names and return types for the specified device type as a list of <see cref="OperationalStateProperty"/> values
+        /// </summary>
+        /// <param name="deviceType">The device type whose operational state property names are required.</param>
+        /// <returns>A generic list of <see cref="OperationalStateProperty"/> values for the specified device type.</returns>
+        public static List<OperationalStateProperty> GetOperationalPropertiesForDeviceType(DeviceTypes deviceType)
+        {
+            // Return a copy of the member sub-set list so that the master list cannot be changed from the outside
+            // NOTE: LINQ.Where filters the original object, it does not create a clone of the object containing only the sub-setted members, hence we need to create the copy to maintain data integrity.
+            List < OperationalStateProperty > memberSubset= new List<OperationalStateProperty>((List<OperationalStateProperty>)members.Where<OperationalStateProperty>(x => (x.DeviceType == deviceType)));
+            return memberSubset;
+        }
+
+        #endregion
+
+        #region Private code
+
+        /// <summary>
         /// Private method to simplify log messages in the class
         /// </summary>
         /// <param name="message"></param>
@@ -559,6 +596,8 @@ namespace ASCOM.Common.DeviceInterfaces
         {
             logger?.LogMessage(LogLevel.Debug, nameof(Clean), message);
         }
+
+        #endregion
 
     }
 }
