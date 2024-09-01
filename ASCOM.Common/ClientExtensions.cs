@@ -151,76 +151,6 @@ namespace ASCOM.Common
 
         #endregion
 
-        #region ICameraV4 extensions
-
-        /// <summary>
-        /// Returns an awaitable, running, <see cref="Task"/> that takes a camera image
-        /// </summary>
-        /// <param name="device">The Camera device</param>
-        /// <param name="duration">Length of exposure</param>
-        /// <param name="light"><see langword="true"/> for light frames, <see langword="false"/> for dark frames</param>
-        /// <param name="cancellationToken">Cancellation token - Default: <see cref="CancellationToken.None"/></param>
-        /// <param name="pollInterval">Interval between polls of the completion variable (milliseconds) - Default: 1000 milliseconds.</param>
-        /// <param name="logger">ILogger instance that will receive operation messages from the method - Default: No logger</param>
-        /// <returns>Awaitable task that ends when the exposure is complete</returns>
-        /// <remarks>
-        /// <para>Initiator: <see cref="ICameraV3.StartExposure(double, bool)"/></para>
-        /// <para>Complete when: <see cref="ICameraV3.CameraState"/> is <see cref="CameraState.Idle"/> or <see cref="CameraState.Error"/></para>
-        /// </remarks>
-        public static async Task StartExposureAsync(this ICameraV4 device, double duration, bool light, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
-        {
-            Task processTask = null;
-            string callingMethodName = $"[Lib].{GetCurrentMethod()}";
-
-            await Task.Run(() =>
-            {
-                processTask = Task.Run(() =>
-                {
-                    ProcessTask(() => { device.StartExposure(duration, light); }, () =>
-                    { return (device.CameraState == CameraState.Waiting) | (device.CameraState == CameraState.Exposing) | (device.CameraState == CameraState.Reading); },
-                        pollInterval, cancellationToken, logger, $"{nameof(ICameraV4)}.{nameof(StartExposureAsync)}");
-                });
-
-                WaitForProcessTask(processTask, logger, callingMethodName, cancellationToken);
-            });
-
-            CheckOutcome(processTask, logger, callingMethodName, cancellationToken);
-        }
-
-        /// <summary>
-        /// Returns an awaitable, running, <see cref="Task"/> that stops the current camera exposure
-        /// </summary>
-        /// <param name="device">The Camera device</param>
-        /// <param name="cancellationToken">Cancellation token - Default: <see cref="CancellationToken.None"/></param>
-        /// <param name="pollInterval">Interval between polls of the completion variable (milliseconds) - Default: 1000 milliseconds.</param>
-        /// <param name="logger">ILogger instance that will receive operation messages from the method - Default: No logger</param>
-        /// <returns>Awaitable task that ends when the exposure is has stopped</returns>
-        /// <remarks>
-        /// <para>Initiator: <see cref="ICameraV3.StopExposure"/></para>
-        /// <para>Complete when: <see cref="ICameraV3.CameraState"/> is <see cref="CameraState.Idle"/> or <see cref="CameraState.Error"/></para>
-        /// </remarks>
-        public static async Task StopExposureAsync(this ICameraV4 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
-        {
-            Task processTask = null;
-            string callingMethodName = $"[Lib].{GetCurrentMethod()}";
-
-            await Task.Run(() =>
-            {
-                processTask = Task.Run(() =>
-                {
-                    ProcessTask(() => { device.StopExposure(); }, () =>
-                    { return (device.CameraState == CameraState.Reading) | (device.CameraState == CameraState.Exposing) | (device.CameraState == CameraState.Waiting); },
-                        pollInterval, cancellationToken, logger, $"{nameof(ICameraV4)}.{nameof(StopExposureAsync)}");
-                });
-
-                WaitForProcessTask(processTask, logger, callingMethodName, cancellationToken);
-            });
-
-            CheckOutcome(processTask, logger, callingMethodName, cancellationToken);
-        }
-
-        #endregion
-
         #region ICoverCalibratorV1 extensions
 
         /// <summary>
@@ -376,167 +306,7 @@ namespace ASCOM.Common
 
         #endregion
 
-        #region ICoverCalibratorV2 extensions
-
-        /// <summary>
-        /// Returns an awaitable, running, <see cref="Task"/> that turns the calibrator off. (Polls ICoverCalibratorV2.CalibratroChanging)
-        /// </summary>
-        /// <param name="device">The CoverCalibrator device</param>
-        /// <param name="cancellationToken">Cancellation token - Default: <see cref="CancellationToken.None"/></param>
-        /// <param name="pollInterval">Interval between polls of the completion variable (milliseconds) - Default: 1000 milliseconds.</param>
-        /// <param name="logger">ILogger instance that will receive operation messages from the method - Default: No logger</param>
-        /// <returns>Awaitable task that ends when the calibrator is off</returns>
-        /// <remarks>
-        /// <para>Initiator: <see cref="ICoverCalibratorV1.CalibratorOff"/></para>
-        /// <para>Complete when: <see cref="ICoverCalibratorV2.CalibratorChanging"/> is  False </para>
-        /// <para>Only available for ICoverCalibratorV2 and later devices.</para>
-        /// </remarks>
-        public static async Task CalibratorOffAsync(this ICoverCalibratorV2 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
-        {
-            Task processTask = null;
-            string callingMethodName = $"[Lib].{GetCurrentMethod()}";
-
-            await Task.Run(() =>
-            {
-                processTask = Task.Run(() =>
-                {
-                    ProcessTask(() => { device.CalibratorOff(); }, () => { return device.CalibratorChanging; }, pollInterval, cancellationToken, logger, $"{nameof(ICoverCalibratorV2)}.{nameof(CalibratorOffAsync)}");
-                });
-
-                WaitForProcessTask(processTask, logger, callingMethodName, cancellationToken);
-            });
-
-            CheckOutcome(processTask, logger, callingMethodName, cancellationToken);
-        }
-
-        /// <summary>
-        /// Returns an awaitable, running, <see cref="Task"/> that turns the calibrator on. (Polls ICoverCalibratorV2.CalibratroChanging)
-        /// </summary>
-        /// <param name="device">The CoverCalibrator device</param>
-        /// <param name="brightness">Required brightness level</param>
-        /// <param name="cancellationToken">Cancellation token - Default: <see cref="CancellationToken.None"/></param>
-        /// <param name="pollInterval">Interval between polls of the completion variable (milliseconds) - Default: 1000 milliseconds.</param>
-        /// <param name="logger">ILogger instance that will receive operation messages from the method - Default: No logger</param>
-        /// <returns>Awaitable task that ends when the calibrator is on</returns>
-        /// <remarks>
-        /// <para>Initiator: <see cref="ICoverCalibratorV1.CalibratorOn"/></para>
-        /// <para>Complete when: <see cref="ICoverCalibratorV2.CalibratorChanging"/> is  False </para>
-        /// <para>Only available for ICoverCalibratorV2 and later devices.</para>
-        /// </remarks>
-        public static async Task CalibratorOnAsync(this ICoverCalibratorV2 device, int brightness, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
-        {
-            Task processTask = null;
-            string callingMethodName = $"[Lib].{GetCurrentMethod()}";
-
-            await Task.Run(() =>
-            {
-                processTask = Task.Run(() =>
-                {
-                    ProcessTask(() => { device.CalibratorOn(brightness); }, () => { return device.CalibratorChanging; }, pollInterval, cancellationToken, logger, $"{nameof(ICoverCalibratorV2)}.{nameof(CalibratorOnAsync)}");
-                });
-
-                WaitForProcessTask(processTask, logger, callingMethodName, cancellationToken);
-            });
-
-            CheckOutcome(processTask, logger, callingMethodName, cancellationToken);
-        }
-
-        /// <summary>
-        /// Returns an awaitable, running, <see cref="Task"/> that closes the cover. (Polls ICoverCalibratorV2.CoverMoving)
-        /// </summary>
-        /// <param name="device">The CoverCalibrator device</param>
-        /// <param name="cancellationToken">Cancellation token - Default: <see cref="CancellationToken.None"/></param>
-        /// <param name="pollInterval">Interval between polls of the completion variable (milliseconds) - Default: 1000 milliseconds.</param>
-        /// <param name="logger">ILogger instance that will receive operation messages from the method - Default: No logger</param>
-        /// <returns>Awaitable task that ends when the cover is closed</returns>
-        /// <remarks>
-        /// <para>Initiator: <see cref="ICoverCalibratorV1.CloseCover"/></para>
-        /// <para>Complete when: <see cref="ICoverCalibratorV2.CoverMoving"/> is False.</para>
-        /// <para>Only available for ICoverCalibratorV2 and later devices.</para>
-        /// </remarks>
-        public static async Task CloseCoverAsync(this ICoverCalibratorV2 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
-        {
-            Task processTask = null;
-            string callingMethodName = $"[Lib].{GetCurrentMethod()}";
-
-            await Task.Run(() =>
-            {
-                processTask = Task.Run(() =>
-                {
-                    ProcessTask(() => { device.CloseCover(); }, () => { return device.CoverMoving; }, pollInterval, cancellationToken, logger, $"{nameof(ICoverCalibratorV2)}.{nameof(CloseCoverAsync)}");
-                });
-
-                WaitForProcessTask(processTask, logger, callingMethodName, cancellationToken);
-            });
-
-            CheckOutcome(processTask, logger, callingMethodName, cancellationToken);
-        }
-
-        /// <summary>
-        /// Returns an awaitable, running, <see cref="Task"/> that halts cover movement
-        /// </summary>
-        /// <param name="device">The CoverCalibrator device</param>
-        /// <param name="cancellationToken">Cancellation token - Default: <see cref="CancellationToken.None"/></param>
-        /// <param name="pollInterval">Interval between polls of the completion variable (milliseconds) - Default: 1000 milliseconds.</param>
-        /// <param name="logger">ILogger instance that will receive operation messages from the method - Default: No logger</param>
-        /// <returns>Awaitable task that ends when cover movement has stopped</returns>
-        /// <remarks>
-        /// <para>Initiator: <see cref="ICoverCalibratorV1.HaltCover"/></para>
-        /// <para>Complete when: <see cref="ICoverCalibratorV2.CoverMoving"/> is False.</para>
-        /// <para>Only available for ICoverCalibratorV2 and later devices.</para>
-        /// </remarks>
-        public static async Task HaltCoverAsync(this ICoverCalibratorV2 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
-        {
-            Task processTask = null;
-            string callingMethodName = $"[Lib].{GetCurrentMethod()}";
-
-            await Task.Run(() =>
-            {
-                processTask = Task.Run(() =>
-                {
-                    ProcessTask(() => { device.HaltCover(); }, () => { return device.CoverMoving; }, pollInterval, cancellationToken, logger, $"{nameof(ICoverCalibratorV2)}.{nameof(HaltCoverAsync)}");
-                });
-
-                WaitForProcessTask(processTask, logger, callingMethodName, cancellationToken);
-            });
-
-            CheckOutcome(processTask, logger, callingMethodName, cancellationToken);
-        }
-
-        /// <summary>
-        /// Returns an awaitable, running, <see cref="Task"/> that opens the cover
-        /// </summary>
-        /// <param name="device">The CoverCalibrator device</param>
-        /// <param name="cancellationToken">Cancellation token - Default: <see cref="CancellationToken.None"/></param>
-        /// <param name="pollInterval">Interval between polls of the completion variable (milliseconds) - Default: 1000 milliseconds.</param>
-        /// <param name="logger">ILogger instance that will receive operation messages from the method - Default: No logger</param>
-        /// <returns>Awaitable task that ends when the cover is open</returns>
-        /// <remarks>
-        /// <para>Initiator: <see cref="ICoverCalibratorV1.OpenCover"/></para>
-        /// <para>Complete when: <see cref="ICoverCalibratorV2.CoverMoving"/> is False.</para>
-        /// <para>Only available for ICoverCalibratorV2 and later devices.</para>
-        /// </remarks>
-        public static async Task OpenCoverAsync(this ICoverCalibratorV2 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
-        {
-            Task processTask = null;
-            string callingMethodName = $"[Lib].{GetCurrentMethod()}";
-
-            await Task.Run(() =>
-            {
-                processTask = Task.Run(() =>
-                {
-                    ProcessTask(() => { device.OpenCover(); }, () => { return device.CoverMoving; }, pollInterval, cancellationToken, logger, $"{nameof(ICoverCalibratorV2)}.{nameof(OpenCoverAsync)}");
-                });
-
-                WaitForProcessTask(processTask, logger, callingMethodName, cancellationToken);
-            });
-
-            CheckOutcome(processTask, logger, callingMethodName, cancellationToken);
-        }
-
-        #endregion
-
-        #region Dome extensions
+        #region IDomeV2 extensions
 
         /// <summary>
         /// Returns an awaitable, running, <see cref="Task"/> that halts all dome movement
@@ -752,7 +522,7 @@ namespace ASCOM.Common
 
         #endregion
 
-        #region FilterWheel extensions
+        #region IFilterWheelV2 extensions
 
         /// <summary>
         /// Returns an awaitable, running, <see cref="Task"/> that moves the filter wheel to the specified filter wheel position
@@ -787,7 +557,7 @@ namespace ASCOM.Common
 
         #endregion
 
-        #region Focuser extensions
+        #region IFocuserV3 extensions
 
         /// <summary>
         /// Returns an awaitable, running, <see cref="Task"/> that halts focuser movement
@@ -858,7 +628,7 @@ namespace ASCOM.Common
 
         #endregion
 
-        #region Rotator extensions
+        #region IRotatorV3 extensions
 
         /// <summary>
         /// Returns an awaitable, running, <see cref="Task"/> that halts rotator movement
@@ -1059,7 +829,6 @@ namespace ASCOM.Common
             CheckOutcome(processTask, logger, callingMethodName, cancellationToken);
         }
 
-
         #endregion
 
         #region ITelescopeV3 extensions
@@ -1251,190 +1020,6 @@ namespace ASCOM.Common
         #endregion
 
         #region ITelescopeV4 extensions
-
-        /// <summary>
-        /// Returns an awaitable, running, <see cref="Task"/> that slews the telescope to the specified altitude / azimuth coordinates
-        /// </summary>
-        /// <param name="device">The Telescope device</param>
-        /// <param name="azimuth">The required azimuth</param>
-        /// <param name="altitude">The required altitude</param>
-        /// <param name="cancellationToken">Cancellation token - Default: <see cref="CancellationToken.None"/></param>
-        /// <param name="pollInterval">Interval between polls of the completion variable (milliseconds) - Default: 1000 milliseconds.</param>
-        /// <param name="logger">ILogger instance that will receive operation messages from the method - Default: No logger</param>
-        /// <returns>Awaitable task that ends when the telescope is at the required coordinates</returns>
-        /// <remarks>
-        /// <para>Initiator: <see cref="ITelescopeV4.SlewToAltAzAsync(double, double)"/></para>
-        /// <para>Complete when: <see cref="ITelescopeV3.Slewing"/> is <see langword="false"/></para>
-        /// </remarks>
-        public static async Task SlewToAltAzTaskAsync(this ITelescopeV4 device, double azimuth, double altitude, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
-        {
-            Task processTask = null;
-            string callingMethodName = $"[Lib].{GetCurrentMethod()}";
-
-            await Task.Run(() =>
-            {
-                processTask = Task.Run(() =>
-                {
-                    ProcessTask(() => { device.SlewToAltAzAsync(azimuth, altitude); }, () => { return device.Slewing; }, pollInterval, cancellationToken, logger, $"{nameof(ITelescopeV4)}.{nameof(SlewToAltAzTaskAsync)}", () => { return $"Altitude: {device.Altitude}, Azimuth: {device.Azimuth}"; });
-                });
-
-                WaitForProcessTask(processTask, logger, callingMethodName, cancellationToken);
-            });
-
-            CheckOutcome(processTask, logger, callingMethodName, cancellationToken);
-        }
-
-        /// <summary>
-        /// Returns an awaitable, running, <see cref="Task"/> that slews the telescope to the specified RA/Dec coordinates
-        /// </summary>
-        /// <param name="device">The Telescope device</param>
-        /// <param name="rightAscension">The required right ascension</param>
-        /// <param name="declination">The required declination</param>
-        /// <param name="cancellationToken">Cancellation token - Default: <see cref="CancellationToken.None"/></param>
-        /// <param name="pollInterval">Interval between polls of the completion variable (milliseconds) - Default: 1000 milliseconds.</param>
-        /// <param name="logger">ILogger instance that will receive operation messages from the method - Default: No logger</param>
-        /// <returns>Awaitable task that ends when the telescope is at the required coordinates</returns>
-        /// <remarks>
-        /// <para>Initiator: <see cref="ITelescopeV4.SlewToCoordinatesAsync(double, double)"/></para>
-        /// <para>Complete when: <see cref="ITelescopeV3.Slewing"/> is <see langword="false"/></para>
-        /// </remarks>
-        public static async Task SlewToCoordinatesTaskAsync(this ITelescopeV4 device, double rightAscension, double declination, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
-        {
-            Task processTask = null;
-            string callingMethodName = $"[Lib].{GetCurrentMethod()}";
-
-            await Task.Run(() =>
-            {
-                processTask = Task.Run(() =>
-                {
-                    ProcessTask(() => { device.SlewToCoordinatesAsync(rightAscension, declination); }, () => { return device.Slewing; }, pollInterval, cancellationToken, logger, $"{nameof(ITelescopeV4)}.{nameof(SlewToCoordinatesTaskAsync)}", () => { return $"RA: {device.RightAscension}, Declination: {device.Declination}"; });
-                });
-
-                WaitForProcessTask(processTask, logger, callingMethodName, cancellationToken);
-            });
-
-            CheckOutcome(processTask, logger, callingMethodName, cancellationToken);
-        }
-
-        /// <summary>
-        /// Returns an awaitable, running, <see cref="Task"/> that slews the telescope to the coordinates specified by the TargetRA and TargetDeclination properties
-        /// </summary>
-        /// <param name="device">The Telescope device</param>
-        /// <param name="cancellationToken">Cancellation token - Default: <see cref="CancellationToken.None"/></param>
-        /// <param name="pollInterval">Interval between polls of the completion variable (milliseconds) - Default: 1000 milliseconds.</param>
-        /// <param name="logger">ILogger instance that will receive operation messages from the method - Default: No logger</param>
-        /// <returns>Awaitable task that ends when the telescope is at the required coordinates</returns>
-        /// <remarks>
-        /// <para>Initiator: <see cref="ITelescopeV4.SlewToTargetAsync()"/></para>
-        /// <para>Complete when: <see cref="ITelescopeV3.Slewing"/> is <see langword="false"/></para>
-        /// </remarks>
-        public static async Task SlewToTargetTaskAsync(this ITelescopeV4 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
-        {
-            Task processTask = null;
-            string callingMethodName = $"[Lib].{GetCurrentMethod()}";
-
-            await Task.Run(() =>
-            {
-                processTask = Task.Run(() =>
-                {
-                    ProcessTask(() => { device.SlewToTargetAsync(); }, () => { return device.Slewing; }, pollInterval, cancellationToken, logger, $"{nameof(ITelescopeV4)}.{nameof(SlewToTargetTaskAsync)}", () => { return $"RA: {device.RightAscension}, Declination: {device.Declination}"; });
-                });
-
-                WaitForProcessTask(processTask, logger, callingMethodName, cancellationToken);
-            });
-
-            CheckOutcome(processTask, logger, callingMethodName, cancellationToken);
-        }
-
-        /// <summary>
-        /// Returns an awaitable, running, <see cref="Task"/> that stops telescope slewing movement
-        /// </summary>
-        /// <param name="device">The Telescope device</param>
-        /// <param name="cancellationToken">Cancellation token - Default: <see cref="CancellationToken.None"/></param>
-        /// <param name="pollInterval">Interval between polls of the completion variable (milliseconds) - Default: 1000 milliseconds.</param>
-        /// <param name="logger">ILogger instance that will receive operation messages from the method - Default: No logger</param>
-        /// <returns>Awaitable task that ends when telescope slewing has stopped</returns>
-        /// <remarks>
-        /// <para>Initiator: <see cref="ITelescopeV3.AbortSlew()"/></para>
-        /// <para>Complete when: <see cref="ITelescopeV3.Slewing"/> is <see langword="false"/></para>
-        /// </remarks>
-        public static async Task AbortSlewAsync(this ITelescopeV4 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
-        {
-            Task processTask = null;
-            string callingMethodName = $"[Lib].{GetCurrentMethod()}";
-
-            await Task.Run(() =>
-            {
-                processTask = Task.Run(() =>
-                {
-                    ProcessTask(() => { device.AbortSlew(); }, () => { return device.Slewing; }, pollInterval, cancellationToken, logger, $"{nameof(ITelescopeV4)}.{nameof(AbortSlewAsync)}");
-                });
-
-                WaitForProcessTask(processTask, logger, callingMethodName, cancellationToken);
-            });
-
-            CheckOutcome(processTask, logger, callingMethodName, cancellationToken);
-        }
-
-        /// <summary>
-        /// Returns an awaitable, running, <see cref="Task"/> that moves the telescope to the home position
-        /// </summary>
-        /// <param name="device">The Telescope device</param>
-        /// <param name="cancellationToken">Cancellation token - Default: <see cref="CancellationToken.None"/></param>
-        /// <param name="pollInterval">Interval between polls of the completion variable (milliseconds) - Default: 1000 milliseconds.</param>
-        /// <param name="logger">ILogger instance that will receive operation messages from the method - Default: No logger</param>
-        /// <returns>Awaitable task that ends when telescope is at home</returns>
-        /// <remarks>
-        /// <para>Initiator: <see cref="ITelescopeV4.FindHome()"/></para>
-        /// <para>Complete when: <see cref="ITelescopeV3.Slewing"/> is <see langword="false"/></para>
-        /// </remarks>
-        public static async Task FindHomeAsync(this ITelescopeV4 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
-        {
-            Task processTask = null;
-            string callingMethodName = $"[Lib].{GetCurrentMethod()}";
-
-            await Task.Run(() =>
-            {
-                processTask = Task.Run(() =>
-                {
-                    ProcessTask(() => { device.FindHome(); }, () => { return device.Slewing; }, pollInterval, cancellationToken, logger, $"{nameof(ITelescopeV4)}.{nameof(FindHomeAsync)}", () => { return $"RA: {device.RightAscension}, Declination: {device.Declination}"; });
-                });
-
-                WaitForProcessTask(processTask, logger, callingMethodName, cancellationToken);
-            });
-
-            CheckOutcome(processTask, logger, callingMethodName, cancellationToken);
-        }
-
-        /// <summary>
-        /// Returns an awaitable, running, <see cref="Task"/> that parks the telescope
-        /// </summary>
-        /// <param name="device">The Telescope device</param>
-        /// <param name="cancellationToken">Cancellation token - Default: <see cref="CancellationToken.None"/></param>
-        /// <param name="pollInterval">Interval between polls of the completion variable (milliseconds) - Default: 1000 milliseconds.</param>
-        /// <param name="logger">ILogger instance that will receive operation messages from the method - Default: No logger</param>
-        /// <returns>Awaitable task that ends when telescope is at the park position</returns>
-        /// <remarks>
-        /// <para>Initiator: <see cref="ITelescopeV4.Park()"/></para>
-        /// <para>Complete when: <see cref="ITelescopeV3.AtPark"/> is <see langword="true"/></para>
-        /// </remarks>
-        public static async Task ParkAsync(this ITelescopeV4 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
-        {
-            Task processTask = null;
-            string callingMethodName = $"[Lib].{GetCurrentMethod()}";
-
-            await Task.Run(() =>
-            {
-                processTask = Task.Run(() =>
-                {
-                    ProcessTask(() => { device.Park(); }, () => { return !device.AtPark; }, pollInterval, cancellationToken, logger, $"{nameof(ITelescopeV4)}.{nameof(ParkAsync)}", () => { return $"RA: {device.RightAscension}, Declination: {device.Declination}"; });
-                });
-
-                WaitForProcessTask(processTask, logger, callingMethodName, cancellationToken);
-            });
-
-            CheckOutcome(processTask, logger, callingMethodName, cancellationToken);
-        }
 
         /// <summary>
         /// Returns an awaitable, running, <see cref="Task"/> that un-parks the telescope

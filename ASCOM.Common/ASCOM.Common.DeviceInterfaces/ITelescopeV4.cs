@@ -234,8 +234,8 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks>
         /// <para>
-        /// This is an asynchronous method and <see cref="ITelescopeV3.Slewing"/> must be set True while the mount is parking and False when the operation is complete. 
-        /// <see cref="ITelescopeV3.AtPark"/> will be set True when the mount has parked successfully.
+        /// This is an asynchronous method and <see cref="ITelescopeV3.Slewing"/> must be set True while the mount is unparking and False when the operation is complete. 
+        /// <see cref="ITelescopeV3.AtPark"/> and <see cref="ITelescopeV3.Slewing"/> will be set False when the mount has unparked successfully.
         /// </para>
         /// <para>Further explanation is available in this link: <a href="https://ascom-standards.org/newdocs/telescope.html#telescope-unpark" target="_blank">Master Interface Document</a>.</para>
         /// </remarks>
