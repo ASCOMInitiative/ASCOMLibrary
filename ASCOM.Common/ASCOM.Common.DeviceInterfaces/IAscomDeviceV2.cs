@@ -3,7 +3,7 @@
 namespace ASCOM.Common.DeviceInterfaces
 {
     /// <summary>
-    /// Defines additional properties and methods that are common to all ASCOM devices.
+    /// Defines additional properties and methods that are common to all ASCOM device interfaces in Platform 7 and later.
     /// </summary>
     public interface IAscomDeviceV2 : IAscomDevice
     {
@@ -23,8 +23,11 @@ namespace ASCOM.Common.DeviceInterfaces
         bool Connecting { get; }
 
         /// <summary>
-        /// Device state
+        /// Returns the device's operational state in a single call
         /// </summary>
+        /// <remarks>
+        /// Returns all the device's operational state properties in a single call to reduce polling overhead for clients and devices.
+        /// </remarks>
         List<StateValue> DeviceState { get; }
     }
 }

@@ -8,11 +8,13 @@
         /// <summary>
         /// True while the calibrator brightness is not stable.
         /// </summary>
+        /// <remarks>This is the completion variable used to monitor progress of the <see cref="ICoverCalibratorV1.Brightness"/> method.</remarks>
         bool CalibratorChanging { get; }
 
         /// <summary>
         /// True while the cover is in motion.
         /// </summary>
+        /// <remarks>This is the completion variable used to monitor progress of the <see cref="ICoverCalibratorV1.OpenCover"/> and <see cref="ICoverCalibratorV1.CloseCover"/> methods.</remarks>
         bool CoverMoving { get; }
     }
 }

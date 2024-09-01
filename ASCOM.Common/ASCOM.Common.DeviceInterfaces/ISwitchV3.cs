@@ -13,16 +13,7 @@
         /// <param name="state">New boolean state.</param>
         /// <remarks>
         /// <p style="color:red"><b>This is an optional method and can throw a <see cref="MethodNotImplementedException"/> when <see cref="CanAsync(short)"/> is <see langword="false"/>.</b></p>
-        /// <para>
-        /// This is an asynchronous method that must return as soon as the state change operation has been successfully started, with
-        /// <see cref="StateChangeComplete(short)"/> for the given switch Id = False. After the state change has completed <see cref="StateChangeComplete(short)"/> becomes True.
-        /// </para>
-        /// <para>
-        /// <see cref="ISwitchV2.GetSwitchValue"/> must return <see cref="ISwitchV2.MaxSwitchValue" /> if the set state is true and <see cref="ISwitchV2.MinSwitchValue" /> if the set state is false.
-        /// </para>
-        /// <para>
-        /// Devices are numbered from 0 to <see cref="ISwitchV2.MaxSwitch"/> - 1
-        /// </para>
+        /// <para>Further explanation is available in this link: <a href="https://ascom-standards.org/newdocs/telescope.html#switch-setasync" target="_blank">Master Interface Document</a>.</para>
         /// </remarks>
         void SetAsync(short id, bool state);
 
@@ -35,12 +26,7 @@
         /// <exception cref="MethodNotImplementedException">When CanAsync(id) is false.</exception>
         /// <remarks>
         /// <p style="color:red"><b>This is an optional method and can throw a <see cref="MethodNotImplementedException"/> when <see cref="CanAsync(short)"/> is <see langword="false"/>.</b></p>
-        /// <para>This is an asynchronous method that must return as soon as the state change operation has been successfully started, with
-        /// <see cref="StateChangeComplete(short)"/> for the given switch Id = False. After the state change has completed <see cref="StateChangeComplete(short)"/> becomes True.</para>
-        /// <para>If the value is more than <see cref="ISwitchV2.MaxSwitchValue"/> or less than <see cref="ISwitchV2.MinSwitchValue"/> the method must throw an <see cref="ASCOM.InvalidValueException"/>.</para>
-        /// <para>A set value that is intermediate between the values specified by <see cref="ISwitchV2.SwitchStep"/> must result in the device being set to an achievable value close to the requested set value.</para>
-        /// <para>Devices are numbered from 0 to <see cref="ISwitchV2.MaxSwitch"/> - 1.</para>
-        /// <para>This is a Version 2 method.</para>
+        /// <para>Further explanation is available in this link: <a href="https://ascom-standards.org/newdocs/telescope.html#switch-setasyncvalue" target="_blank">Master Interface Document</a>.</para>
         /// </remarks>
         void SetAsyncValue(short id, double value);
 
