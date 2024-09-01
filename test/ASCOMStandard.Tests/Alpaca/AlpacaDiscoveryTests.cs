@@ -232,7 +232,7 @@ namespace ASCOM.Alpaca.Tests.Alpaca
         #region AscomDevice filtering and ordering
 
         [Fact]
-        public async void GetAscomDevicesSelectDeviceType()
+        public async Task GetAscomDevicesSelectDeviceType()
         {
             TraceLogger TL = new("GetAscomDevicesSelectDeviceType", true);
             TL.LogMessage("Test", $"About to call GetAscomDevicesAsync");
@@ -257,7 +257,7 @@ namespace ASCOM.Alpaca.Tests.Alpaca
         }
 
         [Fact]
-        public async void GetAscomDevicesGroupBy()
+        public async Task GetAscomDevicesGroupBy()
         {
             TraceLogger TL = new("GetAscomDevicesGroupBy", true);
             TL.LogMessage("Test", $"About to call GetAscomDevicesAsync");
@@ -339,7 +339,7 @@ namespace ASCOM.Alpaca.Tests.Alpaca
         }
 
         [Fact]
-        public async void GetAscomDevicesAsyncCancel()
+        public async Task GetAscomDevicesAsyncCancel()
         {
             // Define test parameters
             const double DISCOVERY_DURATION = 2.0; // Run the discovery for this number of seconds. Must be at least two
@@ -395,7 +395,7 @@ namespace ASCOM.Alpaca.Tests.Alpaca
         }
 
         [Fact]
-        public async void ConcurrentDiscoveriesAsync()
+        public async Task ConcurrentDiscoveriesAsync()
         {
             TraceLogger TL = new("ConcurrentDiscoveriesAsync", true);
             TL.LogMessage("Test", $"About to create async discovery methods");

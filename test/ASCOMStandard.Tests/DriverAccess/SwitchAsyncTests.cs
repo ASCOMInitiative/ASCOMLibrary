@@ -48,7 +48,7 @@ namespace DriverAccess
         }
 
         [Fact]
-        public async void SetAsync()
+        public async Task SetAsync()
         {
             // Create a Switch simulator device
             Type switchType = Type.GetTypeFromProgID("ASCOM.Simulator.Switch");
@@ -124,7 +124,7 @@ namespace DriverAccess
         }
 
         [Fact]
-        public async void SetAsyncValue()
+        public async Task SetAsyncValue()
         {
             // Create a Switch simulator device
             Type switchType = Type.GetTypeFromProgID("ASCOM.Simulator.Switch");
@@ -166,7 +166,7 @@ namespace DriverAccess
         }
 
         [Fact]
-        public async void CancelAsync()
+        public async Task CancelAsync()
         {
             // Create a Switch simulator device
             Type switchType = Type.GetTypeFromProgID("ASCOM.Simulator.Switch");
@@ -214,7 +214,7 @@ namespace DriverAccess
         }
 
         [Fact]
-        public async void SetAsyncDriverAccess()
+        public async Task SetAsyncDriverAccess()
         {
             // Create a Switch simulator device
             using (Switch switchSim = new("ASCOM.Simulator.Switch"))
@@ -257,7 +257,7 @@ namespace DriverAccess
         }
 
         [Fact]
-        public async void SetAsyncValueDriverAccess()
+        public async Task SetAsyncValueDriverAccess()
         {
             // Create a Switch simulator device
             Switch switchSim = new("ASCOM.Simulator.Switch")
@@ -299,7 +299,7 @@ namespace DriverAccess
         }
 
         [Fact]
-        public async void CancelAsyncDriverAccess()
+        public async Task CancelAsyncDriverAccess()
         {
             // Create a Switch simulator device
             Switch switchSim = new("ASCOM.Simulator.Switch")
