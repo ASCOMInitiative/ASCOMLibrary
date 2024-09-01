@@ -12,7 +12,8 @@ namespace ASCOM.Alpaca.Clients
     /// </summary>
     public class ClientConfiguration
     {
-        private  readonly AlpacaDeviceBaseClass baseClass; // Pointer to the device base class so that its properties can be exposed and manipulated
+        // Pointer to the device base class so that its properties can be exposed and manipulated
+        private readonly AlpacaDeviceBaseClass baseClass;
         
         /// <summary>
         /// Initialise the configuration class, saving the supplied base class reference for use within the class

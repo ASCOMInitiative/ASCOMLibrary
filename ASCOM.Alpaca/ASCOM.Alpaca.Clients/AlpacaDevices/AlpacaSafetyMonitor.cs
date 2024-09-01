@@ -168,15 +168,7 @@ namespace ASCOM.Alpaca.Clients
 
         #region ISafetyMonitorV2 Implementation
 
-        /// <summary>
-        /// Indicates whether the monitored state is safe for use.
-        /// </summary>
-        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
-        /// <value>True if the state is safe, False if it is unsafe.</value>
-        /// <remarks>
-        /// <p style="color:red;margin-bottom:0"><b>Must be implemented and must not throw a NotImplementedException. </b></p>
-        /// </remarks>
+        /// <inheritdoc/>
         public bool IsSafe
         {
             get

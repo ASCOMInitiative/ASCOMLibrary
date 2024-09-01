@@ -168,16 +168,7 @@ namespace ASCOM.Alpaca.Clients
 
         #region IFilterWheelV2 implementation
 
-        /// <summary>
-        /// Focus offset of each filter in the wheel
-        /// </summary>
-        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
-        /// <remarks>
-        /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
-        /// For each valid slot number (from 0 to N-1), reports the focus offset for the given filter position.  These values are focuser and filter dependent, and  would usually be set up by the user via 
-        /// the SetupDialog. The number of slots N can be determined from the length of the array. If focuser offsets are not available, then it should report back 0 for all array values.
-        /// </remarks>
+        /// <inheritdoc/>
         public int[] FocusOffsets
         {
             get
@@ -186,16 +177,7 @@ namespace ASCOM.Alpaca.Clients
             }
         }
 
-        /// <summary>
-        /// Name of each filter in the wheel
-        /// </summary>
-        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
-        /// <remarks>
-        /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
-        /// For each valid slot number (from 0 to N-1), reports the name given to the filter position.  These names would usually be set up by the user via the
-        /// SetupDialog.  The number of slots N can be determined from the length of the array.  If filter names are not available, then it should report back "Filter 1", "Filter 2", etc.
-        /// </remarks>
+        /// <inheritdoc/>
         public string[] Names
         {
             get
@@ -204,23 +186,7 @@ namespace ASCOM.Alpaca.Clients
             }
         }
 
-        /// <summary>
-        /// Sets or returns the current filter wheel position
-        /// </summary>
-        /// <exception cref="InvalidValueException">Must throw an InvalidValueException if an invalid position is set</exception>
-        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
-        /// <remarks>
-        /// <p style="color:red"><b>Must be implemented, must not throw a PropertyNotImplementedException.</b></p>
-        ///<para>This is an asynchronous operation: Writing to Position must return as soon as the filter change operation has been successfully started. Reading the Position property must return -1 while the change
-        /// is in progress. After the requested position has been successfully reached and motion stops, reading Position must return the requested new filter number.</para>
-		/// Write a position number between 0 and N-1, where N is the number of filter slots (see <see cref="Names"/>). Starts filter wheel rotation immediately. Reading
-		/// the property gives current slot number (if wheel stationary) or -1 if wheel is moving.
-		/// <para>Returning a position of -1 is <b>mandatory</b> while the filter wheel is in motion; valid slot numbers must not be reported back while the filter wheel is rotating past filter positions.</para>
-        /// <para><b>Note</b></para>
-        /// <para>Some filter wheels are built into the camera (one driver, two interfaces).  Some cameras may not actually rotate the wheel until the exposure is triggered.  In this case, the written value is available
-        /// immediately as the read value, and -1 is never produced.</para>
-        /// </remarks>
+        /// <inheritdoc/>
         public short Position
         {
             get

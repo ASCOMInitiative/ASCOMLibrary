@@ -11,10 +11,10 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <summary>
         /// Invokes the specified device-specific action.
         /// </summary>
-        /// <param name="ActionName">
+        /// <param name="actionName">
         /// A well known name agreed by interested parties that represents the action to be carried out. 
         /// </param>
-        /// <param name="ActionParameters">List of required parameters or an <see cref="String.Empty">Empty String</see> if none are required.
+        /// <param name="actionParameters">List of required parameters or an <see cref="String.Empty">Empty String</see> if none are required.
         /// </param>
         /// <returns>A string response. The meaning of returned strings is set by the driver author.</returns>
         /// <exception cref="NotImplementedException">Throws this exception if an action name is not supported.
@@ -43,14 +43,14 @@ namespace ASCOM.Common.DeviceInterfaces
         /// and FILTERWHEEL:SELECTWHEEL will all refer to the same action.</para>
         /// <para>The names of all supported actions must be returned in the <see cref="SupportedActions"/> property.</para>
         /// </remarks>
-        string Action(string ActionName, string ActionParameters);
+        string Action(string actionName, string actionParameters);
 
         /// <summary>
         /// Transmits an arbitrary string to the device and does not wait for a response.
         /// Optionally, protocol framing characters may be added to the string before transmission.
         /// </summary>
-        /// <param name="Command">The literal command string to be transmitted.</param>
-        /// <param name="Raw">
+        /// <param name="command">The literal command string to be transmitted.</param>
+        /// <param name="raw">
         /// if set to <c>true</c> the string is transmitted 'as-is'.
         /// If set to <c>false</c> then protocol framing characters may be added prior to transmission.
         /// </param>
@@ -64,14 +64,14 @@ namespace ASCOM.Common.DeviceInterfaces
         /// driver, but this approach is much lower risk than using the CommandXXX methods because it enables the driver to resolve conflicts between standard device interface commands and extended commands 
         /// provided as Actions.The driver is always aware of what is happening and can adapt more effectively to client needs.</para>
         /// </remarks>
-        void CommandBlind(string Command, bool Raw = false);
+        void CommandBlind(string command, bool raw = false);
 
         /// <summary>
         /// Transmits an arbitrary string to the device and waits for a boolean response.
         /// Optionally, protocol framing characters may be added to the string before transmission.
         /// </summary>
-        /// <param name="Command">The literal command string to be transmitted.</param>
-        /// <param name="Raw">
+        /// <param name="command">The literal command string to be transmitted.</param>
+        /// <param name="raw">
         /// if set to <c>true</c> the string is transmitted 'as-is'.
         /// If set to <c>false</c> then protocol framing characters may be added prior to transmission.
         /// </param>
@@ -88,14 +88,14 @@ namespace ASCOM.Common.DeviceInterfaces
         /// driver, but this approach is much lower risk than using the CommandXXX methods because it enables the driver to resolve conflicts between standard device interface commands and extended commands 
         /// provided as Actions.The driver is always aware of what is happening and can adapt more effectively to client needs.</para>
         /// </remarks>
-        bool CommandBool(string Command, bool Raw = false);
+        bool CommandBool(string command, bool raw = false);
 
         /// <summary>
         /// Transmits an arbitrary string to the device and waits for a string response.
         /// Optionally, protocol framing characters may be added to the string before transmission.
         /// </summary>
-        /// <param name="Command">The literal command string to be transmitted.</param>
-        /// <param name="Raw">
+        /// <param name="command">The literal command string to be transmitted.</param>
+        /// <param name="raw">
         /// if set to <c>true</c> the string is transmitted 'as-is'.
         /// If set to <c>false</c> then protocol framing characters may be added prior to transmission.
         /// </param>
@@ -112,7 +112,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// driver, but this approach is much lower risk than using the CommandXXX methods because it enables the driver to resolve conflicts between standard device interface commands and extended commands 
         /// provided as Actions.The driver is always aware of what is happening and can adapt more effectively to client needs.</para>
         /// </remarks>
-        string CommandString(string Command, bool Raw = false);
+        string CommandString(string command, bool raw = false);
 
         /// <summary>
         /// Set True to enable the link. Set False to disable the link.
