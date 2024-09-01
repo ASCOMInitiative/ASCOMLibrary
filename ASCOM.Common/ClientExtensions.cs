@@ -15,7 +15,7 @@ namespace ASCOM.Common
     public static class ClientExtensions
     {
 
-        #region Common methods (IAscomDevice)
+        #region IAscomDeviceV2 methods
 
         /// <summary>
         /// Returns an awaitable, running, <see cref="Task"/> that connects to the device. (Polls IAscomDeviceV2.Connecting)
@@ -81,7 +81,7 @@ namespace ASCOM.Common
 
         #endregion
 
-        #region Camera extensions
+        #region ICameraV3 extensions
 
         /// <summary>
         /// Returns an awaitable, running, <see cref="Task"/> that takes a camera image
@@ -141,6 +141,76 @@ namespace ASCOM.Common
                     ProcessTask(() => { device.StopExposure(); }, () =>
                         { return (device.CameraState == CameraState.Reading) | (device.CameraState == CameraState.Exposing) | (device.CameraState == CameraState.Waiting); },
                         pollInterval, cancellationToken, logger, $"{nameof(ICameraV3)}.{nameof(StopExposureAsync)}");
+                });
+
+                WaitForProcessTask(processTask, logger, callingMethodName, cancellationToken);
+            });
+
+            CheckOutcome(processTask, logger, callingMethodName, cancellationToken);
+        }
+
+        #endregion
+
+        #region ICameraV4 extensions
+
+        /// <summary>
+        /// Returns an awaitable, running, <see cref="Task"/> that takes a camera image
+        /// </summary>
+        /// <param name="device">The Camera device</param>
+        /// <param name="duration">Length of exposure</param>
+        /// <param name="light"><see langword="true"/> for light frames, <see langword="false"/> for dark frames</param>
+        /// <param name="cancellationToken">Cancellation token - Default: <see cref="CancellationToken.None"/></param>
+        /// <param name="pollInterval">Interval between polls of the completion variable (milliseconds) - Default: 1000 milliseconds.</param>
+        /// <param name="logger">ILogger instance that will receive operation messages from the method - Default: No logger</param>
+        /// <returns>Awaitable task that ends when the exposure is complete</returns>
+        /// <remarks>
+        /// <para>Initiator: <see cref="ICameraV3.StartExposure(double, bool)"/></para>
+        /// <para>Complete when: <see cref="ICameraV3.CameraState"/> is <see cref="CameraState.Idle"/> or <see cref="CameraState.Error"/></para>
+        /// </remarks>
+        public static async Task StartExposureAsync(this ICameraV4 device, double duration, bool light, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
+        {
+            Task processTask = null;
+            string callingMethodName = $"[Lib].{GetCurrentMethod()}";
+
+            await Task.Run(() =>
+            {
+                processTask = Task.Run(() =>
+                {
+                    ProcessTask(() => { device.StartExposure(duration, light); }, () =>
+                    { return (device.CameraState == CameraState.Waiting) | (device.CameraState == CameraState.Exposing) | (device.CameraState == CameraState.Reading); },
+                        pollInterval, cancellationToken, logger, $"{nameof(ICameraV4)}.{nameof(StartExposureAsync)}");
+                });
+
+                WaitForProcessTask(processTask, logger, callingMethodName, cancellationToken);
+            });
+
+            CheckOutcome(processTask, logger, callingMethodName, cancellationToken);
+        }
+
+        /// <summary>
+        /// Returns an awaitable, running, <see cref="Task"/> that stops the current camera exposure
+        /// </summary>
+        /// <param name="device">The Camera device</param>
+        /// <param name="cancellationToken">Cancellation token - Default: <see cref="CancellationToken.None"/></param>
+        /// <param name="pollInterval">Interval between polls of the completion variable (milliseconds) - Default: 1000 milliseconds.</param>
+        /// <param name="logger">ILogger instance that will receive operation messages from the method - Default: No logger</param>
+        /// <returns>Awaitable task that ends when the exposure is has stopped</returns>
+        /// <remarks>
+        /// <para>Initiator: <see cref="ICameraV3.StopExposure"/></para>
+        /// <para>Complete when: <see cref="ICameraV3.CameraState"/> is <see cref="CameraState.Idle"/> or <see cref="CameraState.Error"/></para>
+        /// </remarks>
+        public static async Task StopExposureAsync(this ICameraV4 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
+        {
+            Task processTask = null;
+            string callingMethodName = $"[Lib].{GetCurrentMethod()}";
+
+            await Task.Run(() =>
+            {
+                processTask = Task.Run(() =>
+                {
+                    ProcessTask(() => { device.StopExposure(); }, () =>
+                    { return (device.CameraState == CameraState.Reading) | (device.CameraState == CameraState.Exposing) | (device.CameraState == CameraState.Waiting); },
+                        pollInterval, cancellationToken, logger, $"{nameof(ICameraV4)}.{nameof(StopExposureAsync)}");
                 });
 
                 WaitForProcessTask(processTask, logger, callingMethodName, cancellationToken);
@@ -1194,7 +1264,7 @@ namespace ASCOM.Common
         /// <returns>Awaitable task that ends when the telescope is at the required coordinates</returns>
         /// <remarks>
         /// <para>Initiator: <see cref="ITelescopeV4.SlewToAltAzAsync(double, double)"/></para>
-        /// <para>Complete when: <see cref="ITelescopeV4.Slewing"/> is <see langword="false"/></para>
+        /// <para>Complete when: <see cref="ITelescopeV3.Slewing"/> is <see langword="false"/></para>
         /// </remarks>
         public static async Task SlewToAltAzTaskAsync(this ITelescopeV4 device, double azimuth, double altitude, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
@@ -1226,7 +1296,7 @@ namespace ASCOM.Common
         /// <returns>Awaitable task that ends when the telescope is at the required coordinates</returns>
         /// <remarks>
         /// <para>Initiator: <see cref="ITelescopeV4.SlewToCoordinatesAsync(double, double)"/></para>
-        /// <para>Complete when: <see cref="ITelescopeV4.Slewing"/> is <see langword="false"/></para>
+        /// <para>Complete when: <see cref="ITelescopeV3.Slewing"/> is <see langword="false"/></para>
         /// </remarks>
         public static async Task SlewToCoordinatesTaskAsync(this ITelescopeV4 device, double rightAscension, double declination, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
@@ -1256,7 +1326,7 @@ namespace ASCOM.Common
         /// <returns>Awaitable task that ends when the telescope is at the required coordinates</returns>
         /// <remarks>
         /// <para>Initiator: <see cref="ITelescopeV4.SlewToTargetAsync()"/></para>
-        /// <para>Complete when: <see cref="ITelescopeV4.Slewing"/> is <see langword="false"/></para>
+        /// <para>Complete when: <see cref="ITelescopeV3.Slewing"/> is <see langword="false"/></para>
         /// </remarks>
         public static async Task SlewToTargetTaskAsync(this ITelescopeV4 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
@@ -1285,8 +1355,8 @@ namespace ASCOM.Common
         /// <param name="logger">ILogger instance that will receive operation messages from the method - Default: No logger</param>
         /// <returns>Awaitable task that ends when telescope slewing has stopped</returns>
         /// <remarks>
-        /// <para>Initiator: <see cref="ITelescopeV4.AbortSlew()"/></para>
-        /// <para>Complete when: <see cref="ITelescopeV4.Slewing"/> is <see langword="false"/></para>
+        /// <para>Initiator: <see cref="ITelescopeV3.AbortSlew()"/></para>
+        /// <para>Complete when: <see cref="ITelescopeV3.Slewing"/> is <see langword="false"/></para>
         /// </remarks>
         public static async Task AbortSlewAsync(this ITelescopeV4 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
@@ -1316,7 +1386,7 @@ namespace ASCOM.Common
         /// <returns>Awaitable task that ends when telescope is at home</returns>
         /// <remarks>
         /// <para>Initiator: <see cref="ITelescopeV4.FindHome()"/></para>
-        /// <para>Complete when: <see cref="ITelescopeV4.Slewing"/> is <see langword="false"/></para>
+        /// <para>Complete when: <see cref="ITelescopeV3.Slewing"/> is <see langword="false"/></para>
         /// </remarks>
         public static async Task FindHomeAsync(this ITelescopeV4 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
@@ -1346,7 +1416,7 @@ namespace ASCOM.Common
         /// <returns>Awaitable task that ends when telescope is at the park position</returns>
         /// <remarks>
         /// <para>Initiator: <see cref="ITelescopeV4.Park()"/></para>
-        /// <para>Complete when: <see cref="ITelescopeV4.AtPark"/> is <see langword="true"/></para>
+        /// <para>Complete when: <see cref="ITelescopeV3.AtPark"/> is <see langword="true"/></para>
         /// </remarks>
         public static async Task ParkAsync(this ITelescopeV4 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
@@ -1376,7 +1446,7 @@ namespace ASCOM.Common
         /// <returns>Awaitable task that ends when telescope is un-parked</returns>
         /// <remarks>
         /// <para>Initiator: <see cref="ITelescopeV4.Unpark()"/></para>
-        /// <para>Complete when: <see cref="ITelescopeV4.AtPark"/> is <see langword="false"/></para>
+        /// <para>Complete when: <see cref="ITelescopeV3.AtPark"/> is <see langword="false"/></para>
         /// </remarks>
         public static async Task UnparkAsync(this ITelescopeV4 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {

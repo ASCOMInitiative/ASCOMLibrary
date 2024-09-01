@@ -781,19 +781,7 @@ namespace ASCOM.Alpaca.Clients
             }
         }
 
-        /// <summary>
-        /// Locates the telescope's "home" position (synchronous)
-        /// </summary>
-        /// <exception cref="NotImplementedException">If the method is not implemented and <see cref="CanFindHome" /> is False</exception>
-        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
-        /// <remarks>
-        /// <para>This is an asynchronous method: Use the <see cref="Slewing"/> property to monitor the operation's progress. 
-        /// When the mount has successfully reached its home position, <see cref="Slewing"/> becomes False and <see cref="AtHome"/> becomes True.</para>
-        /// Raises an error if there is a problem. 
-        /// Raises an error if AtPark is true. 
-        /// <para>This is only available for telescope Interface Versions 2 and later.</para>
-        /// </remarks>
+        /// <inheritdoc/>
         public void FindHome()
         {
             DynamicClientDriver.CallMethodWithNoParameters(clientNumber, client, longDeviceResponseTimeout, URIBase, strictCasing, logger, "FindHome", MemberTypes.Method);

@@ -408,9 +408,7 @@ namespace ASCOM.Alpaca.Clients
             }
         }
 
-        /// <summary>
-        /// Returns a List of device operational state values as IStateValue objects.
-        /// </summary>
+        /// <inheritdoc/>
         public List<StateValue> DeviceState
         {
             get

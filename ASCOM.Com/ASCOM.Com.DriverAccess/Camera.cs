@@ -66,14 +66,7 @@ namespace ASCOM.Com.DriverAccess
 
         #region ICameraV3 and ICameraV4
 
-        /// <summary>
-        /// Descriptive and version information about this ASCOM driver.
-        /// This string may contain line endings and may be hundreds to thousands of characters long.
-        /// It is intended to display detailed information on the ASCOM driver, including version and copyright data.
-        /// See the Description property for descriptive info on the telescope itself.
-        /// To get the driver version in a parseable string, use the DriverVersion property.
-        /// </summary>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
+        /// <inheritdoc/>
         public new string DriverInfo
         {
             get
