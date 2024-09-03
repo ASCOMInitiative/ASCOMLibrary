@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Net.NetworkInformation;
 
 namespace ASCOM.Common.DeviceInterfaces
 {
@@ -22,7 +23,7 @@ namespace ASCOM.Common.DeviceInterfaces
         new bool AtHome { get; }
 
         /// <summary>
-        /// True if this telescope is capable of programmed ITelescopeV3.Slewing (synchronous or asynchronous) to equatorial coordinates
+        /// True if this telescope is capable of programmed slewing (synchronous or asynchronous) to equatorial coordinates
         /// </summary>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
@@ -35,7 +36,7 @@ namespace ASCOM.Common.DeviceInterfaces
         new bool CanSlew { get; }
 
         /// <summary>
-        /// True if this telescope is capable of programmed ITelescopeV3.Slewing (synchronous or asynchronous) to local horizontal coordinates
+        /// True if this telescope is capable of programmed slewing (synchronous or asynchronous) to local horizontal coordinates
         /// </summary>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
@@ -48,7 +49,7 @@ namespace ASCOM.Common.DeviceInterfaces
         new bool CanSlewAltAz { get; }
 
         /// <summary>
-        /// True if this telescope is capable of programmed asynchronous ITelescopeV3.Slewing to local horizontal coordinates
+        /// True if this telescope is capable of programmed asynchronous slewing to local horizontal coordinates
         /// </summary>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
@@ -61,7 +62,7 @@ namespace ASCOM.Common.DeviceInterfaces
         new bool CanSlewAltAzAsync { get; }
 
         /// <summary>
-        /// True if this telescope is capable of programmed asynchronous ITelescopeV3.Slewing to equatorial coordinates.
+        /// True if this telescope is capable of programmed asynchronous slewing to equatorial coordinates.
         /// </summary>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be 
@@ -114,8 +115,12 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks>
+        /// <para>
         /// This method is asynchronous and should return quickly using IsPulseGuiding as the completion property. 
+        /// </para>
+        /// <para>
         /// If the device cannot have simultaneous PulseGuide operations in both RightAscension and Declination, it must throw InvalidOperationException when the overlapping operation is attempted.
+        /// </para>
         /// <para>
         /// <para>Further explanation is available in this link: <a href="https://ascom-standards.org/newdocs/telescope.html#telescope-pulseguide" target="_blank">Master Interface Document</a>.</para>
         /// </para>
@@ -131,7 +136,19 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks>
         /// <para>SideOfPier SET is an asynchronous method and <see cref="ITelescopeV3.Slewing"/> should be set True while the operation is in progress.</para>
-        /// <para>Further explanation is available in this link: <a href="https://ascom-standards.org/newdocs/telescope.html#telescope-sideofpier" target="_blank">Master Interface Document</a>.</para>
+        /// <para>Please note that "SideofPier" is a misnomer and that this method actually refers to the mount's pointing state. For German Equatorial mounts there is a complex
+        /// relationship between pointing state and the physical side of the pier on which the mount resides.</para>
+        /// <para>
+        /// For example, suppose the mount is tracking on the east side of the pier, counterweights down, 
+        /// observing a target on the celestial equator at hour angle +3.0.Now suppose that the observer
+        /// wishes to observe a new target at hour angle -9.0. All the mount needs to do is to rotate the declination axis, 
+        /// through the celestial pole where the hour angle will change from +3.0 to -9.0, and keep going until it gets
+        /// to the required declination at hour angle -9.0. Other than tracking, the right ascension  axis has not moved.
+        /// </para>
+        /// <para>
+        /// In this example the mount is still physically on the east side of the pier but the pointing state
+        /// will have changed when the declination axis moved through the celestial pole.
+        /// </para>
         /// </remarks>
         new PointingState SideOfPier { get; set; }
 
