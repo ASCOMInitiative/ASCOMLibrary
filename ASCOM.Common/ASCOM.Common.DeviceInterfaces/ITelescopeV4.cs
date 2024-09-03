@@ -115,7 +115,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks>
         /// This method is asynchronous and should return quickly using IsPulseGuiding as the completion property. 
-        /// If the mount cannot have simultaneous PulseGuide operations in both RightAscension and Declination, it must throw InvalidOperationException when the overlapping operation is attempted.
+        /// If the device cannot have simultaneous PulseGuide operations in both RightAscension and Declination, it must throw InvalidOperationException when the overlapping operation is attempted.
         /// <para>
         /// <para>Further explanation is available in this link: <a href="https://ascom-standards.org/newdocs/telescope.html#telescope-pulseguide" target="_blank">Master Interface Document</a>.</para>
         /// </para>
