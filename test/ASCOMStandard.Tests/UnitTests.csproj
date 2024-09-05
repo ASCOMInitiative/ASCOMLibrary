@@ -27,7 +27,7 @@
 
     <ItemGroup>
         <PackageReference Include="ASCOM.Exception.Library" Version="7.0.0-rc.22" />
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
         <PackageReference Include="System.Runtime.Extensions" Version="4.3.1" />
         <PackageReference Include="xunit" Version="2.9.0" />
         <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2">
