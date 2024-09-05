@@ -31,7 +31,7 @@
 	  <Content Include="..\ASCOMBoarderless.png" Link="ASCOMBoarderless.png" />
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="ASCOM.Exception.Library" Version="7.0.0-rc.22" />
+		<PackageReference Include="ASCOM.Exception.Library" Version="7.0.0-rc.26" />
 		<PackageReference Include="System.Resources.Extensions" Version="8.0.0" />
 	</ItemGroup>
 	<ItemGroup>
