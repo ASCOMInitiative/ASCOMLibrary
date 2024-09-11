@@ -26,7 +26,8 @@ namespace ASCOM.Common.DeviceInterfaces
         /// Returns the device's operational state in a single call
         /// </summary>
         /// <remarks>
-        /// Returns all the device's operational state properties in a single call to reduce polling overhead for clients and devices.
+        /// <para>Returns all the device's operational state properties in a single call to reduce polling overhead for clients and devices.</para>
+        /// <para>See <see href="https://ascom-standards.org/newdocs/interfaces.html">Master Help Document - Interfaces</see> for further information.</para>
         /// </remarks>
         List<StateValue> DeviceState { get; }
     }
