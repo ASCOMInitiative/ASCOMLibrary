@@ -17,7 +17,7 @@
 						</para>
 						<para>
 							Class and object names (including namespaces) have been retained as far as possible, the major naming change is that astrometry features in the ASCOM.Tools.Utilities component
-							are now in a new ASCOM.Tools.AstroUtilities component in the ASCOM.AstroUtilities package.
+							are now in a new ASCOM.Tools.AstroUtilities component in the new ASCOM.AstroUtilities package.
 						</para>
 						<para>
 							The principle developer changes required are to:
@@ -66,6 +66,12 @@
 					</listItem>
 					<listItem>
 						<para>Fix - Remove a small error (6th decimal place) in AstroUtililties JulianDate function.</para>
+					</listItem>
+					<listItem>
+						<para>Fix - Eliminate a stack imbalance when returning from x86 native library calls by specifying the CDECL calling convention.</para>
+					</listItem>
+					<listItem>
+						<para>Fix - Alpaca Clients did not set the remote device number correctly when changed through the ClientConfiguration class.</para>
 					</listItem>
 				</list>
 			</content>

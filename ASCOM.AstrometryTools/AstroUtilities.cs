@@ -1082,7 +1082,6 @@ namespace ASCOM.Tools
 
         #endregion
 
-
         #region Private support code
 
         /// <summary>

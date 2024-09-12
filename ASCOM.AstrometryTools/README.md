@@ -1,6 +1,6 @@
 # ASCOM.AstrometryTools
 
-A set of cross-platform tools to support astrometry requirements. The components include the NOVAS and SOFA libraries.
+A set of cross-platform tools to support astrometry requirements. The components include the NOVAS and SOFA native libraries.
 
 ## Utilities
 * Transform...
@@ -10,6 +10,9 @@ A set of cross-platform tools to support astrometry requirements. The components
 * Kepler
 
 # Version History
+
+***Release 2.0.0***
+* No change.
 
 ***Release 2.0.0-rc.28***
 * Native library calling convention for SOFA and NOVAS changed to CDecl in order to remove an "imbalanced stack" condition when calls return. The issue seems 

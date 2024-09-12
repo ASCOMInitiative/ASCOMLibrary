@@ -4,6 +4,9 @@ A set of tools to access ASCOM COM drivers. Written to .Net Standard 2.0 for max
 
 # Version History
 
+***Release 2.0.0***
+* No change.
+
 ***Release 2.0.0-rc.28***
 * No change.
 

@@ -37,12 +37,35 @@
 			</content>
 		</section>
 
+		<section address="ASCOM.AstrometryTools">
+			<title>ASCOM.AstrometryTools Package</title>
+			<content>
+				<list class="bullet">
+					<listItem>SOFA library with the same functionality as the Platform's SOFA component.</listItem>
+					<listItem>Transform component with the same functionality as the Platform's Transform component.</listItem>
+					<listItem>NOVAS 3.1 component with the same functionality as the Platform's NOVAS component.</listItem>
+					<listItem>NOVASCOM component with the same functionality as the Platform's NOVASCOM component.</listItem>
+					<listItem>Kepler component with the same functionality as the Platform's Kepler component.</listItem>
+					<listItem>
+						AstroUtilities component that provides useful capabilities including:
+						<list class="bullet">
+							<listItem>Creating a one year almanac for the given event, year and location.</listItem>
+							<listItem>Returning a list of rise and set events of a particular type that occur on a particular day at a given latitude, longitude and time zone</listItem>
+							<listItem>Calculating the fraction of the Moon's surface that is illuminated at a given time.</listItem>
+							<listItem>Returning the current number of leap seconds.</listItem>
+							<listItem>Returning an estimate of the current DelatT value.</listItem>
+							<listItem>Calculate the Julian date for a given DateTime value.</listItem>
+							<listItem>Return the current Julian date.</listItem>
+						</list>
+					</listItem>
+				</list>
+			</content>
+		</section>
+		
 		<section address="ASCOM.Tools">
 			<title>ASCOM.Tools Package</title>
 			<content>
 				<list class="bullet">
-					<listItem>Cross platform SOFA library with the same functionality as the Platform's SOFA component.</listItem>
-					<listItem>Cross Platform Transform component with the same functionality as the Platform's Transform component.</listItem>
 					<listItem>Console logger component that exposes the ILogger interface.</listItem>
 					<listItem>TraceLogger component that exposes the ILogger interface, with functionality similar to the Platform's TraceLogger component.</listItem>
 					<listItem>
@@ -60,6 +83,7 @@
 							<listItem>Coordinate validation and management functions</listItem>
 						</list>
 					</listItem>
+					<listItem>XMLProfile component to create and manage an ASCOM Profile as an XML file.</listItem>
 				</list>
 			</content>
 		</section>
