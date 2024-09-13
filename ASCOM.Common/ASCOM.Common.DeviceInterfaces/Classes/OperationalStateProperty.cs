@@ -112,7 +112,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <summary>
         /// Default initialiser for the OperationalStateProperty class
         /// </summary>
-        internal OperationalStateProperty()
+        private OperationalStateProperty()
         {
             DeviceType = DeviceTypes.Telescope;
             Name = "State name not set";
@@ -125,7 +125,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <param name="deviceType">ASCOM device type</param>
         /// <param name="stateName">operational state name.</param>
         /// <param name="typeName">Date type name e.g. Boolean, Double, DateTime etc. This must be the CLR type name not the C# shortcut name e.g. It must be "Boolean" and not "bool".</param>
-        internal OperationalStateProperty(DeviceTypes deviceType, string stateName, string typeName)
+        private OperationalStateProperty(DeviceTypes deviceType, string stateName, string typeName)
         {
             DeviceType = deviceType;
             Name = stateName;
