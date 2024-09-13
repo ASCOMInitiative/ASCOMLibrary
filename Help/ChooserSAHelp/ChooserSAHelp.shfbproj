@@ -46,6 +46,7 @@
       <DocumentationSource sourceFile="..\..\ASCOM.Common\bin\Debug\netstandard2.0\ASCOM.Common.dll" />
       <DocumentationSource sourceFile="..\PackageAccessProject\ASCOM.Exceptions.dll" />
       <DocumentationSource sourceFile="..\PackageAccessProject\ASCOM.Exceptions.xml" />
+      <DocumentationSource sourceFile="..\PackageAccessProjectFramework\PackageAccessProjectFramework.csproj" />
     </DocumentationSources>
     <HelpFileFormat>HtmlHelp1, Website</HelpFileFormat>
     <SyntaxFilters>C#, Visual Basic, Managed C++</SyntaxFilters>
