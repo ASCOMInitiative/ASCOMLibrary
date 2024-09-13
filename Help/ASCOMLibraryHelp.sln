@@ -4,8 +4,14 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.6.33815.320
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{7CF6DF6D-3B04-46F8-A40B-537D21BCA0B4}") = "ASCOMLibraryHelp", "LibraryHelp\ASCOMLibraryHelp.shfbproj", "{C067ED42-D85F-42D1-A481-23887FE2E23A}"
+	ProjectSection(ProjectDependencies) = postProject
+		{70FBFA5A-2A22-4CDF-A606-A00754E7CCA8} = {70FBFA5A-2A22-4CDF-A606-A00754E7CCA8}
+	EndProjectSection
 EndProject
 Project("{7CF6DF6D-3B04-46F8-A40B-537D21BCA0B4}") = "ChooserSAHelp", "ChooserSAHelp\ChooserSAHelp.shfbproj", "{DA3CCBD7-06A8-4E9E-A04B-F2D4A2D1EEED}"
+	ProjectSection(ProjectDependencies) = postProject
+		{70FBFA5A-2A22-4CDF-A606-A00754E7CCA8} = {70FBFA5A-2A22-4CDF-A606-A00754E7CCA8}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PackageAccessProjectFramework", "PackageAccessProjectFramework\PackageAccessProjectFramework.csproj", "{70FBFA5A-2A22-4CDF-A606-A00754E7CCA8}"
 EndProject
