@@ -3,6 +3,8 @@
 A set of cross platform utilities, logging, and basic settings providers that implement the 
 ASCOM.Common interfaces. Written to .Net Standard 2.0 for maximum applicability.
 
+This release supports the interface updates introduced in ASCOM Platform 7.
+
 ## Logging
 Given the change to non shared libraries should TraceLogger require a mutex?
 

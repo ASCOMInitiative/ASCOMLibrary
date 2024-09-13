@@ -2,6 +2,8 @@
 
 A set of tools to support development of Alpaca devices. Written to .Net Standard 2.0 for maximum applicability.
 
+This release supports the interface updates introduced in ASCOM Platform 7.
+
 # Version History
 
 ***Release 2.0.0***

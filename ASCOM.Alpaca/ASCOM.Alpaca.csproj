@@ -9,7 +9,11 @@
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<Authors>Daniel Van Noord and Peter Simpson</Authors>
 		<Company>ASCOM Initiative</Company>
-		<Description>A .Net Standard library providing ASCOM Alpaca client and discovery components.</Description>
+		<Description>
+			A .Net Standard library providing ASCOM Alpaca client and discovery components.
+
+			Includes support for the interface updates introduced in ASCOM Platform 7.
+		</Description>
 		<Copyright>Copyright ASCOM Initiative 2022</Copyright>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageIcon>ASCOMBoarderless.png</PackageIcon>

@@ -1,6 +1,8 @@
 # ASCOM.Common
 This is a set of data classes and utility functions to support writing ALpaca devices and COM clients. Written to .Net Standard 2.0 for maximum applicability.
 
+This release supports the interface updates introduced in ASCOM Platform 7.
+
 # Components
 * **ASCOM.Common.Alpaca** - Common types for accessing and working with Alpaca devices.
 * **ASCOM.Common.Com** - Common types for accessing and working with ASCOM COM drivers.
