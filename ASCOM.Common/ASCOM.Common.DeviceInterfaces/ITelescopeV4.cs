@@ -299,7 +299,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// </summary>
         /// <exception cref="NotImplementedException">If Tracking Write is not implemented.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-        /// <exception cref="ParkedException">When the mount is parked. (Added in ITelescopeV4)</exception>
+        /// <exception cref="ParkedException">When <see cref="Tracking"/> is set True and the telescope is parked (<see cref="ITelescopeV3.AtPark"/> is True). Added in ITelescopeV4</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks>
         /// <p style="color:red;margin-bottom:0"><b>Tracking Read must be implemented and must not throw a NotImplementedException. </b></p>
@@ -307,9 +307,9 @@ namespace ASCOM.Common.DeviceInterfaces
         /// Changing the value of this property will turn the sidereal drive on and off.
         /// However, some telescopes may not support changing the value of this property
         /// and thus may not support turning tracking on and off.
-        /// See the <see cref="CanSetTracking" /> property. 
+        /// See the <see cref="ITelescopeV3.CanSetTracking" /> property. 
         /// </remarks>
-        bool Tracking { get; set; }
+        new bool Tracking { get; set; }
 
         /// <summary>
         /// Takes telescope out of the Parked state.
