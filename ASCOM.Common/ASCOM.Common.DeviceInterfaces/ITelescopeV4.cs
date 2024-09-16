@@ -90,6 +90,57 @@ namespace ASCOM.Common.DeviceInterfaces
         new void FindHome();
 
         /// <summary>
+        /// Move the telescope in one axis at the given rate.
+        /// </summary>
+        /// <param name="Axis">The physical axis about which movement is desired</param>
+        /// <param name="Rate">The rate of motion (deg/sec) about the specified axis</param>
+        /// <exception cref="MethodNotImplementedException">If the method is not implemented.</exception>
+        /// <exception cref="InvalidValueException">If an invalid axis or rate is given.</exception>
+        /// <exception cref="NotConnectedException">If the device is not connected</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception> 
+        /// <remarks>
+        /// This method supports control of the mount about its mechanical axes.
+        /// The telescope will start moving at the specified rate about the specified axis and continue indefinitely.
+        /// This method can be called for each axis separately, and have them all operate concurrently at separate rates of motion.
+        /// Set the rate for an axis to zero to restore the motion about that axis to the rate set by the <see cref="ITelescopeV3.Tracking"/> property.
+        /// Tracking motion (if enabled, see note below) is suspended during this mode of operation.
+        /// <para>
+        /// Raises an error if <see cref="ITelescopeV3.AtPark" /> is true.
+        /// This must be implemented for the if the <see cref="ITelescopeV3.CanMoveAxis" /> property returns True for the given axis.</para>
+        /// <para>This is only available for telescope Interface version 2 and later.</para>
+        /// <para>
+        /// MoveAxis() is best seen as an override to however the mount is configured for Tracking, including its enabled/disabled state and any 
+        /// current RightAscensionRate and DeclinationRate offsets. 
+        /// </para>
+        /// <para>
+        /// While <see cref="MoveAxis" /> is in effect, TrackingRate, RightAscensionRate and DeclinationRate should retain their current values and will become 
+        /// effective again when MoveAxis is set to zero for the relevant axis.
+        /// </para>
+        /// <para>
+        /// When <see cref="MoveAxis" /> is reset to zero for an axis, its previous state must be restored as shown below:
+        /// </para>
+        /// <list type="bullet">
+        /// <item><description><legacyBold>RA Axis with <see cref="ITelescopeV3.Tracking"/> is Enabled</legacyBold>: The current <see cref="ITelescopeV3.TrackingRate"/>, plus any <see cref="ITelescopeV3.RightAscensionRate" /> 
+        /// ( the latter is valid only if <see cref="ITelescopeV3.TrackingRate"/> is <see cref="DriveRate.Sidereal"/> )</description></item>
+        /// <item><description><legacyBold>RA Axis with <see cref="ITelescopeV3.Tracking"/> is Disabled</legacyBold>: 0</description></item>
+        /// <item><description><legacyBold>Dec Axis with <see cref="ITelescopeV3.Tracking"/> is Enabled</legacyBold>: The <see cref="ITelescopeV3.DeclinationRate" /> if non-zero or 0</description></item>
+        /// <item><description><legacyBold>Dec Axis with <see cref="ITelescopeV3.Tracking"/> is Disabled</legacyBold>: 0</description></item>
+        /// </list>
+        /// <b>NOTES:</b>
+        /// <list type="bullet">
+        /// <item><description>The Slewing property must remain <see langword="true"/> whenever <legacyBold>any</legacyBold> axis has a non-zero MoveAxis rate. E.g. Suppose
+        /// MoveAxis is used to make both the RA and declination axes move at valid axis rates. If the declination axis rate is then set to zero, Slewing must remain
+        /// <see langword="true"/> because the RA axis is still moving at a non-zero axis rate.</description></item>
+        /// <item><description>The movement rate must be within the value(s) obtained from a <see cref="IRate" /> object in the
+        /// the <see cref="ITelescopeV3.AxisRates" /> collection. This is a signed value with negative rates moving in the opposite direction to positive rates.</description></item>
+        /// <item><description>The values specified in <see cref="ITelescopeV3.AxisRates" /> are absolute, unsigned values and apply to both directions, determined by the sign used in this command.</description></item>
+        /// <item><description>MoveAxis can be used to simulate a hand-box by initiating motion with the MouseDown event and stopping the motion with the MouseUp event.</description></item>
+        /// <item><description>It may be possible to implement satellite tracking by using the <see cref="MoveAxis" /> method to move the scope in the required manner to track a satellite.</description></item>
+        /// </list>
+        /// </remarks>
+        new void MoveAxis(TelescopeAxis Axis, double Rate);
+
+        /// <summary>
         /// Move the telescope to its park position, stop all motion (or restrict to a small safe range), and set <see cref="ITelescopeV3.AtPark" /> to True.
         /// </summary>
         /// <exception cref="NotImplementedException">If the method is not implemented and <see cref="ITelescopeV3.CanPark" /> is False</exception>
