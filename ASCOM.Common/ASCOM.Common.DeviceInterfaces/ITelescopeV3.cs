@@ -517,42 +517,29 @@ namespace ASCOM.Common.DeviceInterfaces
         /// </summary>
         /// <param name="Axis">The physical axis about which movement is desired</param>
         /// <param name="Rate">The rate of motion (deg/sec) about the specified axis</param>
-        /// <exception cref="MethodNotImplementedException">If the method is not implemented.</exception>
+        /// <exception cref="NotImplementedException">If the method is not implemented.</exception>
         /// <exception cref="InvalidValueException">If an invalid axis or rate is given.</exception>
-        /// <exception cref="NotConnectedException">If the device is not connected</exception>
-        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception> 
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks>
         /// This method supports control of the mount about its mechanical axes.
         /// The telescope will start moving at the specified rate about the specified axis and continue indefinitely.
-        /// This method can be called for each axis separately, and have them all operate concurrently at separate rates of motion.
+        /// This method can be called for each axis separately, and have them all operate concurrently at separate rates of motion. 
         /// Set the rate for an axis to zero to restore the motion about that axis to the rate set by the <see cref="Tracking"/> property.
-        /// Tracking motion (if enabled, see note below) is suspended during this mode of operation.
+        /// Tracking motion (if enabled, see note below) is suspended during this mode of operation. 
         /// <para>
-        /// Raises an error if <see cref="AtPark" /> is true.
+        /// Raises an error if <see cref="AtPark" /> is true. 
         /// This must be implemented for the if the <see cref="CanMoveAxis" /> property returns True for the given axis.</para>
-        /// <para>This is only available for telescope Interface version 2 and later.</para>
+        /// <para>This is only available for telescope Interface Versions 2 and later.</para>
         /// <para>
-        /// <para>
-        /// MoveAxis is best seen as an override to however the mount is configured for tracking, 
-        /// including its enabled/disabled state and the current RA and Dec rate offsets.
-        /// When MoveAxis is reset to 0 for an axis, its previous movement rate must be restored, specifically:
-        /// </para>
-        /// <list type="bullet">
-        /// <item><description><legacyBold>RA Axis with <see cref="Tracking"/> is Enabled</legacyBold>: The current <see cref="TrackingRate"/>, plus any <see cref="RightAscensionRate" /> 
-        /// ( the latter is valid only if <see cref="TrackingRate"/> is <see cref="DriveRate.Sidereal"/> )</description></item>
-        /// <item><description><legacyBold>RA Axis with <see cref="Tracking"/> is Disabled</legacyBold>: 0</description></item>
-        /// <item><description><legacyBold>Dec Axis with <see cref="Tracking"/> is Enabled</legacyBold>: The <see cref="DeclinationRate" /> if non-zero or 0</description></item>
-        /// <item><description><legacyBold>Dec Axis with <see cref="Tracking"/> is Disabled</legacyBold>: 0</description></item>
-        /// </list>
         /// <b>NOTES:</b>
         /// <list type="bullet">
-        /// <item><description>The Slewing property must remain <see langword="true"/> whenever <legacyBold>any</legacyBold> axis has a non-zero MoveAxis rate. E.g. Suppose
-        /// MoveAxis is used to make both the RA and declination axes move at valid axis rates. If the declination axis rate is then set to zero, Slewing must remain
-        /// <see langword="true"/> because the RA axis is still moving at a non-zero axis rate.</description></item>
-        /// <item><description>The movement rate must be within the value(s) obtained from a <see cref="IRate" /> object in the
+        /// <item><description>The movement rate must be within the value(s) obtained from a <see cref="IRate" /> object in the 
         /// the <see cref="AxisRates" /> collection. This is a signed value with negative rates moving in the opposite direction to positive rates.</description></item>
         /// <item><description>The values specified in <see cref="AxisRates" /> are absolute, unsigned values and apply to both directions, determined by the sign used in this command.</description></item>
-        /// <item><description>MoveAxis can be used to simulate a hand-box by initiating motion with the MouseDown event and stopping the motion with the MouseUp event.</description></item>
+        /// <item><description>The value of <see cref="Slewing" /> must be True if the telescope is moving about any of its axes as a result of this method being called. 
+        /// This can be used to simulate a handbox by initiating motion with the MouseDown event and stopping the motion with the MouseUp event.</description></item>
+        /// <item><description>When the motion is stopped by setting the rate to zero the scope will be set to the previous <see cref="TrackingRate" /> or to no movement, depending on the state of the <see cref="Tracking" /> property.</description></item>
         /// <item><description>It may be possible to implement satellite tracking by using the <see cref="MoveAxis" /> method to move the scope in the required manner to track a satellite.</description></item>
         /// </list>
         /// </para>
