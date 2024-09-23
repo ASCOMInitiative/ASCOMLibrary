@@ -2,8 +2,8 @@
 <topic id="cf197185-7fa2-4b56-bb1a-75aaebd459bb" revisionNumber="1">
 	<developerConceptualDocument xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5" xmlns:xlink="http://www.w3.org/1999/xlink">
 		<introduction></introduction>
-		<section address="v2.0.0">
-			<title>Version 2.0.0</title>
+		<section address="v2.0.1">
+			<title>Version 2.0.1 - Supports Platform 7</title>
 			<content>
 				<list class="bullet">
 					<listItem>

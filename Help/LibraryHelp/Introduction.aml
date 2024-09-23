@@ -63,7 +63,7 @@
 								New ILogger logging framework including a built in console logger
 							</listItem>
 							<listItem>
-								SOFA component, functionally equivalent to the Platform's SOFA component
+								SOFA, NOVAS and NOVASCOM components, functionally equivalent to the Platform versions
 							</listItem>
 							<listItem>
 								Transform component, functionally equivalent to the Platform's Transform component
