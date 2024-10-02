@@ -125,7 +125,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                bool response = DynamicClientDriver.GetValue<bool>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "Connected", MemberTypes.Property);
+                bool response = DynamicClientDriver.GetValue<bool>(clientNumber, client, establishConnectionTimeout, URIBase, strictCasing, logger, "Connected", MemberTypes.Property);
                 LogMessage(logger, clientNumber, "Connected", response.ToString());
                 return response;
             }
@@ -222,7 +222,7 @@ namespace ASCOM.Alpaca.Clients
             if (DeviceCapabilities.HasConnectAndDeviceState(clientDeviceType, InterfaceVersion))
             {
                 // Platform 7 or later device so use the device's Connect method
-                DynamicClientDriver.CallMethodWithNoParameters(clientNumber, client, longDeviceResponseTimeout, URIBase, strictCasing, logger, "Connect", MemberTypes.Method);
+                DynamicClientDriver.CallMethodWithNoParameters(clientNumber, client, establishConnectionTimeout, URIBase, strictCasing, logger, "Connect", MemberTypes.Method);
                 return;
             }
 
@@ -237,7 +237,7 @@ namespace ASCOM.Alpaca.Clients
             if (DeviceCapabilities.HasConnectAndDeviceState(clientDeviceType, InterfaceVersion))
             {
                 // Platform 7 or later device so use the device's Disconnect method
-                DynamicClientDriver.CallMethodWithNoParameters(clientNumber, client, longDeviceResponseTimeout, URIBase, strictCasing, logger, "Disconnect", MemberTypes.Method);
+                DynamicClientDriver.CallMethodWithNoParameters(clientNumber, client, establishConnectionTimeout, URIBase, strictCasing, logger, "Disconnect", MemberTypes.Method);
                 return;
             }
 
@@ -254,7 +254,7 @@ namespace ASCOM.Alpaca.Clients
                 if (DeviceCapabilities.HasConnectAndDeviceState(clientDeviceType, InterfaceVersion))
                 {
                     // Platform 7 or later device so return the device's Connecting property
-                    return DynamicClientDriver.GetValue<bool>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "Connecting", MemberTypes.Property);
+                    return DynamicClientDriver.GetValue<bool>(clientNumber, client, establishConnectionTimeout, URIBase, strictCasing, logger, "Connecting", MemberTypes.Property);
                 }
 
                 // Always return false for Platform 6 and earlier devices

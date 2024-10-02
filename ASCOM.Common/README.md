@@ -11,6 +11,7 @@ This release supports the interface updates introduced in ASCOM Platform 7.
 * **ASCOM.Common.Interfaces** - Interfaces for library functions.
 
 # Version History
+The version history only contains entries when a change is made, if a release version is not listed below, there was no change to this component in that release.
 
 ***Release 2.0.0***
 * No change.

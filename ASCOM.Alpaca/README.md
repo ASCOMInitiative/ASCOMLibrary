@@ -14,9 +14,14 @@ Please note that you will need to add this PropertyGroup to .NET projects that t
 This may also be the case for projects that target IOS, but has not yet been confirmed.
 
 # Version History
+The version history only contains entries when a change is made, if a release version is not listed below, there was no change to this component in that release.
 
-***Release 2.0.0***
-* Alpaca Clients - Fix bug where the remote device number was not set correctly when changed through the ClientConfiguration class.
+***Release 2.0.2***
+* Change the timeout used for Connected-GET, Connecting, Connect() and Disconnect() from the standard timeout to the establish communications timeout, which is 
+usually shorter and facilitates quicker return to the client when the Alpaca device cannot be reached.
+
+* ***Release 2.0.0***
+* Fix bug where the remote device number was not set correctly when changed through the ClientConfiguration class.
 
 ***Release 2.0.0-rc.28***
 * No change.

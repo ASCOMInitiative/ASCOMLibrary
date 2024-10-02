@@ -26,6 +26,7 @@ routines that are available in standard .NET namespaces.
 * Novas is a cross platform release of the ASCOM Platform's NOVAS3.1 component.
 
 # Version History
+The version history only contains entries when a change is made, if a release version is not listed below, there was no change to this component in that release.
 
 ***Release 2.0.0***
 * No change.
