@@ -16,6 +16,11 @@ This may also be the case for projects that target IOS, but has not yet been con
 # Version History
 The version history only contains entries when a change is made, if a release version is not listed below, there was no change to this component in that release.
 
+***Release 2.0.3***
+* Some applications call InterfaceVersion before connecting, hence changing the timeout used for InterfaceVersion-GET from the standard timeout to the establish communications timeout, which is 
+usually shorter and facilitates quicker return to the client when the Alpaca device cannot be reached.
+* Reduced the delay between communications error retries from 1.0 second to 0.1 seconds.
+
 ***Release 2.0.2***
 * Change the timeout used for Connected-GET, Connecting, Connect() and Disconnect() from the standard timeout to the establish communications timeout, which is 
 usually shorter and facilitates quicker return to the client when the Alpaca device cannot be reached.

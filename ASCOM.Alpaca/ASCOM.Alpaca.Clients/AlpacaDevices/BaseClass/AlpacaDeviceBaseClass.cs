@@ -183,7 +183,7 @@ namespace ASCOM.Alpaca.Clients
                 // Test whether the interface version has already been retrieved
                 if (!interfaceVersion.HasValue) // This is the first time the method has been called so get the interface version number from the driver and cache it
                 {
-                    try { interfaceVersion = DynamicClientDriver.InterfaceVersion(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger); } // Get the interface version
+                    try { interfaceVersion = DynamicClientDriver.InterfaceVersion(clientNumber, client, establishConnectionTimeout, URIBase, strictCasing, logger); } // Get the interface version
                     catch { interfaceVersion = 1; } // The method failed so assume that the driver has a version 1 interface where the InterfaceVersion method is not implemented
                 }
 

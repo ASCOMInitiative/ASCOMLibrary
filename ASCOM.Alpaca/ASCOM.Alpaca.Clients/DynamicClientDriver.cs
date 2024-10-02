@@ -35,8 +35,8 @@ namespace ASCOM.Alpaca.Clients
         private const ImageArrayTransferType IMAGE_ARRAY_TRANSFER_TYPE_DEFAULT = ImageArrayTransferType.Base64HandOff;
 
         // Dynamic client configuration constants
-        private const int SOCKET_ERROR_MAXIMUM_RETRIES = 2; // The number of retries that the client will make when it receives a socket actively refused error from the remote device
-        private const int SOCKET_ERROR_RETRY_DELAY_TIME = 1000; // The delay time (milliseconds) between socket actively refused retries
+        private const int SOCKET_ERROR_MAXIMUM_RETRIES = 1; // The number of retries that the client will make when it receives a socket actively refused error from the remote device
+        private const int SOCKET_ERROR_RETRY_DELAY_TIME = 100; // The delay time (milliseconds) between socket actively refused retries
         private const string CONTENT_TYPE_HEADER_NAME = "Content-Type"; // Name of HTTP header used to affirm the type of data returned by the device
 
         //Private variables
