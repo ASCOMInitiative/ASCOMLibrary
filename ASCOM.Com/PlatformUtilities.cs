@@ -7,6 +7,8 @@ using System.Threading;
 using System.IO;
 using static System.Environment;
 using ASCOM.Common;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace ASCOM.Com
 {
@@ -364,6 +366,82 @@ namespace ASCOM.Com
 
             // Return the new ProgID
             return newProgId;
+        }
+
+        #endregion
+
+        #region OS Support
+
+        /// <summary>
+        /// Returns the Microsoft OS build name based on the build number stored in the Windows registry
+        /// </summary>
+        /// <remarks>
+        /// This function only works on Microsoft operating systems. If you need this function on a non-Windows OS, use <see cref="OSBuildName(int)"/> instead and supply the build number as a parameter.
+        /// </remarks>
+        /// <returns></returns>
+        public static string OSBuildName()
+        {
+            try
+            {
+                // Open the OS version registry key
+                using (RegistryKey regKey = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows NT\CurrentVersion"))
+                {
+                    // Get the OS build number
+                    int currentBuildNumber = Int32.Parse(regKey.GetValue("currentBuildNumber", "0").ToString());
+                    return OSBuildName(currentBuildNumber);
+                }
+            }
+            catch (Exception ex)
+            {
+                return $"ASCOMLibrary.Tools.Utilities.OSBuildName - Exception occurred: {ex.Message}";
+            }
+        }
+
+        /// <summary>
+        /// Returns the Microsoft Windows OS build name based on the supplied build number
+        /// </summary>
+        /// <param name="buildNumber">The integer Windows build number for which a descriptive OS name is required.</param>
+        /// <remarks></remarks>
+        /// <returns>The descriptive name of the operating system e.g. Windows 11 (24H2).</returns>
+        public static string OSBuildName(int buildNumber)
+        {
+            Dictionary<int, string> osBuildNames = new Dictionary<int, string>()
+            {
+                { 19041, "Windows 10 (2004)" },
+                { 19042, "Windows 10 (20H2)" },
+                { 19043, "Windows 10 (21H1)" },
+                { 19044, "Windows 10 (21H2)" },
+                { 19045, "Windows 10 (22H2)" },
+                { 22000, "Windows 11 (21H2)" },
+                { 22621, "Windows 11 (22H2)" },
+                { 22631, "Windows 11 (23H2)" },
+                { 26100, "Windows 11 (24H2)" }
+            };
+
+            try
+            {
+                // Use the build number to determine the OS name - Select the appropriate OS product label based on the build number
+                if (osBuildNames.ContainsKey(buildNumber)) // This is a recognised build number
+                    return osBuildNames[buildNumber];
+
+                if (buildNumber == 0) // Something probably went wrong
+                    return "Unknown OS version (0)";
+
+                if ((buildNumber > 0) & (buildNumber < 10000))
+                    return "Earlier than Windows 10 (build < 10000)";
+
+                if ((buildNumber >= 10000) & (buildNumber < 19041))
+                    return $"Windows 10 (build {buildNumber})";
+
+                if (buildNumber > osBuildNames.Keys.Max())
+                    return "Windows 11 (later than 24H2)";
+
+                return $"ASCOMLibrary.OSBuildName - Unknown OS build number: {buildNumber}";
+            }
+            catch (Exception ex)
+            {
+                return $"ASCOMLibrary.OSBuildName - Exception: {ex.Message}";
+            }
         }
 
         #endregion

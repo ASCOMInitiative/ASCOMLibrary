@@ -895,7 +895,7 @@ namespace ASCOM.Alpaca.Clients
                                     else if (ascomCOMErrorNumber == ASCOM.ErrorCodes.NotImplemented) // Handle PropertyNotImplementedException and MethodNotImplementedException (both have the same error code)
                                     {
                                         AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"Alpaca member not implemented error, throwing NotImplementedException - ErrorMessage: \"{errorResponse.ErrorMessage}\", ErrorNumber: 0x{ascomCOMErrorNumber:X8}");
-                                        throw new NotImplementedException(errorResponse.ErrorMessage);
+                                        throw new NotImplementedException(method, errorResponse.ErrorMessage, null);
                                     }
                                     else if (ascomCOMErrorNumber == ASCOM.ErrorCodes.OperationCancelled) // Handle OperationCancelledException
                                     {

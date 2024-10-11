@@ -39,7 +39,7 @@ Includes support for the interface updates introduced in ASCOM Platform 7.</Desc
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="ASCOM.Exception.Library" Version="7.0.0" />
+		<PackageReference Include="ASCOM.Exception.Library" Version="7.0.1" />
 		<PackageReference Include="System.Text.Json" Version="8.0.5" />
 	</ItemGroup>
 
