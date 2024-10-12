@@ -378,7 +378,7 @@ namespace ASCOM.Com
         /// <remarks>
         /// This function only works on Microsoft operating systems. If you need this function on a non-Windows OS, use <see cref="OSBuildName(int)"/> instead and supply the build number as a parameter.
         /// </remarks>
-        /// <returns></returns>
+        /// <returns>The descriptive name of the operating system e.g. Windows 11 (24H2).</returns>
         public static string OSBuildName()
         {
             try
