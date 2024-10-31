@@ -2,6 +2,42 @@
 <topic id="cf197185-7fa2-4b56-bb1a-75aaebd459bb" revisionNumber="1">
 	<developerConceptualDocument xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5" xmlns:xlink="http://www.w3.org/1999/xlink">
 		<introduction></introduction>
+		<section address="v2.0.6">
+			<title>Version 2.0.6</title>
+			<content>
+				<list class="bullet">
+					<listItem>
+						<para>
+							Alpaca Clients - Change the timeout used for Connected-GET, Connecting, Connect() and Disconnect() from the standard timeout to the establish communications timeout,
+							which is usually shorter and facilitates quicker return to the client when the Alpaca device cannot be reached.
+						</para>
+					</listItem>
+					<listItem>
+						<para>
+							Alpaca Clients - Make InterfaceVersion use the establish communications retry interval because some applications call this before trying to connect. 
+							Change the delay between communications retries from 1.0 second to 0.1 seconds and reduce the number of socket error re-trys to 1 to speed up the process when the device cannot be reached.
+						</para>
+					</listItem>
+					<listItem>
+						<para>
+							Alpaca Clients - Fix cosmetic issue in exception messages when reporting not implemented exceptions. Previously the exception added extraneous "is not implemented" text to the supplied message.
+						</para>
+					</listItem>
+					<listItem>
+						<para>
+							Asynchronous method extensions - Fixed an issue where ConnectAsync and DisconnectAsync caused "member not found" exceptions when used with Platform 6 devices. 
+							These methods now require the device type and device interface version to determine whether to use the Platform 6 or Platform 7 connection mechanic.
+						</para>
+					</listItem>
+					<listItem>
+						<para>
+							Platform Utilities - Added the OSBuildName function to return the descriptive name of the operating system e.g. Windows 11 (24H2).
+						</para>
+					</listItem>
+				</list>
+			</content>
+		</section>
+
 		<section address="v2.0.1">
 			<title>Version 2.0.1 - Supports Platform 7</title>
 			<content>

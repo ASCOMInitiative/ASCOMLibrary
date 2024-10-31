@@ -18,9 +18,9 @@ namespace ASCOM.Alpaca.Tests.Clients
         // private readonly ITestOutputHelper output = output;
 
         [Fact]
-        public static async Task ConnectTest()
+        public static async Task ConnectTestPlatform7()
         {
-            TraceLogger TL = new("ConnectTest", true, 64, LogLevel.Debug);
+            TraceLogger TL = new("ConnectTest7", true, 64, LogLevel.Debug);
 
             // Create a task completion source and token so that the task can be cancelled
             CancellationTokenSource cancellationTokenSource = new();
@@ -37,7 +37,7 @@ namespace ASCOM.Alpaca.Tests.Clients
 
             // Connect asynchronously
             TL.LogMessage("Main", $"Connecting to device...");
-            await client.ConnectAsync();
+            await client.ConnectAsync(DeviceTypes.Camera, client.InterfaceVersion, logger: TL);
             TL.LogMessage("Main", $"Connection complete");
 
             // Confirm, that the device is connected
@@ -51,9 +51,42 @@ namespace ASCOM.Alpaca.Tests.Clients
         }
 
         [Fact]
-        public static async Task DisconnectTest()
+        public static async Task ConnectTestPlatform6()
         {
-            TraceLogger TL = new("DisconnectTest", true, 64, LogLevel.Debug);
+            TraceLogger TL = new("ConnectTest6", true, 64, LogLevel.Debug);
+
+            // Create a task completion source and token so that the task can be cancelled
+            CancellationTokenSource cancellationTokenSource = new();
+            CancellationToken cancellationToken = cancellationTokenSource.Token;
+
+            // Create a COM client
+            TL.LogMessage("Main", $"About to create device");
+            Camera client = new("ASCOM.Simulator.Camera");
+            TL.LogMessage("Main", $"Device created");
+
+            // Confirm that the device was created and is not connected
+            Assert.NotNull(client);
+            Assert.False(client.Connected);
+
+            // Connect asynchronously
+            TL.LogMessage("Main", $"Connecting to device...");
+            await client.ConnectAsync(DeviceTypes.Camera, client.InterfaceVersion - 1, logger: TL);
+            TL.LogMessage("Main", $"Connection complete");
+
+            // Confirm, that the device is connected
+            Assert.True(client.Connected);
+            TL.LogMessage("Main", $"Connected OK");
+
+            // Disconnect from the client and dispose
+            client.Connected = false;
+            client.Dispose();
+            TL.LogMessage("Main", $"Finished");
+        }
+
+        [Fact]
+        public static async Task DisconnectTest7()
+        {
+            TraceLogger TL = new("DisconnectTest7", true, 64, LogLevel.Debug);
 
             // Create a task completion source and token so that the task can be cancelled
             CancellationTokenSource cancellationTokenSource = new();
@@ -70,12 +103,50 @@ namespace ASCOM.Alpaca.Tests.Clients
 
             // Connect to the device
             TL.LogMessage("Main", $"Connecting to device...");
-            client.Connected= true;
+            client.Connected = true;
             TL.LogMessage("Main", $"Connection complete");
 
             // Disconnect asynchronously
             TL.LogMessage("Main", $"Disconnecting from device...");
-            await client.DisconnectAsync();
+            await client.DisconnectAsync(DeviceTypes.Camera, client.InterfaceVersion, logger: TL);
+            TL.LogMessage("Main", $"Disconnection complete");
+
+            // Confirm, that the device is disconnected
+            Assert.False(client.Connected);
+            TL.LogMessage("Main", $"Disconnected OK");
+
+            // Disconnect from the client and dispose
+            client.Connected = false;
+            client.Dispose();
+            TL.LogMessage("Main", $"Finished");
+        }
+
+        [Fact]
+        public static async Task DisconnectTest6()
+        {
+            TraceLogger TL = new("DisconnectTest6", true, 64, LogLevel.Debug);
+
+            // Create a task completion source and token so that the task can be cancelled
+            CancellationTokenSource cancellationTokenSource = new();
+            CancellationToken cancellationToken = cancellationTokenSource.Token;
+
+            // Create a COM client
+            TL.LogMessage("Main", $"About to create device");
+            Camera client = new("ASCOM.Simulator.Camera");
+            TL.LogMessage("Main", $"Device created");
+
+            // Confirm that the device was created and is not connected
+            Assert.NotNull(client);
+            Assert.False(client.Connected);
+
+            // Connect to the device
+            TL.LogMessage("Main", $"Connecting to device...");
+            client.Connected = true;
+            TL.LogMessage("Main", $"Connection complete");
+
+            // Disconnect asynchronously
+            TL.LogMessage("Main", $"Disconnecting from device...");
+            await client.DisconnectAsync(DeviceTypes.Camera, client.InterfaceVersion - 1, logger: TL);
             TL.LogMessage("Main", $"Disconnection complete");
 
             // Confirm, that the device is disconnected
@@ -541,7 +612,8 @@ namespace ASCOM.Alpaca.Tests.Clients
         public static async Task DomeAbortShutterOpenTest()
         {
             // Create a TraceLogger to record activity
-            TraceLogger TL = new("DomeAbortShutterOpen", true, 64, LogLevel.Debug);
+            //TraceLogger TL = new("DomeAbortShutterOpen", true, 64, LogLevel.Debug);
+            TraceLogger TL = new("DomeAbortShutterOpen", true, 64, LogLevel.Information);
 
             // Create a COM client
             TL.LogMessage("Main", $"About to create device");
@@ -683,7 +755,7 @@ namespace ASCOM.Alpaca.Tests.Clients
 
             // Get the number of configured filters
             int highestFilterNumber = client.FocusOffsets.Length - 1; // Filter numbers start at 0
-            // Test Position highest filter wheel position
+                                                                      // Test Position highest filter wheel position
             TL.LogMessage("Main", $"About to await setting Position {highestFilterNumber} ");
             await client.PositionSetAsync(highestFilterNumber, pollInterval: 100, logger: TL);
             TL.LogMessage("Main", $"Await complete, Position: {client.Position}");

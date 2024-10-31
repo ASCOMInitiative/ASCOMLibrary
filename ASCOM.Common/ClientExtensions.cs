@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Threading;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using ASCOM.Common.Alpaca;
 
 namespace ASCOM.Common
 {
@@ -21,25 +22,32 @@ namespace ASCOM.Common
         /// Returns an awaitable, running, <see cref="Task"/> that connects to the device. (Polls IAscomDeviceV2.Connecting)
         /// </summary>
         /// <param name="device">A device that implements IAscomDeviceV2.</param>
+        /// <param name="deviceType">The device type</param>
+        /// <param name="interfaceVersion">The device's interface version</param>
         /// <param name="cancellationToken">Cancellation token - Default: <see cref="CancellationToken.None"/></param>
         /// <param name="pollInterval">Interval between polls of the completion variable (milliseconds) - Default: 1000 milliseconds.</param>
         /// <param name="logger">ILogger instance that will receive operation messages from the method - Default: No logger</param>
         /// <returns>Awaitable task that ends when the device has connected.</returns>
         /// <remarks>
-        /// <para>Initiator: <see cref="IAscomDeviceV2.Connect"/></para>
-        /// <para>Complete when: <see cref="IAscomDeviceV2.Connecting"/> is  False </para>
-        /// <para>Only available for IAscomDeviceV2 and later interfaces.</para>
+        /// <para>Works with both Platform 6 and Platform 7 interfaces.</para>
+        /// <para>Platform 7 Initiator: <see cref="IAscomDeviceV2.Connect"/> - Complete when: <see cref="IAscomDeviceV2.Connecting"/> is  <see langword="false"/></para>
+        /// <para>Platform 6 Initiator: <see cref="IAscomDevice.Connected"/> = <see langword="true"/> - Complete when: <see cref="IAscomDevice.Connected" /> is  <see langword="true"/></para>
+        /// <para>The device type and interface version parameters are required in order to handle both Platform 6 interface devices that use the <see cref="IAscomDevice.Connected"/> property and
+        /// Platform 7 interface devices that use the <see cref="IAscomDeviceV2.Connect"/> and <see cref="IAscomDeviceV2.Disconnect"/>methods.</para>
         /// </remarks>
-        public static async Task ConnectAsync(this IAscomDeviceV2 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
+        public static async Task ConnectAsync(this IAscomDeviceV2 device, DeviceTypes deviceType, int interfaceVersion, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
             Task processTask = null;
-            string callingMethodName = $"[Lib].{GetCurrentMethod()}";
+            string callingMethodName = GetCurrentMethod();
 
             await Task.Run(() =>
             {
                 processTask = Task.Run(() =>
                 {
-                    ProcessTask(() => { device.Connect(); }, () => { return device.Connecting; }, pollInterval, cancellationToken, logger, $"{nameof(IAscomDeviceV2)}.{nameof(ConnectAsync)}");
+                    if (DeviceCapabilities.HasConnectAndDeviceState(deviceType, interfaceVersion))
+                        ProcessTask(() => { device.Connect(); }, () => { return device.Connecting; }, pollInterval, cancellationToken, logger, $"{callingMethodName} (Platform 7)");
+                    else
+                        ProcessTask(() => { device.Connected = true; }, () => { return device.Connected == false; }, pollInterval, cancellationToken, logger, $"{callingMethodName} (Platform 6)");
                 });
 
                 WaitForProcessTask(processTask, logger, callingMethodName, cancellationToken);
@@ -52,25 +60,32 @@ namespace ASCOM.Common
         /// Returns an awaitable, running, <see cref="Task"/> that disconnects from the device. (Polls IAscomDeviceV2.Connecting)
         /// </summary>
         /// <param name="device">A device that implements IAscomDeviceV2.</param>
+        /// <param name="deviceType">The device type</param>
+        /// <param name="interfaceVersion">The device's interface version</param>
         /// <param name="cancellationToken">Cancellation token - Default: <see cref="CancellationToken.None"/></param>
         /// <param name="pollInterval">Interval between polls of the completion variable (milliseconds) - Default: 1000 milliseconds.</param>
         /// <param name="logger">ILogger instance that will receive operation messages from the method - Default: No logger</param>
-        /// <returns>Awaitable task that ends when the device has dis connected.</returns>
+        /// <returns>Awaitable task that ends when the device has disconnected.</returns>
         /// <remarks>
-        /// <para>Initiator: <see cref="IAscomDeviceV2.Disconnect"/></para>
-        /// <para>Complete when: <see cref="IAscomDeviceV2.Connecting"/> is  False </para>
-        /// <para>Only available for IAscomDeviceV2 and later interfaces.</para>
+        /// <para>Works with both Platform 6 and Platform 7 interfaces.</para>
+        /// <para>Platform 7 Initiator: <see cref="IAscomDeviceV2.Disconnect"/> - Complete when: <see cref="IAscomDeviceV2.Connecting"/> is  <see langword="false"/></para>
+        /// <para>Platform 6 Initiator: <see cref="IAscomDevice.Connected"/> = <see langword="false"/> - Complete when: <see cref="IAscomDevice.Connected" /> is  <see langword="false"/></para>
+        /// <para>The device type and interface version parameters are required in order to handle both Platform 6 interface devices that use the <see cref="IAscomDevice.Connected"/> property and
+        /// Platform 7 interface devices that use the <see cref="IAscomDeviceV2.Connect"/> and <see cref="IAscomDeviceV2.Disconnect"/>methods.</para>
         /// </remarks>
-        public static async Task DisconnectAsync(this IAscomDeviceV2 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
+        public static async Task DisconnectAsync(this IAscomDeviceV2 device, DeviceTypes deviceType, int interfaceVersion, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
             Task processTask = null;
-            string callingMethodName = $"[Lib].{GetCurrentMethod()}";
+            string callingMethodName = GetCurrentMethod();
 
             await Task.Run(() =>
             {
                 processTask = Task.Run(() =>
                 {
-                    ProcessTask(() => { device.Disconnect(); }, () => { return device.Connecting; }, pollInterval, cancellationToken, logger, $"{nameof(IAscomDeviceV2)}.{nameof(DisconnectAsync)}");
+                    if (DeviceCapabilities.HasConnectAndDeviceState(deviceType, interfaceVersion))
+                        ProcessTask(() => { device.Disconnect(); }, () => { return device.Connecting; }, pollInterval, cancellationToken, logger, $"{callingMethodName} Platform 7");
+                    else
+                        ProcessTask(() => { device.Connected = false; }, () => { return device.Connected == true; }, pollInterval, cancellationToken, logger, $"{callingMethodName} (Platform 6)");
                 });
 
                 WaitForProcessTask(processTask, logger, callingMethodName, cancellationToken);
@@ -100,7 +115,7 @@ namespace ASCOM.Common
         public static async Task StartExposureAsync(this ICameraV3 device, double duration, bool light, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
             Task processTask = null;
-            string callingMethodName = $"[Lib].{GetCurrentMethod()}";
+            string callingMethodName = GetCurrentMethod();
 
             await Task.Run(() =>
             {
@@ -108,7 +123,7 @@ namespace ASCOM.Common
                 {
                     ProcessTask(() => { device.StartExposure(duration, light); }, () =>
                         { return (device.CameraState == CameraState.Waiting) | (device.CameraState == CameraState.Exposing) | (device.CameraState == CameraState.Reading); },
-                        pollInterval, cancellationToken, logger, $"{nameof(ICameraV3)}.{nameof(StartExposureAsync)}");
+                        pollInterval, cancellationToken, logger, callingMethodName);
                 });
 
                 WaitForProcessTask(processTask, logger, callingMethodName, cancellationToken);
@@ -132,7 +147,7 @@ namespace ASCOM.Common
         public static async Task StopExposureAsync(this ICameraV3 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
             Task processTask = null;
-            string callingMethodName = $"[Lib].{GetCurrentMethod()}";
+            string callingMethodName = GetCurrentMethod();
 
             await Task.Run(() =>
             {
@@ -140,7 +155,7 @@ namespace ASCOM.Common
                 {
                     ProcessTask(() => { device.StopExposure(); }, () =>
                         { return (device.CameraState == CameraState.Reading) | (device.CameraState == CameraState.Exposing) | (device.CameraState == CameraState.Waiting); },
-                        pollInterval, cancellationToken, logger, $"{nameof(ICameraV3)}.{nameof(StopExposureAsync)}");
+                        pollInterval, cancellationToken, logger, callingMethodName);
                 });
 
                 WaitForProcessTask(processTask, logger, callingMethodName, cancellationToken);
@@ -168,13 +183,13 @@ namespace ASCOM.Common
         public static async Task CalibratorOffAsync(this ICoverCalibratorV1 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
             Task processTask = null;
-            string callingMethodName = $"[Lib].{GetCurrentMethod()}";
+            string callingMethodName = GetCurrentMethod();
 
             await Task.Run(() =>
             {
                 processTask = Task.Run(() =>
                 {
-                    ProcessTask(() => { device.CalibratorOff(); }, () => { return device.CalibratorState == CalibratorStatus.NotReady; }, pollInterval, cancellationToken, logger, $"{nameof(ICoverCalibratorV1)}.{nameof(CalibratorOffAsync)}");
+                    ProcessTask(() => { device.CalibratorOff(); }, () => { return device.CalibratorState == CalibratorStatus.NotReady; }, pollInterval, cancellationToken, logger, callingMethodName);
                 });
 
                 WaitForProcessTask(processTask, logger, callingMethodName, cancellationToken);
@@ -199,13 +214,13 @@ namespace ASCOM.Common
         public static async Task CalibratorOnAsync(this ICoverCalibratorV1 device, int brightness, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
             Task processTask = null;
-            string callingMethodName = $"[Lib].{GetCurrentMethod()}";
+            string callingMethodName = GetCurrentMethod();
 
             await Task.Run(() =>
             {
                 processTask = Task.Run(() =>
                 {
-                    ProcessTask(() => { device.CalibratorOn(brightness); }, () => { return device.CalibratorState == CalibratorStatus.NotReady; }, pollInterval, cancellationToken, logger, $"{nameof(ICoverCalibratorV1)}.{nameof(CalibratorOnAsync)}");
+                    ProcessTask(() => { device.CalibratorOn(brightness); }, () => { return device.CalibratorState == CalibratorStatus.NotReady; }, pollInterval, cancellationToken, logger, callingMethodName);
                 });
 
                 WaitForProcessTask(processTask, logger, callingMethodName, cancellationToken);
@@ -229,13 +244,13 @@ namespace ASCOM.Common
         public static async Task CloseCoverAsync(this ICoverCalibratorV1 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
             Task processTask = null;
-            string callingMethodName = $"[Lib].{GetCurrentMethod()}";
+            string callingMethodName = GetCurrentMethod();
 
             await Task.Run(() =>
             {
                 processTask = Task.Run(() =>
                 {
-                    ProcessTask(() => { device.CloseCover(); }, () => { return (device.CoverState == CoverStatus.Moving) | (device.CoverState == CoverStatus.Open); }, pollInterval, cancellationToken, logger, $"{nameof(ICoverCalibratorV1)}.{nameof(CloseCoverAsync)}");
+                    ProcessTask(() => { device.CloseCover(); }, () => { return (device.CoverState == CoverStatus.Moving) | (device.CoverState == CoverStatus.Open); }, pollInterval, cancellationToken, logger, callingMethodName);
                 });
 
                 WaitForProcessTask(processTask, logger, callingMethodName, cancellationToken);
@@ -259,13 +274,13 @@ namespace ASCOM.Common
         public static async Task HaltCoverAsync(this ICoverCalibratorV1 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
             Task processTask = null;
-            string callingMethodName = $"[Lib].{GetCurrentMethod()}";
+            string callingMethodName = GetCurrentMethod();
 
             await Task.Run(() =>
             {
                 processTask = Task.Run(() =>
                 {
-                    ProcessTask(() => { device.HaltCover(); }, () => { return device.CoverState == CoverStatus.Moving; }, pollInterval, cancellationToken, logger, $"{nameof(ICoverCalibratorV1)}.{nameof(HaltCoverAsync)}");
+                    ProcessTask(() => { device.HaltCover(); }, () => { return device.CoverState == CoverStatus.Moving; }, pollInterval, cancellationToken, logger, callingMethodName);
                 });
 
                 WaitForProcessTask(processTask, logger, callingMethodName, cancellationToken);
@@ -289,13 +304,13 @@ namespace ASCOM.Common
         public static async Task OpenCoverAsync(this ICoverCalibratorV1 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
             Task processTask = null;
-            string callingMethodName = $"[Lib].{GetCurrentMethod()}";
+            string callingMethodName = GetCurrentMethod();
 
             await Task.Run(() =>
             {
                 processTask = Task.Run(() =>
                 {
-                    ProcessTask(() => { device.OpenCover(); }, () => { return (device.CoverState == CoverStatus.Moving) | (device.CoverState == CoverStatus.Closed); }, pollInterval, cancellationToken, logger, $"{nameof(ICoverCalibratorV1)}.{nameof(OpenCoverAsync)}");
+                    ProcessTask(() => { device.OpenCover(); }, () => { return (device.CoverState == CoverStatus.Moving) | (device.CoverState == CoverStatus.Closed); }, pollInterval, cancellationToken, logger, callingMethodName);
                 });
 
                 WaitForProcessTask(processTask, logger, callingMethodName, cancellationToken);
@@ -323,13 +338,13 @@ namespace ASCOM.Common
         public static async Task AbortSlewAsync(this IDomeV2 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
             Task processTask = null;
-            string callingMethodName = $"[Lib].{GetCurrentMethod()}";
+            string callingMethodName = GetCurrentMethod();
 
             await Task.Run(() =>
             {
                 processTask = Task.Run(() =>
                 {
-                    ProcessTask(() => { device.AbortSlew(); }, () => { return device.Slewing | (device.ShutterStatus == ShutterState.Opening) | (device.ShutterStatus == ShutterState.Closing); }, pollInterval, cancellationToken, logger, $"{nameof(IDomeV2)}.{nameof(AbortSlewAsync)}");
+                    ProcessTask(() => { device.AbortSlew(); }, () => { return device.Slewing | (device.ShutterStatus == ShutterState.Opening) | (device.ShutterStatus == ShutterState.Closing); }, pollInterval, cancellationToken, logger, callingMethodName);
                 });
 
                 WaitForProcessTask(processTask, logger, callingMethodName, cancellationToken);
@@ -353,13 +368,13 @@ namespace ASCOM.Common
         public static async Task CloseShutterAsync(this IDomeV2 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
             Task processTask = null;
-            string callingMethodName = $"[Lib].{GetCurrentMethod()}";
+            string callingMethodName = GetCurrentMethod();
 
             await Task.Run(() =>
             {
                 processTask = Task.Run(() =>
                 {
-                    ProcessTask(() => { device.CloseShutter(); }, () => { return device.ShutterStatus == ShutterState.Closing; }, pollInterval, cancellationToken, logger, $"{nameof(IDomeV2)}.{nameof(CloseShutterAsync)}");
+                    ProcessTask(() => { device.CloseShutter(); }, () => { return device.ShutterStatus == ShutterState.Closing; }, pollInterval, cancellationToken, logger, callingMethodName);
                 });
 
                 WaitForProcessTask(processTask, logger, callingMethodName, cancellationToken);
@@ -383,13 +398,13 @@ namespace ASCOM.Common
         public static async Task FindHomeAsync(this IDomeV2 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
             Task processTask = null;
-            string callingMethodName = $"[Lib].{GetCurrentMethod()}";
+            string callingMethodName = GetCurrentMethod();
 
             await Task.Run(() =>
             {
                 processTask = Task.Run(() =>
                 {
-                    ProcessTask(() => { device.FindHome(); }, () => { return device.Slewing; }, pollInterval, cancellationToken, logger, $"{nameof(IDomeV2)}.{nameof(FindHomeAsync)}");
+                    ProcessTask(() => { device.FindHome(); }, () => { return device.Slewing; }, pollInterval, cancellationToken, logger, callingMethodName);
                 });
 
                 WaitForProcessTask(processTask, logger, callingMethodName, cancellationToken);
@@ -413,13 +428,13 @@ namespace ASCOM.Common
         public static async Task OpenShutterAsync(this IDomeV2 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
             Task processTask = null;
-            string callingMethodName = $"[Lib].{GetCurrentMethod()}";
+            string callingMethodName = GetCurrentMethod();
 
             await Task.Run(() =>
             {
                 processTask = Task.Run(() =>
                 {
-                    ProcessTask(() => { device.OpenShutter(); }, () => { return device.ShutterStatus == ShutterState.Opening; }, pollInterval, cancellationToken, logger, $"{nameof(IDomeV2)}.{nameof(OpenShutterAsync)}");
+                    ProcessTask(() => { device.OpenShutter(); }, () => { return device.ShutterStatus == ShutterState.Opening; }, pollInterval, cancellationToken, logger, callingMethodName);
                 });
 
                 WaitForProcessTask(processTask, logger, callingMethodName, cancellationToken);
@@ -443,13 +458,13 @@ namespace ASCOM.Common
         public static async Task ParkAsync(this IDomeV2 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
             Task processTask = null;
-            string callingMethodName = $"[Lib].{GetCurrentMethod()}";
+            string callingMethodName = GetCurrentMethod();
 
             await Task.Run(() =>
             {
                 processTask = Task.Run(() =>
                 {
-                    ProcessTask(() => { device.Park(); }, () => { return device.Slewing; }, pollInterval, cancellationToken, logger, $"{nameof(IDomeV2)}.{nameof(ParkAsync)}");
+                    ProcessTask(() => { device.Park(); }, () => { return device.Slewing; }, pollInterval, cancellationToken, logger, callingMethodName);
                 });
 
                 WaitForProcessTask(processTask, logger, callingMethodName, cancellationToken);
@@ -474,13 +489,13 @@ namespace ASCOM.Common
         public static async Task SlewToAltitudeAsync(this IDomeV2 device, double altitude, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
             Task processTask = null;
-            string callingMethodName = $"[Lib].{GetCurrentMethod()}";
+            string callingMethodName = GetCurrentMethod();
 
             await Task.Run(() =>
             {
                 processTask = Task.Run(() =>
                 {
-                    ProcessTask(() => { device.SlewToAltitude(altitude); }, () => { return device.Slewing; }, pollInterval, cancellationToken, logger, $"{nameof(IDomeV2)}.{nameof(SlewToAltitudeAsync)}");
+                    ProcessTask(() => { device.SlewToAltitude(altitude); }, () => { return device.Slewing; }, pollInterval, cancellationToken, logger, callingMethodName);
                 });
 
                 WaitForProcessTask(processTask, logger, callingMethodName, cancellationToken);
@@ -505,13 +520,13 @@ namespace ASCOM.Common
         public static async Task SlewToAzimuthAsync(this IDomeV2 device, double azimuth, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
             Task processTask = null;
-            string callingMethodName = $"[Lib].{GetCurrentMethod()}";
+            string callingMethodName = GetCurrentMethod();
 
             await Task.Run(() =>
             {
                 processTask = Task.Run(() =>
                 {
-                    ProcessTask(() => { device.SlewToAzimuth(azimuth); }, () => { return device.Slewing; }, pollInterval, cancellationToken, logger, $"{nameof(IDomeV2)}.{nameof(SlewToAzimuthAsync)}");
+                    ProcessTask(() => { device.SlewToAzimuth(azimuth); }, () => { return device.Slewing; }, pollInterval, cancellationToken, logger, callingMethodName);
                 });
 
                 WaitForProcessTask(processTask, logger, callingMethodName, cancellationToken);
@@ -540,13 +555,13 @@ namespace ASCOM.Common
         public static async Task PositionSetAsync(this IFilterWheelV2 device, int position, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
             Task processTask = null;
-            string callingMethodName = $"[Lib].{GetCurrentMethod()}";
+            string callingMethodName = GetCurrentMethod();
 
             await Task.Run(() =>
             {
                 processTask = Task.Run(() =>
                 {
-                    ProcessTask(() => { device.Position = Convert.ToInt16(position); }, () => { return device.Position == -1; }, pollInterval, cancellationToken, logger, $"{nameof(IFilterWheelV2)}.{nameof(PositionSetAsync)}");
+                    ProcessTask(() => { device.Position = Convert.ToInt16(position); }, () => { return device.Position == -1; }, pollInterval, cancellationToken, logger, callingMethodName);
                 });
 
                 WaitForProcessTask(processTask, logger, callingMethodName, cancellationToken);
@@ -574,13 +589,13 @@ namespace ASCOM.Common
         public static async Task HaltAsync(this IFocuserV3 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
             Task processTask = null;
-            string callingMethodName = $"[Lib].{GetCurrentMethod()}";
+            string callingMethodName = GetCurrentMethod();
 
             await Task.Run(() =>
             {
                 processTask = Task.Run(() =>
                 {
-                    ProcessTask(() => { device.Halt(); }, () => { return device.IsMoving; }, pollInterval, cancellationToken, logger, $"{nameof(IFocuserV3)}.{nameof(HaltAsync)}", () => { return $"Position: {device.Position}"; });
+                    ProcessTask(() => { device.Halt(); }, () => { return device.IsMoving; }, pollInterval, cancellationToken, logger, callingMethodName, () => { return $"Position: {device.Position}"; });
                 });
 
                 WaitForProcessTask(processTask, logger, callingMethodName, cancellationToken);
@@ -605,13 +620,13 @@ namespace ASCOM.Common
         public static async Task MoveAsync(this IFocuserV3 device, int position, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
             Task processTask = null;
-            string callingMethodName = $"[Lib].{GetCurrentMethod()}";
+            string callingMethodName = GetCurrentMethod();
 
             await Task.Run(() =>
             {
                 processTask = Task.Run(() =>
                 {
-                    ProcessTask(() => { device.Move(position); }, () => { return device.IsMoving; }, pollInterval, cancellationToken, logger, $"{nameof(IFocuserV3)}.{nameof(MoveAsync)}", () => { return $"Position: {device.Position}"; });
+                    ProcessTask(() => { device.Move(position); }, () => { return device.IsMoving; }, pollInterval, cancellationToken, logger, callingMethodName, () => { return $"Position: {device.Position}"; });
                 });
 
                 WaitForProcessTask(processTask, logger, callingMethodName, cancellationToken);
@@ -645,13 +660,13 @@ namespace ASCOM.Common
         public static async Task HaltAsync(this IRotatorV3 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
             Task processTask = null;
-            string callingMethodName = $"[Lib].{GetCurrentMethod()}";
+            string callingMethodName = GetCurrentMethod();
 
             await Task.Run(() =>
             {
                 processTask = Task.Run(() =>
                 {
-                    ProcessTask(() => { device.Halt(); }, () => { return device.IsMoving; }, pollInterval, cancellationToken, logger, $"{nameof(IRotatorV3)}.{nameof(HaltAsync)}");
+                    ProcessTask(() => { device.Halt(); }, () => { return device.IsMoving; }, pollInterval, cancellationToken, logger, callingMethodName);
                 });
 
                 WaitForProcessTask(processTask, logger, callingMethodName, cancellationToken);
@@ -676,13 +691,13 @@ namespace ASCOM.Common
         public static async Task MoveAsync(this IRotatorV3 device, double position, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
             Task processTask = null;
-            string callingMethodName = $"[Lib].{GetCurrentMethod()}";
+            string callingMethodName = GetCurrentMethod();
 
             await Task.Run(() =>
             {
                 processTask = Task.Run(() =>
                 {
-                    ProcessTask(() => { device.Move(Convert.ToSingle(position)); }, () => { return device.IsMoving; }, pollInterval, cancellationToken, logger, $"{nameof(IRotatorV3)}.{nameof(MoveAsync)}", () => { return $"Position: {device.Position}"; });
+                    ProcessTask(() => { device.Move(Convert.ToSingle(position)); }, () => { return device.IsMoving; }, pollInterval, cancellationToken, logger, callingMethodName, () => { return $"Position: {device.Position}"; });
                 });
 
                 WaitForProcessTask(processTask, logger, callingMethodName, cancellationToken);
@@ -707,13 +722,13 @@ namespace ASCOM.Common
         public static async Task MoveAbsoluteAsync(this IRotatorV3 device, double position, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
             Task processTask = null;
-            string callingMethodName = $"[Lib].{GetCurrentMethod()}";
+            string callingMethodName = GetCurrentMethod();
 
             await Task.Run(() =>
             {
                 processTask = Task.Run(() =>
                 {
-                    ProcessTask(() => { device.MoveAbsolute(Convert.ToSingle(position)); }, () => { return device.IsMoving; }, pollInterval, cancellationToken, logger, $"{nameof(IRotatorV3)}.{nameof(MoveAbsoluteAsync)}", () => { return $"Position: {device.Position}"; });
+                    ProcessTask(() => { device.MoveAbsolute(Convert.ToSingle(position)); }, () => { return device.IsMoving; }, pollInterval, cancellationToken, logger, callingMethodName, () => { return $"Position: {device.Position}"; });
                 });
 
                 WaitForProcessTask(processTask, logger, callingMethodName, cancellationToken);
@@ -738,13 +753,13 @@ namespace ASCOM.Common
         public static async Task MoveMechanicalAsync(this IRotatorV3 device, double position, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
             Task processTask = null;
-            string callingMethodName = $"[Lib].{GetCurrentMethod()}";
+            string callingMethodName = GetCurrentMethod();
 
             await Task.Run(() =>
             {
                 processTask = Task.Run(() =>
                 {
-                    ProcessTask(() => { device.MoveMechanical(Convert.ToSingle(position)); }, () => { return device.IsMoving; }, pollInterval, cancellationToken, logger, $"{nameof(IRotatorV3)}.{nameof(MoveMechanicalAsync)}", () => { return $"Position: {device.Position}, Mechanical position: {device.MechanicalPosition}"; });
+                    ProcessTask(() => { device.MoveMechanical(Convert.ToSingle(position)); }, () => { return device.IsMoving; }, pollInterval, cancellationToken, logger, callingMethodName, () => { return $"Position: {device.Position}, Mechanical position: {device.MechanicalPosition}"; });
                 });
 
                 WaitForProcessTask(processTask, logger, callingMethodName, cancellationToken);
@@ -781,13 +796,13 @@ namespace ASCOM.Common
         public static async Task SetAsync(this ISwitchV3 device, short id, bool state, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
             Task processTask = null;
-            string callingMethodName = $"[Lib].{GetCurrentMethod()}";
+            string callingMethodName = GetCurrentMethod();
 
             await Task.Run(() =>
             {
                 processTask = Task.Run(() =>
                 {
-                    ProcessTask(() => { device.SetAsync(id, state); }, () => { return !device.StateChangeComplete(id); }, pollInterval, cancellationToken, logger, $"{nameof(ISwitchV3)}.{nameof(SetAsync)}", () => { return $"State is changing: {!device.StateChangeComplete(id)}"; });
+                    ProcessTask(() => { device.SetAsync(id, state); }, () => { return !device.StateChangeComplete(id); }, pollInterval, cancellationToken, logger, callingMethodName, () => { return $"State is changing: {!device.StateChangeComplete(id)}"; });
                 });
 
                 WaitForProcessTask(processTask, logger, callingMethodName, cancellationToken);
@@ -814,13 +829,13 @@ namespace ASCOM.Common
         public static async Task SetAsyncValue(this ISwitchV3 device, short id, double value, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
             Task processTask = null;
-            string callingMethodName = $"[Lib].{GetCurrentMethod()}";
+            string callingMethodName = GetCurrentMethod();
 
             await Task.Run(() =>
             {
                 processTask = Task.Run(() =>
                 {
-                    ProcessTask(() => { device.SetAsyncValue(id, value); }, () => { return !device.StateChangeComplete(id); }, pollInterval, cancellationToken, logger, $"{nameof(ISwitchV3)}.{nameof(SetAsync)}", () => { return $"State is changing: {!device.StateChangeComplete(id)}"; });
+                    ProcessTask(() => { device.SetAsyncValue(id, value); }, () => { return !device.StateChangeComplete(id); }, pollInterval, cancellationToken, logger, callingMethodName, () => { return $"State is changing: {!device.StateChangeComplete(id)}"; });
                 });
 
                 WaitForProcessTask(processTask, logger, callingMethodName, cancellationToken);
@@ -850,13 +865,13 @@ namespace ASCOM.Common
         public static async Task SlewToAltAzTaskAsync(this ITelescopeV3 device, double azimuth, double altitude, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
             Task processTask = null;
-            string callingMethodName = $"[Lib].{GetCurrentMethod()}";
+            string callingMethodName = GetCurrentMethod();
 
             await Task.Run(() =>
             {
                 processTask = Task.Run(() =>
                 {
-                    ProcessTask(() => { device.SlewToAltAzAsync(azimuth, altitude); }, () => { return device.Slewing; }, pollInterval, cancellationToken, logger, $"{nameof(ITelescopeV3)}.{nameof(SlewToAltAzTaskAsync)}", () => { return $"Altitude: {device.Altitude}, Azimuth: {device.Azimuth}"; });
+                    ProcessTask(() => { device.SlewToAltAzAsync(azimuth, altitude); }, () => { return device.Slewing; }, pollInterval, cancellationToken, logger, callingMethodName, () => { return $"Altitude: {device.Altitude}, Azimuth: {device.Azimuth}"; });
                 });
 
                 WaitForProcessTask(processTask, logger, callingMethodName, cancellationToken);
@@ -882,13 +897,13 @@ namespace ASCOM.Common
         public static async Task SlewToCoordinatesTaskAsync(this ITelescopeV3 device, double rightAscension, double declination, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
             Task processTask = null;
-            string callingMethodName = $"[Lib].{GetCurrentMethod()}";
+            string callingMethodName = GetCurrentMethod();
 
             await Task.Run(() =>
             {
                 processTask = Task.Run(() =>
                 {
-                    ProcessTask(() => { device.SlewToCoordinatesAsync(rightAscension, declination); }, () => { return device.Slewing; }, pollInterval, cancellationToken, logger, $"{nameof(ITelescopeV3)}.{nameof(SlewToCoordinatesTaskAsync)}", () => { return $"RA: {device.RightAscension}, Declination: {device.Declination}"; });
+                    ProcessTask(() => { device.SlewToCoordinatesAsync(rightAscension, declination); }, () => { return device.Slewing; }, pollInterval, cancellationToken, logger, callingMethodName, () => { return $"RA: {device.RightAscension}, Declination: {device.Declination}"; });
                 });
 
                 WaitForProcessTask(processTask, logger, callingMethodName, cancellationToken);
@@ -912,13 +927,13 @@ namespace ASCOM.Common
         public static async Task SlewToTargetTaskAsync(this ITelescopeV3 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
             Task processTask = null;
-            string callingMethodName = $"[Lib].{GetCurrentMethod()}";
+            string callingMethodName = GetCurrentMethod();
 
             await Task.Run(() =>
             {
                 processTask = Task.Run(() =>
                 {
-                    ProcessTask(() => { device.SlewToTargetAsync(); }, () => { return device.Slewing; }, pollInterval, cancellationToken, logger, $"{nameof(ITelescopeV3)}.{nameof(SlewToTargetTaskAsync)}", () => { return $"RA: {device.RightAscension}, Declination: {device.Declination}"; });
+                    ProcessTask(() => { device.SlewToTargetAsync(); }, () => { return device.Slewing; }, pollInterval, cancellationToken, logger, callingMethodName, () => { return $"RA: {device.RightAscension}, Declination: {device.Declination}"; });
                 });
 
                 WaitForProcessTask(processTask, logger, callingMethodName, cancellationToken);
@@ -942,13 +957,13 @@ namespace ASCOM.Common
         public static async Task AbortSlewAsync(this ITelescopeV3 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
             Task processTask = null;
-            string callingMethodName = $"[Lib].{GetCurrentMethod()}";
+            string callingMethodName = GetCurrentMethod();
 
             await Task.Run(() =>
             {
                 processTask = Task.Run(() =>
                 {
-                    ProcessTask(() => { device.AbortSlew(); }, () => { return device.Slewing; }, pollInterval, cancellationToken, logger, $"{nameof(ITelescopeV3)}.{nameof(AbortSlewAsync)}");
+                    ProcessTask(() => { device.AbortSlew(); }, () => { return device.Slewing; }, pollInterval, cancellationToken, logger, callingMethodName);
                 });
 
                 WaitForProcessTask(processTask, logger, callingMethodName, cancellationToken);
@@ -972,13 +987,13 @@ namespace ASCOM.Common
         public static async Task FindHomeAsync(this ITelescopeV3 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
             Task processTask = null;
-            string callingMethodName = $"[Lib].{GetCurrentMethod()}";
+            string callingMethodName = GetCurrentMethod();
 
             await Task.Run(() =>
             {
                 processTask = Task.Run(() =>
                 {
-                    ProcessTask(() => { device.FindHome(); }, () => { return device.Slewing; }, pollInterval, cancellationToken, logger, $"{nameof(ITelescopeV3)}.{nameof(FindHomeAsync)}", () => { return $"RA: {device.RightAscension}, Declination: {device.Declination}"; });
+                    ProcessTask(() => { device.FindHome(); }, () => { return device.Slewing; }, pollInterval, cancellationToken, logger, callingMethodName, () => { return $"RA: {device.RightAscension}, Declination: {device.Declination}"; });
                 });
 
                 WaitForProcessTask(processTask, logger, callingMethodName, cancellationToken);
@@ -1002,13 +1017,13 @@ namespace ASCOM.Common
         public static async Task ParkAsync(this ITelescopeV3 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
             Task processTask = null;
-            string callingMethodName = $"[Lib].{GetCurrentMethod()}";
+            string callingMethodName = GetCurrentMethod();
 
             await Task.Run(() =>
             {
                 processTask = Task.Run(() =>
                 {
-                    ProcessTask(() => { device.Park(); }, () => { return !device.AtPark; }, pollInterval, cancellationToken, logger, $"{nameof(ITelescopeV3)}.{nameof(ParkAsync)}", () => { return $"RA: {device.RightAscension}, Declination: {device.Declination}"; });
+                    ProcessTask(() => { device.Park(); }, () => { return !device.AtPark; }, pollInterval, cancellationToken, logger, callingMethodName, () => { return $"RA: {device.RightAscension}, Declination: {device.Declination}"; });
                 });
 
                 WaitForProcessTask(processTask, logger, callingMethodName, cancellationToken);
@@ -1036,13 +1051,13 @@ namespace ASCOM.Common
         public static async Task UnparkAsync(this ITelescopeV4 device, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
             Task processTask = null;
-            string callingMethodName = $"[Lib].{GetCurrentMethod()}";
+            string callingMethodName = GetCurrentMethod();
 
             await Task.Run(() =>
             {
                 processTask = Task.Run(() =>
                 {
-                    ProcessTask(() => { device.Unpark(); }, () => { return device.AtPark; }, pollInterval, cancellationToken, logger, $"{nameof(ITelescopeV4)}.{nameof(UnparkAsync)}");
+                    ProcessTask(() => { device.Unpark(); }, () => { return device.AtPark; }, pollInterval, cancellationToken, logger, callingMethodName);
                 });
 
                 WaitForProcessTask(processTask, logger, callingMethodName, cancellationToken);
@@ -1149,6 +1164,7 @@ namespace ASCOM.Common
                     Thread.Sleep(100);
                 } while (true); // Loop for ever until one of the if statements above becomes true
 
+                logger?.LogMessage(LogLevel.Debug, callingMethodName, $"{Thread.CurrentThread.ManagedThreadId:00} {nameof(WaitForProcessTask)} - Timeout task completed - Process status: {processTask.Status}, Cancellation requested: {cancellationToken.IsCancellationRequested}");
                 // End of the timeout task
             });
 
@@ -1156,7 +1172,7 @@ namespace ASCOM.Common
             Task.WaitAny(processTask, timeoutTask);
 
             // Log the outcome
-            logger?.LogMessage(LogLevel.Information, callingMethodName, $"{Thread.CurrentThread.ManagedThreadId:00} {nameof(WaitForProcessTask)} - Process task status: {processTask.Status}, Timeout task status: {timeoutTask.Status}");
+            logger?.LogMessage(LogLevel.Information, callingMethodName, $"{Thread.CurrentThread.ManagedThreadId:00} {nameof(WaitForProcessTask)} - Outcome - Process task status: {processTask.Status}, Timeout task status: {timeoutTask.Status}");
         }
 
         /// <summary>

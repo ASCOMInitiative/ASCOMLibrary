@@ -32,13 +32,13 @@ namespace UtilitityTests
         [Fact]
         public void IsPlatformVersionOK()
         {
-            Assert.True(ASCOM.Com.PlatformUtilities.IsMinimumRequiredVersion(7, 0, 0, 3001));
+            Assert.True(ASCOM.Com.PlatformUtilities.IsMinimumRequiredVersion(7, 0, 2, 3001));
         }
 
         [Fact]
         public void IsPlatformVersionBad()
         {
-            Assert.False(ASCOM.Com.PlatformUtilities.IsMinimumRequiredVersion(7, 0, 1, 3001));
+            Assert.False(ASCOM.Com.PlatformUtilities.IsMinimumRequiredVersion(7, 0, 3, 3001));
         }
 
         [Fact]
@@ -102,7 +102,7 @@ namespace UtilitityTests
         [Fact]
         public void PlatformServicePack()
         {
-            Assert.True(ASCOM.Com.PlatformUtilities.ServicePack == 0);
+            Assert.True(ASCOM.Com.PlatformUtilities.ServicePack == 2);
         }
 
         [Fact]
