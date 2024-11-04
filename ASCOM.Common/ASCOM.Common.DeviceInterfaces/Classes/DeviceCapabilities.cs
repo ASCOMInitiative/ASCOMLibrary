@@ -171,7 +171,7 @@ namespace ASCOM.Common.DeviceInterfaces
                         return true;
                     break;
 
-                // True if interface version is greater than 1
+                // True if interface version is greater than 2 (1 and 2 were both used in Platform 6)
                 case DeviceTypes.SafetyMonitor:
                     if (interfaceVersion > 2)
                         return true;

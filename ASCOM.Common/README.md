@@ -13,7 +13,10 @@ This release supports the interface updates introduced in ASCOM Platform 7.
 # Version History
 The version history only contains entries when a change is made, if a release version is not listed below, there was no change to this component in that release.
 
-***Release 2.0.6***
+***Release 2.0.7***
+* Added further logging to the ConnectAsync extension to aid debugging.
+
+* ***Release 2.0.6***
 * Fix - The ConnectAsync and DisconnectAsync extension methods now work correctly with both Platform 6 and 7 devices. Both methods have additional mandatory parameters
 to specify the device type and interface version implemented by the device. These are required to enable the method to differentiate between Platform 6 and 
 Platform 7 interfaces. For Platform 7 interface devices the Connect() and Disconnect() methods are used while the Connected property is used for Platform 6 devices.

@@ -7,6 +7,7 @@ using System.Threading;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using ASCOM.Common.Alpaca;
+using System.Runtime.InteropServices;
 
 namespace ASCOM.Common
 {
@@ -37,8 +38,13 @@ namespace ASCOM.Common
         /// </remarks>
         public static async Task ConnectAsync(this IAscomDeviceV2 device, DeviceTypes deviceType, int interfaceVersion, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
         {
+            // const int DISP_E_UNKNOWNNAME = unchecked((int)0x80020006); // COM HResult error code for "called method or property name was not found".
+
             Task processTask = null;
             string callingMethodName = GetCurrentMethod();
+
+            // Log the parameters received
+            logger.LogMessage(LogLevel.Debug, callingMethodName, $"Received device type: {deviceType}, Interface version: {interfaceVersion}, Has Connect and Device State: {DeviceCapabilities.HasConnectAndDeviceState(deviceType, interfaceVersion)}");
 
             await Task.Run(() =>
             {
@@ -54,6 +60,32 @@ namespace ASCOM.Common
             });
 
             CheckOutcome(processTask, logger, callingMethodName, cancellationToken);
+
+            //// Handle the possibility that an Unknown name exception was returned i.e. the called method or property did not exist even though it should have
+            //try
+            //{
+            //    CheckOutcome(processTask, logger, callingMethodName, cancellationToken);
+            //}
+            //catch (COMException ex) when (ex.HResult == DISP_E_UNKNOWNNAME) // An unknown exception was generated
+            //{
+            //    // Retry with Platform 6 semantics in case the interface number incorrectly specified that it was a Platform 7 device
+            //    logger.LogMessage(LogLevel.Debug, callingMethodName, $"RETRY - Received an unknown method name COM exception, retrying using Platform 6 semantics...");
+
+            //    await Task.Run(() =>
+            //    {
+            //        processTask = Task.Run(() =>
+            //        {
+            //            ProcessTask(() => { device.Connected = true; }, () => { return device.Connected == false; }, pollInterval, cancellationToken, logger, $"{callingMethodName} (Platform 6 RETRY)");
+            //        });
+
+            //        // Create a new cancellation token with a 5 second timeout
+            //        CancellationTokenSource cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+            //        CancellationToken cancellationToken1 = cancellationTokenSource.Token;
+            //        WaitForProcessTask(processTask, logger, callingMethodName, cancellationToken);
+            //    });
+
+            //    CheckOutcome(processTask, logger, callingMethodName, cancellationToken);
+            //}
         }
 
         /// <summary>
@@ -77,6 +109,9 @@ namespace ASCOM.Common
         {
             Task processTask = null;
             string callingMethodName = GetCurrentMethod();
+
+            // Log the parameters received
+            logger.LogMessage(LogLevel.Debug, callingMethodName, $"Received device type: {deviceType}, Interface version: {interfaceVersion}, Has Connect and Device State: {DeviceCapabilities.HasConnectAndDeviceState(deviceType, interfaceVersion)}");
 
             await Task.Run(() =>
             {
