@@ -1565,7 +1565,7 @@ namespace ASCOM.Alpaca.Clients
                                 retryCounter += 1; // Increment the retry counter
                                 if (retryCounter <= SOCKET_ERROR_MAXIMUM_RETRIES) // The retry count is less than or equal to the maximum allowed so retry the command
                                 {
-                                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, typeof(T).Name + " " + ex1.Message);
+                                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"{method} {ex1.Message}");
                                     AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, "Timeout exception: " + ex1.ToString());
 
                                     // Log that we are retrying the command and wait a short time in the hope that the transient condition clears
@@ -1574,9 +1574,9 @@ namespace ASCOM.Alpaca.Clients
                                 }
                                 else // The retry count exceeds the maximum allowed so throw the exception to the client
                                 {
-                                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, typeof(T).Name + " " + ex1.Message);
+                                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"{method} {ex1.Message}");
                                     AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, "Timeout exception: " + ex1.ToString());
-                                    throw new TimeoutException($"Dynamic client timeout for method {typeof(T).Name}: {client.BaseAddress}");
+                                    throw new TimeoutException($"Dynamic client timeout for method {method}: {client.BaseAddress}");
                                 }
                             }
                             else if (ex1 is HttpRequestException) // A communications error of some kind
@@ -1586,7 +1586,7 @@ namespace ASCOM.Alpaca.Clients
                                     retryCounter += 1; // Increment the retry counter
                                     if (retryCounter <= SOCKET_ERROR_MAXIMUM_RETRIES) // The retry count is less than or equal to the maximum allowed so retry the command
                                     {
-                                        AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, typeof(T).Name + " " + ex1.Message);
+                                        AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"{method} {ex1.Message}");
                                         AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, "SocketException: " + ex1.ToString());
 
                                         // Log that we are retrying the command and wait a short time in the hope that the transient condition clears
@@ -1595,21 +1595,21 @@ namespace ASCOM.Alpaca.Clients
                                     }
                                     else // The retry count exceeds the maximum allowed so throw the exception to the client
                                     {
-                                        AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, typeof(T).Name + " " + ex1.Message);
+                                        AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"{method} {ex1.Message}");
                                         AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, "SocketException: " + ex1.ToString());
                                         throw ex1.InnerException;
                                     }
                                 }
                                 else  // There is an inner exception but it is not a SocketException so log it and throw it  to the client
                                 {
-                                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, typeof(T).Name + " " + ex1.Message);
+                                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"{method} {ex1.Message}");
                                     AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, "WebException: " + ex1.ToString());
                                     throw ex1.InnerException;
                                 }
                             }
                             else
                             {
-                                AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, typeof(T).Name + " " + ex1.Message);
+                                AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"{method} {ex1.Message}");
                                 AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, "WebException: " + ex1.ToString());
                                 throw ex1.InnerException;
                             }
