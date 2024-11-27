@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace ASCOM.Common.DeviceInterfaces
 {
@@ -7,6 +8,66 @@ namespace ASCOM.Common.DeviceInterfaces
     /// </summary>
     public static class DeviceCapabilities
     {
+        /// <summary>
+        /// Dictionary of the latest interface versions supported by Platform 6
+        /// </summary>
+        public static Dictionary<DeviceTypes, short> LatestPlatform6Interface = new Dictionary<DeviceTypes, short>()
+        {
+            { DeviceTypes.Camera, 3 },
+            { DeviceTypes.CoverCalibrator, 1 },
+            { DeviceTypes.Dome, 2 },
+            { DeviceTypes.FilterWheel, 2 },
+            { DeviceTypes.Focuser, 3 },
+            { DeviceTypes.ObservingConditions, 1 },
+            { DeviceTypes.Rotator, 3 },
+            { DeviceTypes.SafetyMonitor, 1 },
+            { DeviceTypes.Switch, 2 },
+            { DeviceTypes.Telescope, 3 },
+            { DeviceTypes.Video, 1 }
+        };
+
+        /// <summary>
+        /// Dictionary of the interface versions at launch of Platform 7
+        /// </summary>
+        /// <remarks>
+        /// These values must not change when new interfaces are added, update the LatestInterface dictionary instead
+        /// </remarks>
+        public static Dictionary<DeviceTypes, short> InitialPlatform7Interface = new Dictionary<DeviceTypes, short>()
+        {
+            { DeviceTypes.Camera, 4 },
+            { DeviceTypes.CoverCalibrator, 2 },
+            { DeviceTypes.Dome, 3 },
+            { DeviceTypes.FilterWheel, 3 },
+            { DeviceTypes.Focuser, 4 },
+            { DeviceTypes.ObservingConditions, 2 },
+            { DeviceTypes.Rotator, 4 },
+            { DeviceTypes.SafetyMonitor, 3 },
+            { DeviceTypes.Switch, 3 },
+            { DeviceTypes.Telescope, 4 },
+            { DeviceTypes.Video, 2 }
+        };
+
+        /// <summary>
+        /// Dictionary of the latest interface versions supported by Platform 7
+        /// </summary>
+        /// <remarks>
+        /// Update these values as new interface versions are included in future Platforms
+        /// </remarks>
+        public static Dictionary<DeviceTypes, short> LatestInterface = new Dictionary<DeviceTypes, short>()
+        {
+            { DeviceTypes.Camera, 4 },
+            { DeviceTypes.CoverCalibrator, 2 },
+            { DeviceTypes.Dome, 3 },
+            { DeviceTypes.FilterWheel, 3 },
+            { DeviceTypes.Focuser, 4 },
+            { DeviceTypes.ObservingConditions, 2 },
+            { DeviceTypes.Rotator, 4 },
+            { DeviceTypes.SafetyMonitor, 3 },
+            { DeviceTypes.Switch, 3 },
+            { DeviceTypes.Telescope, 4 },
+            { DeviceTypes.Video, 2 }
+        };
+
         /// <summary>
         /// Returns <see langword="true"/> for all devices except IFocuserV1 devices that do not have the Connected property
         /// </summary>
@@ -60,7 +121,7 @@ namespace ASCOM.Common.DeviceInterfaces
             if (interfaceVersion < 1)
                 throw new InvalidValueException($"ASCOMLibrary.DeviceCapabilities.HasAsyncSwitch - Supplied interface version is 0 or negative: {interfaceVersion}");
 
-            return interfaceVersion >= 3;
+            return interfaceVersion >= InitialPlatform7Interface[DeviceTypes.Switch];
         }
 
         /// <summary>
@@ -75,7 +136,7 @@ namespace ASCOM.Common.DeviceInterfaces
             if (interfaceVersion < 1)
                 throw new InvalidValueException($"ASCOMLibrary.DeviceCapabilities.HasCalibratorChanging - Supplied interface version is 0 or negative: {interfaceVersion}");
 
-            return interfaceVersion >= 2;
+            return interfaceVersion >= InitialPlatform7Interface[DeviceTypes.CoverCalibrator];
         }
 
         /// <summary>
@@ -91,7 +152,7 @@ namespace ASCOM.Common.DeviceInterfaces
             if (interfaceVersion < 1)
                 throw new InvalidValueException($"ASCOMLibrary.DeviceCapabilities.HasCoverMoving - Supplied interface version is 0 or negative: {interfaceVersion}");
 
-            return interfaceVersion >= 2;
+            return interfaceVersion >= InitialPlatform7Interface[DeviceTypes.CoverCalibrator];
         }
 
         /// <summary>
@@ -126,81 +187,7 @@ namespace ASCOM.Common.DeviceInterfaces
                 throw new InvalidValueException($"ASCOMLibrary.DeviceCapabilities.HasConnectAndDeviceState - The Interface version parameter is 0 or negative: {interfaceVersion}.");
             }
 
-            // Switch on the type of this device
-            switch (deviceType)
-            {
-                // True if interface version is greater than 3
-                case DeviceTypes.Camera:
-                    if (interfaceVersion > 3)
-                        return true;
-                    break;
-
-                // True if interface version is greater than 1
-                case DeviceTypes.CoverCalibrator:
-                    if (interfaceVersion > 1)
-                        return true;
-                    break;
-
-                // True if interface version is greater than 2
-                case DeviceTypes.Dome:
-                    if (interfaceVersion > 2)
-                        return true;
-                    break;
-
-                // True if interface version is greater than 2
-                case DeviceTypes.FilterWheel:
-                    if (interfaceVersion > 2)
-                        return true;
-                    break;
-
-                // True if interface version is greater than 3
-                case DeviceTypes.Focuser:
-                    if (interfaceVersion > 3)
-                        return true;
-                    break;
-
-                // True if interface version is greater than 1
-                case DeviceTypes.ObservingConditions:
-                    if (interfaceVersion > 1)
-                        return true;
-                    break;
-
-                // True if interface version is greater than 3
-                case DeviceTypes.Rotator:
-                    if (interfaceVersion > 3)
-                        return true;
-                    break;
-
-                // True if interface version is greater than 2 (1 and 2 were both used in Platform 6)
-                case DeviceTypes.SafetyMonitor:
-                    if (interfaceVersion > 2)
-                        return true;
-                    break;
-
-                // True if interface version is greater than 2
-                case DeviceTypes.Switch:
-                    if (interfaceVersion > 2)
-                        return true;
-                    break;
-
-                // True if interface version is greater than 3
-                case DeviceTypes.Telescope:
-                    if (interfaceVersion > 3)
-                        return true;
-                    break;
-
-                // True if interface version is greater than 1
-                case DeviceTypes.Video:
-                    if (interfaceVersion > 1)
-                        return true;
-                    break;
-
-                default:
-                    throw new InvalidValueException($"DeviceCapabillities.HasConnectAndDeviceState - Unsupported device type: {deviceType}. Please update the Library code to add support.");
-            }
-
-            // Device has a Platform 6 or earlier interface
-            return false;
+            return interfaceVersion >= InitialPlatform7Interface[deviceType.Value];
         }
 
         /// <summary>
@@ -237,81 +224,12 @@ namespace ASCOM.Common.DeviceInterfaces
                 throw new InvalidValueException($"ASCOMLibrary.DeviceCapabilities.IsPlatform6Interface - The Interface version parameter is 0 or negative: {interfaceVersion}.");
             }
 
-            // Switch on the type of this device
-            switch (deviceType)
-            {
-                // True if interface version is 3
-                case DeviceTypes.Camera:
-                    if (interfaceVersion == 3)
-                        return true;
-                    break;
+            // Compensate for safety monitor possibly being interface version 1 or 2 by forcing the value to 2 for this test
+            if (deviceType == DeviceTypes.SafetyMonitor)
+                interfaceVersion = 2;
 
-                // True if interface version is  1
-                case DeviceTypes.CoverCalibrator:
-                    if (interfaceVersion == 1)
-                        return true;
-                    break;
-
-                // True if interface version is 2
-                case DeviceTypes.Dome:
-                    if (interfaceVersion == 2)
-                        return true;
-                    break;
-
-                // True if interface version is 2
-                case DeviceTypes.FilterWheel:
-                    if (interfaceVersion == 2)
-                        return true;
-                    break;
-
-                // True if interface version is 3
-                case DeviceTypes.Focuser:
-                    if (interfaceVersion == 3)
-                        return true;
-                    break;
-
-                // True if interface version is 1
-                case DeviceTypes.ObservingConditions:
-                    if (interfaceVersion == 1)
-                        return true;
-                    break;
-
-                // True if interface version is 3
-                case DeviceTypes.Rotator:
-                    if (interfaceVersion == 3)
-                        return true;
-                    break;
-
-                // True if interface version is greater than 2
-                case DeviceTypes.SafetyMonitor:
-                    if (interfaceVersion == 2)
-                        return true;
-                    break;
-
-                // True if interface version is 2
-                case DeviceTypes.Switch:
-                    if (interfaceVersion == 2)
-                        return true;
-                    break;
-
-                // True if interface version is 3
-                case DeviceTypes.Telescope:
-                    if (interfaceVersion == 3)
-                        return true;
-                    break;
-
-                // True if interface version is 1
-                case DeviceTypes.Video:
-                    if (interfaceVersion == 1)
-                        return true;
-                    break;
-
-                default:
-                    throw new InvalidValueException($"DeviceCapabillities.HasConnectAndDeviceState - Unsupported device type: {deviceType}. Please update the Library code to add support.");
-            }
-
-            // Device has a Platform 5 or 5.5 or earlier interface
-            return false;
+            // Compare the supplied interface version with the reference list
+            return interfaceVersion == LatestPlatform6Interface[deviceType.Value];
         }
 
         /// <summary>
@@ -334,6 +252,50 @@ namespace ASCOM.Common.DeviceInterfaces
         public static bool IsPlatform7OrLater(DeviceTypes? deviceType, short interfaceVersion)
         {
             return HasConnectAndDeviceState(deviceType, Convert.ToInt32(interfaceVersion));
+        }
+
+        /// <summary>
+        /// Returns <see langword="true"/> if the interface version of the specified device type is a Platform 6 interface version
+        /// </summary>
+        /// <param name="deviceType">Device type.</param>
+        /// <param name="interfaceVersion">Interface version of this device (Int16, short)</param>
+        /// <exception cref="InvalidValueException">When deviceType is null.</exception>
+        /// <exception cref="InvalidValueException">When interfaceVersion is 0 or negative.</exception>
+        /// <returns><see langword="true"/> when the interface version is a Platform 6 interface version.</returns>
+        public static bool IsSupportedInterface(DeviceTypes? deviceType, short interfaceVersion)
+        {
+            return IsValidAscomInterface(deviceType, (int)interfaceVersion);
+        }
+
+        /// <summary>
+        /// Returns <see langword="true"/> if the interface version of the specified device type is a valid ASCOM interface version on any Platform
+        /// </summary>
+        /// <param name="deviceType">Device type.</param>
+        /// <param name="interfaceVersion">Interface version of this device (Int32, int).
+        /// <exception cref="InvalidValueException">When deviceType is null.</exception>
+        /// <exception cref="InvalidValueException">When interfaceVersion is 0 or negative.</exception>
+        /// <returns><see langword="true"/> when the interface version is a Platform 6 interface version.</returns>
+        /// <remarks>
+        /// Supply an interface version of 1 (valid) rather than zero (invalid) for very early drivers that do not have an InterfaceVersion property.
+        /// </remarks>
+        public static bool IsValidAscomInterface(DeviceTypes? deviceType, int interfaceVersion)
+        {
+            // Validate inputs
+            if (!deviceType.HasValue) // The device type is a null value
+            {
+                throw new InvalidValueException("ASCOMLibrary.DeviceCapabilities.IsSupportedInterface - The device type parameter is null.");
+            }
+
+            // Check for invalid low interface version numbers
+            if (interfaceVersion < 1) // The interface version is 0 or negative
+                return false; // Not supported
+
+            // Check whether the interface version is equal to or lower than the interface version in the latest Platform release
+            if (interfaceVersion <= LatestInterface[deviceType.Value]) // The interface version is supported
+                return true; // Supported
+
+            // All other interface versions i.e. those above the interface version in the latest Platform release
+            return false; // Not supported
         }
     }
 }
