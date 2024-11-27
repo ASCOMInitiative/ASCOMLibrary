@@ -363,8 +363,8 @@ namespace ASCOM.Alpaca.Clients
             httpClient.DefaultRequestHeaders.Accept.Clear();
             httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(AlpacaConstants.APPLICATION_JSON_MIME_TYPE));
             httpClient.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(userproductName, productVersion));
-            httpClient.DefaultRequestHeaders.Connection.Add("keep-alive");
-            httpClient.DefaultRequestHeaders.ConnectionClose = false;
+            //httpClient.DefaultRequestHeaders.Connection.Add("keep-alive");
+            //httpClient.DefaultRequestHeaders.ConnectionClose = false;
         }
 
         // /// <summary>
