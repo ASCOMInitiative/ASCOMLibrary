@@ -16,6 +16,10 @@ This may also be the case for projects that target IOS, but has not yet been con
 # Version History
 The version history only contains entries when a change is made, if a release version is not listed below, there was no change to this component in that release.
 
+***Release 2.0.8***
+* Fix incorrect exception message when the client times out.
+* Remove duplicate keep-alive element from the Connection header.
+
 ***Release 2.0.3***
 * Some applications call InterfaceVersion before connecting, hence changing the timeout used for InterfaceVersion-GET from the standard timeout to the establish communications timeout, which is 
 usually shorter and facilitates quicker return to the client when the Alpaca device cannot be reached.
