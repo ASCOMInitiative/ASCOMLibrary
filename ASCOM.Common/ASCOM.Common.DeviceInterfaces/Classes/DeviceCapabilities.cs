@@ -271,7 +271,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// Returns <see langword="true"/> if the interface version of the specified device type is a valid ASCOM interface version on any Platform
         /// </summary>
         /// <param name="deviceType">Device type.</param>
-        /// <param name="interfaceVersion">Interface version of this device (Int32, int).
+        /// <param name="interfaceVersion">Interface version of this device (Int32, int).</param>
         /// <exception cref="InvalidValueException">When deviceType is null.</exception>
         /// <exception cref="InvalidValueException">When interfaceVersion is 0 or negative.</exception>
         /// <returns><see langword="true"/> when the interface version is a Platform 6 interface version.</returns>
