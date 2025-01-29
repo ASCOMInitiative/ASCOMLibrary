@@ -71,248 +71,6 @@ namespace ASCOM.Common.DeviceInterfaces
         };
 
         /// <summary>
-        /// List of unique member names used in ASCOM interfaces
-        /// </summary>
-        /// <remarks>
-        /// This list only needs to be revised when a new interface member is added whose name is not already used in another device interface
-        /// </remarks>
-        public enum MemberNames
-        {
-            AbortExposure,
-            AbortSlew,
-            Absolute,
-            Action,
-            AlignmentMode,
-            Altitude,
-            ApertureArea,
-            ApertureDiameter,
-            AtHome,
-            AtPark,
-            AveragePeriod,
-            AxisRates,
-            Azimuth,
-            BayerOffsetX,
-            BayerOffsetY,
-            BinX,
-            BinY,
-            BitDepth,
-            Brightness,
-            CalibratorChanging,
-            CalibratorOff,
-            CalibratorOn,
-            CalibratorState,
-            CameraState,
-            CameraXSize,
-            CameraYSize,
-            CanAbortExposure,
-            CanAsymmetricBin,
-            CanConfigureDeviceProperties,
-            CanFastReadout,
-            CanFindHome,
-            CanGetCoolerPower,
-            CanMoveAxis,
-            CanPark,
-            CanPulseGuide,
-            CanReverse,
-            CanSetAltitude,
-            CanSetAzimuth,
-            CanSetCCDTemperature,
-            CanSetDeclinationRate,
-            CanSetGuideRates,
-            CanSetPark,
-            CanSetPierSide,
-            CanSetRightAscensionRate,
-            CanSetShutter,
-            CanSetTracking,
-            CanSlave,
-            CanSlew,
-            CanSlewAltAz,
-            CanSlewAltAzAsync,
-            CanSlewAsync,
-            CanStopExposure,
-            CanSync,
-            CanSyncAltAz,
-            CanSyncAzimuth,
-            CanUnpark,
-            CanWrite,
-            CCDTemperature,
-            CloseCover,
-            CloseShutter,
-            CloudCover,
-            CommandBlind,
-            CommandBool,
-            CommandString,
-            ConfiguureDeviceProperties,
-            Connect,
-            Connected,
-            Connecting,
-            CoolerOn,
-            CoolerPower,
-            CoverMoving,
-            CoverState,
-            Declination,
-            DeclinationRate,
-            Description,
-            DestinationSideOfPier,
-            DeviceState,
-            DewPoint,
-            Disconnect,
-            Dispose,
-            DoesRefraction,
-            DriverInfo,
-            DriverVersion,
-            ElectronsPerADU,
-            EquatorialSystem,
-            ExposureMax,
-            ExposureMin,
-            ExposureResolution,
-            FastReadout,
-            FindHome,
-            FocalLength,
-            FocusOffsets,
-            FrameRate,
-            FullWellCapacity,
-            Gain,
-            GainMax,
-            GainMin,
-            Gains,
-            Gamma,
-            GammaMax,
-            GammaMin,
-            GetSwitch,
-            GetSwitchDescription,
-            GetSwitchName,
-            GetSwitchValue,
-            GuideRateDeclination,
-            GuideRateRightAscension,
-            Halt,
-            HaltCover,
-            HasShutter,
-            HeatSinkTemperature,
-            Height,
-            Humidity,
-            ImageArray,
-            ImageArrayVariant,
-            ImageReady,
-            IntegrationRate,
-            InterfaceVersion,
-            IsMoving,
-            IsPulseGuiding,
-            IsSafe,
-            LastExposureDuration,
-            LastExposureStartTime,
-            LastVideoFrame,
-            Link,
-            MaxADU,
-            MaxBinX,
-            MaxBinY,
-            MaxBrightness,
-            MaxIncrement,
-            MaxStep,
-            MaxSwitch,
-            MaxSwitchValue,
-            MechanicalPosition,
-            MinSwitchValue,
-            Move,
-            MoveAbsolute,
-            MoveAxis,
-            MoveMechanical,
-            Name,
-            Names,
-            NumX,
-            NumY,
-            Offset,
-            OffsetMax,
-            OffsetMin,
-            Offsets,
-            OpenCover,
-            OpenShutter,
-            Park,
-            PercentCompleted,
-            PixelSizeX,
-            PixelSizeY,
-            Position,
-            Pressure,
-            PulseGuide,
-            RainRate,
-            ReadoutMode,
-            ReadoutModes,
-            Refresh,
-            Reverse,
-            RightAscension,
-            RightAscensionRate,
-            SensorDescription,
-            SensorName,
-            SensorType,
-            SetAsync,
-            SetAsyncValue,
-            SetCCDTemperature,
-            SetPark,
-            SetSwitch,
-            SetSwitchName,
-            SetSwitchValue,
-            SetupDialog,
-            ShutterStatus,
-            SideOfPier,
-            SiderealTime,
-            SiteElevation,
-            SiteLatitude,
-            SiteLongitude,
-            SkyBrightness,
-            SkyQuality,
-            SkyTemperature,
-            Slaved,
-            Slewing,
-            SlewSettleTime,
-            SlewToAltAz,
-            SlewToAltAzAsync,
-            SlewToAltitude,
-            SlewToAzimuth,
-            SlewToCoordinates,
-            SlewToCoordinatesAsync,
-            SlewToTarget,
-            SlewToTargetAsync,
-            StarFWHM,
-            StartExposure,
-            StartRecordingVideoFile,
-            StartX,
-            StartY,
-            StateChangeComplete,
-            StepSize,
-            StopExposure,
-            StopRecordingVideoFile,
-            SubExposureDuration,
-            SupportedActions,
-            SupportedIntegrationRates,
-            SwitchStep,
-            Sync,
-            SyncToAltAz,
-            SyncToAzimuth,
-            SyncToCoordinates,
-            SyncToTarget,
-            TargetDeclination,
-            TargetPosition,
-            TargetRightAscension,
-            TempComp,
-            TempCompAvailable,
-            Temperature,
-            TimeSinceLastUpdate,
-            Tracking,
-            TrackingRate,
-            TrackingRates,
-            Unpark,
-            UTCDate,
-            VideoCaptureDeviceName,
-            VideoCodec,
-            VideoFileFormat,
-            VideoFramesBufferSize,
-            Width,
-            WindDirection,
-            WindGust,
-            WindSpeed,
-        }
-
-        /// <summary>
         /// Structure representing a specific interface member in a given device interface
         /// </summary>
         public struct Interfacemember
@@ -332,7 +90,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <summary>
         /// Returns the interface version in which a given member was introduced. The member is defined by a combination of device type and member name
         /// </summary>
-        public static Dictionary<Interfacemember, int> IntroducedInVersion = new Dictionary<Interfacemember, int>()
+        private static readonly Dictionary<Interfacemember, short> VersionHistory = new Dictionary<Interfacemember, short>()
         { 
             // Camera
             { new Interfacemember(DeviceTypes.Camera, MemberNames.AbortExposure), 1 },
@@ -797,11 +555,35 @@ namespace ASCOM.Common.DeviceInterfaces
         #region Public Methods
 
         /// <summary>
+        /// Return the interface version in which a member was introduced
+        /// </summary>
+        /// <param name="member">Member name</param>
+        /// <param name="deviceType">Device type</param>
+        /// <returns>Interface version in which the member was introduced as a short (Int16)</returns>
+        /// <exception cref="InvalidValueException"></exception>
+        public static short VersionIntroduced(MemberNames member, DeviceTypes deviceType)
+        {
+            // Create a key into the lookup table
+            Interfacemember key = new Interfacemember(deviceType, member);
+
+            // Check if the key is in the lookup table
+            if (VersionHistory.ContainsKey(key)) // Key is in the lookup table
+            {
+                // Return the interface version in which the member was introduced
+                return VersionHistory[key];
+            }
+            else // Key is not in the lookup table so return an error
+            {
+                throw new InvalidValueException($"ASCOM Library DeviceCapabilities.VersionIntroduced - Member {member} is not defined in device type {deviceType}.");
+            }
+        }
+
+        /// <summary>
         /// Determine whether a given member is present in the specified device type and interface version.
         /// </summary>
-        /// <param name="member">The member name</param>
-        /// <param name="deviceType">The device type</param>
-        /// <param name="interfaceVersion">The interface version</param>
+        /// <param name="member">Member name</param>
+        /// <param name="deviceType">Device type</param>
+        /// <param name="interfaceVersion">Interface version</param>
         /// <returns>True if the specified member is present in the given device interface version</returns>
         /// <exception cref="InvalidValueException"></exception>
         public static bool InterfaceHasMember(MemberNames member, DeviceTypes deviceType, int interfaceVersion)
@@ -816,14 +598,14 @@ namespace ASCOM.Common.DeviceInterfaces
             Interfacemember key = new Interfacemember(deviceType, member);
 
             // Check if the key is in the lookup table
-            if (IntroducedInVersion.ContainsKey(key)) // Key is in the lookup table
+            if (VersionHistory.ContainsKey(key)) // Key is in the lookup table
             {
                 // Determine whether the member was introduced before or in the interface version number provided
-                return interfaceVersion >= IntroducedInVersion[key];
+                return interfaceVersion >= VersionHistory[key];
             }
-            else // Key is not in the lookup table, which should never happen!
+            else // Key is not in the lookup table so return an error
             {
-                throw new InvalidValueException($"ASCOM Library DeviceCapabilities.InterfaceHasMember - Unable to find key for member {member} in device {deviceType}.");
+                throw new InvalidValueException($"ASCOM Library DeviceCapabilities.InterfaceHasMember - Member {member} is not defined in device type {deviceType}.");
             }
         }
 
