@@ -76,10 +76,22 @@ namespace ASCOM.Common.DeviceInterfaces
         public struct Interfacemember
         {
             // Fields
+
+            /// <summary>
+            /// Device type
+            /// </summary>
             public DeviceTypes DeviceType;
+
+            /// <summary>
+            /// Member name
+            /// </summary>
             public MemberNames MemberName;
 
-            // Initialiser
+            /// <summary>
+            /// Constructor taking device type and member name parameters
+            /// </summary>
+            /// <param name="deviceType">Device type</param>
+            /// <param name="memberName">Member name</param>
             public Interfacemember(DeviceTypes deviceType, MemberNames memberName)
             {
                 DeviceType = deviceType;
