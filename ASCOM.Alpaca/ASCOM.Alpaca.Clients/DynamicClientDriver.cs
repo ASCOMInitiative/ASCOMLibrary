@@ -671,17 +671,22 @@ namespace ASCOM.Alpaca.Clients
                     // Process HTTP GET and PUT methods
                     if (httpMethod == HttpMethod.Get) // HTTP GET methods
                     {
-                        // Add client id and transaction id query parameters
-                        transactionUri.Query = $"{AlpacaConstants.CLIENTID_PARAMETER_NAME}={clientNumber}&{AlpacaConstants.CLIENTTRANSACTION_PARAMETER_NAME}={transactionId}";
-
-                        // Add to the query string any further required parameters for HTTP GET methods
-                        if (parameters.Count > 0)
+                        // Define a dictionary to hold all query parameters and add the client id and transaction id parameters
+                        Dictionary<string, string> allParameters = new Dictionary<string, string>
                         {
-                            foreach (KeyValuePair<string, string> parameter in parameters)
-                            {
-                                transactionUri.Query = $"{transactionUri.Query}&{parameter.Key}={parameter.Value}";
-                            }
+                            { AlpacaConstants.CLIENTID_PARAMETER_NAME, clientNumber.ToString() },
+                            { AlpacaConstants.CLIENTTRANSACTION_PARAMETER_NAME, transactionId.ToString() }
+                        };
+
+                        // Add any additional parameters specific to this member
+                        foreach (KeyValuePair<string, string> kvp in parameters)
+                        {
+                            allParameters.Add(kvp.Key, kvp.Value);
                         }
+
+                        // Convert the parameter list to HTTP query format (key-value pairs separated by "&") and set the URI's query string
+                        // The assignment to Query automatically adds a leading "?" character to mark the start of the query string
+                        transactionUri.Query = new FormUrlEncodedContent(allParameters).ReadAsStringAsync().Result;
 
                         // Create a new request based on the transaction Uri
                         request = new HttpRequestMessage(HttpMethod.Get, transactionUri.Uri);

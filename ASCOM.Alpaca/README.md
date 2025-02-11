@@ -16,6 +16,10 @@ This may also be the case for projects that target IOS, but has not yet been con
 # Version History
 The version history only contains entries when a change is made, if a release version is not listed below, there was no change to this component in that release.
 
+***Release 2.0.9***
+* BUG-FIX - Fixed bug where query strings in HTTP GETs of members that take parameters, e.g. Telescope.CanSetAxisrate(Axis), had multiple leading "?" characters 
+instead of a single leading "?" character.
+
 ***Release 2.0.8***
 * Fix incorrect exception message when the client times out.
 * Remove duplicate keep-alive element from the Connection header.

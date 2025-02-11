@@ -13,6 +13,9 @@ This release supports the interface updates introduced in ASCOM Platform 7.
 # Version History
 The version history only contains entries when a change is made, if a release version is not listed below, there was no change to this component in that release.
 
+***Release 2.0.9***
+* Add new InterfaceHasMember and DeviceCapabilities.VersionIntroduced methods to help clients and drivers support multiple interface versions.
+
 ***Release 2.0.8***
 * Refactor DeviceCapabilities so that there is only one source of truth for when interface changes occurred.
 * Add IsSupportedInterface and IsValidInterface methods to DeviceCapabilities.
