@@ -60,7 +60,15 @@ Includes support for the interface updates introduced in ASCOM Platform 7.</Desc
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Update="SOFALibraries\linux-arm\libsofa.so">
+    <None Update="SOFALibraries\android-arm64\libsofa.so">
+      <Pack>True</Pack>
+      <PackagePath>runtimes/android-arm64/native</PackagePath>
+    </None>
+    <None Update="SOFALibraries\android-arm\libsofa.so">
+      <Pack>True</Pack>
+      <PackagePath>runtimes/android-arm/native</PackagePath>
+    </None>
+    <None Update="SOFALibraries\linux-arm\libsofa.so">
 			<Pack>True</Pack>
 			<PackagePath>runtimes/linux-arm/native</PackagePath>
 		</None>
@@ -95,6 +103,28 @@ Includes support for the interface updates introduced in ASCOM Platform 7.</Desc
 	</ItemGroup>
 
 	<ItemGroup>
+    <!-- Android ARM 64bit Native Library -->
+    <None Update="NovasLibraries\android-arm64\libnovas.so">
+      <Pack>True</Pack>
+      <PackagePath>runtimes/android-arm64/native</PackagePath>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="NovasLibraries\android-arm64\cio_ra.bin">
+		  <PackagePath>runtimes/android-arm64/native</PackagePath>
+		  <Pack>True</Pack>
+		</None>
+
+    <!-- Android ARM 32bit Native Library -->
+    <None Update="NovasLibraries\android-arm\libnovas.so">
+      <Pack>True</Pack>
+      <PackagePath>runtimes/android-arm/native</PackagePath>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="NovasLibraries\android-arm\cio_ra.bin">
+		  <PackagePath>runtimes/android-arm/native</PackagePath>
+		  <Pack>True</Pack>
+		</None>
+    
 		<!-- Windows x64 64bit Native Library -->
 		<None Update="NovasLibraries\win-x64\libnovas.dll">
 			<Pack>True</Pack>

@@ -14,6 +14,9 @@ This release supports the interface updates introduced in ASCOM Platform 7.
 # Version History
 The version history only contains entries when a change is made, if a release version is not listed below, there was no change to this component in that release.
 
+***Release 2.1.0-rc.1***
+* Add experimental SOFA and NOVAS support for Android 32bit and 64bit.
+
 ***Release 2.0.0***
 * No change.
 
