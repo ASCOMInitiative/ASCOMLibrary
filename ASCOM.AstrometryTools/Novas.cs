@@ -54,9 +54,7 @@ namespace ASCOM.Tools.Novas31
         private static void Initialise()
         {
             short rc1;
-            string JPLEphFile;
             var DENumber = default(short);
-            string aplicationPath;
 
             try
             {
@@ -72,7 +70,7 @@ namespace ASCOM.Tools.Novas31
                 try
                 {
                     string searchPath = Environment.CurrentDirectory.TrimEnd('\\');
-                    LogMessage("Initialise", $"Environment.CurrentDirectory: {searchPath}");
+                    LogMessage("Initialise", $"Adding search path Environment.CurrentDirectory: {searchPath}");
                     searchPaths.Add(searchPath);
                 }
                 catch (Exception ex)
@@ -83,7 +81,7 @@ namespace ASCOM.Tools.Novas31
                 try
                 {
                     string searchPath = Directory.GetCurrentDirectory().TrimEnd('\\');
-                    LogMessage("Initialise", $"Directory.GetCurrentDirectory(): {searchPath}");
+                    LogMessage("Initialise", $"Adding search path Directory.GetCurrentDirectory(): {searchPath}");
                     searchPaths.Add(searchPath);
                 }
                 catch (Exception ex)
@@ -94,7 +92,7 @@ namespace ASCOM.Tools.Novas31
                 try
                 {
                     string searchPath = AppDomain.CurrentDomain.BaseDirectory.TrimEnd('\\');
-                    LogMessage("Initialise", $"AppDomain.CurrentDomain.BaseDirectory: {searchPath}");
+                    LogMessage("Initialise", $"Adding search path AppDomain.CurrentDomain.BaseDirectory: {searchPath}");
                     searchPaths.Add(searchPath);
                 }
                 catch (Exception ex)
@@ -105,7 +103,29 @@ namespace ASCOM.Tools.Novas31
                 try
                 {
                     string searchPath = AppContext.BaseDirectory.TrimEnd('\\');
-                    LogMessage("Initialise", $"AppContext.BaseDirectory: {searchPath}");
+                    LogMessage("Initialise", $"Adding search path AppContext.BaseDirectory: {searchPath}");
+                    searchPaths.Add(searchPath);
+                }
+                catch (Exception ex)
+                {
+                    LogMessage("Initialise", $"AppContext.BaseDirectory: {ex.Message}");
+                }
+                
+                try
+                {
+                    string searchPath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile).TrimEnd('\\');
+                    LogMessage("Initialise", $"Adding search path Environment.SpecialFolder.UserProfile: {searchPath}");
+                    searchPaths.Add(searchPath);
+                }
+                catch (Exception ex)
+                {
+                    LogMessage("Initialise", $"AppContext.BaseDirectory: {ex.Message}");
+                }
+
+                try
+                {
+                    string searchPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData).TrimEnd('\\');
+                    LogMessage("Initialise", $"Adding search path Environment.SpecialFolder.LocalApplicationData: {searchPath}");
                     searchPaths.Add(searchPath);
                 }
                 catch (Exception ex)
@@ -129,7 +149,7 @@ namespace ASCOM.Tools.Novas31
                         string[] searchDirectories = searchDirectoriesString?.Split(separatorChar);
                         foreach (string directory in searchDirectories)
                         {
-                            LogMessage("Initialise", $"Found binary search directory: {directory}");
+                            LogMessage("Initialise", $"Adding binary search directory: {directory}");
                         }
 
                         searchPaths.UnionWith(searchDirectories);
@@ -168,21 +188,43 @@ namespace ASCOM.Tools.Novas31
                     catch { }
                 }
 
-                // Get the current directory
-                aplicationPath = Directory.GetCurrentDirectory();
+                // Find and read the JPLEPH file
 
-                // Create a path to the ephemeris file.
-                JPLEphFile = Path.Combine(aplicationPath, JPL_EPHEM_FILE_NAME);
-                LogMessage("Initialise", $"Current path: {aplicationPath}, RACIO file: {raCioFile}, JPL ephemeris file: {JPLEphFile}");
+                // Initialise the location of the JPLEPH file
+                string JPLEphFile = null;
+
+                // Search each possible path for the JPLEPH file ignoring any errors
+                foreach (string directoryPath in searchPaths)
+                {
+                    try
+                    {
+                        LogMessage("Initialise", $"Searching for JPLEPH in: {directoryPath}");
+
+                        // Create a full path to the JPLEPH file
+                        string possibleFile = Path.Combine(directoryPath, JPL_EPHEM_FILE_NAME);
+
+                        // Test whether the planetary ephemeris file exists
+                        if (File.Exists(possibleFile)) // File does exist
+                        {
+                            // Save the full path for use later
+                            JPLEphFile = possibleFile;
+                            LogMessage("Initialise", $"Found JPLEPH file: {JPLEphFile}");
+
+                            // Exit the foreach loop and don't bother with any other paths
+                            break;
+                        }
+                    }
+                    catch { }
+                }
 
                 // Validate that the planetary ephemeris file exists
-                if (!File.Exists(JPLEphFile))
+                if (string.IsNullOrEmpty(JPLEphFile)) // Did not find  the JPLEPH file
                 {
                     LogMessage("Initialise", $"NOVAS31 Initialise - Unable to locate JPL ephemeris file: {JPLEphFile}");
                     throw new HelperException($"NOVAS31 Initialise - Unable to locate JPL ephemeris file: {JPLEphFile}");
                 }
 
-                // Open the ephemeris file and set its applicable date range
+                // Found the JPLEPH files so open the ephemeris file and set its applicable date range
                 LogMessage("Initialise", "Opening JPL ephemeris file: " + JPLEphFile);
                 double ephStart = 0.0, ephEnd = 0.0;
                 rc1 = EphemOpen(JPLEphFile, ref ephStart, ref ephEnd, ref DENumber);
