@@ -64,7 +64,7 @@ namespace ASCOM.Tools.Novas31
                 LogMessage("Initialise", "Initialise");
 
                 // Create a string list in which to collect cio_ra.bin search directories
-                SortedSet<string> searchPaths = new SortedSet<string>();
+                List<string> searchPaths = new List<string>();
 
                 // Add several application related directories
                 try
@@ -110,7 +110,7 @@ namespace ASCOM.Tools.Novas31
                 {
                     LogMessage("Initialise", $"AppContext.BaseDirectory: {ex.Message}");
                 }
-                
+
                 try
                 {
                     string searchPath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile).TrimEnd('\\');
@@ -150,9 +150,10 @@ namespace ASCOM.Tools.Novas31
                         foreach (string directory in searchDirectories)
                         {
                             LogMessage("Initialise", $"Adding binary search directory: {directory}");
+                            searchPaths.Add(directory.Trim());
                         }
 
-                        searchPaths.UnionWith(searchDirectories);
+                        //searchPaths.UnionWith(searchDirectories);
                     }
                 }
                 catch (Exception ex)
@@ -165,7 +166,7 @@ namespace ASCOM.Tools.Novas31
                 {
                     try
                     {
-                        LogMessage("Initialise", $"Found native directory path: {directoryPath}");
+                        LogMessage("Initialise", $"Searching for cio-ra.bin in: {directoryPath}");
 
                         // Create a full path to the cio_ra.bin fie
                         string possibleFile = Path.Combine(directoryPath, RACIO_FILE);
@@ -181,11 +182,14 @@ namespace ASCOM.Tools.Novas31
                             SetRACIOFile(raCioFile);
                             LogMessage("Initialise", $"Set {RACIO_FILE} file to {raCioFile}!!!!!");
 
-                            // Exit the foreach loop and don't bother with any other paths
+                            // Successfully set the RACIO file so exit the foreach loop quickly and don't bother with any other paths
                             break;
                         }
                     }
-                    catch { }
+                    catch (Exception ex)
+                    {
+                        LogMessage("Initialise", $"Failed to set RACIO file for path '{directoryPath}': {ex.Message}\r\n{ex}");
+                    }
                 }
 
                 // Find and read the JPLEPH file
@@ -208,7 +212,7 @@ namespace ASCOM.Tools.Novas31
                         {
                             // Save the full path for use later
                             JPLEphFile = possibleFile;
-                            LogMessage("Initialise", $"Found JPLEPH file: {JPLEphFile}");
+                            LogMessage("Initialise", $"Found JPLEPH file: {JPLEphFile}!!!");
 
                             // Exit the foreach loop and don't bother with any other paths
                             break;

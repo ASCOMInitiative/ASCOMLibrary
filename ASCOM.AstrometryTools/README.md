@@ -14,6 +14,9 @@ This release supports the interface updates introduced in ASCOM Platform 7.
 # Version History
 The version history only contains entries when a change is made, if a release version is not listed below, there was no change to this component in that release.
 
+***Release 2.1.0-rc.3***
+* Replace Android libraries for NOVAS and SOFA with differently compiled versions. Improve log messages.
+
 ***Release 2.1.0-rc.2***
 * NOVAS - Add additional search paths for the JPLEPH file to make it work on Android
 
