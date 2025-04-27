@@ -26,6 +26,10 @@ namespace ASCOM.Tools
         private double raJ2000Value, raTopoValue, decJ2000Value, decTopoValue, siteElevValue, siteLatValue, siteLongValue, siteTempValue, sitePressureValue;
         private double raApparentValue, decApparentValue, azimuthTopoValue, elevationTopoValue, julianDateTTValue, julianDateUTCValue, deltaUT1;
         private bool refracValue, requiresRecalculate;
+
+        private bool observedModeValue;
+        private double raObservedValue, decObservedValue, azimuthObservedValue, elevationObservedValue;
+
         private SetBy lastSetBy;
 
         private readonly bool loggerIsTraceLogger = false;
@@ -38,6 +42,8 @@ namespace ASCOM.Tools
         private const double DEGREES2RADIANS = Math.PI / 180.0;
         private const double RADIANS2HOURS = 12.0 / Math.PI;
         private const double RADIANS2DEGREES = 180.0 / Math.PI;
+
+        private const double INVALID_VALUE = double.NaN; // Value to use for invalid values
 
         private const string DATE_FORMAT = "dd/MM/yyyy HH:mm:ss.fff";
 
@@ -93,14 +99,19 @@ namespace ASCOM.Tools
             swRecalculate = new Stopwatch();
 
             // Initialise to invalid values in case these are read before they are set
-            raJ2000Value = double.NaN;
-            decJ2000Value = double.NaN;
-            raTopoValue = double.NaN;
-            decTopoValue = double.NaN;
-            siteElevValue = double.NaN;
-            siteLatValue = double.NaN;
-            siteLongValue = double.NaN;
-            sitePressureValue = double.NaN;
+            raJ2000Value = INVALID_VALUE;
+            decJ2000Value = INVALID_VALUE;
+            raTopoValue = INVALID_VALUE;
+            decTopoValue = INVALID_VALUE;
+            siteElevValue = INVALID_VALUE;
+            siteLatValue = INVALID_VALUE;
+            siteLongValue = INVALID_VALUE;
+            sitePressureValue = INVALID_VALUE;
+            raObservedValue = INVALID_VALUE;
+            decObservedValue = INVALID_VALUE;
+            azimuthObservedValue = INVALID_VALUE;
+            elevationObservedValue = INVALID_VALUE;
+            observedModeValue = false;
 
             refracValue = false;
             lastSetBy = SetBy.Never;
@@ -161,6 +172,138 @@ namespace ASCOM.Tools
         #endregion
 
         #region Public members
+
+        /// <summary>
+        /// Enables or disables the new "Observed" mode.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// In original behaviour mode the <see cref="Refraction"/> setting is respected and <see cref="RATopocentric"/>, <see cref="DECTopocentric"/>, <see cref="AzimuthTopocentric"/> and <see cref="ElevationTopocentric"/>
+        /// will include or exclude the effect of refraction depending on the <see cref="Refraction"/> property setting.
+        /// </para>
+        /// <para>
+        /// In observed mode the <see cref="Refraction"/> setting is ignored and <see cref="RATopocentric"/>, <see cref="DECTopocentric"/>, <see cref="AzimuthTopocentric"/> and <see cref="ElevationTopocentric"/> always provide
+        /// unrefracted values. RA, declination, azimuth and elevation values that include the effects of refraction are available in the <see cref="RAObserved"/>, <see cref="DECObserved"/>, <see cref="AzimuthObserved"/>
+        /// and <see cref="ElevationObserved"/> properties.
+        /// </para>
+        /// </remarks>
+        public bool ObservedMode
+        {
+            get
+            {
+                return observedModeValue;
+            }
+            set
+            {
+                if (observedModeValue != value)
+                    requiresRecalculate = true;
+
+                observedModeValue = value;
+            }
+        }
+
+        /// <summary>
+        /// Observed RA in hours (topocentric RA allowing for refraction)
+        /// </summary>
+        /// <exception cref="TransformUninitialisedException">When called before a SetXXX method has been used.</exception>
+        /// <exception cref="TransformInvalidOperationException">When called and <see cref="ObservedMode"/> is false.</exception>
+        /// <remarks>Only available in observed mode. See <see cref="ObservedMode"/> for a detailed explanation of the original and observed modes of operation.</remarks>
+        public double RAObserved
+        {
+            get
+            {
+                if (!observedModeValue)
+                    throw new TransformInvalidOperationException("RAObserved is only available in observed mode. Set Transform.ObservedMode to true to use this property.");
+
+                if (lastSetBy == SetBy.Never)
+                    throw new TransformUninitialisedException("Attempt to read RAObserved before a SetXX method has been called");
+
+                Recalculate();
+
+                CheckSet("RAObserved", raObservedValue, "RA Observed can not be derived from the information provided. Are site parameters set?");
+                LogMessage("RAObserved Get", FormatRA(raObservedValue));
+
+                return raObservedValue;
+            }
+        }
+
+        /// <summary>
+        /// Observed declination in degrees (topocentric declination allowing for refraction)
+        /// </summary>
+        /// <exception cref="TransformUninitialisedException">When called before a SetXXX method has been used.</exception>
+        /// <exception cref="TransformInvalidOperationException">When called and <see cref="ObservedMode"/> is false.</exception>
+        /// <remarks>Only available in observed mode. See <see cref="ObservedMode"/> for a detailed explanation of the original and observed modes of operation.</remarks>
+        public double DECObserved
+        {
+            get
+            {
+                if (!observedModeValue)
+                    throw new TransformInvalidOperationException("DECObserved is only available in observed mode. Set Transform.ObservedMode to true to use this property.");
+
+                if (lastSetBy == SetBy.Never)
+                    throw new TransformUninitialisedException("Attempt to read DecObserved before a SetXX method has been called");
+
+                Recalculate();
+
+                CheckSet("DecObserved", decObservedValue, "DEC Observed can not be derived from the information provided. Are site parameters set?");
+                LogMessage("DecObserved Get", FormatDec(decObservedValue));
+
+                return decObservedValue;
+            }
+        }
+
+        /// <summary>
+        /// Observed azimuth in degrees (topocentric azimuth allowing for refraction)
+        /// </summary>
+        /// <exception cref="TransformUninitialisedException">When called before a SetXXX method has been used.</exception>
+        /// <exception cref="TransformInvalidOperationException">When called and <see cref="ObservedMode"/> is false.</exception>
+        /// <remarks>Only available in observed mode. See <see cref="ObservedMode"/> for a detailed explanation of the original and observed modes of operation.</remarks>
+        public double AzimuthObserved
+        {
+            get
+            {
+                if (!observedModeValue)
+                    throw new TransformInvalidOperationException("AzimuthObserved is only available in observed mode. Set Transform.ObservedMode to true to use this property.");
+
+                if (lastSetBy == SetBy.Never)
+                    throw new TransformUninitialisedException("Attempt to read AzimuthObserved before a SetXX method has been called");
+
+                requiresRecalculate = true; // Force a recalculation of Azimuth
+                Recalculate();
+
+                CheckSet("AzimuthObserved", azimuthObservedValue, "Azimuth Observed can not be derived from the information provided. Are site parameters set?");
+                LogMessage("AzimuthObserved Get", FormatDec(azimuthObservedValue));
+
+                return azimuthObservedValue;
+            }
+        }
+
+        /// <summary>
+        /// Observed elevation in degrees (topocentric elevation allowing for refraction)
+        /// </summary>
+        /// <exception cref="TransformUninitialisedException">When called before a SetXXX method has been used.</exception>
+        /// <exception cref="TransformInvalidOperationException">When called and <see cref="ObservedMode"/> is false.</exception>
+        /// <remarks>Only available in observed mode. See <see cref="ObservedMode"/> for a detailed explanation of the original and observed modes of operation.</remarks>
+        public double ElevationObserved
+        {
+            get
+            {
+                if (!observedModeValue)
+                    throw new TransformInvalidOperationException("ElevationObserved is only available in observed mode. Set Transform.ObservedMode to true to use this property.");
+
+                if (lastSetBy == SetBy.Never)
+                    throw new TransformUninitialisedException("Attempt to read ElevationObserved before a SetXX method has been called");
+
+                requiresRecalculate = true; // Force a recalculation of Elevation
+                Recalculate();
+
+                CheckSet("ElevationObserved", elevationObservedValue, "Elevation Observed can not be derived from the information provided. Are site parameters set?");
+                LogMessage("ElevationObserved Get", FormatDec(elevationObservedValue));
+
+                return elevationObservedValue;
+            }
+        }
+
         /// <summary>
         /// Set the delta UT1 value to be used by Transform, defaults to 0.0
         /// </summary>
@@ -316,6 +459,9 @@ namespace ASCOM.Tools
             }
             set
             {
+                if (observedModeValue)
+                    throw new TransformInvalidOperationException("Setting refraction is invalid when Transform.ObservedMode = true. See the help text for Transform.ObservedMode.");
+
                 if (refracValue != value)
                     requiresRecalculate = true;
                 refracValue = value;
@@ -469,7 +615,10 @@ namespace ASCOM.Tools
         /// to read a value before any of the Set methods has been used or if the value can not be derived from the
         /// information in the last Set method used. E.g. topocentric values will be unavailable if the last Set was
         /// a SetApparent and one of the Site properties has not been set.</exception>
-        /// <remarks></remarks>
+        /// <remarks>
+        /// In normal mode (see <see cref="ObservedMode"/>) this will output a refracted or unrefracted coordinate depending on the value of the <see cref="Refraction"/> property. 
+        /// In observed mode the value will always be the unrefracted value.
+        /// </remarks>
         public double RATopocentric
         {
             get
@@ -492,7 +641,10 @@ namespace ASCOM.Tools
         /// to read a value before any of the Set methods has been used or if the value can not be derived from the
         /// information in the last Set method used. E.g. topocentric values will be unavailable if the last Set was
         /// a SetApparent and one of the Site properties has not been set.</exception>
-        /// <remarks></remarks>
+        /// <remarks>
+        /// In normal mode (see <see cref="ObservedMode"/>) this will output a refracted or unrefracted coordinate depending on the value of the <see cref="Refraction"/> property. 
+        /// In observed mode the value will always be the unrefracted value.
+        /// </remarks>
         public double DECTopocentric
         {
             get
@@ -559,7 +711,10 @@ namespace ASCOM.Tools
         /// to read a value before any of the Set methods has been used or if the value can not be derived from the
         /// information in the last Set method used. E.g. topocentric values will be unavailable if the last Set was
         /// a SetApparent and one of the Site properties has not been set.</exception>
-        /// <remarks></remarks>
+        /// <remarks>
+        /// In normal mode (see <see cref="ObservedMode"/>) this will output a refracted or unrefracted coordinate depending on the value of the <see cref="Refraction"/> property. 
+        /// In observed mode the value will always be the unrefracted value.
+        /// </remarks>
         public double AzimuthTopocentric
         {
             get
@@ -583,7 +738,10 @@ namespace ASCOM.Tools
         /// to read a value before any of the Set methods has been used or if the value can not be derived from the
         /// information in the last Set method used. E.g. topocentric values will be unavailable if the last Set was
         /// a SetApparent and one of the Site properties has not been set.</exception>
-        /// <remarks></remarks>
+        /// <remarks>
+        /// In normal mode (see <see cref="ObservedMode"/>) this will output a refracted or unrefracted coordinate depending on the value of the <see cref="Refraction"/> property. 
+        /// In observed mode the value will always be the unrefracted value.
+        /// </remarks>
         public double ElevationTopocentric
         {
             get
@@ -691,14 +849,98 @@ namespace ASCOM.Tools
 
         #endregion
 
-        #region Support code
-        private void CheckSet(string caller, double value, string errMsg)
+        #region Coordinate transformation
+
+        private void Recalculate() // Calculate values for derived co-ordinates
         {
-            if (double.IsNaN(value))
+            swRecalculate.Reset(); swRecalculate.Start();
+            if (requiresRecalculate | (refracValue == true))
             {
-                LogMessage(caller, "Throwing TransformUninitialisedException: " + errMsg);
-                throw new TransformUninitialisedException(errMsg);
+                LogMessage("Recalculate", $"Requires Recalculate: {requiresRecalculate}, Refraction: {refracValue}, Latitude: {siteLatValue}, Longitude: {siteLongValue}, Elevation: {siteElevValue}, Temperature: {siteTempValue}");
+                switch (lastSetBy)
+                {
+                    case SetBy.J2000: // J2000 coordinates have bee set so calculate apparent and topocentric coordinates
+                        LogMessage("  Recalculate", "  Values last set by SetJ2000");
+
+                        // Check whether required topo values have been set
+                        if ((!double.IsNaN(siteLatValue)) & (!double.IsNaN(siteLongValue)) & (!double.IsNaN(siteElevValue)) & (!double.IsNaN(siteTempValue)))
+                            J2000ToTopo(); // All required site values present so calculate Topo values
+                        else
+                        {
+                            raTopoValue = INVALID_VALUE;
+                            decTopoValue = INVALID_VALUE;
+                            azimuthTopoValue = INVALID_VALUE;
+                            elevationTopoValue = INVALID_VALUE;
+                        }
+                        J2000ToApparent();
+                        break;
+
+                    case SetBy.Topocentric: // Topocentric co-ordinates have been set so calculate J2000 and apparent coordinates
+                        LogMessage("  Recalculate", "  Values last set by SetTopocentric");
+
+                        // Check whether required topo values have been set
+                        if ((!double.IsNaN(siteLatValue)) & (!double.IsNaN(siteLongValue)) & (!double.IsNaN(siteElevValue)) & (!double.IsNaN(siteTempValue)))
+                        {
+                            TopoToJ2000();
+                            J2000ToApparent();
+                            J2000ToObserved();
+                        }
+                        else
+                        {
+                            raJ2000Value = INVALID_VALUE;
+                            decJ2000Value = INVALID_VALUE;
+                            raApparentValue = INVALID_VALUE;
+                            decApparentValue = INVALID_VALUE;
+                            azimuthTopoValue = INVALID_VALUE;
+                            elevationTopoValue = INVALID_VALUE;
+                        }
+                        break;
+
+                    case SetBy.Apparent: // Apparent values have been set so calculate J2000 values and topo values if appropriate
+                        LogMessage("  Recalculate", "  Values last set by SetApparent");
+                        ApparentToJ2000(); // Calculate J2000 value
+
+                        // Check whether required topo values have been set
+                        if ((!double.IsNaN(siteLatValue)) & (!double.IsNaN(siteLongValue)) & (!double.IsNaN(siteElevValue)) & (!double.IsNaN(siteTempValue)))
+                            J2000ToTopo(); // All required site values present so calculate Topo values
+                        else
+                        {
+                            raTopoValue = INVALID_VALUE;
+                            decTopoValue = INVALID_VALUE;
+                            azimuthTopoValue = INVALID_VALUE;
+                            elevationTopoValue = INVALID_VALUE;
+                        }
+                        break;
+
+                    case SetBy.AzimuthElevation:
+                        LogMessage("  Recalculate", "  Values last set by AzimuthElevation");
+                        if ((!double.IsNaN(siteLatValue)) & (!double.IsNaN(siteLongValue)) & (!double.IsNaN(siteElevValue)) & (!double.IsNaN(siteTempValue)))
+                        {
+                            AzElToJ2000();
+                            J2000ToTopo();
+                            J2000ToApparent();
+                        }
+                        else
+                        {
+                            raJ2000Value = INVALID_VALUE;
+                            decJ2000Value = INVALID_VALUE;
+                            raApparentValue = INVALID_VALUE;
+                            decApparentValue = INVALID_VALUE;
+                            raTopoValue = INVALID_VALUE;
+                            decTopoValue = INVALID_VALUE;
+                        }
+                        break;
+
+                    default:
+                        LogMessage("Recalculate", "Neither SetJ2000 nor SetTopocentric nor SetApparent have been called. Throwing TransforUninitialisedException");
+                        throw new TransformUninitialisedException("Can't recalculate Transform object values because neither SetJ2000 nor SetTopocentric nor SetApparent have been called");
+                }
+                LogMessage("  Recalculate", "  Completed in " + swRecalculate.Elapsed.TotalMilliseconds.ToString("0.00") + "ms");
+                requiresRecalculate = false; // Reset the recalculate flag
             }
+            else
+                LogMessage("  Recalculate", "No parameters have changed, refraction is " + refracValue + ", recalculation not required");
+            swRecalculate.Stop();
         }
 
         private void J2000ToTopo()
@@ -724,11 +966,39 @@ namespace ASCOM.Tools
 
             sw.Reset(); sw.Start();
 
-            if (refracValue)
-                Sofa.Atco13(raJ2000Value * HOURS2RADIANS, decJ2000Value * DEGREES2RADIANS, 0.0, 0.0, 0.0, 0.0, JDUTCSofa, 0.0, deltaUT1, siteLongValue * DEGREES2RADIANS, siteLatValue * DEGREES2RADIANS, siteElevValue, 0.0, 0.0, sitePressureValue, siteTempValue, 0.8, 0.57, ref aob, ref zob, ref hob, ref dob, ref rob, ref eo);
-            else
+            if (observedModeValue) // We are in observed mode
+            {
+                // Calculate and set unrefracted values
                 Sofa.Atco13(raJ2000Value * HOURS2RADIANS, decJ2000Value * DEGREES2RADIANS, 0.0, 0.0, 0.0, 0.0, JDUTCSofa, 0.0, deltaUT1, siteLongValue * DEGREES2RADIANS, siteLatValue * DEGREES2RADIANS, siteElevValue, 0.0, 0.0, 0.0, 0.0, 0.0, 0.57, ref aob, ref zob, ref hob, ref dob, ref rob, ref eo);
+                raTopoValue = Sofa.Anp(rob - eo) * RADIANS2HOURS; // // Convert CIO RA to equinox of date RA by subtracting the equation of the origins and convert from radians to hours
+                decTopoValue = dob * RADIANS2DEGREES; // Convert Dec from radians to degrees
+                azimuthTopoValue = aob * RADIANS2DEGREES;
+                elevationTopoValue = 90.0 - zob * RADIANS2DEGREES;
 
+                LogMessage("  J2000 To Topo", "  Topocentric RA/DEC (observed mode):  " + FormatRA(raTopoValue) + " " + FormatDec(decTopoValue) + ", " + sw.Elapsed.TotalMilliseconds.ToString("0.00") + "ms");
+                LogMessage("  J2000 To Topo", "  Topocentric Azimuth/Elevation: " + FormatDec(azimuthTopoValue) + " " + FormatDec(elevationTopoValue) + ", " + sw.Elapsed.TotalMilliseconds.ToString("0.00") + "ms");
+                LogMessage("  J2000 To Topo", "  Completed");
+
+                // Calculate and set refracted values
+                sw.Restart();
+                Sofa.Atco13(raJ2000Value * HOURS2RADIANS, decJ2000Value * DEGREES2RADIANS, 0.0, 0.0, 0.0, 0.0, JDUTCSofa, 0.0, deltaUT1, siteLongValue * DEGREES2RADIANS, siteLatValue * DEGREES2RADIANS, siteElevValue, 0.0, 0.0, sitePressureValue, siteTempValue, 0.8, 0.57, ref aob, ref zob, ref hob, ref dob, ref rob, ref eo);
+                raObservedValue = Sofa.Anp(rob - eo) * RADIANS2HOURS; // // Convert CIO RA to equinox of date RA by subtracting the equation of the origins and convert from radians to hours
+                decObservedValue = dob * RADIANS2DEGREES; // Convert Dec from radians to degrees
+                azimuthObservedValue = aob * RADIANS2DEGREES;
+                elevationObservedValue = 90.0 - zob * RADIANS2DEGREES;
+
+                LogMessage("  J2000 To Topo", "  Observed RA/DEC:  " + FormatRA(raObservedValue) + " " + FormatDec(decObservedValue) + ", " + sw.Elapsed.TotalMilliseconds.ToString("0.00") + "ms");
+                LogMessage("  J2000 To Topo", "  Observed Azimuth/Elevation: " + FormatDec(azimuthObservedValue) + " " + FormatDec(elevationObservedValue) + ", " + sw.Elapsed.TotalMilliseconds.ToString("0.00") + "ms");
+                LogMessage("  J2000 To Topo", "  Completed");
+                LogMessage("", "");
+            }
+            else // We are in original mode
+            {
+                if (refracValue)
+                    Sofa.Atco13(raJ2000Value * HOURS2RADIANS, decJ2000Value * DEGREES2RADIANS, 0.0, 0.0, 0.0, 0.0, JDUTCSofa, 0.0, deltaUT1, siteLongValue * DEGREES2RADIANS, siteLatValue * DEGREES2RADIANS, siteElevValue, 0.0, 0.0, sitePressureValue, siteTempValue, 0.8, 0.57, ref aob, ref zob, ref hob, ref dob, ref rob, ref eo);
+                else
+                    Sofa.Atco13(raJ2000Value * HOURS2RADIANS, decJ2000Value * DEGREES2RADIANS, 0.0, 0.0, 0.0, 0.0, JDUTCSofa, 0.0, deltaUT1, siteLongValue * DEGREES2RADIANS, siteLatValue * DEGREES2RADIANS, siteElevValue, 0.0, 0.0, 0.0, 0.0, 0.0, 0.57, ref aob, ref zob, ref hob, ref dob, ref rob, ref eo);
+            }
             raTopoValue = Sofa.Anp(rob - eo) * RADIANS2HOURS; // // Convert CIO RA to equinox of date RA by subtracting the equation of the origins and convert from radians to hours
             decTopoValue = dob * RADIANS2DEGREES; // Convert Dec from radians to degrees
             azimuthTopoValue = aob * RADIANS2DEGREES;
@@ -740,6 +1010,45 @@ namespace ASCOM.Tools
             LogMessage("", "");
         }
 
+        private void J2000ToObserved()
+        {
+            double JDUTCSofa;
+            double aob = 0.0, zob = 0.0, hob = 0.0, dob = 0.0, rob = 0.0, eo = 0.0;
+
+            if (double.IsNaN(siteElevValue))
+                throw new TransformUninitialisedException("Site elevation has not been set");
+            if (double.IsNaN(siteLatValue))
+                throw new TransformUninitialisedException("Site latitude has not been set");
+            if (double.IsNaN(siteLongValue))
+                throw new TransformUninitialisedException("Site longitude has not been set");
+            if (double.IsNaN(siteTempValue))
+                throw new TransformUninitialisedException("Site temperature has not been set");
+
+            // Calculate site pressure at site elevation if this has not been provided
+            CalculateSitePressureIfRequired();
+
+            sw.Reset(); sw.Start();
+
+            JDUTCSofa = GetJDUTCSofa();
+
+            sw.Reset(); sw.Start();
+
+            if (observedModeValue) // We are in observed mode
+            {
+                // Calculate and set refracted values
+                sw.Restart();
+                Sofa.Atco13(raJ2000Value * HOURS2RADIANS, decJ2000Value * DEGREES2RADIANS, 0.0, 0.0, 0.0, 0.0, JDUTCSofa, 0.0, deltaUT1, siteLongValue * DEGREES2RADIANS, siteLatValue * DEGREES2RADIANS, siteElevValue, 0.0, 0.0, sitePressureValue, siteTempValue, 0.8, 0.57, ref aob, ref zob, ref hob, ref dob, ref rob, ref eo);
+                raObservedValue = Sofa.Anp(rob - eo) * RADIANS2HOURS; // // Convert CIO RA to equinox of date RA by subtracting the equation of the origins and convert from radians to hours
+                decObservedValue = dob * RADIANS2DEGREES; // Convert Dec from radians to degrees
+                azimuthObservedValue = aob * RADIANS2DEGREES;
+                elevationObservedValue = 90.0 - zob * RADIANS2DEGREES;
+
+                LogMessage("  J2000 To Observed", "  Observed RA/DEC:  " + FormatRA(raObservedValue) + " " + FormatDec(decObservedValue) + ", " + sw.Elapsed.TotalMilliseconds.ToString("0.00") + "ms");
+                LogMessage("  J2000 To Observed", "  Observed Azimuth/Elevation: " + FormatDec(azimuthObservedValue) + " " + FormatDec(elevationObservedValue) + ", " + sw.Elapsed.TotalMilliseconds.ToString("0.00") + "ms");
+                LogMessage("  J2000 To Observed", "  Completed");
+                LogMessage("", "");
+            }
+        }
         private void J2000ToApparent()
         {
             double ri = 0.0, di = 0.0, eo = 0.0;
@@ -779,26 +1088,57 @@ namespace ASCOM.Tools
             JDTTSofa = GetJDTTSofa();
 
             sw.Reset(); sw.Start();
-            if (refracValue)
-                RetCode = Sofa.Atoc13("R", Sofa.Anp(raTopoValue * HOURS2RADIANS + Sofa.Eo06a(JDTTSofa, 0.0)), decTopoValue * DEGREES2RADIANS, JDUTCSofa, 0.0, deltaUT1, siteLongValue * DEGREES2RADIANS, siteLatValue * DEGREES2RADIANS, siteElevValue, 0.0, 0.0, sitePressureValue, siteTempValue, 0.85, 0.57, ref RACelestrial, ref DecCelestial);
-            else
+
+            if (observedModeValue) // We are in observed mode
+            {
+                // Calculate J2000 values assuming topocentric values have no refraction correction
                 RetCode = Sofa.Atoc13("R", Sofa.Anp(raTopoValue * HOURS2RADIANS + Sofa.Eo06a(JDTTSofa, 0.0)), decTopoValue * DEGREES2RADIANS, JDUTCSofa, 0.0, deltaUT1, siteLongValue * DEGREES2RADIANS, siteLatValue * DEGREES2RADIANS, siteElevValue, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, ref RACelestrial, ref DecCelestial);
 
-            raJ2000Value = RACelestrial * RADIANS2HOURS;
-            decJ2000Value = DecCelestial * RADIANS2DEGREES;
-            LogMessage("  Topo To J2000", "  J2000 RA/Dec:" + FormatRA(raJ2000Value) + " " + FormatDec(decJ2000Value) + ", " + sw.Elapsed.TotalMilliseconds.ToString("0.00") + "ms");
+                raJ2000Value = RACelestrial * RADIANS2HOURS;
+                decJ2000Value = DecCelestial * RADIANS2DEGREES;
+                LogMessage("  Topo To J2000", "  J2000 RA/Dec (observed mode):" + FormatRA(raJ2000Value) + " " + FormatDec(decJ2000Value) + ", " + sw.Elapsed.TotalMilliseconds.ToString("0.00") + "ms");
 
-            // Now calculate the corresponding AzEl values from the J2000 values
-            sw.Reset(); sw.Start();
-            if (refracValue)
-                Sofa.Atco13(raJ2000Value * HOURS2RADIANS, decJ2000Value * DEGREES2RADIANS, 0.0, 0.0, 0.0, 0.0, JDUTCSofa, 0.0, deltaUT1, siteLongValue * DEGREES2RADIANS, siteLatValue * DEGREES2RADIANS, siteElevValue, 0.0, 0.0, sitePressureValue, siteTempValue, 0.8, 0.57, ref aob, ref zob, ref hob, ref dob, ref rob, ref eo);
-            else
+                // Now calculate the corresponding AzEl values from the J2000 values
+                sw.Reset(); sw.Start();
+
+                // Calculate unrefracted Az/El values and assign to topo properties
                 Sofa.Atco13(raJ2000Value * HOURS2RADIANS, decJ2000Value * DEGREES2RADIANS, 0.0, 0.0, 0.0, 0.0, JDUTCSofa, 0.0, deltaUT1, siteLongValue * DEGREES2RADIANS, siteLatValue * DEGREES2RADIANS, siteElevValue, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, ref aob, ref zob, ref hob, ref dob, ref rob, ref eo);
 
-            azimuthTopoValue = aob * RADIANS2DEGREES;
-            elevationTopoValue = 90.0 - zob * RADIANS2DEGREES;
+                azimuthTopoValue = aob * RADIANS2DEGREES;
+                elevationTopoValue = 90.0 - zob * RADIANS2DEGREES;
+                LogMessage("  Topo To J2000", "  Topocentric Azimuth/Elevation: " + FormatDec(azimuthTopoValue) + " " + FormatDec(elevationTopoValue) + ", " + sw.Elapsed.TotalMilliseconds.ToString("0.00") + "ms");
 
-            LogMessage("  Topo To J2000", "  Azimuth/Elevation: " + FormatDec(azimuthTopoValue) + " " + FormatDec(elevationTopoValue) + ", " + sw.Elapsed.TotalMilliseconds.ToString("0.00") + "ms");
+                // Calculate observed (refracted) Az/El values and assign to observed properties
+                sw.Reset(); sw.Start();
+                Sofa.Atco13(raJ2000Value * HOURS2RADIANS, decJ2000Value * DEGREES2RADIANS, 0.0, 0.0, 0.0, 0.0, JDUTCSofa, 0.0, deltaUT1, siteLongValue * DEGREES2RADIANS, siteLatValue * DEGREES2RADIANS, siteElevValue, 0.0, 0.0, sitePressureValue, siteTempValue, 0.8, 0.57, ref aob, ref zob, ref hob, ref dob, ref rob, ref eo);
+
+                azimuthObservedValue = aob * RADIANS2DEGREES;
+                elevationObservedValue = 90.0 - zob * RADIANS2DEGREES;
+                LogMessage("  Topo To J2000", "  Observed Azimuth/Elevation: " + FormatDec(azimuthObservedValue) + " " + FormatDec(elevationObservedValue) + ", " + sw.Elapsed.TotalMilliseconds.ToString("0.00") + "ms");
+            }
+            else // We are in original mode
+            {
+                if (refracValue)
+                    RetCode = Sofa.Atoc13("R", Sofa.Anp(raTopoValue * HOURS2RADIANS + Sofa.Eo06a(JDTTSofa, 0.0)), decTopoValue * DEGREES2RADIANS, JDUTCSofa, 0.0, deltaUT1, siteLongValue * DEGREES2RADIANS, siteLatValue * DEGREES2RADIANS, siteElevValue, 0.0, 0.0, sitePressureValue, siteTempValue, 0.85, 0.57, ref RACelestrial, ref DecCelestial);
+                else
+                    RetCode = Sofa.Atoc13("R", Sofa.Anp(raTopoValue * HOURS2RADIANS + Sofa.Eo06a(JDTTSofa, 0.0)), decTopoValue * DEGREES2RADIANS, JDUTCSofa, 0.0, deltaUT1, siteLongValue * DEGREES2RADIANS, siteLatValue * DEGREES2RADIANS, siteElevValue, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, ref RACelestrial, ref DecCelestial);
+
+                raJ2000Value = RACelestrial * RADIANS2HOURS;
+                decJ2000Value = DecCelestial * RADIANS2DEGREES;
+                LogMessage("  Topo To J2000", "  J2000 RA/Dec:" + FormatRA(raJ2000Value) + " " + FormatDec(decJ2000Value) + ", " + sw.Elapsed.TotalMilliseconds.ToString("0.00") + "ms");
+
+                // Now calculate the corresponding AzEl values from the J2000 values
+                sw.Reset(); sw.Start();
+                if (refracValue)
+                    Sofa.Atco13(raJ2000Value * HOURS2RADIANS, decJ2000Value * DEGREES2RADIANS, 0.0, 0.0, 0.0, 0.0, JDUTCSofa, 0.0, deltaUT1, siteLongValue * DEGREES2RADIANS, siteLatValue * DEGREES2RADIANS, siteElevValue, 0.0, 0.0, sitePressureValue, siteTempValue, 0.8, 0.57, ref aob, ref zob, ref hob, ref dob, ref rob, ref eo);
+                else
+                    Sofa.Atco13(raJ2000Value * HOURS2RADIANS, decJ2000Value * DEGREES2RADIANS, 0.0, 0.0, 0.0, 0.0, JDUTCSofa, 0.0, deltaUT1, siteLongValue * DEGREES2RADIANS, siteLatValue * DEGREES2RADIANS, siteElevValue, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, ref aob, ref zob, ref hob, ref dob, ref rob, ref eo);
+
+                azimuthTopoValue = aob * RADIANS2DEGREES;
+                elevationTopoValue = 90.0 - zob * RADIANS2DEGREES;
+
+                LogMessage("  Topo To J2000", "  Azimuth/Elevation: " + FormatDec(azimuthTopoValue) + " " + FormatDec(elevationTopoValue) + ", " + sw.Elapsed.TotalMilliseconds.ToString("0.00") + "ms");
+            }
         }
 
         private void ApparentToJ2000()
@@ -814,110 +1154,6 @@ namespace ASCOM.Tools
             raJ2000Value = RACelestial * RADIANS2HOURS;
             decJ2000Value = DecCelestial * RADIANS2DEGREES;
             LogMessage("  Apparent To J2000", "  J2000 RA/Dec" + FormatRA(raJ2000Value) + " " + FormatDec(decJ2000Value) + ", " + sw.Elapsed.TotalMilliseconds.ToString("0.00") + "ms");
-        }
-
-        private void Recalculate() // Calculate values for derived co-ordinates
-        {
-            swRecalculate.Reset(); swRecalculate.Start();
-            if (requiresRecalculate | (refracValue == true))
-            {
-                LogMessage("Recalculate", $"Requires Recalculate: {requiresRecalculate}, Refraction: {refracValue}, Latitude: {siteLatValue}, Longitude: {siteLongValue}, Elevation: {siteElevValue}, Temperature: {siteTempValue}");
-                switch (lastSetBy)
-                {
-                    case SetBy.J2000 // J2000 coordinates have bee set so calculate apparent and topocentric coordinates
-                   :
-                        {
-                            LogMessage("  Recalculate", "  Values last set by SetJ2000");
-                            // Check whether required topo values have been set
-                            if ((!double.IsNaN(siteLatValue)) & (!double.IsNaN(siteLongValue)) & (!double.IsNaN(siteElevValue)) & (!double.IsNaN(siteTempValue)))
-                                J2000ToTopo(); // All required site values present so calculate Topo values
-                            else
-                            {
-                                raTopoValue = double.NaN;
-                                decTopoValue = double.NaN;
-                                azimuthTopoValue = double.NaN;
-                                elevationTopoValue = double.NaN;
-                            }
-                            J2000ToApparent();
-                            break;
-                        }
-
-                    case SetBy.Topocentric // Topocentric co-ordinates have been set so calculate J2000 and apparent coordinates
-             :
-                        {
-                            LogMessage("  Recalculate", "  Values last set by SetTopocentric");
-                            // Check whether required topo values have been set
-                            if ((!double.IsNaN(siteLatValue)) & (!double.IsNaN(siteLongValue)) & (!double.IsNaN(siteElevValue)) & (!double.IsNaN(siteTempValue)))
-                            {
-                                TopoToJ2000();
-                                J2000ToApparent();
-                            }
-                            else
-                            {
-                                raJ2000Value = double.NaN;
-                                decJ2000Value = double.NaN;
-                                raApparentValue = double.NaN;
-                                decApparentValue = double.NaN;
-                                azimuthTopoValue = double.NaN;
-                                elevationTopoValue = double.NaN;
-                            }
-
-                            break;
-                        }
-
-                    case SetBy.Apparent // Apparent values have been set so calculate J2000 values and topo values if appropriate
-             :
-                        {
-                            LogMessage("  Recalculate", "  Values last set by SetApparent");
-                            ApparentToJ2000(); // Calculate J2000 value
-                                               // Check whether required topo values have been set
-                            if ((!double.IsNaN(siteLatValue)) & (!double.IsNaN(siteLongValue)) & (!double.IsNaN(siteElevValue)) & (!double.IsNaN(siteTempValue)))
-                                J2000ToTopo(); // All required site values present so calculate Topo values
-                            else
-                            {
-                                raTopoValue = double.NaN;
-                                decTopoValue = double.NaN;
-                                azimuthTopoValue = double.NaN;
-                                elevationTopoValue = double.NaN;
-                            }
-
-                            break;
-                        }
-
-                    case SetBy.AzimuthElevation:
-                        {
-                            LogMessage("  Recalculate", "  Values last set by AzimuthElevation");
-                            if ((!double.IsNaN(siteLatValue)) & (!double.IsNaN(siteLongValue)) & (!double.IsNaN(siteElevValue)) & (!double.IsNaN(siteTempValue)))
-                            {
-                                AzElToJ2000();
-                                J2000ToTopo();
-                                J2000ToApparent();
-                            }
-                            else
-                            {
-                                raJ2000Value = double.NaN;
-                                decJ2000Value = double.NaN;
-                                raApparentValue = double.NaN;
-                                decApparentValue = double.NaN;
-                                raTopoValue = double.NaN;
-                                decTopoValue = double.NaN;
-                            }
-
-                            break;
-                        }
-
-                    default:
-                        {
-                            LogMessage("Recalculate", "Neither SetJ2000 nor SetTopocentric nor SetApparent have been called. Throwing TransforUninitialisedException");
-                            throw new TransformUninitialisedException("Can't recalculate Transform object values because neither SetJ2000 nor SetTopocentric nor SetApparent have been called");
-                        }
-                }
-                LogMessage("  Recalculate", "  Completed in " + swRecalculate.Elapsed.TotalMilliseconds.ToString("0.00") + "ms");
-                requiresRecalculate = false; // Reset the recalculate flag
-            }
-            else
-                LogMessage("  Recalculate", "No parameters have changed, refraction is " + refracValue + ", recalculation not required");
-            swRecalculate.Stop();
         }
 
         private void AzElToJ2000()
@@ -941,18 +1177,44 @@ namespace ASCOM.Tools
 
             JulianDateUTCSofa = GetJDUTCSofa();
 
-            if (refracValue)
-                RetCode = Sofa.Atoc13("A", azimuthTopoValue * DEGREES2RADIANS, (90.0 - elevationTopoValue) * DEGREES2RADIANS, JulianDateUTCSofa, 0.0, deltaUT1, siteLongValue * DEGREES2RADIANS, siteLatValue * DEGREES2RADIANS, siteElevValue, 0.0, 0.0, sitePressureValue, siteTempValue, 0.85, 0.57, ref RACelestial, ref DecCelestial);
-            else
+            if (observedModeValue) // We are in observed mode
+            {
+                // ASsume that topo coordinates are unrefracted
                 RetCode = Sofa.Atoc13("A", azimuthTopoValue * DEGREES2RADIANS, (90.0 - elevationTopoValue) * DEGREES2RADIANS, JulianDateUTCSofa, 0.0, deltaUT1, siteLongValue * DEGREES2RADIANS, siteLatValue * DEGREES2RADIANS, siteElevValue, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, ref RACelestial, ref DecCelestial);
 
-            raJ2000Value = RACelestial * RADIANS2HOURS;
-            decJ2000Value = DecCelestial * RADIANS2DEGREES;
+                raJ2000Value = RACelestial * RADIANS2HOURS;
+                decJ2000Value = DecCelestial * RADIANS2DEGREES;
 
-            LogMessage("  AzEl To J2000", "  SOFA RA: " + FormatRA(raJ2000Value) + ", Declination: " + FormatDec(decJ2000Value));
+                LogMessage("  AzEl To J2000", "  J2000 RA (observed mode): " + FormatRA(raJ2000Value) + ", J2000 Declination: " + FormatDec(decJ2000Value));
 
+            }
+            else // We are in original mode
+            {
+                if (refracValue) // We are respecting applied refraction
+                    RetCode = Sofa.Atoc13("A", azimuthTopoValue * DEGREES2RADIANS, (90.0 - elevationTopoValue) * DEGREES2RADIANS, JulianDateUTCSofa, 0.0, deltaUT1, siteLongValue * DEGREES2RADIANS, siteLatValue * DEGREES2RADIANS, siteElevValue, 0.0, 0.0, sitePressureValue, siteTempValue, 0.85, 0.57, ref RACelestial, ref DecCelestial);
+                else // Ignore refraction effects
+                    RetCode = Sofa.Atoc13("A", azimuthTopoValue * DEGREES2RADIANS, (90.0 - elevationTopoValue) * DEGREES2RADIANS, JulianDateUTCSofa, 0.0, deltaUT1, siteLongValue * DEGREES2RADIANS, siteLatValue * DEGREES2RADIANS, siteElevValue, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, ref RACelestial, ref DecCelestial);
+
+                raJ2000Value = RACelestial * RADIANS2HOURS;
+                decJ2000Value = DecCelestial * RADIANS2DEGREES;
+
+                LogMessage("  AzEl To J2000", "  J2000 RA (original mode): " + FormatRA(raJ2000Value) + ", J2000 Declination: " + FormatDec(decJ2000Value));
+            }
             sw.Stop();
             LogMessage("", "");
+        }
+
+        #endregion
+
+        #region Support code
+
+        private void CheckSet(string caller, double value, string errMsg)
+        {
+            if (double.IsNaN(value))
+            {
+                LogMessage(caller, "Throwing TransformUninitialisedException: " + errMsg);
+                throw new TransformUninitialisedException(errMsg);
+            }
         }
 
         private double GetJDUTCSofa()

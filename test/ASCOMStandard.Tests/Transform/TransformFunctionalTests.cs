@@ -1,5 +1,6 @@
 ﻿using ASCOM.Tools;
 using System;
+using System.Xml.Linq;
 using Xunit;
 
 namespace TransformTests
@@ -38,8 +39,85 @@ namespace TransformTests
             Assert.NotNull(transform);
 
             TL.LogMessage("Arcturus", "Starting TransformTests");
-            TransformTest2000("Arcturus", "14:15:38.943", "19:10:37.93", "14:16:39.565", "19:04:27.311", 1, 1); 
+            TransformTest2000("Arcturus", "14:15:38.943", "19:10:37.93", "14:16:39.565", "19:04:27.311", 1, 1);
             TL.LogMessage("Arcturus", "Completed TransformTests");
+        }
+
+        [Fact]
+        public void NormalMode()
+        {
+            transform = new Transform();
+            Assert.NotNull(transform);
+            // Site parameters
+            double SiteLat = 51.0 + (4.0 / 60.0) + (43.0 / 3600.0);
+            double SiteLong = 0.0 - (17.0 / 60.0) - (40.0 / 3600.0);
+
+            // Set up Transform component
+            transform.SiteElevation = 80.0;
+            transform.SiteLatitude = SiteLat;
+            transform.SiteLongitude = SiteLong;
+            transform.SiteTemperature = 10.0;
+            transform.Refraction = false;
+            transform.SetTopocentric(0.0, 0.0);
+
+            // Set a specific date for the calculation
+            double testJulianDate = AstroUtilities.JulianDateFromDateTime(new DateTime(2025, 4, 27, 11, 0, 0, DateTimeKind.Utc));
+            transform.JulianDateUTC = testJulianDate;
+
+            TL.LogMessage("TransformTest", $"Test Julian Date: {testJulianDate}");
+
+            // Test with refraction false
+            TL.LogMessage("TransformTest", "NormalMode Transform RA/DEC Topo (refraction false):  " + Utilities.HoursToHMS(transform.RATopocentric, ":", ":", "", 3) + " " + Utilities.DegreesToDMS(transform.DECTopocentric, ":", ":", "", 3));
+            Assert.Equal(0.0, transform.RATopocentric, 3);
+            Assert.Equal(0.0, transform.DECTopocentric, 3);
+
+            // Test with refraction true
+            transform.Refraction = false;
+            TL.LogMessage("TransformTest", "NormalMode Transform RA/DEC Topo (refraction true):  " + Utilities.HoursToHMS(transform.RATopocentric, ":", ":", "", 3) + " " + Utilities.DegreesToDMS(transform.DECTopocentric, ":", ":", "", 3));
+            Assert.Equal(0.0, transform.RATopocentric, 3);
+            Assert.Equal(0.0, transform.DECTopocentric, 3);
+
+            Assert.Throws<ASCOM.TransformInvalidOperationException>(() => transform.RAObserved);
+            Assert.Throws<ASCOM.TransformInvalidOperationException>(() => transform.DECObserved);
+            Assert.Throws<ASCOM.TransformInvalidOperationException>(() => transform.AzimuthObserved);
+            Assert.Throws<ASCOM.TransformInvalidOperationException>(() => transform.ElevationObserved);
+        }
+
+        [Fact]
+        public void ObservedMode()
+        {
+            transform = new Transform();
+            Assert.NotNull(transform);
+            // Site parameters
+            double SiteLat = 51.0 + (4.0 / 60.0) + (43.0 / 3600.0);
+            double SiteLong = 0.0 - (17.0 / 60.0) - (40.0 / 3600.0);
+
+            // Set up Transform component
+            transform.SiteElevation = 80.0;
+            transform.SiteLatitude = SiteLat;
+            transform.SiteLongitude = SiteLong;
+            transform.SiteTemperature = 10.0;
+            transform.ObservedMode = true;
+            transform.SetTopocentric(0.0, 0.0);
+
+            // Set a specific date for the calculation
+            double testJulianDate = AstroUtilities.JulianDateFromDateTime(new DateTime(2025, 4, 27, 11, 0, 0, DateTimeKind.Utc));
+            transform.JulianDateUTC = testJulianDate;
+
+            TL.LogMessage("TransformTest", $"Test Julian Date: {testJulianDate}");
+
+            // Test unrefracted values
+            TL.LogMessage("TransformTest", "ObservedMode Transform RA/DEC Topocentric (unrefracted):  " + Utilities.HoursToHMS(transform.RATopocentric, ":", ":", "", 3) + " " + Utilities.DegreesToDMS(transform.DECTopocentric, ":", ":", "", 3));
+            Assert.Equal(0.0, transform.RATopocentric, 3);
+            Assert.Equal(0.0, transform.DECTopocentric, 3);
+
+            // Test refracted values
+            TL.LogMessage("TransformTest", "ObservedMode Transform RA/DEC Observed (refracted):  " + Utilities.HoursToHMS(transform.RAObserved, ":", ":", "", 3) + " " + Utilities.DegreesToDMS(transform.DECObserved, ":", ":", "", 3));
+            Assert.Equal(0.0, transform.RAObserved, 3);
+            Assert.Equal(0.021, transform.DECObserved, 3);
+
+            Assert.Throws<ASCOM.TransformInvalidOperationException>(() => transform.Refraction = true);
+            Assert.Throws<ASCOM.TransformInvalidOperationException>(() => transform.Refraction = false);
         }
 
         private void TransformTest2000(string Name, string AstroRAString, string AstroDECString, string expectedRAString, string expectedDECString, int RATolerance, int DecTolerance)

@@ -14,6 +14,10 @@ This release supports the interface updates introduced in ASCOM Platform 7.
 # Version History
 The version history only contains entries when a change is made, if a release version is not listed below, there was no change to this component in that release.
 
+***Release 2.1.0-rc.4***
+* Improve NOVAS ra cio bin file handling.
+* Transform - Add observed mode to enable unrefracted topocentric coordinates to be converted to refracted topocentric coordinates i.e. observed coordinates.
+
 ***Release 2.1.0-rc.3***
 * Replace Android libraries for NOVAS and SOFA with differently compiled versions. Improve log messages.
 
