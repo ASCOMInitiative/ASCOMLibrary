@@ -58,9 +58,10 @@ namespace ASCOM.Tools.Novas31
 
             try
             {
-                // Uncomment here to enable initiator debug logging (don't leave enabled in production!)
+                // Uncomment here to force initiator debug logging (don't leave enabled in production!)
                 //TL = new TraceLogger("NOVASLibrary", true);
                 //TL.SetMinimumLoggingLevel(LogLevel.Debug);
+
                 LogMessage("Initialise", "Initialise");
 
                 // Create a string list in which to collect cio_ra.bin search directories
@@ -161,35 +162,54 @@ namespace ASCOM.Tools.Novas31
                     LogMessage("Initialise", $"NATIVE_DLL_SEARCH_DIRECTORIES: {ex.Message}");
                 }
 
-                // Search each path for the cio_ra.bin file
-                foreach (string directoryPath in searchPaths)
+                // The Windows NOVAS 3.1 library installed by the Platform has small modifications to support a shared location for the RA CIO movement data file.
+                // The modifications are required on Windows because the NOVAS library is installed in a shared location rather than in the directory where the application is running.
+                // This is not the case for non-Windows operating systems where the library is installed in the same directory as the application.
+                // The unmodified NOVAS code always looks in the application directory to see if the RA CIO file is present and works correctly on non-Windows operating systems. 
+                // For this reason the following code block to set the RA CIO file location is only called when the OS is Windows
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) // The operating system is Windows
                 {
-                    try
+                    // Search each path for the cio_ra.bin file
+                    foreach (string directoryPath in searchPaths)
                     {
-                        LogMessage("Initialise", $"Searching for cio-ra.bin in: {directoryPath}");
-
-                        // Create a full path to the cio_ra.bin fie
-                        string possibleFile = Path.Combine(directoryPath, RACIO_FILE);
-
-                        // Test whether the file exists
-                        if (File.Exists(possibleFile)) // File does exist
+                        try
                         {
-                            // Save the full path for use later
-                            raCioFile = possibleFile;
+                            LogMessage("Initialise - WinOS", $"Searching for cio-ra.bin in: {directoryPath}");
 
-                            // Set the path in the NOVAS 3.1 binary DLL
-                            LogMessage("Initialise", $"Found {RACIO_FILE} file at {raCioFile}!!!");
-                            SetRACIOFile(raCioFile);
-                            LogMessage("Initialise", $"Set {RACIO_FILE} file to {raCioFile}!!!!!");
+                            // Create a full path to the cio_ra.bin fie
+                            string possibleFile = Path.Combine(directoryPath, RACIO_FILE);
 
-                            // Successfully set the RACIO file so exit the foreach loop quickly and don't bother with any other paths
-                            break;
+                            // Test whether the file exists
+                            if (File.Exists(possibleFile)) // File does exist
+                            {
+                                // Save the full path for use later
+                                raCioFile = possibleFile;
+
+                                // Set the path in the NOVAS 3.1 binary DLL
+                                LogMessage("Initialise - WinOS", $"Found {RACIO_FILE} file at {raCioFile}");
+                                SetRACIOFile(raCioFile);
+                                LogMessage("Initialise - WinOS", $"Set {RACIO_FILE} file to {raCioFile}");
+
+                                // Successfully set the RACIO file so exit the foreach loop quickly and don't bother with any other paths
+                                break;
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            LogMessage("Initialise - WinOS", $"Failed to set RACIO file for path '{directoryPath}': {ex.Message}\r\n{ex}");
                         }
                     }
-                    catch (Exception ex)
-                    {
-                        LogMessage("Initialise", $"Failed to set RACIO file for path '{directoryPath}': {ex.Message}\r\n{ex}");
-                    }
+                }
+                else // The operating system is not Windows
+                {
+                    // Get the directory where the application is installed
+                    string currentDirectory = Directory.GetCurrentDirectory().TrimEnd('\\');
+
+                    // Check whether the file exists in the application directory
+                    if (File.Exists(RACIO_FILE))  // RA CIO file found
+                        LogMessage("Initialise - Non WinOS", $"cio_ra.bin file found in application directory: {currentDirectory}");
+                    else // RA CIO file not found
+                        LogMessage("Initialise - Non WinOS", $"cio_ra.bin file not found in application directory: {currentDirectory}");
                 }
 
                 // Find and read the JPLEPH file
