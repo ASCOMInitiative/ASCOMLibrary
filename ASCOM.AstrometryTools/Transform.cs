@@ -134,16 +134,6 @@ namespace ASCOM.Tools
         {
             if (!this.disposedValue)
             {
-                //if (!Utl == null)
-                //{
-                //    Utl.Dispose();
-                //    Utl = null;
-                //}
-                //if (!AstroUtl == null)
-                //{
-                //    AstroUtl.Dispose();
-                //    AstroUtl = null;
-                //}
                 if (!(sw == null))
                 {
                     sw.Stop();
@@ -218,7 +208,8 @@ namespace ASCOM.Tools
                 if (lastSetBy == SetBy.Never)
                     throw new TransformUninitialisedException("Attempt to read RAObserved before a SetXX method has been called");
 
-                Recalculate();
+                // Force a recalculation of RAObserved
+                Recalculate(true);
 
                 CheckSet("RAObserved", raObservedValue, "RA Observed can not be derived from the information provided. Are site parameters set?");
                 LogMessage("RAObserved Get", FormatRA(raObservedValue));
@@ -243,7 +234,8 @@ namespace ASCOM.Tools
                 if (lastSetBy == SetBy.Never)
                     throw new TransformUninitialisedException("Attempt to read DecObserved before a SetXX method has been called");
 
-                Recalculate();
+                // Force a recalculation of DECObserved
+                Recalculate(true);
 
                 CheckSet("DecObserved", decObservedValue, "DEC Observed can not be derived from the information provided. Are site parameters set?");
                 LogMessage("DecObserved Get", FormatDec(decObservedValue));
@@ -268,8 +260,8 @@ namespace ASCOM.Tools
                 if (lastSetBy == SetBy.Never)
                     throw new TransformUninitialisedException("Attempt to read AzimuthObserved before a SetXX method has been called");
 
-                requiresRecalculate = true; // Force a recalculation of Azimuth
-                Recalculate();
+                // Force a recalculation of Azimuth
+                Recalculate(true);
 
                 CheckSet("AzimuthObserved", azimuthObservedValue, "Azimuth Observed can not be derived from the information provided. Are site parameters set?");
                 LogMessage("AzimuthObserved Get", FormatDec(azimuthObservedValue));
@@ -294,8 +286,8 @@ namespace ASCOM.Tools
                 if (lastSetBy == SetBy.Never)
                     throw new TransformUninitialisedException("Attempt to read ElevationObserved before a SetXX method has been called");
 
-                requiresRecalculate = true; // Force a recalculation of Elevation
-                Recalculate();
+                // Force a recalculation of Elevation
+                Recalculate(true);
 
                 CheckSet("ElevationObserved", elevationObservedValue, "Elevation Observed can not be derived from the information provided. Are site parameters set?");
                 LogMessage("ElevationObserved Get", FormatDec(elevationObservedValue));
@@ -336,9 +328,11 @@ namespace ASCOM.Tools
             set
             {
                 if ((value < -90.0) | (value > 90.0))
-                    throw new ASCOM.InvalidValueException("SiteLatitude", value.ToString(), "-90.0 degrees", "+90.0 degrees");
+                    throw new InvalidValueException("SiteLatitude", value.ToString(), "-90.0 degrees", "+90.0 degrees");
+
                 if (siteLatValue != value)
                     requiresRecalculate = true;
+
                 siteLatValue = value;
                 LogMessage("SiteLatitude Set", FormatDec(value));
             }
@@ -361,9 +355,11 @@ namespace ASCOM.Tools
             set
             {
                 if ((value < -180.0) | (value > 180.0))
-                    throw new ASCOM.InvalidValueException("SiteLongitude", value.ToString(), "-180.0 degrees", "+180.0 degrees");
+                    throw new InvalidValueException("SiteLongitude", value.ToString(), "-180.0 degrees", "+180.0 degrees");
+
                 if (siteLongValue != value)
                     requiresRecalculate = true;
+
                 siteLongValue = value;
                 LogMessage("SiteLongitude Set", FormatDec(value));
             }
@@ -386,9 +382,11 @@ namespace ASCOM.Tools
             set
             {
                 if ((value < -300.0) | (value > 10000.0))
-                    throw new ASCOM.InvalidValueException("SiteElevation", value.ToString(), "-300.0 metres", "+10000.0 metres");
+                    throw new InvalidValueException("SiteElevation", value.ToString(), "-300.0 metres", "+10000.0 metres");
+
                 if (siteElevValue != value)
                     requiresRecalculate = true;
+
                 siteElevValue = value;
                 LogMessage("SiteElevation Set", value.ToString());
             }
@@ -411,9 +409,11 @@ namespace ASCOM.Tools
             set
             {
                 if ((value < -273.15) | (value > 100.0))
-                    throw new ASCOM.InvalidValueException("SiteTemperature", value.ToString(), "-273.15 Celsius", "+100.0 Celsius");
+                    throw new InvalidValueException("SiteTemperature", value.ToString(), "-273.15 Celsius", "+100.0 Celsius");
+
                 if (siteTempValue != value)
                     requiresRecalculate = true;
+
                 siteTempValue = value;
                 LogMessage("SiteTemperature Set", value.ToString());
             }
@@ -436,9 +436,11 @@ namespace ASCOM.Tools
             set
             {
                 if ((value < 0.0) | (value > 1200.0))
-                    throw new ASCOM.InvalidValueException("SitePressure", value.ToString(), "0.0hPa (mbar)", "+1200.0hPa (mbar)");
+                    throw new InvalidValueException("SitePressure", value.ToString(), "0.0hPa (mbar)", "+1200.0hPa (mbar)");
+
                 if (sitePressureValue != value)
                     requiresRecalculate = true;
+
                 sitePressureValue = value;
                 LogMessage("SitePressure Set", value.ToString());
             }
@@ -464,6 +466,7 @@ namespace ASCOM.Tools
 
                 if (refracValue != value)
                     requiresRecalculate = true;
+
                 refracValue = value;
                 LogMessage("Refraction Set", value.ToString());
             }
@@ -478,7 +481,9 @@ namespace ASCOM.Tools
         public void Refresh()
         {
             LogMessage("Refresh", "");
-            Recalculate();
+
+            // Force a full recalculation
+            Recalculate(true);
         }
 
         /// <summary>
@@ -489,12 +494,9 @@ namespace ASCOM.Tools
         /// <remarks></remarks>
         public void SetJ2000(double ra, double dec)
         {
-            if ((ra != raJ2000Value) | (dec != decJ2000Value))
-            {
-                raJ2000Value = ValidateRA("SetJ2000", ra);
-                decJ2000Value = ValidateDec("SetJ2000", dec);
-                requiresRecalculate = true;
-            }
+            raJ2000Value = ValidateRA("SetJ2000", ra);
+            decJ2000Value = ValidateDec("SetJ2000", dec);
+            requiresRecalculate = true;
 
             lastSetBy = SetBy.J2000;
             LogMessage("SetJ2000", "RA: " + FormatRA(ra) + ", DEC: " + FormatDec(dec));
@@ -508,12 +510,9 @@ namespace ASCOM.Tools
         /// <remarks></remarks>
         public void SetApparent(double ra, double dec)
         {
-            if ((ra != raApparentValue) | (dec != decApparentValue))
-            {
-                raApparentValue = ValidateRA("SetApparent", ra);
-                decApparentValue = ValidateDec("SetApparent", dec);
-                requiresRecalculate = true;
-            }
+            raApparentValue = ValidateRA("SetApparent", ra);
+            decApparentValue = ValidateDec("SetApparent", dec);
+            requiresRecalculate = true;
 
             lastSetBy = SetBy.Apparent;
             LogMessage("SetApparent", "RA: " + FormatRA(ra) + ", DEC: " + FormatDec(dec));
@@ -527,12 +526,9 @@ namespace ASCOM.Tools
         /// <remarks></remarks>
         public void SetTopocentric(double ra, double dec)
         {
-            if ((ra != raTopoValue) | (dec != decTopoValue))
-            {
-                raTopoValue = ValidateRA("SetTopocentric", ra);
-                decTopoValue = ValidateDec("SetTopocentric", dec);
-                requiresRecalculate = true;
-            }
+            raTopoValue = ValidateRA("SetTopocentric", ra);
+            decTopoValue = ValidateDec("SetTopocentric", dec);
+            requiresRecalculate = true;
 
             lastSetBy = SetBy.Topocentric;
             LogMessage("SetTopocentric", "RA: " + FormatRA(ra) + ", DEC: " + FormatDec(dec));
@@ -547,9 +543,10 @@ namespace ASCOM.Tools
         public void SetAzimuthElevation(double azimuth, double elevation)
         {
             if ((azimuth < 0.0) | (azimuth >= 360.0))
-                throw new ASCOM.InvalidValueException("SetAzimuthElevation Azimuth", azimuth.ToString(), "0.0 hours", "23.9999999... hours");
+                throw new InvalidValueException("SetAzimuthElevation Azimuth", azimuth.ToString(), "0.0 hours", "23.9999999... hours");
+
             if ((elevation < -90.0) | (elevation > 90.0))
-                throw new ASCOM.InvalidValueException("SetAzimuthElevation Elevation", elevation.ToString(), "-90.0 degrees", "+90.0 degrees");
+                throw new InvalidValueException("SetAzimuthElevation Elevation", elevation.ToString(), "-90.0 degrees", "+90.0 degrees");
 
             azimuthTopoValue = azimuth;
             elevationTopoValue = elevation;
@@ -576,9 +573,11 @@ namespace ASCOM.Tools
             {
                 if (lastSetBy == SetBy.Never)
                     throw new TransformUninitialisedException("Attempt to read RAJ2000 before a SetXX method has been called");
-                Recalculate();
+
+                Recalculate(false);
                 CheckSet("RAJ2000", raJ2000Value, "RA J2000 can not be derived from the information provided. Are site parameters set?");
                 LogMessage("RAJ2000 Get", FormatRA(raJ2000Value));
+
                 return raJ2000Value;
             }
         }
@@ -599,9 +598,11 @@ namespace ASCOM.Tools
             {
                 if (lastSetBy == SetBy.Never)
                     throw new TransformUninitialisedException("Attempt to read DECJ2000 before a SetXX method has been called");
-                Recalculate();
+
+                Recalculate(false);
                 CheckSet("DecJ2000", decJ2000Value, "DEC J2000 can not be derived from the information provided. Are site parameters set?");
                 LogMessage("DecJ2000 Get", FormatDec(decJ2000Value));
+
                 return decJ2000Value;
             }
         }
@@ -625,9 +626,11 @@ namespace ASCOM.Tools
             {
                 if (lastSetBy == SetBy.Never)
                     throw new TransformUninitialisedException("Attempt to read RATopocentric before a SetXX method  has been called");
-                Recalculate();
+
+                Recalculate(false);
                 CheckSet("RATopocentric", raTopoValue, "RA topocentric can not be derived from the information provided. Are site parameters set?");
                 LogMessage("RATopocentric Get", FormatRA(raTopoValue));
+
                 return raTopoValue;
             }
         }
@@ -651,9 +654,11 @@ namespace ASCOM.Tools
             {
                 if (lastSetBy == SetBy.Never)
                     throw new TransformUninitialisedException("Attempt to read DECTopocentric before a SetXX method has been called");
-                Recalculate();
+
+                Recalculate(false);
                 CheckSet("DECTopocentric", decTopoValue, "DEC topocentric can not be derived from the information provided. Are site parameters set?");
                 LogMessage("DECTopocentric Get", FormatDec(decTopoValue));
+
                 return decTopoValue;
             }
         }
@@ -674,8 +679,10 @@ namespace ASCOM.Tools
             {
                 if (lastSetBy == SetBy.Never)
                     throw new TransformUninitialisedException("Attempt to read DECApparent before a SetXX method has been called");
-                Recalculate();
+
+                Recalculate(false);
                 LogMessage("RAApparent Get", FormatRA(raApparentValue));
+
                 return raApparentValue;
             }
         }
@@ -696,8 +703,10 @@ namespace ASCOM.Tools
             {
                 if (lastSetBy == SetBy.Never)
                     throw new TransformUninitialisedException("Attempt to read DECApparent before a SetXX method has been called");
-                Recalculate();
+
+                Recalculate(false);
                 LogMessage("DECApparent Get", FormatDec(decApparentValue));
+
                 return decApparentValue;
             }
         }
@@ -721,10 +730,12 @@ namespace ASCOM.Tools
             {
                 if (lastSetBy == SetBy.Never)
                     throw new TransformUninitialisedException("Attempt to read AzimuthTopocentric before a SetXX method has been called");
-                requiresRecalculate = true; // Force a recalculation of Azimuth
-                Recalculate();
+
+                // Force a recalculation of Azimuth
+                Recalculate(true);
                 CheckSet("AzimuthTopocentric", azimuthTopoValue, "Azimuth topocentric can not be derived from the information provided. Are site parameters set?");
                 LogMessage("AzimuthTopocentric Get", FormatDec(azimuthTopoValue));
+
                 return azimuthTopoValue;
             }
         }
@@ -748,10 +759,12 @@ namespace ASCOM.Tools
             {
                 if (lastSetBy == SetBy.Never)
                     throw new TransformUninitialisedException("Attempt to read ElevationTopocentric before a SetXX method has been called");
-                requiresRecalculate = true; // Force a recalculation of Elevation
-                Recalculate();
+
+                // Force a recalculation of Elevation
+                Recalculate(true);
                 CheckSet("ElevationTopocentric", elevationTopoValue, "Elevation topocentric can not be derived from the information provided. Are site parameters set?");
                 LogMessage("ElevationTopocentric Get", FormatDec(elevationTopoValue));
+
                 return elevationTopoValue;
             }
         }
@@ -851,10 +864,10 @@ namespace ASCOM.Tools
 
         #region Coordinate transformation
 
-        private void Recalculate() // Calculate values for derived co-ordinates
+        private void Recalculate(bool forceRecalculate) // Calculate values for derived co-ordinates
         {
             swRecalculate.Reset(); swRecalculate.Start();
-            if (requiresRecalculate | (refracValue == true))
+            if (requiresRecalculate | (refracValue == true) | forceRecalculate)
             {
                 LogMessage("Recalculate", $"Requires Recalculate: {requiresRecalculate}, Refraction: {refracValue}, Latitude: {siteLatValue}, Longitude: {siteLongValue}, Elevation: {siteElevValue}, Temperature: {siteTempValue}");
                 switch (lastSetBy)
@@ -1049,6 +1062,7 @@ namespace ASCOM.Tools
                 LogMessage("", "");
             }
         }
+
         private void J2000ToApparent()
         {
             double ri = 0.0, di = 0.0, eo = 0.0;
@@ -1089,6 +1103,8 @@ namespace ASCOM.Tools
 
             sw.Reset(); sw.Start();
 
+            LogMessage("  Topo To J2000", "  Eo06a CIO to J2000 correction:" + FormatRA(Sofa.Eo06a(JDTTSofa, 0.0)));
+
             if (observedModeValue) // We are in observed mode
             {
                 // Calculate J2000 values assuming topocentric values have no refraction correction
@@ -1125,7 +1141,7 @@ namespace ASCOM.Tools
 
                 raJ2000Value = RACelestrial * RADIANS2HOURS;
                 decJ2000Value = DecCelestial * RADIANS2DEGREES;
-                LogMessage("  Topo To J2000", "  J2000 RA/Dec:" + FormatRA(raJ2000Value) + " " + FormatDec(decJ2000Value) + ", " + sw.Elapsed.TotalMilliseconds.ToString("0.00") + "ms");
+                LogMessage("  Topo To J2000", "  J2000 RA/Dec (original mode):" + FormatRA(raJ2000Value) + " " + FormatDec(decJ2000Value) + ", " + sw.Elapsed.TotalMilliseconds.ToString("0.00") + "ms");
 
                 // Now calculate the corresponding AzEl values from the J2000 values
                 sw.Reset(); sw.Start();
