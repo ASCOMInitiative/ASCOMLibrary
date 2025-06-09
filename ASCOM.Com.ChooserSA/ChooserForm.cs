@@ -189,6 +189,7 @@ namespace ASCOM.Com
 
         #region Internal properties
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         internal DeviceTypes DeviceType
         {
             set
@@ -199,6 +200,7 @@ namespace ASCOM.Com
             }
         }
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         internal string SelectedProgId
         {
             get
