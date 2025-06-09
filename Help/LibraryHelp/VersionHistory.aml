@@ -2,7 +2,77 @@
 <topic id="cf197185-7fa2-4b56-bb1a-75aaebd459bb" revisionNumber="1">
 	<developerConceptualDocument xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5" xmlns:xlink="http://www.w3.org/1999/xlink">
 		<introduction></introduction>
-		<section address="v2.0.6">
+
+    <section address="v2.1.0">
+      <title>Version 2.1.0</title>
+      <content>
+        <list class="bullet">
+          <listItem>
+            <para>
+              Astrometry Tools - Add support for use in 32bit and 64bit Android applications..
+            </para>
+          </listItem>
+          <listItem>
+            <para>
+              NOVAS - Improved ra cio bin file handling to enable use when the file cannot be located and the internal mechanic is used.
+            </para>
+          </listItem>
+          <listItem>
+            <para>
+              Transform - Added observed mode to enable unrefracted topocentric coordinates to be converted to refracted topocentric coordinates i.e. observed coordinates.
+            </para>
+          </listItem>
+        </list>
+      </content>
+    </section>
+
+    <section address="v2.0.9">
+      <title>Version 2.0.9</title>
+      <content>
+        <list class="bullet">
+          <listItem>
+            <para>
+              Alpaca Clients - Fixed bug where query strings in HTTP GETs of members that take parameters had multiple leading "?" characters.
+            </para>
+          </listItem>
+          <listItem>
+            <para>
+              DeviceCapabilities - Added VersionIntroduced function.
+            </para>
+          </listItem>
+          <listItem>
+            <para>
+              DeviceCapabilities - Added InterfaceHasMember function to report whether a member is present in a specified device type and interface version.
+            </para>
+          </listItem>
+        </list>
+      </content>
+    </section>
+
+    <section address="v2.0.8">
+      <title>Version 2.0.8</title>
+      <content>
+        <list class="bullet">
+          <listItem>
+            <para>
+              DeviceCapabilities - Added IsSupportedInterface and DeviceCapabilities.IsValidInterface methods.
+            </para>
+          </listItem>
+          <listItem>
+            <para>
+              Alpaca clients - Removed duplicate keep-alive element from the Connection header.
+            </para>
+          </listItem>
+          <listItem>
+            <para>
+              Alpaca Clients - Fixed incorrect exception message when the client times out.
+            </para>
+          </listItem>
+        </list>
+      </content>
+    </section>
+
+    <section address="v2.0.6">
 			<title>Version 2.0.6</title>
 			<content>
 				<list class="bullet">
