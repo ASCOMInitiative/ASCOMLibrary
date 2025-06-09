@@ -617,7 +617,7 @@ namespace ASCOM.Alpaca.Tests.Clients
 
             // Create a COM client
             TL.LogMessage("Main", $"About to create device");
-            Dome client = new("ASCOM.Simulator.Dome");
+            Dome client = new("ASCOM.OmniSim.Dome");
             TL.LogMessage("Main", $"Device created");
             Assert.NotNull(client);
 

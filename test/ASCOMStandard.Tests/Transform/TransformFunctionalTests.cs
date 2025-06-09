@@ -87,22 +87,45 @@ namespace TransformTests
 
             Assert.Equal(5.0, transform.RAJ2000, 3);
             Assert.Equal(60.0, transform.DecJ2000, 3);
+        }
 
-            //// Test with refraction true
-            //transform.Refraction = true;
-            //topocentricRa = transform.RATopocentric;
-            //topocentricDec = transform.DECTopocentric;
-            //TL.LogMessage("TransformTest", $"Topocentric coordinates (refraction true): {Utilities.HoursToHMS(transform.RATopocentric, ":", ":", "", 3)} {Utilities.DegreesToDMS(transform.DECTopocentric, ":", ":", "", 3)}");
+        [Fact]
+        public void ReciprocalTopoCentricRefracted()
+        {
+            transform = new Transform(TL);
+            Assert.NotNull(transform);
 
-            //transform.SetTopocentric(topocentricRa, topocentricDec);
+            // Site parameters
+            double SiteLat = 51.0 + (4.0 / 60.0) + (43.0 / 3600.0);
+            double SiteLong = 0.0 - (17.0 / 60.0) - (40.0 / 3600.0);
 
-            //j2000Ra = transform.RAJ2000;
-            //j2000Dec = transform.DecJ2000;
-            //TL.LogMessage("TransformTest", $"Reciprocal J2000 coordinates (refraction true): {Utilities.HoursToHMS(transform.RAJ2000, ":", ":", "", 3)} {Utilities.DegreesToDMS(transform.DecJ2000, ":", ":", "", 3)}");
+            // Set up Transform component
+            transform.SiteElevation = 80.0;
+            transform.SiteLatitude = SiteLat;
+            transform.SiteLongitude = SiteLong;
+            transform.SiteTemperature = 10.0;
+            transform.Refraction = true;
+            transform.SetJ2000(5.0, 60.0);
 
-            //Assert.Equal(1.0, transform.RAJ2000, 2);
-            //Assert.Equal(50.0, transform.DecJ2000, 2);
+            // Set a specific date for the calculation
+            double testJulianDate = AstroUtilities.JulianDateFromDateTime(new DateTime(TEST_YEAR, TEST_MONTH, TEST_DAY, TEST_HOUR, TEST_MINUTE, TEST_SECOND, DateTimeKind.Utc));
+            transform.JulianDateUTC = testJulianDate;
 
+            TL.LogMessage("TransformTest", $"*** Test Julian Date: {testJulianDate}");
+
+            // Test with refraction false
+            double topocentricRa = transform.RATopocentric;
+            double topocentricDec = transform.DECTopocentric;
+            TL.LogMessage("TransformTest", $"*** Topocentric coordinates (refraction true): {Utilities.HoursToHMS(topocentricRa, ":", ":", "", 3)} {Utilities.DegreesToDMS(topocentricDec, ":", ":", "", 3)}");
+
+            transform.SetTopocentric(topocentricRa, topocentricDec);
+
+            double j2000Ra = transform.RAJ2000;
+            double j2000Dec = transform.DecJ2000;
+            TL.LogMessage("TransformTest", $"*** Reciprocal J2000 coordinates (refraction true): {Utilities.HoursToHMS(j2000Ra, ":", ":", "", 3)} {Utilities.DegreesToDMS(j2000Dec, ":", ":", "", 3)}");
+
+            Assert.Equal(5.0, j2000Ra, 3);
+            Assert.Equal(60.0, j2000Dec, 3);
         }
 
         [Fact]
@@ -130,13 +153,13 @@ namespace TransformTests
             TL.LogMessage("TransformTest", $"Test Julian Date: {testJulianDate}");
 
             // Test with refraction false
-            TL.LogMessage("TransformTest", "NormalMode Transform RA/DEC Topo (refraction false):  " + Utilities.HoursToHMS(transform.RATopocentric, ":", ":", "", 3) + " " + Utilities.DegreesToDMS(transform.DECTopocentric, ":", ":", "", 3));
+            TL.LogMessage("TransformTest", "NormalMode Transform RA/DEC topocentric (refraction false):  " + Utilities.HoursToHMS(transform.RATopocentric, ":", ":", "", 3) + " " + Utilities.DegreesToDMS(transform.DECTopocentric, ":", ":", "", 3));
             Assert.Equal(1.0, transform.RATopocentric, 3);
             Assert.Equal(50.0, transform.DECTopocentric, 3);
 
             // Test with refraction true
             transform.Refraction = false;
-            TL.LogMessage("TransformTest", "NormalMode Transform RA/DEC Topo (refraction true):  " + Utilities.HoursToHMS(transform.RATopocentric, ":", ":", "", 3) + " " + Utilities.DegreesToDMS(transform.DECTopocentric, ":", ":", "", 3));
+            TL.LogMessage("TransformTest", "NormalMode Transform RA/DEC topocentric (refraction true):  " + Utilities.HoursToHMS(transform.RATopocentric, ":", ":", "", 3) + " " + Utilities.DegreesToDMS(transform.DECTopocentric, ":", ":", "", 3));
             Assert.Equal(1.0, transform.RATopocentric, 3);
             Assert.Equal(50.0, transform.DECTopocentric, 3);
 

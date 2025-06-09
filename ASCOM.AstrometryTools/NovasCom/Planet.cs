@@ -448,7 +448,7 @@ namespace ASCOM.Tools.NovasCom
             Novas.Nutation(tdb, NutationDirection.MeanToTrue, Accuracy.Full, pos6, ref vec);
 
             // Calculate equatorial coordinates and distance
-            Novas.Vector2RaDec(vec, ref ra, ref dec); // Get topo RA/Dec
+            Novas.Vector2RaDec(vec, ref ra, ref dec); // Get topocentric RA/Dec
             dist = Sqrt(Pow(vec[0], 2.0d) + Pow(vec[1], 2.0d) + Pow(vec[2], 2.0d)); // And dist
 
             // Refract if requested

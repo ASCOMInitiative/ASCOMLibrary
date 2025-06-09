@@ -875,9 +875,9 @@ namespace ASCOM.Tools
                     case SetBy.J2000: // J2000 coordinates have bee set so calculate apparent and topocentric coordinates
                         LogMessage("  Recalculate", "  Values last set by SetJ2000");
 
-                        // Check whether required topo values have been set
+                        // Check whether required topocentric values have been set
                         if ((!double.IsNaN(siteLatValue)) & (!double.IsNaN(siteLongValue)) & (!double.IsNaN(siteElevValue)) & (!double.IsNaN(siteTempValue)))
-                            J2000ToTopo(); // All required site values present so calculate Topo values
+                            J2000ToTopo(); // All required site values present so calculate topocentric values
                         else
                         {
                             raTopoValue = INVALID_VALUE;
@@ -891,7 +891,7 @@ namespace ASCOM.Tools
                     case SetBy.Topocentric: // Topocentric co-ordinates have been set so calculate J2000 and apparent coordinates
                         LogMessage("  Recalculate", "  Values last set by SetTopocentric");
 
-                        // Check whether required topo values have been set
+                        // Check whether required topocentric values have been set
                         if ((!double.IsNaN(siteLatValue)) & (!double.IsNaN(siteLongValue)) & (!double.IsNaN(siteElevValue)) & (!double.IsNaN(siteTempValue)))
                         {
                             TopoToJ2000();
@@ -909,13 +909,13 @@ namespace ASCOM.Tools
                         }
                         break;
 
-                    case SetBy.Apparent: // Apparent values have been set so calculate J2000 values and topo values if appropriate
+                    case SetBy.Apparent: // Apparent values have been set so calculate J2000 values and topocentric values if appropriate
                         LogMessage("  Recalculate", "  Values last set by SetApparent");
                         ApparentToJ2000(); // Calculate J2000 value
 
-                        // Check whether required topo values have been set
+                        // Check whether required topocentric values have been set
                         if ((!double.IsNaN(siteLatValue)) & (!double.IsNaN(siteLongValue)) & (!double.IsNaN(siteElevValue)) & (!double.IsNaN(siteTempValue)))
-                            J2000ToTopo(); // All required site values present so calculate Topo values
+                            J2000ToTopo(); // All required site values present so calculate topocentric values
                         else
                         {
                             raTopoValue = INVALID_VALUE;
@@ -1117,7 +1117,7 @@ namespace ASCOM.Tools
                 // Now calculate the corresponding AzEl values from the J2000 values
                 sw.Reset(); sw.Start();
 
-                // Calculate unrefracted Az/El values and assign to topo properties
+                // Calculate unrefracted Az/El values and assign to topocentric properties
                 Sofa.Atco13(raJ2000Value * HOURS2RADIANS, decJ2000Value * DEGREES2RADIANS, 0.0, 0.0, 0.0, 0.0, JDUTCSofa, 0.0, deltaUT1, siteLongValue * DEGREES2RADIANS, siteLatValue * DEGREES2RADIANS, siteElevValue, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, ref aob, ref zob, ref hob, ref dob, ref rob, ref eo);
 
                 azimuthTopoValue = aob * RADIANS2DEGREES;
@@ -1195,7 +1195,7 @@ namespace ASCOM.Tools
 
             if (observedModeValue) // We are in observed mode
             {
-                // ASsume that topo coordinates are unrefracted
+                // Assume that topocentric coordinates are unrefracted
                 RetCode = Sofa.Atoc13("A", azimuthTopoValue * DEGREES2RADIANS, (90.0 - elevationTopoValue) * DEGREES2RADIANS, JulianDateUTCSofa, 0.0, deltaUT1, siteLongValue * DEGREES2RADIANS, siteLatValue * DEGREES2RADIANS, siteElevValue, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, ref RACelestial, ref DecCelestial);
 
                 raJ2000Value = RACelestial * RADIANS2HOURS;
