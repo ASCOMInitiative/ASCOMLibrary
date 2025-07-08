@@ -1,5 +1,6 @@
 ﻿using ASCOM.Tools;
 using System;
+using System.Diagnostics;
 using System.Xml.Linq;
 using Xunit;
 
@@ -7,7 +8,11 @@ namespace TransformTests
 {
     public class TransformFunctionalTests
     {
-        readonly TraceLogger TL = new("TransformTest", true);
+        readonly TraceLogger TL = new("TransformTest", true)
+        {
+            IdentifierWidth = 40
+        };
+
         Transform transform;
 
         const int TEST_YEAR = 2025; // UTC
@@ -183,6 +188,7 @@ namespace TransformTests
             transform.SiteLatitude = SiteLat;
             transform.SiteLongitude = SiteLong;
             transform.SiteTemperature = 10.0;
+            transform.SitePressure = 1010.0;
             transform.ObservedMode = true;
             transform.SetTopocentric(1.0, 50.0);
 
@@ -204,6 +210,121 @@ namespace TransformTests
 
             Assert.Throws<ASCOM.TransformInvalidOperationException>(() => transform.Refraction = true);
             Assert.Throws<ASCOM.TransformInvalidOperationException>(() => transform.Refraction = false);
+        }
+
+        [Fact]
+        public void SetJ2000()
+        {
+            double TEST_RA = Utilities.HMSToHours("11:12:37.584");
+            double TEST_DECLINATION = Utilities.DMSToDegrees("26:01:11.156");
+
+            TL.SetMinimumLoggingLevel(ASCOM.Common.Interfaces.LogLevel.Verbose);
+
+            TL.LogMessage("SetJ2000", "Starting SetJ2000 Test");
+
+            // Site parameters
+            double SiteLat = 51.0 + (4.0 / 60.0) + (43.0 / 3600.0);
+            double SiteLong = 0.0 - (17.0 / 60.0) - (40.0 / 3600.0);
+
+            transform = new Transform(TL);
+            Assert.NotNull(transform);
+
+            // Set up Transform component
+            transform.SiteElevation = 80.0;
+            transform.SiteLatitude = SiteLat;
+            transform.SiteLongitude = SiteLong;
+            transform.SiteTemperature = 10.0;
+            transform.SitePressure = 1010.0;
+            transform.ObservedMode = true;
+            transform.SetJ2000(TEST_RA, TEST_DECLINATION);
+
+            // Set a specific date for the calculation
+            double testJulianDate = AstroUtilities.JulianDateFromDateTime(new DateTime(TEST_YEAR, TEST_MONTH, TEST_DAY, TEST_HOUR, TEST_MINUTE, TEST_SECOND, DateTimeKind.Utc));
+            transform.JulianDateUTC = testJulianDate;
+
+            TL.LogMessage("SetJ2000", $"Test Julian Date: {testJulianDate}");
+
+            // Test unrefracted values
+            TL.LogMessage("SetJ2000", "TopocentricAzEl Transform Az/El topocentric: " + Utilities.DegreesToDMS(transform.AzimuthTopocentric, ":", ":", "", 3) + " " + Utilities.DegreesToDMS(transform.ElevationTopocentric, ":", ":", "", 3));
+            TL.LogMessage("SetJ2000", "TopocentricAzEl Transform Az/El observed:    " + Utilities.DegreesToDMS(transform.AzimuthObserved, ":", ":", "", 3) + " " + Utilities.DegreesToDMS(transform.ElevationObserved, ":", ":", "", 3));
+        }
+
+        [Fact]
+        public void SetAzElTopocentric()
+        {
+            const double TEST_AZIMUTH = 45.0;
+            double TEST_ELEVATION = Utilities.DMSToDegrees("20:00:00");
+
+            TL.SetMinimumLoggingLevel(ASCOM.Common.Interfaces.LogLevel.Verbose);
+
+            // Site parameters
+            double SiteLat = 51.0 + (4.0 / 60.0) + (43.0 / 3600.0);
+            double SiteLong = 0.0 - (17.0 / 60.0) - (40.0 / 3600.0);
+
+            transform = new Transform(TL);
+            Assert.NotNull(transform);
+
+            // Set up Transform component
+            transform.SiteElevation = 80.0;
+            transform.SiteLatitude = SiteLat;
+            transform.SiteLongitude = SiteLong;
+            transform.SiteTemperature = 10.0;
+            transform.SitePressure = 1010.0;
+            transform.ObservedMode = true;
+            transform.SetAzimuthElevation(TEST_AZIMUTH, TEST_ELEVATION);
+
+            // Set a specific date for the calculation
+            double testJulianDate = AstroUtilities.JulianDateFromDateTime(new DateTime(TEST_YEAR, TEST_MONTH, TEST_DAY, TEST_HOUR, TEST_MINUTE, TEST_SECOND, DateTimeKind.Utc));
+            transform.JulianDateUTC = testJulianDate;
+
+            TL.LogMessage("TransformTest", $"Test Julian Date: {testJulianDate}");
+
+            // Test unrefracted values
+            TL.LogMessage("TransformTest", "TopocentricAzEl Transform Az/El topocentric: " + Utilities.DegreesToDMS(transform.AzimuthTopocentric, ":", ":", "", 3) + " " + Utilities.DegreesToDMS(transform.ElevationTopocentric, ":", ":", "", 3));
+            TL.LogMessage("TransformTest", "TopocentricAzEl Transform Az/El observed:    " + Utilities.DegreesToDMS(transform.AzimuthObserved, ":", ":", "", 3) + " " + Utilities.DegreesToDMS(transform.ElevationObserved, ":", ":", "", 3));
+            Assert.Equal(TEST_AZIMUTH, transform.AzimuthTopocentric, 0.001);
+            Assert.Equal(TEST_ELEVATION, transform.ElevationTopocentric, 0.001);
+
+            // Test refracted values
+            Assert.Equal(TEST_AZIMUTH, transform.AzimuthObserved, 0.001);
+            Assert.NotEqual(TEST_ELEVATION, transform.ElevationObserved, 0.001);
+        }
+
+        [Fact]
+        public void SetAzElObserved()
+        {
+            const double TEST_AZIMUTH = 45.0;
+            double TEST_ELEVATION = Utilities.DMSToDegrees("20:00:00");
+
+            transform = new Transform(TL);
+            Assert.NotNull(transform);
+            // Site parameters
+            double SiteLat = 51.0 + (4.0 / 60.0) + (43.0 / 3600.0);
+            double SiteLong = 0.0 - (17.0 / 60.0) - (40.0 / 3600.0);
+
+            // Set up Transform component
+            transform.SiteElevation = 80.0;
+            transform.SiteLatitude = SiteLat;
+            transform.SiteLongitude = SiteLong;
+            transform.SiteTemperature = 10.0;
+            transform.ObservedMode = true;
+            transform.SetAzimuthElevationObserved(TEST_AZIMUTH, TEST_ELEVATION);
+
+            // Set a specific date for the calculation
+            double testJulianDate = AstroUtilities.JulianDateFromDateTime(new DateTime(TEST_YEAR, TEST_MONTH, TEST_DAY, TEST_HOUR, TEST_MINUTE, TEST_SECOND, DateTimeKind.Utc));
+            transform.JulianDateUTC = testJulianDate;
+
+            TL.LogMessage("TransformTest", $"Test Julian Date: {testJulianDate}");
+
+            // Test refracted values
+            TL.LogMessage("TransformTest", "ObservedAzEl Transform Az/El observed:    " + Utilities.DegreesToDMS(transform.AzimuthObserved, ":", ":", "", 3) + " " + Utilities.DegreesToDMS(transform.ElevationObserved, ":", ":", "", 3));
+            TL.LogMessage("TransformTest", "ObservedAzEl Transform Az/El topocentric: " + Utilities.DegreesToDMS(transform.AzimuthTopocentric, ":", ":", "", 3) + " " + Utilities.DegreesToDMS(transform.ElevationTopocentric, ":", ":", "", 3));
+            Assert.Equal(TEST_AZIMUTH, transform.AzimuthObserved, 0.01);
+            Assert.Equal(TEST_ELEVATION, transform.ElevationObserved, 0.01);
+
+            // Test unrefracted values
+            Assert.Equal(TEST_AZIMUTH, transform.AzimuthTopocentric, 0.01);
+            Assert.NotEqual(TEST_ELEVATION, transform.ElevationTopocentric, 0.01);
         }
 
         private void TransformTest2000(string Name, string AstroRAString, string AstroDECString, string expectedRAString, string expectedDECString, int RATolerance, int DecTolerance)
