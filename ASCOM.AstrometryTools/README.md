@@ -14,6 +14,9 @@ This release supports the interface updates introduced in ASCOM Platform 7.
 # Version History
 The version history only contains entries when a change is made, if a release version is not listed below, there was no change to this component in that release.
 
+***Release 2.2.0-rc.1***
+* Add SetObserved() and SetAzimuthElevationObserved() methods to the Transform component.
+
 ***Release 2.1.0***
 * Improved NOVAS ra cio bin file handling to enable use when the file cannot be located and the internal mechanic is used.
 * Transform - Add observed mode to enable unrefracted topocentric coordinates to be converted to refracted topocentric coordinates i.e. observed coordinates.
