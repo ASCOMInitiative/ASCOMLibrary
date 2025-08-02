@@ -49,6 +49,7 @@ namespace ASCOM.Alpaca.Clients
         /// <param name="userAgentProductName">Optional product name to include in the User-Agent HTTP header sent to the Alpaca device</param>
         /// <param name="userAgentProductVersion">Optional product version to include in the User-Agent HTTP header sent to the Alpaca device</param>
         /// <param name="trustUserGeneratedSslCertificates">Trust user generated SSL certificates</param>
+        /// <param name="throwOnBadDateTimeJSON">Throw an exception if a returned JSON DateTime value is not a UTC value (has a trailing Z character). Defaults to false.</param>
         public AlpacaTelescope(ServiceType serviceType = AlpacaClient.CLIENT_SERVICETYPE_DEFAULT,
                                string ipAddressString = AlpacaClient.CLIENT_IPADDRESS_DEFAULT,
                                int portNumber = AlpacaClient.CLIENT_IPPORT_DEFAULT,
@@ -63,7 +64,8 @@ namespace ASCOM.Alpaca.Clients
                                ILogger logger = AlpacaClient.CLIENT_LOGGER_DEFAULT,
                                string userAgentProductName = null,
                                string userAgentProductVersion = null,
-                               bool trustUserGeneratedSslCertificates = AlpacaClient.TRUST_USER_GENERATED_SSL_CERTIFICATES_DEFAULT
+                               bool trustUserGeneratedSslCertificates = AlpacaClient.TRUST_USER_GENERATED_SSL_CERTIFICATES_DEFAULT,
+                               bool throwOnBadDateTimeJSON = AlpacaClient.THROW_ON_BAD_JSON_DATE_TIME_DEFAULT
             )
         {
             this.serviceType = serviceType;
@@ -81,6 +83,7 @@ namespace ASCOM.Alpaca.Clients
             this.userAgentProductName = userAgentProductName;
             this.userAgentProductVersion = userAgentProductVersion;
             this.trustUserGeneratedSslCertificates = trustUserGeneratedSslCertificates;
+            this.throwOnBadDateTimeJSON= throwOnBadDateTimeJSON;
 
             Initialise();
         }
@@ -808,7 +811,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<DateTime>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "UTCDate", MemberTypes.Property);
+                return DynamicClientDriver.GetValue<DateTime>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "UTCDate", MemberTypes.Property, throwOnBadDateTimeJSON);
             }
             set
             {

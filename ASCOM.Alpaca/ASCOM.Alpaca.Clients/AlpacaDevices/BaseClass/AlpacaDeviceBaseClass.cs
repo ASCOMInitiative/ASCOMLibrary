@@ -41,6 +41,7 @@ namespace ASCOM.Alpaca.Clients
         internal string userAgentProductVersion;
 
         internal bool trustUserGeneratedSslCertificates;
+        internal bool throwOnBadDateTimeJSON;
 
         private short? interfaceVersion;
 

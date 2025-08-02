@@ -461,10 +461,11 @@ namespace ASCOM.Alpaca.Clients
         /// <param name="logger"></param>
         /// <param name="method"></param>
         /// <param name="memberType"></param>
+        /// <param name="throwOnBadDateTimeJson"></param>
         /// <returns></returns>
-        internal static T GetValue<T>(uint clientNumber, HttpClient client, int timeout, string URIBase, bool strictCasing, ILogger logger, string method, MemberTypes memberType)
+        internal static T GetValue<T>(uint clientNumber, HttpClient client, int timeout, string URIBase, bool strictCasing, ILogger logger, string method, MemberTypes memberType, bool throwOnBadDateTimeJson = AlpacaClient.THROW_ON_BAD_JSON_DATE_TIME_DEFAULT)
         {
-            return GetValue<T>(clientNumber, client, timeout, URIBase, strictCasing, logger, method, IMAGE_ARRAY_TRANSFER_TYPE_DEFAULT, IMAGE_ARRAY_COMPRESSION_DEFAULT, memberType); // Set an arbitrary value for ImageArrayTransferType
+            return GetValue<T>(clientNumber, client, timeout, URIBase, strictCasing, logger, method, IMAGE_ARRAY_TRANSFER_TYPE_DEFAULT, IMAGE_ARRAY_COMPRESSION_DEFAULT, memberType, throwOnBadDateTimeJson); // Set an arbitrary value for ImageArrayTransferType
         }
 
         /// <summary>
@@ -481,11 +482,12 @@ namespace ASCOM.Alpaca.Clients
         /// <param name="imageArrayTransferType"></param>
         /// <param name="imageArrayCompression"></param>
         /// <param name="memberType"></param>
+        /// <param name="throwOnBadDateTimeJson"></param>
         /// <returns></returns>
-        internal static T GetValue<T>(uint clientNumber, HttpClient client, int timeout, string URIBase, bool strictCasing, ILogger logger, string method, ImageArrayTransferType imageArrayTransferType, ImageArrayCompression imageArrayCompression, MemberTypes memberType)
+        internal static T GetValue<T>(uint clientNumber, HttpClient client, int timeout, string URIBase, bool strictCasing, ILogger logger, string method, ImageArrayTransferType imageArrayTransferType, ImageArrayCompression imageArrayCompression, MemberTypes memberType, bool throwOnBadDateTimeJson = AlpacaClient.THROW_ON_BAD_JSON_DATE_TIME_DEFAULT)
         {
             Dictionary<string, string> Parameters = new Dictionary<string, string>();
-            return SendToRemoteDevice<T>(clientNumber, client, timeout, URIBase, strictCasing, logger, method, Parameters, HttpMethod.Get, imageArrayTransferType, imageArrayCompression, memberType);
+            return SendToRemoteDevice<T>(clientNumber, client, timeout, URIBase, strictCasing, logger, method, Parameters, HttpMethod.Get, imageArrayTransferType, imageArrayCompression, memberType, throwOnBadDateTimeJson);
         }
 
         internal static void SetBool(uint clientNumber, HttpClient client, int timeout, string URIBase, bool strictCasing, ILogger logger, string method, bool parmeterValue, MemberTypes memberType)
@@ -635,8 +637,9 @@ namespace ASCOM.Alpaca.Clients
         /// <param name="imageArrayTransferType"></param>
         /// <param name="imageArrayCompression"></param>
         /// <param name="memberType"></param>
+        /// <param name="throwOnBadDateTimeJson"></param>
         /// <returns></returns>
-        internal static T SendToRemoteDevice<T>(uint clientNumber, HttpClient client, int timeout, string uriBase, bool strictCasing, ILogger logger, string method, Dictionary<string, string> parameters, HttpMethod httpMethod, ImageArrayTransferType imageArrayTransferType, ImageArrayCompression imageArrayCompression, MemberTypes memberType)
+        internal static T SendToRemoteDevice<T>(uint clientNumber, HttpClient client, int timeout, string uriBase, bool strictCasing, ILogger logger, string method, Dictionary<string, string> parameters, HttpMethod httpMethod, ImageArrayTransferType imageArrayTransferType, ImageArrayCompression imageArrayCompression, MemberTypes memberType, bool throwOnBadDateTimeJson = AlpacaClient.THROW_ON_BAD_JSON_DATE_TIME_DEFAULT)
         {
             int retryCounter = 0; // Initialise the socket error retry counter
             Stopwatch sw = new Stopwatch(); // Stopwatch to time activities
@@ -1002,6 +1005,25 @@ namespace ASCOM.Alpaca.Clients
                         {
                             DateTimeResponse dateTimeResponse = JsonSerializer.Deserialize<DateTimeResponse>(responseJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = !strictCasing });
                             AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, string.Format(LOG_FORMAT_STRING, dateTimeResponse.ClientTransactionID, dateTimeResponse.ServerTransactionID, dateTimeResponse.Value.ToString()));
+
+                            // Report an issue if the JSON date-time string does not de-serialise to a UTC value.
+                            if (throwOnBadDateTimeJson & (dateTimeResponse.Value.Kind != DateTimeKind.Utc))
+                            {
+                                // Extract the JSON date-time string from the response, if possible
+                                string jsonDateTimeString = responseJson;
+                                try
+                                {
+                                    JsonDocument jsonDocument = JsonDocument.Parse(responseJson);
+                                    jsonDateTimeString = jsonDocument.RootElement.GetProperty("Value").GetString();
+                                }
+                                catch (Exception ex)
+                                {
+                                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"Ignoring exception extracting the JSON Value element from the device response. {ex.Message}");
+                                }
+
+                                throw new InvalidJsonDateTimeException($"The device's JSON DateTime string '{jsonDateTimeString}' de-serialises as {dateTimeResponse.Value.Kind} not as {DateTimeKind.Utc}.", jsonDateTimeString, dateTimeResponse.Value);
+                            }
+
                             return (T)(object)dateTimeResponse.Value;
                         }
                         if (typeof(T) == typeof(List<string>)) // Used for ArrayLists of string

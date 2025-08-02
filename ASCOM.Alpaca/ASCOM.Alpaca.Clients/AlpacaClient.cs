@@ -27,6 +27,7 @@ namespace ASCOM.Alpaca.Clients
         internal const ImageArrayTransferType CLIENT_IMAGEARRAYTRANSFERTYPE_DEFAULT = ImageArrayTransferType.BestAvailable; // Default camera image array transfer type
         internal const ImageArrayCompression CLIENT_IMAGEARRAYCOMPRESSION_DEFAULT = ImageArrayCompression.None; // Default camera image array compression type
         internal const bool TRUST_USER_GENERATED_SSL_CERTIFICATES_DEFAULT = false; // Default for whether or not to trust user generated SSL certificates
+        internal const bool THROW_ON_BAD_JSON_DATE_TIME_DEFAULT = false; // Default for whether or not to throw an exception if a JSON date time value is not in the expected ISO 8601 UTZ format (has a trailing Z character).
 
         internal const string CLIENT_USER_AGENT_PRODUCT_NAME = "ASCOMAlpacaClient";
 
@@ -54,19 +55,19 @@ namespace ASCOM.Alpaca.Clients
         /// <param name="trustUserGeneratedSslCertificates">Trust user generated SSL certificates. Default: User generated SSL certificates are not trusted.</param>
         /// <returns>An Alpaca client instance for the supplied device and configuration</returns>
         /// <remarks>ASCOM Camera client specific parameters can be set through the <see cref="ImageArrayTransferType"/> and <see cref="ImageArrayCompression"/> properties.</remarks>
-        public static T GetDevice<T>(AscomDevice ascomDevice, 
+        public static T GetDevice<T>(AscomDevice ascomDevice,
             int establishConnectionTimeout = CLIENT_ESTABLISHCONNECTIONTIMEOUT_DEFAULT,
-            int standardDeviceResponseTimeout = CLIENT_STANDARDCONNECTIONTIMEOUT_DEFAULT, 
-            int longDeviceResponseTimeout = CLIENT_LONGCONNECTIONTIMEOUT_DEFAULT, 
+            int standardDeviceResponseTimeout = CLIENT_STANDARDCONNECTIONTIMEOUT_DEFAULT,
+            int longDeviceResponseTimeout = CLIENT_LONGCONNECTIONTIMEOUT_DEFAULT,
             uint clientNumber = CLIENT_CLIENTNUMBER_DEFAULT,
-            string userName = CLIENT_USERNAME_DEFAULT, 
-            string password = CLIENT_PASSWORD_DEFAULT, 
-            bool strictCasing = CLIENT_STRICTCASING_DEFAULT, 
+            string userName = CLIENT_USERNAME_DEFAULT,
+            string password = CLIENT_PASSWORD_DEFAULT,
+            bool strictCasing = CLIENT_STRICTCASING_DEFAULT,
             ILogger logger = CLIENT_LOGGER_DEFAULT,
-            ImageArrayTransferType imageArrayTransferType = CLIENT_IMAGEARRAYTRANSFERTYPE_DEFAULT, 
+            ImageArrayTransferType imageArrayTransferType = CLIENT_IMAGEARRAYTRANSFERTYPE_DEFAULT,
             ImageArrayCompression imageArrayCompression = CLIENT_IMAGEARRAYCOMPRESSION_DEFAULT,
-            string userAgentProductName = null, 
-            string userAgentProductVersion = null, 
+            string userAgentProductName = null,
+            string userAgentProductVersion = null,
             bool trustUserGeneratedSslCertificates = TRUST_USER_GENERATED_SSL_CERTIFICATES_DEFAULT)
                                   where T : AlpacaDeviceBaseClass, new()
         {
@@ -76,7 +77,7 @@ namespace ASCOM.Alpaca.Clients
 
             return (T)GetDevice<T>(ascomDevice.ServiceType, ascomDevice.IpAddress, ascomDevice.IpPort, ascomDevice.AlpacaDeviceNumber,
                 establishConnectionTimeout, standardDeviceResponseTimeout, longDeviceResponseTimeout, clientNumber, userName, password, strictCasing, logger, imageArrayTransferType, imageArrayCompression,
-                userAgentProductName,userAgentProductVersion,trustUserGeneratedSslCertificates);
+                userAgentProductName, userAgentProductVersion, trustUserGeneratedSslCertificates);
         }
 
         /// <summary>
