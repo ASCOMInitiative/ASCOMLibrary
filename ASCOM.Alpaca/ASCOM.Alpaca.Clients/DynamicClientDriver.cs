@@ -743,7 +743,9 @@ namespace ASCOM.Alpaca.Clients
                         // Add all parameters to the request body as form URL encoded content
                         if (parameters.Count > 0)
                         {
-                            FormUrlEncodedContent formParameters = new FormUrlEncodedContent(parameters);
+                            IEnumerable<string> items = parameters.Select(i => WebUtility.UrlEncode(i.Key) + "=" + WebUtility.UrlEncode(i.Value));
+                            StringContent formParameters = new StringContent(String.Join("&", items), null, "application/x-www-form-urlencoded");
+                            //FormUrlEncodedContent formParameters = new FormUrlEncodedContent(parameters);
                             request.Content = formParameters;
                         }
                         else
@@ -754,7 +756,16 @@ namespace ASCOM.Alpaca.Clients
                         // Log the PUT parameters
                         foreach (KeyValuePair<string, string> parameter in parameters)
                         {
-                            AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"Sending form parameter {parameter.Key} = {parameter.Value}");
+                            string truncatedValue;
+                            if (parameter.Value.Length > 100)
+                            {
+                                truncatedValue = $"{parameter.Value.Substring(0, 100)}... (truncated, total length {parameter.Value.Length} characters)";
+                            }
+                            else
+                            {
+                                truncatedValue = parameter.Value;
+                            }
+                            AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"Sending form parameter {parameter.Key} = {truncatedValue}");
                         }
 
                     }
