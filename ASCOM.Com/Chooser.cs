@@ -59,7 +59,7 @@ namespace ASCOM.Com
 
 
             // Create a Chooser COM object and save the reference to the chooser variable
-            LogMessage(LogLevel.Debug, "Initialise", $"FOund type {chooserType.FullName}.");
+            LogMessage(LogLevel.Debug, "Initialise", $"Found type {chooserType.FullName}, Creating Chooser COM instance...");
             chooser = Activator.CreateInstance(chooserType);
             LogMessage(LogLevel.Debug, "Initialise", $"Created Chooser OK.");
         }
@@ -159,7 +159,6 @@ namespace ASCOM.Com
         /// </summary>
         /// <param name="progId">The driver ProgId to pre-select in the Chooser drop-down list</param>
         /// <returns>The ProgID of the selected device or an empty string if no device was chosen</returns>
-        [Obsolete()]
         public string Choose(string progId)
         {
             CheckOK($"Choose(\"{progId})\"");
