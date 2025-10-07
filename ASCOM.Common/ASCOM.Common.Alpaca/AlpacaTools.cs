@@ -43,13 +43,13 @@ namespace ASCOM.Common.Alpaca
         public static byte[] ErrorMessageToByteArray(int metadataVersion, uint clientTransactionID, uint serverTransactionID, AlpacaErrors alpacaErrorNumber, string errorMessage)
         {
             // Validate supplied parameters
-            if (metadataVersion != 1) throw new InvalidValueException($"ErrorMessageToByteArray - Unsupported metadata version: {metadataVersion}.");
+            if (metadataVersion != 1) throw new InvalidValueException($"AlpacaTools.ErrorMessageAlpacaTools.ConvertArray - Unsupported metadata version: {metadataVersion}.");
 
-            if (alpacaErrorNumber == AlpacaErrors.AlpacaNoError) throw new InvalidValueException($"ErrorMessageToByteArray - Supplied error number is {alpacaErrorNumber}, this indicates 'Success' rather than an 'Error'.");
+            if (alpacaErrorNumber == AlpacaErrors.AlpacaNoError) throw new InvalidValueException($"AlpacaTools.ErrorMessageAlpacaTools.ConvertArray - Supplied error number is {alpacaErrorNumber}, this indicates 'Success' rather than an 'Error'.");
 
-            if ((alpacaErrorNumber < AlpacaErrors.AlpacaNoError) | (alpacaErrorNumber > AlpacaErrors.DriverMax)) throw new InvalidValueException($"ErrorMessageToByteArray - Invalid Alpaca error number: {alpacaErrorNumber}.");
+            if ((alpacaErrorNumber < AlpacaErrors.AlpacaNoError) | (alpacaErrorNumber > AlpacaErrors.DriverMax)) throw new InvalidValueException($"AlpacaTools.ErrorMessageAlpacaTools.ConvertArray - Invalid Alpaca error number: {alpacaErrorNumber}.");
 
-            if (string.IsNullOrEmpty(errorMessage)) throw new InvalidValueException($"ErrorMessageToByteArray - Error message is either null or an empty string.");
+            if (string.IsNullOrEmpty(errorMessage)) throw new InvalidValueException($"AlpacaTools.ErrorMessageAlpacaTools.ConvertArray - Error message is either null or an empty string.");
 
             switch (metadataVersion)
             {
@@ -76,7 +76,7 @@ namespace ASCOM.Common.Alpaca
                     return returnByteArray;
 
                 default:
-                    throw new InvalidValueException($"ErrorMessageToByteArray - Unsupported metadata version: {metadataVersion}");
+                    throw new InvalidValueException($"AlpacaTools.ErrorMessageAlpacaTools.ConvertArray - Unsupported metadata version: {metadataVersion}");
             }
         }
 
@@ -97,6 +97,7 @@ namespace ASCOM.Common.Alpaca
         /// <exception cref="InvalidValueException">If only one of the error number and error message indicates an error.</exception>
         /// <exception cref="InvalidValueException">Image array is null for a successful transaction or the array rank is &lt;2 or &gt;3 or the array is of type object</exception>
         /// <exception cref="InvalidValueException">The array element type is not supported.</exception>
+        /// <returns>The source array converted to an ImageBytes byte array.</returns>
         /// <remarks>
         /// Int32 source arrays where all elements have Int16, UInt16 or Byte values will automatically be converted to the smaller 
         /// data size for transmission in order to improve performance and reduce network traffic. 
@@ -106,893 +107,48 @@ namespace ASCOM.Common.Alpaca
         /// </remarks>
         public static byte[] ToByteArray(this Array imageArray, int metadataVersion, uint clientTransactionID, uint serverTransactionID, AlpacaErrors errorNumber, string errorMessage)
         {
-            int transmissionElementSize; // Managed size of transmitted elements
-            bool arrayIsByte; // Flag indicating whether the supplied array conforms to the Byte value range 0 to +255.
+            // Call the full function with a client element type of ImageArrayElementTypes.Unknown This ensures that the element type returned to the client will be the same as the source array element type.
+            return ConvertArray(imageArray, metadataVersion, clientTransactionID, serverTransactionID, ImageArrayElementTypes.Unknown, errorNumber, errorMessage);
+        }
 
-            // Handle error conditions
-            if ((errorNumber != 0) | (!string.IsNullOrWhiteSpace(errorMessage)))
+        /// <summary>
+        /// Alpaca Extension - Convert the array or error message to a byte array for transmission to a client
+        /// </summary>
+        /// <param name="imageArray">The 2D or 3D source image array. (Ignored when returning an error.)</param>
+        /// <param name="metadataVersion">Metadata version to use (Currently 1).</param>
+        /// <param name="clientTransactionID">Client's transaction ID.</param>
+        /// <param name="serverTransactionID">Device's transaction ID.</param>
+        /// <param name="requiredClientElementType">The element type to be used in the array returned to the client. This enables the returned array to be of different type than the supplied image array (see remarks).</param>
+        /// <param name="errorNumber">Error number. 0 for success, non-zero for an error.</param>
+        /// <param name="errorMessage">Error message. Empty string for success, error message for an error.</param>
+        /// <returns>Byte array prefixed with array metadata.</returns>
+        /// <exception cref="InvalidValueException">If only one of the error number and error message indicates an error.</exception>
+        /// <exception cref="InvalidValueException">Image array is null for a successful transaction or the array rank is &lt;2 or &gt;3 or the array is of type object</exception>
+        /// <exception cref="InvalidValueException">The array element type is not supported.</exception>
+        /// <returns>The source array converted to an ImageBytes byte array.</returns>
+        /// <remarks>
+        /// Int32 source arrays where all elements have Int16, UInt16 or Byte values will automatically be converted to the smaller 
+        /// data size for transmission in order to improve performance and reduce network traffic. 
+        /// Int16 and UInt16 source arrays that only have Byte values will similarly be converted to the smaller 
+        /// data size for transmission. 
+        /// All other element types are transmitted as supplied.
+        /// <para>
+        /// The output element type must be of equal or greater capacity than the source array element type and must also be from the same family of types as the source array element: 
+        /// Integer family (byte / Int16 / Uint16 / Int32 / Uint32 / Int64 / Uint64) or Floating point family (Single / Double).
+        /// Truncation of data is not supported by this method. 
+        /// For example, an Int16 source array can be returned to the client as an Int32 array but not as a Byte array.
+        /// </para>
+        /// </remarks>
+        public static byte[] ToByteArray(this Array imageArray, int metadataVersion, uint clientTransactionID, uint serverTransactionID, ImageArrayElementTypes requiredClientElementType, AlpacaErrors errorNumber, string errorMessage)
+        {
+            // Validate the required client element type
+            if ((requiredClientElementType < ImageArrayElementTypes.Int16) | (requiredClientElementType > ImageArrayElementTypes.Object))
             {
-                // Validate error parameters
-                if ((errorNumber == 0) & (!string.IsNullOrWhiteSpace(errorMessage))) throw new InvalidValueException($"ToByteArray - Error number is {errorNumber} but an error message has been supplied: '{errorMessage}'");
-                if ((errorNumber != 0) & (string.IsNullOrWhiteSpace(errorMessage))) throw new InvalidValueException($"ToByteArray - Error number is {errorNumber} but no error message has been supplied: '{errorMessage}'");
-
-                return ErrorMessageToByteArray(metadataVersion, clientTransactionID, serverTransactionID, errorNumber, errorMessage);
+                throw new InvalidValueException($"AlpacaTools.AlpacaTools.ConvertArray - Invalid required client element type: {requiredClientElementType}");
             }
 
-            // At this point we have a successful transaction so validate the incoming array
-            if (imageArray is null) throw new InvalidValueException("ToByteArray - Supplied array is null.");
-            if ((imageArray.Rank < 2) | (imageArray.Rank > 3)) throw new InvalidValueException($"ToByteArray - Only arrays of rank 2 and 3 are supported. The supplied array has a rank of {imageArray.Rank}.");
-
-            // Set the array type
-            ImageArrayElementTypes intendedElementType = ImageArrayElementTypes.Unknown;
-            ImageArrayElementTypes transmissionElementType = ImageArrayElementTypes.Unknown;
-
-            // Get the type code of the array elements
-            TypeCode arrayElementTypeCode = Type.GetTypeCode(imageArray.GetType().GetElementType());
-
-            // Set the element type of the intended array and default the transmission element type to be the same as the intended type
-            switch (arrayElementTypeCode)
-            {
-                case TypeCode.Byte:
-                    intendedElementType = ImageArrayElementTypes.Byte;
-                    transmissionElementType = ImageArrayElementTypes.Byte;
-                    transmissionElementSize = 1;
-                    break;
-
-                case TypeCode.Int16:
-                    intendedElementType = ImageArrayElementTypes.Int16;
-                    transmissionElementType = ImageArrayElementTypes.Int16;
-                    transmissionElementSize = 2;
-
-                    // Special handling for Int16 arrays - see if we can convert them to a Byte array
-
-                    arrayIsByte = true; // Flag indicating whether the supplied array conforms to the Byte value range 0 to +255. Start by assuming success
-
-                    // Handle 2D and 3D arrays
-                    switch (imageArray.Rank)
-                    {
-                        case 2:
-                            byte[,] byteArray = new byte[imageArray.GetLength(0), imageArray.GetLength(1)]; // Array to hold the 8bit transmission array
-
-                            // Get the device's Int16 image array
-                            Int16[,] int2dArray = (Int16[,])imageArray;
-
-                            // Parellelise the array copy to improve performance
-                            Parallel.For(0, imageArray.GetLength(0), (i, state) => // Iterate over the slowest changing dimension
-                            {
-                                byte byteElementValue; // Local variable to hold the Byte element being tested (saves calculating an array offset later in the process)
-                                Int16 int16ElementValue; // Local variable to hold the Int16 element value (saves calculating an array offset later in the process)
-
-                                bool arrayIsByteInternal = true; // Local variable to hold the Byte status within this particular thread. Used to reduce thread conflict when updating the arrayIsByte variable.
-
-                                // Iterate over the fastest changing dimension
-                                for (int j = 0; j < imageArray.GetLength(1); j++)
-                                {
-                                    // Get the current array element value
-                                    int16ElementValue = int2dArray[i, j];
-
-                                    // Truncate the supplied 2-byte Int16 value to create a 1-byte Byte value
-                                    byteElementValue = (byte)int16ElementValue;
-
-                                    // Store the Byte value in the array.
-                                    byteArray[i, j] = byteElementValue;
-
-                                    // Compare the Byte and Int16 values, indicating whether they match. 
-                                    if (byteElementValue != int16ElementValue) arrayIsByteInternal = false;
-
-                                }
-
-                                // Update the master arrayIsByte variable.
-                                arrayIsByte &= arrayIsByteInternal;
-
-                                // Terminate the parallel for loop early if the image data is determined to be 16bit
-                                if (!arrayIsByte) state.Break();
-
-                            });
-
-                            // Return the Byte array values if these were provided by the device
-                            if (arrayIsByte) // Supplied array has Byte values so return the shorter array in place of the supplied Int16 array
-                            {
-                                imageArray = byteArray; // Assign the Byte array to the imageArray variable in place of the Int16 array
-                                transmissionElementType = ImageArrayElementTypes.Byte; // Flag that the array elements are Byte
-                                transmissionElementSize = sizeof(byte); // Indicate that the transmitted elements are of Byte size rather than Int16 size
-                            }
-                            else
-                            {
-                                // No action, continue to use the supplied Int16 array because its values fall outside the Byte number range
-                            }
-                            break;
-
-                        case 3:
-                            byte[,,] byte3dArray = new byte[imageArray.GetLength(0), imageArray.GetLength(1), imageArray.GetLength(2)]; // Array to hold the 8bit transmission array
-
-                            // Get the device's Int16 image array
-                            Int16[,,] int3dArray = (Int16[,,])imageArray;
-
-                            // Parellelise the array copy to improve performance
-                            Parallel.For(0, imageArray.GetLength(0), (i, state) => // Iterate over the slowest changing dimension
-                            {
-                                bool arrayIsByteInternal1 = true; // Local variable to hold the Byte status within this particular thread. Used to reduce thread conflict when updating the arrayIsByte variable.
-
-                                // Iterate over the mid changing dimension
-                                for (int j = 0; j < imageArray.GetLength(1); j++)
-                                {
-                                    byte byteElementValue; // Local variable to hold the Byte element being tested (saves calculating an array offset later in the process)
-                                    Int16 int16ElementValue; // Local variable to hold the Int16 element value (saves calculating an array offset later in the process)
-                                    bool arrayIsByteInternal2 = true; // Local variable to hold the Byte status within this particular thread. Used to reduce thread conflict when updating the arrayIsByte variable.
-
-                                    // Iterate over the fastest changing dimension
-                                    for (int k = 0; k < imageArray.GetLength(2); k++)
-                                    {
-                                        // Get the current array element value
-                                        int16ElementValue = int3dArray[i, j, k];
-
-                                        // Truncate the supplied 2-byte Int16 value to create a 1-byte Byte value
-                                        byteElementValue = (byte)int16ElementValue;
-
-                                        // Store the Byte value in the array.
-                                        byte3dArray[i, j, k] = byteElementValue;
-
-                                        // Compare the Byte and Int16 values, indicating whether they match. 
-                                        if (byteElementValue != int16ElementValue) arrayIsByteInternal2 = false;
-
-                                    }
-
-                                    // Update the arrayIsByteInternal1variable.
-                                    arrayIsByteInternal1 &= arrayIsByteInternal2;
-
-                                }
-
-                                // Update the master arrayIsByte variable as the logical AND of the mater and update values.
-                                arrayIsByte &= arrayIsByteInternal1;
-
-                                // Terminate the parallel for loop early if the image data is determined to be 16bit
-                                if (!arrayIsByte) state.Break();
-                            });
-
-                            // Return the appropriate array if either Byte array values were provided by the device
-                            if (arrayIsByte) // Supplied array has Byte values so return the shorter array in place of the supplied Int16 array
-                            {
-                                imageArray = byte3dArray; // Assign the Byte array to the imageArray variable in place of the Int16 array
-                                transmissionElementType = ImageArrayElementTypes.Byte; // Flag that the array elements are Byte
-                                transmissionElementSize = sizeof(byte); // Indicate that the transmitted elements are of Byte size rather than Int16 size
-                            }
-                            else
-                            {
-                                // No action, continue to use the supplied Int16 array because its values fall outside the Byte number range.
-                            }
-                            break;
-
-                        default:
-                            throw new InvalidValueException($"ToByteArray - The camera returned an array of rank: {imageArray.Rank}, which is not supported.");
-                    }
-
-                    break;
-
-                case TypeCode.UInt16:
-                    intendedElementType = ImageArrayElementTypes.UInt16;
-                    transmissionElementType = ImageArrayElementTypes.UInt16;
-                    transmissionElementSize = 2;
-
-                    // Special handling for UInt16 arrays - see if we can convert them to a Byte array
-
-                    arrayIsByte = true; // Flag indicating whether the supplied array conforms to the Byte value range 0 to +255. Start by assuming success
-
-                    // Handle 2D and 3D arrays
-                    switch (imageArray.Rank)
-                    {
-                        case 2:
-                            byte[,] byteArray = new byte[imageArray.GetLength(0), imageArray.GetLength(1)]; // Array to hold the 8bit transmission array
-
-                            // Get the device's Int16 image array
-                            UInt16[,] uint2dArray = (UInt16[,])imageArray;
-
-                            // Parellelise the array copy to improve performance
-                            Parallel.For(0, imageArray.GetLength(0), (i, state) => // Iterate over the slowest changing dimension
-                            {
-                                byte byteElementValue; // Local variable to hold the Byte element being tested (saves calculating an array offset later in the process)
-                                UInt16 uint16ElementValue; // Local variable to hold the Int16 element value (saves calculating an array offset later in the process)
-
-                                bool arrayIsByteInternal = true; // Local variable to hold the Byte status within this particular thread. Used to reduce thread conflict when updating the arrayIsByte variable.
-
-                                // Iterate over the fastest changing dimension
-                                for (int j = 0; j < imageArray.GetLength(1); j++)
-                                {
-                                    // Get the current array element value
-                                    uint16ElementValue = uint2dArray[i, j];
-
-                                    // Truncate the supplied 2-byte UInt16 value to create a 1-byte Byte value
-                                    byteElementValue = (byte)uint16ElementValue;
-
-                                    // Store the Byte value in the array.
-                                    byteArray[i, j] = byteElementValue;
-
-                                    // Compare the Byte and UInt16 values, indicating whether they match. 
-                                    if (byteElementValue != uint16ElementValue) arrayIsByteInternal = false;
-
-                                }
-
-                                // Update the master arrayIsByte variable.
-                                arrayIsByte &= arrayIsByteInternal;
-
-                                // Terminate the parallel for loop early if the image data is determined to be 16bit
-                                if (!arrayIsByte) state.Break();
-
-                            });
-
-                            // Return the Byte array values if these were provided by the device
-                            if (arrayIsByte) // Supplied array has Byte values so return the shorter array in place of the supplied UInt16 array
-                            {
-                                imageArray = byteArray; // Assign the Byte array to the imageArray variable in place of the UInt16 array
-                                transmissionElementType = ImageArrayElementTypes.Byte; // Flag that the array elements are Byte
-                                transmissionElementSize = sizeof(byte); // Indicate that the transmitted elements are of Byte size rather than UInt16 size
-                            }
-                            else
-                            {
-                                // No action, continue to use the supplied Int16 array because its values fall outside the Byte number range
-                            }
-                            break;
-
-                        case 3:
-                            byte[,,] byte3dArray = new byte[imageArray.GetLength(0), imageArray.GetLength(1), imageArray.GetLength(2)]; // Array to hold the 8bit transmission array
-
-                            // Get the device's Int16 image array
-                            UInt16[,,] uint3dArray = (UInt16[,,])imageArray;
-
-                            // Parellelise the array copy to improve performance
-                            Parallel.For(0, imageArray.GetLength(0), (i, state) => // Iterate over the slowest changing dimension
-                            {
-                                bool arrayIsByteInternal1 = true; // Local variable to hold the Byte status within this particular thread. Used to reduce thread conflict when updating the arrayIsByte variable.
-
-                                // Iterate over the mid changing dimension
-                                for (int j = 0; j < imageArray.GetLength(1); j++)
-                                {
-                                    byte byteElementValue; // Local variable to hold the Byte element being tested (saves calculating an array offset later in the process)
-                                    UInt16 uint16ElementValue; // Local variable to hold the Int16 element value (saves calculating an array offset later in the process)
-                                    bool arrayIsByteInternal2 = true; // Local variable to hold the Byte status within this particular thread. Used to reduce thread conflict when updating the arrayIsByte variable.
-
-                                    // Iterate over the fastest changing dimension
-                                    for (int k = 0; k < imageArray.GetLength(2); k++)
-                                    {
-                                        // Get the current array element value
-                                        uint16ElementValue = uint3dArray[i, j, k];
-
-                                        // Truncate the supplied 2-byte UInt16 value to create a 1-byte Byte value
-                                        byteElementValue = (byte)uint16ElementValue;
-
-                                        // Store the Byte value in the array.
-                                        byte3dArray[i, j, k] = byteElementValue;
-
-                                        // Compare the Byte and UInt16 values, indicating whether they match. 
-                                        if (byteElementValue != uint16ElementValue) arrayIsByteInternal2 = false;
-
-                                    }
-
-                                    // Update the arrayIsByteInternal1variable.
-                                    arrayIsByteInternal1 &= arrayIsByteInternal2;
-
-                                }
-
-                                // Update the master arrayIsByte variable as the logical AND of the mater and update values.
-                                arrayIsByte &= arrayIsByteInternal1;
-
-                                // Terminate the parallel for loop early if the image data is determined to be 16bit
-                                if (!arrayIsByte) state.Break();
-                            });
-
-                            // Return the appropriate array if either Byte array values were provided by the device
-                            if (arrayIsByte) // Supplied array has Byte values so return the shorter array in place of the supplied UInt16 array
-                            {
-                                imageArray = byte3dArray; // Assign the byte array to the imageArray variable in place of the UInt16 array
-                                transmissionElementType = ImageArrayElementTypes.Byte; // Flag that the array elements are Byte
-                                transmissionElementSize = sizeof(byte); // Indicate that the transmitted elements are of Byte size rather than UInt16 size
-                            }
-                            else
-                            {
-                                // No action, continue to use the supplied Int16 array because its values fall outside the Byte number range.
-                            }
-                            break;
-
-                        default:
-                            throw new InvalidValueException($"ToByteArray - The camera returned an array of rank: {imageArray.Rank}, which is not supported.");
-                    }
-
-
-                    break;
-
-                case TypeCode.Int32:
-                    intendedElementType = ImageArrayElementTypes.Int32;
-                    transmissionElementType = ImageArrayElementTypes.Int32;
-                    transmissionElementSize = 4;
-
-                    // Special handling for Int32 arrays - see if we can convert them to Int16 or UInt16 arrays
-
-                    // NOTE
-                    // NOTE - This algorithm uses a UInt16 array to transmit an array with Int16 values because we are only interested in the byte values for this purpose,
-                    // NOTE - not the arithmetic interpretation of those bytes.
-                    // NOTE
-
-                    arrayIsByte = true; // Flag indicating whether the supplied array conforms to the Byte value range 0 to +255. Start by assuming success
-                    bool arrayIsInt16 = true; // Flag indicating whether the supplied array conforms to the Int16 value range -32768 to +32767. Start by assuming success
-                    bool arrayIsUint16 = true; // Flag indicating whether the supplied array conforms to the UInt16 value range 0 to +65535. Start by assuming success
-
-                    // Handle 2D and 3D arrays
-                    switch (imageArray.Rank)
-                    {
-                        case 2:
-                            byte[,] byteArray = new byte[imageArray.GetLength(0), imageArray.GetLength(1)]; // Array to hold the 8bit transmission array
-                            UInt16[,] uInt16Array = new UInt16[imageArray.GetLength(0), imageArray.GetLength(1)]; // Array to hold the 16bit transmission array (either Int16 or UInt16 values)
-
-                            // Get the device's Int32 image array
-                            int[,] int2dArray = (int[,])imageArray;
-
-                            // Parellelise the array copy to improve performance
-                            Parallel.For(0, imageArray.GetLength(0), (i, state) => // Iterate over the slowest changing dimension
-                            {
-                                byte byteElementValue; // Local variable to hold the Byte element being tested (saves calculating an array offset later in the process)
-                                Int32 int32ElementValue; // Local variable to hold the Int32 element being tested (saves calculating an array offset later in the process)
-                                Int16 int16ElementValue; // Local variable to hold the Int16 element value (saves calculating an array offset later in the process)
-                                UInt16 uInt16ElementValue; // Local variable to hold the Unt16 element value (saves calculating an array offset later in the process)
-
-                                bool arrayIsByteInternal = true; // Local variable to hold the Byte status within this particular thread. Used to reduce thread conflict when updating the arrayIsByte variable.
-                                bool arrayIsInt16Internal = true; // Local variable to hold the Int16 status within this particular thread. Used to reduce thread conflict when updating the arrayIsInt16 variable.
-                                bool arrayIsUint16Internal = true; // Local variable to hold the UInt16 status within this particular thread. Used to reduce thread conflict when updating the arrayIsInt16 variable.
-
-                                // Iterate over the fastest changing dimension
-                                for (int j = 0; j < imageArray.GetLength(1); j++)
-                                {
-                                    // Get the current array element value
-                                    int32ElementValue = int2dArray[i, j];
-
-                                    // Truncate the supplied 4-byte Int32 value to create a 1-byte Byte value
-                                    byteElementValue = (byte)int32ElementValue;
-
-                                    // Truncate the supplied 4-byte Int32 value to create a 2-byte UInt16 value
-                                    uInt16ElementValue = (UInt16)int32ElementValue;
-
-                                    // Truncate the supplied 4-byte Int32 value to create a 2-byte Int16 value
-                                    int16ElementValue = (Int16)int32ElementValue;
-
-                                    // Store the Byte value in the array.
-                                    byteArray[i, j] = byteElementValue;
-
-                                    // Store the UInt16 value in the array.
-                                    uInt16Array[i, j] = uInt16ElementValue;
-
-                                    // Compare the Byte and Int32 values, indicating whether they match. 
-                                    if (byteElementValue != int32ElementValue) arrayIsByteInternal = false;
-
-                                    // Compare the Int16 and Int32 values, indicating whether they match. 
-                                    if (int16ElementValue != int32ElementValue) arrayIsInt16Internal = false;
-
-                                    // Compare the UInt16 and Int32 values, indicating whether they match. 
-                                    if (uInt16ElementValue != int32ElementValue) arrayIsUint16Internal = false;
-                                }
-
-                                // Update the master arrayIsInt16 and arrayIsUint16 variables as the logical AND of the mater and update values.
-                                arrayIsByte &= arrayIsByteInternal;
-                                arrayIsInt16 &= arrayIsInt16Internal;
-                                arrayIsUint16 &= arrayIsUint16Internal;
-
-                                // Terminate the parallel for loop early if the image data is determined to be 32bit
-                                if (!arrayIsInt16 & !arrayIsUint16) state.Break();
-
-                            });
-
-                            // Return the appropriate array if either a Byte, UInt16 or Int16 array was provided by the device
-                            if (arrayIsByte) // Supplied array has UInt16 values so return the shorter array in place of the supplied Int32 array
-                            {
-                                imageArray = byteArray; // Assign the Int16 array to the imageArray variable in place of the Int32 array
-                                transmissionElementType = ImageArrayElementTypes.Byte; // Flag that the array elements are UInt16
-                                transmissionElementSize = sizeof(byte); // Indicate that the transmitted elements are of UInt16 size rather than Int32 size
-                            }
-                            else if (arrayIsUint16) // Supplied array has UInt16 values so return the shorter array in place of the supplied Int32 array
-                            {
-                                imageArray = uInt16Array; // Assign the Int16 array to the imageArray variable in place of the Int32 array
-                                transmissionElementType = ImageArrayElementTypes.UInt16; // Flag that the array elements are UInt16
-                                transmissionElementSize = sizeof(UInt16); // Indicate that the transmitted elements are of UInt16 size rather than Int32 size
-                            }
-                            else if (arrayIsInt16) // Supplied array has Int16 values so return the shorter array in place of the supplied Int32 array
-                            {
-                                imageArray = uInt16Array; // Assign the UInt16 array to the imageArray variable in place of the Int32 array (at the byte level Int32 and UInt32 are equivalent - both consist of two bytes)
-                                transmissionElementType = ImageArrayElementTypes.Int16; // Flag that the array elements are Int16
-                                transmissionElementSize = sizeof(Int16); // Indicate that the transmitted elements are of UInt16 size rather than Int32 size
-                            }
-                            else
-                            {
-                                // No action, continue to use the supplied Int32 array because its values fall outside the Uint16 and Int16 number ranges
-                            }
-                            break;
-
-                        case 3:
-                            byte[,,] byte3dArray = new byte[imageArray.GetLength(0), imageArray.GetLength(1), imageArray.GetLength(2)]; // Array to hold the 8bit transmission array
-                            UInt16[,,] uInt163dArray = new UInt16[imageArray.GetLength(0), imageArray.GetLength(1), imageArray.GetLength(2)];  // Array to hold the 16bit transmission array (either Int16 or UInt16 values)
-
-                            // Get the device's Int32 image array
-                            Int32[,,] int3dArray = (Int32[,,])imageArray;
-
-                            // Parellelise the array copy to improve performance
-                            Parallel.For(0, imageArray.GetLength(0), (i, state) => // Iterate over the slowest changing dimension
-                            {
-                                bool arrayIsByteInternal1 = true; // Local variable to hold the Byte status within this particular thread. Used to reduce thread conflict when updating the arrayIsByte variable.
-                                bool arrayIsInt16Internal1 = true; // Local variable to hold the Int16 status within this particular thread. Used to reduce thread conflict when updating the arrayisInt16 variable.
-                                bool arrayIsUint16Internal1 = true; // Local variable to hold the UInt16 status within this particular thread. Used to reduce thread conflict when updating the arrayisInt16 variable.
-
-                                // Iterate over the mid changing dimension
-                                for (int j = 0; j < imageArray.GetLength(1); j++)
-                                {
-                                    byte byteElementValue; // Local variable to hold the Byte element being tested (saves calculating an array offset later in the process)
-                                    Int32 int32ElementValue; // Local variable to hold the Int32 element being tested (saves calculating an array offset later in the process)
-                                    Int16 int16ElementValue; // Local variable to hold the Int16 element value (saves calculating an array offset later in the process)
-                                    UInt16 uInt16ElementValue; // Local variable to hold the UInt16 element value (saves calculating an array offset later in the process)
-                                    bool arrayIsByteInternal2 = true; // Local variable to hold the Byte status within this particular thread. Used to reduce thread conflict when updating the arrayIsByte variable.
-                                    bool arrayIsInt16Internal2 = true; // Local variable to hold the Int16 status within this particular thread. Used to reduce thread conflict when updating the arrayIsInt16 variable.
-                                    bool arrayIsUInt16Internal2 = true; // Local variable to hold the Int16 status within this particular thread. Used to reduce thread conflict when updating the arrayIsUInt16 variable.
-
-                                    // Iterate over the fastest changing dimension
-                                    for (int k = 0; k < imageArray.GetLength(2); k++)
-                                    {
-                                        // Get the current array element value
-                                        int32ElementValue = int3dArray[i, j, k];
-
-                                        // Truncate the supplied 4-byte Int32 value to create a 1-byte Byte value
-                                        byteElementValue = (byte)int32ElementValue;
-
-                                        // Truncate the supplied 4-byte Int32 value to create a 2-byte UInt16 value
-                                        uInt16ElementValue = (UInt16)int32ElementValue;
-
-                                        // Truncate the supplied 4-byte Int32 value to create a 2-byte Int16 value
-                                        int16ElementValue = (Int16)int32ElementValue;
-
-                                        // Store the Byte value in the array.
-                                        byte3dArray[i, j, k] = byteElementValue;
-
-                                        // Store the UInt16 value to the corresponding Int16 array element. 
-                                        uInt163dArray[i, j, k] = uInt16ElementValue;
-
-                                        // Compare the Byte and Int32 values, indicating whether they match. 
-                                        if (byteElementValue != int32ElementValue) arrayIsByteInternal2 = false;
-
-                                        // Compare the Int16 and Int32 values. 
-                                        if (int16ElementValue != int32ElementValue) arrayIsInt16Internal2 = false; // If they are not the same the Int32 value was outside the range of Int16 and arrayIsInt16Internal will be set false
-
-                                        // Compare the UInt16 and Int32 values. 
-                                        if (uInt16ElementValue != int32ElementValue) arrayIsUInt16Internal2 = false;
-                                    }
-
-                                    // Update the arrayIsInt16Internal1 and arrayIsUint16Internal1 variables as the logical AND of the mater and update values.
-                                    arrayIsByteInternal1 &= arrayIsByteInternal2;
-                                    arrayIsInt16Internal1 &= arrayIsInt16Internal2;
-                                    arrayIsUint16Internal1 &= arrayIsUInt16Internal2;
-
-                                }
-
-                                // Update the master arrayIsInt16 and arrayIsUint16 variables as the logical AND of the mater and update values.
-                                arrayIsByte &= arrayIsByteInternal1;
-                                arrayIsInt16 &= arrayIsInt16Internal1;
-                                arrayIsUint16 &= arrayIsUint16Internal1;
-
-                                // Terminate the parallel for loop early if the image data is determined to be 32bit
-                                if (!arrayIsInt16 & !arrayIsUint16) state.Break();
-                            });
-
-                            // Return the appropriate array if either a Byte, UInt16 or Int16 array was provided by the device
-                            if (arrayIsByte) // Supplied array has UInt16 values so return the shorter array in place of the supplied Int32 array
-                            {
-                                imageArray = byte3dArray; // Assign the Int16 array to the imageArray variable in place of the Int32 array
-                                transmissionElementType = ImageArrayElementTypes.Byte; // Flag that the array elements are UInt16
-                                transmissionElementSize = sizeof(byte); // Indicate that the transmitted elements are of UInt16 size rather than Int32 size
-                            }
-                            else if (arrayIsUint16) // Supplied array has UInt16 values so return the shorter array in place of the supplied Int32 array
-                            {
-                                imageArray = uInt163dArray; // Assign the Int16 array to the imageArray variable in place of the Int32 array
-                                transmissionElementType = ImageArrayElementTypes.UInt16; // Flag that the array elements are UInt16
-                                transmissionElementSize = sizeof(UInt16); // Indicate that the transmitted elements are of UInt16 size rather than Int32 size
-                            }
-                            else if (arrayIsInt16) // Supplied array has Int16 values so return the shorter array in place of the supplied Int32 array
-                            {
-                                imageArray = uInt163dArray; // Assign the UInt16 array to the imageArray variable in place of the Int32 array (at the byte level Int32 and UInt32 are equivalent - both consist of two bytes)
-                                transmissionElementType = ImageArrayElementTypes.Int16; // Flag that the array elements are Int16
-                                transmissionElementSize = sizeof(Int16); // Indicate that the transmitted elements are of UInt16 size rather than Int32 size
-                            }
-                            else
-                            {
-                                // No action, continue to use the supplied Int32 array because its values fall outside the Uint16 and Int16 number ranges
-                            }
-                            break;
-
-                        default:
-                            throw new InvalidValueException($"ToByteArray - The camera returned an array of rank: {imageArray.Rank}, which is not supported.");
-                    }
-
-                    break;
-
-                case TypeCode.UInt32:
-                    intendedElementType = ImageArrayElementTypes.UInt32;
-                    transmissionElementType = ImageArrayElementTypes.UInt32;
-                    transmissionElementSize = 4;
-                    break;
-
-                case TypeCode.Int64:
-                    intendedElementType = ImageArrayElementTypes.Int64;
-                    transmissionElementType = ImageArrayElementTypes.Int64;
-                    transmissionElementSize = 8;
-                    break;
-
-                case TypeCode.UInt64:
-                    intendedElementType = ImageArrayElementTypes.UInt64;
-                    transmissionElementType = ImageArrayElementTypes.UInt64;
-                    transmissionElementSize = 8;
-                    break;
-
-                case TypeCode.Single:
-                    intendedElementType = ImageArrayElementTypes.Single;
-                    transmissionElementType = ImageArrayElementTypes.Single;
-                    transmissionElementSize = 4;
-                    break;
-
-                case TypeCode.Double:
-                    intendedElementType = ImageArrayElementTypes.Double;
-                    transmissionElementType = ImageArrayElementTypes.Double;
-                    transmissionElementSize = 8;
-                    break;
-
-                case TypeCode.Object:
-                    intendedElementType = ImageArrayElementTypes.Object;
-
-                    // Get the type name of the elements within the object array
-                    string elementTypeName = "";
-
-                    switch (imageArray.Rank)
-                    {
-                        case 2:
-                            elementTypeName = imageArray.GetValue(0, 0).GetType().Name;
-                            break;
-
-                        case 3:
-                            elementTypeName = imageArray.GetValue(0, 0, 0).GetType().Name;
-                            break;
-                    }
-
-                    switch (elementTypeName)
-                    {
-                        case "Byte":
-                            transmissionElementType = ImageArrayElementTypes.Byte;
-                            transmissionElementSize = 1;
-                            break;
-
-                        case "Int16":
-                            transmissionElementType = ImageArrayElementTypes.Int16;
-                            transmissionElementSize = 2;
-                            break;
-
-                        case "UInt16":
-                            transmissionElementType = ImageArrayElementTypes.UInt16;
-                            transmissionElementSize = 2;
-                            break;
-
-                        case "Int32":
-                            transmissionElementType = ImageArrayElementTypes.Int32;
-                            transmissionElementSize = 4;
-                            break;
-
-                        case "UInt32":
-                            transmissionElementType = ImageArrayElementTypes.UInt32;
-                            transmissionElementSize = 4;
-                            break;
-
-                        case "Int64":
-                            transmissionElementType = ImageArrayElementTypes.Int64;
-                            transmissionElementSize = 8;
-                            break;
-
-                        case "UInt64":
-                            transmissionElementType = ImageArrayElementTypes.UInt64;
-                            transmissionElementSize = 8;
-                            break;
-
-                        case "Single":
-                            transmissionElementType = ImageArrayElementTypes.Single;
-                            transmissionElementSize = 4;
-                            break;
-
-                        case "Double":
-                            transmissionElementType = ImageArrayElementTypes.Double;
-                            transmissionElementSize = 8;
-                            break;
-
-                        default:
-                            throw new InvalidValueException($"ToByteArray - Received an unsupported object array element type: {elementTypeName}");
-
-                    }
-
-                    break;
-
-                default:
-                    throw new InvalidValueException($"ToByteArray - Received an unsupported return array type: {imageArray.GetType().Name}, with elements of type: {imageArray.GetType().GetElementType().Name} with TypeCode: {arrayElementTypeCode}");
-            }
-
-
-            switch (metadataVersion)
-            {
-                case 1:
-                    // Create a version 1 metadata structure
-                    ArrayMetadataV1 metadataVersion1;
-                    if (imageArray.Rank == 2) metadataVersion1 = new ArrayMetadataV1(AlpacaErrors.AlpacaNoError, clientTransactionID, serverTransactionID, intendedElementType, transmissionElementType, 2, imageArray.GetLength(0), imageArray.GetLength(1), 0);
-                    else metadataVersion1 = new ArrayMetadataV1(AlpacaErrors.AlpacaNoError, clientTransactionID, serverTransactionID, intendedElementType, transmissionElementType, 3, imageArray.GetLength(0), imageArray.GetLength(1), imageArray.GetLength(2));
-
-                    // Turn the metadata structure into a byte array
-                    byte[] metadataBytes = metadataVersion1.ToByteArray<ArrayMetadataV1>();
-
-                    // Create a return array of size equal to the sum of the metadata and image array lengths
-                    byte[] imageArrayBytes = new byte[imageArray.Length * transmissionElementSize + metadataBytes.Length]; // Size the image array bytes as the product of the transmission element size and the number of elements
-
-                    // Copy the metadata bytes to the start of the return byte array
-                    Array.Copy(metadataBytes, imageArrayBytes, metadataBytes.Length);
-
-                    // Copy the image array bytes after the metadata
-                    if (arrayElementTypeCode != TypeCode.Object) // For all arrays, except object arrays, copy the image array directly to the byte array
-                    {
-                        Buffer.BlockCopy(imageArray, 0, imageArrayBytes, metadataBytes.Length, imageArray.Length * transmissionElementSize);
-                    }
-                    else // Special handling for object arrays
-                    {
-                        int startOfNextElement = ARRAY_METADATAV1_LENGTH;
-                        switch (imageArray.Rank)
-                        {
-                            case 2:
-                                switch (transmissionElementType)
-                                {
-                                    case ImageArrayElementTypes.Byte:
-                                        for (int i = 0; i < imageArray.GetLength(0); i++)
-                                        {
-                                            for (int j = 0; j < imageArray.GetLength(1); j++)
-                                            {
-                                                Array.Copy(BitConverter.GetBytes((Byte)imageArray.GetValue(i, j)), 0, imageArrayBytes, startOfNextElement, transmissionElementSize);
-                                                startOfNextElement += transmissionElementSize;
-                                            }
-                                        }
-                                        break;
-
-                                    case ImageArrayElementTypes.Int16:
-                                        for (int i = 0; i < imageArray.GetLength(0); i++)
-                                        {
-                                            for (int j = 0; j < imageArray.GetLength(1); j++)
-                                            {
-                                                Array.Copy(BitConverter.GetBytes((Int16)imageArray.GetValue(i, j)), 0, imageArrayBytes, startOfNextElement, transmissionElementSize);
-                                                startOfNextElement += transmissionElementSize;
-                                            }
-                                        }
-                                        break;
-
-                                    case ImageArrayElementTypes.UInt16:
-                                        for (int i = 0; i < imageArray.GetLength(0); i++)
-                                        {
-                                            for (int j = 0; j < imageArray.GetLength(1); j++)
-                                            {
-                                                Array.Copy(BitConverter.GetBytes((UInt16)imageArray.GetValue(i, j)), 0, imageArrayBytes, startOfNextElement, transmissionElementSize);
-                                                startOfNextElement += transmissionElementSize;
-                                            }
-                                        }
-                                        break;
-
-                                    case ImageArrayElementTypes.Int32:
-                                        for (int i = 0; i < imageArray.GetLength(0); i++)
-                                        {
-                                            for (int j = 0; j < imageArray.GetLength(1); j++)
-                                            {
-                                                Array.Copy(BitConverter.GetBytes((Int32)imageArray.GetValue(i, j)), 0, imageArrayBytes, startOfNextElement, transmissionElementSize);
-                                                startOfNextElement += transmissionElementSize;
-                                            }
-                                        }
-                                        break;
-
-                                    case ImageArrayElementTypes.UInt32:
-                                        for (int i = 0; i < imageArray.GetLength(0); i++)
-                                        {
-                                            for (int j = 0; j < imageArray.GetLength(1); j++)
-                                            {
-                                                Array.Copy(BitConverter.GetBytes((UInt32)imageArray.GetValue(i, j)), 0, imageArrayBytes, startOfNextElement, transmissionElementSize);
-                                                startOfNextElement += transmissionElementSize;
-                                            }
-                                        }
-                                        break;
-
-                                    case ImageArrayElementTypes.Int64:
-                                        for (int i = 0; i < imageArray.GetLength(0); i++)
-                                        {
-                                            for (int j = 0; j < imageArray.GetLength(1); j++)
-                                            {
-                                                Array.Copy(BitConverter.GetBytes((Int64)imageArray.GetValue(i, j)), 0, imageArrayBytes, startOfNextElement, transmissionElementSize);
-                                                startOfNextElement += transmissionElementSize;
-                                            }
-                                        }
-                                        break;
-
-                                    case ImageArrayElementTypes.UInt64:
-                                        for (int i = 0; i < imageArray.GetLength(0); i++)
-                                        {
-                                            for (int j = 0; j < imageArray.GetLength(1); j++)
-                                            {
-                                                Array.Copy(BitConverter.GetBytes((UInt64)imageArray.GetValue(i, j)), 0, imageArrayBytes, startOfNextElement, transmissionElementSize);
-                                                startOfNextElement += transmissionElementSize;
-                                            }
-                                        }
-                                        break;
-
-                                    case ImageArrayElementTypes.Single:
-                                        for (int i = 0; i < imageArray.GetLength(0); i++)
-                                        {
-                                            for (int j = 0; j < imageArray.GetLength(1); j++)
-                                            {
-                                                Array.Copy(BitConverter.GetBytes((Single)imageArray.GetValue(i, j)), 0, imageArrayBytes, startOfNextElement, transmissionElementSize);
-                                                startOfNextElement += transmissionElementSize;
-                                            }
-                                        }
-                                        break;
-
-                                    case ImageArrayElementTypes.Double:
-                                        for (int i = 0; i < imageArray.GetLength(0); i++)
-                                        {
-                                            for (int j = 0; j < imageArray.GetLength(1); j++)
-                                            {
-                                                Array.Copy(BitConverter.GetBytes((Double)imageArray.GetValue(i, j)), 0, imageArrayBytes, startOfNextElement, transmissionElementSize);
-                                                startOfNextElement += transmissionElementSize;
-                                            }
-                                        }
-                                        break;
-
-                                    default:
-                                        throw new InvalidValueException($"Unsupported object array element type: {imageArray.GetValue(0, 0, 0).GetType().Name}");
-                                }
-                                break;
-
-                            case 3:
-                                switch (transmissionElementType)
-                                {
-                                    case ImageArrayElementTypes.Byte:
-                                        for (int i = 0; i < imageArray.GetLength(0); i++)
-                                        {
-                                            for (int j = 0; j < imageArray.GetLength(1); j++)
-                                            {
-                                                for (int k = 0; k < imageArray.GetLength(2); k++)
-                                                {
-                                                    Array.Copy(BitConverter.GetBytes((Byte)imageArray.GetValue(i, j, k)), 0, imageArrayBytes, startOfNextElement, transmissionElementSize);
-                                                    startOfNextElement += transmissionElementSize;
-                                                }
-                                            }
-                                        }
-                                        break;
-
-                                    case ImageArrayElementTypes.Int16:
-                                        for (int i = 0; i < imageArray.GetLength(0); i++)
-                                        {
-                                            for (int j = 0; j < imageArray.GetLength(1); j++)
-                                            {
-                                                for (int k = 0; k < imageArray.GetLength(2); k++)
-                                                {
-                                                    Array.Copy(BitConverter.GetBytes((Int16)imageArray.GetValue(i, j, k)), 0, imageArrayBytes, startOfNextElement, transmissionElementSize);
-                                                    startOfNextElement += transmissionElementSize;
-                                                }
-                                            }
-                                        }
-                                        break;
-
-                                    case ImageArrayElementTypes.UInt16:
-                                        for (int i = 0; i < imageArray.GetLength(0); i++)
-                                        {
-                                            for (int j = 0; j < imageArray.GetLength(1); j++)
-                                            {
-                                                for (int k = 0; k < imageArray.GetLength(2); k++)
-                                                {
-                                                    Array.Copy(BitConverter.GetBytes((UInt16)imageArray.GetValue(i, j, k)), 0, imageArrayBytes, startOfNextElement, transmissionElementSize);
-                                                    startOfNextElement += transmissionElementSize;
-                                                }
-                                            }
-                                        }
-                                        break;
-
-                                    case ImageArrayElementTypes.Int32:
-                                        for (int i = 0; i < imageArray.GetLength(0); i++)
-                                        {
-                                            for (int j = 0; j < imageArray.GetLength(1); j++)
-                                            {
-                                                for (int k = 0; k < imageArray.GetLength(2); k++)
-                                                {
-                                                    Array.Copy(BitConverter.GetBytes((Int32)imageArray.GetValue(i, j, k)), 0, imageArrayBytes, startOfNextElement, transmissionElementSize);
-                                                    startOfNextElement += transmissionElementSize;
-                                                }
-                                            }
-                                        }
-                                        break;
-
-                                    case ImageArrayElementTypes.UInt32:
-                                        for (int i = 0; i < imageArray.GetLength(0); i++)
-                                        {
-                                            for (int j = 0; j < imageArray.GetLength(1); j++)
-                                            {
-                                                for (int k = 0; k < imageArray.GetLength(2); k++)
-                                                {
-                                                    Array.Copy(BitConverter.GetBytes((UInt32)imageArray.GetValue(i, j, k)), 0, imageArrayBytes, startOfNextElement, transmissionElementSize);
-                                                    startOfNextElement += transmissionElementSize;
-                                                }
-                                            }
-                                        }
-                                        break;
-
-                                    case ImageArrayElementTypes.Int64:
-                                        for (int i = 0; i < imageArray.GetLength(0); i++)
-                                        {
-                                            for (int j = 0; j < imageArray.GetLength(1); j++)
-                                            {
-                                                for (int k = 0; k < imageArray.GetLength(2); k++)
-                                                {
-                                                    Array.Copy(BitConverter.GetBytes((Int64)imageArray.GetValue(i, j, k)), 0, imageArrayBytes, startOfNextElement, transmissionElementSize);
-                                                    startOfNextElement += transmissionElementSize;
-                                                }
-                                            }
-                                        }
-                                        break;
-
-                                    case ImageArrayElementTypes.UInt64:
-                                        for (int i = 0; i < imageArray.GetLength(0); i++)
-                                        {
-                                            for (int j = 0; j < imageArray.GetLength(1); j++)
-                                            {
-                                                for (int k = 0; k < imageArray.GetLength(2); k++)
-                                                {
-                                                    Array.Copy(BitConverter.GetBytes((UInt64)imageArray.GetValue(i, j, k)), 0, imageArrayBytes, startOfNextElement, transmissionElementSize);
-                                                    startOfNextElement += transmissionElementSize;
-                                                }
-                                            }
-                                        }
-                                        break;
-
-                                    case ImageArrayElementTypes.Single:
-                                        for (int i = 0; i < imageArray.GetLength(0); i++)
-                                        {
-                                            for (int j = 0; j < imageArray.GetLength(1); j++)
-                                            {
-                                                for (int k = 0; k < imageArray.GetLength(2); k++)
-                                                {
-                                                    Array.Copy(BitConverter.GetBytes((Single)imageArray.GetValue(i, j, k)), 0, imageArrayBytes, startOfNextElement, transmissionElementSize);
-                                                    startOfNextElement += transmissionElementSize;
-                                                }
-                                            }
-                                        }
-                                        break;
-
-                                    case ImageArrayElementTypes.Double:
-                                        for (int i = 0; i < imageArray.GetLength(0); i++)
-                                        {
-                                            for (int j = 0; j < imageArray.GetLength(1); j++)
-                                            {
-                                                for (int k = 0; k < imageArray.GetLength(2); k++)
-                                                {
-                                                    Array.Copy(BitConverter.GetBytes((Double)imageArray.GetValue(i, j, k)), 0, imageArrayBytes, startOfNextElement, transmissionElementSize);
-                                                    startOfNextElement += transmissionElementSize;
-                                                }
-                                            }
-                                        }
-                                        break;
-
-                                    default:
-                                        throw new InvalidValueException($"Unsupported object array element type: {imageArray.GetValue(0, 0, 0).GetType().Name}");
-                                }
-
-                                break;
-                        }
-
-                    }
-
-
-                    // Return the byte array
-                    return imageArrayBytes;
-
-                default:
-                    throw new InvalidValueException($"ToByteArray - Unsupported metadata version: {metadataVersion}");
-            }
-
+            // Call the full function with the supplied client element type
+            return ConvertArray(imageArray, metadataVersion, clientTransactionID, serverTransactionID, requiredClientElementType, errorNumber, errorMessage);
         }
 
         /// <summary>
@@ -1087,7 +243,7 @@ namespace ASCOM.Common.Alpaca
                     default:
                         throw new InvalidValueException($"ToImageArray - Returned array cannot be handled because it does not have a rank of 2 or 3. Returned array rank:{rank}.");
                 }
-            }
+            } // Handle the special case where Int16 has been converted to Byte for transmission
             else if ((imageElementType == ImageArrayElementTypes.UInt16) & (transmissionElementType == ImageArrayElementTypes.Byte)) // Handle the special case where UInt16 has been converted to Byte for transmission
             {
                 switch (rank)
@@ -1126,7 +282,7 @@ namespace ASCOM.Common.Alpaca
                     default:
                         throw new InvalidValueException($"ToImageArray - Returned array cannot be handled because it does not have a rank of 2 or 3. Returned array rank:{rank}.");
                 }
-            }
+            } // Handle the special case where UInt16 has been converted to Byte for transmission
             else if ((imageElementType == ImageArrayElementTypes.Int32) & (transmissionElementType == ImageArrayElementTypes.Byte)) // Handle the special case where Int32 has been converted to Byte for transmission
             {
                 switch (rank)
@@ -1165,7 +321,7 @@ namespace ASCOM.Common.Alpaca
                     default:
                         throw new InvalidValueException($"ToImageArray - Returned array cannot be handled because it does not have a rank of 2 or 3. Returned array rank:{rank}.");
                 }
-            }
+            } // Handle the special case where Int32 has been converted to Byte for transmission
             else if ((imageElementType == ImageArrayElementTypes.Int32) & (transmissionElementType == ImageArrayElementTypes.Int16)) // Handle the special case where Int32 has been converted to Int16 for transmission
             {
                 switch (rank)
@@ -1204,7 +360,7 @@ namespace ASCOM.Common.Alpaca
                     default:
                         throw new InvalidValueException($"ToImageArray - Returned array cannot be handled because it does not have a rank of 2 or 3. Returned array rank:{rank}.");
                 }
-            }
+            } // Handle the special case where Int32 has been converted to Int16 for transmission
             else if ((imageElementType == ImageArrayElementTypes.Int32) & (transmissionElementType == ImageArrayElementTypes.UInt16)) // Handle the special case where Int32 values has been converted to UInt16 for transmission
             {
                 switch (rank)
@@ -1243,8 +399,8 @@ namespace ASCOM.Common.Alpaca
                     default:
                         throw new InvalidValueException($"ToImageArray - Returned array cannot be handled because it does not have a rank of 2 or 3. Returned array rank:{rank}.");
                 }
-            }
-            else if (imageElementType == ImageArrayElementTypes.Object)
+            } // Handle the special case where Int32 has been converted to UInt16 for transmission
+            else if (imageElementType == ImageArrayElementTypes.Object) // Handle the special case where the source array is an object array
             {
                 switch (rank)
                 {
@@ -1509,7 +665,7 @@ namespace ASCOM.Common.Alpaca
                         throw new InvalidValueException($"ToImageArray - Returned array cannot be handled because it does not have a rank of 2 or 3. Returned array rank:{rank}.");
                 }
 
-            }
+            } // Handle the special case where the source array is an object array
             else // Handle all other cases where the expected array type and the transmitted array type are the same
             {
                 if (imageElementType == transmissionElementType) // Required and transmitted array element types are the same
@@ -1831,6 +987,1134 @@ namespace ASCOM.Common.Alpaca
             }
 
             return structure;
+        }
+
+        #endregion
+
+        #region Private Functions
+
+        /// <summary>
+        /// Private function to carry out the heavy lifting of converting an array to an ImageBytes byte array.
+        /// </summary>
+        /// <param name="imageArray">The 2D or 3D source image array. (Ignored when returning an error.)</param>
+        /// <param name="metadataVersion">Metadata version to use (Currently 1).</param>
+        /// <param name="clientTransactionID">Client's transaction ID.</param>
+        /// <param name="serverTransactionID">Device's transaction ID.</param>
+        /// <param name="requiredClientElementType">The element type to be used in the array returned to the client. This enables the returned array to be of different type than the supplied image array (see remarks).</param>
+        /// <param name="errorNumber">Error number. 0 for success, non-zero for an error.</param>
+        /// <param name="errorMessage">Error message. Empty string for success, error message for an error.</param>
+        /// <returns>Byte array prefixed with array metadata.</returns>
+        /// <exception cref="InvalidValueException">If only one of the error number and error message indicates an error.</exception>
+        /// <exception cref="InvalidValueException">Image array is null for a successful transaction or the array rank is &lt;2 or &gt;3 or the array is of type object</exception>
+        /// <exception cref="InvalidValueException">The array element type is not supported.</exception>
+        /// <returns>The source array converted to an ImageBytes byte array.</returns>
+        /// <remarks>
+        /// The ImageArrayElementTypes.Unknown value for the requiredClientElementType parameter indicates that the element type of the source array is to be used in the returned array.
+        /// </remarks>
+        private static byte[] ConvertArray(Array imageArray, int metadataVersion, uint clientTransactionID, uint serverTransactionID, ImageArrayElementTypes requiredClientElementType, AlpacaErrors errorNumber, string errorMessage)
+        {
+            int transmissionElementSize; // Managed size of transmitted elements
+            bool arrayIsByte; // Flag indicating whether the supplied array conforms to the Byte value range 0 to +255.
+
+            // Handle error conditions
+            if ((errorNumber != 0) | (!string.IsNullOrWhiteSpace(errorMessage)))
+            {
+                // Validate error parameters
+                if ((errorNumber == 0) & (!string.IsNullOrWhiteSpace(errorMessage))) throw new InvalidValueException($"AlpacaTools.ConvertArray - Error number is {errorNumber} but an error message has been supplied: '{errorMessage}'");
+                if ((errorNumber != 0) & (string.IsNullOrWhiteSpace(errorMessage))) throw new InvalidValueException($"AlpacaTools.ConvertArray - Error number is {errorNumber} but no error message has been supplied: '{errorMessage}'");
+
+                return ErrorMessageToByteArray(metadataVersion, clientTransactionID, serverTransactionID, errorNumber, errorMessage);
+            }
+
+            // At this point we have a successful transaction so validate the incoming array
+            if (imageArray is null) throw new InvalidValueException("AlpacaTools.ConvertArray - Supplied array is null.");
+            if ((imageArray.Rank < 2) | (imageArray.Rank > 3)) throw new InvalidValueException($"AlpacaTools.ConvertArray - Only arrays of rank 2 and 3 are supported. The supplied array has a rank of {imageArray.Rank}.");
+
+            // Set defaults for the array type
+            ImageArrayElementTypes clientElementType = ImageArrayElementTypes.Unknown;
+            ImageArrayElementTypes transmissionElementType = ImageArrayElementTypes.Unknown;
+
+            // Get the .NET type code of the source array elements
+            TypeCode arrayElementTypeCode = Type.GetTypeCode(imageArray.GetType().GetElementType());
+
+            // Set the element type of the array to be returned to the client and default the transmission element type to be the same
+            switch (arrayElementTypeCode)
+            {
+                case TypeCode.Byte:
+                    clientElementType = ImageArrayElementTypes.Byte;
+                    transmissionElementType = ImageArrayElementTypes.Byte;
+                    transmissionElementSize = 1;
+                    break;
+
+                case TypeCode.Int16:
+                    clientElementType = ImageArrayElementTypes.Int16;
+                    transmissionElementType = ImageArrayElementTypes.Int16;
+                    transmissionElementSize = 2;
+
+                    // Special handling for Int16 arrays - see if we can convert them to a Byte array
+
+                    arrayIsByte = true; // Flag indicating whether the supplied array conforms to the Byte value range 0 to +255. Start by assuming success
+
+                    // Handle 2D and 3D arrays
+                    switch (imageArray.Rank)
+                    {
+                        case 2:
+                            byte[,] byteArray = new byte[imageArray.GetLength(0), imageArray.GetLength(1)]; // Array to hold the 8bit transmission array
+
+                            // Get the device's Int16 image array
+                            Int16[,] int2dArray = (Int16[,])imageArray;
+
+                            // Parellelise the array copy to improve performance
+                            Parallel.For(0, imageArray.GetLength(0), (i, state) => // Iterate over the slowest changing dimension
+                            {
+                                byte byteElementValue; // Local variable to hold the Byte element being tested (saves calculating an array offset later in the process)
+                                Int16 int16ElementValue; // Local variable to hold the Int16 element value (saves calculating an array offset later in the process)
+
+                                bool arrayIsByteInternal = true; // Local variable to hold the Byte status within this particular thread. Used to reduce thread conflict when updating the arrayIsByte variable.
+
+                                // Iterate over the fastest changing dimension
+                                for (int j = 0; j < imageArray.GetLength(1); j++)
+                                {
+                                    // Get the current array element value
+                                    int16ElementValue = int2dArray[i, j];
+
+                                    // Truncate the supplied 2-byte Int16 value to create a 1-byte Byte value
+                                    byteElementValue = (byte)int16ElementValue;
+
+                                    // Store the Byte value in the array.
+                                    byteArray[i, j] = byteElementValue;
+
+                                    // Compare the Byte and Int16 values, indicating whether they match. 
+                                    if (byteElementValue != int16ElementValue) arrayIsByteInternal = false;
+
+                                }
+
+                                // Update the master arrayIsByte variable.
+                                arrayIsByte &= arrayIsByteInternal;
+
+                                // Terminate the parallel for loop early if the image data is determined to be 16bit
+                                if (!arrayIsByte) state.Break();
+
+                            });
+
+                            // Return the Byte array values if these were provided by the device
+                            if (arrayIsByte) // Supplied array has Byte values so return the shorter array in place of the supplied Int16 array
+                            {
+                                imageArray = byteArray; // Assign the Byte array to the imageArray variable in place of the Int16 array
+                                transmissionElementType = ImageArrayElementTypes.Byte; // Flag that the array elements are Byte
+                                transmissionElementSize = sizeof(byte); // Indicate that the transmitted elements are of Byte size rather than Int16 size
+                            }
+                            else
+                            {
+                                // No action, continue to use the supplied Int16 array because its values fall outside the Byte number range
+                            }
+                            break;
+
+                        case 3:
+                            byte[,,] byte3dArray = new byte[imageArray.GetLength(0), imageArray.GetLength(1), imageArray.GetLength(2)]; // Array to hold the 8bit transmission array
+
+                            // Get the device's Int16 image array
+                            Int16[,,] int3dArray = (Int16[,,])imageArray;
+
+                            // Parellelise the array copy to improve performance
+                            Parallel.For(0, imageArray.GetLength(0), (i, state) => // Iterate over the slowest changing dimension
+                            {
+                                bool arrayIsByteInternal1 = true; // Local variable to hold the Byte status within this particular thread. Used to reduce thread conflict when updating the arrayIsByte variable.
+
+                                // Iterate over the mid changing dimension
+                                for (int j = 0; j < imageArray.GetLength(1); j++)
+                                {
+                                    byte byteElementValue; // Local variable to hold the Byte element being tested (saves calculating an array offset later in the process)
+                                    Int16 int16ElementValue; // Local variable to hold the Int16 element value (saves calculating an array offset later in the process)
+                                    bool arrayIsByteInternal2 = true; // Local variable to hold the Byte status within this particular thread. Used to reduce thread conflict when updating the arrayIsByte variable.
+
+                                    // Iterate over the fastest changing dimension
+                                    for (int k = 0; k < imageArray.GetLength(2); k++)
+                                    {
+                                        // Get the current array element value
+                                        int16ElementValue = int3dArray[i, j, k];
+
+                                        // Truncate the supplied 2-byte Int16 value to create a 1-byte Byte value
+                                        byteElementValue = (byte)int16ElementValue;
+
+                                        // Store the Byte value in the array.
+                                        byte3dArray[i, j, k] = byteElementValue;
+
+                                        // Compare the Byte and Int16 values, indicating whether they match. 
+                                        if (byteElementValue != int16ElementValue) arrayIsByteInternal2 = false;
+
+                                    }
+
+                                    // Update the arrayIsByteInternal1variable.
+                                    arrayIsByteInternal1 &= arrayIsByteInternal2;
+
+                                }
+
+                                // Update the master arrayIsByte variable as the logical AND of the mater and update values.
+                                arrayIsByte &= arrayIsByteInternal1;
+
+                                // Terminate the parallel for loop early if the image data is determined to be 16bit
+                                if (!arrayIsByte) state.Break();
+                            });
+
+                            // Return the appropriate array if either Byte array values were provided by the device
+                            if (arrayIsByte) // Supplied array has Byte values so return the shorter array in place of the supplied Int16 array
+                            {
+                                imageArray = byte3dArray; // Assign the Byte array to the imageArray variable in place of the Int16 array
+                                transmissionElementType = ImageArrayElementTypes.Byte; // Flag that the array elements are Byte
+                                transmissionElementSize = sizeof(byte); // Indicate that the transmitted elements are of Byte size rather than Int16 size
+                            }
+                            else
+                            {
+                                // No action, continue to use the supplied Int16 array because its values fall outside the Byte number range.
+                            }
+                            break;
+
+                        default:
+                            throw new InvalidValueException($"AlpacaTools.ConvertArray - The camera returned an array of rank: {imageArray.Rank}, which is not supported.");
+                    }
+
+                    break;
+
+                case TypeCode.UInt16:
+                    clientElementType = ImageArrayElementTypes.UInt16;
+                    transmissionElementType = ImageArrayElementTypes.UInt16;
+                    transmissionElementSize = 2;
+
+                    // Special handling for UInt16 arrays - see if we can convert them to a Byte array
+
+                    arrayIsByte = true; // Flag indicating whether the supplied array conforms to the Byte value range 0 to +255. Start by assuming success
+
+                    // Handle 2D and 3D arrays
+                    switch (imageArray.Rank)
+                    {
+                        case 2:
+                            byte[,] byteArray = new byte[imageArray.GetLength(0), imageArray.GetLength(1)]; // Array to hold the 8bit transmission array
+
+                            // Get the device's Int16 image array
+                            UInt16[,] uint2dArray = (UInt16[,])imageArray;
+
+                            // Parellelise the array copy to improve performance
+                            Parallel.For(0, imageArray.GetLength(0), (i, state) => // Iterate over the slowest changing dimension
+                            {
+                                byte byteElementValue; // Local variable to hold the Byte element being tested (saves calculating an array offset later in the process)
+                                UInt16 uint16ElementValue; // Local variable to hold the Int16 element value (saves calculating an array offset later in the process)
+
+                                bool arrayIsByteInternal = true; // Local variable to hold the Byte status within this particular thread. Used to reduce thread conflict when updating the arrayIsByte variable.
+
+                                // Iterate over the fastest changing dimension
+                                for (int j = 0; j < imageArray.GetLength(1); j++)
+                                {
+                                    // Get the current array element value
+                                    uint16ElementValue = uint2dArray[i, j];
+
+                                    // Truncate the supplied 2-byte UInt16 value to create a 1-byte Byte value
+                                    byteElementValue = (byte)uint16ElementValue;
+
+                                    // Store the Byte value in the array.
+                                    byteArray[i, j] = byteElementValue;
+
+                                    // Compare the Byte and UInt16 values, indicating whether they match. 
+                                    if (byteElementValue != uint16ElementValue) arrayIsByteInternal = false;
+
+                                }
+
+                                // Update the master arrayIsByte variable.
+                                arrayIsByte &= arrayIsByteInternal;
+
+                                // Terminate the parallel for loop early if the image data is determined to be 16bit
+                                if (!arrayIsByte) state.Break();
+
+                            });
+
+                            // Return the Byte array values if these were provided by the device
+                            if (arrayIsByte) // Supplied array has Byte values so return the shorter array in place of the supplied UInt16 array
+                            {
+                                imageArray = byteArray; // Assign the Byte array to the imageArray variable in place of the UInt16 array
+                                transmissionElementType = ImageArrayElementTypes.Byte; // Flag that the array elements are Byte
+                                transmissionElementSize = sizeof(byte); // Indicate that the transmitted elements are of Byte size rather than UInt16 size
+                            }
+                            else
+                            {
+                                // No action, continue to use the supplied Int16 array because its values fall outside the Byte number range
+                            }
+                            break;
+
+                        case 3:
+                            byte[,,] byte3dArray = new byte[imageArray.GetLength(0), imageArray.GetLength(1), imageArray.GetLength(2)]; // Array to hold the 8bit transmission array
+
+                            // Get the device's Int16 image array
+                            UInt16[,,] uint3dArray = (UInt16[,,])imageArray;
+
+                            // Parellelise the array copy to improve performance
+                            Parallel.For(0, imageArray.GetLength(0), (i, state) => // Iterate over the slowest changing dimension
+                            {
+                                bool arrayIsByteInternal1 = true; // Local variable to hold the Byte status within this particular thread. Used to reduce thread conflict when updating the arrayIsByte variable.
+
+                                // Iterate over the mid changing dimension
+                                for (int j = 0; j < imageArray.GetLength(1); j++)
+                                {
+                                    byte byteElementValue; // Local variable to hold the Byte element being tested (saves calculating an array offset later in the process)
+                                    UInt16 uint16ElementValue; // Local variable to hold the Int16 element value (saves calculating an array offset later in the process)
+                                    bool arrayIsByteInternal2 = true; // Local variable to hold the Byte status within this particular thread. Used to reduce thread conflict when updating the arrayIsByte variable.
+
+                                    // Iterate over the fastest changing dimension
+                                    for (int k = 0; k < imageArray.GetLength(2); k++)
+                                    {
+                                        // Get the current array element value
+                                        uint16ElementValue = uint3dArray[i, j, k];
+
+                                        // Truncate the supplied 2-byte UInt16 value to create a 1-byte Byte value
+                                        byteElementValue = (byte)uint16ElementValue;
+
+                                        // Store the Byte value in the array.
+                                        byte3dArray[i, j, k] = byteElementValue;
+
+                                        // Compare the Byte and UInt16 values, indicating whether they match. 
+                                        if (byteElementValue != uint16ElementValue) arrayIsByteInternal2 = false;
+
+                                    }
+
+                                    // Update the arrayIsByteInternal1variable.
+                                    arrayIsByteInternal1 &= arrayIsByteInternal2;
+
+                                }
+
+                                // Update the master arrayIsByte variable as the logical AND of the mater and update values.
+                                arrayIsByte &= arrayIsByteInternal1;
+
+                                // Terminate the parallel for loop early if the image data is determined to be 16bit
+                                if (!arrayIsByte) state.Break();
+                            });
+
+                            // Return the appropriate array if either Byte array values were provided by the device
+                            if (arrayIsByte) // Supplied array has Byte values so return the shorter array in place of the supplied UInt16 array
+                            {
+                                imageArray = byte3dArray; // Assign the byte array to the imageArray variable in place of the UInt16 array
+                                transmissionElementType = ImageArrayElementTypes.Byte; // Flag that the array elements are Byte
+                                transmissionElementSize = sizeof(byte); // Indicate that the transmitted elements are of Byte size rather than UInt16 size
+                            }
+                            else
+                            {
+                                // No action, continue to use the supplied Int16 array because its values fall outside the Byte number range.
+                            }
+                            break;
+
+                        default:
+                            throw new InvalidValueException($"AlpacaTools.ConvertArray - The camera returned an array of rank: {imageArray.Rank}, which is not supported.");
+                    }
+
+
+                    break;
+
+                case TypeCode.Int32:
+                    clientElementType = ImageArrayElementTypes.Int32;
+                    transmissionElementType = ImageArrayElementTypes.Int32;
+                    transmissionElementSize = 4;
+
+                    // Special handling for Int32 arrays - see if we can convert them to Int16 or UInt16 arrays
+
+                    // NOTE
+                    // NOTE - This algorithm uses a UInt16 array to transmit an array with Int16 values because we are only interested in the byte values for this purpose,
+                    // NOTE - not the arithmetic interpretation of those bytes.
+                    // NOTE
+
+                    arrayIsByte = true; // Flag indicating whether the supplied array conforms to the Byte value range 0 to +255. Start by assuming success
+                    bool arrayIsInt16 = true; // Flag indicating whether the supplied array conforms to the Int16 value range -32768 to +32767. Start by assuming success
+                    bool arrayIsUint16 = true; // Flag indicating whether the supplied array conforms to the UInt16 value range 0 to +65535. Start by assuming success
+
+                    // Handle 2D and 3D arrays
+                    switch (imageArray.Rank)
+                    {
+                        case 2:
+                            byte[,] byteArray = new byte[imageArray.GetLength(0), imageArray.GetLength(1)]; // Array to hold the 8bit transmission array
+                            UInt16[,] uInt16Array = new UInt16[imageArray.GetLength(0), imageArray.GetLength(1)]; // Array to hold the 16bit transmission array (either Int16 or UInt16 values)
+
+                            // Get the device's Int32 image array
+                            int[,] int2dArray = (int[,])imageArray;
+
+                            // Parellelise the array copy to improve performance
+                            Parallel.For(0, imageArray.GetLength(0), (i, state) => // Iterate over the slowest changing dimension
+                            {
+                                byte byteElementValue; // Local variable to hold the Byte element being tested (saves calculating an array offset later in the process)
+                                Int32 int32ElementValue; // Local variable to hold the Int32 element being tested (saves calculating an array offset later in the process)
+                                Int16 int16ElementValue; // Local variable to hold the Int16 element value (saves calculating an array offset later in the process)
+                                UInt16 uInt16ElementValue; // Local variable to hold the Unt16 element value (saves calculating an array offset later in the process)
+
+                                bool arrayIsByteInternal = true; // Local variable to hold the Byte status within this particular thread. Used to reduce thread conflict when updating the arrayIsByte variable.
+                                bool arrayIsInt16Internal = true; // Local variable to hold the Int16 status within this particular thread. Used to reduce thread conflict when updating the arrayIsInt16 variable.
+                                bool arrayIsUint16Internal = true; // Local variable to hold the UInt16 status within this particular thread. Used to reduce thread conflict when updating the arrayIsInt16 variable.
+
+                                // Iterate over the fastest changing dimension
+                                for (int j = 0; j < imageArray.GetLength(1); j++)
+                                {
+                                    // Get the current array element value
+                                    int32ElementValue = int2dArray[i, j];
+
+                                    // Truncate the supplied 4-byte Int32 value to create a 1-byte Byte value
+                                    byteElementValue = (byte)int32ElementValue;
+
+                                    // Truncate the supplied 4-byte Int32 value to create a 2-byte UInt16 value
+                                    uInt16ElementValue = (UInt16)int32ElementValue;
+
+                                    // Truncate the supplied 4-byte Int32 value to create a 2-byte Int16 value
+                                    int16ElementValue = (Int16)int32ElementValue;
+
+                                    // Store the Byte value in the array.
+                                    byteArray[i, j] = byteElementValue;
+
+                                    // Store the UInt16 value in the array.
+                                    uInt16Array[i, j] = uInt16ElementValue;
+
+                                    // Compare the Byte and Int32 values, indicating whether they match. 
+                                    if (byteElementValue != int32ElementValue) arrayIsByteInternal = false;
+
+                                    // Compare the Int16 and Int32 values, indicating whether they match. 
+                                    if (int16ElementValue != int32ElementValue) arrayIsInt16Internal = false;
+
+                                    // Compare the UInt16 and Int32 values, indicating whether they match. 
+                                    if (uInt16ElementValue != int32ElementValue) arrayIsUint16Internal = false;
+                                }
+
+                                // Update the master arrayIsInt16 and arrayIsUint16 variables as the logical AND of the mater and update values.
+                                arrayIsByte &= arrayIsByteInternal;
+                                arrayIsInt16 &= arrayIsInt16Internal;
+                                arrayIsUint16 &= arrayIsUint16Internal;
+
+                                // Terminate the parallel for loop early if the image data is determined to be 32bit
+                                if (!arrayIsInt16 & !arrayIsUint16) state.Break();
+
+                            });
+
+                            // Return the appropriate array if either a Byte, UInt16 or Int16 array was provided by the device
+                            if (arrayIsByte) // Supplied array has UInt16 values so return the shorter array in place of the supplied Int32 array
+                            {
+                                imageArray = byteArray; // Assign the Int16 array to the imageArray variable in place of the Int32 array
+                                transmissionElementType = ImageArrayElementTypes.Byte; // Flag that the array elements are UInt16
+                                transmissionElementSize = sizeof(byte); // Indicate that the transmitted elements are of UInt16 size rather than Int32 size
+                            }
+                            else if (arrayIsUint16) // Supplied array has UInt16 values so return the shorter array in place of the supplied Int32 array
+                            {
+                                imageArray = uInt16Array; // Assign the Int16 array to the imageArray variable in place of the Int32 array
+                                transmissionElementType = ImageArrayElementTypes.UInt16; // Flag that the array elements are UInt16
+                                transmissionElementSize = sizeof(UInt16); // Indicate that the transmitted elements are of UInt16 size rather than Int32 size
+                            }
+                            else if (arrayIsInt16) // Supplied array has Int16 values so return the shorter array in place of the supplied Int32 array
+                            {
+                                imageArray = uInt16Array; // Assign the UInt16 array to the imageArray variable in place of the Int32 array (at the byte level Int32 and UInt32 are equivalent - both consist of two bytes)
+                                transmissionElementType = ImageArrayElementTypes.Int16; // Flag that the array elements are Int16
+                                transmissionElementSize = sizeof(Int16); // Indicate that the transmitted elements are of UInt16 size rather than Int32 size
+                            }
+                            else
+                            {
+                                // No action, continue to use the supplied Int32 array because its values fall outside the Uint16 and Int16 number ranges
+                            }
+                            break;
+
+                        case 3:
+                            byte[,,] byte3dArray = new byte[imageArray.GetLength(0), imageArray.GetLength(1), imageArray.GetLength(2)]; // Array to hold the 8bit transmission array
+                            UInt16[,,] uInt163dArray = new UInt16[imageArray.GetLength(0), imageArray.GetLength(1), imageArray.GetLength(2)];  // Array to hold the 16bit transmission array (either Int16 or UInt16 values)
+
+                            // Get the device's Int32 image array
+                            Int32[,,] int3dArray = (Int32[,,])imageArray;
+
+                            // Parellelise the array copy to improve performance
+                            Parallel.For(0, imageArray.GetLength(0), (i, state) => // Iterate over the slowest changing dimension
+                            {
+                                bool arrayIsByteInternal1 = true; // Local variable to hold the Byte status within this particular thread. Used to reduce thread conflict when updating the arrayIsByte variable.
+                                bool arrayIsInt16Internal1 = true; // Local variable to hold the Int16 status within this particular thread. Used to reduce thread conflict when updating the arrayisInt16 variable.
+                                bool arrayIsUint16Internal1 = true; // Local variable to hold the UInt16 status within this particular thread. Used to reduce thread conflict when updating the arrayisInt16 variable.
+
+                                // Iterate over the mid changing dimension
+                                for (int j = 0; j < imageArray.GetLength(1); j++)
+                                {
+                                    byte byteElementValue; // Local variable to hold the Byte element being tested (saves calculating an array offset later in the process)
+                                    Int32 int32ElementValue; // Local variable to hold the Int32 element being tested (saves calculating an array offset later in the process)
+                                    Int16 int16ElementValue; // Local variable to hold the Int16 element value (saves calculating an array offset later in the process)
+                                    UInt16 uInt16ElementValue; // Local variable to hold the UInt16 element value (saves calculating an array offset later in the process)
+                                    bool arrayIsByteInternal2 = true; // Local variable to hold the Byte status within this particular thread. Used to reduce thread conflict when updating the arrayIsByte variable.
+                                    bool arrayIsInt16Internal2 = true; // Local variable to hold the Int16 status within this particular thread. Used to reduce thread conflict when updating the arrayIsInt16 variable.
+                                    bool arrayIsUInt16Internal2 = true; // Local variable to hold the Int16 status within this particular thread. Used to reduce thread conflict when updating the arrayIsUInt16 variable.
+
+                                    // Iterate over the fastest changing dimension
+                                    for (int k = 0; k < imageArray.GetLength(2); k++)
+                                    {
+                                        // Get the current array element value
+                                        int32ElementValue = int3dArray[i, j, k];
+
+                                        // Truncate the supplied 4-byte Int32 value to create a 1-byte Byte value
+                                        byteElementValue = (byte)int32ElementValue;
+
+                                        // Truncate the supplied 4-byte Int32 value to create a 2-byte UInt16 value
+                                        uInt16ElementValue = (UInt16)int32ElementValue;
+
+                                        // Truncate the supplied 4-byte Int32 value to create a 2-byte Int16 value
+                                        int16ElementValue = (Int16)int32ElementValue;
+
+                                        // Store the Byte value in the array.
+                                        byte3dArray[i, j, k] = byteElementValue;
+
+                                        // Store the UInt16 value to the corresponding Int16 array element. 
+                                        uInt163dArray[i, j, k] = uInt16ElementValue;
+
+                                        // Compare the Byte and Int32 values, indicating whether they match. 
+                                        if (byteElementValue != int32ElementValue) arrayIsByteInternal2 = false;
+
+                                        // Compare the Int16 and Int32 values. 
+                                        if (int16ElementValue != int32ElementValue) arrayIsInt16Internal2 = false; // If they are not the same the Int32 value was outside the range of Int16 and arrayIsInt16Internal will be set false
+
+                                        // Compare the UInt16 and Int32 values. 
+                                        if (uInt16ElementValue != int32ElementValue) arrayIsUInt16Internal2 = false;
+                                    }
+
+                                    // Update the arrayIsInt16Internal1 and arrayIsUint16Internal1 variables as the logical AND of the mater and update values.
+                                    arrayIsByteInternal1 &= arrayIsByteInternal2;
+                                    arrayIsInt16Internal1 &= arrayIsInt16Internal2;
+                                    arrayIsUint16Internal1 &= arrayIsUInt16Internal2;
+
+                                }
+
+                                // Update the master arrayIsInt16 and arrayIsUint16 variables as the logical AND of the mater and update values.
+                                arrayIsByte &= arrayIsByteInternal1;
+                                arrayIsInt16 &= arrayIsInt16Internal1;
+                                arrayIsUint16 &= arrayIsUint16Internal1;
+
+                                // Terminate the parallel for loop early if the image data is determined to be 32bit
+                                if (!arrayIsInt16 & !arrayIsUint16) state.Break();
+                            });
+
+                            // Return the appropriate array if either a Byte, UInt16 or Int16 array was provided by the device
+                            if (arrayIsByte) // Supplied array has UInt16 values so return the shorter array in place of the supplied Int32 array
+                            {
+                                imageArray = byte3dArray; // Assign the Int16 array to the imageArray variable in place of the Int32 array
+                                transmissionElementType = ImageArrayElementTypes.Byte; // Flag that the array elements are UInt16
+                                transmissionElementSize = sizeof(byte); // Indicate that the transmitted elements are of UInt16 size rather than Int32 size
+                            }
+                            else if (arrayIsUint16) // Supplied array has UInt16 values so return the shorter array in place of the supplied Int32 array
+                            {
+                                imageArray = uInt163dArray; // Assign the Int16 array to the imageArray variable in place of the Int32 array
+                                transmissionElementType = ImageArrayElementTypes.UInt16; // Flag that the array elements are UInt16
+                                transmissionElementSize = sizeof(UInt16); // Indicate that the transmitted elements are of UInt16 size rather than Int32 size
+                            }
+                            else if (arrayIsInt16) // Supplied array has Int16 values so return the shorter array in place of the supplied Int32 array
+                            {
+                                imageArray = uInt163dArray; // Assign the UInt16 array to the imageArray variable in place of the Int32 array (at the byte level Int32 and UInt32 are equivalent - both consist of two bytes)
+                                transmissionElementType = ImageArrayElementTypes.Int16; // Flag that the array elements are Int16
+                                transmissionElementSize = sizeof(Int16); // Indicate that the transmitted elements are of UInt16 size rather than Int32 size
+                            }
+                            else
+                            {
+                                // No action, continue to use the supplied Int32 array because its values fall outside the Uint16 and Int16 number ranges
+                            }
+                            break;
+
+                        default:
+                            throw new InvalidValueException($"AlpacaTools.ConvertArray - The camera returned an array of rank: {imageArray.Rank}, which is not supported.");
+                    }
+
+                    break;
+
+                case TypeCode.UInt32:
+                    clientElementType = ImageArrayElementTypes.UInt32;
+                    transmissionElementType = ImageArrayElementTypes.UInt32;
+                    transmissionElementSize = 4;
+                    break;
+
+                case TypeCode.Int64:
+                    clientElementType = ImageArrayElementTypes.Int64;
+                    transmissionElementType = ImageArrayElementTypes.Int64;
+                    transmissionElementSize = 8;
+                    break;
+
+                case TypeCode.UInt64:
+                    clientElementType = ImageArrayElementTypes.UInt64;
+                    transmissionElementType = ImageArrayElementTypes.UInt64;
+                    transmissionElementSize = 8;
+                    break;
+
+                case TypeCode.Single:
+                    clientElementType = ImageArrayElementTypes.Single;
+                    transmissionElementType = ImageArrayElementTypes.Single;
+                    transmissionElementSize = 4;
+                    break;
+
+                case TypeCode.Double:
+                    clientElementType = ImageArrayElementTypes.Double;
+                    transmissionElementType = ImageArrayElementTypes.Double;
+                    transmissionElementSize = 8;
+                    break;
+
+                case TypeCode.Object:
+                    clientElementType = ImageArrayElementTypes.Object;
+
+                    // Get the type name of the elements within the object array
+                    string elementTypeName = "";
+
+                    switch (imageArray.Rank)
+                    {
+                        case 2:
+                            elementTypeName = imageArray.GetValue(0, 0).GetType().Name;
+                            break;
+
+                        case 3:
+                            elementTypeName = imageArray.GetValue(0, 0, 0).GetType().Name;
+                            break;
+                    }
+
+                    switch (elementTypeName)
+                    {
+                        case "Byte":
+                            transmissionElementType = ImageArrayElementTypes.Byte;
+                            transmissionElementSize = 1;
+                            break;
+
+                        case "Int16":
+                            transmissionElementType = ImageArrayElementTypes.Int16;
+                            transmissionElementSize = 2;
+                            break;
+
+                        case "UInt16":
+                            transmissionElementType = ImageArrayElementTypes.UInt16;
+                            transmissionElementSize = 2;
+                            break;
+
+                        case "Int32":
+                            transmissionElementType = ImageArrayElementTypes.Int32;
+                            transmissionElementSize = 4;
+                            break;
+
+                        case "UInt32":
+                            transmissionElementType = ImageArrayElementTypes.UInt32;
+                            transmissionElementSize = 4;
+                            break;
+
+                        case "Int64":
+                            transmissionElementType = ImageArrayElementTypes.Int64;
+                            transmissionElementSize = 8;
+                            break;
+
+                        case "UInt64":
+                            transmissionElementType = ImageArrayElementTypes.UInt64;
+                            transmissionElementSize = 8;
+                            break;
+
+                        case "Single":
+                            transmissionElementType = ImageArrayElementTypes.Single;
+                            transmissionElementSize = 4;
+                            break;
+
+                        case "Double":
+                            transmissionElementType = ImageArrayElementTypes.Double;
+                            transmissionElementSize = 8;
+                            break;
+
+                        default:
+                            throw new InvalidValueException($"AlpacaTools.ConvertArray - Received an unsupported object array element type: {elementTypeName}");
+
+                    }
+
+                    break;
+
+                default:
+                    throw new InvalidValueException($"AlpacaTools.ConvertArray - Received an unsupported return array type: {imageArray.GetType().Name}, with elements of type: {imageArray.GetType().GetElementType().Name} with TypeCode: {arrayElementTypeCode}");
+            }
+
+            // Validate that the client array element type is compatible with the source array element type and the same or larger in size
+            switch (requiredClientElementType)
+            {
+                case ImageArrayElementTypes.Unknown:
+                    // No action, the returned array element type will be the same as the source array element type
+                    break;
+
+                case ImageArrayElementTypes.Byte:
+                    switch (clientElementType)
+                    {
+                        case ImageArrayElementTypes.Byte:
+                            // No action required, the source element type is the same as the value required at the client.
+                            break;
+
+                        case ImageArrayElementTypes.Int16:
+                        case ImageArrayElementTypes.UInt16:
+                        case ImageArrayElementTypes.Int32:
+                        case ImageArrayElementTypes.UInt32:
+                        case ImageArrayElementTypes.Int64:
+                        case ImageArrayElementTypes.UInt64:
+                        case ImageArrayElementTypes.Single:
+                        case ImageArrayElementTypes.Double:
+                        case ImageArrayElementTypes.Object: // Reject incompatible requests
+                            throw new InvalidValueException($"AlpacaTools.ConvertArray - The requested client array element type: {requiredClientElementType} is not compatible with the source array element type: {clientElementType}.");
+                    }
+                    break;
+
+                case ImageArrayElementTypes.Int16:
+                    switch (clientElementType)
+                    {
+                        case ImageArrayElementTypes.Byte:
+                            clientElementType = ImageArrayElementTypes.Int16; // Change the source element type to the value required at the client.
+                            break;
+
+                        case ImageArrayElementTypes.Int16:
+                            // No action required, the source element type is the same as the value required at the client.
+                            break;
+
+                        case ImageArrayElementTypes.UInt16:
+                        case ImageArrayElementTypes.Int32:
+                        case ImageArrayElementTypes.UInt32:
+                        case ImageArrayElementTypes.Int64:
+                        case ImageArrayElementTypes.UInt64:
+                        case ImageArrayElementTypes.Single:
+                        case ImageArrayElementTypes.Double:
+                        case ImageArrayElementTypes.Object: // Reject incompatible requests
+                            throw new InvalidValueException($"AlpacaTools.ConvertArray - The requested client array element type: {requiredClientElementType} is not compatible with the source array element type: {clientElementType}.");
+                    }
+                    break;
+
+                case ImageArrayElementTypes.UInt16:
+                    switch (clientElementType)
+                    {
+                        case ImageArrayElementTypes.Byte:
+                            clientElementType = ImageArrayElementTypes.UInt16; // Change the source element type to the value required at the client.
+                            break;
+
+                        case ImageArrayElementTypes.UInt16:
+                            // No action required, the source element type is the same as the value required at the client.
+                            break;
+
+                        case ImageArrayElementTypes.Int16:
+                        case ImageArrayElementTypes.Int32:
+                        case ImageArrayElementTypes.UInt32:
+                        case ImageArrayElementTypes.Int64:
+                        case ImageArrayElementTypes.UInt64:
+                        case ImageArrayElementTypes.Single:
+                        case ImageArrayElementTypes.Double:
+                        case ImageArrayElementTypes.Object: // Reject incompatible requests
+                            throw new InvalidValueException($"AlpacaTools.ConvertArray - The requested client array element type: {requiredClientElementType} is not compatible with the source array element type: {clientElementType}.");
+                    }
+                    break;
+
+                case ImageArrayElementTypes.Int32:
+                    switch (clientElementType)
+                    {
+                        case ImageArrayElementTypes.Byte:
+                        case ImageArrayElementTypes.Int16:
+                        case ImageArrayElementTypes.UInt16:
+                            clientElementType = ImageArrayElementTypes.Int32; // Change the source element type to the value required at the client.
+                            break;
+
+                        case ImageArrayElementTypes.Int32:
+                            // No action required, the source element type is the same as the value required at the client.
+                            break;
+
+                        case ImageArrayElementTypes.UInt32:
+                        case ImageArrayElementTypes.Int64:
+                        case ImageArrayElementTypes.UInt64:
+                        case ImageArrayElementTypes.Single:
+                        case ImageArrayElementTypes.Double:
+                        case ImageArrayElementTypes.Object: // Reject incompatible requests
+                            throw new InvalidValueException($"AlpacaTools.ConvertArray - The requested client array element type: {requiredClientElementType} is not compatible with the source array element type: {clientElementType}.");
+                    }
+                    break;
+
+                case ImageArrayElementTypes.UInt32:
+                    switch (clientElementType)
+                    {
+                        case ImageArrayElementTypes.Byte:
+                        case ImageArrayElementTypes.UInt16:
+                            clientElementType = ImageArrayElementTypes.UInt32; // Change the source element type to the value required at the client.
+                            break;
+
+                        case ImageArrayElementTypes.UInt32:
+                            // No action required, the source element type is the same as the value required at the client.
+                            break;
+
+                        case ImageArrayElementTypes.Int16:
+                        case ImageArrayElementTypes.Int32:
+                        case ImageArrayElementTypes.Int64:
+                        case ImageArrayElementTypes.UInt64:
+                        case ImageArrayElementTypes.Single:
+                        case ImageArrayElementTypes.Double:
+                        case ImageArrayElementTypes.Object: // Reject incompatible requests
+                            throw new InvalidValueException($"AlpacaTools.ConvertArray - The requested client array element type: {requiredClientElementType} is not compatible with the source array element type: {clientElementType}.");
+                    }
+                    break;
+
+                case ImageArrayElementTypes.Int64:
+                    switch (clientElementType)
+                    {
+                        case ImageArrayElementTypes.Byte:
+                        case ImageArrayElementTypes.Int16:
+                        case ImageArrayElementTypes.UInt16:
+                        case ImageArrayElementTypes.Int32:
+                        case ImageArrayElementTypes.UInt32:
+                            clientElementType = ImageArrayElementTypes.Int64; // Change the source element type to the value required at the client.
+                            break;
+
+                        case ImageArrayElementTypes.Int64:
+                            // No action required, the source element type is the same as the value required at the client.
+                            break;
+
+                        case ImageArrayElementTypes.UInt64:
+                        case ImageArrayElementTypes.Single:
+                        case ImageArrayElementTypes.Double:
+                        case ImageArrayElementTypes.Object: // Reject incompatible requests
+                            throw new InvalidValueException($"AlpacaTools.ConvertArray - The requested client array element type: {requiredClientElementType} is not compatible with the source array element type: {clientElementType}.");
+                    }
+                    break;
+
+                case ImageArrayElementTypes.UInt64:
+                    switch (clientElementType)
+                    {
+                        case ImageArrayElementTypes.Byte:
+                        case ImageArrayElementTypes.UInt16:
+                        case ImageArrayElementTypes.UInt32:
+                            clientElementType = ImageArrayElementTypes.UInt64; // Change the source element type to the value required at the client.
+                            break;
+
+                        case ImageArrayElementTypes.UInt64:
+                            // No action required, the source element type is the same as the value required at the client.
+                            break;
+
+                        case ImageArrayElementTypes.Int16:
+                        case ImageArrayElementTypes.Int32:
+                        case ImageArrayElementTypes.Int64:
+                        case ImageArrayElementTypes.Single:
+                        case ImageArrayElementTypes.Double:
+                        case ImageArrayElementTypes.Object: // Reject incompatible requests
+                            throw new InvalidValueException($"AlpacaTools.ConvertArray - The requested client array element type: {requiredClientElementType} is not compatible with the source array element type: {clientElementType}.");
+                    }
+                    break;
+
+                case ImageArrayElementTypes.Single:
+                    switch (clientElementType)
+                    {
+                        case ImageArrayElementTypes.Single:
+                            // No action required, the source element type is the same as the value required at the client.
+                            break;
+
+                        case ImageArrayElementTypes.Byte:
+                        case ImageArrayElementTypes.Int16:
+                        case ImageArrayElementTypes.UInt16:
+                        case ImageArrayElementTypes.Int32:
+                        case ImageArrayElementTypes.UInt32:
+                        case ImageArrayElementTypes.Int64:
+                        case ImageArrayElementTypes.UInt64:
+                        case ImageArrayElementTypes.Double:
+                        case ImageArrayElementTypes.Object: // Reject incompatible requests
+                            throw new InvalidValueException($"AlpacaTools.ConvertArray - The requested client array element type: {requiredClientElementType} is not compatible with the source array element type: {clientElementType}.");
+                    }
+                    break;
+
+                case ImageArrayElementTypes.Double:
+                    switch (clientElementType)
+                    {
+                        case ImageArrayElementTypes.Single:
+                            clientElementType = ImageArrayElementTypes.Double; // Change the source element type to the value required at the client.
+                            break;
+
+                        case ImageArrayElementTypes.Double:
+                            // No action required, the source element type is the same as the value required at the client.
+                            break;
+
+                        case ImageArrayElementTypes.Byte:
+                        case ImageArrayElementTypes.Int16:
+                        case ImageArrayElementTypes.UInt16:
+                        case ImageArrayElementTypes.Int32:
+                        case ImageArrayElementTypes.UInt32:
+                        case ImageArrayElementTypes.Int64:
+                        case ImageArrayElementTypes.UInt64:
+                        case ImageArrayElementTypes.Object: // Reject incompatible requests
+                            throw new InvalidValueException($"AlpacaTools.ConvertArray - The requested client array element type: {requiredClientElementType} is not compatible with the source array element type: {clientElementType}.");
+                    }
+                    break;
+
+                case ImageArrayElementTypes.Object:
+                    // Any array type can be presented as an object array
+                    clientElementType = ImageArrayElementTypes.Object;
+                    break;
+
+                default:
+                    throw new InvalidValueException($"AlpacaTools.ConvertArray - The requested client array element type: {requiredClientElementType} is not supported.");
+            }
+
+            switch (metadataVersion)
+            {
+                case 1:
+                    // Create a version 1 metadata structure
+                    ArrayMetadataV1 metadataVersion1;
+                    if (imageArray.Rank == 2) metadataVersion1 = new ArrayMetadataV1(AlpacaErrors.AlpacaNoError, clientTransactionID, serverTransactionID, clientElementType, transmissionElementType, 2, imageArray.GetLength(0), imageArray.GetLength(1), 0);
+                    else metadataVersion1 = new ArrayMetadataV1(AlpacaErrors.AlpacaNoError, clientTransactionID, serverTransactionID, clientElementType, transmissionElementType, 3, imageArray.GetLength(0), imageArray.GetLength(1), imageArray.GetLength(2));
+
+                    // Turn the metadata structure into a byte array
+                    byte[] metadataBytes = metadataVersion1.ToByteArray<ArrayMetadataV1>();
+
+                    // Create a return array of size equal to the sum of the metadata and image array lengths
+                    byte[] imageArrayBytes = new byte[imageArray.Length * transmissionElementSize + metadataBytes.Length]; // Size the image array bytes as the product of the transmission element size and the number of elements
+
+                    // Copy the metadata bytes to the start of the return byte array
+                    Array.Copy(metadataBytes, imageArrayBytes, metadataBytes.Length);
+
+                    // Copy the image array bytes after the metadata
+                    if (arrayElementTypeCode != TypeCode.Object) // For all arrays, except object arrays, copy the image array directly to the byte array
+                    {
+                        Buffer.BlockCopy(imageArray, 0, imageArrayBytes, metadataBytes.Length, imageArray.Length * transmissionElementSize);
+                    }
+                    else // Special handling for object arrays
+                    {
+                        int startOfNextElement = ARRAY_METADATAV1_LENGTH;
+                        switch (imageArray.Rank)
+                        {
+                            case 2:
+                                switch (transmissionElementType)
+                                {
+                                    case ImageArrayElementTypes.Byte:
+                                        for (int i = 0; i < imageArray.GetLength(0); i++)
+                                        {
+                                            for (int j = 0; j < imageArray.GetLength(1); j++)
+                                            {
+                                                Array.Copy(BitConverter.GetBytes((Byte)imageArray.GetValue(i, j)), 0, imageArrayBytes, startOfNextElement, transmissionElementSize);
+                                                startOfNextElement += transmissionElementSize;
+                                            }
+                                        }
+                                        break;
+
+                                    case ImageArrayElementTypes.Int16:
+                                        for (int i = 0; i < imageArray.GetLength(0); i++)
+                                        {
+                                            for (int j = 0; j < imageArray.GetLength(1); j++)
+                                            {
+                                                Array.Copy(BitConverter.GetBytes((Int16)imageArray.GetValue(i, j)), 0, imageArrayBytes, startOfNextElement, transmissionElementSize);
+                                                startOfNextElement += transmissionElementSize;
+                                            }
+                                        }
+                                        break;
+
+                                    case ImageArrayElementTypes.UInt16:
+                                        for (int i = 0; i < imageArray.GetLength(0); i++)
+                                        {
+                                            for (int j = 0; j < imageArray.GetLength(1); j++)
+                                            {
+                                                Array.Copy(BitConverter.GetBytes((UInt16)imageArray.GetValue(i, j)), 0, imageArrayBytes, startOfNextElement, transmissionElementSize);
+                                                startOfNextElement += transmissionElementSize;
+                                            }
+                                        }
+                                        break;
+
+                                    case ImageArrayElementTypes.Int32:
+                                        for (int i = 0; i < imageArray.GetLength(0); i++)
+                                        {
+                                            for (int j = 0; j < imageArray.GetLength(1); j++)
+                                            {
+                                                Array.Copy(BitConverter.GetBytes((Int32)imageArray.GetValue(i, j)), 0, imageArrayBytes, startOfNextElement, transmissionElementSize);
+                                                startOfNextElement += transmissionElementSize;
+                                            }
+                                        }
+                                        break;
+
+                                    case ImageArrayElementTypes.UInt32:
+                                        for (int i = 0; i < imageArray.GetLength(0); i++)
+                                        {
+                                            for (int j = 0; j < imageArray.GetLength(1); j++)
+                                            {
+                                                Array.Copy(BitConverter.GetBytes((UInt32)imageArray.GetValue(i, j)), 0, imageArrayBytes, startOfNextElement, transmissionElementSize);
+                                                startOfNextElement += transmissionElementSize;
+                                            }
+                                        }
+                                        break;
+
+                                    case ImageArrayElementTypes.Int64:
+                                        for (int i = 0; i < imageArray.GetLength(0); i++)
+                                        {
+                                            for (int j = 0; j < imageArray.GetLength(1); j++)
+                                            {
+                                                Array.Copy(BitConverter.GetBytes((Int64)imageArray.GetValue(i, j)), 0, imageArrayBytes, startOfNextElement, transmissionElementSize);
+                                                startOfNextElement += transmissionElementSize;
+                                            }
+                                        }
+                                        break;
+
+                                    case ImageArrayElementTypes.UInt64:
+                                        for (int i = 0; i < imageArray.GetLength(0); i++)
+                                        {
+                                            for (int j = 0; j < imageArray.GetLength(1); j++)
+                                            {
+                                                Array.Copy(BitConverter.GetBytes((UInt64)imageArray.GetValue(i, j)), 0, imageArrayBytes, startOfNextElement, transmissionElementSize);
+                                                startOfNextElement += transmissionElementSize;
+                                            }
+                                        }
+                                        break;
+
+                                    case ImageArrayElementTypes.Single:
+                                        for (int i = 0; i < imageArray.GetLength(0); i++)
+                                        {
+                                            for (int j = 0; j < imageArray.GetLength(1); j++)
+                                            {
+                                                Array.Copy(BitConverter.GetBytes((Single)imageArray.GetValue(i, j)), 0, imageArrayBytes, startOfNextElement, transmissionElementSize);
+                                                startOfNextElement += transmissionElementSize;
+                                            }
+                                        }
+                                        break;
+
+                                    case ImageArrayElementTypes.Double:
+                                        for (int i = 0; i < imageArray.GetLength(0); i++)
+                                        {
+                                            for (int j = 0; j < imageArray.GetLength(1); j++)
+                                            {
+                                                Array.Copy(BitConverter.GetBytes((Double)imageArray.GetValue(i, j)), 0, imageArrayBytes, startOfNextElement, transmissionElementSize);
+                                                startOfNextElement += transmissionElementSize;
+                                            }
+                                        }
+                                        break;
+
+                                    default:
+                                        throw new InvalidValueException($"Unsupported object array element type: {imageArray.GetValue(0, 0, 0).GetType().Name}");
+                                }
+                                break;
+
+                            case 3:
+                                switch (transmissionElementType)
+                                {
+                                    case ImageArrayElementTypes.Byte:
+                                        for (int i = 0; i < imageArray.GetLength(0); i++)
+                                        {
+                                            for (int j = 0; j < imageArray.GetLength(1); j++)
+                                            {
+                                                for (int k = 0; k < imageArray.GetLength(2); k++)
+                                                {
+                                                    Array.Copy(BitConverter.GetBytes((Byte)imageArray.GetValue(i, j, k)), 0, imageArrayBytes, startOfNextElement, transmissionElementSize);
+                                                    startOfNextElement += transmissionElementSize;
+                                                }
+                                            }
+                                        }
+                                        break;
+
+                                    case ImageArrayElementTypes.Int16:
+                                        for (int i = 0; i < imageArray.GetLength(0); i++)
+                                        {
+                                            for (int j = 0; j < imageArray.GetLength(1); j++)
+                                            {
+                                                for (int k = 0; k < imageArray.GetLength(2); k++)
+                                                {
+                                                    Array.Copy(BitConverter.GetBytes((Int16)imageArray.GetValue(i, j, k)), 0, imageArrayBytes, startOfNextElement, transmissionElementSize);
+                                                    startOfNextElement += transmissionElementSize;
+                                                }
+                                            }
+                                        }
+                                        break;
+
+                                    case ImageArrayElementTypes.UInt16:
+                                        for (int i = 0; i < imageArray.GetLength(0); i++)
+                                        {
+                                            for (int j = 0; j < imageArray.GetLength(1); j++)
+                                            {
+                                                for (int k = 0; k < imageArray.GetLength(2); k++)
+                                                {
+                                                    Array.Copy(BitConverter.GetBytes((UInt16)imageArray.GetValue(i, j, k)), 0, imageArrayBytes, startOfNextElement, transmissionElementSize);
+                                                    startOfNextElement += transmissionElementSize;
+                                                }
+                                            }
+                                        }
+                                        break;
+
+                                    case ImageArrayElementTypes.Int32:
+                                        for (int i = 0; i < imageArray.GetLength(0); i++)
+                                        {
+                                            for (int j = 0; j < imageArray.GetLength(1); j++)
+                                            {
+                                                for (int k = 0; k < imageArray.GetLength(2); k++)
+                                                {
+                                                    Array.Copy(BitConverter.GetBytes((Int32)imageArray.GetValue(i, j, k)), 0, imageArrayBytes, startOfNextElement, transmissionElementSize);
+                                                    startOfNextElement += transmissionElementSize;
+                                                }
+                                            }
+                                        }
+                                        break;
+
+                                    case ImageArrayElementTypes.UInt32:
+                                        for (int i = 0; i < imageArray.GetLength(0); i++)
+                                        {
+                                            for (int j = 0; j < imageArray.GetLength(1); j++)
+                                            {
+                                                for (int k = 0; k < imageArray.GetLength(2); k++)
+                                                {
+                                                    Array.Copy(BitConverter.GetBytes((UInt32)imageArray.GetValue(i, j, k)), 0, imageArrayBytes, startOfNextElement, transmissionElementSize);
+                                                    startOfNextElement += transmissionElementSize;
+                                                }
+                                            }
+                                        }
+                                        break;
+
+                                    case ImageArrayElementTypes.Int64:
+                                        for (int i = 0; i < imageArray.GetLength(0); i++)
+                                        {
+                                            for (int j = 0; j < imageArray.GetLength(1); j++)
+                                            {
+                                                for (int k = 0; k < imageArray.GetLength(2); k++)
+                                                {
+                                                    Array.Copy(BitConverter.GetBytes((Int64)imageArray.GetValue(i, j, k)), 0, imageArrayBytes, startOfNextElement, transmissionElementSize);
+                                                    startOfNextElement += transmissionElementSize;
+                                                }
+                                            }
+                                        }
+                                        break;
+
+                                    case ImageArrayElementTypes.UInt64:
+                                        for (int i = 0; i < imageArray.GetLength(0); i++)
+                                        {
+                                            for (int j = 0; j < imageArray.GetLength(1); j++)
+                                            {
+                                                for (int k = 0; k < imageArray.GetLength(2); k++)
+                                                {
+                                                    Array.Copy(BitConverter.GetBytes((UInt64)imageArray.GetValue(i, j, k)), 0, imageArrayBytes, startOfNextElement, transmissionElementSize);
+                                                    startOfNextElement += transmissionElementSize;
+                                                }
+                                            }
+                                        }
+                                        break;
+
+                                    case ImageArrayElementTypes.Single:
+                                        for (int i = 0; i < imageArray.GetLength(0); i++)
+                                        {
+                                            for (int j = 0; j < imageArray.GetLength(1); j++)
+                                            {
+                                                for (int k = 0; k < imageArray.GetLength(2); k++)
+                                                {
+                                                    Array.Copy(BitConverter.GetBytes((Single)imageArray.GetValue(i, j, k)), 0, imageArrayBytes, startOfNextElement, transmissionElementSize);
+                                                    startOfNextElement += transmissionElementSize;
+                                                }
+                                            }
+                                        }
+                                        break;
+
+                                    case ImageArrayElementTypes.Double:
+                                        for (int i = 0; i < imageArray.GetLength(0); i++)
+                                        {
+                                            for (int j = 0; j < imageArray.GetLength(1); j++)
+                                            {
+                                                for (int k = 0; k < imageArray.GetLength(2); k++)
+                                                {
+                                                    Array.Copy(BitConverter.GetBytes((Double)imageArray.GetValue(i, j, k)), 0, imageArrayBytes, startOfNextElement, transmissionElementSize);
+                                                    startOfNextElement += transmissionElementSize;
+                                                }
+                                            }
+                                        }
+                                        break;
+
+                                    default:
+                                        throw new InvalidValueException($"Unsupported object array element type: {imageArray.GetValue(0, 0, 0).GetType().Name}");
+                                }
+
+                                break;
+                        }
+
+                    }
+
+
+                    // Return the byte array
+                    return imageArrayBytes;
+
+                default:
+                    throw new InvalidValueException($"AlpacaTools.ConvertArray - Unsupported metadata version: {metadataVersion}");
+            }
         }
 
         #endregion
