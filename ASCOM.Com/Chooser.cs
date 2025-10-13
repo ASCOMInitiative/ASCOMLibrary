@@ -145,6 +145,7 @@ namespace ASCOM.Com
         /// Select the ASCOM driver to use without pre-selecting one in the drop-down list 
         /// </summary>
         /// <returns>The ProgID of the selected device or an empty string if no device was chosen</returns>
+        [Obsolete("ASCOM.Com.Chooser is a thin wrapper for the .NET 3.5 COM Chooser component. To assure long term function, use the Stand Alone Chooser (ASCOM.Com.ChooserSA), which has no reliance on the COM Platform")]
         public string Choose()
         {
             CheckOK("Choose(\"\")");
@@ -159,6 +160,7 @@ namespace ASCOM.Com
         /// </summary>
         /// <param name="progId">The driver ProgId to pre-select in the Chooser drop-down list</param>
         /// <returns>The ProgID of the selected device or an empty string if no device was chosen</returns>
+        [Obsolete("ASCOM.Com.Chooser is a thin wrapper for the .NET 3.5 COM Chooser component. To assure long term function, use the Stand Alone Chooser (ASCOM.Com.ChooserSA), which has no reliance on the COM Platform")]
         public string Choose(string progId)
         {
             CheckOK($"Choose(\"{progId})\"");
