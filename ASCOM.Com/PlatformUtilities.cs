@@ -415,8 +415,9 @@ namespace ASCOM.Com
                 { 22000, "Windows 11 (21H2)" },
                 { 22621, "Windows 11 (22H2)" },
                 { 22631, "Windows 11 (23H2)" },
-                { 26100, "Windows 11 (24H2)" }
-            };
+                { 26100, "Windows 11 (24H2)" },
+                { 26200, "Windows 11 (25H2)" }
+            }; // !!!!! NOTE !!!!! - If you add to this list you must also change the "later than XXXX" message in the try-catch block below!
 
             try
             {
@@ -434,7 +435,7 @@ namespace ASCOM.Com
                     return $"Windows 10 (build {buildNumber})";
 
                 if (buildNumber > osBuildNames.Keys.Max())
-                    return "Windows 11 (later than 24H2)";
+                    return "Windows 11 (later than 25H2)";
 
                 return $"ASCOMLibrary.OSBuildName - Unknown OS build number: {buildNumber}";
             }
