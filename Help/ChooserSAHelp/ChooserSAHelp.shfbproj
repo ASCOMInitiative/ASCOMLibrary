@@ -153,23 +153,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|Win32' ">
   </PropertyGroup>
   <ItemGroup>
-    <Folder Include="Content" />
-    <Folder Include="Content\VersionHistory" />
-    <Folder Include="icons" />
-    <Folder Include="media" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Content\ExampleCode.aml" />
-    <None Include="Content\VersionHistory\v1.0.109.aml" />
-    <None Include="Content\VersionHistory\v2.0.0.aml" />
-    <None Include="Content\VersionHistory\VersionHistory.aml" />
-    <None Include="Content\Welcome.aml" />
-  </ItemGroup>
-  <ItemGroup>
     <ContentLayout Include="ContentLayout.content" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="icons\Help.png" />
   </ItemGroup>
   <!-- Import the common build targets during NuGet restore because before the packages are being installed, $(SHFBROOT) is not set yet -->
   <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" Condition="'$(MSBuildRestoreSessionId)' != ''" />
