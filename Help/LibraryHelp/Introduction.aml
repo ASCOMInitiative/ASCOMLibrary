@@ -1,232 +1,241 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <topic id="3e0a4970-b422-4427-bb1e-789bb79e1b4f">
-	<developerConceptualDocument xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5" xmlns:xlink="http://www.w3.org/1999/xlink">
-		<introduction>
-			<para>
-				The ASCOM Library provides a broad set of enabling components that make it easier to develop ASCOM clients, Alpaca devices and COM drivers .
-				This cross platform library targets .NET Standard 2.0 for broadest application across .NET frameworks and can be used in projects that target Linux, Raspberry Pi, MacOS and Windows.
-			</para>
-			<para>
-				<legacyBold>
-					This version of the Library supports the latest Platform 7 interface versions.
-					See the library <link xlink:href="cf197185-7fa2-4b56-bb1a-75aaebd459bb">Version History</link> for further information.
-				</legacyBold>
-			</para>
-			<para>
-				Please see <link xlink:href="833dd117-2e34-412d-8d52-4f3fd2dee3b1">Alpaca devices and ASCOM devices</link> for information on the Alpaca device / ASCOM device terminology used in the Library Help documentation.
-			</para>
-			<para>
-				The Library's  capabilities, supported .NET frameworks and supported operating systems are described below.
-			</para>
-		</introduction>
+  <developerConceptualDocument xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <introduction>
+      <para>
+        The ASCOM Library provides a broad set of enabling components that make it easier to develop ASCOM clients, Alpaca devices and COM drivers .
+        This cross platform library targets .NET Standard 2.0 for broadest application across .NET frameworks and can be used in projects that target Linux, Raspberry Pi, MacOS and Windows.
+      </para>
+      <para>
+        <legacyBold>
+          This version of the Library supports the latest Platform 7 interface versions.
+          See the library <link xlink:href="cf197185-7fa2-4b56-bb1a-75aaebd459bb">Version History</link> for further information.
+        </legacyBold>
+      </para>
+      <para>
+        Please see <link xlink:href="833dd117-2e34-412d-8d52-4f3fd2dee3b1">Alpaca devices and ASCOM devices</link> for information on the Alpaca device / ASCOM device terminology used in the Library Help documentation.
+      </para>
+      <para>
+        The Library's  capabilities, supported .NET frameworks and supported operating systems are described below.
+      </para>
+      <para> </para>
+      <para>
+        <span style="color:red; font-size:150%; font-weight:bold">
+          Warning for developers who use the Chooser component and target .NET 9 or later
+        </span>
+      </para>
+      <para>
+        Some applications have been found to terminate unexpectedly when using the ASCOM.Com.Chooser component. We strongly recommend refactoring as described here: <link xlink:href="ef3d33c3-7a7d-4e22-a4bf-7f5b2faf7f10" />.
+      </para>
+    </introduction>
 
-		<section address="Capabilities">
-			<title>Capabilities</title>
-			<content>
-				<para>The ASCOM Library provides the following key components:</para>
-				<list class="bullet">
-					<listItem>
-						<para>
-							<legacyBold>Alpaca Client</legacyBold> - Toolkit that encapsulates an Alpaca device and presents it as a strongly typed class
-							(conceptually similar to the Platform's DriverAccess component, but for an Alpaca device rather than a COM driver)
-						</para>
-					</listItem>
-					<listItem>
-						<para>
-							<legacyBold>Alpaca Discovery</legacyBold> - Discover available Alpaca devices on the network
-						</para>
-					</listItem>
-					<listItem>
-						<para>
-							<legacyBold>COM Client</legacyBold> - Toolkit that encapsulates a Windows COM device and presents it as a strongly typed class
-							(conceptually similar to the Platform's DriverAccess component - Windows only)
-						</para>
-					</listItem>
-					<listItem>
-						<para>
-							<legacyBold>Asynchronous Client Methods</legacyBold> - Extension methods for long running Alpaca and COM client operations that return awaitable
-							<externalLink>
-								<linkText>Microsoft Task asynchronous programming</linkText>
-								<linkAlternateText>Go to Microsoft Task asynchronous programming on Microsoft .NET web site</linkAlternateText>
-								<linkUri>https://learn.microsoft.com/en-us/dotnet/csharp/programming-guide/concepts/async/task-asynchronous-programming-model</linkUri>
-							</externalLink>
-							(TAP) Tasks. Each task encapsulates an operation that uses an "initiator / completion variable" combination (e.g. IFocuser.Move / IFocuser.IsMoving) and
-							completes when the polled variable indicates that the operation has finished.
-						</para>
-					</listItem>
-					<listItem>
-						<para>
-							<legacyBold>Cross Platform Utilities</legacyBold>
-						</para>
-						<list class="bullet">
-							<listItem>
-								New ILogger logging framework including a built in console logger
-							</listItem>
-							<listItem>
-								SOFA, NOVAS and NOVASCOM components, functionally equivalent to the Platform versions
-							</listItem>
-							<listItem>
-								Transform component, functionally equivalent to the Platform's Transform component
-							</listItem>
-							<listItem>
-								TraceLogger similar to the Platform's TraceLogger component.
-							</listItem>
-							<listItem>
-								ILogger console logger.
-							</listItem>
-							<listItem>
-								Utilities - A range of utility functions that have no counterparts in .NET APIs.
-							</listItem>
-						</list>
-					</listItem>
-					<listItem>
-						<para>
-							<legacyBold>COM Utilities</legacyBold> - Windows only
-						</para>
-						<list class="bullet">
-							<listItem>
-								Profile - retrieve and set values in the Platform's ASCOM Profile
-							</listItem>
-							<listItem>
-								Chooser - Select which driver to use. (Currently this provides a thin wrapper round the Platform's COM Chooser,
-								in future it will be refactored to be independent of the Platform.
-							</listItem>
-							<listItem>
-								Whole driver profile load and save as an XML document
-							</listItem>
-						</list>
-					</listItem>
-					<listItem>
-						<para>
-							<legacyBold>Developer Support</legacyBold> - Of use if you are rolling your own communications rather than using the Client Toolkits.
-						</para>
+    <section address="Capabilities">
+      <title>Capabilities</title>
+      <content>
+        <para>The ASCOM Library provides the following key components:</para>
+        <list class="bullet">
+          <listItem>
+            <para>
+              <legacyBold>Alpaca Client</legacyBold> - Toolkit that encapsulates an Alpaca device and presents it as a strongly typed class
+              (conceptually similar to the Platform's DriverAccess component, but for an Alpaca device rather than a COM driver)
+            </para>
+          </listItem>
+          <listItem>
+            <para>
+              <legacyBold>Alpaca Discovery</legacyBold> - Discover available Alpaca devices on the network
+            </para>
+          </listItem>
+          <listItem>
+            <para>
+              <legacyBold>COM Client</legacyBold> - Toolkit that encapsulates a Windows COM device and presents it as a strongly typed class
+              (conceptually similar to the Platform's DriverAccess component - Windows only)
+            </para>
+          </listItem>
+          <listItem>
+            <para>
+              <legacyBold>Asynchronous Client Methods</legacyBold> - Extension methods for long running Alpaca and COM client operations that return awaitable
+              <externalLink>
+                <linkText>Microsoft Task asynchronous programming</linkText>
+                <linkAlternateText>Go to Microsoft Task asynchronous programming on Microsoft .NET web site</linkAlternateText>
+                <linkUri>https://learn.microsoft.com/en-us/dotnet/csharp/programming-guide/concepts/async/task-asynchronous-programming-model</linkUri>
+              </externalLink>
+              (TAP) Tasks. Each task encapsulates an operation that uses an "initiator / completion variable" combination (e.g. IFocuser.Move / IFocuser.IsMoving) and
+              completes when the polled variable indicates that the operation has finished.
+            </para>
+          </listItem>
+          <listItem>
+            <para>
+              <legacyBold>Cross Platform Utilities</legacyBold>
+            </para>
+            <list class="bullet">
+              <listItem>
+                New ILogger logging framework including a built in console logger
+              </listItem>
+              <listItem>
+                SOFA, NOVAS and NOVASCOM components, functionally equivalent to the Platform versions
+              </listItem>
+              <listItem>
+                Transform component, functionally equivalent to the Platform's Transform component
+              </listItem>
+              <listItem>
+                TraceLogger similar to the Platform's TraceLogger component.
+              </listItem>
+              <listItem>
+                ILogger console logger.
+              </listItem>
+              <listItem>
+                Utilities - A range of utility functions that have no counterparts in .NET APIs.
+              </listItem>
+            </list>
+          </listItem>
+          <listItem>
+            <para>
+              <legacyBold>COM Utilities</legacyBold> - Windows only
+            </para>
+            <list class="bullet">
+              <listItem>
+                Profile - retrieve and set values in the Platform's ASCOM Profile
+              </listItem>
+              <listItem>
+                Chooser - Select which driver to use. (Currently this provides a thin wrapper round the Platform's COM Chooser,
+                in future it will be refactored to be independent of the Platform.
+              </listItem>
+              <listItem>
+                Whole driver profile load and save as an XML document
+              </listItem>
+            </list>
+          </listItem>
+          <listItem>
+            <para>
+              <legacyBold>Developer Support</legacyBold> - Of use if you are rolling your own communications rather than using the Client Toolkits.
+            </para>
 
-						<list class="bullet">
-							<listItem>
-								Alpaca Devices - Detect and respond to client discovery requests.
-							</listItem>
-							<listItem>
-								Definitions of every ASCOM interface
-							</listItem>
-							<listItem>
-								Alpaca Data Classes - A range of classes representing every Alpaca message transaction defined in the Alpaca API that
-								will be of use to both application developers and Alpaca device developers.
-							</listItem>
-							<listItem>
-								Constants used by Alpaca clients applications and devices.
-							</listItem>
-							<listItem>
-								A range of enums describing Alpaca error numbers, image array transfer types etc.
-							</listItem>
-							<listItem>
-								Richly functional APIs for discovering Alpaca devices on the network.
-							</listItem>
-						</list>
-					</listItem>
-				</list>
-			</content>
-		</section>
+            <list class="bullet">
+              <listItem>
+                Alpaca Devices - Detect and respond to client discovery requests.
+              </listItem>
+              <listItem>
+                Definitions of every ASCOM interface
+              </listItem>
+              <listItem>
+                Alpaca Data Classes - A range of classes representing every Alpaca message transaction defined in the Alpaca API that
+                will be of use to both application developers and Alpaca device developers.
+              </listItem>
+              <listItem>
+                Constants used by Alpaca clients applications and devices.
+              </listItem>
+              <listItem>
+                A range of enums describing Alpaca error numbers, image array transfer types etc.
+              </listItem>
+              <listItem>
+                Richly functional APIs for discovering Alpaca devices on the network.
+              </listItem>
+            </list>
+          </listItem>
+        </list>
+      </content>
+    </section>
 
-		<section address="Packages">
-			<title>Package Overview</title>
-			<content>
-				<para>The ASCOM Library comprises the following packages:</para>
-				<list class="bullet">
-					<listItem>
-						<legacyBold>ASCOM.Alpaca.Components</legacyBold> - The Alpaca client toolkit and device discovery support for use in Alpaca client applications.
-					</listItem>
-					<listItem>
-						<legacyBold>ASCOM.Alpaca.Device</legacyBold> - A Discovery responder tool for use by Alpaca devices.
-					</listItem>
-					<listItem>
-						<legacyBold>ASCOM.Com.Components</legacyBold> - The COM client toolkit, Profile and Chooser components to support clients and drivers on Windows platforms.
-					</listItem>
-					<listItem>
-						<legacyBold>ASCOM.AstrometryTools</legacyBold> - A set of tools to aid positional astronomy calculations.
-					</listItem>
-					<listItem>
-						<legacyBold>ASCOM.Tools</legacyBold> - A set of support components to aid development of clients, drivers and Alpaca devices.
-					</listItem>
-					<listItem>
-						<legacyBold>ASCOM.Common.Components</legacyBold> - Common Interfaces, enums and other types shared by ASCOM Alpaca and COM projects.
-					</listItem>
-				</list>
-			</content>
-		</section>
+    <section address="Packages">
+      <title>Package Overview</title>
+      <content>
+        <para>The ASCOM Library comprises the following packages:</para>
+        <list class="bullet">
+          <listItem>
+            <legacyBold>ASCOM.Alpaca.Components</legacyBold> - The Alpaca client toolkit and device discovery support for use in Alpaca client applications.
+          </listItem>
+          <listItem>
+            <legacyBold>ASCOM.Alpaca.Device</legacyBold> - A Discovery responder tool for use by Alpaca devices.
+          </listItem>
+          <listItem>
+            <legacyBold>ASCOM.Com.Components</legacyBold> - The COM client toolkit, Profile and Chooser components to support clients and drivers on Windows platforms.
+          </listItem>
+          <listItem>
+            <legacyBold>ASCOM.AstrometryTools</legacyBold> - A set of tools to aid positional astronomy calculations.
+          </listItem>
+          <listItem>
+            <legacyBold>ASCOM.Tools</legacyBold> - A set of support components to aid development of clients, drivers and Alpaca devices.
+          </listItem>
+          <listItem>
+            <legacyBold>ASCOM.Common.Components</legacyBold> - Common Interfaces, enums and other types shared by ASCOM Alpaca and COM projects.
+          </listItem>
+        </list>
+      </content>
+    </section>
 
-		<section address="PackageDependencies">
-			<title>Package Dependencies</title>
-			<content>
-				<para>The Library has dependencies on these packages:</para>
-				<list class="bullet">
-					<listItem>
-						<legacyBold>ASCOM.Deviceinterfaces</legacyBold> - ASCOM Platform 7 device interface definitions.
-					</listItem>
-					<listItem>
-						<legacyBold>ASCOM.Exception.Library</legacyBold> - ASCOM Exception definitions that ensure inter-operation between Alpaca clients / devices and COM clients / drivers.
-					</listItem>
-					<listItem>
-						<legacyBold>Microsoft supported .NET packages</legacyBold> - These provide C# Dynamic variable, Windows registry access and JSON serialisation / de-serialisation support.
-					</listItem>
-				</list>
-			</content>
-		</section>
+    <section address="PackageDependencies">
+      <title>Package Dependencies</title>
+      <content>
+        <para>The Library has dependencies on these packages:</para>
+        <list class="bullet">
+          <listItem>
+            <legacyBold>ASCOM.Deviceinterfaces</legacyBold> - ASCOM Platform 7 device interface definitions.
+          </listItem>
+          <listItem>
+            <legacyBold>ASCOM.Exception.Library</legacyBold> - ASCOM Exception definitions that ensure inter-operation between Alpaca clients / devices and COM clients / drivers.
+          </listItem>
+          <listItem>
+            <legacyBold>Microsoft supported .NET packages</legacyBold> - These provide C# Dynamic variable, Windows registry access and JSON serialisation / de-serialisation support.
+          </listItem>
+        </list>
+      </content>
+    </section>
 
-		<section address="Frameworks">
-			<title>Supported .NET Implementations</title>
-			<content>
-				<para>The ASCOM Library targets .NET Standard 2.0 and supports the following .NET implementations:</para>
-				<list class="bullet">
-					<listItem>
-						.NET / .NET Core - 2.0, 2.1, 2.2, 3.0, 3.1, 5.0, 6.0, 7.0 and 8.0
-					</listItem>
-					<listItem>
-						.NET Framework -  4.6.2, 4.7, 4.7.1, 4.7.2, 4.8, 4.8.1
-					</listItem>
-				</list>
-			</content>
-		</section>
+    <section address="Frameworks">
+      <title>Supported .NET Implementations</title>
+      <content>
+        <para>The ASCOM Library targets .NET Standard 2.0 and supports the following .NET implementations:</para>
+        <list class="bullet">
+          <listItem>
+            .NET / .NET Core - 2.0, 2.1, 2.2, 3.0, 3.1, 5.0, 6.0, 7.0 and 8.0
+          </listItem>
+          <listItem>
+            .NET Framework -  4.6.2, 4.7, 4.7.1, 4.7.2, 4.8, 4.8.1
+          </listItem>
+        </list>
+      </content>
+    </section>
 
-		<section address="OperatingSystems">
-			<title>Supported Operating Systems</title>
-			<content>
-				<para>The ASCOM Library is available as a NuGet package (search for ASCOM) and is supported on these operating systems:</para>
-				<list class="bullet">
-					<listItem>
-						Linux 64bit
-					</listItem>
-					<listItem>
-						MacOS - Intel Silicon
-					</listItem>
-					<listItem>
-						MacOS - Apple Silicon
-					</listItem>
-					<listItem>
-						Raspberry Pi - Arm32bit
-					</listItem>
-					<listItem>
-						Raspberry Pi - Arm64bit
-					</listItem>
-					<listItem>
-						Windows 7, 8 and 10 - 32bit
-					</listItem>
-					<listItem>
-						Windows 7, 8, 10 and 11 - 64bit
-					</listItem>
-					<listItem>
-						Windows 11 - ARM 64bit
-					</listItem>
-				</list>
-			</content>
-		</section>
+    <section address="OperatingSystems">
+      <title>Supported Operating Systems</title>
+      <content>
+        <para>The ASCOM Library is available as a NuGet package (search for ASCOM) and is supported on these operating systems:</para>
+        <list class="bullet">
+          <listItem>
+            Linux 64bit
+          </listItem>
+          <listItem>
+            MacOS - Intel Silicon
+          </listItem>
+          <listItem>
+            MacOS - Apple Silicon
+          </listItem>
+          <listItem>
+            Raspberry Pi - Arm32bit
+          </listItem>
+          <listItem>
+            Raspberry Pi - Arm64bit
+          </listItem>
+          <listItem>
+            Windows 7, 8 and 10 - 32bit
+          </listItem>
+          <listItem>
+            Windows 7, 8, 10 and 11 - 64bit
+          </listItem>
+          <listItem>
+            Windows 11 - ARM 64bit
+          </listItem>
+        </list>
+      </content>
+    </section>
 
-		<relatedTopics>
-			<link xlink:href="833dd117-2e34-412d-8d52-4f3fd2dee3b1"/>
-			<externalLink>
-				<linkText>ASCOM Library on GitHub</linkText>
-				<linkAlternateText>Go to ASCOM Library on GitHub</linkAlternateText>
-				<linkUri>https://github.com/ASCOMInitiative/ASCOMLibrary</linkUri>
-			</externalLink>
-		</relatedTopics>
-	</developerConceptualDocument>
+    <relatedTopics>
+      <link xlink:href="833dd117-2e34-412d-8d52-4f3fd2dee3b1"/>
+      <externalLink>
+        <linkText>ASCOM Library on GitHub</linkText>
+        <linkAlternateText>Go to ASCOM Library on GitHub</linkAlternateText>
+        <linkUri>https://github.com/ASCOMInitiative/ASCOMLibrary</linkUri>
+      </externalLink>
+    </relatedTopics>
+  </developerConceptualDocument>
 </topic>

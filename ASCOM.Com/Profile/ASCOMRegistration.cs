@@ -1,7 +1,7 @@
 ﻿namespace ASCOM.Com
 {
     /// <summary>
-    /// A class that represents the registration data for a driver that is stored in the ASCOM Register
+    /// A class that represents the registration data for a driver that is stored in the ASCOM Profile store.
     /// </summary>
     public class ASCOMRegistration
     {
