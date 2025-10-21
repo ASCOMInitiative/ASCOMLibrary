@@ -1,0 +1,95 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<topic id="ef3d33c3-7a7d-4e22-a4bf-7f5b2faf7f10" revisionNumber="1">
+  <developerConceptualDocument
+    xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5"
+    xmlns:xlink="http://www.w3.org/1999/xlink">
+
+    <introduction>
+      <para>
+        This FAQ describes the two Chooser components available in the Library and how to use them.
+        It also describes issues that can arise when using the ASCOM.Com.Chooser component in .NET 9 and later applications, and available mitigations.
+      </para>
+    </introduction>
+
+    <section address="DisplayingAChooser">
+      <title>Introduction</title>
+      <content>
+        <para>
+          The Library contains two components for displaying an ASCOM Chooser dialog: <codeEntityReference linkText="ASCOM.Com.ChooserSA">T:ASCOM.Com.ChooserSA</codeEntityReference> and <codeEntityReference  linkText="ASCOM.Com.Chooser">T:ASCOM.Com.Chooser</codeEntityReference>.
+          These are functionally equivalent but differ in their compatibility and in the technology used to create them:
+          <list class="bullet">
+            <listItem>
+              <para>
+                <legacyBold>ASCOM.Com.Chooser</legacyBold> - This is a thin .NET Standard 2.0 wrapper around the ASCOM Platform's Chooser component, which is compiled as a COM object using .NET Framework 3.5.
+                It is compatible with projects targeting .NET Framework 4.x and .NET 5, 6, 7 and 8.
+              </para>
+            </listItem>
+            <listItem>
+              <para>
+                <legacyBold>ASCOM.Com.ChooserSA</legacyBold> - This is a native .NET component, which is compatible with projects targeting .NET 8 onward.
+              </para>
+            </listItem>
+          </list>
+        </para>
+        <para>
+          <legacyBold>ASCOM.Com.ChooserSA</legacyBold> is the recommended component if you wish to display a Chooser in a .NET 8 or later Windows Forms application. This is because the ASCOM.Com.Chooser component
+          has been found to cause spontaneous application terminations with run-time 0xC0000409 errors. These have been traced to Microsoft's decision to enable the Intel Control-Flow Technology security feature when compiling
+          applications in .NET 9 and later versions.
+        </para>
+        <para>
+          All executables compiled in .NET 9 and later are flagged as compatible with
+          <externalLink>
+            <linkText>Intel Control-Flow Enforcement Technology (CET)</linkText>
+            <linkAlternateText>Go to Microsoft's Intel Control-Flow Enforcement Technology (CET) .NET web page</linkAlternateText>
+            <linkUri>https://learn.microsoft.com/en-us/dotnet/core/compatibility/interop/9.0/cet-support</linkUri>
+          </externalLink>
+          by default. This limits the behaviour of DLLs loaded into the application space. The .NET 3.5 compiled Chooser component falls foul of the new protections and this results in the application crashing.
+          There is no known way to compile the ASCOM.Com.Chooser component to be compatible with CET.
+        </para>
+        <para>
+          In .NET 9 and later applications, two mitigation options are available:
+          <list class="bullet">
+            <listItem>
+              <para>
+                <legacyBold>Recommended</legacyBold>: Use the <codeEntityReference linkText="ASCOM.Com.ChooserSA">T:ASCOM.Com.ChooserSA</codeEntityReference> component instead of <codeEntityReference linkText="ASCOM.Com.Chooser">T:ASCOM.Com.Chooser</codeEntityReference>, as shown below.
+            </para>
+            </listItem>
+            <listItem>
+              <para>
+                <b style="color:red;">Reduced security</b>: Add the <span style="font-family: Courier New, Courier, monospace; font-weight:bold;">&lt;CETCompat&gt;false&lt;/CETCompat&gt;</span> property to your .NET project's project file to disable CET.
+              </para>
+            </listItem>
+          </list>
+        </para>
+      </content>
+    </section>
+    <section address="DisplayingAChooser">
+      <title>How to display a Chooser</title>
+      <content>
+        <para>
+          To display a Chooser using the ASCOM.Com.ChooserSA component, first add a reference to the ASCOM.Com.ChooserSA NuGet package to your project. Then, create an instance of the <c>ChooserSA</c> class, set the device type and call its
+          <c>Choose</c> method with either:
+          <list class="bullet">
+            <listItem>
+              <para>
+                No parameters, to display a list of available drivers
+              </para>
+            </listItem>
+            <listItem>
+              <para>
+                A string ProgID parameter, to preselect the provided ProgID in the displayed list.
+              </para>
+            </listItem>
+          </list>
+        </para>
+        <para>
+          The following code snippet illustrates how to display a Chooser using the ASCOM.Com.ChooserSA component in a .NET 8 or later Windows Forms application:
+        </para>
+        <code source="HelpExamples\HowtToCreateAChooser.cs" region="How to Create a Chooser" language="csharp" title="Displaying the stand-alone Chooser" />
+      </content>
+    </section>
+
+    <relatedTopics>
+    </relatedTopics>
+  </developerConceptualDocument>
+</topic>
