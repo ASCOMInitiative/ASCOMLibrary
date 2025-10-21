@@ -81,6 +81,30 @@ namespace ASCOM.Com
 
         #endregion
 
+        #region Public static members
+
+        /// <summary>
+        /// Static method to select a device without having to create a ChooserSA instance.
+        /// </summary>
+        /// <remarks>If a logger is provided, diagnostic information about the selection process will be
+        /// logged. The method uses the specified <paramref name="deviceType"/> to determine the device type and uses
+        /// the <paramref name="progId"/> to select a default driver if required.</remarks>
+        /// <param name="deviceType">The type of device to be selected.</param>
+        /// <param name="progId">An optional programmatic identifier (ProgID) used to refine the selection. Defaults to an empty string.</param>
+        /// <param name="logger">An optional logger instance for capturing diagnostic information during the selection process. Can be <see
+        /// langword="null"/>.</param>
+        /// <returns>The identifier of the selected device as a string.</returns>
+        public static string Choose(DeviceTypes deviceType, string progId = "", ILogger logger = null)
+        {
+            using ChooserSA chooser = new(logger)
+            {
+                DeviceType = deviceType
+            };
+            return chooser.Choose(progId);
+        }
+
+        #endregion
+
         #region Public methods
 
         /// <summary>

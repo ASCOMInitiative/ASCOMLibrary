@@ -7,7 +7,10 @@ Please note that this component only works on Windows operating systems and requ
 # Version History
 The version history only contains entries when a change is made, if a release version is not listed below, there was no change to this component in that release.
 
-***Release 2.1.0***
+***Release 2.2.1***
+* Added a static Choose() method that displays a Chooser without the need to create a ChooserSA instance.
+
+* ***Release 2.1.0***
 * This version has been updated to support use in .NET 8 and .NET 9 applications but, due to Microsoft library version restrictions, cannot be used in .NET 7.0 or earlier versions.
 * There are no functional changes in this release.
 

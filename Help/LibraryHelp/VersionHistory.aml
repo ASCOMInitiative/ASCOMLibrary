@@ -3,6 +3,46 @@
   <developerConceptualDocument xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5" xmlns:xlink="http://www.w3.org/1999/xlink">
     <introduction></introduction>
 
+    <section address="v2.2.1">
+      <title>Version 2.2.1</title>
+      <content>
+        <para>
+          <legacyBold>Changes in this release</legacyBold>:
+        </para>
+        <list class="bullet">
+          <listItem>
+            <para>
+              ASCOM.Com.ChooserSA - Added a static Choose() method that enables a Chooser to be displayed without having to create and dispose of a ChooserSA instance.
+            </para>
+          </listItem>
+          <listItem>
+            <para>
+              ASCOM.Com.Chooser - All Choose() methods are now marked as obsolete (see note below).
+            </para>
+          </listItem>
+        </list>
+        <para>
+          <legacyBold>Note:</legacyBold> The Choose methods in the ASCOM.Com.Chooser component have been marked as obsolete in favour of using the Library's stand-alone Chooser (ASCOM.Com.ChooserSA) component.
+          This is because
+          <list class="bullet">
+            <listItem>
+              <para>
+                ASCOM.Com.Chooser is just a thin wrapper around the .NET 3.5 Framework Platform COM Chooser, while the ASCOM.Com.ChooserSA component is a complete re-write in .NET Core with no dependency on the .NET Framework.
+              </para>
+            </listItem>
+            <listItem>
+              <para>
+                The Chooser component is not reliable in projects that target .NET 9 and later. See the <link xlink:href="ef3d33c3-7a7d-4e22-a4bf-7f5b2faf7f10" /> help topic for more information.
+              </para>
+            </listItem>
+          </list>
+        </para>
+        <para>
+          This is not a breaking change, the obsolete message appears as a Warning after compilation, but allows compilation to proceed to its normal conclusion.
+        </para>
+      </content>
+    </section>
+
     <section address="v2.2.0">
       <title>Version 2.2.0</title>
       <content>
@@ -27,22 +67,10 @@
           </listItem>
           <listItem>
             <para>
-              ASCOM.Com.Chooser - All Choose methods are now marked as obsolete (see note below).
-            </para>
-          </listItem>
-          <listItem>
-            <para>
               ASCOM.Common.AlpacaTools - Add a new ToByteArray() method that allows the element type returned to the client to be specified. Previously the array would always have the element type of the array provided by the Alpaca device.
             </para>
           </listItem>
         </list>
-        <para>
-          <legacyBold>Note:</legacyBold> The ASCOM.Com.Chooser component has been marked as obsolete in favour of using the Library's stand-alone Chooser (ASCOM.Com.ChooserSA) component. This is because ASCOM.Com.Chooser is just a thin wrapper
-          around the .NET 3.5 Framework Platform COM Chooser, while the ASCOM.Com.ChooserSA component is a complete re-write in .NET Core with no dependency on the .NET Framework.
-        </para>
-        <para>
-          This is not a breaking change, the obsolete message appears as a Warning after compilation, but allows compilation to proceed to its normal conclusion.
-        </para>
       </content>
     </section>
 

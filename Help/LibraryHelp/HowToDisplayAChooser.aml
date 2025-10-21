@@ -31,8 +31,17 @@
             </listItem>
           </list>
         </para>
+      </content>
+    </section>
+
+    <section address="Recommendation">
+      <title>Recommendation</title>
+      <content>
         <para>
-          <legacyBold>ASCOM.Com.ChooserSA</legacyBold> is the recommended component if you wish to display a Chooser in a .NET 8 or later Windows Forms application. This is because the ASCOM.Com.Chooser component
+          <legacyBold>ASCOM.Com.ChooserSA</legacyBold> is the recommended component if you wish to display a Chooser in a .NET 8 or later Windows Forms application.
+        </para>
+        <para>
+          This is because the ASCOM.Com.Chooser component
           has been found to cause spontaneous application terminations with run-time 0xC0000409 errors. These have been traced to Microsoft's decision to enable the Intel Control-Flow Technology security feature when compiling
           applications in .NET 9 and later versions.
         </para>
@@ -52,7 +61,7 @@
             <listItem>
               <para>
                 <legacyBold>Recommended</legacyBold>: Use the <codeEntityReference linkText="ASCOM.Com.ChooserSA">T:ASCOM.Com.ChooserSA</codeEntityReference> component instead of <codeEntityReference linkText="ASCOM.Com.Chooser">T:ASCOM.Com.Chooser</codeEntityReference>, as shown below.
-            </para>
+              </para>
             </listItem>
             <listItem>
               <para>
