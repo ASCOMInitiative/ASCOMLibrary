@@ -98,29 +98,29 @@
     <FooterText>
     </FooterText>
     <TransformComponentArguments>
-      <Argument Key="RobotsMetadata" Value="" xmlns="" />
-      <Argument Key="BibliographyDataFile" Value="" xmlns="" />
-      <Argument Key="RootBreadcrumbTitleText" Value="ASCOM Library" xmlns="" />
-      <Argument Key="ResizableTocColumn" Value="False" xmlns="" />
-      <Argument Key="CollapsibleSections" Value="True" xmlns="" />
-      <Argument Key="LogoFile" Value="" xmlns="" />
-      <Argument Key="LogoHeight" Value="" xmlns="" />
-      <Argument Key="LogoWidth" Value="" xmlns="" />
-      <Argument Key="LogoAltText" Value="" xmlns="" />
-      <Argument Key="LogoPlacement" Value="Left" xmlns="" />
-      <Argument Key="LogoAlignment" Value="Left" xmlns="" />
-      <Argument Key="LogoUrl" Value="" xmlns="" />
-      <Argument Key="MaxVersionParts" Value="" xmlns="" />
-      <Argument Key="DefaultLanguage" Value="cs" xmlns="" />
-      <Argument Key="IncludeEnumValues" Value="True" xmlns="" />
-      <Argument Key="EnumMemberSortOrder" Value="Value" xmlns="" />
-      <Argument Key="FlagsEnumValueFormat" Value="IntegerValue" xmlns="" />
-      <Argument Key="FlagsEnumSeparatorSize" Value="0" xmlns="" />
-      <Argument Key="IncludeIntegerEnumSeparators" Value="true" xmlns="" />
-      <Argument Key="BaseSourceCodeUrl" Value="" xmlns="" />
-      <Argument Key="RequestExampleUrl" Value="" xmlns="" />
-      <Argument Key="ShowParametersOnAllMethods" Value="False" xmlns="" />
-      <Argument Key="AlwaysShowTopLevelAutoOutline" Value="False" xmlns="" />
+      <Argument Key="RobotsMetadata" Value="" />
+      <Argument Key="BibliographyDataFile" Value="" />
+      <Argument Key="RootBreadcrumbTitleText" Value="ASCOM Library" />
+      <Argument Key="ResizableTocColumn" Value="False" />
+      <Argument Key="CollapsibleSections" Value="True" />
+      <Argument Key="LogoFile" Value="Bug72.jpg" />
+      <Argument Key="LogoHeight" Value="" />
+      <Argument Key="LogoWidth" Value="" />
+      <Argument Key="LogoAltText" Value="" />
+      <Argument Key="LogoPlacement" Value="Left" />
+      <Argument Key="LogoAlignment" Value="Left" />
+      <Argument Key="LogoUrl" Value="" />
+      <Argument Key="MaxVersionParts" Value="" />
+      <Argument Key="DefaultLanguage" Value="cs" />
+      <Argument Key="IncludeEnumValues" Value="True" />
+      <Argument Key="EnumMemberSortOrder" Value="Value" />
+      <Argument Key="FlagsEnumValueFormat" Value="IntegerValue" />
+      <Argument Key="FlagsEnumSeparatorSize" Value="0" />
+      <Argument Key="IncludeIntegerEnumSeparators" Value="true" />
+      <Argument Key="BaseSourceCodeUrl" Value="" />
+      <Argument Key="RequestExampleUrl" Value="" />
+      <Argument Key="ShowParametersOnAllMethods" Value="False" />
+      <Argument Key="AlwaysShowTopLevelAutoOutline" Value="False" />
     </TransformComponentArguments>
   </PropertyGroup>
   <!-- There are no properties for these groups.  AnyCPU needs to appear in order for Visual Studio to perform
@@ -172,5 +172,14 @@
   </ItemGroup>
   <ItemGroup>
     <ContentLayout Include="ASCOMLibrary.content" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="icons" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="icons\Bug72.jpg">
+      <ImageId>Bug72</ImageId>
+      <AlternateText>Bug 72</AlternateText>
+    </Content>
   </ItemGroup>
 </Project>
