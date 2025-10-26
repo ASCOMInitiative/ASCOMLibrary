@@ -175,8 +175,11 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="icons" />
+    <Folder Include="NewFolder1\" />
+    <Folder Include="css" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="css\presentationStyle.css" />
     <Content Include="icons\Bug72.jpg">
       <ImageId>Bug72</ImageId>
       <AlternateText>Bug 72</AlternateText>
