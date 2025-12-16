@@ -28,6 +28,7 @@ namespace ASCOM.Alpaca.Clients
         internal const ImageArrayCompression CLIENT_IMAGEARRAYCOMPRESSION_DEFAULT = ImageArrayCompression.None; // Default camera image array compression type
         internal const bool TRUST_USER_GENERATED_SSL_CERTIFICATES_DEFAULT = false; // Default for whether or not to trust user generated SSL certificates
         internal const bool THROW_ON_BAD_JSON_DATE_TIME_DEFAULT = false; // Default for whether or not to throw an exception if a JSON date time value is not in the expected ISO 8601 UTZ format (has a trailing Z character).
+        internal const bool CLIENT_REQUEST_100_CONTINUE_DEFAULT = false; // Default for whether or not to use the Expect: 100-continue header in requests
 
         internal const string CLIENT_USER_AGENT_PRODUCT_NAME = "ASCOMAlpacaClient";
 
@@ -101,12 +102,14 @@ namespace ASCOM.Alpaca.Clients
         /// <param name="userAgentProductName">User agent header product name. Default: Not added to header.</param>
         /// <param name="userAgentProductVersion">User agent header product version. Default: Not added to header.</param>
         /// <param name="trustUserGeneratedSslCertificates">Trust user generated SSL certificates. Default: User generated SSL certificates are not trusted.</param>
+        /// <param name="throwOnBadDateTimeJSON">Return an error if the UTCDate JSON format is incorrect (Only relevant to Telescope devices). Default: Will accept the provided format and not return an error.</param>
         /// <returns>An Alpaca client of the specified type</returns>
         public static T GetDevice<T>(ServiceType serviceType = CLIENT_SERVICETYPE_DEFAULT, string ipAddressString = CLIENT_IPADDRESS_DEFAULT, int portNumber = CLIENT_IPPORT_DEFAULT, int remoteDeviceNumber = CLIENT_REMOTEDEVICENUMBER_DEFAULT, int establishConnectionTimeout = CLIENT_ESTABLISHCONNECTIONTIMEOUT_DEFAULT,
                                   int standardDeviceResponseTimeout = CLIENT_STANDARDCONNECTIONTIMEOUT_DEFAULT, int longDeviceResponseTimeout = CLIENT_LONGCONNECTIONTIMEOUT_DEFAULT, uint clientNumber = CLIENT_CLIENTNUMBER_DEFAULT,
                                   string userName = CLIENT_USERNAME_DEFAULT, string password = CLIENT_PASSWORD_DEFAULT, bool strictCasing = CLIENT_STRICTCASING_DEFAULT, ILogger logger = CLIENT_LOGGER_DEFAULT,
                                   ImageArrayTransferType imageArrayTransferType = CLIENT_IMAGEARRAYTRANSFERTYPE_DEFAULT, ImageArrayCompression imageArrayCompression = CLIENT_IMAGEARRAYCOMPRESSION_DEFAULT,
-                                  string userAgentProductName = null, string userAgentProductVersion = null, bool trustUserGeneratedSslCertificates = TRUST_USER_GENERATED_SSL_CERTIFICATES_DEFAULT)
+                                  string userAgentProductName = null, string userAgentProductVersion = null, bool trustUserGeneratedSslCertificates = TRUST_USER_GENERATED_SSL_CERTIFICATES_DEFAULT,
+                                  bool throwOnBadDateTimeJSON = THROW_ON_BAD_JSON_DATE_TIME_DEFAULT)
                                   where T : AlpacaDeviceBaseClass, new()
         {
             if (typeof(T) == typeof(AlpacaCamera)) // Return a camera type with its additional parameters defaulted
@@ -130,6 +133,30 @@ namespace ASCOM.Alpaca.Clients
                     userAgentProductName,
                     userAgentProductVersion,
                     trustUserGeneratedSslCertificates
+                });
+            }
+            else if (typeof(T) == typeof(AlpacaTelescope)) // Return a telescope type with its additional parameters defaulted
+            {
+                return (T)Activator.CreateInstance(typeof(T), new object[]
+                {
+                    serviceType,
+                    ipAddressString,
+                    portNumber,
+                    remoteDeviceNumber,
+                    establishConnectionTimeout,
+                    standardDeviceResponseTimeout,
+                    longDeviceResponseTimeout,
+                    clientNumber,
+                    imageArrayTransferType,
+                    imageArrayCompression,
+                    userName,
+                    password,
+                    strictCasing,
+                    logger,
+                    userAgentProductName,
+                    userAgentProductVersion,
+                    trustUserGeneratedSslCertificates,
+                    throwOnBadDateTimeJSON
                 });
             }
             else // Return a standard device client

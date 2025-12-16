@@ -16,6 +16,16 @@ This may also be the case for projects that target IOS, but has not yet been con
 # Version History
 The version history only contains entries when a change is made, if a release version is not listed below, there was no change to this component in that release.
 
+***Release 3.0.0***
+* CHANGE - The default behaviour of all PUT methods has changed. Previously, 100-CONTINUE behaviour was enabled on all PUT requests, which caused the client 
+to include an EXPECT 100-CONTNUE header, to send only the request headers to the server and to wait for the server to return a 100-CONTINUE response before 
+sending the request body.
+The 100-CONTINUE header is no longer sent by default and the client sends the full request (headers and body) in one operation.
+The original 100-CONTINUE behaviour can be restored by setting the new Alpaca client `request100Continue` parameter to TRUE.
+* CHANGE - Updated to use .NET 10 assemblies.
+* ADDED - a new telescope client configuration parameter: `throwOnBadDateTimeJSON`, which defaults to FALSE. This is primarily for use by Conform to support 
+validation of DateTime values returned by Alpaca devices that do not conform to the Alpaca specification.
+
 ***Release 2.2.0***
 * BUG-FIX - Fixed bug where the Alpaca client Action method failed when the 'parameters' parameter was over 65,535 characters long.
 

@@ -49,6 +49,7 @@ namespace ASCOM.Alpaca.Clients
         /// <param name="userAgentProductName">Optional product name to include in the User-Agent HTTP header sent to the Alpaca device</param>
         /// <param name="trustUserGeneratedSslCertificates">Trust user generated SSL certificates</param>
         /// <param name="userAgentProductVersion">Optional product version to include in the User-Agent HTTP header sent to the Alpaca device</param>
+        /// <param name="request100Continue"></param>Request 100-continue behaviour for HTTP requests. Defaults to false.
         public AlpacaDome(ServiceType serviceType = AlpacaClient.CLIENT_SERVICETYPE_DEFAULT,
                           string ipAddressString = AlpacaClient.CLIENT_IPADDRESS_DEFAULT,
                           int portNumber = AlpacaClient.CLIENT_IPPORT_DEFAULT,
@@ -63,7 +64,8 @@ namespace ASCOM.Alpaca.Clients
                           ILogger logger = AlpacaClient.CLIENT_LOGGER_DEFAULT,
                           string userAgentProductName = null,
                           string userAgentProductVersion = null,
-                          bool trustUserGeneratedSslCertificates = AlpacaClient.TRUST_USER_GENERATED_SSL_CERTIFICATES_DEFAULT
+                          bool trustUserGeneratedSslCertificates = AlpacaClient.TRUST_USER_GENERATED_SSL_CERTIFICATES_DEFAULT,
+                          bool request100Continue = AlpacaClient.CLIENT_REQUEST_100_CONTINUE_DEFAULT
           )
         {
             this.serviceType = serviceType;
@@ -81,6 +83,7 @@ namespace ASCOM.Alpaca.Clients
             this.userAgentProductName = userAgentProductName;
             this.userAgentProductVersion = userAgentProductVersion;
             this.trustUserGeneratedSslCertificates = trustUserGeneratedSslCertificates;
+            this.request100Continue = request100Continue;
 
             Initialise();
         }
@@ -136,7 +139,7 @@ namespace ASCOM.Alpaca.Clients
                 LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"Trust user generated SSL certificates: {trustUserGeneratedSslCertificates}");
 
                 DynamicClientDriver.CreateHttpClient(ref client, serviceType, ipAddressString, portNumber, clientNumber, clientDeviceType, userName, password, ImageArrayCompression.None,
-                    logger, userAgentProductName, userAgentProductVersion, trustUserGeneratedSslCertificates);
+                    logger, userAgentProductName, userAgentProductVersion, trustUserGeneratedSslCertificates, request100Continue);
                 LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), "Completed initialisation");
             }
             catch (Exception ex)

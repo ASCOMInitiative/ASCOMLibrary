@@ -108,9 +108,10 @@ namespace ASCOM.Alpaca.Clients
         /// <param name="userAgentProductName"></param>
         /// <param name="userAgentProductVersion"></param>
         /// <param name="trustUnsignedSslCertificates"></param>
+        /// <param name="request100Continue"></param>
         internal static void CreateHttpClient(ref HttpClient httpClient, ServiceType serviceType, string ipAddressString, decimal portNumber,
                                                  uint clientNumber, DeviceTypes deviceType, string userName, string password, ImageArrayCompression imageArrayCompression, ILogger logger,
-                                                 string userAgentProductName, string userAgentProductVersion, bool trustUnsignedSslCertificates)
+                                                 string userAgentProductName, string userAgentProductVersion, bool trustUnsignedSslCertificates, bool request100Continue)
         {
             string clientHostAddress = $"{serviceType.ToString().ToLowerInvariant()}://{ipAddressString}:{portNumber}";
 
@@ -302,7 +303,7 @@ namespace ASCOM.Alpaca.Clients
                     throw new InvalidValueException($"Invalid image array compression value: {imageArrayCompression}");
             }
 
-            // Create a new http handler to control authentication and automatic decompression
+            // Create a new HTTP handler to control authentication and automatic decompression
             HttpClientHandler httpClientHandler = new HttpClientHandler
             {
                 PreAuthenticate = true,
@@ -363,8 +364,7 @@ namespace ASCOM.Alpaca.Clients
             httpClient.DefaultRequestHeaders.Accept.Clear();
             httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(AlpacaConstants.APPLICATION_JSON_MIME_TYPE));
             httpClient.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(userproductName, productVersion));
-            //httpClient.DefaultRequestHeaders.Connection.Add("keep-alive");
-            //httpClient.DefaultRequestHeaders.ConnectionClose = false;
+            httpClient.DefaultRequestHeaders.ExpectContinue = request100Continue; // Set whether to request 100-Continue responses from the server on PUT requests
         }
 
         // /// <summary>
@@ -691,7 +691,7 @@ namespace ASCOM.Alpaca.Clients
                         // The assignment to Query automatically adds a leading "?" character to mark the start of the query string
                         transactionUri.Query = new FormUrlEncodedContent(allParameters).ReadAsStringAsync().Result;
 
-                        // Create a new request based on the transaction Uri
+                        // Create a new request based on the transaction URI
                         request = new HttpRequestMessage(HttpMethod.Get, transactionUri.Uri);
 
                         // If required, apply headers to control camera image array retrieval
@@ -727,7 +727,7 @@ namespace ASCOM.Alpaca.Clients
                     }
                     else if (httpMethod == HttpMethod.Put) // HTTP Put methods
                     {
-                        // Create a new request based on the transaction Uri
+                        // Create a new request based on the transaction URI
                         request = new HttpRequestMessage(HttpMethod.Put, transactionUri.Uri);
 
                         // Add the client id and transaction id parameters to the body parameter list
