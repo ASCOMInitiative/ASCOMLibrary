@@ -9,7 +9,7 @@
 		<LangVersion>latest</LangVersion>
 		<RootNamespace>ASCOM.Com</RootNamespace>
 		<AssemblyName>ASCOM.Com.ChooserSA</AssemblyName>
-		<TargetFrameworks>net8.0-windows;net472;net48;net9.0-windows</TargetFrameworks>
+		<TargetFrameworks>net8.0-windows;net472;net48;net9.0-windows;net10.0-windows</TargetFrameworks>
 		<UseWindowsForms>true</UseWindowsForms>
 		<SignAssembly>True</SignAssembly>
 		<PublishUrl>publish\</PublishUrl>

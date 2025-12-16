@@ -7,6 +7,9 @@ This release supports the interface updates introduced in ASCOM Platform 7.
 # Version History
 The version history only contains entries when a change is made, if a release version is not listed below, there was no change to this component in that release.
 
+***Release 3.0.0***
+* CHANGE - Updated to use .NET 10 assemblies.
+
 ***Release 2.2.1***
 * Updated the "Obsolete" messages on both ASCOM.Com.Chooser Choose() methods with more a comprehensive rationale.
 * Added a static member to ChooserSA enabling a device to be chosen without having to create and dispose of a ChooserSA instance

@@ -14,6 +14,9 @@ This release supports the interface updates introduced in ASCOM Platform 7.
 # Version History
 The version history only contains entries when a change is made, if a release version is not listed below, there was no change to this component in that release.
 
+***Release 3.0.0***
+* CHANGE - Updated to use .NET 10 assemblies.
+
 ***Release 2.2.0***
 * Add SetObserved() and SetAzimuthElevationObserved() methods to the Transform component.
 
