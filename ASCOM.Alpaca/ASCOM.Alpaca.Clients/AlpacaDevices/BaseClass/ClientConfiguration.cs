@@ -224,5 +224,18 @@ namespace ASCOM.Alpaca.Clients
             get { return baseClass.imageArrayTransferType; }
             set { baseClass.imageArrayTransferType = value; }
         }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the client sends an Expect: 100-continue header with HTTP requests.
+        /// </summary>
+        /// <remarks>When this property is set to <see langword="true"/>, the client will wait for a
+        /// 100-Continue response from the server before sending the request body. This can improve efficiency when
+        /// sending large payloads, as it avoids sending data if the server is likely to reject the request. Not all
+        /// servers support the Expect: 100-continue mechanism.</remarks>
+        public bool Request100Continue
+        {
+            get { return baseClass.request100Continue; }
+            set { baseClass.request100Continue = value; }
+        }
     }
 }
