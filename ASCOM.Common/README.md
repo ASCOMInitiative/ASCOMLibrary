@@ -13,9 +13,6 @@ This release supports the interface updates introduced in ASCOM Platform 7.
 # Version History
 The version history only contains entries when a change is made, if a release version is not listed below, there was no change to this component in that release.
 
-***Release 3.0.0***
-* CHANGE - Updated to use .NET 10 assemblies.
-
 ***Release 2.2.0***
 * AlpacaTools - Add a new ToByteArray() method that allows the element type returned to the client to be specified. Previously the array would always have the element type of the array provided by the Alpaca device.
 

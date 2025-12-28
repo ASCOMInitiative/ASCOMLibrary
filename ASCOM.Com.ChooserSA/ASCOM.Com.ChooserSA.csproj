@@ -9,7 +9,7 @@
 		<LangVersion>latest</LangVersion>
 		<RootNamespace>ASCOM.Com</RootNamespace>
 		<AssemblyName>ASCOM.Com.ChooserSA</AssemblyName>
-		<TargetFrameworks>net8.0-windows;net472;net48;net9.0-windows;net10.0-windows</TargetFrameworks>
+		<TargetFrameworks>net8.0-windows;net472;net48;net9.0-windows</TargetFrameworks>
 		<UseWindowsForms>true</UseWindowsForms>
 		<SignAssembly>True</SignAssembly>
 		<PublishUrl>publish\</PublishUrl>
@@ -32,7 +32,7 @@
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="ASCOM.Exception.Library" Version="7.0.1" />
-		<PackageReference Include="System.Resources.Extensions" Version="10.0.1" />
+		<PackageReference Include="System.Resources.Extensions" Version="9.0.9" />
 	</ItemGroup>
 	<ItemGroup>
 	  <Compile Update="Properties\Resources.Designer.cs">
