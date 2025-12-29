@@ -45,7 +45,7 @@ namespace ASCOM.Alpaca.Clients
         /// <param name="userAgentProductName">Optional product name to include in the User-Agent HTTP header sent to the Alpaca device</param>
         /// <param name="userAgentProductVersion">Optional product version to include in the User-Agent HTTP header sent to the Alpaca device</param>
         /// <param name="trustUserGeneratedSslCertificates">Trust user generated SSL certificates</param>
-        /// <param name="request100Continue"></param>Request 100-continue behaviour for HTTP requests. Defaults to false.
+        /// <param name="request100Continue">Request 100-continue behaviour for HTTP requests. Defaults to false.</param>
         public AlpacaFilterWheel(ServiceType serviceType = AlpacaClient.CLIENT_SERVICETYPE_DEFAULT,
                                  string ipAddressString = AlpacaClient.CLIENT_IPADDRESS_DEFAULT,
                                  int portNumber = AlpacaClient.CLIENT_IPPORT_DEFAULT,
@@ -135,6 +135,7 @@ namespace ASCOM.Alpaca.Clients
                 LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"Password length: {password.Length}");
                 LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"Strict casing: {strictCasing}");
                 LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"Trust user generated SSL certificates: {trustUserGeneratedSslCertificates}");
+                LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"Request 100CONTINUE: {request100Continue}");
 
                 DynamicClientDriver.CreateHttpClient(ref client, serviceType, ipAddressString, portNumber, clientNumber, clientDeviceType, userName, password, ImageArrayCompression.None, 
                     logger, userAgentProductName, userAgentProductVersion, trustUserGeneratedSslCertificates, request100Continue);

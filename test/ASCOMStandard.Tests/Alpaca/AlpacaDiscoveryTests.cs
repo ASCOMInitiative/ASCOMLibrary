@@ -207,7 +207,7 @@ namespace ASCOM.Alpaca.Tests.Alpaca
 
             Assert.NotEmpty(alpacaDisocvery.GetAscomDevices(DeviceTypes.Telescope));
 
-            AlpacaTelescope telescope = AlpacaClient.GetDevice<AlpacaTelescope>(alpacaDisocvery.GetAscomDevices(DeviceTypes.Camera)[0]);
+            AlpacaTelescope telescope = AlpacaClient.GetDevice<AlpacaTelescope>(alpacaDisocvery.GetAscomDevices(DeviceTypes.Telescope)[0]);
 
             Assert.Equal(CONNECTION_TIMEOUT, telescope.ClientConfiguration.EstablishConnectionTimeout);
             Assert.Equal(SHORT_TIMEOUT, telescope.ClientConfiguration.StandardDeviceResponseTimeout);

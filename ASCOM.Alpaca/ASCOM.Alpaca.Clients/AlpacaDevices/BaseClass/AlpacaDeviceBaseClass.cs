@@ -37,12 +37,12 @@ namespace ASCOM.Alpaca.Clients
         private bool disposedValue; // Whether or not the client has been Disposed()
         private readonly ClientConfiguration clientConfiguration; // The client configuration
 
-        internal string userAgentProductName;
-        internal string userAgentProductVersion;
+        internal string userAgentProductName; // Initialised elsewhere
+        internal string userAgentProductVersion; // Initialised elsewhere
 
-        internal bool trustUserGeneratedSslCertificates;
-        internal bool throwOnBadDateTimeJSON;
-        internal bool request100Continue;
+        internal bool trustUserGeneratedSslCertificates = AlpacaClient.TRUST_USER_GENERATED_SSL_CERTIFICATES_DEFAULT;
+        internal bool throwOnBadDateTimeJSON = AlpacaClient.THROW_ON_BAD_JSON_DATE_TIME_DEFAULT;
+        internal bool request100Continue = AlpacaClient.CLIENT_REQUEST_100_CONTINUE_DEFAULT;
 
         private short? interfaceVersion;
 
@@ -86,7 +86,7 @@ namespace ASCOM.Alpaca.Clients
             DynamicClientDriver.CreateHttpClient(ref client, ClientConfiguration.ServiceType, ClientConfiguration.IpAddress, ClientConfiguration.PortNumber, ClientConfiguration.ClientNumber,
                 ClientConfiguration.DeviceType, ClientConfiguration.UserName, ClientConfiguration.Password, ClientConfiguration.ImageArrayCompression,
                 logger, ClientConfiguration.UserAgentProductName, ClientConfiguration.UserAgentProductVersion, trustUserGeneratedSslCertificates, ClientConfiguration.Request100Continue);
- 
+
             // Reset the URI base in case the remote device number has changed
             URIBase = $"{AlpacaConstants.API_URL_BASE}{AlpacaConstants.API_VERSION_V1}/{clientDeviceType}/{ClientConfiguration.RemoteDeviceNumber}/";
         }

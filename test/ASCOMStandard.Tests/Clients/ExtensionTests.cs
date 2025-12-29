@@ -611,19 +611,25 @@ namespace ASCOM.Alpaca.Tests.Clients
         [Fact]
         public static async Task DomeAbortShutterOpenTest()
         {
+            const string DEVICE_PROGID = "ASCOM.OmniSim.Dome";
             // Create a TraceLogger to record activity
             //TraceLogger TL = new("DomeAbortShutterOpen", true, 64, LogLevel.Debug);
             TraceLogger TL = new("DomeAbortShutterOpen", true, 64, LogLevel.Information);
 
             // Create a COM client
-            TL.LogMessage("Main", $"About to create device");
-            Dome client = new("ASCOM.OmniSim.Dome");
+            TL.LogMessage("Main", $"About to create device {DEVICE_PROGID}");
+            Dome client = new(DEVICE_PROGID);
             TL.LogMessage("Main", $"Device created");
             Assert.NotNull(client);
 
             // Set connected to true
             client.Connected = true;
             TL.LogMessage("Main", $"Connected set true");
+
+            // Ensure the shutter is closed before starting the test
+            TL.LogMessage("Main", $"Closing shutter...");
+            await client.CloseShutterAsync(pollInterval: 100, logger: TL);
+            TL.LogMessage("Main", $"Shutter closed.");
 
             // Start a task that will abort the open after 1 second
             Task abortOpenTask = new(async () =>
@@ -637,7 +643,7 @@ namespace ASCOM.Alpaca.Tests.Clients
             abortOpenTask.Start();
 
             // Test the client
-            TL.LogMessage("Main", $"About to await method");
+            TL.LogMessage("Main", $"Opening shutter...");
             await client.OpenShutterAsync(pollInterval: 100, logger: TL);
             TL.LogMessage("Main", $"Await complete, shutter state: {client.ShutterStatus}");
             Assert.Equal(ShutterState.Error, client.ShutterStatus);

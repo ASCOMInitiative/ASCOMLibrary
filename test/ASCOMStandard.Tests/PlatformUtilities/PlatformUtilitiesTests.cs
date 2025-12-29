@@ -26,19 +26,19 @@ namespace UtilitityTests
         [Fact]
         public void CurrentPlatformVersion()
         {
-            Assert.True(ASCOM.Com.PlatformUtilities.PlatformVersion == "7.0");
+            Assert.True(ASCOM.Com.PlatformUtilities.PlatformVersion == "7.1");
         }
 
         [Fact]
         public void IsPlatformVersionOK()
         {
-            Assert.True(ASCOM.Com.PlatformUtilities.IsMinimumRequiredVersion(7, 0, 2, 3001));
+            Assert.True(ASCOM.Com.PlatformUtilities.IsMinimumRequiredVersion(7, 1, 1, 3001));
         }
 
         [Fact]
         public void IsPlatformVersionBad()
         {
-            Assert.False(ASCOM.Com.PlatformUtilities.IsMinimumRequiredVersion(7, 0, 3, 3001));
+            Assert.False(ASCOM.Com.PlatformUtilities.IsMinimumRequiredVersion(7, 1, 3, 3001));
         }
 
         [Fact]
@@ -96,7 +96,7 @@ namespace UtilitityTests
         [Fact]
         public void PlatformMinor()
         {
-            Assert.True(ASCOM.Com.PlatformUtilities.MinorVersion == 0);
+            Assert.True(ASCOM.Com.PlatformUtilities.MinorVersion == 1);
         }
 
         [Fact]

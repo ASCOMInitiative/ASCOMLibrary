@@ -18,6 +18,9 @@ namespace ASCOM.Tools.Novas31
     /// (NOVAS C3.1 Guide.pdf) included in the ASCOM Platform Docs start menu folder. The latest revision is also available on the USNO web site at
     /// <href>http://www.usno.navy.mil/USNO/astronomical-applications/software-products/novas</href>
     /// in the "C Edition of NOVAS" link. 
+    /// <para>
+    /// <span style="color:red"><b>NOTE:</b></span> Full accuracy is available for observation dates in the year range 2020-2050, outside this range accuracy is slightly reduced.
+    /// </para>
     /// </remarks>
     public class Novas
     {
@@ -58,7 +61,7 @@ namespace ASCOM.Tools.Novas31
 
             try
             {
-                // Uncomment here to force initiator debug logging (don't leave enabled in production!)
+                // Un-comment here to force initiator debug logging (don't leave enabled in production!)
                 //TL = new TraceLogger("NOVASLibrary", true);
                 //TL.SetMinimumLoggingLevel(LogLevel.Debug);
 
@@ -537,7 +540,9 @@ namespace ASCOM.Tools.Novas31
         ///    1 ... Invalid value of 'Type' in structure 'SsBody'
         /// > 10 ... Error code from function 'Place'.
         /// </pre></returns>
-        /// <remarks></remarks>
+        /// <remarks>
+        /// <span style="color:red"><b>NOTE:</b></span> Full accuracy is available for observation dates in the year range 2020-2050, outside this range accuracy is slightly reduced.
+        /// </remarks>
         public static short AppPlanet(double JdTt, Object3 SsBody, Accuracy Accuracy, ref double Ra, ref double Dec, ref double Dis)
         {
             var argSsBody1 = O3IFromObject3(SsBody);
@@ -552,7 +557,7 @@ namespace ASCOM.Tools.Novas31
         /// Computes the apparent place of a star at date 'JdTt', given its catalog mean place, proper motion, parallax, and radial velocity.
         /// </summary>
         /// <param name="JdTt">TT Julian date for apparent place.</param>
-        /// <param name="Star">Catalog entry structure containing catalog data forthe object in the ICRS </param>
+        /// <param name="Star">Catalog entry structure containing catalog data for the object in the ICRS </param>
         /// <param name="Accuracy">Code specifying the relative accuracy of the output position.</param>
         /// <param name="Ra">Apparent right ascension in hours, referred to true equator and equinox of date 'JdTt'.</param>
         /// <param name="Dec">Apparent declination in degrees, referred to true equator and equinox of date 'JdTt'.</param>
@@ -562,7 +567,9 @@ namespace ASCOM.Tools.Novas31
         /// > 10 ... Error code from function 'MakeObject'
         /// > 20 ... Error code from function 'Place'.
         /// </pre></returns>
-        /// <remarks></remarks>
+        /// <remarks>
+        /// <span style="color:red"><b>NOTE:</b></span> Full accuracy is available for observation dates in the year range 2020-2050, outside this range accuracy is slightly reduced.
+        /// </remarks>
         public static short AppStar(double JdTt, CatEntry3 Star, Accuracy Accuracy, ref double Ra, ref double Dec)
         {
             short rc;
@@ -611,7 +618,9 @@ namespace ASCOM.Tools.Novas31
         ///    1 ... Invalid value of 'Type' in structure 'SsBody'
         /// > 10 ... Error code from function 'Place'.
         /// </pre></returns>
-        /// <remarks></remarks>
+        /// <remarks>
+        /// <span style="color:red"><b>NOTE:</b></span> Full accuracy is available for observation dates in the year range 2020-2050, outside this range accuracy is slightly reduced.
+        /// </remarks>
         public static short AstroPlanet(double JdTt, Object3 SsBody, Accuracy Accuracy, ref double Ra, ref double Dec, ref double Dis)
         {
             var argSsBody1 = O3IFromObject3(SsBody);
@@ -635,7 +644,9 @@ namespace ASCOM.Tools.Novas31
         /// > 10 ... Error code from function 'MakeObject'
         /// > 20 ... Error code from function 'Place'.
         /// </pre></returns>
-        /// <remarks></remarks>
+        /// <remarks>
+        /// <span style="color:red"><b>NOTE:</b></span> Full accuracy is available for observation dates in the year range 2020-2050, outside this range accuracy is slightly reduced.
+        /// </remarks>
         public static short AstroStar(double JdTt, CatEntry3 Star, Accuracy Accuracy, ref double Ra, ref double Dec)
         {
             short rc;
@@ -667,7 +678,7 @@ namespace ASCOM.Tools.Novas31
         }
 
         /// <summary>
-        /// Move the origin of coordinates from the barycenter of the solar system to the observer (or the geocenter); i.e., this function accounts for parallax (annual+geocentric or justannual).
+        /// Move the origin of coordinates from the barycenter of the solar system to the observer (or the geocenter); i.e., this function accounts for parallax (annual+geocentric or just annual).
         /// </summary>
         /// <param name="Pos">Position vector, referred to origin at solar system barycenter, components in AU.</param>
         /// <param name="PosObs">Position vector of observer (or the geocenter), with respect to origin at solar system barycenter, components in AU.</param>
@@ -726,7 +737,7 @@ namespace ASCOM.Tools.Novas31
         /// <param name="VecC">Position vector, geocentric equatorial rectangular coordinates,
         /// referred to ITRS axes (terrestrial system).</param>
         /// <returns><pre>
-        ///    0 ... everything is ok
+        ///    0 ... everything is OK
         ///    1 ... invalid value of 'Accuracy'
         ///    2 ... invalid value of 'Method'
         /// > 10 ... 10 + error from function 'CioLocation'
@@ -756,8 +767,8 @@ namespace ASCOM.Tools.Novas31
         /// </summary>
         /// <param name="Tjd">TDB or TT Julian date for pole offsets.</param>
         /// <param name="Type"> Type of pole offset. 1 for corrections to angular coordinates of modeled pole referred to mean ecliptic of date, that is, delta-delta-psi and delta-delta-epsilon.  2 for corrections to components of modeled pole unit vector referred to GCRS axes, that is, dx and dy.</param>
-        /// <param name="Dpole1">Value of celestial pole offset in first coordinate, (delta-delta-psi or dx) in milliarcseconds.</param>
-        /// <param name="Dpole2">Value of celestial pole offset in second coordinate, (delta-delta-epsilon or dy) in milliarcseconds.</param>
+        /// <param name="Dpole1">Value of celestial pole offset in first coordinate, (delta-delta-psi or dx) in milli-arcseconds.</param>
+        /// <param name="Dpole2">Value of celestial pole offset in second coordinate, (delta-delta-epsilon or dy) in milli-arcseconds.</param>
         /// <returns><pre>
         /// 0 ... Everything OK
         /// 1 ... Invalid value of 'Type'.
@@ -772,7 +783,7 @@ namespace ASCOM.Tools.Novas31
         }
 
         /// <summary>
-        /// Calaculate an array of CIO RA values around a given date
+        /// Calculate an array of CIO RA values around a given date
         /// </summary>
         /// <param name="JdTdb">TDB Julian date.</param>
         /// <param name="NPts"> Number of Julian dates and right ascension values requested (not less than 2 or more than 20).</param>
@@ -784,7 +795,7 @@ namespace ASCOM.Tools.Novas31
         /// 2 ... 'JdTdb' not in the range of the CIO file; 
         /// 3 ... 'NPts' out of range
         /// 4 ... unable to allocate memory for the internal 't' array; 
-        /// 5 ... unable to allocate memory for the internal 'ra' array; 
+        /// 5 ... unable to allocate memory for the internal 'RA' array; 
         /// 6 ... 'JdTdb' is too close to either end of the CIO file; unable to put 'NPts' data points into the output object.
         /// </pre></returns>
         /// <remarks>
@@ -963,8 +974,8 @@ namespace ASCOM.Tools.Novas31
         /// This same series was also adopted for use in the IAU's Standards of Fundamental Astronomy (SOFA) software (i.e., subroutine 
         /// eect00.for and function eect00.c).
         /// <para>2. The low-accuracy series used in this function is a simple implementation derived from the first reference, in which terms
-        /// smaller than 2 microarcseconds have been omitted.</para>
-        /// <para>3. This function is based on NOVAS Fortran routine 'eect2000', with the low-accuracy formula taken from NOVAS Fortran routine 'etilt'.</para>
+        /// smaller than 2 micro-arcseconds have been omitted.</para>
+        /// <para>3. This function is based on NOVAS FORTRAN routine 'eect2000', with the low-accuracy formula taken from NOVAS FORTRAN routine 'etilt'.</para>
         /// </remarks>
         public static double EeCt(double JdHigh, double JdLow, Accuracy Accuracy)
         {
@@ -980,9 +991,9 @@ namespace ASCOM.Tools.Novas31
         /// <param name="Jd"> TDB Julian date split into two parts, where the sum jd[0] + jd[1] is the TDB Julian date.</param>
         /// <param name="CelObj">Structure containing the designation of the body of interest </param>
         /// <param name="Origin"> Origin code; solar system barycenter = 0, center of mass of the Sun = 1.</param>
-        /// <param name="Accuracy">Slection for accuracy</param>
-        /// <param name="Pos">Position vector of the body at 'Jd'; equatorial rectangular coordinates in AU referred to the ICRS.</param>
-        /// <param name="Vel">Velocity vector of the body at 'Jd'; equatorial rectangular system referred to the mean equator and equinox of the ICRS, in AU/Day.</param>
+        /// <param name="Accuracy">Selection for accuracy</param>
+        /// <param name="Pos">Position vector of the body at 'JD'; equatorial rectangular coordinates in AU referred to the ICRS.</param>
+        /// <param name="Vel">Velocity vector of the body at 'JD'; equatorial rectangular system referred to the mean equator and equinox of the ICRS, in AU/Day.</param>
         /// <returns><pre>
         ///    0 ... Everything OK
         ///    1 ... Invalid value of 'Origin'
@@ -1093,13 +1104,13 @@ namespace ASCOM.Tools.Novas31
         /// <param name="Jd_Ut1">UT1 Julian date.</param>
         /// <param name="DeltT">Difference TT-UT1 at 'jd_ut1', in seconds.</param>
         /// <param name="Accuracy">Selection for accuracy</param>
-        /// <param name="xp">onventionally-defined x coordinate of celestial intermediate pole with respect to ITRS reference pole, in arcseconds.</param>
+        /// <param name="xp">Conventionally-defined x coordinate of celestial intermediate pole with respect to ITRS reference pole, in arcseconds.</param>
         /// <param name="yp">Conventionally-defined y coordinate of celestial intermediate pole with respect to ITRS reference pole, in arcseconds.</param>
         /// <param name="Location">Structure containing observer's location </param>
         /// <param name="Ra">Topocentric right ascension of object of interest, in hours, referred to true equator and equinox of date.</param>
         /// <param name="Dec">Topocentric declination of object of interest, in degrees, referred to true equator and equinox of date.</param>
         /// <param name="RefOption">Refraction option. 0 ... no refraction; 1 ... include refraction, using 'standard' atmospheric conditions;
-        /// 2 ... include refraction, using atmospheric parametersinput in the 'Location' structure.</param>
+        /// 2 ... include refraction, using atmospheric parameters input in the 'Location' structure.</param>
         /// <param name="Zd">Topocentric zenith distance in degrees, affected by refraction if 'ref_option' is non-zero.</param>
         /// <param name="Az">Topocentric azimuth (measured east from north) in degrees.</param>
         /// <param name="RaR"> Topocentric right ascension of object of interest, in hours, referred to true equator and 
@@ -1148,7 +1159,7 @@ namespace ASCOM.Tools.Novas31
         /// <remarks> The expression used is taken from the note to IAU Resolution B1.8 of 2000.  1. The algorithm used 
         /// here is equivalent to the canonical theta = 0.7790572732640 + 1.00273781191135448 * t, where t is the time 
         /// in days from J2000 (t = JdHigh + JdLow - T0), but it avoids many two-PI 'wraps' that 
-        /// decrease precision (adopted from SOFA Fortran routine iau_era00; see also expression at top 
+        /// decrease precision (adopted from SOFA FORTRAN routine iau_era00; see also expression at top 
         /// of page 35 of IERS Conventions (1996)).</remarks>
         public static double Era(double JdHigh, double JdLow)
         {
@@ -1409,7 +1420,7 @@ namespace ASCOM.Tools.Novas31
         /// Computes the geocentric position of a solar system body, as antedated for light-time.
         /// </summary>
         /// <param name="JdTdb">TDB Julian date of observation.</param>
-        /// <param name="SsObject">Structure containing the designation for thesolar system body</param>
+        /// <param name="SsObject">Structure containing the designation for the solar system body</param>
         /// <param name="PosObs">Position vector of observer (or the geocenter), with respect to origin 
         /// at solar system barycenter, referred to ICRS axes, components in AU.</param>
         /// <param name="TLight0">First approximation to light-time, in days (can be set to 0.0 if unknown)</param>
@@ -1480,7 +1491,9 @@ namespace ASCOM.Tools.Novas31
         ///    1 ... Invalid value of 'Where' in structure 'Location'; 
         /// <![CDATA[>]]> 10 ... Error code from function 'Place'.
         /// </pre></returns>
-        /// <remarks></remarks>
+        /// <remarks>
+        /// <span style="color:red"><b>NOTE:</b></span> Full accuracy is available for observation dates in the year range 2020-2050, outside this range accuracy is slightly reduced.
+        /// </remarks>
         public static short LocalPlanet(double JdTt, Object3 SsBody, double DeltaT, OnSurface Position, Accuracy Accuracy, ref double Ra, ref double Dec, ref double Dis)
         {
             var argSsBody1 = O3IFromObject3(SsBody);
@@ -1507,7 +1520,9 @@ namespace ASCOM.Tools.Novas31
         /// > 10 ... Error code from function 'MakeObject'
         /// > 20 ... Error code from function 'Place'.
         /// </pre></returns>
-        /// <remarks></remarks>
+        /// <remarks>
+        /// <span style="color:red"><b>NOTE:</b></span> Full accuracy is available for observation dates in the year range 2020-2050, outside this range accuracy is slightly reduced.
+        /// </remarks>
         public static short LocalStar(double JdTt, double DeltaT, CatEntry3 Star, OnSurface Position, Accuracy Accuracy, ref double Ra, ref double Dec)
         {
             // Initialise if necessary
@@ -1524,9 +1539,9 @@ namespace ASCOM.Tools.Novas31
         /// <param name="StarNum">Object number in the catalog.</param>
         /// <param name="Ra">Right ascension of the object (hours).</param>
         /// <param name="Dec">Declination of the object (degrees).</param>
-        /// <param name="PmRa">Proper motion in right ascension (milliarcseconds/year).</param>
-        /// <param name="PmDec">Proper motion in declination (milliarcseconds/year).</param>
-        /// <param name="Parallax">Parallax (milliarcseconds).</param>
+        /// <param name="PmRa">Proper motion in right ascension (milli-arcseconds/year).</param>
+        /// <param name="PmDec">Proper motion in declination (milli-arcseconds/year).</param>
+        /// <param name="Parallax">Parallax (milli-arcseconds).</param>
         /// <param name="RadVel">Radial velocity (kilometers/second).</param>
         /// <param name="Star">CatEntry3 structure containing the input data</param>
         /// <remarks></remarks>
@@ -2061,7 +2076,7 @@ namespace ASCOM.Tools.Novas31
         /// <param name="VecC"> Position vector, geocentric equatorial rectangular coordinates, referred to GCRS 
         /// axes (celestial system) or with respect to the equator and equinox of date, depending on 'Option'.</param>
         /// <returns><pre>
-        ///    0 ... everything is ok
+        ///    0 ... everything is OK
         ///    1 ... invalid value of 'Accuracy'
         ///    2 ... invalid value of 'Method'
         /// > 10 ... 10 + error from function 'CioLocation'
@@ -2133,7 +2148,9 @@ namespace ASCOM.Tools.Novas31
         /// =  1 ... Invalid value of 'Where' in structure 'Location'.
         /// > 10 ... Error code from function 'Place'.
         /// </pre></returns>
-        /// <remarks></remarks>
+        /// <remarks>
+        /// <span style="color:red"><b>NOTE:</b></span> Full accuracy is available for observation dates in the year range 2020-2050, outside this range accuracy is slightly reduced.
+        /// </remarks>
         public static short TopoPlanet(double JdTt, Object3 SsBody, double DeltaT, OnSurface Position, Accuracy Accuracy, ref double Ra, ref double Dec, ref double Dis)
         {
             var argSsBody1 = O3IFromObject3(SsBody);
@@ -2160,7 +2177,9 @@ namespace ASCOM.Tools.Novas31
         /// > 10 ... Error code from function 'MakeObject'.
         /// > 20 ... Error code from function 'Place'.
         /// </pre></returns>
-        /// <remarks></remarks>
+        /// <remarks>
+        /// <span style="color:red"><b>NOTE:</b></span> Full accuracy is available for observation dates in the year range 2020-2050, outside this range accuracy is slightly reduced.
+        /// </remarks>
         public static short TopoStar(double JdTt, double DeltaT, CatEntry3 Star, OnSurface Position, Accuracy Accuracy, ref double Ra, ref double Dec)
         {
 
@@ -2256,9 +2275,9 @@ namespace ASCOM.Tools.Novas31
         /// <item>Epoch: J1991.25</item>
         /// <item>Right ascension (RA): degrees</item>
         /// <item>Declination (Dec): degrees</item>
-        /// <item>Proper motion in RA: milliarcseconds per year</item>
-        /// <item>Proper motion in Dec: milliarcseconds per year</item>
-        /// <item>Parallax: milliarcseconds</item>
+        /// <item>Proper motion in RA: milli-arcseconds per year</item>
+        /// <item>Proper motion in Dec: milli-arcseconds per year</item>
+        /// <item>Parallax: milli-arcseconds</item>
         /// <item>Radial velocity: kilometers per second (not in catalog)</item>
         /// </list>
         /// </para>
@@ -2268,9 +2287,9 @@ namespace ASCOM.Tools.Novas31
         /// <item>Epoch: J2000.0</item>
         /// <item>Right ascension: hours</item>
         /// <item>Declination: degrees</item>
-        /// <item>Proper motion in RA: milliarcseconds per year</item>
-        /// <item>Proper motion in Dec: milliarcseconds per year</item>
-        /// <item>Parallax: milliarcseconds</item>
+        /// <item>Proper motion in RA: milli-arcseconds per year</item>
+        /// <item>Proper motion in Dec: milli-arcseconds per year</item>
+        /// <item>Parallax: milli-arcseconds</item>
         /// <item>Radial velocity: kilometers per second</item>
         /// </list>>
         /// </para>
@@ -2322,7 +2341,9 @@ namespace ASCOM.Tools.Novas31
         /// =  1 ... Invalid value of 'Type' in structure 'SsBody'.
         /// > 10 ... Error code from function 'Place'.
         /// </pre></returns>
-        /// <remarks></remarks>
+        /// <remarks>
+        /// <span style="color:red"><b>NOTE:</b></span> Full accuracy is available for observation dates in the year range 2020-2050, outside this range accuracy is slightly reduced.
+        /// </remarks>
         public static short VirtualPlanet(double JdTt, Object3 SsBody, Accuracy Accuracy, ref double Ra, ref double Dec, ref double Dis)
         {
             var argSsBody1 = O3IFromObject3(SsBody);
@@ -2347,7 +2368,9 @@ namespace ASCOM.Tools.Novas31
         /// > 10 ... Error code from function 'MakeObject'.
         /// > 20 ... Error code from function 'Place'
         /// </pre></returns>
-        /// <remarks></remarks>
+        /// <remarks>
+        /// <span style="color:red"><b>NOTE:</b></span> Full accuracy is available for observation dates in the year range 2020-2050, outside this range accuracy is slightly reduced.
+        /// </remarks>
         public static short VirtualStar(double JdTt, CatEntry3 Star, Accuracy Accuracy, ref double Ra, ref double Dec)
         {
             // Initialise if necessary

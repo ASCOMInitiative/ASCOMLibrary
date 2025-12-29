@@ -17,14 +17,20 @@ This may also be the case for projects that target IOS, but has not yet been con
 The version history only contains entries when a change is made, if a release version is not listed below, there was no change to this component in that release.
 
 ***Release 3.0.0***
-* CHANGE - The default behaviour of all PUT methods has changed. Previously, 100-CONTINUE behaviour was enabled on all PUT requests, which caused the client 
-to include an EXPECT 100-CONTNUE header, to send only the request headers to the server and to wait for the server to return a 100-CONTINUE response before 
-sending the request body.
-The 100-CONTINUE header is no longer sent by default and the client sends the full request (headers and body) in one operation.
-The original 100-CONTINUE behaviour can be restored by setting the new Alpaca client `request100Continue` parameter to TRUE.
-* CHANGE - Updated to use .NET 10 assemblies.
+* POTENTIALLY BREAKING CHANGE - The client's [`100-CONTINUE`](https://dev.to/mrcaidev/everything-you-need-to-know-about-100-continue-3mn5)
+behaviour is no longer enabled by default to improve network performance by removing a network round-trip on each `PUT` request.
+  * This change is expected to be transparent for clients and devices because Alpaca devices should already be capable of handling requests from other clients 
+that do not use the `EXPECT 100-CONTINUE` protocol. Out of an abundance of caution, the change is marked as potentially breaking and the major version number has been increased.
+  * This change results in Alpaca clients now sending the both headers and body in one operation.
+  * If required, the original `100-CONTINUE` behaviour can be restored by setting the new Alpaca client `request100Continue` parameter to `TRUE`.
+  * The previous 100-CONTINUE behaviour caused the client to:
+    * add an EXPECT 100-CONTNUE header to the request,
+    * send only the request headers to the Alpaca device,
+    * wait for the device to return a 100-CONTINUE response,
+    * finally send the request body and wait for the device response.
 * ADDED - a new telescope client configuration parameter: `throwOnBadDateTimeJSON`, which defaults to FALSE. This is primarily for use by Conform to support 
 validation of DateTime values returned by Alpaca devices that do not conform to the Alpaca specification.
+* ADDED - a new telescope client configuration parameter: `request100Continue`, which defaults to FALSE. This enables or disables `100-CONTINUE HTTP` behaviour.
 
 ***Release 2.2.0***
 * BUG-FIX - Fixed bug where the Alpaca client Action method failed when the 'parameters' parameter was over 65,535 characters long.
