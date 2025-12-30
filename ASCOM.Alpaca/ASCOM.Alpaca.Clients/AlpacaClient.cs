@@ -109,15 +109,28 @@ namespace ASCOM.Alpaca.Clients
         /// <param name="throwOnBadDateTimeJSON">Return an error if the UTCDate JSON format is incorrect (Only relevant to Telescope devices). Default: Will accept the provided format and not return an error.</param>
         /// <param name="request100Continue">Request that PUT requests use the 100CONTINUE HTTP protocol. Default: The 100CONTINUE protocol is not requested.</param>
         /// <returns>An Alpaca client of the specified type</returns>
-        public static T GetDevice<T>(ServiceType serviceType = CLIENT_SERVICETYPE_DEFAULT, string ipAddressString = CLIENT_IPADDRESS_DEFAULT, int portNumber = CLIENT_IPPORT_DEFAULT, int remoteDeviceNumber = CLIENT_REMOTEDEVICENUMBER_DEFAULT, int establishConnectionTimeout = CLIENT_ESTABLISHCONNECTIONTIMEOUT_DEFAULT,
-                                  int standardDeviceResponseTimeout = CLIENT_STANDARDCONNECTIONTIMEOUT_DEFAULT, int longDeviceResponseTimeout = CLIENT_LONGCONNECTIONTIMEOUT_DEFAULT, uint clientNumber = CLIENT_CLIENTNUMBER_DEFAULT,
-                                  string userName = CLIENT_USERNAME_DEFAULT, string password = CLIENT_PASSWORD_DEFAULT, bool strictCasing = CLIENT_STRICTCASING_DEFAULT, ILogger logger = CLIENT_LOGGER_DEFAULT,
-                                  ImageArrayTransferType imageArrayTransferType = CLIENT_IMAGEARRAYTRANSFERTYPE_DEFAULT, ImageArrayCompression imageArrayCompression = CLIENT_IMAGEARRAYCOMPRESSION_DEFAULT,
-                                  string userAgentProductName = null, string userAgentProductVersion = null, bool trustUserGeneratedSslCertificates = TRUST_USER_GENERATED_SSL_CERTIFICATES_DEFAULT,
-                                  bool throwOnBadDateTimeJSON = THROW_ON_BAD_JSON_DATE_TIME_DEFAULT, bool request100Continue=CLIENT_REQUEST_100_CONTINUE_DEFAULT)
+        public static T GetDevice<T>(ServiceType serviceType = CLIENT_SERVICETYPE_DEFAULT,
+            string ipAddressString = CLIENT_IPADDRESS_DEFAULT, 
+            int portNumber = CLIENT_IPPORT_DEFAULT, 
+            int remoteDeviceNumber = CLIENT_REMOTEDEVICENUMBER_DEFAULT, 
+            int establishConnectionTimeout = CLIENT_ESTABLISHCONNECTIONTIMEOUT_DEFAULT,
+            int standardDeviceResponseTimeout = CLIENT_STANDARDCONNECTIONTIMEOUT_DEFAULT, 
+            int longDeviceResponseTimeout = CLIENT_LONGCONNECTIONTIMEOUT_DEFAULT, 
+            uint clientNumber = CLIENT_CLIENTNUMBER_DEFAULT,
+            string userName = CLIENT_USERNAME_DEFAULT, 
+            string password = CLIENT_PASSWORD_DEFAULT, 
+            bool strictCasing = CLIENT_STRICTCASING_DEFAULT, 
+            ILogger logger = CLIENT_LOGGER_DEFAULT,
+            ImageArrayTransferType imageArrayTransferType = CLIENT_IMAGEARRAYTRANSFERTYPE_DEFAULT, 
+            ImageArrayCompression imageArrayCompression = CLIENT_IMAGEARRAYCOMPRESSION_DEFAULT,
+            string userAgentProductName = null, 
+            string userAgentProductVersion = null, 
+            bool trustUserGeneratedSslCertificates = TRUST_USER_GENERATED_SSL_CERTIFICATES_DEFAULT,
+            bool throwOnBadDateTimeJSON = THROW_ON_BAD_JSON_DATE_TIME_DEFAULT, 
+            bool request100Continue=CLIENT_REQUEST_100_CONTINUE_DEFAULT)
                                   where T : AlpacaDeviceBaseClass, new()
         {
-            if (typeof(T) == typeof(AlpacaCamera)) // Return a camera type with its additional parameters defaulted
+            if (typeof(T) == typeof(AlpacaCamera)) // Return a camera type with its additional parameters set
             {
                 return (T)Activator.CreateInstance(typeof(T), new object[]
                 {
@@ -129,8 +142,8 @@ namespace ASCOM.Alpaca.Clients
                     standardDeviceResponseTimeout,
                     longDeviceResponseTimeout,
                     clientNumber,
-                    imageArrayTransferType,
-                    imageArrayCompression,
+                    imageArrayTransferType, // Camera specific parameter
+                    imageArrayCompression, // Camera specific parameter
                     userName,
                     password,
                     strictCasing,
@@ -141,7 +154,7 @@ namespace ASCOM.Alpaca.Clients
                     request100Continue
                 });
             }
-            else if (typeof(T) == typeof(AlpacaTelescope)) // Return a telescope type with its additional parameters defaulted
+            else if (typeof(T) == typeof(AlpacaTelescope)) // Return a telescope type with its additional parameters set
             {
                 return (T)Activator.CreateInstance(typeof(T), new object[]
                 {
@@ -160,7 +173,7 @@ namespace ASCOM.Alpaca.Clients
                     userAgentProductName,
                     userAgentProductVersion,
                     trustUserGeneratedSslCertificates,
-                    throwOnBadDateTimeJSON,
+                    throwOnBadDateTimeJSON, // Telescope specific parameter
                     request100Continue
                 });
             }
