@@ -165,6 +165,8 @@
     <None Include="How to discover Alpaca devices.aml" />
     <None Include="How to create clients for discovered Alpaca devices.aml" />
     <None Include="How to select an Alpaca device.aml" />
+    <None Include="ProjectOverrides\VS2013ChmHelpFormat.proj" />
+    <None Include="ProjectOverrides\VS2022HtmlHelpFormat.proj" />
     <None Include="VersionHistory.aml" />
     <None Include="SeamlessAlpacaAndCom.aml" />
     <None Include="PackageMapping.aml" />
@@ -175,8 +177,8 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="icons" />
-    <Folder Include="NewFolder1\" />
     <Folder Include="css" />
+    <Folder Include="ProjectOverrides" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="css\presentationStyle.css" />
