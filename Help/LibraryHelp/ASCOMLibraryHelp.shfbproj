@@ -154,6 +154,8 @@
     <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
   </PropertyGroup>
   <ItemGroup>
+    <None Include=".ProjectOverrides\VS2013ChmHelpFormat.proj" />
+    <None Include=".ProjectOverrides\VS2022HtmlHelpFormat.proj" />
     <None Include="AstroUtilitiesNativeLibraries.aml" />
     <None Include="Async Methods.aml" />
     <None Include="AlpacaAndAscomDevices.aml" />
@@ -165,8 +167,6 @@
     <None Include="How to discover Alpaca devices.aml" />
     <None Include="How to create clients for discovered Alpaca devices.aml" />
     <None Include="How to select an Alpaca device.aml" />
-    <None Include="ProjectOverrides\VS2013ChmHelpFormat.proj" />
-    <None Include="ProjectOverrides\VS2022HtmlHelpFormat.proj" />
     <None Include="VersionHistory.aml" />
     <None Include="SeamlessAlpacaAndCom.aml" />
     <None Include="PackageMapping.aml" />
@@ -178,7 +178,7 @@
   <ItemGroup>
     <Folder Include="icons" />
     <Folder Include="css" />
-    <Folder Include="ProjectOverrides" />
+    <Folder Include=".ProjectOverrides" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="css\presentationStyle.css" />
