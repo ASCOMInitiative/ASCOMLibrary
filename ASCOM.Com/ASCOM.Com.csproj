@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>netstandard2.0</TargetFramework>
-		<Authors>ASCOM Initiative, Daniel Van Noord and Peter Simpson</Authors>
+    <TargetFrameworks>netstandard2.0;net8.0</TargetFrameworks>
+    <Authors>ASCOM Initiative, Daniel Van Noord and Peter Simpson</Authors>
 		<Description>A .Net Standard library for accessing ASCOM COM based drivers on Windows platforms and for reading ASCOM Profile information.
 
 Includes support for the interface updates introduced in ASCOM Platform 7.</Description>

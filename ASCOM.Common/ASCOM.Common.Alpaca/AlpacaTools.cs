@@ -1871,7 +1871,9 @@ namespace ASCOM.Common.Alpaca
                                         {
                                             for (int j = 0; j < imageArray.GetLength(1); j++)
                                             {
-                                                Array.Copy(BitConverter.GetBytes((Byte)imageArray.GetValue(i, j)), 0, imageArrayBytes, startOfNextElement, transmissionElementSize);
+                                                byte element = (Byte)imageArray.GetValue(i, j);
+                                                imageArrayBytes[startOfNextElement] = element;
+
                                                 startOfNextElement += transmissionElementSize;
                                             }
                                         }
@@ -1980,7 +1982,9 @@ namespace ASCOM.Common.Alpaca
                                             {
                                                 for (int k = 0; k < imageArray.GetLength(2); k++)
                                                 {
-                                                    Array.Copy(BitConverter.GetBytes((Byte)imageArray.GetValue(i, j, k)), 0, imageArrayBytes, startOfNextElement, transmissionElementSize);
+                                                    byte element = (Byte)imageArray.GetValue(i, j, k);
+                                                    imageArrayBytes[startOfNextElement] = element;
+
                                                     startOfNextElement += transmissionElementSize;
                                                 }
                                             }

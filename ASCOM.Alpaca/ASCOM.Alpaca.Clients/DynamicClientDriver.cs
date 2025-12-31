@@ -66,7 +66,7 @@ namespace ASCOM.Alpaca.Clients
         internal static uint GetUniqueClientNumber()
         {
             uint randomvalue;
-
+#if NETSTANDARD2_0
             using (RNGCryptoServiceProvider rg = new RNGCryptoServiceProvider())
             {
                 byte[] rno = new byte[5]; // Create a four byte array
@@ -76,7 +76,9 @@ namespace ASCOM.Alpaca.Clients
                 rno[4] = 0;
                 randomvalue = BitConverter.ToUInt32(rno, 0) + 1; // Convert the bytes to an integer in the range 0::65535 and add 1 to get an integer in the range 1::65536
             }
-
+#elif NET8_0_OR_GREATER
+            randomvalue = Convert.ToUInt32(RandomNumberGenerator.GetInt32(1, 65537)); // Get a random integer in the range 1::65536
+#endif
             return randomvalue;
         }
 

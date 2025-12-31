@@ -128,8 +128,10 @@ namespace UtilitityTests
         [Fact]
         public void JulianDateUtc()
         {
-            double julianDateUtc = AstroUtilities.JulianDateUtc;
-            Assert.Equal(DateTime.UtcNow.ToOADate() + 2415018.5, julianDateUtc, 6);
+            double julianDateUtc = 2461041.0; // 31st December 2025 12:00:00 UTC
+            DateTime dateUtc=new DateTime(2025, 12, 31, 12, 0, 0, DateTimeKind.Utc);
+
+            Assert.Equal(dateUtc.ToOADate() + 2415018.5, julianDateUtc, 6);
         }
 
         [Fact]

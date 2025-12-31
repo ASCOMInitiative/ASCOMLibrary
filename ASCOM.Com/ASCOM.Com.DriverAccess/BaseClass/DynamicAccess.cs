@@ -9,6 +9,9 @@ namespace ASCOM.Com.DriverAccess
     /// <summary>
     /// Dynamically manipulate a COM object's members
     /// </summary>
+#if NET8_0_OR_GREATER
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+#endif
     public class DynamicAccess : DynamicObject
     {
         private readonly object device;

@@ -1,8 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>netstandard2.0</TargetFramework>
-		<AssemblyOriginatorKeyFile>..\ASCOM.snk</AssemblyOriginatorKeyFile>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+    <TargetFrameworks>netstandard2.0;net8.0</TargetFrameworks>
+    <AssemblyOriginatorKeyFile>..\ASCOM.snk</AssemblyOriginatorKeyFile>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<SignAssembly>true</SignAssembly>
 		<PackageId>ASCOM.AstrometryTools</PackageId>
@@ -10,7 +12,7 @@
 		<Description>A set of components to support Astrometry.
 
 Includes support for the interface updates introduced in ASCOM Platform 7.</Description>
-		<Copyright>ASCOM Initiative (c) 2024</Copyright>
+		<Copyright>ASCOM Initiative (c) 2026</Copyright>
 		<PackageIcon>ASCOMBoarderless.png</PackageIcon>
 		<Configurations>Debug;Release</Configurations>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
@@ -60,43 +62,43 @@ Includes support for the interface updates introduced in ASCOM Platform 7.</Desc
 	</ItemGroup>
 
 	<ItemGroup>
-    <None Update="SOFALibraries\android-arm64\libsofa.so">
+    <None Include="SOFALibraries\android-arm64\libsofa.so">
       <Pack>True</Pack>
       <PackagePath>runtimes/android-arm64/native</PackagePath>
     </None>
-    <None Update="SOFALibraries\android-arm\libsofa.so">
+    <None Include="SOFALibraries\android-arm\libsofa.so">
       <Pack>True</Pack>
       <PackagePath>runtimes/android-arm/native</PackagePath>
     </None>
-    <None Update="SOFALibraries\linux-arm\libsofa.so">
+    <None Include="SOFALibraries\linux-arm\libsofa.so">
 			<Pack>True</Pack>
 			<PackagePath>runtimes/linux-arm/native</PackagePath>
 		</None>
-		<None Update="SOFALibraries\linux-arm64\libsofa.so">
+		<None Include="SOFALibraries\linux-arm64\libsofa.so">
 			<Pack>True</Pack>
 			<PackagePath>runtimes/linux-arm64/native</PackagePath>
 		</None>
-		<None Update="SOFALibraries\linux-x64\libsofa.so">
+		<None Include="SOFALibraries\linux-x64\libsofa.so">
 			<Pack>True</Pack>
 			<PackagePath>runtimes/linux-x64/native</PackagePath>
 		</None>
-		<None Update="SOFALibraries\osx-arm64\libsofa.dylib">
+		<None Include="SOFALibraries\osx-arm64\libsofa.dylib">
 			<Pack>True</Pack>
 			<PackagePath>runtimes/osx-arm64/native</PackagePath>
 		</None>
-		<None Update="SOFALibraries\osx-x64\libsofa.dylib">
+		<None Include="SOFALibraries\osx-x64\libsofa.dylib">
 			<Pack>True</Pack>
 			<PackagePath>runtimes/osx-x64/native</PackagePath>
 		</None>
-		<None Update="SOFALibraries\win-x64\libsofa.dll">
+		<None Include="SOFALibraries\win-x64\libsofa.dll">
 			<Pack>True</Pack>
 			<PackagePath>runtimes/win-x64/native</PackagePath>
 		</None>
-		<None Update="SOFALibraries\win-x86\libsofa.dll">
+		<None Include="SOFALibraries\win-x86\libsofa.dll">
 			<Pack>True</Pack>
 			<PackagePath>runtimes/win-x86/native</PackagePath>
 		</None>
-		<None Update="SOFALibraries\win-arm64\libsofa.dll">
+		<None Include="SOFALibraries\win-arm64\libsofa.dll">
 			<Pack>True</Pack>
 			<PackagePath>runtimes/win-arm64/native</PackagePath>
 		</None>
@@ -104,107 +106,107 @@ Includes support for the interface updates introduced in ASCOM Platform 7.</Desc
 
 	<ItemGroup>
     <!-- Android ARM 64bit Native Library -->
-    <None Update="NovasLibraries\android-arm64\libnovas.so">
+    <None Include="NovasLibraries\android-arm64\libnovas.so">
       <Pack>True</Pack>
       <PackagePath>runtimes/android-arm64/native</PackagePath>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="NovasLibraries\android-arm64\cio_ra.bin">
+    <None Include="NovasLibraries\android-arm64\cio_ra.bin">
 		  <PackagePath>runtimes/android-arm64/native</PackagePath>
 		  <Pack>True</Pack>
 		</None>
 
     <!-- Android ARM 32bit Native Library -->
-    <None Update="NovasLibraries\android-arm\libnovas.so">
+    <None Include="NovasLibraries\android-arm\libnovas.so">
       <Pack>True</Pack>
       <PackagePath>runtimes/android-arm/native</PackagePath>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="NovasLibraries\android-arm\cio_ra.bin">
+    <None Include="NovasLibraries\android-arm\cio_ra.bin">
 		  <PackagePath>runtimes/android-arm/native</PackagePath>
 		  <Pack>True</Pack>
 		</None>
     
 		<!-- Windows x64 64bit Native Library -->
-		<None Update="NovasLibraries\win-x64\libnovas.dll">
+		<None Include="NovasLibraries\win-x64\libnovas.dll">
 			<Pack>True</Pack>
 			<PackagePath>runtimes/win-x64/native</PackagePath>
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
-		<None Update="NovasLibraries\win-x64\cio_ra.bin">
+		<None Include="NovasLibraries\win-x64\cio_ra.bin">
 			<Pack>True</Pack>
 			<PackagePath>runtimes/win-x64/native</PackagePath>
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
 
 		<!-- Windows x86 32bit Native Library -->
-		<None Update="NovasLibraries\win-x86\libnovas.dll">
+		<None Include="NovasLibraries\win-x86\libnovas.dll">
 			<Pack>True</Pack>
 			<PackagePath>runtimes/win-x86/native</PackagePath>
 		</None>
-		<None Update="NovasLibraries\win-x86\cio_ra.bin">
+		<None Include="NovasLibraries\win-x86\cio_ra.bin">
 			<Pack>True</Pack>
 			<PackagePath>runtimes/win-x86/native</PackagePath>
 		</None>
 
 		<!-- Windows arm64 64bit Native Library -->
-		<None Update="NovasLibraries\win-arm64\libnovas.dll">
+		<None Include="NovasLibraries\win-arm64\libnovas.dll">
 			<Pack>True</Pack>
 			<PackagePath>runtimes/win-arm64/native</PackagePath>
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
-		<None Update="NovasLibraries\win-arm64\cio_ra.bin">
+		<None Include="NovasLibraries\win-arm64\cio_ra.bin">
 			<Pack>True</Pack>
 			<PackagePath>runtimes/win-arm64/native</PackagePath>
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
 
 		<!-- Linux Intel 64bit Native Library -->
-		<None Update="NovasLibraries\linux-x64\libnovas.so">
+		<None Include="NovasLibraries\linux-x64\libnovas.so">
 			<Pack>True</Pack>
 			<PackagePath>runtimes/linux-x64/native</PackagePath>
 		</None>
-		<None Update="NovasLibraries\linux-x64\cio_ra.bin">
+		<None Include="NovasLibraries\linux-x64\cio_ra.bin">
 			<Pack>True</Pack>
 			<PackagePath>runtimes/linux-x64/native</PackagePath>
 		</None>
 
 		<!-- Linux ARM Native Library -->
-		<None Update="NovasLibraries\linux-arm\libnovas.so">
+		<None Include="NovasLibraries\linux-arm\libnovas.so">
 			<Pack>True</Pack>
 			<PackagePath>runtimes/linux-arm/native</PackagePath>
 		</None>
-		<None Update="NovasLibraries\linux-arm\cio_ra.bin">
+		<None Include="NovasLibraries\linux-arm\cio_ra.bin">
 			<Pack>True</Pack>
 			<PackagePath>runtimes/linux-arm/native</PackagePath>
 		</None>
 
 		<!-- Linux ARM64 Native Library -->
-		<None Update="NovasLibraries\linux-arm64\libnovas.so">
+		<None Include="NovasLibraries\linux-arm64\libnovas.so">
 			<Pack>True</Pack>
 			<PackagePath>runtimes/linux-arm64/native</PackagePath>
 		</None>
-		<None Update="NovasLibraries\linux-arm64\cio_ra.bin">
+		<None Include="NovasLibraries\linux-arm64\cio_ra.bin">
 			<Pack>True</Pack>
 			<PackagePath>runtimes/linux-arm64/native</PackagePath>
 		</None>
 
 		<!-- OSX Intel 64bit Native Library -->
-		<None Update="NovasLibraries\osx-x64\libnovas.dylib">
+		<None Include="NovasLibraries\osx-x64\libnovas.dylib">
 			<Pack>True</Pack>
 			<PackagePath>runtimes/osx-x64/native</PackagePath>
 		</None>
-		<None Update="NovasLibraries\osx-x64\cio_ra.bin">
+		<None Include="NovasLibraries\osx-x64\cio_ra.bin">
 			<Pack>True</Pack>
 			<PackagePath>runtimes/osx-x64/native</PackagePath>
 		</None>
 
 		<!-- OSX Apple Silicon ARM 64bit Native Library -->
-		<None Update="NovasLibraries\osx-arm64\libnovas.dylib">
+		<None Include="NovasLibraries\osx-arm64\libnovas.dylib">
 			<Pack>True</Pack>
 			<PackagePath>runtimes/osx-arm64/native</PackagePath>
 		</None>
-		<None Update="NovasLibraries\osx-arm64\cio_ra.bin">
+		<None Include="NovasLibraries\osx-arm64\cio_ra.bin">
 			<Pack>True</Pack>
 			<PackagePath>runtimes/osx-arm64/native</PackagePath>
 		</None>

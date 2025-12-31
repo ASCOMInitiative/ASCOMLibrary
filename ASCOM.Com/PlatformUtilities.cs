@@ -15,6 +15,9 @@ namespace ASCOM.Com
     /// <summary>
     /// Utilities relevant to Windows / COM Driver / ASCOM Platform development
     /// </summary>
+#if NET8_0_OR_GREATER
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+#endif
     public static class PlatformUtilities
     {
         // Constants for Version functions

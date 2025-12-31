@@ -521,7 +521,7 @@ namespace ASCOM.Alpaca.Discovery
         /// <returns></returns>
         private static async Task AsynchronousDiscovery(string methodName, int numberOfPolls, int pollInterval, int discoveryPort, double discoveryDuration, bool resolveDnsName, bool useIpV4, bool useIpV6, ServiceType serviceType, ILogger logger, AlpacaDiscovery discovery, CancellationToken cancellationToken)
         {
-            CancellationTokenRegistration cancellationTokenRegistration;
+            CancellationTokenRegistration? cancellationTokenRegistration= null;
 
             try
             {
@@ -578,7 +578,7 @@ namespace ASCOM.Alpaca.Discovery
             {
                 // Ensure that the cancellation token event handler is removed
                 logger.LogMessage(LogLevel.Information, methodName, $"{Thread.CurrentThread.ManagedThreadId} Removing cancellation token event handler");
-                cancellationTokenRegistration.Dispose();
+                cancellationTokenRegistration?.Dispose();
             }
         }
 

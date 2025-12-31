@@ -55,7 +55,6 @@ namespace ASCOM.Common.Alpaca
         /// <returns>String representation of the response value</returns>
         public override string ToString()
         {
-            if (Value == null) return "DateTime value is null";
             return Value.ToUniversalTime().ToString(ISO8601_DATE_FORMAT_STRING + "Z");
         }
     }

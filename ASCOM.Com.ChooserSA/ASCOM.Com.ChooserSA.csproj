@@ -4,12 +4,12 @@
 		<Authors>Peter Simpson</Authors>
 		<Company>ASCOM Initiative</Company>
 		<Product>ASCOM Stand Alone Chooser</Product>
-		<Description>Stand alone Chooser for use with .NET Framework 4.7.2 and later and .NET 5 and later projects.</Description>
-		<Copyright>(c) ASCOM Initiative 2009-2023</Copyright>
+		<Description>Stand alone Chooser for use with .NET Framework 4.7.2 and later and .NET 8 and later projects.</Description>
+		<Copyright>(c) ASCOM Initiative 2009-2026</Copyright>
 		<LangVersion>latest</LangVersion>
 		<RootNamespace>ASCOM.Com</RootNamespace>
 		<AssemblyName>ASCOM.Com.ChooserSA</AssemblyName>
-		<TargetFrameworks>net8.0-windows;net472;net48;net9.0-windows</TargetFrameworks>
+		<TargetFrameworks>net8.0-windows;net472</TargetFrameworks>
 		<UseWindowsForms>true</UseWindowsForms>
 		<SignAssembly>True</SignAssembly>
 		<PublishUrl>publish\</PublishUrl>
