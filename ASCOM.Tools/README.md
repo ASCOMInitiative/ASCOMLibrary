@@ -28,6 +28,10 @@ routines that are available in standard .NET namespaces.
 # Version History
 The version history only contains entries when a change is made, if a release version is not listed below, there was no change to this component in that release.
 
+***Release 3.0.0***
+*  ADDED - Support for .NET 8.0, 9.0 and 10.0 target frameworks. It will no longer be necessary for applications that use these frameworks to 
+rely on the .NET Standard 2.0 component.
+
 ***Release 2.0.0***
 * No change.
 

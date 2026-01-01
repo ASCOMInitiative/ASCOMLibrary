@@ -1,5 +1,6 @@
 ﻿using ASCOM.Alpaca.Discovery;
 using ASCOM.Common.Alpaca;
+using ASCOM.Common.DeviceInterfaces;
 using ASCOM.Common.Interfaces;
 using System;
 
@@ -37,6 +38,45 @@ namespace ASCOM.Alpaca.Clients
         #region Public static methods
 
         /// <summary>
+        /// Creates and returns an instance of an Alpaca device of the specified type using the provided configuration
+        /// settings.
+        /// </summary>
+        /// <remarks>This method uses the properties of the provided configuration to initialize the
+        /// device. The returned device is ready for use according to the specified settings.</remarks>
+        /// <typeparam name="T">The type of Alpaca device to create. Must inherit from AlpacaDeviceBaseClass and have a parameterless constructor.</typeparam>
+        /// <param name="configuration">The configuration settings used to initialize the Alpaca device. Cannot be null.</param>
+        /// <returns>An instance of type T representing the configured Alpaca device.</returns>
+        /// <exception cref="InvalidValueException">Thrown if the configuration parameter is null.</exception>
+        public static T GetDevice<T>(AlpacaConfiguration configuration)
+             where T : AlpacaDeviceBaseClass, new()
+        {
+            // Validate that the ascomDevice parameter is not null
+            if (configuration is null)
+                throw new InvalidValueException($"AlpacaClient.GetDevice - The supplied AlpacaConfiguration parameter is null");
+
+            return (T)GetDevice<T>(configuration.ServiceType,
+                configuration.IpAddressString,
+                configuration.PortNumber,
+                configuration.RemoteDeviceNumber,
+                configuration.EstablishConnectionTimeout,
+                configuration.StandardDeviceResponseTimeout,
+                configuration.LongDeviceResponseTimeout,
+                configuration.ClientNumber,
+                configuration.UserName,
+                configuration.Password,
+                configuration.StrictCasing,
+                configuration.Logger,
+                configuration.ImageArrayTransferType,
+                configuration.ImageArrayCompression,
+                configuration.UserAgentProductName,
+                configuration.UserAgentProductVersion,
+                configuration.TrustUserGeneratedSslCertificates,
+                configuration.ThrowOnBadDateTimeJSON,
+                configuration.Request100Continue);
+        }
+
+
+        /// <summary>
         /// Create an Alpaca client for a discovered ASCOM device specifying all parameters
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -72,17 +112,33 @@ namespace ASCOM.Alpaca.Clients
             string userAgentProductName = null,
             string userAgentProductVersion = null,
             bool trustUserGeneratedSslCertificates = TRUST_USER_GENERATED_SSL_CERTIFICATES_DEFAULT,
-            bool throwOnBadDateTimeJSON=THROW_ON_BAD_JSON_DATE_TIME_DEFAULT,
+            bool throwOnBadDateTimeJSON = THROW_ON_BAD_JSON_DATE_TIME_DEFAULT,
             bool request100Continue = CLIENT_REQUEST_100_CONTINUE_DEFAULT)
                                   where T : AlpacaDeviceBaseClass, new()
         {
             // Validate that the ascomDevice parameter is not null
             if (ascomDevice is null)
-                throw new InvalidValueException($"AlpacaClient.GetDevice - The supplied ascomDevice parameter is null");
+                throw new InvalidValueException($"AlpacaClient.GetDevice - The supplied AscomDevice parameter is null");
 
-            return (T)GetDevice<T>(ascomDevice.ServiceType, ascomDevice.IpAddress, ascomDevice.IpPort, ascomDevice.AlpacaDeviceNumber,
-                establishConnectionTimeout, standardDeviceResponseTimeout, longDeviceResponseTimeout, clientNumber, userName, password, strictCasing, logger, imageArrayTransferType, imageArrayCompression,
-                userAgentProductName, userAgentProductVersion, trustUserGeneratedSslCertificates, throwOnBadDateTimeJSON, request100Continue);
+            return (T)GetDevice<T>(ascomDevice.ServiceType, 
+                ascomDevice.IpAddress, 
+                ascomDevice.IpPort, 
+                ascomDevice.AlpacaDeviceNumber,
+                establishConnectionTimeout, 
+                standardDeviceResponseTimeout, 
+                longDeviceResponseTimeout, 
+                clientNumber, 
+                userName, 
+                password, 
+                strictCasing, 
+                logger, 
+                imageArrayTransferType, 
+                imageArrayCompression,
+                userAgentProductName, 
+                userAgentProductVersion, 
+                trustUserGeneratedSslCertificates, 
+                throwOnBadDateTimeJSON, 
+                request100Continue);
         }
 
         /// <summary>
@@ -110,24 +166,24 @@ namespace ASCOM.Alpaca.Clients
         /// <param name="request100Continue">Request that PUT requests use the 100CONTINUE HTTP protocol. Default: The 100CONTINUE protocol is not requested.</param>
         /// <returns>An Alpaca client of the specified type</returns>
         public static T GetDevice<T>(ServiceType serviceType = CLIENT_SERVICETYPE_DEFAULT,
-            string ipAddressString = CLIENT_IPADDRESS_DEFAULT, 
-            int portNumber = CLIENT_IPPORT_DEFAULT, 
-            int remoteDeviceNumber = CLIENT_REMOTEDEVICENUMBER_DEFAULT, 
+            string ipAddressString = CLIENT_IPADDRESS_DEFAULT,
+            int portNumber = CLIENT_IPPORT_DEFAULT,
+            int remoteDeviceNumber = CLIENT_REMOTEDEVICENUMBER_DEFAULT,
             int establishConnectionTimeout = CLIENT_ESTABLISHCONNECTIONTIMEOUT_DEFAULT,
-            int standardDeviceResponseTimeout = CLIENT_STANDARDCONNECTIONTIMEOUT_DEFAULT, 
-            int longDeviceResponseTimeout = CLIENT_LONGCONNECTIONTIMEOUT_DEFAULT, 
+            int standardDeviceResponseTimeout = CLIENT_STANDARDCONNECTIONTIMEOUT_DEFAULT,
+            int longDeviceResponseTimeout = CLIENT_LONGCONNECTIONTIMEOUT_DEFAULT,
             uint clientNumber = CLIENT_CLIENTNUMBER_DEFAULT,
-            string userName = CLIENT_USERNAME_DEFAULT, 
-            string password = CLIENT_PASSWORD_DEFAULT, 
-            bool strictCasing = CLIENT_STRICTCASING_DEFAULT, 
+            string userName = CLIENT_USERNAME_DEFAULT,
+            string password = CLIENT_PASSWORD_DEFAULT,
+            bool strictCasing = CLIENT_STRICTCASING_DEFAULT,
             ILogger logger = CLIENT_LOGGER_DEFAULT,
-            ImageArrayTransferType imageArrayTransferType = CLIENT_IMAGEARRAYTRANSFERTYPE_DEFAULT, 
+            ImageArrayTransferType imageArrayTransferType = CLIENT_IMAGEARRAYTRANSFERTYPE_DEFAULT,
             ImageArrayCompression imageArrayCompression = CLIENT_IMAGEARRAYCOMPRESSION_DEFAULT,
-            string userAgentProductName = null, 
-            string userAgentProductVersion = null, 
+            string userAgentProductName = null,
+            string userAgentProductVersion = null,
             bool trustUserGeneratedSslCertificates = TRUST_USER_GENERATED_SSL_CERTIFICATES_DEFAULT,
-            bool throwOnBadDateTimeJSON = THROW_ON_BAD_JSON_DATE_TIME_DEFAULT, 
-            bool request100Continue=CLIENT_REQUEST_100_CONTINUE_DEFAULT)
+            bool throwOnBadDateTimeJSON = THROW_ON_BAD_JSON_DATE_TIME_DEFAULT,
+            bool request100Continue = CLIENT_REQUEST_100_CONTINUE_DEFAULT)
                                   where T : AlpacaDeviceBaseClass, new()
         {
             if (typeof(T) == typeof(AlpacaCamera)) // Return a camera type with its additional parameters set

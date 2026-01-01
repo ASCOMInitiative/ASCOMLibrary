@@ -67,9 +67,6 @@ namespace ASCOM.Alpaca.Tests
             return Utilities.DegreesToDMS(value, ":", ":", "", 2);
         }
 
-
         #endregion
-
-
     }
 }

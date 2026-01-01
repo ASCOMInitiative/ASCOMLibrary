@@ -7,6 +7,10 @@ Please note that this component only works on Windows operating systems and requ
 # Version History
 The version history only contains entries when a change is made, if a release version is not listed below, there was no change to this component in that release.
 
+***Release 3.0.0***
+*  ADDED - Support for 9.0 and 10.0 target frameworks. It will no longer be necessary for applications that use these frameworks to 
+rely on the .NET Standard 2.0 component.
+
 ***Release 2.2.1***
 * Added a static Choose() method that displays a Chooser without the need to create a ChooserSA instance.
 

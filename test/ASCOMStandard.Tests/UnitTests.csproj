@@ -25,9 +25,6 @@
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
     </ItemGroup>
-  <ItemGroup Condition="">
-    
-  </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="ASCOM.Exception.Library" Version="7.0.1" />

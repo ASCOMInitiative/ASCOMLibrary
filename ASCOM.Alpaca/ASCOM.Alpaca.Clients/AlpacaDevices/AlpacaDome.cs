@@ -32,6 +32,32 @@ namespace ASCOM.Alpaca.Clients
         }
 
         /// <summary>
+        /// Initializes a new instance of the AlpacaCamera class using the specified configuration settings.
+        /// </summary>
+        /// <param name="configuration">The configuration settings used to initialize the camera. Cannot be null.</param>
+        public AlpacaDome(AlpacaConfiguration configuration)
+        {
+            this.serviceType = configuration.ServiceType;
+            this.ipAddressString = configuration.IpAddressString;
+            this.portNumber = configuration.PortNumber;
+            this.remoteDeviceNumber = configuration.RemoteDeviceNumber;
+            this.establishConnectionTimeout = configuration.EstablishConnectionTimeout;
+            this.standardDeviceResponseTimeout = configuration.StandardDeviceResponseTimeout;
+            this.longDeviceResponseTimeout = configuration.LongDeviceResponseTimeout;
+            this.clientNumber = configuration.ClientNumber;
+            this.userName = configuration.UserName;
+            this.password = configuration.Password;
+            this.strictCasing = configuration.StrictCasing;
+            this.logger = configuration.Logger;
+            this.userAgentProductName = configuration.UserAgentProductName;
+            this.userAgentProductVersion = configuration.UserAgentProductVersion;
+            this.trustUserGeneratedSslCertificates = configuration.TrustUserGeneratedSslCertificates;
+            this.request100Continue = configuration.Request100Continue;
+
+            Initialise();
+        }
+
+        /// <summary>
         /// Create an Alpaca Dome device specifying all parameters
         /// </summary>
         /// <param name="serviceType">HTTP or HTTPS</param>

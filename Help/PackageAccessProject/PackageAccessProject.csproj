@@ -4,6 +4,7 @@
 		<OutputType>Library</OutputType>
 		<TargetFramework>netstandard2.0</TargetFramework>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
+		<SignAssembly>False</SignAssembly>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -15,6 +16,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="ASCOM.Exception.Library" Version="7.0.0-rc.22" />
+		<PackageReference Include="ASCOM.Exception.Library" Version="7.0.1" />
 	</ItemGroup>
 </Project>

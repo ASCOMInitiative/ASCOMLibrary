@@ -28,9 +28,14 @@ that do not use the `EXPECT 100-CONTINUE` protocol. Out of an abundance of cauti
     * send only the request headers to the Alpaca device,
     * wait for the device to return a 100-CONTINUE response,
     * finally send the request body and wait for the device response.
-* ADDED - a new telescope client configuration parameter: `throwOnBadDateTimeJSON`, which defaults to FALSE. This is primarily for use by Conform to support 
+* ADDED - A new telescope client configuration parameter: `throwOnBadDateTimeJSON`, which defaults to FALSE. This is primarily for use by Conform to support 
 validation of DateTime values returned by Alpaca devices that do not conform to the Alpaca specification.
-* ADDED - a new telescope client configuration parameter: `request100Continue`, which defaults to FALSE. This enables or disables `100-CONTINUE HTTP` behaviour.
+* ADDED - A new telescope client configuration parameter: `request100Continue`, which defaults to FALSE. This enables or disables `100-CONTINUE HTTP` behaviour.
+* ADDED - Further client creation initialisers for the AlpacaClient and Alpaca device classes that expect a single AlpacaConfiguration class. 
+The AlpacaConfiguration class encapsulates all Alpaca client configuration parameters and enables them to be set in a way that makes the configuration 
+obvious in the source code.
+*  ADDED - Support for .NET 8.0, 9.0 and 10.0 target frameworks. It will no longer be necessary for applications that use these frameworks to 
+rely on the .NET Standard 2.0 component.
 
 ***Release 2.2.0***
 * BUG-FIX - Fixed bug where the Alpaca client Action method failed when the 'parameters' parameter was over 65,535 characters long.
