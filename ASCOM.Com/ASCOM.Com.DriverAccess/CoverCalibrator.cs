@@ -9,6 +9,9 @@ namespace ASCOM.Com.DriverAccess
     /// <summary>
     /// CoverCalibrator device class
     /// </summary>
+#if NET8_0_OR_GREATER
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+#endif
     public class CoverCalibrator : ASCOMDevice, ICoverCalibratorV2
     {
 

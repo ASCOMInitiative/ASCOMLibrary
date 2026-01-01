@@ -2,27 +2,22 @@
 
 	<PropertyGroup>
 		<OutputType>Library</OutputType>
-		<TargetFrameworks>netstandard2.0;net8.0</TargetFrameworks>
+		<TargetFrameworks>$(LibraryFrameworks)</TargetFrameworks>
 		<ApplicationIcon />
 		<StartupObject />
 		<RootNamespace>ASCOM.Alpaca</RootNamespace>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<Authors>Daniel Van Noord and Peter Simpson</Authors>
-		<Company>ASCOM Initiative</Company>
 		<Description>
 			A .Net Standard library providing ASCOM Alpaca client and discovery components.
 
 			Includes support for the interface updates introduced in ASCOM Platform 7.
 		</Description>
-		<Copyright>Copyright ASCOM Initiative 2022</Copyright>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageIcon>ASCOMBoarderless.png</PackageIcon>
 		<PackageReleaseNotes>Initial release supporting all device types except Video and targeting .NET Standard 2.0.</PackageReleaseNotes>
 		<PackageId>ASCOM.Alpaca.Components</PackageId>
 		<RepositoryUrl>https://www.myget.org/F/ascom-initiative/api/v3/index.json</RepositoryUrl>
-		<SignAssembly>true</SignAssembly>
-		<AssemblyOriginatorKeyFile>..\ASCOM.snk</AssemblyOriginatorKeyFile>
-		<DelaySign>false</DelaySign>
 		<Configurations>Debug;Release</Configurations>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 		<PackageReadmeFile>README.md</PackageReadmeFile>

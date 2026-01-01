@@ -13,6 +13,9 @@ using Xunit.Abstractions;
 namespace ASCOM.Alpaca.Tests.Clients
 {
     [Collection("CommonTests")]
+#if NET8_0_OR_GREATER
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+#endif
     public class CommonTests()    //public class CommonTests(ITestOutputHelper output)
     {
         // private readonly ITestOutputHelper output = output;
@@ -162,6 +165,9 @@ namespace ASCOM.Alpaca.Tests.Clients
 
     [Collection("CameraTests")]
     //public class MiscellaneousTests(ITestOutputHelper output)
+#if NET8_0_OR_GREATER
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+#endif
     public class MiscellaneousTests()
     {
         // private readonly ITestOutputHelper output = output;
@@ -228,6 +234,9 @@ namespace ASCOM.Alpaca.Tests.Clients
     }
 
     [Collection("CameraTests")]
+#if NET8_0_OR_GREATER
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+#endif
     public static class CameraTests
     {
         [Fact]
@@ -303,6 +312,9 @@ namespace ASCOM.Alpaca.Tests.Clients
     }
 
     [Collection("CoverCalibratorTests")]
+#if NET8_0_OR_GREATER
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+#endif
     public static class CoverCalibratorCalibratorTests
     {
         [Fact]
@@ -369,6 +381,9 @@ namespace ASCOM.Alpaca.Tests.Clients
     }
 
     [Collection("CoverCalibratorTests")]
+#if NET8_0_OR_GREATER
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+#endif
     public static class CoverCalibratorCoverTests
     {
         [Fact]
@@ -474,6 +489,9 @@ namespace ASCOM.Alpaca.Tests.Clients
     }
 
     [Collection("DomeTests")]
+#if NET8_0_OR_GREATER
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+#endif
     public static class DomeTests
     {
         [Fact]
@@ -732,6 +750,9 @@ namespace ASCOM.Alpaca.Tests.Clients
     }
 
     [Collection("FilterWheelTests")]
+#if NET8_0_OR_GREATER
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+#endif
     public static class FilterWheelTests
     {
         [Fact]
@@ -775,6 +796,9 @@ namespace ASCOM.Alpaca.Tests.Clients
     }
 
     [Collection("FocuserTests")]
+#if NET8_0_OR_GREATER
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+#endif
     public static class FocuserTests
     {
         [Fact]
@@ -892,6 +916,9 @@ namespace ASCOM.Alpaca.Tests.Clients
     }
 
     [Collection("RotatorTests")]
+#if NET8_0_OR_GREATER
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+#endif
     public static class RotatorTests
     {
         [Fact]
@@ -1051,6 +1078,9 @@ namespace ASCOM.Alpaca.Tests.Clients
     }
 
     [Collection("TelescopeTests")]
+#if NET8_0_OR_GREATER
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+#endif
     public static class TelescopeTests
     {
         [Fact]
@@ -1383,6 +1413,9 @@ namespace ASCOM.Alpaca.Tests.Clients
     }
 
     [Collection("CoverCalibratorTests")]
+#if NET8_0_OR_GREATER
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+#endif
     public static class CancelTests
     {
         [Fact]

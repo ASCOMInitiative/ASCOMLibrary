@@ -1,16 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net8.0</TargetFrameworks>
-    <AssemblyOriginatorKeyFile>..\ASCOM.snk</AssemblyOriginatorKeyFile>
-		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-		<SignAssembly>true</SignAssembly>
-		<PackageId>ASCOM.Tools</PackageId>
+    <TargetFrameworks>$(LibraryFrameworks)</TargetFrameworks>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>		<PackageId>ASCOM.Tools</PackageId>
 		<Authors>Daniel Van Noord and Peter Simpson</Authors>
 		<Description>A set of components to support development of ASCOM clients, drivers and Alpaca devices.
 
 Includes support for the interface updates introduced in ASCOM Platform 7.</Description>
-		<Copyright>ASCOM Initiative (c) 2022</Copyright>
 		<PackageIcon>ASCOMBoarderless.png</PackageIcon>
 		<Configurations>Debug;Release</Configurations>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>

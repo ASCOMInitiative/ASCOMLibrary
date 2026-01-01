@@ -4,6 +4,9 @@ using Xunit;
 
 namespace Profile
 {
+#if NET8_0_OR_GREATER
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+#endif
     public class ProfileWriteTests
     {
         [Fact]

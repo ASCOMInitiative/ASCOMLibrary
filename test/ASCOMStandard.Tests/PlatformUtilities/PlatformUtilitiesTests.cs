@@ -8,6 +8,9 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace UtilitityTests
 {
+#if NET8_0_OR_GREATER
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+#endif
     public class UtilityTests
     {
         private readonly ITestOutputHelper output;

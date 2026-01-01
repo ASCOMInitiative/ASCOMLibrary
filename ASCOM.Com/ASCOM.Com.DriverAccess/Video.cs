@@ -12,6 +12,9 @@ namespace ASCOM.Com.DriverAccess
     /// <summary>
     /// Video device class
     /// </summary>
+#if NET8_0_OR_GREATER
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+#endif
     public class Video : ASCOMDevice, IVideoV2
     {
 

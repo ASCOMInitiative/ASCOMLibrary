@@ -9,6 +9,9 @@ using System.Threading;
 namespace DriverAccess
 {
     [Collection("SwitchTests")]
+#if NET8_0_OR_GREATER
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+#endif
     public class SwitchAsyncTests(ITestOutputHelper output)
     {
         private readonly ITestOutputHelper output = output;

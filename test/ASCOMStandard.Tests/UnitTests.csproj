@@ -1,9 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
+        <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
+      <SignAssembly>false</SignAssembly>
 
-        <IsPackable>false</IsPackable>
+      <IsPackable>false</IsPackable>
 
         <RootNamespace>ASCOM.Alpaca.Tests</RootNamespace>
 
@@ -24,11 +25,13 @@
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
     </ItemGroup>
+  <ItemGroup Condition="">
+    
+  </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="ASCOM.Exception.Library" Version="7.0.1" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
-        <PackageReference Include="System.Runtime.Extensions" Version="4.3.1" />
         <PackageReference Include="xunit" Version="2.9.3" />
         <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5">
           <PrivateAssets>all</PrivateAssets>

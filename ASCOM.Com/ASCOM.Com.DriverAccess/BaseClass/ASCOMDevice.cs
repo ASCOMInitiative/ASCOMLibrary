@@ -14,6 +14,9 @@ namespace ASCOM.Com.DriverAccess
     /// <summary>
     /// Base class for COM DriverAccess devices
     /// </summary>
+#if NET8_0_OR_GREATER
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+#endif
     public abstract class ASCOMDevice : IAscomDeviceV2, IDisposable
     {
         private readonly dynamic device; // COM device

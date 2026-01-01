@@ -2,16 +2,13 @@
 	<PropertyGroup>
 		<AssemblyTitle>ASCOM Stand Alone Chooser</AssemblyTitle>
 		<Authors>Peter Simpson</Authors>
-		<Company>ASCOM Initiative</Company>
 		<Product>ASCOM Stand Alone Chooser</Product>
 		<Description>Stand alone Chooser for use with .NET Framework 4.7.2 and later and .NET 8 and later projects.</Description>
-		<Copyright>(c) ASCOM Initiative 2009-2026</Copyright>
 		<LangVersion>latest</LangVersion>
 		<RootNamespace>ASCOM.Com</RootNamespace>
 		<AssemblyName>ASCOM.Com.ChooserSA</AssemblyName>
-		<TargetFrameworks>net8.0-windows;net472</TargetFrameworks>
+		<TargetFrameworks>net8.0-windows;net472;net10.0-windows</TargetFrameworks>
 		<UseWindowsForms>true</UseWindowsForms>
-		<SignAssembly>True</SignAssembly>
 		<PublishUrl>publish\</PublishUrl>
 		<ProjectGuid>{CC0CD0AD-ACB0-0280-39C4-CF1D76CC0845}</ProjectGuid>
 		<DocumentationFile></DocumentationFile>
@@ -19,7 +16,6 @@
 		<Title>ASCOM Stand Alone Chooser</Title>
 		<DebugType>embedded</DebugType>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
-		<AssemblyOriginatorKeyFile>ASCOM.snk</AssemblyOriginatorKeyFile>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageReadmeFile>README.md</PackageReadmeFile>

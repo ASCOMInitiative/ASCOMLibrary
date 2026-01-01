@@ -1,11 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net8.0</TargetFrameworks>
+    <TargetFrameworks>$(LibraryFrameworks)</TargetFrameworks>
     <RootNamespace>ASCOM.Common</RootNamespace>
-		<SignAssembly>true</SignAssembly>
-		<AssemblyOriginatorKeyFile>..\ASCOM.snk</AssemblyOriginatorKeyFile>
-		<Copyright>ASCOM Initiative (c) 2022</Copyright>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<Product>ASCOM NetStandard types</Product>
 		<Description>A .Net Standard library providing common Interfaces, enums and other types for ASCOM projects.

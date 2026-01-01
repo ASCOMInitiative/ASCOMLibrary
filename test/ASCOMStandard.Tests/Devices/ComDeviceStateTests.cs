@@ -7,6 +7,9 @@ using Xunit;
 namespace ClientToolkitTests
 {
     [Collection("CameraTests")]
+#if NET8_0_OR_GREATER
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+#endif
     public class ComCameraStateTest
     {
         [Fact]
@@ -38,6 +41,9 @@ namespace ClientToolkitTests
     }
 
     [Collection("CoverCalibratorTests")]
+#if NET8_0_OR_GREATER
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+#endif
     public class ComCoverCalibratorStateTest
     {
         [Fact]
@@ -67,6 +73,9 @@ namespace ClientToolkitTests
     }
 
     [Collection("DomeTests")]
+#if NET8_0_OR_GREATER
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+#endif
     public class ComDomeStateTest
     {
         [Fact]
@@ -114,6 +123,9 @@ namespace ClientToolkitTests
     }
 
     [Collection("FilterWheelTests")]
+#if NET8_0_OR_GREATER
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+#endif
     public class ComFilterWheelStateTest
     {
         [Fact]
@@ -139,6 +151,9 @@ namespace ClientToolkitTests
     }
 
     [Collection("FocuserTests")]
+#if NET8_0_OR_GREATER
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+#endif
     public class ComFocuserStateTest
     {
         [Fact]
@@ -170,6 +185,9 @@ namespace ClientToolkitTests
     public class ComObservingConditionsStateTest
     {
         [Fact]
+#if NET8_0_OR_GREATER
+        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+#endif
         public void ObservingConditions()
         {
             using (ObservingConditions device = new("ASCOM.Simulator.ObservingConditions"))
@@ -205,6 +223,9 @@ namespace ClientToolkitTests
     }
 
     [Collection("RotatorTests")]
+#if NET8_0_OR_GREATER
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+#endif
     public class ComRotatorStateTest
     {
         [Fact]
@@ -233,6 +254,9 @@ namespace ClientToolkitTests
     }
 
     [Collection("SafetyMonitorTests")]
+#if NET8_0_OR_GREATER
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+#endif
     public class ComSafetyMonitorStateTest
     {
         [Fact]
@@ -259,6 +283,9 @@ namespace ClientToolkitTests
     }
 
     [Collection("TelescopeTests")]
+#if NET8_0_OR_GREATER
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+#endif
     public class ComTelescopeStateTest
     {
         [Fact]
@@ -295,6 +322,9 @@ namespace ClientToolkitTests
     }
 
     [Collection("VideoTests")]
+#if NET8_0_OR_GREATER
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+#endif
     public class ComVideoStateTest
     {
         [Fact]

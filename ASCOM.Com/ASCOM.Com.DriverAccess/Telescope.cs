@@ -12,6 +12,9 @@ namespace ASCOM.Com.DriverAccess
     /// <summary>
     /// Telescope device class
     /// </summary>
+#if NET8_0_OR_GREATER
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+#endif
     public class Telescope : ASCOMDevice, ITelescopeV4
     {
         #region Convenience members
