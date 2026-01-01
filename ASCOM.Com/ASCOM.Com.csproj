@@ -3,7 +3,7 @@
 	<PropertyGroup>
     <TargetFrameworks>$(LibraryFrameworks)</TargetFrameworks>
     <Authors>ASCOM Initiative, Daniel Van Noord and Peter Simpson</Authors>
-		<Description>A .Net Standard library for accessing ASCOM COM based drivers on Windows platforms and for reading ASCOM Profile information.
+		<Description>A .NET library for accessing ASCOM COM based drivers on Windows platforms and for reading ASCOM Profile information.
 
 Includes support for the interface updates introduced in ASCOM Platform 7.</Description>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>

@@ -8,7 +8,7 @@
 		<RootNamespace>ASCOM.Alpaca</RootNamespace>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<Authors>Daniel Van Noord and Peter Simpson</Authors>
-		<Description>A .Net Standard library providing ASCOM Alpaca device / driver specific components.</Description>
+		<Description>A .NET library providing ASCOM Alpaca device / driver specific components.</Description>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageIcon>ASCOMBoarderless.png</PackageIcon>
 		<PackageReleaseNotes>Initial release supporting all device types except Video and targeting .NET Standard 2.0.</PackageReleaseNotes>

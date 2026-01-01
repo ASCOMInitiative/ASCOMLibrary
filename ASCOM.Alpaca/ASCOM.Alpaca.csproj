@@ -9,7 +9,7 @@
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<Authors>Daniel Van Noord and Peter Simpson</Authors>
 		<Description>
-			A .Net Standard library providing ASCOM Alpaca client and discovery components.
+			A .NET library providing ASCOM Alpaca client and discovery components.
 
 			Includes support for the interface updates introduced in ASCOM Platform 7.
 		</Description>

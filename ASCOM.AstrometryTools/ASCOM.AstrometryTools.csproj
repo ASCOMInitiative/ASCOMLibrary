@@ -7,7 +7,7 @@
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PackageId>ASCOM.AstrometryTools</PackageId>
 		<Authors>Peter Simpson</Authors>
-		<Description>A set of components to support Astrometry.
+		<Description>A set of .NET components to support Astrometry.
 
 Includes support for the interface updates introduced in ASCOM Platform 7.</Description>
 		<PackageIcon>ASCOMBoarderless.png</PackageIcon>

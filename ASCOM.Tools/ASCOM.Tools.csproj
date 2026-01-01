@@ -4,7 +4,7 @@
     <TargetFrameworks>$(LibraryFrameworks)</TargetFrameworks>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>		<PackageId>ASCOM.Tools</PackageId>
 		<Authors>Daniel Van Noord and Peter Simpson</Authors>
-		<Description>A set of components to support development of ASCOM clients, drivers and Alpaca devices.
+		<Description>A set of .NET components to support development of ASCOM clients, drivers and Alpaca devices.
 
 Includes support for the interface updates introduced in ASCOM Platform 7.</Description>
 		<PackageIcon>ASCOMBoarderless.png</PackageIcon>

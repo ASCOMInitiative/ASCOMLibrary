@@ -3,7 +3,7 @@
 		<AssemblyTitle>ASCOM Stand Alone Chooser</AssemblyTitle>
 		<Authors>Peter Simpson</Authors>
 		<Product>ASCOM Stand Alone Chooser</Product>
-		<Description>Stand alone Chooser for use with .NET Framework 4.7.2 and later and .NET 8 and later projects.</Description>
+		<Description>Stand alone Chooser component for .NET Framework 4.7.2 and later and .NET 8 and later projects.</Description>
 		<LangVersion>latest</LangVersion>
 		<RootNamespace>ASCOM.Com</RootNamespace>
 		<AssemblyName>ASCOM.Com.ChooserSA</AssemblyName>
