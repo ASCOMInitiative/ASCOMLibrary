@@ -1,43 +1,45 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-	<PropertyGroup>
+  <PropertyGroup>
     <TargetFrameworks>$(LibraryFrameworks)</TargetFrameworks>
     <RootNamespace>ASCOM.Common</RootNamespace>
-		<PackageLicenseExpression>MIT</PackageLicenseExpression>
-		<Product>ASCOM NetStandard types</Product>
-		<Description>A .NET library providing common Interfaces, enums and other types for ASCOM projects.
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Product>ASCOM NetStandard types</Product>
+    <Description>
+      A .NET library providing common Interfaces, enums and other types for ASCOM projects.
 
-Includes support for the interface updates introduced in ASCOM Platform 7.</Description>
-		<Authors>Daniel Van Noord and Peter Simpson</Authors>
-		<PackageProjectUrl>https://ascom-standards.org/</PackageProjectUrl>
-		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-		<PackageId>ASCOM.Common.Components</PackageId>
-		<PackageIcon>ASCOMBoarderless.png</PackageIcon>
-		<Configurations>Debug;Release</Configurations>
-		<PackageReadmeFile>README.md</PackageReadmeFile>
-	</PropertyGroup>
+      Includes support for the interface updates introduced in ASCOM Platform 7.
+    </Description>
+    <Authors>Daniel Van Noord and Peter Simpson</Authors>
+    <PackageProjectUrl>https://ascom-standards.org/</PackageProjectUrl>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageId>ASCOM.Common.Components</PackageId>
+    <PackageIcon>ASCOMBoarderless.png</PackageIcon>
+    <Configurations>Debug;Release</Configurations>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-		<DebugType>embedded</DebugType>
-		<Optimize>False</Optimize>
-	</PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DebugType>embedded</DebugType>
+    <Optimize>False</Optimize>
+  </PropertyGroup>
 
-	<PropertyGroup>
-		<GenerateDocumentationFile>true</GenerateDocumentationFile>
-		<NoWarn>$(NoWarn);1591</NoWarn>
-	</PropertyGroup>
+  <PropertyGroup>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);1591</NoWarn>
+  </PropertyGroup>
 
-	<ItemGroup>
-		<None Include="..\ASCOMBoarderless.png">
-			<Pack>True</Pack>
-			<PackagePath></PackagePath>
-		</None>
-		<None Include="README.md" Pack="true" PackagePath="\" />
-	</ItemGroup>
+  <ItemGroup>
+    <None Include="..\ASCOMBoarderless.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+    <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
 
-	<ItemGroup>
-		<PackageReference Include="ASCOM.Exception.Library" Version="7.0.1" />
-		<PackageReference Include="System.Text.Json" Version="9.0.9" />
-	</ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="ASCOM.Exception.Library" Version="7.0.1" />
+    <PackageReference Include="System.Text.Json" Version="9.0.9" />
+  </ItemGroup>
 
 </Project>
