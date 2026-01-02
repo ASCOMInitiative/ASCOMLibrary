@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Reflection.Emit;
+using System.Threading;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace ASCOM.Common.DeviceInterfaces
 {
@@ -654,8 +657,44 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks>
-        /// <para>For historical reasons, this property's name does not reflect its true meaning. The name will not be changed (so as to preserve 
-        /// compatibility), but the meaning has since become clear. All conventional mounts have two pointing states for a given equatorial (sky) position. 
+        /// <h4>Pointing States and Pier Side</h4>
+        /// <para>
+        /// For historical reasons, the original Platform enum name PierSide does not reflect its true meaning, please see below. 
+        /// </para>
+        /// <para>
+        /// Since we had the opportunity of a fresh start with the ASCOM Library, we decided to give the Library enum a name that better reflected its actual meaning. 
+        /// The PointingState enum is intended for use with Library components while the PierSide enum is intended for use with Platform components.
+        /// There is a 1 to 1 mapping and equivalence between the values and meanings of the two enums as shown below:
+        /// <table>
+        ///     <thead>
+        ///         <tr>
+        ///             <th>PointingState</th>
+        ///             <th>PierSide</th>
+        ///             <th>Number</th>
+        ///         </tr>
+        ///     </thead>
+        ///     <tbody>
+        ///         <tr>
+        ///             <td>PointingState.Normal</td>
+        ///             <td>PierSide.pierEast</td>
+        ///             <td>0</td>
+        ///         </tr>
+        ///         <tr>
+        ///             <td>PointingState.ThroughThePole</td>
+        ///             <td>PierSide.pierWest</td>
+        ///             <td>1</td>
+        ///         </tr>
+        ///         <tr>
+        ///             <td>PointingState.Unknown</td>
+        ///             <td>PierSide.pierUnknown</td>
+        ///             <td>-1</td>
+        ///         </tr>
+        ///     </tbody>
+        /// </table>
+        /// </para>
+        /// <h4>The meaning of SideOfPier</h4>
+        /// <para>
+        /// All conventional mounts have two pointing states for a given equatorial (sky) position. 
         /// Mechanical limitations often make it impossible for the mount to position the optics at given HA/Dec in one of the two pointing 
         /// states, but there are places where the same point can be reached sensibly in both pointing states (e.g. near the pole and 
         /// close to the meridian). In order to understand these pointing states, consider the following (thanks to Patrick Wallace for this info):</para>
