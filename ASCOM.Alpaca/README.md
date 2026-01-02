@@ -34,8 +34,9 @@ validation of DateTime values returned by Alpaca devices that do not conform to 
 * ADDED - Further client creation initialisers for the AlpacaClient and Alpaca device classes that expect a single AlpacaConfiguration class. 
 The AlpacaConfiguration class encapsulates all Alpaca client configuration parameters and enables them to be set in a way that makes the configuration 
 obvious in the source code.
-*  ADDED - Support for .NET 8.0, 9.0 and 10.0 target frameworks. It will no longer be necessary for applications that use these frameworks to 
+* ADDED - Support for .NET 8.0, 9.0 and 10.0 target frameworks. It will no longer be necessary for applications that use these frameworks to 
 rely on the .NET Standard 2.0 component.
+* BUG-FIX - Fixed bug where `T AlpacaClient.GetDevice<T>` failed when creating a telescope client.
 
 ***Release 2.2.0***
 * BUG-FIX - Fixed bug where the Alpaca client Action method failed when the 'parameters' parameter was over 65,535 characters long.
