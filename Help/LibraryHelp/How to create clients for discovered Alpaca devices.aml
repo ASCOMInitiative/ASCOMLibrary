@@ -22,12 +22,21 @@
 				<para>
 					<code source="HelpExamples\SimpleClientCreation.cs" region="Simple client creation using a discovered AscomDevice" language="csharp" title="Simple client creation from a discovered ASCOM device." />
 				</para>
-				<para>
-					This example illustrates a detailed scenario that requires an <codeEntityReference linkText="AscomDevice">T:ASCOM.Alpaca.Discovery.AscomDevice</codeEntityReference> instance together with other configuration values.
-				</para>
-				<para>
-					<code source="HelpExamples\DetailedClientCreation.cs" region="Detailed client creation using a discovered AscomDevice" language="csharp" title="Detailed client creation from a discovered ASCOM device." />
-				</para>
+        <para>
+          This example illustrates a detailed scenario that requires an <codeEntityReference linkText="AscomDevice">T:ASCOM.Alpaca.Discovery.AscomDevice</codeEntityReference> instance together with other configuration values.
+        </para>
+        <para>
+          <code source="HelpExamples\DetailedClientCreation.cs" region="Detailed client creation using a discovered AscomDevice" language="csharp" title="Detailed client creation from a discovered ASCOM device." />
+        </para>
+
+        <para>
+          This example illustrates creating a client using an <codeEntityReference linkText="AlpacaConfiguration">T:ASCOM.Alpaca.Clients.AlpacaConfiguration</codeEntityReference>
+          object. This is preferred when many parameters need to be set because it makes it quite clear what values are being used.
+        </para>
+        <para>
+          <code source="HelpExamples\CreateClientUsingConfigurationObject.cs" region="Create client with configuration object" language="csharp" title="Create client with a configuration object." />
+        </para>
+
 				<para>
 					Finally, this example illustrates a manual creation scenario where all parameters are supplied individually.
 				</para>

@@ -13,7 +13,8 @@
   <Topic id="1F10A6D1-2BD4-4570-8465-74FEC23F7AE2" visible="True" title="How to make Alpaca devices and COM drivers appear the same" />
   <Topic id="12358d8f-2ed9-4144-95a1-f23df8b29ab5" visible="True" title="How to let the user select an Alpaca device" />
   <Topic id="ef3d33c3-7a7d-4e22-a4bf-7f5b2faf7f10" visible="True" title="How to display a Chooser" />
+  <Topic id="MigrationFromPlatform" visible="True" isSelected="true" />
   <Topic id="579581F9-CA99-4D4D-A170-4E35731D7F61" visible="True" title="Special considerations when using the AstroUtilities package" />
   <Topic id="833dd117-2e34-412d-8d52-4f3fd2dee3b1" visible="True" title="The difference between Alpaca Devices and ASCOM Devices" tocTitle="Terminology: The difference between Alpaca Devices and ASCOM Devices" />
-  <Topic id="PierSideAndPointingState" visible="True" isSelected="true" />
+  <Topic id="PierSideAndPointingState" visible="True" />
 </Topics>

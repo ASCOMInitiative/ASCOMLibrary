@@ -47,7 +47,7 @@
     <NamespaceGrouping>True</NamespaceGrouping>
     <MaximumGroupParts>2</MaximumGroupParts>
     <Preliminary>False</Preliminary>
-    <CopyrightHref>www.ascom-standards.org</CopyrightHref>
+    <CopyrightHref>https://www.ascom-standards.org</CopyrightHref>
     <CopyrightText>Copyright &amp;#169%3b 2021 - 2025 ASCOM Initiative</CopyrightText>
     <SdkLinkTarget>Blank</SdkLinkTarget>
     <NamespaceSummaries>
@@ -168,6 +168,7 @@
     <None Include="How to create clients for discovered Alpaca devices.aml" />
     <None Include="How to select an Alpaca device.aml" />
     <None Include="PierSideAndPointingState.md" />
+    <None Include="MigrationToTheLibrary.md" />
     <None Include="VersionHistory.aml" />
     <None Include="SeamlessAlpacaAndCom.aml" />
     <None Include="PackageMapping.aml" />

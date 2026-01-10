@@ -28,7 +28,7 @@ namespace HelpExamples
                         // Record some information
                         logger.LogMessage("ManualClient", $"Found device: {telescopeClient.Name} - Driver: {telescopeClient.DriverInfo}, Version: {telescopeClient.DriverVersion} Telescope is tracking: {telescopeClient.Tracking}.");
 
-                        // Disconnect from the filter wheel
+                        // Disconnect from the telescope
                         telescopeClient.Connected = false;
                     }
                 }
@@ -38,7 +38,6 @@ namespace HelpExamples
             {
                 Console.WriteLine(ex);
             }
-
         }
     }
 }
