@@ -209,4 +209,9 @@ Includes support for the interface updates introduced in ASCOM Platform 7.</Desc
 		</None>
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="SofaTesterSourceCode\" />
+	  <Folder Include="SofaSourceCode\" />
+	</ItemGroup>
+
 </Project>
