@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
-VisualStudioVersion = 18.1.11312.151 d18.0
+VisualStudioVersion = 18.1.11312.151
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnitTests", "test\ASCOMStandard.Tests\UnitTests.csproj", "{EC97A23E-7CB2-43A8-A351-CC4FDDA9CE2C}"
 EndProject
@@ -27,6 +27,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tester", "Tester\Tester.csproj", "{7AD55910-1482-43FD-952C-10A24D86102C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASCOM.AstrometryTools", "ASCOM.AstrometryTools\ASCOM.AstrometryTools.csproj", "{393D5BD0-1552-48CD-84B0-BF7BAADBCF3C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SOFATestSupport", "SOFATestSupport", "{30B67E57-752F-4D1D-8F25-5D9502102319}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

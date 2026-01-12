@@ -1,53 +1,48 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
-      <SignAssembly>false</SignAssembly>
+  <PropertyGroup>
+    <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
+    <SignAssembly>false</SignAssembly>
 
-      <IsPackable>false</IsPackable>
+    <IsPackable>false</IsPackable>
 
-        <RootNamespace>ASCOM.Alpaca.Tests</RootNamespace>
+    <RootNamespace>ASCOM.Alpaca.Tests</RootNamespace>
 
-        <Configurations>Debug;Release</Configurations>
-    </PropertyGroup>
+    <Configurations>Debug;Release</Configurations>
+  </PropertyGroup>
 
-    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-      <DebugType>portable</DebugType>
-      <DebugSymbols>true</DebugSymbols>
-    </PropertyGroup>
+  <ItemGroup>
+    <None Include="..\..\.editorconfig" Link=".editorconfig" />
+    <None Include="..\..\ASCOM.AstrometryTools\NovasLibraries\win-x64\libnovas.dll" Link="libnovas.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\ASCOM.AstrometryTools\SOFALibraries\win-x64\libsofa.dll" Link="libsofa.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 
-    <ItemGroup>
-      <None Include="..\..\.editorconfig" Link=".editorconfig" />
-      <None Include="..\..\ASCOM.AstrometryTools\NovasLibraries\win-x64\libnovas.dll" Link="libnovas.dll">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
-      <None Include="..\..\ASCOM.AstrometryTools\SOFALibraries\win-x64\libsofa.dll" Link="libsofa.dll">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
-    </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="ASCOM.Exception.Library" Version="7.0.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
 
-    <ItemGroup>
-        <PackageReference Include="ASCOM.Exception.Library" Version="7.0.1" />
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
-        <PackageReference Include="xunit" Version="2.9.3" />
-        <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5">
-          <PrivateAssets>all</PrivateAssets>
-          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
-    </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\ASCOM.Alpaca\ASCOM.Alpaca.csproj" />
+    <ProjectReference Include="..\..\ASCOM.AstrometryTools\ASCOM.AstrometryTools.csproj" />
+    <ProjectReference Include="..\..\ASCOM.Common\ASCOM.Common.csproj" />
+    <ProjectReference Include="..\..\ASCOM.Com\ASCOM.Com.csproj" />
+    <ProjectReference Include="..\..\ASCOM.Tools\ASCOM.Tools.csproj" />
+  </ItemGroup>
 
-    <ItemGroup>
-      <ProjectReference Include="..\..\ASCOM.Alpaca\ASCOM.Alpaca.csproj" />
-      <ProjectReference Include="..\..\ASCOM.AstrometryTools\ASCOM.AstrometryTools.csproj" />
-      <ProjectReference Include="..\..\ASCOM.Common\ASCOM.Common.csproj" />
-      <ProjectReference Include="..\..\ASCOM.Com\ASCOM.Com.csproj" />
-      <ProjectReference Include="..\..\ASCOM.Tools\ASCOM.Tools.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <None Update="cio_ra.bin">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
-    </ItemGroup>
+  <ItemGroup>
+    <None Update="cio_ra.bin">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 
 </Project>

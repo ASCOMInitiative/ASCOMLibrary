@@ -1,4 +1,5 @@
 ﻿using System.Runtime.InteropServices;
+using System.Text;
 
 namespace ASCOM.Tools
 {
@@ -17,6 +18,108 @@ namespace ASCOM.Tools
         private const string SOFA_ISSUE_DATE = "2023-10-11";
         private const int SOFA_REVISION_NUMBER = 0;
         private const string SOFA_REVISION_DATE = "2023-10-11";
+
+        #region Managed structs
+
+        /// <summary>
+        /// Managed representation of the SOFA <c>iauASTROM</c> structure.
+        /// Mirrors the C layout from sofa.h. Arrays are marshalled as fixed-size
+        /// by-value arrays so that the managed layout matches the native one.
+        /// </summary>
+        [StructLayout(LayoutKind.Sequential)]
+        public struct Astrom
+        {
+#if NET8_0_OR_GREATER
+            public Astrom()
+            {
+                eb = new double[3];
+                eh = new double[3];
+                v = new double[3];
+                bpn = new double[9];
+            }
+#endif
+            public double pmt;
+
+            public static Astrom CreateAstrom()
+            {
+                Astrom a = new Astrom();
+                a.eb = new double[3];
+                a.eh = new double[3];
+                a.v = new double[3];
+                a.bpn = new double[9];
+                return a;
+            }
+
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 3)]
+            public double[] eb;
+
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 3)]
+            public double[] eh;
+
+            public double em;
+
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 3)]
+            public double[] v;
+
+            public double bm1;
+
+            // bpn is a 3x3 matrix marshalled row-major as 9 elements
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 9)]
+            public double[] bpn;
+
+            public double along;
+            public double phi;
+            public double xpl;
+            public double ypl;
+            public double sphi;
+            public double cphi;
+            public double diurab;
+            public double eral;
+            public double refa;
+            public double refb;
+        }
+
+        /// <summary>
+        /// Managed representation of the SOFA <c>iauLDBODY</c> structure.
+        /// Mirrors the C layout from sofa.h. The pv field (2x3) is marshalled as
+        /// a 6-element row-major array.
+        /// </summary>
+        [StructLayout(LayoutKind.Sequential)]
+        public struct LdBody
+        {
+            public double bm;
+            public double dl;
+
+#if NET8_0_OR_GREATER
+            public LdBody()
+            {
+                pv = new double[6];
+            }
+#endif
+            public static LdBody CreateLdBody()
+            {
+                LdBody ld = new LdBody();
+                ld.pv = new double[6];
+                return ld;
+            }
+            // pv[2][3] marshalled row-major length 6
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 6)]
+            public double[] pv;
+        }
+
+        #endregion
+
+
+        #region Enums
+
+        enum ReferenceElipsoids
+        {
+            WGS84 = 1,
+            GRS80 = 2,
+            WGS72 = 3
+        }
+
+        #endregion
 
         #region ASCOM Sofa component metadata members
 
@@ -839,5 +942,1534 @@ namespace ASCOM.Tools
         public static extern short Dat(int Year, int Month, int Day, double DayFraction, ref double ReturnedLeapSeconds);
 
         #endregion
+
+        #region Additional DllImport entries (from sofa.h)
+
+        /* -- Astronomy/Calendars -- */
+
+        /// <summary>
+        /// Convert calendar date to 2-part Julian Date.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauCal2jd", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int Cal2jd(int iy, int im, int id, ref double djm0, ref double djm);
+
+        /// <summary>
+        /// Return Besselian epoch for given JD pair.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauEpb", CallingConvention = CallingConvention.Cdecl)]
+        public static extern double Epb(double dj1, double dj2);
+
+        /// <summary>
+        /// Split Besselian epoch into JD pair.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauEpb2jd", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Epb2jd(double epb, ref double djm0, ref double djm);
+
+        /// <summary>
+        /// Return Julian epoch for given JD pair.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauEpj", CallingConvention = CallingConvention.Cdecl)]
+        public static extern double Epj(double dj1, double dj2);
+
+        /// <summary>
+        /// Split Julian epoch into JD pair.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauEpj2jd", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Epj2jd(double epj, ref double djm0, ref double djm);
+
+        /// <summary>
+        /// Convert JD pair to calendar date.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauJd2cal", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int Jd2cal(double dj1, double dj2, ref int iy, ref int im, ref int id, ref double fd);
+
+        /// <summary>
+        /// Julian date conversion with specified decimal places.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauJdcalf", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int Jdcalf(int ndp, double dj1, double dj2, int[] iymdf);
+
+        /* -- Astronomy/Astrometry -- */
+
+        /// <summary>
+        /// Aberration helper: convert position vector in star's natural system to proper
+        /// place with observer velocity etc.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauAb", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Ab([MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] pnat, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] v, double s, double bm1, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] ppr);
+
+        /// <summary>
+        /// Prepare star-independent astrometry parameters using observer EBPV and Sun vector.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauApcg", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Apcg(double date1, double date2, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] ebpv, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] ehp, ref Astrom astrom);
+
+        /// <summary>
+        /// Prepare star-independent astrometry parameters (IAU 2000/2006) using internal Earth ephemeris.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauApcg13", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Apcg13(double date1, double date2, ref Astrom astrom);
+
+        /// <summary>
+        /// Prepare astrometry parameters given observer PV and Sun vector.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauApci", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Apci(double date1, double date2, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] ebpv, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] ehp, double x, double y, double s, ref Astrom astrom);
+
+        /// <summary>
+        /// Prepare astrometry parameters (IAU 2000/2006) and return equation of the origins.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauApci13", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Apci13(double date1, double date2, ref Astrom astrom, ref double eo);
+
+        /// <summary>
+        /// Prepare astrometry parameters for observed place (with refraction constants).
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauApco", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Apco(double date1, double date2, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] ebpv, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] ehp, double x, double y, double s, double theta, double elong, double phi, double hm, double xp, double yp, double sp, double refa, double refb, ref Astrom astrom);
+
+        /// <summary>
+        /// Convenience wrapper to prepare astrometry parameters for observed place (IAU 2000/2006).
+        /// Returns status: 0 = ok, non-zero signals problems (see SOFA docs).
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauApco13", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int Apco13(double utc1, double utc2, double dut1, double elong, double phi, double hm, double xp, double yp, double phpa, double tc, double rh, double wl, ref Astrom astrom, ref double eo);
+
+        /// <summary>
+        /// Prepare astrometry parameters using pv and Earth heliocentric/barycentric vectors.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauApcs", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Apcs(double date1, double date2, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] pv, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] ebpv, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] ehp, ref Astrom astrom);
+
+        /// <summary>
+        /// Prepare astrometry parameters using pv (IAU 2000/2006).
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauApcs13", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Apcs13(double date1, double date2, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] pv, ref Astrom astrom);
+
+        /// <summary>
+        /// Apply refraction/perception corrections to astrometry parameters.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauAper", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Aper(double theta, ref Astrom astrom);
+
+        /// <summary>
+        /// Apply refraction/perception corrections (IAU 2000/2006).
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauAper13", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Aper13(double ut11, double ut12, ref Astrom astrom);
+
+        /// <summary>
+        /// Prepare observer-related astrometry parameters.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauApio", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Apio(double sp, double theta, double elong, double phi, double hm, double xp, double yp, double refa, double refb, ref Astrom astrom);
+
+        /// <summary>
+        /// Convenience Apio (IAU 2000/2006) returning status.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauApio13", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int Apio13(double utc1, double utc2, double dut1, double elong, double phi, double hm, double xp, double yp, double phpa, double tc, double rh, double wl, ref Astrom astrom);
+
+        /// <summary>
+        /// Catalog-to-catalog transformation (example).
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauAtcc13", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Atcc13(double rc, double dc, double pr, double pd, double px, double rv, double date1, double date2, ref double ra, ref double da);
+
+        /// <summary>
+        /// Catalog-to-catalog using prepared astrometry.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauAtccq", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Atccq(double rc, double dc, double pr, double pd, double px, double rv, ref Astrom astrom, ref double ra, ref double da);
+
+        /// <summary>
+        /// ICRS->CIRS using prepared astrometry (inverse of atci).
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauAtciq", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Atciq(double rc, double dc, double pr, double pd, double px, double rv, ref Astrom astrom, ref double ri, ref double di);
+
+        /// <summary>
+        /// Variant with bodies for light deflection corrections.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauAtciqn", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Atciqn(double rc, double dc, double pr, double pd, double px, double rv, ref Astrom astrom, int n, [In] LdBody[] b, ref double ri, ref double di);
+
+        /// <summary>
+        /// Quick form of atci for zeroing proper motion/parallax.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauAtciqz", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Atciqz(double rc, double dc, ref Astrom astrom, ref double ri, ref double di);
+
+        /// <summary>
+        /// CIRS->ICRS using prepared astrometry.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauAticq", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Aticq(double ri, double di, ref Astrom astrom, ref double rc, ref double dc);
+
+        /// <summary>
+        /// CIRS->ICRS with body corrections.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauAticqn", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Aticqn(double ri, double di, ref Astrom astrom, int n, [In] LdBody[] b, ref double rc, ref double dc);
+
+        /// <summary>
+        /// Light deflection by a single body.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauLd", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Ld(double bm, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] p, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] q, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] e, double em, double dlim, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] p1);
+
+        /// <summary>
+        /// Light deflection for list of bodies.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauLdn", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Ldn(int n, [In] LdBody[] b, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] ob, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] sc, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] sn);
+
+        /// <summary>
+        /// Sun-specific light deflection helper.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauLdsun", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Ldsun([MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] p, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] e, double em, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] p1);
+
+        /// <summary>
+        /// Proper motion & parallax propagation helper.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauPmpx", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Pmpx(double rc, double dc, double pr, double pd, double px, double rv, double pmt, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] pob, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] pco);
+
+        /// <summary>
+        /// Safe proper-motion propagation (returns status).
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauPmsafe", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int Pmsafe(double ra1, double dec1, double pmr1, double pmd1, double px1, double rv1, double ep1a, double ep1b, double ep2a, double ep2b, ref double ra2, ref double dec2, ref double pmr2, ref double pmd2, ref double px2, ref double rv2);
+
+        /// <summary>
+        /// Convert site geodetic coordinates to PV.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauPvtob", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Pvtob(double elong, double phi, double height, double xp, double yp, double sp, double theta, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] pv);
+
+        /// <summary>
+        /// Refraction constants from meteorology and wavelength.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauRefco", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Refco(double phpa, double tc, double rh, double wl, ref double refa, ref double refb);
+
+        /* -- Astronomy/Ephemerides -- */
+
+        /// <summary>
+        /// Earth position & velocity (heliocentric and barycentric).
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauEpv00", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int Epv00(double date1, double date2, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] pvh, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] pvb);
+
+        /// <summary>
+        /// Moon position helper.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauMoon98", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Moon98(double date1, double date2, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] pv);
+
+        /// <summary>
+        /// Planetary ephemeris (approximate).
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauPlan94", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int Plan94(double date1, double date2, int np, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] pv);
+
+        /* -- Fundamental arguments (examples) -- */
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauFad03", CallingConvention = CallingConvention.Cdecl)]
+        public static extern double Fad03(double t);
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauFae03", CallingConvention = CallingConvention.Cdecl)]
+        public static extern double Fae03(double t);
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauFaf03", CallingConvention = CallingConvention.Cdecl)]
+        public static extern double Faf03(double t);
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauFaju03", CallingConvention = CallingConvention.Cdecl)]
+        public static extern double Faju03(double t);
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauFal03", CallingConvention = CallingConvention.Cdecl)]
+        public static extern double Fal03(double t);
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauFalp03", CallingConvention = CallingConvention.Cdecl)]
+        public static extern double Falp03(double t);
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauFama03", CallingConvention = CallingConvention.Cdecl)]
+        public static extern double Fama03(double t);
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauFame03", CallingConvention = CallingConvention.Cdecl)]
+        public static extern double Fame03(double t);
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauFane03", CallingConvention = CallingConvention.Cdecl)]
+        public static extern double Fane03(double t);
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauFaom03", CallingConvention = CallingConvention.Cdecl)]
+        public static extern double Faom03(double t);
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauFapa03", CallingConvention = CallingConvention.Cdecl)]
+        public static extern double Fapa03(double t);
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauFasa03", CallingConvention = CallingConvention.Cdecl)]
+        public static extern double Fasa03(double t);
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauFaur03", CallingConvention = CallingConvention.Cdecl)]
+        public static extern double Faur03(double t);
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauFave03", CallingConvention = CallingConvention.Cdecl)]
+        public static extern double Fave03(double t);
+
+        /* -- Selected Rotation/Time/Matrix helpers -- */
+
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauEra00", CallingConvention = CallingConvention.Cdecl)]
+        public static extern double Era00(double dj1, double dj2);
+
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauGmst00", CallingConvention = CallingConvention.Cdecl)]
+        public static extern double Gmst00(double uta, double utb, double tta, double ttb);
+
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauGst00a", CallingConvention = CallingConvention.Cdecl)]
+        public static extern double Gst00a(double uta, double utb, double tta, double ttb);
+
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauNum00a", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Num00a(double date1, double date2, [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rmatn);
+
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauNum06a", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Num06a(double date1, double date2, [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rmatn);
+
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauNut00a", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Nut00a(double date1, double date2, ref double dpsi, ref double deps);
+
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauObl06", CallingConvention = CallingConvention.Cdecl)]
+        public static extern double Obl06(double date1, double date2);
+
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauS00a", CallingConvention = CallingConvention.Cdecl)]
+        public static extern double S00a(double date1, double date2);
+
+        /* -- Vector/matrix helpers (selection) -- */
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauRx", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Rx(double phi, [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] r);
+
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauRy", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Ry(double theta, [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] r);
+
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauRz", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Rz(double psi, [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] r);
+
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauCp", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Cp([MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] p, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] c);
+
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauCr", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Cr([MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] r, [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] c);
+
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauIr", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Ir([MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] r);
+
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauZp", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Zp([MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] p);
+
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauZr", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Zr([MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] r);
+
+        /* -- Timescales (additional) -- */
+
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauD2dtf", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int D2dtf([MarshalAs(UnmanagedType.LPStr)] string scale, int ndp, double d1, double d2, ref int iy, ref int im, ref int id, int[] ihmsf);
+
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauDtdb", CallingConvention = CallingConvention.Cdecl)]
+        public static extern double Dtdb(double date1, double date2, double ut, double elong, double u, double v);
+
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauTaiut1", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int Taiut1(double tai1, double tai2, double dta, ref double ut11, ref double ut12);
+
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauTcbtdb", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int Tcbtdb(double tcb1, double tcb2, ref double tdb1, ref double tdb2);
+
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauTcgtt", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int Tcgtt(double tcg1, double tcg2, ref double tt1, ref double tt2);
+
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauTdbtt", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int Tdbtt(double tdb1, double tdb2, double dtr, ref double tt1, ref double tt2);
+
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauTttcg", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int Tttcg(double tt1, double tt2, ref double tcg1, ref double tcg2);
+
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauTttdb", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int Tttdb(double tt1, double tt2, double dtr, ref double tdb1, ref double tdb2);
+
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauTtut1", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int Ttut1(double tt1, double tt2, double dt, ref double ut11, ref double ut12);
+
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauUt1tai", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int Ut1tai(double ut11, double ut12, double dta, ref double tai1, ref double tai2);
+
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauUt1tt", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int Ut1tt(double ut11, double ut12, double dt, ref double tt1, ref double tt2);
+
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauUt1utc", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int Ut1utc(double ut11, double ut12, double dut1, ref double utc1, ref double utc2);
+
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauUtcut1", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int Utcut1(double utc1, double utc2, double dut1, ref double ut11, ref double ut12);
+
+        #endregion
+
+        #region Further functions
+
+        // ------------------------------------------------------------
+        // iauA2af  —  Angle to degrees, arcminutes, arcseconds, fraction
+        // C: void iauA2af(int ndp, double angle, char *sign, int idmsf[4]);
+        // ------------------------------------------------------------
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauA2af", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void A2af(
+            int ndp,
+            double angle,
+            StringBuilder sign,       // receives '+' or '-'
+            [Out] int[] idmsf         // must be length 4
+        );
+
+        // ------------------------------------------------------------
+        // iauA2tf  —  Angle to hours, minutes, seconds, fraction
+        // C: void iauA2tf(int ndp, double angle, char *sign, int ihmsf[4]);
+        // ------------------------------------------------------------
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauA2tf", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void A2tf(
+            int ndp,
+            double angle,
+            StringBuilder sign,       // receives '+' or '-'
+            [Out] int[] ihmsf         // must be length 4
+        );
+
+        // ------------------------------------------------------------
+        // iauAf2a  —  Degrees, arcminutes, arcseconds to angle
+        // C: int iauAf2a(char s, int ideg, int iamin, double asec, double *rad);
+        // ------------------------------------------------------------
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauAf2a", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int Af2a(
+            char sign,                // '+' or '-'
+            int ideg,
+            int iamin,
+            double asec,
+            out double rad            // output angle in radians
+        );
+
+        // ------------------------------------------------------------
+        // iauTf2a  —  Hours, minutes, seconds to angle
+        // C: int iauTf2a(char s, int ihour, int imin, double sec, double *rad);
+        // ------------------------------------------------------------
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauTf2a", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int Tf2a(
+            char sign,                // '+' or '-'
+            int ihour,
+            int imin,
+            double sec,
+            out double rad            // output angle in radians
+        );
+
+
+
+        /* -- Astronomy/HorizonEquatorial -- */
+
+        /// <summary>
+        /// Azimuth and altitude to hour angle and declination.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauAe2hd", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Ae2hd(double az, double el, double phi, ref double ha, ref double dec);
+
+        /// <summary>
+        /// Hour angle and declination to azimuth and altitude.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauHd2ae", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Hd2ae(double ha, double dec, double phi, ref double az, ref double el);
+
+        /// <summary>
+        /// Hour angle and declination to parallactic angle.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauHd2pa", CallingConvention = CallingConvention.Cdecl)]
+        public static extern double Hd2pa(double ha, double dec, double phi);
+
+        /* -- Astronomy/Astrometry (additional) -- */
+
+        /// <summary>
+        /// Observed place to CIRS using prepared astrometry.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauAtoiq", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Atoiq(string type, double ob1, double ob2, ref Astrom astrom, ref double ri, ref double di);
+
+        /// <summary>
+        /// CIRS to observed place using prepared astrometry.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauAtioq", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Atioq(double ri, double di, ref Astrom astrom, ref double aob, ref double zob, ref double hob, ref double dob, ref double rob);
+
+        /* -- Astronomy/Timescales (additional) -- */
+
+        /// <summary>
+        /// Time scale transformation: Barycentric Dynamical Time (TDB) to Terrestrial Coordinate Time (TCB).
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauTdbtcb", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int Tdbtcb(double tdb1, double tdb2, ref double tcb1, ref double tcb2);
+
+        /* -- Astronomy/RotationAndTime (additional) -- */
+
+        /// <summary>
+        /// Greenwich Mean Sidereal Time (UT1 to TT).
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauGmst06", CallingConvention = CallingConvention.Cdecl)]
+        public static extern double Gmst06(double uta, double utb, double tta, double ttb);
+
+        /// <summary>
+        /// Greenwich Apparent Sidereal Time (IAU 2000/2006).
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauGst06", CallingConvention = CallingConvention.Cdecl)]
+        public static extern double Gst06(double uta, double utb, double tta, double ttb, [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rnpb);
+
+        /// <summary>
+        /// Greenwich Apparent Sidereal Time (IAU 2000/2006).
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauGst06a", CallingConvention = CallingConvention.Cdecl)]
+        public static extern double Gst06a(double uta, double utb, double tta, double ttb);
+
+        /// <summary>
+        /// Greenwich Apparent Sidereal Time (UT1 only, precedes IAU 2000).
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauGst94", CallingConvention = CallingConvention.Cdecl)]
+        public static extern double Gst94(double uta, double utb);
+
+        /// <summary>
+        /// Equation of the Equinoxes, IAU 2000 model.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauEe00a", CallingConvention = CallingConvention.Cdecl)]
+        public static extern double Ee00a(double date1, double date2);
+
+        /// <summary>
+        /// Equation of the Equinoxes, IAU 2000B model.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauEe00b", CallingConvention = CallingConvention.Cdecl)]
+        public static extern double Ee00b(double date1, double date2);
+
+        /// <summary>
+        /// Mean obliquity of the ecliptic, IAU 1980 model.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauObl80", CallingConvention = CallingConvention.Cdecl)]
+        public static extern double Obl80(double date1, double date2);
+
+        /* -- Astronomy/PrecNutPolar (additional) -- */
+
+        /// <summary>
+        /// Fundamental arguments: Delaunay arguments and mean longitude of the ascending node of the Moon.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauBi00", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Bi00(ref double dpsibi, ref double depsbi, ref double dra);
+
+        /// <summary>
+        /// Bias-precession-nutation matrix, IAU 2000/2006, using ICRS X,Y.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauC2i06a", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void C2i06a(double date1, double date2, [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rc2i);
+
+        /// <summary>
+        /// Bias-precession-nutation matrix, precession IAU 2000 or IAU 1976, nutation IAU 2000B.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauNum00b", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Num00b(double date1, double date2, [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rmatn);
+
+        /// <summary>
+        /// Precession-nutation matrix, IAU 1976 precession and IAU 1980 nutation.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauPnm00a", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Pnm00a(double date1, double date2, [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rbpn);
+
+        /// <summary>
+        /// Precession-nutation matrix, IAU 2000/2006 using precession IAU 2006 and nutation IAU 2000A.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauPnm06a", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Pnm06a(double date1, double date2, [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rnpb);
+
+        /// <summary>
+        /// Nutation: IAU 1980 model.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauNut80", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Nut80(double date1, double date2, ref double dpsi, ref double deps);
+
+        /// <summary>
+        /// Nutation-matrix: IAU 1980.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauNutm80", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Nutm80(double date1, double date2, [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rmatn);
+
+        /* -- VectorMatrix/AngleOps (additional) -- */
+
+        /// <summary>
+        /// Normalize angle into the range -pi to +pi.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauAnpm", CallingConvention = CallingConvention.Cdecl)]
+        public static extern double Anpm(double a);
+
+        /// <summary>
+        /// Decompose days into hours, minutes, seconds, fraction.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauD2tf", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void D2tf(int ndp, double days, StringBuilder sign, int[] ihmsf);
+
+        /// <summary>
+        /// Convert hours, minutes, seconds to days.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauTf2d", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int Tf2d(char s, int ihour, int imin, double sec, ref double days);
+
+        /* -- VectorMatrix/CopyExtendExtract (additional) -- */
+
+        /// <summary>
+        /// Copy a position vector.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauCpv", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Cpv([MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] pv, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] c);
+
+        /// <summary>
+        /// Extend a 3D position vector to a 6D position-velocity vector by copying the position to the velocity.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauP2pv", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void P2pv([MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] p, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] pv);
+
+        /// <summary>
+        /// Extract a 3D position vector from a 6D position-velocity vector.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauPv2p", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Pv2p([MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] pv, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] p);
+
+        /* -- VectorMatrix/Initialization (additional) -- */
+
+        /// <summary>
+        /// Initialize a position-velocity vector to zero.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauZpv", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Zpv([MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] pv);
+
+        /* -- VectorMatrix/MatrixOps (additional) -- */
+
+        /// <summary>
+        /// Transpose a 3x3 matrix.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauTr", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Tr([MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] r, [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rt);
+
+        /// <summary>
+        /// Multiply two 3x3 matrices.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauRxr", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Rxr([MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] a, [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] b, [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] atb);
+
+        /* -- VectorMatrix/MatrixVectorProducts (additional) -- */
+
+        /// <summary>
+        /// Multiply a 3x3 matrix by a 3D vector.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauRxp", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Rxp([MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] r, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] p, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] rp);
+
+        /// <summary>
+        /// Multiply a 3x3 matrix by a 6D position-velocity vector.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauRxpv", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Rxpv([MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] r, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] pv, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] rpv);
+
+        /// <summary>
+        /// Multiply the transpose of a 3x3 matrix by a 3D vector.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauTrxp", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Trxp([MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] r, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] p, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] trp);
+
+        /// <summary>
+        /// Multiply the transpose of a 3x3 matrix by a 6D position-velocity vector.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauTrxpv", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Trxpv([MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] r, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] pv, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] trpv);
+
+        /* -- VectorMatrix/RotationVectors (additional) -- */
+
+        /// <summary>
+        /// Convert a rotation matrix to a rotation vector.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauRm2v", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Rm2v([MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] r, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] w);
+
+        /// <summary>
+        /// Convert a rotation vector to a rotation matrix.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauRv2m", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Rv2m([MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] w, [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] r);
+
+        /* -- VectorMatrix/SeparationAndAngle (additional) -- */
+
+        /// <summary>
+        /// Parallactic angle for a star.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauPap", CallingConvention = CallingConvention.Cdecl)]
+        public static extern double Pap([MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] a, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] b);
+
+        /// <summary>
+        /// Parallactic angle for two directions.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauPas", CallingConvention = CallingConvention.Cdecl)]
+        public static extern double Pas(double al, double ap, double bl, double bp);
+
+        /// <summary>
+        /// Separation between two 3D vectors.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauSepp", CallingConvention = CallingConvention.Cdecl)]
+        public static extern double Sepp([MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] a, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] b);
+
+        /// <summary>
+        /// Separation between two 2D spherical positions.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauSeps", CallingConvention = CallingConvention.Cdecl)]
+        public static extern double Seps(double al, double ap, double bl, double bp);
+
+        /* -- VectorMatrix/SphericalCartesian (additional) -- */
+
+        /// <summary>
+        /// Cartesian to spherical coordinates.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauC2s", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void C2s([MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] p, ref double theta, ref double phi);
+
+        /// <summary>
+        /// Cartesian to spherical polar coordinates.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauP2s", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void P2s([MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] p, ref double theta, ref double phi, ref double r);
+
+        /// <summary>
+        /// Position-velocity vector to spherical coordinates.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauPv2s", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Pv2s([MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] pv, ref double theta, ref double phi, ref double r, ref double td, ref double pd, ref double rd);
+
+        /// <summary>
+        /// Spherical to Cartesian coordinates.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauS2c", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void S2c(double theta, double phi, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] c);
+
+        /// <summary>
+        /// Spherical to Cartesian polar coordinates.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauS2p", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void S2p(double theta, double phi, double r, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] p);
+
+        /// <summary>
+        /// Spherical to position-velocity vector.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauS2pv", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void S2pv(double theta, double phi, double r, double td, double pd, double rd, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] pv);
+
+        /* -- VectorMatrix/VectorOps (additional) -- */
+
+        /// <summary>
+        /// Scalar product of two 3D vectors.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauPdp", CallingConvention = CallingConvention.Cdecl)]
+        public static extern double Pdp([MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] a, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] b);
+
+        /// <summary>
+        /// Magnitude of a 3D vector.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauPm", CallingConvention = CallingConvention.Cdecl)]
+        public static extern double Pm([MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] p);
+
+        /// <summary>
+        /// Subtract two 3D vectors.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauPmp", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Pmp([MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] a, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] b, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] amb);
+
+        /// <summary>
+        /// Normalize a 3D vector.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauPn", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Pn([MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] p, ref double r, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] u);
+
+        /// <summary>
+        /// Add two 3D vectors.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauPpp", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Ppp([MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] a, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] b, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] apb);
+
+        /// <summary>
+        /// Add a scaled 3D vector to another 3D vector.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauPpsp", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Ppsp([MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] a, double s, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] b, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] apsb);
+
+        /// <summary>
+        /// Scalar product of two 6D position-velocity vectors.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauPvdpv", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Pvdpv([MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] a, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] b, [MarshalAs(UnmanagedType.LPArray, SizeConst = 2)] double[] adb);
+
+        /// <summary>
+        /// Magnitude and unit vector of a 6D position-velocity vector.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauPvm", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Pvm([MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] pv, ref double r, ref double s);
+
+        /// <summary>
+        /// Subtract two 6D position-velocity vectors.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauPvmpv", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Pvmpv([MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] a, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] b, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] amb);
+
+        /// <summary>
+        /// Add two 6D position-velocity vectors.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauPvppv", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Pvppv([MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] a, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] b, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] apb);
+
+        /// <summary>
+        /// Update a 6D position-velocity vector by adding a constant velocity step.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauPvu", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Pvu(double dt, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] pv, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] upv);
+
+        /// <summary>
+        /// Update a 6D position-velocity vector by interpolating to a different time.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauPvup", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Pvup(double dt, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] pv, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] p);
+
+        /// <summary>
+        /// Cross product of two 6D position-velocity vectors.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauPvxpv", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Pvxpv([MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] a, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] b, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] axb);
+
+        /// <summary>
+        /// Cross product of two 3D vectors.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauPxp", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Pxp([MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] a, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] b, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] axb);
+
+        /// <summary>
+        /// Multiply a 6D position-velocity vector by a scalar and another 6D position-velocity vector.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauS2xpv", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void S2xpv(double s1, double s2, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] pv, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] spv);
+
+        /// <summary>
+        /// Multiply a 3D vector by a scalar.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauSxp", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Sxp(double s, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] p, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] sp);
+
+        /// <summary>
+        /// Multiply a 6D position-velocity vector by a scalar.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauSxpv", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Sxpv(double s, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] pv, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] spv);
+
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauBp00", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Bp00(double date1, double date2, [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rb,
+            [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rp, [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rbp);
+
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauBp06", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Bp06(double date1, double date2, [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rb,
+            [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rp, [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rbp);
+
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauBpn2xy", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Bpn2xy([MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rbpn, ref double x, ref double y);
+
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauC2i00a", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void C2i00a(double date1, double date2, [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rc2);
+
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauC2i00b", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void C2i00b(double date1, double date2, [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rc2i);
+
+        #endregion
+
+        /* -- Astronomy/PrecNutPolar (additional) -- */
+
+        /// <summary>
+        /// Bias-precession-nutation matrix, precession IAU 2000 or IAU 1976, nutation IAU 2000B.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauNut00b", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Nut00b(double date1, double date2, ref double dpsi, ref double deps);
+
+        /// <summary>
+        /// Nutation: IAU 2000B model.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauNut06a", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Nut06a(double date1, double date2, ref double dpsi, ref double deps);
+
+        /// <summary>
+        /// Precession-nutation matrix, IAU 2000 or IAU 1976 precession, IAU 2000B nutation.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauPnm00b", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Pnm00b(double date1, double date2, [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rbpn);
+
+        /// <summary>
+        /// Precession-nutation matrix, IAU 1976 precession and IAU 1980 nutation.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauPnm80", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Pnm80(double date1, double date2, [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rmatpn);
+
+        /* -- Astronomy/RotationAndTime (additional 2) -- */
+
+        /// <summary>
+        /// Greenwich Apparent Sidereal Time (UT1 only, precedes IAU 2000).
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauGst00b", CallingConvention = CallingConvention.Cdecl)]
+        public static extern double Gst00b(double uta, double utb);
+
+        /// <summary>
+        /// Greenwich Mean Sidereal Time (UT1 only).
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauGmst82", CallingConvention = CallingConvention.Cdecl)]
+        public static extern double Gmst82(double dj1, double dj2);
+
+        /// <summary>
+        /// Equation of the Equinoxes, IAU 2000 model.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauEe00", CallingConvention = CallingConvention.Cdecl)]
+        public static extern double Ee00(double date1, double date2, double epsa, double dpsi);
+
+        /// <summary>
+        /// Equation of the Equinoxes, IAU 2000B model.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauEe06a", CallingConvention = CallingConvention.Cdecl)]
+        public static extern double Ee06a(double date1, double date2);
+
+        /// <summary>
+        /// Equation of the Equinoxes Complement, IAU 2000.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauEect00", CallingConvention = CallingConvention.Cdecl)]
+        public static extern double Eect00(double date1, double date2);
+
+        /// <summary>
+        /// Equation of the Equinoxes, IAU 1994 model.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauEqeq94", CallingConvention = CallingConvention.Cdecl)]
+        public static extern double Eqeq94(double date1, double date2);
+
+        /* -- Astronomy/PrecNutPolar (more functions) -- */
+
+        /// <summary>
+        /// Fundamental arguments (mean elements of lunar orbit).
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauPr00", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Pr00(double date1, double date2, ref double dpsipr, ref double depspr);
+
+        /// <summary>
+        /// Precession matrix from Besselian epoch to Besselian epoch.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauPrec76", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Prec76(double date01, double date02, double date11, double date12, ref double zeta, ref double z, ref double theta);
+
+        /// <summary>
+        /// CIO-based bias-precession-nutation matrix (IAU 2006 precession, IAU 2000A nutation).
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauC2ibpn", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void C2ibpn(double date1, double date2, [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rbpn, [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rc2i);
+
+        /// <summary>
+        /// CIO coordinates from X,Y.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauC2ixy", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void C2ixy(double date1, double date2, double x, double y, [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rc2i);
+
+        /// <summary>
+        /// CIO coordinates from CIO locator.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauC2ixys", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void C2ixys(double x, double y, double s, [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rc2i);
+
+        /// <summary>
+        /// ICRS to ITRS matrix (IAU 2000/2006).
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauC2t00a", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void C2t00a(double tta, double ttb, double uta, double utb, double xp, double yp, [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rc2t);
+
+        /// <summary>
+        /// ICRS to ITRS matrix (IAU 2000B).
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauC2t00b", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void C2t00b(double tta, double ttb, double uta, double utb, double xp, double yp, [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rc2t);
+
+        /// <summary>
+        /// ICRS to ITRS matrix (IAU 2006/2000A).
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauC2t06a", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void C2t06a(double tta, double ttb, double uta, double utb, double xp, double yp, [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rc2t);
+
+        /// <summary>
+        /// Form ICRS to ITRS matrix from CIO and polar motion.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauC2tcio", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void C2tcio(
+            [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rc2i,
+            double era,
+            [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rpom,
+            [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rc2t);
+
+        /// <summary>
+        /// Form ICRS to ITRS matrix from bias-precession-nutation and Greenwich Apparent Sidereal Time.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauC2teqx", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void C2teqx(
+            [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rbpn,
+            double gst,
+            [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rpom,
+            [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rc2t);
+
+        /// <summary>
+        /// ICRS to ITRS matrix given nutation.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauC2tpe", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void C2tpe(
+            double tta,
+            double ttb,
+            double uta,
+            double utb,
+            double dpsi,
+            double deps,
+            double xp,
+            double yp,
+            [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rc2t);
+
+        /// <summary>
+        /// ICRS to ITRS matrix given CIO coordinates.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauC2txy", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void C2txy(
+            double tta,
+            double ttb,
+            double uta,
+            double utb,
+            double x,
+            double y,
+            double xp,
+            double yp,
+            [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rc2t);
+
+        /// <summary>
+        /// Equation of the origins given nutation matrix.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauEors", CallingConvention = CallingConvention.Cdecl)]
+        public static extern double Eors(
+            [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rnpb,
+            double s);
+
+        /// <summary>
+        /// Frame Tie and precession, IAU 1976 (Bessel epoch related parameters).
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauFw2m", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Fw2m(
+            double gamb,
+            double phib,
+            double psi,
+            double eps,
+            [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] r);
+
+        /// <summary>
+        /// CIO coordinates from Frame Tie parameters.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauFw2xy", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Fw2xy(double gamb, double phib, double psi, double eps, ref double x, ref double y);
+
+        /// <summary>
+        /// Precession matrix, Besselian epoch.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauLtp", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Ltp(double epj, [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rp);
+
+        /// <summary>
+        /// Precession matrix, Besselian epoch, including E-terms.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauLtpb", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Ltpb(double epj, [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rpb);
+
+        /// <summary>
+        /// Transform ecliptic coordinates to FK4 J1900.0 (flat Earth model).
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauLtpecl", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Ltpecl(double epj, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] vec);
+
+        /// <summary>
+        /// Transform equatorial coordinates to FK4 J1900.0 (flat Earth model).
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauLtpequ", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Ltpequ(double epj, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] veq);
+
+        /// <summary>
+        /// Bias-precession-nutation matrix, IAU 2000 precession with IAU 2000A or 2000B nutation.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauNumat", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Numat(double epsa, double dpsi, double deps, [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rmatn);
+
+        /// <summary>
+        /// Precession-nutation matrix (full precision).
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauPn00", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Pn00(
+            double date1,
+            double date2,
+            double dpsi,
+            double deps,
+            ref double epsa,
+            [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rb,
+            [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rp,
+            [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rbp,
+            [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rn,
+            [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rbpn);
+
+        /// <summary>
+        /// Precession-nutation matrix (IAU 2000A).
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauPn00a", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Pn00a(
+            double date1,
+            double date2,
+            ref double dpsi,
+            ref double deps,
+            ref double epsa,
+            [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rb,
+            [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rp,
+            [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rbp,
+            [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rn,
+            [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rbpn);
+
+        /// <summary>
+        /// Precession-nutation matrix (IAU 2000B).
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauPn00b", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Pn00b(
+            double date1,
+            double date2,
+            ref double dpsi,
+            ref double deps,
+            ref double epsa,
+            [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rb,
+            [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rp,
+            [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rbp,
+            [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rn,
+            [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rbpn);
+
+        /// <summary>
+        /// Precession-nutation matrix (full precision, given nutation).
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauPn06", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Pn06(
+            double date1,
+            double date2,
+            double dpsi,
+            double deps,
+            ref double epsa,
+            [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rb,
+            [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rp,
+            [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rbp,
+            [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rn,
+            [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rbpn);
+
+        /// <summary>
+        /// Precession-nutation matrix (IAU 2006/2000A).
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauPn06a", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Pn06a(
+            double date1,
+            double date2,
+            ref double dpsi,
+            ref double deps,
+            ref double epsa,
+            [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rb,
+            [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rp,
+            [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rbp,
+            [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rn,
+            [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rbpn);
+
+        /// <summary>
+        /// Polar motion matrix.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauPom00", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Pom00(double xp, double yp, double sp, [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rpom);
+
+        /// <summary>
+        /// CIO RA and Earth Orientation parameters (high precision).
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauP06e", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void P06e(
+            double date1,
+            double date2,
+            ref double eps0,
+            ref double psia,
+            ref double oma,
+            ref double bpa,
+            ref double bqa,
+            ref double pia,
+            ref double bpia,
+            ref double epsa,
+            ref double chia,
+            ref double za,
+            ref double zetaa,
+            ref double thetaa,
+            ref double pa,
+            ref double gam,
+            ref double phi,
+            ref double psi);
+
+        /// <summary>
+        /// Precession matrix, IAU 2006 (Besselian epoch related parameters).
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauPb06", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Pb06(double date1, double date2, ref double bzeta, ref double bz, ref double btheta);
+
+        /// <summary>
+        /// Precession matrix elements (Fukushima-Williams precession angles).
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauPfw06", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Pfw06(double date1, double date2, ref double gamb, ref double phib, ref double psib, ref double epsa);
+
+        /// <summary>
+        /// Precession matrix, IAU 2000.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauPmat00", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Pmat00(double date1, double date2, [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rbp);
+
+        /// <summary>
+        /// Precession matrix, IAU 2006.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauPmat06", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Pmat06(double date1, double date2, [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rbp);
+
+        /// <summary>
+        /// Precession matrix, IAU 1976.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauPmat76", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Pmat76(double date1, double date2, [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rmatp);
+
+        /// <summary>
+        /// CIO locator.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauS00", CallingConvention = CallingConvention.Cdecl)]
+        public static extern double S00(double date1, double date2, double x, double y);
+
+        /// <summary>
+        /// CIO locator (IAU 2000B).
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauS00b", CallingConvention = CallingConvention.Cdecl)]
+        public static extern double S00b(double date1, double date2);
+
+        /// <summary>
+        /// CIO locator (IAU 2006).
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauS06", CallingConvention = CallingConvention.Cdecl)]
+        public static extern double S06(double date1, double date2, double x, double y);
+
+        /// <summary>
+        /// CIO locator (IAU 2006, high precision).
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauS06a", CallingConvention = CallingConvention.Cdecl)]
+        public static extern double S06a(double date1, double date2);
+
+        /// <summary>
+        /// The TIO locator (sp).
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauSp00", CallingConvention = CallingConvention.Cdecl)]
+        public static extern double Sp00(double date1, double date2);
+
+        /// <summary>
+        /// CIO RA and related parameters.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauXy06", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Xy06(double date1, double date2, ref double x, ref double y);
+
+        /// <summary>
+        /// CIO coordinates (IAU 2000A).
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauXys00a", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Xys00a(double date1, double date2, ref double x, ref double y, ref double s);
+
+        /// <summary>
+        /// CIO coordinates (IAU 2000B).
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauXys00b", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Xys00b(double date1, double date2, ref double x, ref double y, ref double s);
+
+        /// <summary>
+        /// CIO coordinates (IAU 2006/2000A, high precision).
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauXys06a", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Xys06a(double date1, double date2, ref double x, ref double y, ref double s);
+
+        /* -- Astronomy/StarCatalogs -- */
+
+        /// <summary>
+        /// Transform between FK4 and FK5 star catalog systems.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauFk425", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Fk425(
+            double r1950,
+            double d1950,
+            double dr1950,
+            double dd1950,
+            double p1950,
+            double v1950,
+            ref double r2000,
+            ref double d2000,
+            ref double dr2000,
+            ref double dd2000,
+            ref double p2000,
+            ref double v2000);
+
+        /// <summary>
+        /// Transform from FK4 to FK5 (catalog).
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauFk45z", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Fk45z(double r1950, double d1950, double bepoch, ref double r2000, ref double d2000);
+
+        /// <summary>
+        /// Transform between FK5 and FK4 star catalog systems.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauFk524", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Fk524(
+            double r2000,
+            double d2000,
+            double dr2000,
+            double dd2000,
+            double p2000,
+            double v2000,
+            ref double r1950,
+            ref double d1950,
+            ref double dr1950,
+            ref double dd1950,
+            ref double p1950,
+            ref double v1950);
+
+        /// <summary>
+        /// Transform from FK5 to FK4 (catalog).
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauFk54z", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Fk54z(double r2000, double d2000, double bepoch, ref double r1950, ref double d1950, ref double dr1950, ref double dd1950);
+
+        /// <summary>
+        /// Transform from FK5 (J2000.0) to Hipparcos.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauFk52h", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Fk52h(
+            double r5,
+            double d5,
+            double dr5,
+            double dd5,
+            double px5,
+            double rv5,
+            ref double rh,
+            ref double dh,
+            ref double drh,
+            ref double ddh,
+            ref double pxh,
+            ref double rvh);
+
+        /// <summary>
+        /// Transform from FK5 to Hipparcos (catalog).
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauFk5hz", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Fk5hz(double r5, double d5, double date1, double date2, ref double rh, ref double dh);
+
+        /// <summary>
+        /// FK5 to Hipparcos rotation matrix.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauFk5hip", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Fk5hip([MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] r5h, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] s5h);
+
+        /// <summary>
+        /// Transform from Hipparcos to FK5 (J2000.0).
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauH2fk5", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void H2fk5(
+            double rh,
+            double dh,
+            double drh,
+            double ddh,
+            double pxh,
+            double rvh,
+            ref double r5,
+            ref double d5,
+            ref double dr5,
+            ref double dd5,
+            ref double px5,
+            ref double rv5);
+
+        /// <summary>
+        /// Transform from Hipparcos to FK5 (catalog).
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauHfk5z", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Hfk5z(double rh, double dh, double date1, double date2, ref double r5, ref double d5, ref double dr5, ref double dd5);
+
+        /// <summary>
+        /// Proper motion and parallax propagation.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauStarpm", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int Starpm(
+            double ra1,
+            double dec1,
+            double pmr1,
+            double pmd1,
+            double px1,
+            double rv1,
+            double ep1a,
+            double ep1b,
+            double ep2a,
+            double ep2b,
+            ref double ra2,
+            ref double dec2,
+            ref double pmr2,
+            ref double pmd2,
+            ref double px2,
+            ref double rv2);
+
+        /// <summary>
+        /// Position-velocity vector to spherical polar coordinates.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauPvstar", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int Pvstar(
+            [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] pv,
+            ref double ra,
+            ref double dec,
+            ref double pmr,
+            ref double pmd,
+            ref double px,
+            ref double rv);
+
+        /// <summary>
+        /// Spherical polar coordinates to position-velocity vector.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauStarpv", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int Starpv(
+            double ra,
+            double dec,
+            double pmr,
+            double pmd,
+            double px,
+            double rv,
+            [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] pv);
+
+        /* -- Astronomy/EclipticCoordinates -- */
+
+        /// <summary>
+        /// Transform ecliptic to equatorial coordinates.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauEceq06", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Eceq06(double date1, double date2, double dl, double db, ref double dr, ref double dd);
+
+        /// <summary>
+        /// Ecliptic to equatorial matrix (IAU 2006).
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauEcm06", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Ecm06(double date1, double date2, [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rm);
+
+        /// <summary>
+        /// Transform equatorial to ecliptic coordinates.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauEqec06", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Eqec06(double date1, double date2, double dr, double dd, ref double dl, ref double db);
+
+        /// <summary>
+        /// Transform ecliptic to equatorial (FK4 epoch related).
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauLteceq", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Lteceq(double epj, double dl, double db, ref double dr, ref double dd);
+
+        /// <summary>
+        /// Ecliptic to equatorial matrix (FK4 epoch related).
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauLtecm", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Ltecm(double epj, [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rm);
+
+        /// <summary>
+        /// Transform equatorial to ecliptic (FK4 epoch related).
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauLteqec", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Lteqec(double epj, double dr, double dd, ref double dl, ref double db);
+
+        /* -- Astronomy/GalacticCoordinates -- */
+
+        /// <summary>
+        /// Transform ICRS to Galactic coordinates.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauIcrs2g", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Icrs2g(double dr, double dd, ref double dl, ref double db);
+
+        /// <summary>
+        /// Transform Galactic to ICRS coordinates.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauG2icrs", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void G2icrs(double dl, double db, ref double dr, ref double dd);
+
+        /* -- Astronomy/GeodeticGeocentric -- */
+
+        /// <summary>
+        /// Reference ellipsoid parameters.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauEform", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int Eform(SofaReferenceEllipsoids n, ref double a, ref double f);
+
+        /// <summary>
+        /// Geocentric to geodetic coordinates.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauGc2gd", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int Gc2gd(SofaReferenceEllipsoids n, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] xyz, ref double elong, ref double phi, ref double height);
+
+        /// <summary>
+        /// Geocentric to geodetic coordinates (given ellipsoid).
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauGc2gde", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int Gc2gde(double a, double f, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] xyz, ref double elong, ref double phi, ref double height);
+
+        /// <summary>
+        /// Geodetic to geocentric coordinates.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauGd2gc", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int Gd2gc(SofaReferenceEllipsoids n, double elong, double phi, double height, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] xyz);
+
+        /// <summary>
+        /// Geodetic to geocentric coordinates (given ellipsoid).
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauGd2gce", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int Gd2gce(double a, double f, double elong, double phi, double height, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] xyz);
+
+        /* -- Astronomy/Gnomonic -- */
+
+        /// <summary>
+        /// Gnomonic projection: (ξ,η) to (α,δ).
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauTpors", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int Tpors(double xi, double eta, double a, double b, ref double a01, ref double b01, ref double a02, ref double b02);
+
+        /// <summary>
+        /// Gnomonic projection: (ξ,η) to unit vector.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauTporv", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int Tporv(
+            double xi,
+            double eta,
+            [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] v,
+            [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] v01,
+            [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] v02);
+
+        /// <summary>
+        /// Gnomonic projection: (α,δ) to (ξ,η).
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauTpsts", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Tpsts(double xi, double eta, double a0, double b0, ref double a, ref double b);
+
+        /// <summary>
+        /// Gnomonic projection: unit vector to (ξ,η).
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauTpstv", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void Tpstv(
+            double xi,
+            double eta,
+            [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] v0,
+            [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] v);
+
+        /// <summary>
+        /// Gnomonic projection: (α,δ) to (ξ,η) plane coordinates.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauTpxes", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int Tpxes(double a, double b, double a0, double b0, ref double xi, ref double eta);
+
+        /// <summary>
+        /// Gnomonic projection: unit vector to (ξ,η) plane coordinates.
+        /// </summary>
+        [DllImport(SOFA_LIBRARY, EntryPoint = "iauTpxev", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int Tpxev(
+            [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] v,
+            [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] v0,
+            ref double xi,
+            ref double eta);
     }
 }
