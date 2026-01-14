@@ -1788,16 +1788,16 @@ namespace ASCOM.Tools
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauS00a", CallingConvention = CallingConvention.Cdecl)]
         public static extern double S00a(double date1, double date2);
 
-       /// <summary>
-       /// Applies a rotation around the X-axis to a 3×3 rotation matrix by a specified angle, in radians.
-       /// </summary>
-       /// <remarks>This method is a P/Invoke wrapper for the SOFA library function 'iauRx'. The resulting
-       /// matrix represents a right-handed rotation. The input array must have a length of at least 9 elements. No
-       /// input validation is performed; passing an array of incorrect length or a null reference may result in
-       /// undefined behavior.</remarks>
-       /// <param name="phi">The angle of rotation, in radians, to apply about the X-axis.</param>
-       /// <param name="r">A 9-element array that receives the resulting 3×3 rotation matrix in row-major order. The array must not be
-       /// null.</param>
+        /// <summary>
+        /// Applies a rotation around the X-axis to a 3×3 rotation matrix by a specified angle, in radians.
+        /// </summary>
+        /// <remarks>This method is a P/Invoke wrapper for the SOFA library function 'iauRx'. The resulting
+        /// matrix represents a right-handed rotation. The input array must have a length of at least 9 elements. No
+        /// input validation is performed; passing an array of incorrect length or a null reference may result in
+        /// undefined behavior.</remarks>
+        /// <param name="phi">The angle of rotation, in radians, to apply about the X-axis.</param>
+        /// <param name="r">A 9-element array that receives the resulting 3×3 rotation matrix in row-major order. The array must not be
+        /// null.</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauRx", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Rx(double phi, [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] r);
 
@@ -2079,7 +2079,7 @@ namespace ASCOM.Tools
         public static extern void A2af(
             int ndp,
             double angle,
-            StringBuilder sign,       // receives '+' or '-'
+            [Out] char sign,       // receives '+' or '-'
             [Out] int[] idmsf         // must be length 4
         );
 
@@ -2094,47 +2094,9 @@ namespace ASCOM.Tools
         public static extern void A2tf(
             int ndp,
             double angle,
-            StringBuilder sign,       // receives '+' or '-'
+            [Out] char sign,       // receives '+' or '-'
             [Out] int[] ihmsf         // must be length 4
         );
-
-        /// <summary>
-        /// Degrees, arcminutes, arcseconds to angle in radians.
-        /// </summary>
-        /// <param name="sign">Sign ('+' or '-').</param>
-        /// <param name="ideg">Degrees.</param>
-        /// <param name="iamin">Arcminutes.</param>
-        /// <param name="asec">Arcseconds.</param>
-        /// <param name="rad">Returned angle in radians.</param>
-        /// <returns>Status code: 0 = OK, 1-3 = range error per field.</returns>
-        [DllImport(SOFA_LIBRARY, EntryPoint = "iauAf2a", CallingConvention = CallingConvention.Cdecl)]
-        public static extern int Af2a(
-            char sign,                // '+' or '-'
-            int ideg,
-            int iamin,
-            double asec,
-            out double rad            // output angle in radians
-        );
-
-        /// <summary>
-        /// Hours, minutes, seconds to angle in radians.
-        /// </summary>
-        /// <param name="sign">Sign ('+' or '-').</param>
-        /// <param name="ihour">Hours.</param>
-        /// <param name="imin">Minutes.</param>
-        /// <param name="sec">Seconds.</param>
-        /// <param name="rad">Returned angle in radians.</param>
-        /// <returns>Status code: 0 = OK, 1-3 = range error per field.</returns>
-        [DllImport(SOFA_LIBRARY, EntryPoint = "iauTf2a", CallingConvention = CallingConvention.Cdecl)]
-        public static extern int Tf2a(
-            char sign,                // '+' or '-'
-            int ihour,
-            int imin,
-            double sec,
-            out double rad            // output angle in radians
-        );
-
-
 
         /* -- Astronomy/HorizonEquatorial -- */
 
@@ -2166,6 +2128,7 @@ namespace ASCOM.Tools
         /// <param name="ha">Hour angle (radians).</param>
         /// <param name="dec">Declination (radians).</param>
         /// <param name="phi">Observer geodetic latitude (radians).</param>
+        /// <returns>Parallactic angle (radians).</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauHd2pa", CallingConvention = CallingConvention.Cdecl)]
         public static extern double Hd2pa(double ha, double dec, double phi);
 
@@ -2366,7 +2329,7 @@ namespace ASCOM.Tools
         /// <param name="sign">Returned sign ('+' or '-').</param>
         /// <param name="ihmsf">Returned fields (length 4): hours, minutes, seconds, fraction.</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauD2tf", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void D2tf(int ndp, double days, StringBuilder sign, int[] ihmsf);
+        public static extern void D2tf(int ndp, double days, [Out] char sign, int[] ihmsf);
 
         /// <summary>
         /// Convert hours, minutes, seconds to days.
@@ -2497,6 +2460,7 @@ namespace ASCOM.Tools
         /// </summary>
         /// <param name="a">Direction 1 (length 3).</param>
         /// <param name="b">Direction 2 (length 3).</param>
+        /// <returns>Parallactic angle (radians).</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauPap", CallingConvention = CallingConvention.Cdecl)]
         public static extern double Pap([MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] a, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] b);
 
@@ -2507,6 +2471,7 @@ namespace ASCOM.Tools
         /// <param name="ap">Dec/latitude of first direction (radians).</param>
         /// <param name="bl">RA/longitude of second direction (radians).</param>
         /// <param name="bp">Dec/latitude of second direction (radians).</param>
+        /// <returns>Parallactic angle (radians).</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauPas", CallingConvention = CallingConvention.Cdecl)]
         public static extern double Pas(double al, double ap, double bl, double bp);
 
@@ -2515,6 +2480,7 @@ namespace ASCOM.Tools
         /// </summary>
         /// <param name="a">Direction 1 (length 3).</param>
         /// <param name="b">Direction 2 (length 3).</param>
+        /// <returns>Separation angle (radians).</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauSepp", CallingConvention = CallingConvention.Cdecl)]
         public static extern double Sepp([MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] a, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] b);
 
@@ -2525,6 +2491,7 @@ namespace ASCOM.Tools
         /// <param name="ap">Latitude of first position (radians).</param>
         /// <param name="bl">Longitude of second position (radians).</param>
         /// <param name="bp">Latitude of second position (radians).</param>
+        /// <returns>Separation angle (radians).</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauSeps", CallingConvention = CallingConvention.Cdecl)]
         public static extern double Seps(double al, double ap, double bl, double bp);
 
@@ -3694,6 +3661,9 @@ namespace ASCOM.Tools
         /// <param name="pmd2">Returned proper motion in Dec (radians/year).</param>
         /// <param name="px2">Returned parallax at epoch 2 (arcsec).</param>
         /// <param name="rv2">Returned radial velocity at epoch 2 (km/s).</param>
+        /// <returns>
+        /// Status code: 0 = OK, -1 = system error, 1 = distance overridden, 2 = excessive velocity, 4 = solution didn't converge. Else = logical OR of the previous warnings.
+        /// </returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauStarpm", CallingConvention = CallingConvention.Cdecl)]
         public static extern int Starpm(
             double ra1,

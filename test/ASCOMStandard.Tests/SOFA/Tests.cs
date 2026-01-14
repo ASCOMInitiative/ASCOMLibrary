@@ -334,10 +334,10 @@ namespace SOFATests
         [Fact]
         public void A2af()
         {
-            StringBuilder sign = new(10);
+            char sign ='X';
             int[] idmsf = new int[4];
             Sofa.A2af(4, 2.345, sign, idmsf);
-            Assert.Equal('+', sign[0]);
+            Assert.Equal('+', sign);
             Assert.Equal(134, idmsf[0]);
             Assert.Equal(21, idmsf[1]);
             Assert.Equal(30, idmsf[2]);
@@ -347,10 +347,10 @@ namespace SOFATests
         [Fact]
         public void A2tf()
         {
-            StringBuilder sign = new(10);
+            char sign = 'X';
             int[] ihmsf = new int[4];
             Sofa.A2tf(4, -3.01234, sign, ihmsf);
-            Assert.Equal('-', sign[0]);
+            Assert.Equal('-', sign);
             Assert.Equal(11, ihmsf[0]);
             Assert.Equal(30, ihmsf[1]);
             Assert.Equal(22, ihmsf[2]);
@@ -1740,12 +1740,12 @@ namespace SOFATests
             double days = -0.987654321;
 
             // Act
-            StringBuilder sign = new StringBuilder(2);
+            char sign = 'X';
             int[] ihmsf = new int[4];
             Sofa.D2tf(ndp, days, sign, ihmsf);
 
             // Assert
-            Assert.Equal("-", sign[0].ToString());
+            Assert.Equal('-', sign);
             Assert.Equal(23, ihmsf[0]);
             Assert.Equal(42, ihmsf[1]);
             Assert.Equal(13, ihmsf[2]);
