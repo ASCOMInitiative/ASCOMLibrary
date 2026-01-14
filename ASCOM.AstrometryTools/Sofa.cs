@@ -1061,6 +1061,7 @@ namespace ASCOM.Tools
         /// <param name="id">Day in Gregorian calendar.</param>
         /// <param name="djm0">Returned Julian Date zero-point (MJD convention).</param>
         /// <param name="djm">Returned Modified Julian Date for the supplied calendar date.</param>
+        /// <returns>Status code: 0 = OK, &lt;0 = error.</returns>
         /// <remarks>
         /// This is a P/Invoke wrapper for the SOFA <c>iauCal2jd</c> routine.
         /// </remarks>
@@ -1075,6 +1076,7 @@ namespace ASCOM.Tools
         /// <remarks>
         /// This is a P/Invoke wrapper for the SOFA <c>iauEpb</c> routine.
         /// </remarks>
+        /// <returns>Besselian epoch.</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauEpb", CallingConvention = CallingConvention.Cdecl)]
         public static extern double Epb(double dj1, double dj2);
 
@@ -1098,6 +1100,7 @@ namespace ASCOM.Tools
         /// <remarks>
         /// This is a P/Invoke wrapper for the SOFA <c>iauEpj</c> routine.
         /// </remarks>
+        /// <returns>Julian epoch.</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauEpj", CallingConvention = CallingConvention.Cdecl)]
         public static extern double Epj(double dj1, double dj2);
 
@@ -1125,6 +1128,7 @@ namespace ASCOM.Tools
         /// <remarks>
         /// This is a P/Invoke wrapper for the SOFA <c>iauJd2cal</c> routine.
         /// </remarks>
+        /// <returns>Status code: 0 = OK, &lt;0 = error.</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauJd2cal", CallingConvention = CallingConvention.Cdecl)]
         public static extern int Jd2cal(double dj1, double dj2, ref int iy, ref int im, ref int id, ref double fd);
 
@@ -1138,6 +1142,7 @@ namespace ASCOM.Tools
         /// <remarks>
         /// This is a P/Invoke wrapper for the SOFA <c>iauJdcalf</c> routine.
         /// </remarks>
+        /// <returns>Status code: 0 = OK, &lt;0 = error.</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauJdcalf", CallingConvention = CallingConvention.Cdecl)]
         public static extern int Jdcalf(int ndp, double dj1, double dj2, int[] iymdf);
 
@@ -1240,6 +1245,7 @@ namespace ASCOM.Tools
         /// <param name="wl">Wavelength (micrometers).</param>
         /// <param name="astrom">Returned astrometry parameters.</param>
         /// <param name="eo">Returned equation of the origins.</param>
+        /// <returns>Status code: 0 = OK, non-zero signals a problem (see SOFA documentation).</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauApco13", CallingConvention = CallingConvention.Cdecl)]
         public static extern int Apco13(double utc1, double utc2, double dut1, double elong, double phi, double hm, double xp, double yp, double phpa, double tc, double rh, double wl, ref Astrom astrom, ref double eo);
 
@@ -1314,6 +1320,7 @@ namespace ASCOM.Tools
         /// <param name="rh">Relative humidity (0-1).</param>
         /// <param name="wl">Wavelength (micrometers).</param>
         /// <param name="astrom">Returned astrometry parameters.</param>
+        /// <returns>Status code: 0 = OK, non-zero signals a problem (see SOFA documentation).</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauApio13", CallingConvention = CallingConvention.Cdecl)]
         public static extern int Apio13(double utc1, double utc2, double dut1, double elong, double phi, double hm, double xp, double yp, double phpa, double tc, double rh, double wl, ref Astrom astrom);
 
@@ -1483,6 +1490,7 @@ namespace ASCOM.Tools
         /// <param name="pmd2">Returned proper motion in Dec (radians/year).</param>
         /// <param name="px2">Returned parallax (arcsec).</param>
         /// <param name="rv2">Returned radial velocity (km/s).</param>
+        /// <returns>Status code: 0 = OK, &lt;0 indicates an error condition.</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauPmsafe", CallingConvention = CallingConvention.Cdecl)]
         public static extern int Pmsafe(double ra1, double dec1, double pmr1, double pmd1, double px1, double rv1, double ep1a, double ep1b, double ep2a, double ep2b, ref double ra2, ref double dec2, ref double pmr2, ref double pmd2, ref double px2, ref double rv2);
 
@@ -1521,6 +1529,7 @@ namespace ASCOM.Tools
         /// <param name="date2">TDB as a 2-part Julian Date (part 2).</param>
         /// <param name="pvh">Returned heliocentric Earth position/velocity (length 6).</param>
         /// <param name="pvb">Returned barycentric Earth position/velocity (length 6).</param>
+        /// <returns>Status code: 0 = OK, &lt;0 indicates an error condition.</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauEpv00", CallingConvention = CallingConvention.Cdecl)]
         public static extern int Epv00(double date1, double date2, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] pvh, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] pvb);
 
@@ -1540,6 +1549,7 @@ namespace ASCOM.Tools
         /// <param name="date2">TDB as a 2-part Julian Date (part 2).</param>
         /// <param name="np">Planet number.</param>
         /// <param name="pv">Returned planet position/velocity (length 6).</param>
+        /// <returns>Status code: 0 = OK, &lt;0 indicates an error condition.</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauPlan94", CallingConvention = CallingConvention.Cdecl)]
         public static extern int Plan94(double date1, double date2, int np, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] pv);
 
@@ -1547,7 +1557,7 @@ namespace ASCOM.Tools
         /// Mean elongation of the Moon from the Sun (IERS Conventions 2003).
         /// </summary>
         /// <param name="t">TDB, Julian centuries since J2000.0. Note: It is usually more convenient to use TT, which makes no significant difference.</param>
-        /// <returns></returns>
+        /// <returns>Angle in radians.</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauFad03", CallingConvention = CallingConvention.Cdecl)]
         public static extern double Fad03(double t);
 
@@ -1555,7 +1565,7 @@ namespace ASCOM.Tools
         /// Mean longitude of Earth (IERS Conventions 2003).
         /// </summary>
         /// <param name="t">TDB, Julian centuries since J2000.0. Note: It is usually more convenient to use TT, which makes no significant difference.</param>
-        /// <returns></returns>
+        /// <returns>Angle in radians.</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauFae03", CallingConvention = CallingConvention.Cdecl)]
         public static extern double Fae03(double t);
 
@@ -1563,7 +1573,7 @@ namespace ASCOM.Tools
         /// Mean longitude of the Moon minus that of the ascending node (IERS Conventions 2003).
         /// </summary>
         /// <param name="t">TDB, Julian centuries since J2000.0. Note: It is usually more convenient to use TT, which makes no significant difference.</param>
-        /// <returns></returns>
+        /// <returns>Angle in radians.</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauFaf03", CallingConvention = CallingConvention.Cdecl)]
         public static extern double Faf03(double t);
 
@@ -1571,7 +1581,7 @@ namespace ASCOM.Tools
         /// Mean longitude of Jupiter (IERS Conventions 2003).
         /// </summary>
         /// <param name="t">TDB, Julian centuries since J2000.0. Note: It is usually more convenient to use TT, which makes no significant difference.</param>
-        /// <returns></returns>
+        /// <returns>Angle in radians.</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauFaju03", CallingConvention = CallingConvention.Cdecl)]
         public static extern double Faju03(double t);
 
@@ -1579,7 +1589,7 @@ namespace ASCOM.Tools
         /// Mean anomaly of the Moon (IERS Conventions 2003).
         /// </summary>
         /// <param name="t">TDB, Julian centuries since J2000.0. Note: It is usually more convenient to use TT, which makes no significant difference.</param>
-        /// <returns></returns>
+        /// <returns>Angle in radians.</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauFal03", CallingConvention = CallingConvention.Cdecl)]
         public static extern double Fal03(double t);
 
@@ -1587,7 +1597,7 @@ namespace ASCOM.Tools
         /// Mean anomaly of the Sun (IERS Conventions 2003).
         /// </summary>
         /// <param name="t">TDB, Julian centuries since J2000.0. Note: It is usually more convenient to use TT, which makes no significant difference.</param>
-        /// <returns></returns>
+        /// <returns>Angle in radians.</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauFalp03", CallingConvention = CallingConvention.Cdecl)]
         public static extern double Falp03(double t);
 
@@ -1595,7 +1605,7 @@ namespace ASCOM.Tools
         /// Mean longitude of Mars (IERS Conventions 2003).
         /// </summary>
         /// <param name="t">TDB, Julian centuries since J2000.0. Note: It is usually more convenient to use TT, which makes no significant difference.</param>
-        /// <returns></returns>
+        /// <returns>Angle in radians.</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauFama03", CallingConvention = CallingConvention.Cdecl)]
         public static extern double Fama03(double t);
 
@@ -1603,7 +1613,7 @@ namespace ASCOM.Tools
         /// Mean longitude of Mercury (IERS Conventions 2003).
         /// </summary>
         /// <param name="t">TDB, Julian centuries since J2000.0. Note: It is usually more convenient to use TT, which makes no significant difference.</param>
-        /// <returns></returns>
+        /// <returns>Angle in radians.</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauFame03", CallingConvention = CallingConvention.Cdecl)]
         public static extern double Fame03(double t);
 
@@ -1611,7 +1621,7 @@ namespace ASCOM.Tools
         /// Mean longitude of Neptune (IERS Conventions 2003).
         /// </summary>
         /// <param name="t">TDB, Julian centuries since J2000.0. Note: It is usually more convenient to use TT, which makes no significant difference.</param>
-        /// <returns></returns>
+        /// <returns>Angle in radians.</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauFane03", CallingConvention = CallingConvention.Cdecl)]
         public static extern double Fane03(double t);
 
@@ -1619,7 +1629,7 @@ namespace ASCOM.Tools
         /// Mean longitude of the Moon's ascending node (IERS Conventions 2003).                   
         /// </summary>
         /// <param name="t">TDB, Julian centuries since J2000.0. Note: It is usually more convenient to use TT, which makes no significant difference.</param>
-        /// <returns></returns>
+        /// <returns>Angle in radians.</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauFaom03", CallingConvention = CallingConvention.Cdecl)]
         public static extern double Faom03(double t);
 
@@ -1627,7 +1637,7 @@ namespace ASCOM.Tools
         /// General accumulated precession in longitude.
         /// </summary>
         /// <param name="t">TDB, Julian centuries since J2000.0. Note: It is usually more convenient to use TT, which makes no significant difference.</param>
-        /// <returns></returns>
+        /// <returns>Angle in radians.</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauFapa03", CallingConvention = CallingConvention.Cdecl)]
         public static extern double Fapa03(double t);
 
@@ -1635,7 +1645,7 @@ namespace ASCOM.Tools
         /// Mean longitude of Saturn (IERS Conventions 2003).
         /// </summary>
         /// <param name="t">TDB, Julian centuries since J2000.0. Note: It is usually more convenient to use TT, which makes no significant difference.</param>
-        /// <returns></returns>
+        /// <returns>Angle in radians.</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauFasa03", CallingConvention = CallingConvention.Cdecl)]
         public static extern double Fasa03(double t);
 
@@ -1643,7 +1653,7 @@ namespace ASCOM.Tools
         /// Mean longitude of Uranus (IERS Conventions 2003).
         /// </summary>
         /// <param name="t">TDB, Julian centuries since J2000.0. Note: It is usually more convenient to use TT, which makes no significant difference.</param>
-        /// <returns></returns>
+        /// <returns>Angle in radians.</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauFaur03", CallingConvention = CallingConvention.Cdecl)]
         public static extern double Faur03(double t);
 
@@ -1651,7 +1661,7 @@ namespace ASCOM.Tools
         /// Mean longitude of Venus (IERS Conventions 2003).
         /// </summary>
         /// <param name="t">TDB, Julian centuries since J2000.0. Note: It is usually more convenient to use TT, which makes no significant difference.</param>
-        /// <returns></returns>
+        /// <returns>Angle in radians.</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauFave03", CallingConvention = CallingConvention.Cdecl)]
         public static extern double Fave03(double t);
 
@@ -1662,7 +1672,7 @@ namespace ASCOM.Tools
         /// </summary>
         /// <param name="dj1">Julian date component 1</param>
         /// <param name="dj2">Julian date component 2</param>
-        /// <returns></returns>
+        /// <returns>Earth rotation angle in radians.</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauEra00", CallingConvention = CallingConvention.Cdecl)]
         public static extern double Era00(double dj1, double dj2);
 
@@ -1673,7 +1683,7 @@ namespace ASCOM.Tools
         /// <param name="utb">UT1 Julian date component 2</param>
         /// <param name="tta">Terrestrial time Julian date component 1</param>
         /// <param name="ttb">Terrestrial time UT1 Julian date component 2</param>
-        /// <returns></returns>
+        /// <returns>GMST in radians.</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauGmst00", CallingConvention = CallingConvention.Cdecl)]
         public static extern double Gmst00(double uta, double utb, double tta, double ttb);
 
@@ -2196,6 +2206,7 @@ namespace ASCOM.Tools
         /// <param name="tdb2">TDB as a 2-part Julian Date (part 2).</param>
         /// <param name="tcb1">Returned TCB as a 2-part Julian Date (part 1).</param>
         /// <param name="tcb2">Returned TCB as a 2-part Julian Date (part 2).</param>
+        /// <returns>Status code: 0 = OK.</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauTdbtcb", CallingConvention = CallingConvention.Cdecl)]
         public static extern int Tdbtcb(double tdb1, double tdb2, ref double tcb1, ref double tcb2);
 
@@ -2208,6 +2219,7 @@ namespace ASCOM.Tools
         /// <param name="utb">UT1 Julian date component 2.</param>
         /// <param name="tta">TT Julian date component 1.</param>
         /// <param name="ttb">TT Julian date component 2.</param>
+        /// <returns>GMST in radians.</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauGmst06", CallingConvention = CallingConvention.Cdecl)]
         public static extern double Gmst06(double uta, double utb, double tta, double ttb);
 
@@ -2219,6 +2231,7 @@ namespace ASCOM.Tools
         /// <param name="tta">TT Julian date component 1.</param>
         /// <param name="ttb">TT Julian date component 2.</param>
         /// <param name="rnpb">Celestial-to-true matrix (row-major, length 9).</param>
+        /// <returns>GAST in radians.</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauGst06", CallingConvention = CallingConvention.Cdecl)]
         public static extern double Gst06(double uta, double utb, double tta, double ttb, [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rnpb);
 
@@ -2229,6 +2242,7 @@ namespace ASCOM.Tools
         /// <param name="utb">UT1 Julian date component 2.</param>
         /// <param name="tta">TT Julian date component 1.</param>
         /// <param name="ttb">TT Julian date component 2.</param>
+        /// <returns>GAST in radians.</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauGst06a", CallingConvention = CallingConvention.Cdecl)]
         public static extern double Gst06a(double uta, double utb, double tta, double ttb);
 
@@ -2237,6 +2251,7 @@ namespace ASCOM.Tools
         /// </summary>
         /// <param name="uta">UT1 Julian date component 1.</param>
         /// <param name="utb">UT1 Julian date component 2.</param>
+        /// <returns>GAST in radians.</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauGst94", CallingConvention = CallingConvention.Cdecl)]
         public static extern double Gst94(double uta, double utb);
 
@@ -2245,6 +2260,7 @@ namespace ASCOM.Tools
         /// </summary>
         /// <param name="date1">TT as a 2-part Julian Date (part 1).</param>
         /// <param name="date2">TT as a 2-part Julian Date (part 2).</param>
+        /// <returns>Equation of the equinoxes in radians.</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauEe00a", CallingConvention = CallingConvention.Cdecl)]
         public static extern double Ee00a(double date1, double date2);
 
@@ -2253,6 +2269,7 @@ namespace ASCOM.Tools
         /// </summary>
         /// <param name="date1">TT as a 2-part Julian Date (part 1).</param>
         /// <param name="date2">TT as a 2-part Julian Date (part 2).</param>
+        /// <returns>Equation of the equinoxes in radians.</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauEe00b", CallingConvention = CallingConvention.Cdecl)]
         public static extern double Ee00b(double date1, double date2);
 
@@ -2261,6 +2278,7 @@ namespace ASCOM.Tools
         /// </summary>
         /// <param name="date1">TT as a 2-part Julian Date (part 1).</param>
         /// <param name="date2">TT as a 2-part Julian Date (part 2).</param>
+        /// <returns>Mean obliquity in radians.</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauObl80", CallingConvention = CallingConvention.Cdecl)]
         public static extern double Obl80(double date1, double date2);
 
@@ -2336,6 +2354,7 @@ namespace ASCOM.Tools
         /// Normalize angle into the range -pi to +pi.
         /// </summary>
         /// <param name="a">Angle (radians).</param>
+        /// <returns>Normalized angle in radians.</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauAnpm", CallingConvention = CallingConvention.Cdecl)]
         public static extern double Anpm(double a);
 
@@ -2357,6 +2376,7 @@ namespace ASCOM.Tools
         /// <param name="imin">Minutes.</param>
         /// <param name="sec">Seconds.</param>
         /// <param name="days">Returned interval in days.</param>
+        /// <returns>Status code: 0 = OK, &lt;0 = error.</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauTf2d", CallingConvention = CallingConvention.Cdecl)]
         public static extern int Tf2d(char s, int ihour, int imin, double sec, ref double days);
 
@@ -2581,6 +2601,7 @@ namespace ASCOM.Tools
         /// </summary>
         /// <param name="a">First vector (length 3).</param>
         /// <param name="b">Second vector (length 3).</param>
+        /// <returns>Dot product of <paramref name="a"/> and <paramref name="b"/>.</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauPdp", CallingConvention = CallingConvention.Cdecl)]
         public static extern double Pdp([MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] a, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] b);
 
@@ -2588,6 +2609,7 @@ namespace ASCOM.Tools
         /// Magnitude of a 3D vector.
         /// </summary>
         /// <param name="p">Vector (length 3).</param>
+        /// <returns>Magnitude of the vector.</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauPm", CallingConvention = CallingConvention.Cdecl)]
         public static extern double Pm([MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] p);
 
@@ -2846,6 +2868,7 @@ namespace ASCOM.Tools
         /// </summary>
         /// <param name="uta">UT1 Julian date component 1.</param>
         /// <param name="utb">UT1 Julian date component 2.</param>
+        /// <returns>GAST in radians.</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauGst00b", CallingConvention = CallingConvention.Cdecl)]
         public static extern double Gst00b(double uta, double utb);
 
@@ -2854,6 +2877,7 @@ namespace ASCOM.Tools
         /// </summary>
         /// <param name="dj1">UT1 Julian date component 1.</param>
         /// <param name="dj2">UT1 Julian date component 2.</param>
+        /// <returns>GMST in radians.</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauGmst82", CallingConvention = CallingConvention.Cdecl)]
         public static extern double Gmst82(double dj1, double dj2);
 
@@ -2864,6 +2888,7 @@ namespace ASCOM.Tools
         /// <param name="date2">TT as a 2-part Julian Date (part 2).</param>
         /// <param name="epsa">Mean obliquity (radians).</param>
         /// <param name="dpsi">Nutation in longitude (radians).</param>
+        /// <returns>Equation of the equinoxes in radians.</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauEe00", CallingConvention = CallingConvention.Cdecl)]
         public static extern double Ee00(double date1, double date2, double epsa, double dpsi);
 
@@ -2872,6 +2897,7 @@ namespace ASCOM.Tools
         /// </summary>
         /// <param name="date1">TT as a 2-part Julian Date (part 1).</param>
         /// <param name="date2">TT as a 2-part Julian Date (part 2).</param>
+        /// <returns>Equation of the equinoxes in radians.</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauEe06a", CallingConvention = CallingConvention.Cdecl)]
         public static extern double Ee06a(double date1, double date2);
 
@@ -2880,6 +2906,7 @@ namespace ASCOM.Tools
         /// </summary>
         /// <param name="date1">TT as a 2-part Julian Date (part 1).</param>
         /// <param name="date2">TT as a 2-part Julian Date (part 2).</param>
+        /// <returns>Equation of the equinoxes complement in radians.</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauEect00", CallingConvention = CallingConvention.Cdecl)]
         public static extern double Eect00(double date1, double date2);
 
@@ -2888,6 +2915,7 @@ namespace ASCOM.Tools
         /// </summary>
         /// <param name="date1">TT as a 2-part Julian Date (part 1).</param>
         /// <param name="date2">TT as a 2-part Julian Date (part 2).</param>
+        /// <returns>Equation of the equinoxes in radians.</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauEqeq94", CallingConvention = CallingConvention.Cdecl)]
         public static extern double Eqeq94(double date1, double date2);
 
@@ -3067,6 +3095,7 @@ namespace ASCOM.Tools
         /// </summary>
         /// <param name="rnpb">Bias-precession-nutation matrix (row-major, length 9).</param>
         /// <param name="s">CIO locator.</param>
+        /// <returns>Equation of the origins in radians.</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauEors", CallingConvention = CallingConvention.Cdecl)]
         public static extern double Eors(
             [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rnpb,
@@ -3381,6 +3410,7 @@ namespace ASCOM.Tools
         /// <param name="date2">TT as a 2-part Julian Date (part 2).</param>
         /// <param name="x">CIP X coordinate.</param>
         /// <param name="y">CIP Y coordinate.</param>
+        /// <returns>CIO locator s in radians.</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauS00", CallingConvention = CallingConvention.Cdecl)]
         public static extern double S00(double date1, double date2, double x, double y);
 
@@ -3389,6 +3419,7 @@ namespace ASCOM.Tools
         /// </summary>
         /// <param name="date1">TT as a 2-part Julian Date (part 1).</param>
         /// <param name="date2">TT as a 2-part Julian Date (part 2).</param>
+        /// <returns>CIO locator s in radians.</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauS00b", CallingConvention = CallingConvention.Cdecl)]
         public static extern double S00b(double date1, double date2);
 
@@ -3399,6 +3430,7 @@ namespace ASCOM.Tools
         /// <param name="date2">TT as a 2-part Julian Date (part 2).</param>
         /// <param name="x">CIP X coordinate.</param>
         /// <param name="y">CIP Y coordinate.</param>
+        /// <returns>CIO locator s in radians.</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauS06", CallingConvention = CallingConvention.Cdecl)]
         public static extern double S06(double date1, double date2, double x, double y);
 
@@ -3407,6 +3439,7 @@ namespace ASCOM.Tools
         /// </summary>
         /// <param name="date1">TT as a 2-part Julian Date (part 1).</param>
         /// <param name="date2">TT as a 2-part Julian Date (part 2).</param>
+        /// <returns>CIO locator s in radians.</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauS06a", CallingConvention = CallingConvention.Cdecl)]
         public static extern double S06a(double date1, double date2);
 
@@ -3415,6 +3448,7 @@ namespace ASCOM.Tools
         /// </summary>
         /// <param name="date1">TT as a 2-part Julian Date (part 1).</param>
         /// <param name="date2">TT as a 2-part Julian Date (part 2).</param>
+        /// <returns>TIO locator s' in radians.</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauSp00", CallingConvention = CallingConvention.Cdecl)]
         public static extern double Sp00(double date1, double date2);
 
@@ -3689,6 +3723,7 @@ namespace ASCOM.Tools
         /// <param name="pmd">Returned proper motion in Dec (radians/year).</param>
         /// <param name="px">Returned parallax (arcsec).</param>
         /// <param name="rv">Returned radial velocity (km/s).</param>
+        /// <returns>Status code: 0 = OK, &lt;0 indicates an error condition.</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauPvstar", CallingConvention = CallingConvention.Cdecl)]
         public static extern int Pvstar(
             [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] pv,
@@ -3709,6 +3744,7 @@ namespace ASCOM.Tools
         /// <param name="px">Parallax (arcsec).</param>
         /// <param name="rv">Radial velocity (km/s).</param>
         /// <param name="pv">Returned position-velocity vector (length 6).</param>
+        /// <returns>Status code: 0 = OK, &lt;0 indicates an error condition.</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauStarpv", CallingConvention = CallingConvention.Cdecl)]
         public static extern int Starpv(
             double ra,
@@ -3814,6 +3850,7 @@ namespace ASCOM.Tools
         /// <param name="n">Reference ellipsoid identifier.</param>
         /// <param name="a">Returned equatorial radius (meters).</param>
         /// <param name="f">Returned flattening.</param>
+        /// <returns>Status code: 0 = OK, &lt;0 indicates an error condition.</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauEform", CallingConvention = CallingConvention.Cdecl)]
         public static extern int Eform(SofaReferenceEllipsoids n, ref double a, ref double f);
 
@@ -3825,6 +3862,7 @@ namespace ASCOM.Tools
         /// <param name="elong">Returned longitude (east positive, radians).</param>
         /// <param name="phi">Returned geodetic latitude (radians).</param>
         /// <param name="height">Returned height above ellipsoid (meters).</param>
+        /// <returns>Status code: 0 = OK, &lt;0 indicates an error condition.</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauGc2gd", CallingConvention = CallingConvention.Cdecl)]
         public static extern int Gc2gd(SofaReferenceEllipsoids n, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] xyz, ref double elong, ref double phi, ref double height);
 
@@ -3837,6 +3875,7 @@ namespace ASCOM.Tools
         /// <param name="elong">Returned longitude (east positive, radians).</param>
         /// <param name="phi">Returned geodetic latitude (radians).</param>
         /// <param name="height">Returned height above ellipsoid (meters).</param>
+        /// <returns>Status code: 0 = OK, &lt;0 indicates an error condition.</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauGc2gde", CallingConvention = CallingConvention.Cdecl)]
         public static extern int Gc2gde(double a, double f, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] xyz, ref double elong, ref double phi, ref double height);
 
@@ -3848,6 +3887,7 @@ namespace ASCOM.Tools
         /// <param name="phi">Geodetic latitude (radians).</param>
         /// <param name="height">Height above ellipsoid (meters).</param>
         /// <param name="xyz">Returned geocentric Cartesian coordinates (meters, length 3).</param>
+        /// <returns>Status code: 0 = OK, &lt;0 indicates an error condition.</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauGd2gc", CallingConvention = CallingConvention.Cdecl)]
         public static extern int Gd2gc(SofaReferenceEllipsoids n, double elong, double phi, double height, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] xyz);
 
@@ -3860,6 +3900,7 @@ namespace ASCOM.Tools
         /// <param name="phi">Geodetic latitude (radians).</param>
         /// <param name="height">Height above ellipsoid (meters).</param>
         /// <param name="xyz">Returned geocentric Cartesian coordinates (meters, length 3).</param>
+        /// <returns>Status code: 0 = OK, &lt;0 indicates an error condition.</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauGd2gce", CallingConvention = CallingConvention.Cdecl)]
         public static extern int Gd2gce(double a, double f, double elong, double phi, double height, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] xyz);
 
@@ -3876,6 +3917,7 @@ namespace ASCOM.Tools
         /// <param name="b01">Returned solution 1 Dec (radians).</param>
         /// <param name="a02">Returned solution 2 RA (radians).</param>
         /// <param name="b02">Returned solution 2 Dec (radians).</param>
+        /// <returns>Status code: 0 = OK, &lt;0 indicates an error condition.</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauTpors", CallingConvention = CallingConvention.Cdecl)]
         public static extern int Tpors(double xi, double eta, double a, double b, ref double a01, ref double b01, ref double a02, ref double b02);
 
@@ -3887,6 +3929,7 @@ namespace ASCOM.Tools
         /// <param name="v">Direction cosines of tangent point (length 3).</param>
         /// <param name="v01">Returned unit vector solution 1 (length 3).</param>
         /// <param name="v02">Returned unit vector solution 2 (length 3).</param>
+        /// <returns>Status code: 0 = OK, &lt;0 indicates an error condition.</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauTporv", CallingConvention = CallingConvention.Cdecl)]
         public static extern int Tporv(
             double xi,
@@ -3930,6 +3973,7 @@ namespace ASCOM.Tools
         /// <param name="b0">Dec of tangent point (radians).</param>
         /// <param name="xi">Returned ξ coordinate.</param>
         /// <param name="eta">Returned η coordinate.</param>
+        /// <returns>Status code: 0 = OK, &lt;0 indicates an error condition.</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauTpxes", CallingConvention = CallingConvention.Cdecl)]
         public static extern int Tpxes(double a, double b, double a0, double b0, ref double xi, ref double eta);
 
@@ -3940,6 +3984,7 @@ namespace ASCOM.Tools
         /// <param name="v0">Unit vector of tangent point (length 3).</param>
         /// <param name="xi">Returned ξ coordinate.</param>
         /// <param name="eta">Returned η coordinate.</param>
+        /// <returns>Status code: 0 = OK, &lt;0 indicates an error condition.</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauTpxev", CallingConvention = CallingConvention.Cdecl)]
         public static extern int Tpxev(
             [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] v,
