@@ -2788,24 +2788,38 @@ namespace ASCOM.Tools
         /// <summary>
         /// Bias-precession-nutation matrix, precession IAU 2000 or IAU 1976, nutation IAU 2000B.
         /// </summary>
+        /// <param name="date1">TT as a 2-part Julian Date (part 1).</param>
+        /// <param name="date2">TT as a 2-part Julian Date (part 2).</param>
+        /// <param name="dpsi">Returned nutation in longitude (radians).</param>
+        /// <param name="deps">Returned nutation in obliquity (radians).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauNut00b", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Nut00b(double date1, double date2, ref double dpsi, ref double deps);
 
         /// <summary>
         /// Nutation: IAU 2000B model.
         /// </summary>
+        /// <param name="date1">TT as a 2-part Julian Date (part 1).</param>
+        /// <param name="date2">TT as a 2-part Julian Date (part 2).</param>
+        /// <param name="dpsi">Returned nutation in longitude (radians).</param>
+        /// <param name="deps">Returned nutation in obliquity (radians).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauNut06a", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Nut06a(double date1, double date2, ref double dpsi, ref double deps);
 
         /// <summary>
         /// Precession-nutation matrix, IAU 2000 or IAU 1976 precession, IAU 2000B nutation.
         /// </summary>
+        /// <param name="date1">TT as a 2-part Julian Date (part 1).</param>
+        /// <param name="date2">TT as a 2-part Julian Date (part 2).</param>
+        /// <param name="rbpn">Returned bias-precession-nutation matrix (row-major, length 9).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauPnm00b", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Pnm00b(double date1, double date2, [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rbpn);
 
         /// <summary>
         /// Precession-nutation matrix, IAU 1976 precession and IAU 1980 nutation.
         /// </summary>
+        /// <param name="date1">TT as a 2-part Julian Date (part 1).</param>
+        /// <param name="date2">TT as a 2-part Julian Date (part 2).</param>
+        /// <param name="rmatpn">Returned precession-nutation matrix (row-major, length 9).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauPnm80", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Pnm80(double date1, double date2, [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rmatpn);
 
@@ -2814,36 +2828,50 @@ namespace ASCOM.Tools
         /// <summary>
         /// Greenwich Apparent Sidereal Time (UT1 only, precedes IAU 2000).
         /// </summary>
+        /// <param name="uta">UT1 Julian date component 1.</param>
+        /// <param name="utb">UT1 Julian date component 2.</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauGst00b", CallingConvention = CallingConvention.Cdecl)]
         public static extern double Gst00b(double uta, double utb);
 
         /// <summary>
         /// Greenwich Mean Sidereal Time (UT1 only).
         /// </summary>
+        /// <param name="dj1">UT1 Julian date component 1.</param>
+        /// <param name="dj2">UT1 Julian date component 2.</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauGmst82", CallingConvention = CallingConvention.Cdecl)]
         public static extern double Gmst82(double dj1, double dj2);
 
         /// <summary>
         /// Equation of the Equinoxes, IAU 2000 model.
         /// </summary>
+        /// <param name="date1">TT as a 2-part Julian Date (part 1).</param>
+        /// <param name="date2">TT as a 2-part Julian Date (part 2).</param>
+        /// <param name="epsa">Mean obliquity (radians).</param>
+        /// <param name="dpsi">Nutation in longitude (radians).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauEe00", CallingConvention = CallingConvention.Cdecl)]
         public static extern double Ee00(double date1, double date2, double epsa, double dpsi);
 
         /// <summary>
         /// Equation of the Equinoxes, IAU 2000B model.
         /// </summary>
+        /// <param name="date1">TT as a 2-part Julian Date (part 1).</param>
+        /// <param name="date2">TT as a 2-part Julian Date (part 2).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauEe06a", CallingConvention = CallingConvention.Cdecl)]
         public static extern double Ee06a(double date1, double date2);
 
         /// <summary>
         /// Equation of the Equinoxes Complement, IAU 2000.
         /// </summary>
+        /// <param name="date1">TT as a 2-part Julian Date (part 1).</param>
+        /// <param name="date2">TT as a 2-part Julian Date (part 2).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauEect00", CallingConvention = CallingConvention.Cdecl)]
         public static extern double Eect00(double date1, double date2);
 
         /// <summary>
         /// Equation of the Equinoxes, IAU 1994 model.
         /// </summary>
+        /// <param name="date1">TT as a 2-part Julian Date (part 1).</param>
+        /// <param name="date2">TT as a 2-part Julian Date (part 2).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauEqeq94", CallingConvention = CallingConvention.Cdecl)]
         public static extern double Eqeq94(double date1, double date2);
 
@@ -2852,54 +2880,103 @@ namespace ASCOM.Tools
         /// <summary>
         /// Fundamental arguments (mean elements of lunar orbit).
         /// </summary>
+        /// <param name="date1">TT as a 2-part Julian Date (part 1).</param>
+        /// <param name="date2">TT as a 2-part Julian Date (part 2).</param>
+        /// <param name="dpsipr">Returned precession in longitude (radians).</param>
+        /// <param name="depspr">Returned precession in obliquity (radians).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauPr00", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Pr00(double date1, double date2, ref double dpsipr, ref double depspr);
 
         /// <summary>
         /// Precession matrix from Besselian epoch to Besselian epoch.
         /// </summary>
+        /// <param name="date01">Starting Besselian epoch (part 1).</param>
+        /// <param name="date02">Starting Besselian epoch (part 2).</param>
+        /// <param name="date11">Ending Besselian epoch (part 1).</param>
+        /// <param name="date12">Ending Besselian epoch (part 2).</param>
+        /// <param name="zeta">Returned Fukushima-Williams angle zeta (radians).</param>
+        /// <param name="z">Returned Fukushima-Williams angle z (radians).</param>
+        /// <param name="theta">Returned Fukushima-Williams angle theta (radians).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauPrec76", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Prec76(double date01, double date02, double date11, double date12, ref double zeta, ref double z, ref double theta);
 
         /// <summary>
         /// CIO-based bias-precession-nutation matrix (IAU 2006 precession, IAU 2000A nutation).
         /// </summary>
+        /// <param name="date1">TT as a 2-part Julian Date (part 1).</param>
+        /// <param name="date2">TT as a 2-part Julian Date (part 2).</param>
+        /// <param name="rbpn">Bias-precession-nutation matrix (row-major, length 9).</param>
+        /// <param name="rc2i">Returned celestial-to-intermediate matrix (row-major, length 9).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauC2ibpn", CallingConvention = CallingConvention.Cdecl)]
         public static extern void C2ibpn(double date1, double date2, [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rbpn, [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rc2i);
 
         /// <summary>
         /// CIO coordinates from X,Y.
         /// </summary>
+        /// <param name="date1">TT as a 2-part Julian Date (part 1).</param>
+        /// <param name="date2">TT as a 2-part Julian Date (part 2).</param>
+        /// <param name="x">CIP X coordinate.</param>
+        /// <param name="y">CIP Y coordinate.</param>
+        /// <param name="rc2i">Returned celestial-to-intermediate matrix (row-major, length 9).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauC2ixy", CallingConvention = CallingConvention.Cdecl)]
         public static extern void C2ixy(double date1, double date2, double x, double y, [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rc2i);
 
         /// <summary>
         /// CIO coordinates from CIO locator.
         /// </summary>
+        /// <param name="x">CIP X coordinate.</param>
+        /// <param name="y">CIP Y coordinate.</param>
+        /// <param name="s">CIO locator s.</param>
+        /// <param name="rc2i">Returned celestial-to-intermediate matrix (row-major, length 9).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauC2ixys", CallingConvention = CallingConvention.Cdecl)]
         public static extern void C2ixys(double x, double y, double s, [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rc2i);
 
         /// <summary>
         /// ICRS to ITRS matrix (IAU 2000/2006).
         /// </summary>
+        /// <param name="tta">TT as a 2-part Julian Date (part 1).</param>
+        /// <param name="ttb">TT as a 2-part Julian Date (part 2).</param>
+        /// <param name="uta">UT1 as a 2-part Julian Date (part 1).</param>
+        /// <param name="utb">UT1 as a 2-part Julian Date (part 2).</param>
+        /// <param name="xp">Polar motion X (radians).</param>
+        /// <param name="yp">Polar motion Y (radians).</param>
+        /// <param name="rc2t">Returned ICRS-to-ITRS matrix (row-major, length 9).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauC2t00a", CallingConvention = CallingConvention.Cdecl)]
         public static extern void C2t00a(double tta, double ttb, double uta, double utb, double xp, double yp, [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rc2t);
 
         /// <summary>
         /// ICRS to ITRS matrix (IAU 2000B).
         /// </summary>
+        /// <param name="tta">TT as a 2-part Julian Date (part 1).</param>
+        /// <param name="ttb">TT as a 2-part Julian Date (part 2).</param>
+        /// <param name="uta">UT1 as a 2-part Julian Date (part 1).</param>
+        /// <param name="utb">UT1 as a 2-part Julian Date (part 2).</param>
+        /// <param name="xp">Polar motion X (radians).</param>
+        /// <param name="yp">Polar motion Y (radians).</param>
+        /// <param name="rc2t">Returned ICRS-to-ITRS matrix (row-major, length 9).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauC2t00b", CallingConvention = CallingConvention.Cdecl)]
         public static extern void C2t00b(double tta, double ttb, double uta, double utb, double xp, double yp, [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rc2t);
 
         /// <summary>
         /// ICRS to ITRS matrix (IAU 2006/2000A).
         /// </summary>
+        /// <param name="tta">TT as a 2-part Julian Date (part 1).</param>
+        /// <param name="ttb">TT as a 2-part Julian Date (part 2).</param>
+        /// <param name="uta">UT1 as a 2-part Julian Date (part 1).</param>
+        /// <param name="utb">UT1 as a 2-part Julian Date (part 2).</param>
+        /// <param name="xp">Polar motion X (radians).</param>
+        /// <param name="yp">Polar motion Y (radians).</param>
+        /// <param name="rc2t">Returned ICRS-to-ITRS matrix (row-major, length 9).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauC2t06a", CallingConvention = CallingConvention.Cdecl)]
         public static extern void C2t06a(double tta, double ttb, double uta, double utb, double xp, double yp, [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rc2t);
 
         /// <summary>
         /// Form ICRS to ITRS matrix from CIO and polar motion.
         /// </summary>
+        /// <param name="rc2i">Celestial-to-intermediate matrix (row-major, length 9).</param>
+        /// <param name="era">Earth rotation angle (radians).</param>
+        /// <param name="rpom">Polar motion matrix (row-major, length 9).</param>
+        /// <param name="rc2t">Returned ICRS-to-ITRS matrix (row-major, length 9).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauC2tcio", CallingConvention = CallingConvention.Cdecl)]
         public static extern void C2tcio(
             [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rc2i,
@@ -2910,6 +2987,10 @@ namespace ASCOM.Tools
         /// <summary>
         /// Form ICRS to ITRS matrix from bias-precession-nutation and Greenwich Apparent Sidereal Time.
         /// </summary>
+        /// <param name="rbpn">Bias-precession-nutation matrix (row-major, length 9).</param>
+        /// <param name="gst">Greenwich apparent sidereal time (radians).</param>
+        /// <param name="rpom">Polar motion matrix (row-major, length 9).</param>
+        /// <param name="rc2t">Returned ICRS-to-ITRS matrix (row-major, length 9).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauC2teqx", CallingConvention = CallingConvention.Cdecl)]
         public static extern void C2teqx(
             [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rbpn,
@@ -2920,6 +3001,15 @@ namespace ASCOM.Tools
         /// <summary>
         /// ICRS to ITRS matrix given nutation.
         /// </summary>
+        /// <param name="tta">TT as a 2-part Julian Date (part 1).</param>
+        /// <param name="ttb">TT as a 2-part Julian Date (part 2).</param>
+        /// <param name="uta">UT1 as a 2-part Julian Date (part 1).</param>
+        /// <param name="utb">UT1 as a 2-part Julian Date (part 2).</param>
+        /// <param name="dpsi">Nutation in longitude (radians).</param>
+        /// <param name="deps">Nutation in obliquity (radians).</param>
+        /// <param name="xp">Polar motion X (radians).</param>
+        /// <param name="yp">Polar motion Y (radians).</param>
+        /// <param name="rc2t">Returned ICRS-to-ITRS matrix (row-major, length 9).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauC2tpe", CallingConvention = CallingConvention.Cdecl)]
         public static extern void C2tpe(
             double tta,
@@ -2935,6 +3025,15 @@ namespace ASCOM.Tools
         /// <summary>
         /// ICRS to ITRS matrix given CIO coordinates.
         /// </summary>
+        /// <param name="tta">TT as a 2-part Julian Date (part 1).</param>
+        /// <param name="ttb">TT as a 2-part Julian Date (part 2).</param>
+        /// <param name="uta">UT1 as a 2-part Julian Date (part 1).</param>
+        /// <param name="utb">UT1 as a 2-part Julian Date (part 2).</param>
+        /// <param name="x">CIP X coordinate.</param>
+        /// <param name="y">CIP Y coordinate.</param>
+        /// <param name="xp">Polar motion X (radians).</param>
+        /// <param name="yp">Polar motion Y (radians).</param>
+        /// <param name="rc2t">Returned ICRS-to-ITRS matrix (row-major, length 9).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauC2txy", CallingConvention = CallingConvention.Cdecl)]
         public static extern void C2txy(
             double tta,
@@ -2950,6 +3049,8 @@ namespace ASCOM.Tools
         /// <summary>
         /// Equation of the origins given nutation matrix.
         /// </summary>
+        /// <param name="rnpb">Bias-precession-nutation matrix (row-major, length 9).</param>
+        /// <param name="s">CIO locator.</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauEors", CallingConvention = CallingConvention.Cdecl)]
         public static extern double Eors(
             [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rnpb,
@@ -2958,6 +3059,11 @@ namespace ASCOM.Tools
         /// <summary>
         /// Frame Tie and precession, IAU 1976 (Bessel epoch related parameters).
         /// </summary>
+        /// <param name="gamb">Fukushima-Williams angle gamma_bar (radians).</param>
+        /// <param name="phib">Fukushima-Williams angle phi_bar (radians).</param>
+        /// <param name="psi">Fukushima-Williams angle psi (radians).</param>
+        /// <param name="eps">Obliquity epsilon (radians).</param>
+        /// <param name="r">Returned rotation matrix (row-major, length 9).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauFw2m", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Fw2m(
             double gamb,
@@ -2969,42 +3075,70 @@ namespace ASCOM.Tools
         /// <summary>
         /// CIO coordinates from Frame Tie parameters.
         /// </summary>
+        /// <param name="gamb">Fukushima-Williams angle gamma_bar (radians).</param>
+        /// <param name="phib">Fukushima-Williams angle phi_bar (radians).</param>
+        /// <param name="psi">Fukushima-Williams angle psi (radians).</param>
+        /// <param name="eps">Obliquity epsilon (radians).</param>
+        /// <param name="x">Returned CIP X coordinate.</param>
+        /// <param name="y">Returned CIP Y coordinate.</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauFw2xy", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Fw2xy(double gamb, double phib, double psi, double eps, ref double x, ref double y);
 
         /// <summary>
         /// Precession matrix, Besselian epoch.
         /// </summary>
+        /// <param name="epj">Besselian epoch.</param>
+        /// <param name="rp">Returned precession matrix (row-major, length 9).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauLtp", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Ltp(double epj, [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rp);
 
         /// <summary>
         /// Precession matrix, Besselian epoch, including E-terms.
         /// </summary>
+        /// <param name="epj">Besselian epoch.</param>
+        /// <param name="rpb">Returned precession matrix including E-terms (row-major, length 9).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauLtpb", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Ltpb(double epj, [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rpb);
 
         /// <summary>
         /// Transform ecliptic coordinates to FK4 J1900.0 (flat Earth model).
         /// </summary>
+        /// <param name="epj">Besselian epoch.</param>
+        /// <param name="vec">Returned transformed vector (length 3).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauLtpecl", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Ltpecl(double epj, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] vec);
 
         /// <summary>
         /// Transform equatorial coordinates to FK4 J1900.0 (flat Earth model).
         /// </summary>
+        /// <param name="epj">Besselian epoch.</param>
+        /// <param name="veq">Returned transformed vector (length 3).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauLtpequ", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Ltpequ(double epj, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] veq);
 
         /// <summary>
         /// Bias-precession-nutation matrix, IAU 2000 precession with IAU 2000A or 2000B nutation.
         /// </summary>
+        /// <param name="epsa">Mean obliquity (radians).</param>
+        /// <param name="dpsi">Nutation in longitude (radians).</param>
+        /// <param name="deps">Nutation in obliquity (radians).</param>
+        /// <param name="rmatn">Returned bias-precession-nutation matrix (row-major, length 9).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauNumat", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Numat(double epsa, double dpsi, double deps, [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rmatn);
 
         /// <summary>
         /// Precession-nutation matrix (full precision).
         /// </summary>
+        /// <param name="date1">TT as a 2-part Julian Date (part 1).</param>
+        /// <param name="date2">TT as a 2-part Julian Date (part 2).</param>
+        /// <param name="dpsi">Nutation in longitude (radians).</param>
+        /// <param name="deps">Nutation in obliquity (radians).</param>
+        /// <param name="epsa">Returned mean obliquity (radians).</param>
+        /// <param name="rb">Returned frame bias matrix (row-major, length 9).</param>
+        /// <param name="rp">Returned precession matrix (row-major, length 9).</param>
+        /// <param name="rbp">Returned bias-precession matrix (row-major, length 9).</param>
+        /// <param name="rn">Returned nutation matrix (row-major, length 9).</param>
+        /// <param name="rbpn">Returned bias-precession-nutation matrix (row-major, length 9).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauPn00", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Pn00(
             double date1,
@@ -3021,6 +3155,16 @@ namespace ASCOM.Tools
         /// <summary>
         /// Precession-nutation matrix (IAU 2000A).
         /// </summary>
+        /// <param name="date1">TT as a 2-part Julian Date (part 1).</param>
+        /// <param name="date2">TT as a 2-part Julian Date (part 2).</param>
+        /// <param name="dpsi">Returned nutation in longitude (radians).</param>
+        /// <param name="deps">Returned nutation in obliquity (radians).</param>
+        /// <param name="epsa">Returned mean obliquity (radians).</param>
+        /// <param name="rb">Returned frame bias matrix (row-major, length 9).</param>
+        /// <param name="rp">Returned precession matrix (row-major, length 9).</param>
+        /// <param name="rbp">Returned bias-precession matrix (row-major, length 9).</param>
+        /// <param name="rn">Returned nutation matrix (row-major, length 9).</param>
+        /// <param name="rbpn">Returned bias-precession-nutation matrix (row-major, length 9).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauPn00a", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Pn00a(
             double date1,
@@ -3037,6 +3181,16 @@ namespace ASCOM.Tools
         /// <summary>
         /// Precession-nutation matrix (IAU 2000B).
         /// </summary>
+        /// <param name="date1">TT as a 2-part Julian Date (part 1).</param>
+        /// <param name="date2">TT as a 2-part Julian Date (part 2).</param>
+        /// <param name="dpsi">Returned nutation in longitude (radians).</param>
+        /// <param name="deps">Returned nutation in obliquity (radians).</param>
+        /// <param name="epsa">Returned mean obliquity (radians).</param>
+        /// <param name="rb">Returned frame bias matrix (row-major, length 9).</param>
+        /// <param name="rp">Returned precession matrix (row-major, length 9).</param>
+        /// <param name="rbp">Returned bias-precession matrix (row-major, length 9).</param>
+        /// <param name="rn">Returned nutation matrix (row-major, length 9).</param>
+        /// <param name="rbpn">Returned bias-precession-nutation matrix (row-major, length 9).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauPn00b", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Pn00b(
             double date1,
@@ -3053,6 +3207,16 @@ namespace ASCOM.Tools
         /// <summary>
         /// Precession-nutation matrix (full precision, given nutation).
         /// </summary>
+        /// <param name="date1">TT as a 2-part Julian Date (part 1).</param>
+        /// <param name="date2">TT as a 2-part Julian Date (part 2).</param>
+        /// <param name="dpsi">Nutation in longitude (radians).</param>
+        /// <param name="deps">Nutation in obliquity (radians).</param>
+        /// <param name="epsa">Returned mean obliquity (radians).</param>
+        /// <param name="rb">Returned frame bias matrix (row-major, length 9).</param>
+        /// <param name="rp">Returned precession matrix (row-major, length 9).</param>
+        /// <param name="rbp">Returned bias-precession matrix (row-major, length 9).</param>
+        /// <param name="rn">Returned nutation matrix (row-major, length 9).</param>
+        /// <param name="rbpn">Returned bias-precession-nutation matrix (row-major, length 9).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauPn06", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Pn06(
             double date1,
@@ -3069,6 +3233,16 @@ namespace ASCOM.Tools
         /// <summary>
         /// Precession-nutation matrix (IAU 2006/2000A).
         /// </summary>
+        /// <param name="date1">TT as a 2-part Julian Date (part 1).</param>
+        /// <param name="date2">TT as a 2-part Julian Date (part 2).</param>
+        /// <param name="dpsi">Returned nutation in longitude (radians).</param>
+        /// <param name="deps">Returned nutation in obliquity (radians).</param>
+        /// <param name="epsa">Returned mean obliquity (radians).</param>
+        /// <param name="rb">Returned frame bias matrix (row-major, length 9).</param>
+        /// <param name="rp">Returned precession matrix (row-major, length 9).</param>
+        /// <param name="rbp">Returned bias-precession matrix (row-major, length 9).</param>
+        /// <param name="rn">Returned nutation matrix (row-major, length 9).</param>
+        /// <param name="rbpn">Returned bias-precession-nutation matrix (row-major, length 9).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauPn06a", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Pn06a(
             double date1,
@@ -3085,12 +3259,34 @@ namespace ASCOM.Tools
         /// <summary>
         /// Polar motion matrix.
         /// </summary>
+        /// <param name="xp">Polar motion X (radians).</param>
+        /// <param name="yp">Polar motion Y (radians).</param>
+        /// <param name="sp">TIO locator s' (radians).</param>
+        /// <param name="rpom">Returned polar motion matrix (row-major, length 9).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauPom00", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Pom00(double xp, double yp, double sp, [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rpom);
 
         /// <summary>
         /// CIO RA and Earth Orientation parameters (high precision).
         /// </summary>
+        /// <param name="date1">TT as a 2-part Julian Date (part 1).</param>
+        /// <param name="date2">TT as a 2-part Julian Date (part 2).</param>
+        /// <param name="eps0">Returned obliquity at J2000.0 (radians).</param>
+        /// <param name="psia">Returned angle psi_A (radians).</param>
+        /// <param name="oma">Returned angle omega_A (radians).</param>
+        /// <param name="bpa">Returned precession parameter bpa.</param>
+        /// <param name="bqa">Returned precession parameter bqa.</param>
+        /// <param name="pia">Returned precession parameter pia.</param>
+        /// <param name="bpia">Returned precession parameter bpia.</param>
+        /// <param name="epsa">Returned mean obliquity (radians).</param>
+        /// <param name="chia">Returned precession angle chi_A (radians).</param>
+        /// <param name="za">Returned precession angle z_A (radians).</param>
+        /// <param name="zetaa">Returned precession angle zeta_A (radians).</param>
+        /// <param name="thetaa">Returned precession angle theta_A (radians).</param>
+        /// <param name="pa">Returned precession angle p_A (radians).</param>
+        /// <param name="gam">Returned precession angle gamma (radians).</param>
+        /// <param name="phi">Returned precession angle phi (radians).</param>
+        /// <param name="psi">Returned precession angle psi (radians).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauP06e", CallingConvention = CallingConvention.Cdecl)]
         public static extern void P06e(
             double date1,
@@ -3115,84 +3311,137 @@ namespace ASCOM.Tools
         /// <summary>
         /// Precession matrix, IAU 2006 (Besselian epoch related parameters).
         /// </summary>
+        /// <param name="date1">TT as a 2-part Julian Date (part 1).</param>
+        /// <param name="date2">TT as a 2-part Julian Date (part 2).</param>
+        /// <param name="bzeta">Returned Fukushima-Williams angle zeta (radians).</param>
+        /// <param name="bz">Returned Fukushima-Williams angle z (radians).</param>
+        /// <param name="btheta">Returned Fukushima-Williams angle theta (radians).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauPb06", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Pb06(double date1, double date2, ref double bzeta, ref double bz, ref double btheta);
 
         /// <summary>
         /// Precession matrix elements (Fukushima-Williams precession angles).
         /// </summary>
+        /// <param name="date1">TT as a 2-part Julian Date (part 1).</param>
+        /// <param name="date2">TT as a 2-part Julian Date (part 2).</param>
+        /// <param name="gamb">Returned gamma_bar (radians).</param>
+        /// <param name="phib">Returned phi_bar (radians).</param>
+        /// <param name="psib">Returned psi (radians).</param>
+        /// <param name="epsa">Returned epsilon_A (radians).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauPfw06", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Pfw06(double date1, double date2, ref double gamb, ref double phib, ref double psib, ref double epsa);
 
         /// <summary>
         /// Precession matrix, IAU 2000.
         /// </summary>
+        /// <param name="date1">TT as a 2-part Julian Date (part 1).</param>
+        /// <param name="date2">TT as a 2-part Julian Date (part 2).</param>
+        /// <param name="rbp">Returned bias-precession matrix (row-major, length 9).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauPmat00", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Pmat00(double date1, double date2, [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rbp);
 
         /// <summary>
         /// Precession matrix, IAU 2006.
         /// </summary>
+        /// <param name="date1">TT as a 2-part Julian Date (part 1).</param>
+        /// <param name="date2">TT as a 2-part Julian Date (part 2).</param>
+        /// <param name="rbp">Returned bias-precession matrix (row-major, length 9).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauPmat06", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Pmat06(double date1, double date2, [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rbp);
 
         /// <summary>
         /// Precession matrix, IAU 1976.
         /// </summary>
+        /// <param name="date1">TT as a 2-part Julian Date (part 1).</param>
+        /// <param name="date2">TT as a 2-part Julian Date (part 2).</param>
+        /// <param name="rmatp">Returned precession matrix (row-major, length 9).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauPmat76", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Pmat76(double date1, double date2, [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rmatp);
 
         /// <summary>
         /// CIO locator.
         /// </summary>
+        /// <param name="date1">TT as a 2-part Julian Date (part 1).</param>
+        /// <param name="date2">TT as a 2-part Julian Date (part 2).</param>
+        /// <param name="x">CIP X coordinate.</param>
+        /// <param name="y">CIP Y coordinate.</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauS00", CallingConvention = CallingConvention.Cdecl)]
         public static extern double S00(double date1, double date2, double x, double y);
 
         /// <summary>
         /// CIO locator (IAU 2000B).
         /// </summary>
+        /// <param name="date1">TT as a 2-part Julian Date (part 1).</param>
+        /// <param name="date2">TT as a 2-part Julian Date (part 2).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauS00b", CallingConvention = CallingConvention.Cdecl)]
         public static extern double S00b(double date1, double date2);
 
         /// <summary>
         /// CIO locator (IAU 2006).
         /// </summary>
+        /// <param name="date1">TT as a 2-part Julian Date (part 1).</param>
+        /// <param name="date2">TT as a 2-part Julian Date (part 2).</param>
+        /// <param name="x">CIP X coordinate.</param>
+        /// <param name="y">CIP Y coordinate.</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauS06", CallingConvention = CallingConvention.Cdecl)]
         public static extern double S06(double date1, double date2, double x, double y);
 
         /// <summary>
         /// CIO locator (IAU 2006, high precision).
         /// </summary>
+        /// <param name="date1">TT as a 2-part Julian Date (part 1).</param>
+        /// <param name="date2">TT as a 2-part Julian Date (part 2).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauS06a", CallingConvention = CallingConvention.Cdecl)]
         public static extern double S06a(double date1, double date2);
 
         /// <summary>
         /// The TIO locator (sp).
         /// </summary>
+        /// <param name="date1">TT as a 2-part Julian Date (part 1).</param>
+        /// <param name="date2">TT as a 2-part Julian Date (part 2).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauSp00", CallingConvention = CallingConvention.Cdecl)]
         public static extern double Sp00(double date1, double date2);
 
         /// <summary>
         /// CIO RA and related parameters.
         /// </summary>
+        /// <param name="date1">TT as a 2-part Julian Date (part 1).</param>
+        /// <param name="date2">TT as a 2-part Julian Date (part 2).</param>
+        /// <param name="x">Returned CIP X coordinate.</param>
+        /// <param name="y">Returned CIP Y coordinate.</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauXy06", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Xy06(double date1, double date2, ref double x, ref double y);
 
         /// <summary>
         /// CIO coordinates (IAU 2000A).
         /// </summary>
+        /// <param name="date1">TT as a 2-part Julian Date (part 1).</param>
+        /// <param name="date2">TT as a 2-part Julian Date (part 2).</param>
+        /// <param name="x">Returned CIP X coordinate.</param>
+        /// <param name="y">Returned CIP Y coordinate.</param>
+        /// <param name="s">Returned CIO locator s.</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauXys00a", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Xys00a(double date1, double date2, ref double x, ref double y, ref double s);
 
         /// <summary>
         /// CIO coordinates (IAU 2000B).
         /// </summary>
+        /// <param name="date1">TT as a 2-part Julian Date (part 1).</param>
+        /// <param name="date2">TT as a 2-part Julian Date (part 2).</param>
+        /// <param name="x">Returned CIP X coordinate.</param>
+        /// <param name="y">Returned CIP Y coordinate.</param>
+        /// <param name="s">Returned CIO locator s.</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauXys00b", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Xys00b(double date1, double date2, ref double x, ref double y, ref double s);
 
         /// <summary>
         /// CIO coordinates (IAU 2006/2000A, high precision).
         /// </summary>
+        /// <param name="date1">TT as a 2-part Julian Date (part 1).</param>
+        /// <param name="date2">TT as a 2-part Julian Date (part 2).</param>
+        /// <param name="x">Returned CIP X coordinate.</param>
+        /// <param name="y">Returned CIP Y coordinate.</param>
+        /// <param name="s">Returned CIO locator s.</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauXys06a", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Xys06a(double date1, double date2, ref double x, ref double y, ref double s);
 
@@ -3201,6 +3450,18 @@ namespace ASCOM.Tools
         /// <summary>
         /// Transform between FK4 and FK5 star catalog systems.
         /// </summary>
+        /// <param name="r1950">FK4 right ascension (radians).</param>
+        /// <param name="d1950">FK4 declination (radians).</param>
+        /// <param name="dr1950">FK4 proper motion in RA (radians/year).</param>
+        /// <param name="dd1950">FK4 proper motion in Dec (radians/year).</param>
+        /// <param name="p1950">FK4 parallax (arcsec).</param>
+        /// <param name="v1950">FK4 radial velocity (km/s).</param>
+        /// <param name="r2000">Returned FK5 right ascension (radians).</param>
+        /// <param name="d2000">Returned FK5 declination (radians).</param>
+        /// <param name="dr2000">Returned FK5 proper motion in RA (radians/year).</param>
+        /// <param name="dd2000">Returned FK5 proper motion in Dec (radians/year).</param>
+        /// <param name="p2000">Returned FK5 parallax (arcsec).</param>
+        /// <param name="v2000">Returned FK5 radial velocity (km/s).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauFk425", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Fk425(
             double r1950,
@@ -3219,12 +3480,29 @@ namespace ASCOM.Tools
         /// <summary>
         /// Transform from FK4 to FK5 (catalog).
         /// </summary>
+        /// <param name="r1950">FK4 right ascension (radians).</param>
+        /// <param name="d1950">FK4 declination (radians).</param>
+        /// <param name="bepoch">Besselian epoch.</param>
+        /// <param name="r2000">Returned FK5 right ascension (radians).</param>
+        /// <param name="d2000">Returned FK5 declination (radians).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauFk45z", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Fk45z(double r1950, double d1950, double bepoch, ref double r2000, ref double d2000);
 
         /// <summary>
         /// Transform between FK5 and FK4 star catalog systems.
         /// </summary>
+        /// <param name="r2000">FK5 right ascension (radians).</param>
+        /// <param name="d2000">FK5 declination (radians).</param>
+        /// <param name="dr2000">FK5 proper motion in RA (radians/year).</param>
+        /// <param name="dd2000">FK5 proper motion in Dec (radians/year).</param>
+        /// <param name="p2000">FK5 parallax (arcsec).</param>
+        /// <param name="v2000">FK5 radial velocity (km/s).</param>
+        /// <param name="r1950">Returned FK4 right ascension (radians).</param>
+        /// <param name="d1950">Returned FK4 declination (radians).</param>
+        /// <param name="dr1950">Returned FK4 proper motion in RA (radians/year).</param>
+        /// <param name="dd1950">Returned FK4 proper motion in Dec (radians/year).</param>
+        /// <param name="p1950">Returned FK4 parallax (arcsec).</param>
+        /// <param name="v1950">Returned FK4 radial velocity (km/s).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauFk524", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Fk524(
             double r2000,
@@ -3243,12 +3521,31 @@ namespace ASCOM.Tools
         /// <summary>
         /// Transform from FK5 to FK4 (catalog).
         /// </summary>
+        /// <param name="r2000">FK5 right ascension (radians).</param>
+        /// <param name="d2000">FK5 declination (radians).</param>
+        /// <param name="bepoch">Besselian epoch.</param>
+        /// <param name="r1950">Returned FK4 right ascension (radians).</param>
+        /// <param name="d1950">Returned FK4 declination (radians).</param>
+        /// <param name="dr1950">Returned FK4 proper motion in RA (radians/year).</param>
+        /// <param name="dd1950">Returned FK4 proper motion in Dec (radians/year).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauFk54z", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Fk54z(double r2000, double d2000, double bepoch, ref double r1950, ref double d1950, ref double dr1950, ref double dd1950);
 
         /// <summary>
         /// Transform from FK5 (J2000.0) to Hipparcos.
         /// </summary>
+        /// <param name="r5">FK5 right ascension (radians).</param>
+        /// <param name="d5">FK5 declination (radians).</param>
+        /// <param name="dr5">FK5 proper motion in RA (radians/year).</param>
+        /// <param name="dd5">FK5 proper motion in Dec (radians/year).</param>
+        /// <param name="px5">FK5 parallax (arcsec).</param>
+        /// <param name="rv5">FK5 radial velocity (km/s).</param>
+        /// <param name="rh">Returned Hipparcos right ascension (radians).</param>
+        /// <param name="dh">Returned Hipparcos declination (radians).</param>
+        /// <param name="drh">Returned Hipparcos proper motion in RA (radians/year).</param>
+        /// <param name="ddh">Returned Hipparcos proper motion in Dec (radians/year).</param>
+        /// <param name="pxh">Returned Hipparcos parallax (arcsec).</param>
+        /// <param name="rvh">Returned Hipparcos radial velocity (km/s).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauFk52h", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Fk52h(
             double r5,

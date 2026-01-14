@@ -1745,7 +1745,7 @@ namespace SOFATests
             Sofa.D2tf(ndp, days, sign, ihmsf);
 
             // Assert
-            Assert.Equal("-", sign.ToString().TrimEnd('\0'));
+            Assert.Equal("-", sign[0].ToString());
             Assert.Equal(23, ihmsf[0]);
             Assert.Equal(42, ihmsf[1]);
             Assert.Equal(13, ihmsf[2]);
