@@ -3564,18 +3564,38 @@ namespace ASCOM.Tools
         /// <summary>
         /// Transform from FK5 to Hipparcos (catalog).
         /// </summary>
+        /// <param name="r5">FK5 right ascension (radians).</param>
+        /// <param name="d5">FK5 declination (radians).</param>
+        /// <param name="date1">TDB as a 2-part Julian Date (part 1).</param>
+        /// <param name="date2">TDB as a 2-part Julian Date (part 2).</param>
+        /// <param name="rh">Returned Hipparcos right ascension (radians).</param>
+        /// <param name="dh">Returned Hipparcos declination (radians).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauFk5hz", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Fk5hz(double r5, double d5, double date1, double date2, ref double rh, ref double dh);
 
         /// <summary>
         /// FK5 to Hipparcos rotation matrix.
         /// </summary>
+        /// <param name="r5h">Returned FK5-to-Hipparcos rotation matrix (row-major, length 9).</param>
+        /// <param name="s5h">Returned FK5-to-Hipparcos spin vector (length 3).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauFk5hip", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Fk5hip([MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] r5h, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] s5h);
 
         /// <summary>
         /// Transform from Hipparcos to FK5 (J2000.0).
         /// </summary>
+        /// <param name="rh">Hipparcos right ascension (radians).</param>
+        /// <param name="dh">Hipparcos declination (radians).</param>
+        /// <param name="drh">Hipparcos proper motion in RA (radians/year).</param>
+        /// <param name="ddh">Hipparcos proper motion in Dec (radians/year).</param>
+        /// <param name="pxh">Hipparcos parallax (arcsec).</param>
+        /// <param name="rvh">Hipparcos radial velocity (km/s).</param>
+        /// <param name="r5">Returned FK5 right ascension (radians).</param>
+        /// <param name="d5">Returned FK5 declination (radians).</param>
+        /// <param name="dr5">Returned FK5 proper motion in RA (radians/year).</param>
+        /// <param name="dd5">Returned FK5 proper motion in Dec (radians/year).</param>
+        /// <param name="px5">Returned FK5 parallax (arcsec).</param>
+        /// <param name="rv5">Returned FK5 radial velocity (km/s).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauH2fk5", CallingConvention = CallingConvention.Cdecl)]
         public static extern void H2fk5(
             double rh,
@@ -3594,12 +3614,36 @@ namespace ASCOM.Tools
         /// <summary>
         /// Transform from Hipparcos to FK5 (catalog).
         /// </summary>
+        /// <param name="rh">Hipparcos right ascension (radians).</param>
+        /// <param name="dh">Hipparcos declination (radians).</param>
+        /// <param name="date1">TDB as a 2-part Julian Date (part 1).</param>
+        /// <param name="date2">TDB as a 2-part Julian Date (part 2).</param>
+        /// <param name="r5">Returned FK5 right ascension (radians).</param>
+        /// <param name="d5">Returned FK5 declination (radians).</param>
+        /// <param name="dr5">Returned FK5 proper motion in RA (radians/year).</param>
+        /// <param name="dd5">Returned FK5 proper motion in Dec (radians/year).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauHfk5z", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Hfk5z(double rh, double dh, double date1, double date2, ref double r5, ref double d5, ref double dr5, ref double dd5);
 
         /// <summary>
         /// Proper motion and parallax propagation.
         /// </summary>
+        /// <param name="ra1">RA at epoch 1 (radians).</param>
+        /// <param name="dec1">Dec at epoch 1 (radians).</param>
+        /// <param name="pmr1">Proper motion in RA (radians/year).</param>
+        /// <param name="pmd1">Proper motion in Dec (radians/year).</param>
+        /// <param name="px1">Parallax at epoch 1 (arcsec).</param>
+        /// <param name="rv1">Radial velocity at epoch 1 (km/s).</param>
+        /// <param name="ep1a">Epoch 1 (part A).</param>
+        /// <param name="ep1b">Epoch 1 (part B).</param>
+        /// <param name="ep2a">Epoch 2 (part A).</param>
+        /// <param name="ep2b">Epoch 2 (part B).</param>
+        /// <param name="ra2">Returned RA at epoch 2 (radians).</param>
+        /// <param name="dec2">Returned Dec at epoch 2 (radians).</param>
+        /// <param name="pmr2">Returned proper motion in RA (radians/year).</param>
+        /// <param name="pmd2">Returned proper motion in Dec (radians/year).</param>
+        /// <param name="px2">Returned parallax at epoch 2 (arcsec).</param>
+        /// <param name="rv2">Returned radial velocity at epoch 2 (km/s).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauStarpm", CallingConvention = CallingConvention.Cdecl)]
         public static extern int Starpm(
             double ra1,
@@ -3622,6 +3666,13 @@ namespace ASCOM.Tools
         /// <summary>
         /// Position-velocity vector to spherical polar coordinates.
         /// </summary>
+        /// <param name="pv">Position-velocity vector (length 6).</param>
+        /// <param name="ra">Returned right ascension (radians).</param>
+        /// <param name="dec">Returned declination (radians).</param>
+        /// <param name="pmr">Returned proper motion in RA (radians/year).</param>
+        /// <param name="pmd">Returned proper motion in Dec (radians/year).</param>
+        /// <param name="px">Returned parallax (arcsec).</param>
+        /// <param name="rv">Returned radial velocity (km/s).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauPvstar", CallingConvention = CallingConvention.Cdecl)]
         public static extern int Pvstar(
             [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] pv,
@@ -3635,6 +3686,13 @@ namespace ASCOM.Tools
         /// <summary>
         /// Spherical polar coordinates to position-velocity vector.
         /// </summary>
+        /// <param name="ra">Right ascension (radians).</param>
+        /// <param name="dec">Declination (radians).</param>
+        /// <param name="pmr">Proper motion in RA (radians/year).</param>
+        /// <param name="pmd">Proper motion in Dec (radians/year).</param>
+        /// <param name="px">Parallax (arcsec).</param>
+        /// <param name="rv">Radial velocity (km/s).</param>
+        /// <param name="pv">Returned position-velocity vector (length 6).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauStarpv", CallingConvention = CallingConvention.Cdecl)]
         public static extern int Starpv(
             double ra,
@@ -3650,36 +3708,63 @@ namespace ASCOM.Tools
         /// <summary>
         /// Transform ecliptic to equatorial coordinates.
         /// </summary>
+        /// <param name="date1">TT as a 2-part Julian Date (part 1).</param>
+        /// <param name="date2">TT as a 2-part Julian Date (part 2).</param>
+        /// <param name="dl">Ecliptic longitude (radians).</param>
+        /// <param name="db">Ecliptic latitude (radians).</param>
+        /// <param name="dr">Returned right ascension (radians).</param>
+        /// <param name="dd">Returned declination (radians).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauEceq06", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Eceq06(double date1, double date2, double dl, double db, ref double dr, ref double dd);
 
         /// <summary>
         /// Ecliptic to equatorial matrix (IAU 2006).
         /// </summary>
+        /// <param name="date1">TT as a 2-part Julian Date (part 1).</param>
+        /// <param name="date2">TT as a 2-part Julian Date (part 2).</param>
+        /// <param name="rm">Returned rotation matrix (row-major, length 9).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauEcm06", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Ecm06(double date1, double date2, [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rm);
 
         /// <summary>
         /// Transform equatorial to ecliptic coordinates.
         /// </summary>
+        /// <param name="date1">TT as a 2-part Julian Date (part 1).</param>
+        /// <param name="date2">TT as a 2-part Julian Date (part 2).</param>
+        /// <param name="dr">Right ascension (radians).</param>
+        /// <param name="dd">Declination (radians).</param>
+        /// <param name="dl">Returned ecliptic longitude (radians).</param>
+        /// <param name="db">Returned ecliptic latitude (radians).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauEqec06", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Eqec06(double date1, double date2, double dr, double dd, ref double dl, ref double db);
 
         /// <summary>
         /// Transform ecliptic to equatorial (FK4 epoch related).
         /// </summary>
+        /// <param name="epj">Besselian epoch.</param>
+        /// <param name="dl">Ecliptic longitude (radians).</param>
+        /// <param name="db">Ecliptic latitude (radians).</param>
+        /// <param name="dr">Returned right ascension (radians).</param>
+        /// <param name="dd">Returned declination (radians).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauLteceq", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Lteceq(double epj, double dl, double db, ref double dr, ref double dd);
 
         /// <summary>
         /// Ecliptic to equatorial matrix (FK4 epoch related).
         /// </summary>
+        /// <param name="epj">Besselian epoch.</param>
+        /// <param name="rm">Returned rotation matrix (row-major, length 9).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauLtecm", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Ltecm(double epj, [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rm);
 
         /// <summary>
         /// Transform equatorial to ecliptic (FK4 epoch related).
         /// </summary>
+        /// <param name="epj">Besselian epoch.</param>
+        /// <param name="dr">Right ascension (radians).</param>
+        /// <param name="dd">Declination (radians).</param>
+        /// <param name="dl">Returned ecliptic longitude (radians).</param>
+        /// <param name="db">Returned ecliptic latitude (radians).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauLteqec", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Lteqec(double epj, double dr, double dd, ref double dl, ref double db);
 
@@ -3688,12 +3773,20 @@ namespace ASCOM.Tools
         /// <summary>
         /// Transform ICRS to Galactic coordinates.
         /// </summary>
+        /// <param name="dr">ICRS right ascension (radians).</param>
+        /// <param name="dd">ICRS declination (radians).</param>
+        /// <param name="dl">Returned galactic longitude (radians).</param>
+        /// <param name="db">Returned galactic latitude (radians).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauIcrs2g", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Icrs2g(double dr, double dd, ref double dl, ref double db);
 
         /// <summary>
         /// Transform Galactic to ICRS coordinates.
         /// </summary>
+        /// <param name="dl">Galactic longitude (radians).</param>
+        /// <param name="db">Galactic latitude (radians).</param>
+        /// <param name="dr">Returned ICRS right ascension (radians).</param>
+        /// <param name="dd">Returned ICRS declination (radians).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauG2icrs", CallingConvention = CallingConvention.Cdecl)]
         public static extern void G2icrs(double dl, double db, ref double dr, ref double dd);
 
@@ -3702,30 +3795,55 @@ namespace ASCOM.Tools
         /// <summary>
         /// Reference ellipsoid parameters.
         /// </summary>
+        /// <param name="n">Reference ellipsoid identifier.</param>
+        /// <param name="a">Returned equatorial radius (meters).</param>
+        /// <param name="f">Returned flattening.</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauEform", CallingConvention = CallingConvention.Cdecl)]
         public static extern int Eform(SofaReferenceEllipsoids n, ref double a, ref double f);
 
         /// <summary>
         /// Geocentric to geodetic coordinates.
         /// </summary>
+        /// <param name="n">Reference ellipsoid identifier.</param>
+        /// <param name="xyz">Geocentric Cartesian coordinates (meters, length 3).</param>
+        /// <param name="elong">Returned longitude (east positive, radians).</param>
+        /// <param name="phi">Returned geodetic latitude (radians).</param>
+        /// <param name="height">Returned height above ellipsoid (meters).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauGc2gd", CallingConvention = CallingConvention.Cdecl)]
         public static extern int Gc2gd(SofaReferenceEllipsoids n, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] xyz, ref double elong, ref double phi, ref double height);
 
         /// <summary>
         /// Geocentric to geodetic coordinates (given ellipsoid).
         /// </summary>
+        /// <param name="a">Equatorial radius (meters).</param>
+        /// <param name="f">Flattening.</param>
+        /// <param name="xyz">Geocentric Cartesian coordinates (meters, length 3).</param>
+        /// <param name="elong">Returned longitude (east positive, radians).</param>
+        /// <param name="phi">Returned geodetic latitude (radians).</param>
+        /// <param name="height">Returned height above ellipsoid (meters).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauGc2gde", CallingConvention = CallingConvention.Cdecl)]
         public static extern int Gc2gde(double a, double f, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] xyz, ref double elong, ref double phi, ref double height);
 
         /// <summary>
         /// Geodetic to geocentric coordinates.
         /// </summary>
+        /// <param name="n">Reference ellipsoid identifier.</param>
+        /// <param name="elong">Longitude (east positive, radians).</param>
+        /// <param name="phi">Geodetic latitude (radians).</param>
+        /// <param name="height">Height above ellipsoid (meters).</param>
+        /// <param name="xyz">Returned geocentric Cartesian coordinates (meters, length 3).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauGd2gc", CallingConvention = CallingConvention.Cdecl)]
         public static extern int Gd2gc(SofaReferenceEllipsoids n, double elong, double phi, double height, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] xyz);
 
         /// <summary>
         /// Geodetic to geocentric coordinates (given ellipsoid).
         /// </summary>
+        /// <param name="a">Equatorial radius (meters).</param>
+        /// <param name="f">Flattening.</param>
+        /// <param name="elong">Longitude (east positive, radians).</param>
+        /// <param name="phi">Geodetic latitude (radians).</param>
+        /// <param name="height">Height above ellipsoid (meters).</param>
+        /// <param name="xyz">Returned geocentric Cartesian coordinates (meters, length 3).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauGd2gce", CallingConvention = CallingConvention.Cdecl)]
         public static extern int Gd2gce(double a, double f, double elong, double phi, double height, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] xyz);
 
@@ -3734,12 +3852,25 @@ namespace ASCOM.Tools
         /// <summary>
         /// Gnomonic projection: (ξ,η) to (α,δ).
         /// </summary>
+        /// <param name="xi">Projection coordinate ξ.</param>
+        /// <param name="eta">Projection coordinate η.</param>
+        /// <param name="a">RA of tangent point (radians).</param>
+        /// <param name="b">Dec of tangent point (radians).</param>
+        /// <param name="a01">Returned solution 1 RA (radians).</param>
+        /// <param name="b01">Returned solution 1 Dec (radians).</param>
+        /// <param name="a02">Returned solution 2 RA (radians).</param>
+        /// <param name="b02">Returned solution 2 Dec (radians).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauTpors", CallingConvention = CallingConvention.Cdecl)]
         public static extern int Tpors(double xi, double eta, double a, double b, ref double a01, ref double b01, ref double a02, ref double b02);
 
         /// <summary>
         /// Gnomonic projection: (ξ,η) to unit vector.
         /// </summary>
+        /// <param name="xi">Projection coordinate ξ.</param>
+        /// <param name="eta">Projection coordinate η.</param>
+        /// <param name="v">Direction cosines of tangent point (length 3).</param>
+        /// <param name="v01">Returned unit vector solution 1 (length 3).</param>
+        /// <param name="v02">Returned unit vector solution 2 (length 3).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauTporv", CallingConvention = CallingConvention.Cdecl)]
         public static extern int Tporv(
             double xi,
@@ -3751,12 +3882,22 @@ namespace ASCOM.Tools
         /// <summary>
         /// Gnomonic projection: (α,δ) to (ξ,η).
         /// </summary>
+        /// <param name="xi">Projection coordinate ξ of tangent point.</param>
+        /// <param name="eta">Projection coordinate η of tangent point.</param>
+        /// <param name="a0">RA of target point (radians).</param>
+        /// <param name="b0">Dec of target point (radians).</param>
+        /// <param name="a">Returned ξ coordinate.</param>
+        /// <param name="b">Returned η coordinate.</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauTpsts", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Tpsts(double xi, double eta, double a0, double b0, ref double a, ref double b);
 
         /// <summary>
         /// Gnomonic projection: unit vector to (ξ,η).
         /// </summary>
+        /// <param name="xi">Projection coordinate ξ of tangent point.</param>
+        /// <param name="eta">Projection coordinate η of tangent point.</param>
+        /// <param name="v0">Unit vector of tangent point (length 3).</param>
+        /// <param name="v">Returned unit vector on projection plane (length 3).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauTpstv", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Tpstv(
             double xi,
@@ -3767,12 +3908,22 @@ namespace ASCOM.Tools
         /// <summary>
         /// Gnomonic projection: (α,δ) to (ξ,η) plane coordinates.
         /// </summary>
+        /// <param name="a">RA of target point (radians).</param>
+        /// <param name="b">Dec of target point (radians).</param>
+        /// <param name="a0">RA of tangent point (radians).</param>
+        /// <param name="b0">Dec of tangent point (radians).</param>
+        /// <param name="xi">Returned ξ coordinate.</param>
+        /// <param name="eta">Returned η coordinate.</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauTpxes", CallingConvention = CallingConvention.Cdecl)]
         public static extern int Tpxes(double a, double b, double a0, double b0, ref double xi, ref double eta);
 
         /// <summary>
         /// Gnomonic projection: unit vector to (ξ,η) plane coordinates.
         /// </summary>
+        /// <param name="v">Unit vector of target point (length 3).</param>
+        /// <param name="v0">Unit vector of tangent point (length 3).</param>
+        /// <param name="xi">Returned ξ coordinate.</param>
+        /// <param name="eta">Returned η coordinate.</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauTpxev", CallingConvention = CallingConvention.Cdecl)]
         public static extern int Tpxev(
             [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] v,
