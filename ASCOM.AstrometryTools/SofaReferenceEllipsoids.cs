@@ -4,7 +4,11 @@ using System.Text;
 
 namespace ASCOM.Tools
 {
-public enum SofaReferenceEllipsoids
+    /// <summary>
+    /// SOFA reference ellipsoids
+    /// 
+    /// </summary>
+    public enum SofaReferenceEllipsoids
     {
         /// <summary>
         /// WGS 84 reference ellipsoid
