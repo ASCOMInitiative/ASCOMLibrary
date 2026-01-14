@@ -2301,6 +2301,7 @@ namespace ASCOM.Tools
         /// <summary>
         /// Initialize a position-velocity vector to zero.
         /// </summary>
+        /// <param name="pv">A 6-element array that receives the zero position-velocity vector.</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauZpv", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Zpv([MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] pv);
 
@@ -2488,102 +2489,152 @@ namespace ASCOM.Tools
         /// <summary>
         /// Scalar product of two 3D vectors.
         /// </summary>
+        /// <param name="a">First vector (length 3).</param>
+        /// <param name="b">Second vector (length 3).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauPdp", CallingConvention = CallingConvention.Cdecl)]
         public static extern double Pdp([MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] a, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] b);
 
         /// <summary>
         /// Magnitude of a 3D vector.
         /// </summary>
+        /// <param name="p">Vector (length 3).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauPm", CallingConvention = CallingConvention.Cdecl)]
         public static extern double Pm([MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] p);
 
         /// <summary>
         /// Subtract two 3D vectors.
         /// </summary>
+        /// <param name="a">First vector (length 3).</param>
+        /// <param name="b">Second vector (length 3).</param>
+        /// <param name="amb">Returned vector <c>a-b</c> (length 3).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauPmp", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Pmp([MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] a, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] b, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] amb);
 
         /// <summary>
         /// Normalize a 3D vector.
         /// </summary>
+        /// <param name="p">Vector to normalize (length 3).</param>
+        /// <param name="r">Returned magnitude.</param>
+        /// <param name="u">Returned unit vector (length 3).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauPn", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Pn([MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] p, ref double r, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] u);
 
         /// <summary>
         /// Add two 3D vectors.
         /// </summary>
+        /// <param name="a">First vector (length 3).</param>
+        /// <param name="b">Second vector (length 3).</param>
+        /// <param name="apb">Returned vector <c>a+b</c> (length 3).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauPpp", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Ppp([MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] a, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] b, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] apb);
 
         /// <summary>
         /// Add a scaled 3D vector to another 3D vector.
         /// </summary>
+        /// <param name="a">First vector (length 3).</param>
+        /// <param name="s">Scale factor applied to <paramref name="b"/>.</param>
+        /// <param name="b">Second vector (length 3).</param>
+        /// <param name="apsb">Returned vector <c>a + s*b</c> (length 3).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauPpsp", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Ppsp([MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] a, double s, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] b, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] apsb);
 
         /// <summary>
         /// Scalar product of two 6D position-velocity vectors.
         /// </summary>
+        /// <param name="a">First position-velocity vector (length 6).</param>
+        /// <param name="b">Second position-velocity vector (length 6).</param>
+        /// <param name="adb">Returned dot products (length 2): position·position and velocity·velocity.</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauPvdpv", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Pvdpv([MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] a, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] b, [MarshalAs(UnmanagedType.LPArray, SizeConst = 2)] double[] adb);
 
         /// <summary>
         /// Magnitude and unit vector of a 6D position-velocity vector.
         /// </summary>
+        /// <param name="pv">Position-velocity vector (length 6).</param>
+        /// <param name="r">Returned magnitude of the position component.</param>
+        /// <param name="s">Returned magnitude of the velocity component.</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauPvm", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Pvm([MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] pv, ref double r, ref double s);
 
         /// <summary>
         /// Subtract two 6D position-velocity vectors.
         /// </summary>
+        /// <param name="a">First position-velocity vector (length 6).</param>
+        /// <param name="b">Second position-velocity vector (length 6).</param>
+        /// <param name="amb">Returned vector <c>a-b</c> (length 6).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauPvmpv", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Pvmpv([MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] a, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] b, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] amb);
 
         /// <summary>
         /// Add two 6D position-velocity vectors.
         /// </summary>
+        /// <param name="a">First position-velocity vector (length 6).</param>
+        /// <param name="b">Second position-velocity vector (length 6).</param>
+        /// <param name="apb">Returned vector <c>a+b</c> (length 6).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauPvppv", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Pvppv([MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] a, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] b, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] apb);
 
         /// <summary>
         /// Update a 6D position-velocity vector by adding a constant velocity step.
         /// </summary>
+        /// <param name="dt">Time interval.</param>
+        /// <param name="pv">Position-velocity vector at the start epoch (length 6).</param>
+        /// <param name="upv">Returned updated position-velocity vector (length 6).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauPvu", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Pvu(double dt, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] pv, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] upv);
 
         /// <summary>
         /// Update a 6D position-velocity vector by interpolating to a different time.
         /// </summary>
+        /// <param name="dt">Time interval.</param>
+        /// <param name="pv">Position-velocity vector at the start epoch (length 6).</param>
+        /// <param name="p">Returned position vector at the shifted epoch (length 3).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauPvup", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Pvup(double dt, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] pv, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] p);
 
         /// <summary>
         /// Cross product of two 6D position-velocity vectors.
         /// </summary>
+        /// <param name="a">First position-velocity vector (length 6).</param>
+        /// <param name="b">Second position-velocity vector (length 6).</param>
+        /// <param name="axb">Returned cross product (length 6).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauPvxpv", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Pvxpv([MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] a, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] b, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] axb);
 
         /// <summary>
         /// Cross product of two 3D vectors.
         /// </summary>
+        /// <param name="a">First vector (length 3).</param>
+        /// <param name="b">Second vector (length 3).</param>
+        /// <param name="axb">Returned cross product (length 3).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauPxp", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Pxp([MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] a, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] b, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] axb);
 
         /// <summary>
         /// Multiply a 6D position-velocity vector by a scalar and another 6D position-velocity vector.
         /// </summary>
+        /// <param name="s1">Scale factor for the position component.</param>
+        /// <param name="s2">Scale factor for the velocity component.</param>
+        /// <param name="pv">Input position-velocity vector (length 6).</param>
+        /// <param name="spv">Returned scaled position-velocity vector (length 6).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauS2xpv", CallingConvention = CallingConvention.Cdecl)]
         public static extern void S2xpv(double s1, double s2, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] pv, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] spv);
 
         /// <summary>
         /// Multiply a 3D vector by a scalar.
         /// </summary>
+        /// <param name="s">Scale factor.</param>
+        /// <param name="p">Input vector (length 3).</param>
+        /// <param name="sp">Returned scaled vector (length 3).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauSxp", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Sxp(double s, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] p, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] sp);
 
         /// <summary>
         /// Multiply a 6D position-velocity vector by a scalar.
         /// </summary>
+        /// <param name="s">Scale factor.</param>
+        /// <param name="pv">Input position-velocity vector (length 6).</param>
+        /// <param name="spv">Returned scaled position-velocity vector (length 6).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauSxpv", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Sxpv(double s, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] pv, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] spv);
 
