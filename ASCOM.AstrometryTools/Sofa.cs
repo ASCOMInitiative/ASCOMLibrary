@@ -2058,10 +2058,13 @@ namespace ASCOM.Tools
 
         #region Further functions
 
-        // ------------------------------------------------------------
-        // iauA2af  —  Angle to degrees, arcminutes, arcseconds, fraction
-        // C: void iauA2af(int ndp, double angle, char *sign, int idmsf[4]);
-        // ------------------------------------------------------------
+        /// <summary>
+        /// Angle to degrees, arcminutes, arcseconds, fraction.
+        /// </summary>
+        /// <param name="ndp">Number of decimal places of arcseconds.</param>
+        /// <param name="angle">Angle in radians.</param>
+        /// <param name="sign">Returned sign ('+' or '-').</param>
+        /// <param name="idmsf">Returned degrees, arcminutes, arcseconds, fraction (length 4).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauA2af", CallingConvention = CallingConvention.Cdecl)]
         public static extern void A2af(
             int ndp,
@@ -2070,10 +2073,13 @@ namespace ASCOM.Tools
             [Out] int[] idmsf         // must be length 4
         );
 
-        // ------------------------------------------------------------
-        // iauA2tf  —  Angle to hours, minutes, seconds, fraction
-        // C: void iauA2tf(int ndp, double angle, char *sign, int ihmsf[4]);
-        // ------------------------------------------------------------
+        /// <summary>
+        /// Angle to hours, minutes, seconds, fraction.
+        /// </summary>
+        /// <param name="ndp">Number of decimal places of seconds.</param>
+        /// <param name="angle">Angle in radians.</param>
+        /// <param name="sign">Returned sign ('+' or '-').</param>
+        /// <param name="ihmsf">Returned hours, minutes, seconds, fraction (length 4).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauA2tf", CallingConvention = CallingConvention.Cdecl)]
         public static extern void A2tf(
             int ndp,
@@ -2082,10 +2088,15 @@ namespace ASCOM.Tools
             [Out] int[] ihmsf         // must be length 4
         );
 
-        // ------------------------------------------------------------
-        // iauAf2a  —  Degrees, arcminutes, arcseconds to angle
-        // C: int iauAf2a(char s, int ideg, int iamin, double asec, double *rad);
-        // ------------------------------------------------------------
+        /// <summary>
+        /// Degrees, arcminutes, arcseconds to angle in radians.
+        /// </summary>
+        /// <param name="sign">Sign ('+' or '-').</param>
+        /// <param name="ideg">Degrees.</param>
+        /// <param name="iamin">Arcminutes.</param>
+        /// <param name="asec">Arcseconds.</param>
+        /// <param name="rad">Returned angle in radians.</param>
+        /// <returns>Status code: 0 = OK, 1-3 = range error per field.</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauAf2a", CallingConvention = CallingConvention.Cdecl)]
         public static extern int Af2a(
             char sign,                // '+' or '-'
@@ -2095,10 +2106,15 @@ namespace ASCOM.Tools
             out double rad            // output angle in radians
         );
 
-        // ------------------------------------------------------------
-        // iauTf2a  —  Hours, minutes, seconds to angle
-        // C: int iauTf2a(char s, int ihour, int imin, double sec, double *rad);
-        // ------------------------------------------------------------
+        /// <summary>
+        /// Hours, minutes, seconds to angle in radians.
+        /// </summary>
+        /// <param name="sign">Sign ('+' or '-').</param>
+        /// <param name="ihour">Hours.</param>
+        /// <param name="imin">Minutes.</param>
+        /// <param name="sec">Seconds.</param>
+        /// <param name="rad">Returned angle in radians.</param>
+        /// <returns>Status code: 0 = OK, 1-3 = range error per field.</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauTf2a", CallingConvention = CallingConvention.Cdecl)]
         public static extern int Tf2a(
             char sign,                // '+' or '-'
