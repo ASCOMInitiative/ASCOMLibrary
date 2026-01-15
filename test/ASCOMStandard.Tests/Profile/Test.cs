@@ -7,7 +7,7 @@ namespace Profile
 {
     internal static class Test
     {
-        static readonly Random random = new();
+        static readonly Random random = new Random();
 
         public const int BAD_DEVICE_TYPE_VALUE = 99;
         public const DeviceTypes TEST_DEVICE_TYPE = DeviceTypes.Camera;
@@ -25,7 +25,7 @@ namespace Profile
         public const string TEST_VALUE_NAME4 = "Test Value 4";
         public const string TEST_VALUE4 = "Contents of test value 4";
 
-        public static Mutex TestMutex = new(false, "ProfileTestMutex");
+        public static Mutex TestMutex = new Mutex(false, "ProfileTestMutex");
 
         #region Support Code
 

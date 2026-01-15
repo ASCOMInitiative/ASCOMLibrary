@@ -5,7 +5,7 @@ namespace TransformTests
 {
     public class TransformLoggerTests
     {
-        readonly TraceLogger TL = new("TransformTest1", true);
+        readonly TraceLogger TL = new TraceLogger("TransformTest1", true);
         Transform transform;
 
         [Fact]
@@ -20,7 +20,7 @@ namespace TransformTests
 
 
 
-            ConsoleLogger consLogger = new();
+            ConsoleLogger consLogger = new ConsoleLogger();
             consLogger.SetMinimumLoggingLevel(ASCOM.Common.Interfaces.LogLevel.Debug);
             consLogger.Log(ASCOM.Common.Interfaces.LogLevel.Debug, "Console logger created");
             transform = new Transform(consLogger);

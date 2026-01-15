@@ -8,7 +8,7 @@ namespace TransformTests
 {
     public class TransformFunctionalTests
     {
-        readonly TraceLogger TL = new("TransformTest", true)
+        readonly TraceLogger TL = new TraceLogger("TransformTest", true)
         {
             IdentifierWidth = 40
         };

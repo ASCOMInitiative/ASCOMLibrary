@@ -5,7 +5,9 @@ using ASCOM;
 
 namespace Profile
 {
+#if NET8_0_OR_GREATER
     [System.Runtime.Versioning.SupportedOSPlatform("Windows")]
+#endif
     public class ProfileComponentTests
     {
         [Fact]

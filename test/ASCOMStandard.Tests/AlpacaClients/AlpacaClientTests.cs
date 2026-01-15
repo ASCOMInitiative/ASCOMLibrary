@@ -14,7 +14,7 @@ namespace AlpacaClients
 #endif
     public class AlpacaClientTests
     {
-        static  AlpacaConfiguration configuration= new();
+        static AlpacaConfiguration configuration = new AlpacaConfiguration();
 
         [Fact]
         public void GetDeviceCamera()
@@ -99,7 +99,7 @@ namespace AlpacaClients
         [Fact]
         public void AlpacaCamera()
         {
-            AlpacaCamera device = new(configuration);
+            AlpacaCamera device = new AlpacaCamera(configuration);
             Assert.NotNull(device);
             device.Dispose();
         }
@@ -107,7 +107,7 @@ namespace AlpacaClients
         [Fact]
         public void AlpacaCoverCalibrator()
         {
-            AlpacaCoverCalibrator device = new (configuration);
+            AlpacaCoverCalibrator device = new AlpacaCoverCalibrator(configuration);
             Assert.NotNull(device);
             device.Dispose();
         }
@@ -115,7 +115,7 @@ namespace AlpacaClients
         [Fact]
         public void AlpacaDome()
         {
-            AlpacaDome device = new(configuration);
+            AlpacaDome device = new AlpacaDome(configuration);
             Assert.NotNull(device);
             device.Dispose();
         }
@@ -123,7 +123,7 @@ namespace AlpacaClients
         [Fact]
         public void AlpacaFilterWheel()
         {
-            AlpacaFilterWheel device = new(configuration);
+            AlpacaFilterWheel device = new AlpacaFilterWheel(configuration);
             Assert.NotNull(device);
             device.Dispose();
         }
@@ -131,7 +131,7 @@ namespace AlpacaClients
         [Fact]
         public void AlpacaFocuser()
         {
-            AlpacaFocuser device = new(configuration);
+            AlpacaFocuser device = new AlpacaFocuser(configuration);
             Assert.NotNull(device);
             device.Dispose();
         }
@@ -139,7 +139,7 @@ namespace AlpacaClients
         [Fact]
         public void AlpacaObservingConditions()
         {
-            AlpacaObservingConditions device = new(configuration);
+            AlpacaObservingConditions device = new AlpacaObservingConditions(configuration);
             Assert.NotNull(device);
             device.Dispose();
         }
@@ -147,7 +147,7 @@ namespace AlpacaClients
         [Fact]
         public void AlpacaRotator()
         {
-            AlpacaRotator device = new(configuration);
+            AlpacaRotator device = new AlpacaRotator(configuration);
             Assert.NotNull(device);
             device.Dispose();
         }
@@ -155,7 +155,7 @@ namespace AlpacaClients
         [Fact]
         public void AlpacaSafetyMonitor()
         {
-            AlpacaSafetyMonitor device = new(configuration);
+            AlpacaSafetyMonitor device = new AlpacaSafetyMonitor(configuration);
             Assert.NotNull(device);
             device.Dispose();
         }
@@ -163,7 +163,7 @@ namespace AlpacaClients
         [Fact]
         public void AlpacaSwitch()
         {
-            AlpacaSwitch device = new(configuration);
+            AlpacaSwitch device = new AlpacaSwitch(configuration);
             Assert.NotNull(device);
             device.Dispose();
         }
@@ -171,7 +171,7 @@ namespace AlpacaClients
         [Fact]
         public void AlpacaTelescope()
         {
-            AlpacaTelescope device = new(configuration);
+            AlpacaTelescope device = new AlpacaTelescope(configuration);
             Assert.NotNull(device);
             device.Dispose();
         }

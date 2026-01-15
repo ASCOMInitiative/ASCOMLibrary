@@ -25,7 +25,7 @@ namespace TraceLoggerTests
         [Fact]
         public void CantWriteWhenDisabled()
         {
-            ASCOM.Tools.TraceLogger TL = new(nameof(CantWriteWhenDisabled), true);
+            ASCOM.Tools.TraceLogger TL = new ASCOM.Tools.TraceLogger(nameof(CantWriteWhenDisabled), true);
             Assert.True(TL.Enabled);
 
             TL.LogMessage("CreateLog", FIRST_LOG_LINE);
@@ -48,7 +48,7 @@ namespace TraceLoggerTests
         [Fact]
         public void DefaultidentifierWidth()
         {
-            ASCOM.Tools.TraceLogger TL = new(nameof(DefaultidentifierWidth), true);
+            ASCOM.Tools.TraceLogger TL = new ASCOM.Tools.TraceLogger(nameof(DefaultidentifierWidth), true);
             Assert.Equal(IDENTIFIER_WIDTH_DEFAULT, TL.IdentifierWidth);
 
             TL.LogMessage("CreateLog", FIRST_LOG_LINE);
@@ -66,7 +66,7 @@ namespace TraceLoggerTests
         [Fact]
         public void GoodIdentifierWidth()
         {
-            ASCOM.Tools.TraceLogger TL = new(nameof(GoodIdentifierWidth), true)
+            ASCOM.Tools.TraceLogger TL = new ASCOM.Tools.TraceLogger(nameof(GoodIdentifierWidth), true)
             {
                 IdentifierWidth = IDENTIFIER_WIDTH_TEST_VALUE
             };
@@ -87,7 +87,7 @@ namespace TraceLoggerTests
         [Fact]
         public void BadIdentifierWidth()
         {
-            ASCOM.Tools.TraceLogger TL = new(nameof(BadIdentifierWidth), true);
+            ASCOM.Tools.TraceLogger TL = new ASCOM.Tools.TraceLogger(nameof(BadIdentifierWidth), true);
             Assert.Equal(IDENTIFIER_WIDTH_DEFAULT, TL.IdentifierWidth);
 
             Exception ex = Assert.Throws<InvalidValueException>(() => TL.IdentifierWidth = -1);
@@ -100,7 +100,7 @@ namespace TraceLoggerTests
         [Fact]
         public void DontRespectCrLf()
         {
-            ASCOM.Tools.TraceLogger TL = new(nameof(DontRespectCrLf), true);
+            ASCOM.Tools.TraceLogger TL = new ASCOM.Tools.TraceLogger(nameof(DontRespectCrLf), true);
 
             Assert.True(TL.RespectCrLf);
             TL.RespectCrLf = false;
@@ -121,7 +121,7 @@ namespace TraceLoggerTests
         [Fact]
         public void AutoPathAutoName()
         {
-            ASCOM.Tools.TraceLogger TL = new(nameof(AutoPathAutoName), true);
+            ASCOM.Tools.TraceLogger TL = new ASCOM.Tools.TraceLogger(nameof(AutoPathAutoName), true);
             string originalLogFileName = TL.LogFileName;
             string originalLogFilePath = TL.LogFilePath;
 
@@ -154,7 +154,7 @@ namespace TraceLoggerTests
         [Fact]
         public void AutoPathAutoNameUtc()
         {
-            ASCOM.Tools.TraceLogger TL = new(nameof(AutoPathAutoNameUtc), true)
+            ASCOM.Tools.TraceLogger TL = new ASCOM.Tools.TraceLogger(nameof(AutoPathAutoNameUtc), true)
             {
                 UseUtcTime = true
             };
@@ -193,7 +193,7 @@ namespace TraceLoggerTests
         {
             const string TEST_FILE_NAME = "AutoPathManualName.txt";
 
-            ASCOM.Tools.TraceLogger TL = new(TEST_FILE_NAME, "", nameof(AutoPathManualName), true)
+            ASCOM.Tools.TraceLogger TL = new ASCOM.Tools.TraceLogger(TEST_FILE_NAME, "", nameof(AutoPathManualName), true)
             {
                 Enabled = true
             };
@@ -227,7 +227,7 @@ namespace TraceLoggerTests
         [Fact]
         public void ManualPathAutolName()
         {
-            ASCOM.Tools.TraceLogger TL = new("", Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "ASCOM"), nameof(ManualPathAutolName), true)
+            ASCOM.Tools.TraceLogger TL = new ASCOM.Tools.TraceLogger("", Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "ASCOM"), nameof(ManualPathAutolName), true)
             {
                 Enabled = true
             };
@@ -263,7 +263,7 @@ namespace TraceLoggerTests
         {
             const string TEST_FILE_NAME = "ManualPathManualName.txt";
 
-            ASCOM.Tools.TraceLogger TL = new(TEST_FILE_NAME, Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "ASCOM"), nameof(ManualPathManuallName), true)
+            ASCOM.Tools.TraceLogger TL = new ASCOM.Tools.TraceLogger(TEST_FILE_NAME, Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "ASCOM"), nameof(ManualPathManuallName), true)
             {
                 Enabled = true
             };

@@ -15,7 +15,7 @@ namespace ClientToolkitTests
         [Fact]
         public void Camera()
         {
-            using (Camera device = new("ASCOM.Simulator.Camera"))
+            using (Camera device = new Camera("ASCOM.Simulator.Camera"))
             {
                 device.Connect();
                 do
@@ -49,7 +49,7 @@ namespace ClientToolkitTests
         [Fact]
         public void CoverCalibrator()
         {
-            using (CoverCalibrator device = new("ASCOM.Simulator.CoverCalibrator"))
+            using (CoverCalibrator device = new CoverCalibrator("ASCOM.Simulator.CoverCalibrator"))
             {
                 device.Connect();
                 do
@@ -81,10 +81,10 @@ namespace ClientToolkitTests
         [Fact]
         public void Dome()
         {
-            using (TraceLogger traceLogger = new("ComDomeStateTest", true))
+            using (TraceLogger traceLogger = new TraceLogger("ComDomeStateTest", true))
             {
                 traceLogger.LogMessage("ComDomeStateTest", $"Created logger");
-                using (Dome device = new("ASCOM.Simulator.Dome", traceLogger))
+                using (Dome device = new Dome("ASCOM.Simulator.Dome", traceLogger))
                 {
                     traceLogger.LogMessage("ComDomeStateTest", $"Created Dome device");
                     device.Connect();
@@ -131,7 +131,7 @@ namespace ClientToolkitTests
         [Fact]
         public void FilterWheel()
         {
-            using (FilterWheel device = new("ASCOM.Simulator.FilterWheel"))
+            using (FilterWheel device = new FilterWheel("ASCOM.Simulator.FilterWheel"))
             {
                 device.Connect();
                 do
@@ -159,7 +159,7 @@ namespace ClientToolkitTests
         [Fact]
         public void Focuser()
         {
-            using (Focuser device = new("ASCOM.Simulator.Focuser"))
+            using (Focuser device = new Focuser("ASCOM.Simulator.Focuser"))
             {
                 device.Connect();
                 do
@@ -190,7 +190,7 @@ namespace ClientToolkitTests
 #endif
         public void ObservingConditions()
         {
-            using (ObservingConditions device = new("ASCOM.Simulator.ObservingConditions"))
+            using (ObservingConditions device = new ObservingConditions("ASCOM.Simulator.ObservingConditions"))
             {
                 device.Connect();
                 do
@@ -231,7 +231,7 @@ namespace ClientToolkitTests
         [Fact]
         public void Rotator()
         {
-            using (Rotator device = new("ASCOM.Simulator.Rotator"))
+            using (Rotator device = new Rotator("ASCOM.Simulator.Rotator"))
             {
                 device.Connect();
                 do
@@ -262,7 +262,7 @@ namespace ClientToolkitTests
         [Fact]
         public void SafetyMonitor()
         {
-            using (SafetyMonitor device = new("ASCOM.Simulator.SafetyMonitor"))
+            using (SafetyMonitor device = new SafetyMonitor("ASCOM.Simulator.SafetyMonitor"))
             {
                 device.Connect();
                 do
@@ -291,7 +291,7 @@ namespace ClientToolkitTests
         [Fact]
         public void Telescope()
         {
-            using (Telescope device = new("ASCOM.Simulator.Telescope"))
+            using (Telescope device = new Telescope("ASCOM.Simulator.Telescope"))
             {
                 device.Connect();
                 do
@@ -330,7 +330,7 @@ namespace ClientToolkitTests
         [Fact]
         public void Video()
         {
-            using (Video device = new("ASCOM.Simulator.Video"))
+            using (Video device = new Video("ASCOM.Simulator.Video"))
             {
                 device.Connect();
                 do

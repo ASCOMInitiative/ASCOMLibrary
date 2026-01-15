@@ -1,6 +1,4 @@
 ﻿using ASCOM.Tools;
-using static ASCOM.Tools.Sofa;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,6 +6,8 @@ using System.Net.NetworkInformation;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
+using Xunit.Abstractions;
+using static ASCOM.Tools.Sofa;
 namespace SOFATests
 {
     public class SofaTests
@@ -18,6 +18,13 @@ namespace SOFATests
         double ri, di, a, u1, u2, a1, a2, ob1, ob2, anp;
 
         DateTime sofaDatTestDate = new DateTime(2024, 1, 1, 0, 0, 0); // This should be the first day of the year following the SOFA release
+
+        private readonly ITestOutputHelper logger;
+
+        public SofaTests(ITestOutputHelper testOutputHelper)
+        {
+            logger = testOutputHelper;
+        }
 
         [Fact]
         public void ReleaseNumber()
@@ -334,10 +341,11 @@ namespace SOFATests
         [Fact]
         public void A2af()
         {
-            char sign ='X';
+            byte sign = (byte)'X';
             int[] idmsf = new int[4];
-            Sofa.A2af(4, 2.345, sign, idmsf);
-            Assert.Equal('+', sign);
+            Sofa.A2af(4, 2.345, out sign, idmsf);
+            char signChar = (char)sign;
+            Assert.Equal('+', signChar);
             Assert.Equal(134, idmsf[0]);
             Assert.Equal(21, idmsf[1]);
             Assert.Equal(30, idmsf[2]);
@@ -347,10 +355,11 @@ namespace SOFATests
         [Fact]
         public void A2tf()
         {
-            char sign = 'X';
+            byte sign = (byte)'X';
             int[] ihmsf = new int[4];
-            Sofa.A2tf(4, -3.01234, sign, ihmsf);
-            Assert.Equal('-', sign);
+            Sofa.A2tf(4, -3.01234, out sign, ihmsf);
+            char signChar = (char)sign;
+            Assert.Equal('-', signChar);
             Assert.Equal(11, ihmsf[0]);
             Assert.Equal(30, ihmsf[1]);
             Assert.Equal(22, ihmsf[2]);
@@ -906,52 +915,73 @@ namespace SOFATests
         [Fact]
         public void Atciqn()
         {
-            double date1 = 2456165.5;
-            double date2 = 0.401182685;
+            try
+            {
+                double date1 = 2456165.5;
+                double date2 = 0.401182685;
+#if NET8_0_OR_GREATER
             var astrom = new Sofa.Astrom();
-            double eo = 0;
-            Sofa.Apci13(date1, date2, ref astrom, ref eo);
-            double ri = 2.709994899247599271;
-            double di = 0.1728740720983623469;
-            // prepare b array of LdBody
-            var b = new Sofa.LdBody[3];
-            for (int i = 0; i < 3; i++) b[i] = new Sofa.LdBody();
+#else
+                var astrom = Sofa.CreateAstrom();
+#endif
+                double eo = 0;
+                Sofa.Apci13(date1, date2, ref astrom, ref eo);
+                double ri = 2.709994899247599271;
+                double di = 0.1728740720983623469;
 
-            double rc = 2.71;
-            double dc = 0.174;
-            double pr = 1e-5;
-            double pd = 5e-6;
-            double px = 0.1;
-            double rv = 55.0;
-            b[0].bm = 0.00028574;
-            b[0].dl = 3e-10;
-            b[0].pv[0] = -7.81014427;
-            b[0].pv[1] = -5.60956681;
-            b[0].pv[2] = -1.98079819;
-            b[0].pv[3] = 0.0030723249;
-            b[0].pv[4] = -0.00406995477;
-            b[0].pv[5] = -0.00181335842;
-            b[1].bm = 0.00095435;
-            b[1].dl = 3e-9;
-            b[1].pv[0] = 0.738098796;
-            b[1].pv[1] = 4.63658692;
-            b[1].pv[2] = 1.9693136;
-            b[1].pv[3] = -0.00755816922;
-            b[1].pv[4] = 0.00126913722;
-            b[1].pv[5] = 0.000727999001;
-            b[2].bm = 1.0;
-            b[2].dl = 6e-6;
-            b[2].pv[0] = -0.000712174377;
-            b[2].pv[1] = -0.00230478303;
-            b[2].pv[2] = -0.00105865966;
-            b[2].pv[3] = 6.29235213e-6;
-            b[2].pv[4] = -3.30888387e-7;
-            b[2].pv[5] = -2.96486623e-7;
+                // prepare b array of LdBody
+                var b = new LdBody[3];
+#if NET8_0_OR_GREATER
+                // .NET 8 and later automatically initialise structs
+                for (int i = 0; i < 3; i++) b[i] = new Sofa.LdBody();
+#else
+                // .NET Framework does not initialise structs so we have to do it here!
+                b[0] = Sofa.CreateLdBody();
+                b[1] = Sofa.CreateLdBody();
+                b[2] = Sofa.CreateLdBody();
+#endif
 
-            Sofa.Atciqn(rc, dc, pr, pd, px, rv, ref astrom, 3, b, ref ri, ref di);
+                double rc = 2.71;
+                double dc = 0.174;
+                double pr = 1e-5;
+                double pd = 5e-6;
+                double px = 0.1;
+                double rv = 55.0;
+                b[0].bm = 0.00028574;
+                b[0].dl = 3e-10;
+                b[0].pv[0] = -7.81014427;
+                b[0].pv[1] = -5.60956681;
+                b[0].pv[2] = -1.98079819;
+                b[0].pv[3] = 0.0030723249;
+                b[0].pv[4] = -0.00406995477;
+                b[0].pv[5] = -0.00181335842;
+                b[1].bm = 0.00095435;
+                b[1].dl = 3e-9;
+                b[1].pv[0] = 0.738098796;
+                b[1].pv[1] = 4.63658692;
+                b[1].pv[2] = 1.9693136;
+                b[1].pv[3] = -0.00755816922;
+                b[1].pv[4] = 0.00126913722;
+                b[1].pv[5] = 0.000727999001;
+                b[2].bm = 1.0;
+                b[2].dl = 6e-6;
+                b[2].pv[0] = -0.000712174377;
+                b[2].pv[1] = -0.00230478303;
+                b[2].pv[2] = -0.00105865966;
+                b[2].pv[3] = 6.29235213e-6;
+                b[2].pv[4] = -3.30888387e-7;
+                b[2].pv[5] = -2.96486623e-7;
 
-            Assert.Equal(2.710122008104983335, ri, 12);
-            Assert.Equal(0.1729371916492767821, di, 12);
+                Sofa.Atciqn(rc, dc, pr, pd, px, rv, ref astrom, 3, b, ref ri, ref di);
+
+                Assert.Equal(2.710122008104983335, ri, 12);
+                Assert.Equal(0.1729371916492767821, di, 12);
+            }
+            catch (Exception ex)
+            {
+                logger.WriteLine($"Exception - {ex.Message}\r\n{ex}");
+                Assert.Fail("Exception thrown");
+            }
         }
 
         [Fact]
@@ -1740,12 +1770,12 @@ namespace SOFATests
             double days = -0.987654321;
 
             // Act
-            char sign = 'X';
+            byte sign = (byte)'X';
             int[] ihmsf = new int[4];
-            Sofa.D2tf(ndp, days, sign, ihmsf);
-
+            Sofa.D2tf(ndp, days, out sign, ihmsf);
+            char signChar = (char)sign;
             // Assert
-            Assert.Equal('-', sign);
+            Assert.Equal('-', signChar);
             Assert.Equal(23, ihmsf[0]);
             Assert.Equal(42, ihmsf[1]);
             Assert.Equal(13, ihmsf[2]);
@@ -4430,7 +4460,11 @@ namespace SOFATests
 
             // Assert
             Assert.Equal(0, j);
+#if NET8_0_OR_GREATER
             Assert.Equal(126668.5912743160601, pv[0], 10, MidpointRounding.ToPositiveInfinity);
+#else
+            Assert.Equal(126668.5912743160601, pv[0], 10, MidpointRounding.AwayFromZero);
+#endif
             Assert.Equal(2136.792716839935195, pv[1], 10);
             Assert.Equal(-245251.2339876830091, pv[2], 10);
             Assert.Equal(-0.4051854008955659551e-2, pv[3], 13);

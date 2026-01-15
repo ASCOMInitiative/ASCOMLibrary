@@ -5,7 +5,6 @@ using ASCOM.Tools;
 using System;
 using Xunit;
 using Xunit.Abstractions;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace InterfaceVersionTests
 {

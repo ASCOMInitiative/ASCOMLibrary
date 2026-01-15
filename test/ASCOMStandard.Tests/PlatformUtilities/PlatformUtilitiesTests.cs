@@ -4,7 +4,6 @@ using ASCOM.Tools;
 using System;
 using Xunit;
 using Xunit.Abstractions;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace UtilitityTests
 {
@@ -118,7 +117,7 @@ namespace UtilitityTests
         public void CreateAlpacaDevice()
         {
             string uniqueIdGuid = Guid.NewGuid().ToString();
-            TraceLogger TL = new("PlatformUtilities", true);
+            TraceLogger TL = new TraceLogger("PlatformUtilities", true);
             TL.LogMessage("CreateAlpacaDevice", "Before SetLogger");
             ASCOM.Com.PlatformUtilities.SetLogger(TL);
             TL.LogMessage("CreateAlpacaDevice", "Before CreateDynamicDriver");

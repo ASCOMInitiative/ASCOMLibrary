@@ -14,11 +14,11 @@ namespace ClientToolkitTests
         [Fact]
         public void Camera()
         {
-            using (TraceLogger logger = new("AlpacaCamera", true))
+            using (TraceLogger logger = new TraceLogger("AlpacaCamera", true))
             {
                 logger.SetMinimumLoggingLevel(ASCOM.Common.Interfaces.LogLevel.Debug);
 
-                using (AlpacaCamera device = new(ServiceType.Http, "127.0.0.1", 32323, 0, true, logger))
+                using (AlpacaCamera device = new AlpacaCamera(ServiceType.Http, "127.0.0.1", 32323, 0, true, logger))
                 {
                     device.Connect();
                     do
@@ -55,11 +55,11 @@ namespace ClientToolkitTests
         [Fact]
         public void CoverCalibrator()
         {
-            using (TraceLogger logger = new("AlpacaCoverCalibrator", true))
+            using (TraceLogger logger = new TraceLogger("AlpacaCoverCalibrator", true))
             {
                 logger.SetMinimumLoggingLevel(ASCOM.Common.Interfaces.LogLevel.Debug);
 
-                using (AlpacaCoverCalibrator device = new(ServiceType.Http, "127.0.0.1", 32323, 0, true, logger))
+                using (AlpacaCoverCalibrator device = new AlpacaCoverCalibrator(ServiceType.Http, "127.0.0.1", 32323, 0, true, logger))
                 {
                     device.Connect();
                     do
@@ -95,11 +95,11 @@ namespace ClientToolkitTests
         [Fact]
         public void Dome()
         {
-            using (TraceLogger logger = new("AlpacaDome", true))
+            using (TraceLogger logger = new TraceLogger("AlpacaDome", true))
             {
                 logger.SetMinimumLoggingLevel(ASCOM.Common.Interfaces.LogLevel.Debug);
 
-                using (AlpacaDome device = new(ServiceType.Http, "127.0.0.1", 32323, 0, true, logger))
+                using (AlpacaDome device = new AlpacaDome(ServiceType.Http, "127.0.0.1", 32323, 0, true, logger))
                 {
                     device.Connect();
                     do
@@ -136,11 +136,11 @@ namespace ClientToolkitTests
         [Fact]
         public void FilterWheel()
         {
-            using (TraceLogger logger = new("AlpacaFilterWheel", true))
+            using (TraceLogger logger = new TraceLogger("AlpacaFilterWheel", true))
             {
                 logger.SetMinimumLoggingLevel(ASCOM.Common.Interfaces.LogLevel.Debug);
 
-                using (AlpacaFilterWheel device = new(ServiceType.Http, "127.0.0.1", 32323, 0, true, logger))
+                using (AlpacaFilterWheel device = new AlpacaFilterWheel(ServiceType.Http, "127.0.0.1", 32323, 0, true, logger))
                 {
                     device.Connect();
                     do
@@ -172,11 +172,11 @@ namespace ClientToolkitTests
         [Fact]
         public void Focuser()
         {
-            using (TraceLogger logger = new("AlpacaFocuser", true))
+            using (TraceLogger logger = new TraceLogger("AlpacaFocuser", true))
             {
                 logger.SetMinimumLoggingLevel(ASCOM.Common.Interfaces.LogLevel.Debug);
 
-                using (AlpacaFocuser device = new(ServiceType.Http, "127.0.0.1", 32323, 0, true, logger))
+                using (AlpacaFocuser device = new AlpacaFocuser(ServiceType.Http, "127.0.0.1", 32323, 0, true, logger))
                 {
                     device.Connect();
                     do
@@ -211,11 +211,11 @@ namespace ClientToolkitTests
         [Fact]
         public void ObservingConditions()
         {
-            using (TraceLogger logger = new("AlpacaObservingConditions", true))
+            using (TraceLogger logger = new TraceLogger("AlpacaObservingConditions", true))
             {
                 logger.SetMinimumLoggingLevel(ASCOM.Common.Interfaces.LogLevel.Debug);
 
-                using (AlpacaObservingConditions device = new(ServiceType.Http, "127.0.0.1", 32323, 0, true, logger))
+                using (AlpacaObservingConditions device = new AlpacaObservingConditions(ServiceType.Http, "127.0.0.1", 32323, 0, true, logger))
                 {
                     device.Connect();
                     do
@@ -259,11 +259,11 @@ namespace ClientToolkitTests
         [Fact]
         public void Rotator()
         {
-            using (TraceLogger logger = new("AlpacaRotator", true))
+            using (TraceLogger logger = new TraceLogger("AlpacaRotator", true))
             {
                 logger.SetMinimumLoggingLevel(ASCOM.Common.Interfaces.LogLevel.Debug);
 
-                using (AlpacaRotator device = new(ServiceType.Http, "127.0.0.1", 32323, 0, true, logger))
+                using (AlpacaRotator device = new AlpacaRotator(ServiceType.Http, "127.0.0.1", 32323, 0, true, logger))
                 {
                     device.Connect();
                     do
@@ -296,11 +296,11 @@ namespace ClientToolkitTests
         [Fact]
         public void SafetyMonitor()
         {
-            using (TraceLogger logger = new("AlpacaSafetyMonitor", true))
+            using (TraceLogger logger = new TraceLogger("AlpacaSafetyMonitor", true))
             {
                 logger.SetMinimumLoggingLevel(ASCOM.Common.Interfaces.LogLevel.Debug);
 
-                using (AlpacaSafetyMonitor device = new(ServiceType.Http, "127.0.0.1", 32323, 0, true, logger))
+                using (AlpacaSafetyMonitor device = new AlpacaSafetyMonitor(ServiceType.Http, "127.0.0.1", 32323, 0, true, logger))
                 {
                     device.Connect();
                     do
@@ -332,11 +332,11 @@ namespace ClientToolkitTests
         [Fact]
         public void Telescope()
         {
-            using (TraceLogger logger = new("AlpacaTelescope", true))
+            using (TraceLogger logger = new TraceLogger("AlpacaTelescope", true))
             {
                 logger.SetMinimumLoggingLevel(ASCOM.Common.Interfaces.LogLevel.Debug);
 
-                using (AlpacaTelescope device = new(ServiceType.Http, "127.0.0.1", 32323, 0, true, logger))
+                using (AlpacaTelescope device = new AlpacaTelescope(ServiceType.Http, "127.0.0.1", 32323, 0, true, logger))
                 {
                     device.Connect();
                     do

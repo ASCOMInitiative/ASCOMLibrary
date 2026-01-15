@@ -26,7 +26,7 @@ namespace ASCOM.Alpaca.Tests.Alpaca
         [Fact]
         public async Task AlpacaCamera()
         {
-            AlpacaDiscovery alpacaDisocvery = new();
+            AlpacaDiscovery alpacaDisocvery = new AlpacaDiscovery();
             alpacaDisocvery.StartDiscovery(1, 100, 32227, DISCOVERY_TIME, false, true, false, ServiceType.Http);
             await Task.Run(() =>
             {
@@ -46,7 +46,7 @@ namespace ASCOM.Alpaca.Tests.Alpaca
         [Fact]
         public async Task AlpacaTelescope()
         {
-            AlpacaDiscovery alpacaDisocvery = new();
+            AlpacaDiscovery alpacaDisocvery = new AlpacaDiscovery();
             alpacaDisocvery.StartDiscovery(1, 100, 32227, DISCOVERY_TIME, false, true, false, ServiceType.Http);
             await Task.Run(() =>
             {
@@ -66,7 +66,7 @@ namespace ASCOM.Alpaca.Tests.Alpaca
         [Fact]
         public async Task AlpacaBadAscomDevice()
         {
-            AlpacaDiscovery alpacaDisocvery = new();
+            AlpacaDiscovery alpacaDisocvery = new AlpacaDiscovery();
             alpacaDisocvery.StartDiscovery(1, 100, 32227, DISCOVERY_TIME, false, true, false, ServiceType.Http);
             await Task.Run(() =>
             {
@@ -87,7 +87,7 @@ namespace ASCOM.Alpaca.Tests.Alpaca
             const int LONG_TIMEOUT = 238;
             const uint CLIENT_NUMBER = 729;
 
-            AlpacaDiscovery alpacaDisocvery = new();
+            AlpacaDiscovery alpacaDisocvery = new AlpacaDiscovery();
             alpacaDisocvery.StartDiscovery(1, 100, 32227, DISCOVERY_TIME, false, true, false, ServiceType.Http);
             do
             {
@@ -120,11 +120,11 @@ namespace ASCOM.Alpaca.Tests.Alpaca
             const int LONG_TIMEOUT = 426;
             const uint CLIENT_NUMBER = 10586;
 
-            TraceLogger TL = new("TestLogger", false);
+            TraceLogger TL = new TraceLogger("TestLogger", false);
             const string USER_NAME = "asdwer52?";
             const string USER_PASSWORD = "$%Sg90|@!56BhI";
 
-            AlpacaDiscovery alpacaDisocvery = new();
+            AlpacaDiscovery alpacaDisocvery = new AlpacaDiscovery();
             alpacaDisocvery.StartDiscovery(1, 100, 32227, DISCOVERY_TIME, false, true, false, ServiceType.Http);
             do
             {
@@ -161,7 +161,7 @@ namespace ASCOM.Alpaca.Tests.Alpaca
             const string USER_NAME = "";
             const string USER_PASSWORD = "";
 
-            AlpacaDiscovery alpacaDisocvery = new();
+            AlpacaDiscovery alpacaDisocvery = new AlpacaDiscovery();
             alpacaDisocvery.StartDiscovery(1, 100, 32227, DISCOVERY_TIME, false, true, false, ServiceType.Http);
             do
             {
@@ -198,7 +198,7 @@ namespace ASCOM.Alpaca.Tests.Alpaca
             const string USER_NAME = "";
             const string USER_PASSWORD = "";
 
-            AlpacaDiscovery alpacaDisocvery = new();
+            AlpacaDiscovery alpacaDisocvery = new AlpacaDiscovery();
             alpacaDisocvery.StartDiscovery(1, 100, 32227, DISCOVERY_TIME, false, true, false, ServiceType.Http);
             do
             {
@@ -234,7 +234,7 @@ namespace ASCOM.Alpaca.Tests.Alpaca
         [Fact]
         public async Task GetAscomDevicesSelectDeviceType()
         {
-            TraceLogger TL = new("GetAscomDevicesSelectDeviceType", true);
+            TraceLogger TL = new TraceLogger("GetAscomDevicesSelectDeviceType", true);
             TL.LogMessage("Test", $"About to call GetAscomDevicesAsync");
 
             // Get every ASCOM device from all Alpaca discovered devices into a List
@@ -259,7 +259,7 @@ namespace ASCOM.Alpaca.Tests.Alpaca
         [Fact]
         public async Task GetAscomDevicesGroupBy()
         {
-            TraceLogger TL = new("GetAscomDevicesGroupBy", true);
+            TraceLogger TL = new TraceLogger("GetAscomDevicesGroupBy", true);
             TL.LogMessage("Test", $"About to call GetAscomDevicesAsync");
 
             // Get every ASCOM device from all Alpaca discovered devices into a List
@@ -304,7 +304,7 @@ namespace ASCOM.Alpaca.Tests.Alpaca
         [Fact]
         public void GetAlpacaDevicesAsync()
         {
-            TraceLogger TL = new("GetAlpacaDevicesAsync", true, 60);
+            TraceLogger TL = new TraceLogger("GetAlpacaDevicesAsync", true, 60);
             TL.LogMessage("Test", $"About to call GetAlpacaDevicesAsync");
 
             List<AlpacaDevice> alpacaDevices = FetchAlpacaDevices(TL);
@@ -324,7 +324,7 @@ namespace ASCOM.Alpaca.Tests.Alpaca
         [Fact]
         public void GetAscomDevicesAsync()
         {
-            TraceLogger TL = new("GetAscomDevicesAsync", true, 60);
+            TraceLogger TL = new TraceLogger("GetAscomDevicesAsync", true, 60);
             TL.LogMessage("Test", $"About to call GetAscomDevices");
 
             List<AscomDevice> ascomDevices = FetchAscomDevices(DeviceTypes.Camera, TL);
@@ -345,11 +345,11 @@ namespace ASCOM.Alpaca.Tests.Alpaca
             const double DISCOVERY_DURATION = 2.0; // Run the discovery for this number of seconds. Must be at least two
             const double CANCEL_AFTER = 1.0; // Cancel the discovery after this number of seconds. Must be less than DISCOVERY_DURATION otherwise the discovery will be successful and this test will fail
 
-            TraceLogger TL = new("GetAscomDevicesAsyncCancel", true, 60);
+            TraceLogger TL = new TraceLogger("GetAscomDevicesAsyncCancel", true, 60);
             TL.LogMessage("Test", $"About to call GetAscomDevices");
 
             // Create a cancellation token that can be used to cancel the discovery
-            CancellationTokenSource cancellationTokenSource = new();
+            CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
             CancellationToken cancellationToken = cancellationTokenSource.Token;
             TL.LogMessage("Test", $"Created cancellation token");
 
@@ -380,7 +380,7 @@ namespace ASCOM.Alpaca.Tests.Alpaca
         [Fact]
         public void GetAscomDevicesNullAsync()
         {
-            TraceLogger TL = new("GetAscomDevicesNullAsync", true);
+            TraceLogger TL = new TraceLogger("GetAscomDevicesNullAsync", true);
             TL.LogMessage("Test", $"About to call GetAscomDevices");
 
             List<AscomDevice> ascomDevices = FetchAscomDevices(null, TL);
@@ -397,7 +397,7 @@ namespace ASCOM.Alpaca.Tests.Alpaca
         [Fact]
         public async Task ConcurrentDiscoveriesAsync()
         {
-            TraceLogger TL = new("ConcurrentDiscoveriesAsync", true);
+            TraceLogger TL = new TraceLogger("ConcurrentDiscoveriesAsync", true);
             TL.LogMessage("Test", $"About to create async discovery methods");
             Task<List<AscomDevice>> focuserDevices = AlpacaDiscovery.GetAscomDevicesAsync(DeviceTypes.Focuser, 2, 100, 32227, 2.0, false, true, false, ServiceType.Http, TL);
             TL.LogMessage("Test", $"Created focuser devices task");

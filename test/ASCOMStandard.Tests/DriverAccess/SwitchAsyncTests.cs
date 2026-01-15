@@ -12,9 +12,14 @@ namespace DriverAccess
 #if NET8_0_OR_GREATER
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
 #endif
-    public class SwitchAsyncTests(ITestOutputHelper output)
+    public class SwitchAsyncTests
     {
-        private readonly ITestOutputHelper output = output;
+        private readonly ITestOutputHelper output;
+
+        public SwitchAsyncTests(ITestOutputHelper output)
+        {
+            this.output = output;
+        }
 
         [Fact]
         public void SetSwitch()
@@ -220,7 +225,7 @@ namespace DriverAccess
         public async Task SetAsyncDriverAccess()
         {
             // Create a Switch simulator device
-            using (Switch switchSim = new("ASCOM.Simulator.Switch"))
+            using (Switch switchSim = new Switch("ASCOM.Simulator.Switch"))
             {
 
                 // Connect
@@ -263,7 +268,7 @@ namespace DriverAccess
         public async Task SetAsyncValueDriverAccess()
         {
             // Create a Switch simulator device
-            Switch switchSim = new("ASCOM.Simulator.Switch")
+            Switch switchSim = new Switch("ASCOM.Simulator.Switch")
             {
                 // Connect
                 Connected = true
@@ -305,7 +310,7 @@ namespace DriverAccess
         public async Task CancelAsyncDriverAccess()
         {
             // Create a Switch simulator device
-            Switch switchSim = new("ASCOM.Simulator.Switch")
+            Switch switchSim = new Switch("ASCOM.Simulator.Switch")
             {
                 // Connect
                 Connected = true
