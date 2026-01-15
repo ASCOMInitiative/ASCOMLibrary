@@ -89,11 +89,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\..\.editorconfig" Link=".editorconfig" />
-    <None Include="..\..\ASCOM.AstrometryTools\NovasLibraries\win-x64\libnovas.dll" Link="libnovas.dll">
+    <None Include="..\.editorconfig" Link=".editorconfig" />
+    <None Include="..\ASCOM.AstrometryTools\NovasLibraries\win-x64\libnovas.dll" Link="libnovas.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="..\..\ASCOM.AstrometryTools\SOFALibraries\win-x64\libsofa.dll" Link="libsofa.dll">
+    <None Include="..\ASCOM.AstrometryTools\SOFALibraries\win-x64\libsofa.dll" Link="libsofa.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
@@ -109,11 +109,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\ASCOM.Alpaca\ASCOM.Alpaca.csproj" />
-    <ProjectReference Include="..\..\ASCOM.AstrometryTools\ASCOM.AstrometryTools.csproj" />
-    <ProjectReference Include="..\..\ASCOM.Common\ASCOM.Common.csproj" />
-    <ProjectReference Include="..\..\ASCOM.Com\ASCOM.Com.csproj" />
-    <ProjectReference Include="..\..\ASCOM.Tools\ASCOM.Tools.csproj" />
+    <ProjectReference Include="..\ASCOM.Alpaca\ASCOM.Alpaca.csproj" />
+    <ProjectReference Include="..\ASCOM.AstrometryTools\ASCOM.AstrometryTools.csproj" />
+    <ProjectReference Include="..\ASCOM.Common\ASCOM.Common.csproj" />
+    <ProjectReference Include="..\ASCOM.Com\ASCOM.Com.csproj" />
+    <ProjectReference Include="..\ASCOM.Tools\ASCOM.Tools.csproj" />
   </ItemGroup>
 
   <ItemGroup>
