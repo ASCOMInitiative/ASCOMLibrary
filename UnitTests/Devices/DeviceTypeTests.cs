@@ -1,9 +1,10 @@
-﻿using ASCOM.Common;
+﻿using ASCOM;
+using ASCOM.Common;
 using Xunit;
 using static ASCOM.Common.Devices;
 
 
-namespace ASCOM.Alpaca.Tests.Devices
+namespace DeviceType
 {
     public class DeviceTypeTests
     {

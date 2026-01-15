@@ -1,11 +1,12 @@
-﻿using ASCOM.Common;
+﻿using ASCOM;
+using ASCOM.Common;
 using ASCOM.Common.Alpaca;
 using ASCOM.Common.DeviceInterfaces;
 using Xunit;
 using static ASCOM.Common.DeviceInterfaces.DeviceCapabilities;
 using static ASCOM.Common.Devices;
 
-namespace ASCOM.Alpaca.Tests.Devices
+namespace InterfaceHasMembers
 {
     public class InterfaceHasMember
     {

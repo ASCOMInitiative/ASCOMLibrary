@@ -9,8 +9,9 @@ using ASCOM.Common.Interfaces;
 using System.Threading;
 using System.Diagnostics;
 using Xunit.Abstractions;
+using ASCOM;
 
-namespace ASCOM.Alpaca.Tests.Clients
+namespace DriverAccess
 {
     [Collection("CommonTests")]
 #if NET8_0_OR_GREATER

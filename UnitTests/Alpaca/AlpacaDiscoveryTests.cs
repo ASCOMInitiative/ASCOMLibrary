@@ -1,4 +1,5 @@
-﻿using ASCOM.Alpaca.Clients;
+﻿using ASCOM;
+using ASCOM.Alpaca.Clients;
 using ASCOM.Alpaca.Discovery;
 using ASCOM.Common;
 using ASCOM.Common.Alpaca;
@@ -10,7 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace ASCOM.Alpaca.Tests.Alpaca
+namespace AlpacaDevices
 {
 
     /// <summary>

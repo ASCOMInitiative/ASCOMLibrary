@@ -9,8 +9,10 @@ using ASCOM.Tools;
 using ASCOM.Tools.Novas31;
 using System.Globalization;
 using ASCOM.Com.DriverAccess;
+using ASCOM;
+using ASCOM.Alpaca.Tests;
 
-namespace ASCOM.Alpaca.Tests.Astrometry
+namespace Astrometry.SolarSystem
 {
     public class SolarSystemTests
     {
@@ -603,7 +605,7 @@ namespace ASCOM.Alpaca.Tests.Astrometry
         [Fact]
         public void EarthInit()
         {
-            Assert.Throws<InvalidOperationException>(() =>
+            Assert.Throws<ASCOM.InvalidOperationException>(() =>
             {
                 SolarSystemBody body = new SolarSystemBody(Body.Earth)
                 {

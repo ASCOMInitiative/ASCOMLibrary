@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 using static ASCOM.Tools.Sofa;
-namespace SOFATests
+namespace SOFA
 {
     public class SofaTests
     {

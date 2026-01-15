@@ -1,4 +1,5 @@
-﻿using ASCOM.Common.Alpaca;
+﻿using ASCOM;
+using ASCOM.Common.Alpaca;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +8,7 @@ using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace ASCOM.Alpaca.Tests.ImageArray
+namespace ImageArray
 {
     public class ImageArrayClientTypeTests
     {

@@ -1,10 +1,11 @@
-﻿using ASCOM.Common.Alpaca;
+﻿using ASCOM.Alpaca.Tests;
+using ASCOM.Common.Alpaca;
 using System;
 using System.Diagnostics;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace ASCOM.Alpaca.Tests.ImageArray
+namespace ImageArray
 {
     public class ImageArray2DObjectInt16
     {
