@@ -36,59 +36,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="SOFA\SofaTests.cs" />
-    <Compile Remove="SOFA\Sofa_t_a2af.cs" />
-    <Compile Remove="SOFA\Sofa_t_a2tf.cs" />
-    <Compile Remove="SOFA\Sofa_t_ab.cs" />
-    <Compile Remove="SOFA\Sofa_t_ae2hd.cs" />
-    <Compile Remove="SOFA\Sofa_t_af2a.cs" />
-    <Compile Remove="SOFA\Sofa_t_anp.cs" />
-    <Compile Remove="SOFA\Sofa_t_anpm.cs" />
-    <Compile Remove="SOFA\Sofa_t_apcg.cs" />
-    <Compile Remove="SOFA\Sofa_t_apcg13.cs" />
-    <Compile Remove="SOFA\Sofa_t_apci.cs" />
-    <Compile Remove="SOFA\Sofa_t_apci13.cs" />
-    <Compile Remove="SOFA\Sofa_t_apco.cs" />
-    <Compile Remove="SOFA\Sofa_t_apco13.cs" />
-    <Compile Remove="SOFA\Sofa_t_apcs.cs" />
-    <Compile Remove="SOFA\Sofa_t_apcs13.cs" />
-    <Compile Remove="SOFA\Sofa_t_aper.cs" />
-    <Compile Remove="SOFA\Sofa_t_aper13.cs" />
-    <Compile Remove="SOFA\Sofa_t_apio.cs" />
-    <Compile Remove="SOFA\Sofa_t_apio13.cs" />
-    <Compile Remove="SOFA\Sofa_t_atcc13.cs" />
-    <Compile Remove="SOFA\Sofa_t_atccq.cs" />
-    <Compile Remove="SOFA\Sofa_t_atci13.cs" />
-    <Compile Remove="SOFA\Sofa_t_atciq.cs" />
-    <Compile Remove="SOFA\Sofa_t_atciqn.cs" />
-    <Compile Remove="SOFA\Sofa_t_atciqz.cs" />
-    <Compile Remove="SOFA\Sofa_t_atic13.cs" />
-    <Compile Remove="SOFA\Sofa_t_aticq.cs" />
-    <Compile Remove="SOFA\Sofa_t_aticqn.cs" />
-    <Compile Remove="SOFA\Sofa_t_atio13.cs" />
-    <Compile Remove="SOFA\Sofa_t_atioq.cs" />
-    <Compile Remove="SOFA\Sofa_t_atoc13.cs" />
-    <Compile Remove="SOFA\Sofa_t_atoi13.cs" />
-    <Compile Remove="SOFA\Sofa_t_bi00.cs" />
-    <Compile Remove="SOFA\Sofa_t_bp00.cs" />
-    <Compile Remove="SOFA\Sofa_t_bp06.cs" />
-    <Compile Remove="SOFA\Sofa_t_bpn2xy.cs" />
-    <Compile Remove="SOFA\Sofa_t_c2i00a.cs" />
-    <Compile Remove="SOFA\Sofa_t_c2i00b.cs" />
-    <Compile Remove="SOFA\Sofa_t_c2i06a.cs" />
-    <Compile Remove="SOFA\Sofa_t_c2s.cs" />
-    <Compile Remove="SOFA\Sofa_t_cp.cs" />
-    <Compile Remove="SOFA\Sofa_t_cpv.cs" />
-    <Compile Remove="SOFA\Sofa_t_cr.cs" />
-    <Compile Remove="SOFA\Sofa_t_d2tf.cs" />
-    <Compile Remove="SOFA\Sofa_t_subset.cs" />
-    <Compile Remove="SOFA\Sofa_t_subset2.cs" />
-    <Compile Remove="SOFA\Sofa_t_subset3.cs" />
-    <Compile Remove="SOFA\Sofa_t_subset4.cs" />
-    <Compile Remove="SOFA\Sofa_t_subset5.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Include="..\.editorconfig" Link=".editorconfig" />
     <None Include="..\ASCOM.AstrometryTools\NovasLibraries\win-x64\libnovas.dll" Link="libnovas.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
