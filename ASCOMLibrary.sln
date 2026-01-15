@@ -26,8 +26,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tester", "Tester\Tester.csp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASCOM.AstrometryTools", "ASCOM.AstrometryTools\ASCOM.AstrometryTools.csproj", "{393D5BD0-1552-48CD-84B0-BF7BAADBCF3C}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SOFATestSupport", "SOFATestSupport", "{30B67E57-752F-4D1D-8F25-5D9502102319}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "UnitTests\UnitTests.csproj", "{6E2561A6-A9A0-8B76-749F-D9DB18D15A3F}"
 EndProject
 Global

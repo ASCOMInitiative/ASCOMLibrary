@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 
 namespace ASCOM.Alpaca.Tests
 {
-    internal static class Extensions
+    internal static class ExtensionMethods
     {
         #region Private Extensions
 
