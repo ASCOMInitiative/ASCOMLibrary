@@ -8,16 +8,12 @@ using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 using static ASCOM.Tools.Sofa;
+
 namespace SOFA
 {
     public class SofaTests
     {
-        double t1, t2, date1, date2;
-        int j;
-        double rc, dc, pr, pd, px, rv, utc1, utc2, dut1, elong, phi, hm, xp, yp, phpa, tc, rh, wl, aob, zob, hob, dob, rob, eo;
-        double ri, di, a, u1, u2, a1, a2, ob1, ob2, anp;
-
-        DateTime sofaDatTestDate = new DateTime(2024, 1, 1, 0, 0, 0); // This should be the first day of the year following the SOFA release
+        DateTime sofaDatTestDate = new DateTime(2024, 1, 1, 0, 0, 0); // This must be the first day of the year following the SOFA release
 
         private readonly ITestOutputHelper logger;
 
@@ -25,6 +21,35 @@ namespace SOFA
         {
             logger = testOutputHelper;
         }
+
+        #region ASCOM Additional members
+
+        [Fact]
+        public void IssueDate()
+        {
+            Assert.Equal("2023-10-11", Sofa.SofaIssueDate());
+        }
+
+        [Fact]
+        public void ReleaseNumber()
+        {
+            Assert.Equal("19", Sofa.SofaReleaseNumber().ToString());
+        }
+
+        [Fact]
+        public void RevisionDate()
+        {
+            Assert.Equal("2023-10-11", Sofa.SofaRevisionDate());
+        }
+        [Fact]
+        public void RevisionNumber()
+        {
+            Assert.Equal("0", Sofa.SofaRevisionNumber().ToString());
+        }
+
+        #endregion
+
+        #region SOFA Standard members
 
         [Fact]
         public void A2af()
@@ -97,26 +122,10 @@ namespace SOFA
         }
 
         [Fact]
-        public void Af2a2()
-        {
-            j = Sofa.Af2a('-', 45, 13, 27.2, ref a);
-
-            Assert.Equal(0, j);
-            Assert.Equal(-0.7893115794313644842, a, 12);
-        }
-
-        [Fact]
         public void Anp()
         {
             double r = Sofa.Anp(-0.1);
             Assert.Equal(6.183185307179586477, r, 12);
-        }
-
-        [Fact]
-        public void Anp2()
-        {
-            anp = Sofa.Anp(-0.1);
-            Assert.Equal(6.183185307179586477, anp, 12);
         }
 
         [Fact]
@@ -601,25 +610,6 @@ namespace SOFA
         }
 
         [Fact]
-        public void Atci13_2()
-        {
-            // Atci13 tests
-            rc = 2.71;
-            dc = 0.174;
-            pr = 0.00001;
-            pd = 0.000005;
-            px = 0.1;
-            rv = 55.0;
-            date1 = 2456165.5;
-            date2 = 0.401182685;
-
-            Sofa.Atci13(rc, dc, pr, pd, px, rv, date1, date2, ref ri, ref di, ref eo);
-            Assert.Equal(2.710121572968696744, ri, 12);
-            Assert.Equal(0.1729371367219539137, di, 12);
-            Assert.Equal(-0.002900618712657375647, eo, 14);
-        }
-
-        [Fact]
         public void Atciq()
         {
             double date1 = 2456165.5;
@@ -643,7 +633,7 @@ namespace SOFA
                 double date1 = 2456165.5;
                 double date2 = 0.401182685;
 #if NET8_0_OR_GREATER
-            var astrom = new Sofa.Astrom();
+                var astrom = new Sofa.Astrom();
 #else
                 var astrom = Sofa.CreateAstrom();
 #endif
@@ -728,26 +718,32 @@ namespace SOFA
         public void Atco13()
         {
             // Atco13 tests
-            rc = 2.71;
-            dc = 0.174;
-            pr = 0.00001;
-            pd = 0.000005;
-            px = 0.1;
-            rv = 55.0;
-            utc1 = 2456384.5;
-            utc2 = 0.969254051;
-            dut1 = 0.1550675;
-            elong = -0.527800806;
-            phi = -1.2345856;
-            hm = 2738.0;
-            xp = 0.000000247230737;
-            yp = 0.00000182640464;
-            phpa = 731.0;
-            tc = 12.8;
-            rh = 0.59;
-            wl = 0.55;
+            double rc = 2.71;
+            double dc = 0.174;
+            double pr = 0.00001;
+            double pd = 0.000005;
+            double px = 0.1;
+            double rv = 55.0;
+            double utc1 = 2456384.5;
+            double utc2 = 0.969254051;
+            double dut1 = 0.1550675;
+            double elong = -0.527800806;
+            double phi = -1.2345856;
+            double hm = 2738.0;
+            double xp = 0.000000247230737;
+            double yp = 0.00000182640464;
+            double phpa = 731.0;
+            double tc = 12.8;
+            double rh = 0.59;
+            double wl = 0.55;
+            double aob = 0;
+            double zob = 0;
+            double hob = 0;
+            double dob = 0;
+            double rob = 0;
+            double eo = 0;
 
-            j = Sofa.Atco13(rc, dc, pr, pd, px, rv, utc1, utc2, dut1, elong, phi, hm, xp, yp, phpa, tc, rh, wl, ref aob, ref zob, ref hob, ref dob, ref rob, ref eo);
+            short j = Sofa.Atco13(rc, dc, pr, pd, px, rv, utc1, utc2, dut1, elong, phi, hm, xp, yp, phpa, tc, rh, wl, ref aob, ref zob, ref hob, ref dob, ref rob, ref eo);
 
             Assert.Equal(0, j);
             Assert.Equal(0.9251774485485515207e-1, aob, 12);
@@ -767,22 +763,6 @@ namespace SOFA
             double date2 = 0.401182685;
             double rc = 0, dc = 0, eo = 0;
             Sofa.Atic13(ri, di, date1, date2, ref rc, ref dc, ref eo);
-            Assert.Equal(2.710126504531716819, rc, 12);
-            Assert.Equal(0.1740632537627034482, dc, 12);
-            Assert.Equal(-0.002900618712657375647, eo, 14);
-        }
-
-        [Fact]
-        public void Atic13_2()
-        {
-            // Atic13 tests
-            ri = 2.710121572969038991;
-            di = 0.1729371367218230438;
-            date1 = 2456165.5;
-            date2 = 0.401182685;
-
-            Sofa.Atic13(ri, di, date1, date2, ref rc, ref dc, ref eo);
-
             Assert.Equal(2.710126504531716819, rc, 12);
             Assert.Equal(0.1740632537627034482, dc, 12);
             Assert.Equal(-0.002900618712657375647, eo, 14);
@@ -867,30 +847,6 @@ namespace SOFA
 
             int j = Sofa.Atio13(ri, di, utc1, utc2, dut1, elong, phi, hm, xp, yp, phpa, tc, rh, wl, ref aob, ref zob, ref hob, ref dob, ref rob);
             Assert.Equal(0, j); // sanity check: ensure call succeeded or returns known code
-        }
-
-        [Fact]
-        public void Atio13_2()
-        {
-            // Atio13 tests
-            ri = 2.710121572969038991;
-            di = 0.1729371367218230438;
-            utc1 = 2456384.5;
-            utc2 = 0.969254051;
-            dut1 = 0.1550675;
-            elong = -0.527800806;
-            phi = -1.2345856;
-            hm = 2738.0;
-            xp = 2.47230737e-7;
-            yp = 1.82640464e-6;
-            phpa = 731.0;
-            tc = 12.8;
-            rh = 0.59;
-            wl = 0.55;
-
-            j = Sofa.Atio13(ri, di, utc1, utc2, dut1, elong, phi, hm, xp, yp, phpa, tc, rh, wl, ref aob, ref zob, ref hob, ref dob, ref rob);
-
-            Assert.Equal(0, j);
             Assert.Equal(0.9233952224895122499e-1, aob, 12);
             Assert.Equal(1.407758704513549991, zob, 12);
             Assert.Equal(-0.9247619879881698140e-1, hob, 12);
@@ -948,45 +904,8 @@ namespace SOFA
             double ob1 = 2.710085107986886201;
             double ob2 = 0.1717653435758265198;
             double rc = 0, dc = 0;
+
             int j = Sofa.Atoc13("R", ob1, ob2, utc1, utc2, dut1, elong, phi, hm, xp, yp, phpa, tc, rh, wl, ref rc, ref dc);
-            Assert.Equal(0, j);
-            Assert.Equal(2.709956744659136129, rc, 12);
-            Assert.Equal(0.1741696500898471362, dc, 12);
-            ob1 = -0.09247619879782006106;
-            ob2 = 0.1717653435758265198;
-            j = Sofa.Atoc13("H", ob1, ob2, utc1, utc2, dut1, elong, phi, hm, xp, yp, phpa, tc, rh, wl, ref rc, ref dc);
-            Assert.Equal(0, j);
-            Assert.Equal(2.709956744659734086, rc, 12);
-            Assert.Equal(0.1741696500898471362, dc, 12);
-            ob1 = 0.09233952224794989993;
-            ob2 = 1.407758704513722461;
-            j = Sofa.Atoc13("A", ob1, ob2, utc1, utc2, dut1, elong, phi, hm, xp, yp, phpa, tc, rh, wl, ref rc, ref dc);
-            Assert.Equal(0, j);
-            Assert.Equal(2.709956744659734086, rc, 12);
-            Assert.Equal(0.1741696500898471366, dc, 12);
-        }
-
-        [Fact]
-        public void Atoc13_2()
-        {
-            // Atoc13 tests
-            utc1 = 2456384.5;
-            utc2 = 0.969254051;
-            dut1 = 0.1550675;
-            elong = -0.527800806;
-            phi = -1.2345856;
-            hm = 2738.0;
-            xp = 2.47230737e-7;
-            yp = 1.82640464e-6;
-            phpa = 731.0;
-            tc = 12.8;
-            rh = 0.59;
-            wl = 0.55;
-
-            ob1 = 2.710085107986886201;
-            ob2 = 0.1717653435758265198;
-            j = Sofa.Atoc13("R", ob1, ob2, utc1, utc2, dut1, elong, phi, hm, xp, yp, phpa, tc, rh, wl, ref rc, ref dc);
-
             Assert.Equal(0, j);
             Assert.Equal(2.709956744659136129, rc, 12);
             Assert.Equal(0.1741696500898471362, dc, 12);
@@ -1024,47 +943,11 @@ namespace SOFA
             double ob1 = 2.710085107986886201;
             double ob2 = 0.1717653435758265198;
             double ri = 0, di = 0;
+
             int j = Sofa.Atoi13("R", ob1, ob2, utc1, utc2, dut1, elong, phi, hm, xp, yp, phpa, tc, rh, wl, ref ri, ref di);
             Assert.Equal(0, j);
             Assert.Equal(2.710121574447540810, ri, 12);
             Assert.Equal(0.1729371839116608778, di, 12);
-            ob1 = -0.09247619879782006106;
-            ob2 = 0.1717653435758265198;
-            j = Sofa.Atoi13("H", ob1, ob2, utc1, utc2, dut1, elong, phi, hm, xp, yp, phpa, tc, rh, wl, ref ri, ref di);
-            Assert.Equal(0, j);
-            Assert.Equal(2.710121574448138676, ri, 12);
-            Assert.Equal(0.1729371839116608778, di, 12);
-            ob1 = 0.09233952224794989993;
-            ob2 = 1.407758704513722461;
-            j = Sofa.Atoi13("A", ob1, ob2, utc1, utc2, dut1, elong, phi, hm, xp, yp, phpa, tc, rh, wl, ref ri, ref di);
-            Assert.Equal(0, j);
-            Assert.Equal(2.710121574448138676, ri, 12);
-            Assert.Equal(0.1729371839116608781, di, 12);
-        }
-
-        [Fact]
-        public void Atoi13_2()
-        {
-            // Atoi13 tests
-            utc1 = 2456384.5;
-            utc2 = 0.969254051;
-            dut1 = 0.1550675;
-            elong = -0.527800806;
-            phi = -1.2345856;
-            hm = 2738.0;
-            xp = 2.47230737e-7;
-            yp = 1.82640464e-6;
-            phpa = 731.0;
-            tc = 12.8;
-            rh = 0.59;
-            wl = 0.55;
-
-            ob1 = 2.710085107986886201;
-            ob2 = 0.1717653435758265198;
-            j = Sofa.Atoi13("R", ob1, ob2, utc1, utc2, dut1, elong, phi, hm, xp, yp, phpa, tc, rh, wl, ref ri, ref di);
-            Assert.Equal(0, j);
-            Assert.Equal(2.710121574447540810, ri, 12);
-            Assert.Equal(0.1729371839116608778, di, 12);
 
             ob1 = -0.09247619879782006106;
             ob2 = 0.1717653435758265198;
@@ -1079,7 +962,6 @@ namespace SOFA
             Assert.Equal(0, j);
             Assert.Equal(2.710121574448138676, ri, 12);
             Assert.Equal(0.1729371839116608781, di, 12);
-
         }
 
         [Fact]
@@ -1683,12 +1565,12 @@ namespace SOFA
             double frac = 0.0;
 
             // Act
-            double deltat = 0;
-            short j = Sofa.Dat(year, month, day, frac, ref deltat);
+            double leapSeconds = 0.0;
+            short j = Sofa.Dat(year, month, day, frac, ref leapSeconds);
 
             // Assert
             Assert.Equal(0, j);
-            Assert.Equal(37.0, deltat);
+            Assert.Equal(37.0, leapSeconds, 6);
         }
 
         [Fact]
@@ -1698,7 +1580,7 @@ namespace SOFA
 
             DateTime testDate = sofaDatTestDate;
             double leapSeconds = 0.0;
-            j = Sofa.Dat(testDate.Year, testDate.Month, testDate.Day, testDate.TimeOfDay.TotalHours / 24.0, ref leapSeconds);
+            short j = Sofa.Dat(testDate.Year, testDate.Month, testDate.Day, testDate.TimeOfDay.TotalHours / 24.0, ref leapSeconds);
 
             Assert.Equal(0, j); // Return code is 0 when called for dates that are less than 5 years after the SOFA release year
             Assert.Equal(37.0, leapSeconds, 6);
@@ -1730,12 +1612,11 @@ namespace SOFA
 
             DateTime testDate = sofaDatTestDate.AddYears(5);
             double leapSeconds = 0.0;
-            j = Sofa.Dat(testDate.Year, testDate.Month, testDate.Day, testDate.TimeOfDay.TotalHours / 24.0, ref leapSeconds);
+            short j = Sofa.Dat(testDate.Year, testDate.Month, testDate.Day, testDate.TimeOfDay.TotalHours / 24.0, ref leapSeconds);
 
             Assert.Equal(1, j); // The return code is 1 when called for dates that are 5 years or more after the SOFA release year
             Assert.Equal(37.0, leapSeconds, 6);
         }
-
 
         [Fact]
         public void Dtdb()
@@ -1759,32 +1640,9 @@ namespace SOFA
         [Fact]
         public void Dtf2d()
         {
-            const double TOLERANCE = 1e-6;
-            // Arrange
-            string scale = "UTC";
-            int iy = 1994;
-            int im = 6;
-            int id = 30;
-            int ihr = 23;
-            int imn = 59;
-            double sec = 60.13599;
-
-            // Act
-            double d1 = 0;
-            double d2 = 0;
-            short j = Sofa.Dtf2d(scale, iy, im, id, ihr, imn, sec, ref d1, ref d2);
-
-            // Assert
-            Assert.Equal(0, j);
-            Assert.Equal(2449534.49999, d1 + d2, TOLERANCE);
-        }
-
-        [Fact]
-        public void Dtf2d_2()
-        {
-            // Dtf2d tests
-
-            j = Sofa.Dtf2d("UTC", 1994, 6, 30, 23, 59, 60.13599, ref u1, ref u2);
+            double u1 = 0;
+            double u2 = 0;
+            short j = Sofa.Dtf2d("UTC", 1994, 6, 30, 23, 59, 60.13599, ref u1, ref u2);
             Assert.Equal(0, j);
             Assert.Equal(2449534.49999, u1 + u2, 6);
         }
@@ -1994,21 +1852,7 @@ namespace SOFA
         [Fact]
         public void Eo06a()
         {
-            const double TOLERANCE = 1e-15;
-            // Arrange
-            double date1 = 2400000.5;
-            double date2 = 53736.0;
-
-            // Act
-            double eo = Sofa.Eo06a(date1, date2);
-
-            // Assert
-            Assert.Equal(-0.1332882371941833644e-2, eo, TOLERANCE);
-        }
-
-        [Fact]
-        public void Eo06a_2()
-        {
+            double eo;
             // Eo06a tests
             eo = Sofa.Eo06a(2400000.5, 53736.0);
             Assert.Equal(-0.1332882371941833644e-2, eo, 15);
@@ -2798,12 +2642,6 @@ namespace SOFA
             Assert.Equal(0.0, r[6]);
             Assert.Equal(0.0, r[7]);
             Assert.Equal(1.0, r[8]);
-        }
-
-        [Fact]
-        public void IssueDate()
-        {
-            Assert.Equal("2023-10-11", Sofa.SofaIssueDate());
         }
 
         [Fact]
@@ -3649,8 +3487,6 @@ namespace SOFA
             Assert.Equal(0.4063238496887249798e-4, deps, 12);
         }
 
-
-
         [Fact]
         public void Pn06a_2()
         {
@@ -4035,23 +3871,6 @@ namespace SOFA
         }
 
         [Fact]
-        public void ReleaseNumber()
-        {
-            Assert.Equal("19", Sofa.SofaReleaseNumber().ToString());
-        }
-
-        [Fact]
-        public void RevisionDate()
-        {
-            Assert.Equal("2023-10-11", Sofa.SofaRevisionDate());
-        }
-        [Fact]
-        public void RevisionNumber()
-        {
-            Assert.Equal("0", Sofa.SofaRevisionNumber().ToString());
-        }
-
-        [Fact]
         public void Rm2v()
         {
             double[] r = new double[] { 0.00, -0.80, -0.60, 0.80, -0.36, 0.48, 0.60, 0.48, -0.64 };
@@ -4190,10 +4009,6 @@ namespace SOFA
             Assert.Equal(4.0, r[7], 12);
             Assert.Equal(5.0, r[8], 12);
         }
-
-
-
-
 
         [Fact]
         public void S00()
@@ -4442,8 +4257,10 @@ namespace SOFA
         [Fact]
         public void Taitt()
         {
+            double t1 = 0.0;
+            double t2 = 0.0;
             // TaiTT tests
-            j = Sofa.Taitt(2453750.5, 0.892482639, ref t1, ref t2);
+            short j = Sofa.Taitt(2453750.5, 0.892482639, ref t1, ref t2);
             Assert.Equal(0, j);
             Assert.Equal(2453750.5, t1, 6);
             Assert.Equal(0.892855139, t2, 12);
@@ -4468,8 +4285,11 @@ namespace SOFA
         [Fact]
         public void Taiutc()
         {
+            double u1 = 0.0;
+            double u2 = 0.0;
+
             // TaiUtc tests
-            j = Sofa.Taiutc(2453750.5, 0.892482639, ref u1, ref u2);
+            short j = Sofa.Taiutc(2453750.5, 0.892482639, ref u1, ref u2);
             Assert.Equal(0, j);
             Assert.Equal(2453750.5, u1, 6);
             Assert.Equal(0.8921006945555555556, u2, 12);
@@ -4516,14 +4336,16 @@ namespace SOFA
         }
 
         [Fact]
-        public void Tf2a_2()
+        public void Tf2a()
         {
+            double a = 0;
             // Tf2a tests
-            j = Sofa.Tf2a('+', 4, 58, 20.2, ref a);
+            short j = Sofa.Tf2a('+', 4, 58, 20.2, ref a);
 
             Assert.Equal(0, j);
             Assert.Equal(1.301739278189537429, a, 12);
         }
+
         [Fact]
         public void Tf2a_BadValue()
         {
@@ -4531,6 +4353,7 @@ namespace SOFA
             int j = Sofa.Tf2a('+', 25, 0, 0, ref rad);
             Assert.Equal(1, j);
         }
+
         [Fact]
         public void Tf2a_NegativeSign()
         {
@@ -4701,16 +4524,6 @@ namespace SOFA
         }
 
         [Fact]
-        public void Tttai_2()
-        {
-            // TTTai tests
-            j = Sofa.Tttai(2453750.5, 0.892482639, ref a1, ref a2);
-            Assert.Equal(0, j);
-            Assert.Equal(2453750.5, a1, 6);
-            Assert.Equal(0.892110139, a2, 12);
-        }
-
-        [Fact]
         public void Tttcg()
         {
             double tcg1 = 0, tcg2 = 0;
@@ -4778,17 +4591,6 @@ namespace SOFA
             Assert.Equal(0, j);
             Assert.Equal(2453750.5, tai1, 6);
             Assert.Equal(0.8924826384444444444, tai2, 12);
-        }
-
-        [Fact]
-        public void Utctai_2()
-        {
-            // UtcTai tests
-            j = Sofa.Utctai(2453750.5, 0.892100694, ref u1, ref u2);
-
-            Assert.Equal(0, j);
-            Assert.Equal(2453750.5, u1, 6);
-            Assert.Equal(0.8924826384444444444, u2, 12);
         }
 
         [Fact]
@@ -4879,5 +4681,8 @@ namespace SOFA
                 Assert.Equal(0.0, r[i], 0);
             }
         }
+
+        #endregion
+
     }
 }
