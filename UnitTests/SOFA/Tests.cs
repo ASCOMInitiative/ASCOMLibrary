@@ -1,4 +1,4 @@
-﻿using ASCOM.Tools;
+using ASCOM.Tools;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,318 +24,6 @@ namespace SOFA
         public SofaTests(ITestOutputHelper testOutputHelper)
         {
             logger = testOutputHelper;
-        }
-
-        [Fact]
-        public void ReleaseNumber()
-        {
-            Assert.Equal("19", Sofa.SofaReleaseNumber().ToString());
-        }
-
-        [Fact]
-        public void IssueDate()
-        {
-            Assert.Equal("2023-10-11", Sofa.SofaIssueDate());
-        }
-
-        [Fact]
-        public void RevisionDate()
-        {
-            Assert.Equal("2023-10-11", Sofa.SofaRevisionDate());
-        }
-        [Fact]
-        public void RevisionNumber()
-        {
-            Assert.Equal("0", Sofa.SofaRevisionNumber().ToString());
-        }
-
-        [Fact]
-        public void Af2a2()
-        {
-            j = Sofa.Af2a('-', 45, 13, 27.2, ref a);
-
-            Assert.Equal(0, j);
-            Assert.Equal(-0.7893115794313644842, a, 12);
-        }
-
-        [Fact]
-        public void Anp2()
-        {
-            anp = Sofa.Anp(-0.1);
-            Assert.Equal(6.183185307179586477, anp, 12);
-        }
-
-        [Fact]
-        public void Atci13_2()
-        {
-            // Atci13 tests
-            rc = 2.71;
-            dc = 0.174;
-            pr = 0.00001;
-            pd = 0.000005;
-            px = 0.1;
-            rv = 55.0;
-            date1 = 2456165.5;
-            date2 = 0.401182685;
-
-            Sofa.Atci13(rc, dc, pr, pd, px, rv, date1, date2, ref ri, ref di, ref eo);
-            Assert.Equal(2.710121572968696744, ri, 12);
-            Assert.Equal(0.1729371367219539137, di, 12);
-            Assert.Equal(-0.002900618712657375647, eo, 14);
-        }
-
-        [Fact]
-        public void Atco13()
-        {
-            // Atco13 tests
-            rc = 2.71;
-            dc = 0.174;
-            pr = 0.00001;
-            pd = 0.000005;
-            px = 0.1;
-            rv = 55.0;
-            utc1 = 2456384.5;
-            utc2 = 0.969254051;
-            dut1 = 0.1550675;
-            elong = -0.527800806;
-            phi = -1.2345856;
-            hm = 2738.0;
-            xp = 0.000000247230737;
-            yp = 0.00000182640464;
-            phpa = 731.0;
-            tc = 12.8;
-            rh = 0.59;
-            wl = 0.55;
-
-            j = Sofa.Atco13(rc, dc, pr, pd, px, rv, utc1, utc2, dut1, elong, phi, hm, xp, yp, phpa, tc, rh, wl, ref aob, ref zob, ref hob, ref dob, ref rob, ref eo);
-
-            Assert.Equal(0, j);
-            Assert.Equal(0.9251774485485515207e-1, aob, 12);
-            Assert.Equal(1.407661405256499357, zob, 12);
-            Assert.Equal(-0.9265154431529724692e-1, hob, 12);
-            Assert.Equal(0.1716626560072526200, dob, 12);
-            Assert.Equal(2.710260453504961012, rob, 12);
-            Assert.Equal(-0.003020548354802412839, eo, 14);
-        }
-
-        [Fact]
-        public void Dtf2d_2()
-        {
-            // Dtf2d tests
-
-            j = Sofa.Dtf2d("UTC", 1994, 6, 30, 23, 59, 60.13599, ref u1, ref u2);
-            Assert.Equal(0, j);
-            Assert.Equal(2449534.49999, u1 + u2, 6);
-        }
-
-        [Fact]
-        public void Eo06a_2()
-        {
-            // Eo06a tests
-            eo = Sofa.Eo06a(2400000.5, 53736.0);
-            Assert.Equal(-0.1332882371941833644e-2, eo, 15);
-        }
-
-        [Fact]
-        public void Atic13_2()
-        {
-            // Atic13 tests
-            ri = 2.710121572969038991;
-            di = 0.1729371367218230438;
-            date1 = 2456165.5;
-            date2 = 0.401182685;
-
-            Sofa.Atic13(ri, di, date1, date2, ref rc, ref dc, ref eo);
-
-            Assert.Equal(2.710126504531716819, rc, 12);
-            Assert.Equal(0.1740632537627034482, dc, 12);
-            Assert.Equal(-0.002900618712657375647, eo, 14);
-        }
-
-        [Fact]
-        public void Atio13_2()
-        {
-            // Atio13 tests
-            ri = 2.710121572969038991;
-            di = 0.1729371367218230438;
-            utc1 = 2456384.5;
-            utc2 = 0.969254051;
-            dut1 = 0.1550675;
-            elong = -0.527800806;
-            phi = -1.2345856;
-            hm = 2738.0;
-            xp = 2.47230737e-7;
-            yp = 1.82640464e-6;
-            phpa = 731.0;
-            tc = 12.8;
-            rh = 0.59;
-            wl = 0.55;
-
-            j = Sofa.Atio13(ri, di, utc1, utc2, dut1, elong, phi, hm, xp, yp, phpa, tc, rh, wl, ref aob, ref zob, ref hob, ref dob, ref rob);
-
-            Assert.Equal(0, j);
-            Assert.Equal(0.9233952224895122499e-1, aob, 12);
-            Assert.Equal(1.407758704513549991, zob, 12);
-            Assert.Equal(-0.9247619879881698140e-1, hob, 12);
-            Assert.Equal(0.1717653435756234676, dob, 12);
-            Assert.Equal(2.710085107988480746, rob, 12);
-        }
-
-        [Fact]
-        public void Atoc13_2()
-        {
-            // Atoc13 tests
-            utc1 = 2456384.5;
-            utc2 = 0.969254051;
-            dut1 = 0.1550675;
-            elong = -0.527800806;
-            phi = -1.2345856;
-            hm = 2738.0;
-            xp = 2.47230737e-7;
-            yp = 1.82640464e-6;
-            phpa = 731.0;
-            tc = 12.8;
-            rh = 0.59;
-            wl = 0.55;
-
-            ob1 = 2.710085107986886201;
-            ob2 = 0.1717653435758265198;
-            j = Sofa.Atoc13("R", ob1, ob2, utc1, utc2, dut1, elong, phi, hm, xp, yp, phpa, tc, rh, wl, ref rc, ref dc);
-
-            Assert.Equal(0, j);
-            Assert.Equal(2.709956744659136129, rc, 12);
-            Assert.Equal(0.1741696500898471362, dc, 12);
-
-            ob1 = -0.09247619879782006106;
-            ob2 = 0.1717653435758265198;
-            j = Sofa.Atoc13("H", ob1, ob2, utc1, utc2, dut1, elong, phi, hm, xp, yp, phpa, tc, rh, wl, ref rc, ref dc);
-            Assert.Equal(0, j);
-            Assert.Equal(2.709956744659734086, rc, 12);
-            Assert.Equal(0.1741696500898471362, dc, 12);
-
-            ob1 = 0.09233952224794989993;
-            ob2 = 1.407758704513722461;
-            j = Sofa.Atoc13("A", ob1, ob2, utc1, utc2, dut1, elong, phi, hm, xp, yp, phpa, tc, rh, wl, ref rc, ref dc);
-            Assert.Equal(0, j);
-            Assert.Equal(2.709956744659734086, rc, 12);
-            Assert.Equal(0.1741696500898471366, dc, 12);
-        }
-
-        [Fact]
-        public void Atoi13_2()
-        {
-            // Atoi13 tests
-            utc1 = 2456384.5;
-            utc2 = 0.969254051;
-            dut1 = 0.1550675;
-            elong = -0.527800806;
-            phi = -1.2345856;
-            hm = 2738.0;
-            xp = 2.47230737e-7;
-            yp = 1.82640464e-6;
-            phpa = 731.0;
-            tc = 12.8;
-            rh = 0.59;
-            wl = 0.55;
-
-            ob1 = 2.710085107986886201;
-            ob2 = 0.1717653435758265198;
-            j = Sofa.Atoi13("R", ob1, ob2, utc1, utc2, dut1, elong, phi, hm, xp, yp, phpa, tc, rh, wl, ref ri, ref di);
-            Assert.Equal(0, j);
-            Assert.Equal(2.710121574447540810, ri, 12);
-            Assert.Equal(0.1729371839116608778, di, 12);
-
-            ob1 = -0.09247619879782006106;
-            ob2 = 0.1717653435758265198;
-            j = Sofa.Atoi13("H", ob1, ob2, utc1, utc2, dut1, elong, phi, hm, xp, yp, phpa, tc, rh, wl, ref ri, ref di);
-            Assert.Equal(0, j);
-            Assert.Equal(2.710121574448138676, ri, 12);
-            Assert.Equal(0.1729371839116608778, di, 12);
-
-            ob1 = 0.09233952224794989993;
-            ob2 = 1.407758704513722461;
-            j = Sofa.Atoi13("A", ob1, ob2, utc1, utc2, dut1, elong, phi, hm, xp, yp, phpa, tc, rh, wl, ref ri, ref di);
-            Assert.Equal(0, j);
-            Assert.Equal(2.710121574448138676, ri, 12);
-            Assert.Equal(0.1729371839116608781, di, 12);
-
-        }
-
-        [Fact]
-        public void Taitt()
-        {
-            // TaiTT tests
-            j = Sofa.Taitt(2453750.5, 0.892482639, ref t1, ref t2);
-            Assert.Equal(0, j);
-            Assert.Equal(2453750.5, t1, 6);
-            Assert.Equal(0.892855139, t2, 12);
-        }
-
-        [Fact]
-        public void Taiutc()
-        {
-            // TaiUtc tests
-            j = Sofa.Taiutc(2453750.5, 0.892482639, ref u1, ref u2);
-            Assert.Equal(0, j);
-            Assert.Equal(2453750.5, u1, 6);
-            Assert.Equal(0.8921006945555555556, u2, 12);
-        }
-
-        [Fact]
-        public void Tf2a_2()
-        {
-            // Tf2a tests
-            j = Sofa.Tf2a('+', 4, 58, 20.2, ref a);
-
-            Assert.Equal(0, j);
-            Assert.Equal(1.301739278189537429, a, 12);
-        }
-
-        [Fact]
-        public void Tttai_2()
-        {
-            // TTTai tests
-            j = Sofa.Tttai(2453750.5, 0.892482639, ref a1, ref a2);
-            Assert.Equal(0, j);
-            Assert.Equal(2453750.5, a1, 6);
-            Assert.Equal(0.892110139, a2, 12);
-        }
-
-        [Fact]
-        public void Utctai_2()
-        {
-            // UtcTai tests
-            j = Sofa.Utctai(2453750.5, 0.892100694, ref u1, ref u2);
-
-            Assert.Equal(0, j);
-            Assert.Equal(2453750.5, u1, 6);
-            Assert.Equal(0.8924826384444444444, u2, 12);
-        }
-
-        [Fact]
-        public void Dat_2()
-        {
-            // Dat tests
-
-            DateTime testDate = sofaDatTestDate;
-            double leapSeconds = 0.0;
-            j = Sofa.Dat(testDate.Year, testDate.Month, testDate.Day, testDate.TimeOfDay.TotalHours / 24.0, ref leapSeconds);
-
-            Assert.Equal(0, j); // Return code is 0 when called for dates that are less than 5 years after the SOFA release year
-            Assert.Equal(37.0, leapSeconds, 6);
-        }
-
-        [Fact]
-        public void DatPlusFiveYears()
-        {
-            // Dat tests
-
-            DateTime testDate = sofaDatTestDate.AddYears(5);
-            double leapSeconds = 0.0;
-            j = Sofa.Dat(testDate.Year, testDate.Month, testDate.Day, testDate.TimeOfDay.TotalHours / 24.0, ref leapSeconds);
-
-            Assert.Equal(1, j); // The return code is 1 when called for dates that are 5 years or more after the SOFA release year
-            Assert.Equal(37.0, leapSeconds, 6);
         }
 
         [Fact]
@@ -409,10 +97,26 @@ namespace SOFA
         }
 
         [Fact]
+        public void Af2a2()
+        {
+            j = Sofa.Af2a('-', 45, 13, 27.2, ref a);
+
+            Assert.Equal(0, j);
+            Assert.Equal(-0.7893115794313644842, a, 12);
+        }
+
+        [Fact]
         public void Anp()
         {
             double r = Sofa.Anp(-0.1);
             Assert.Equal(6.183185307179586477, r, 12);
+        }
+
+        [Fact]
+        public void Anp2()
+        {
+            anp = Sofa.Anp(-0.1);
+            Assert.Equal(6.183185307179586477, anp, 12);
         }
 
         [Fact]
@@ -897,6 +601,25 @@ namespace SOFA
         }
 
         [Fact]
+        public void Atci13_2()
+        {
+            // Atci13 tests
+            rc = 2.71;
+            dc = 0.174;
+            pr = 0.00001;
+            pd = 0.000005;
+            px = 0.1;
+            rv = 55.0;
+            date1 = 2456165.5;
+            date2 = 0.401182685;
+
+            Sofa.Atci13(rc, dc, pr, pd, px, rv, date1, date2, ref ri, ref di, ref eo);
+            Assert.Equal(2.710121572968696744, ri, 12);
+            Assert.Equal(0.1729371367219539137, di, 12);
+            Assert.Equal(-0.002900618712657375647, eo, 14);
+        }
+
+        [Fact]
         public void Atciq()
         {
             double date1 = 2456165.5;
@@ -1002,6 +725,40 @@ namespace SOFA
         }
 
         [Fact]
+        public void Atco13()
+        {
+            // Atco13 tests
+            rc = 2.71;
+            dc = 0.174;
+            pr = 0.00001;
+            pd = 0.000005;
+            px = 0.1;
+            rv = 55.0;
+            utc1 = 2456384.5;
+            utc2 = 0.969254051;
+            dut1 = 0.1550675;
+            elong = -0.527800806;
+            phi = -1.2345856;
+            hm = 2738.0;
+            xp = 0.000000247230737;
+            yp = 0.00000182640464;
+            phpa = 731.0;
+            tc = 12.8;
+            rh = 0.59;
+            wl = 0.55;
+
+            j = Sofa.Atco13(rc, dc, pr, pd, px, rv, utc1, utc2, dut1, elong, phi, hm, xp, yp, phpa, tc, rh, wl, ref aob, ref zob, ref hob, ref dob, ref rob, ref eo);
+
+            Assert.Equal(0, j);
+            Assert.Equal(0.9251774485485515207e-1, aob, 12);
+            Assert.Equal(1.407661405256499357, zob, 12);
+            Assert.Equal(-0.9265154431529724692e-1, hob, 12);
+            Assert.Equal(0.1716626560072526200, dob, 12);
+            Assert.Equal(2.710260453504961012, rob, 12);
+            Assert.Equal(-0.003020548354802412839, eo, 14);
+        }
+
+        [Fact]
         public void Atic13()
         {
             double ri = 2.710121572969038991;
@@ -1010,6 +767,22 @@ namespace SOFA
             double date2 = 0.401182685;
             double rc = 0, dc = 0, eo = 0;
             Sofa.Atic13(ri, di, date1, date2, ref rc, ref dc, ref eo);
+            Assert.Equal(2.710126504531716819, rc, 12);
+            Assert.Equal(0.1740632537627034482, dc, 12);
+            Assert.Equal(-0.002900618712657375647, eo, 14);
+        }
+
+        [Fact]
+        public void Atic13_2()
+        {
+            // Atic13 tests
+            ri = 2.710121572969038991;
+            di = 0.1729371367218230438;
+            date1 = 2456165.5;
+            date2 = 0.401182685;
+
+            Sofa.Atic13(ri, di, date1, date2, ref rc, ref dc, ref eo);
+
             Assert.Equal(2.710126504531716819, rc, 12);
             Assert.Equal(0.1740632537627034482, dc, 12);
             Assert.Equal(-0.002900618712657375647, eo, 14);
@@ -1097,6 +870,35 @@ namespace SOFA
         }
 
         [Fact]
+        public void Atio13_2()
+        {
+            // Atio13 tests
+            ri = 2.710121572969038991;
+            di = 0.1729371367218230438;
+            utc1 = 2456384.5;
+            utc2 = 0.969254051;
+            dut1 = 0.1550675;
+            elong = -0.527800806;
+            phi = -1.2345856;
+            hm = 2738.0;
+            xp = 2.47230737e-7;
+            yp = 1.82640464e-6;
+            phpa = 731.0;
+            tc = 12.8;
+            rh = 0.59;
+            wl = 0.55;
+
+            j = Sofa.Atio13(ri, di, utc1, utc2, dut1, elong, phi, hm, xp, yp, phpa, tc, rh, wl, ref aob, ref zob, ref hob, ref dob, ref rob);
+
+            Assert.Equal(0, j);
+            Assert.Equal(0.9233952224895122499e-1, aob, 12);
+            Assert.Equal(1.407758704513549991, zob, 12);
+            Assert.Equal(-0.9247619879881698140e-1, hob, 12);
+            Assert.Equal(0.1717653435756234676, dob, 12);
+            Assert.Equal(2.710085107988480746, rob, 12);
+        }
+
+        [Fact]
         public void Atioq()
         {
             double utc1 = 2456384.5;
@@ -1165,6 +967,46 @@ namespace SOFA
         }
 
         [Fact]
+        public void Atoc13_2()
+        {
+            // Atoc13 tests
+            utc1 = 2456384.5;
+            utc2 = 0.969254051;
+            dut1 = 0.1550675;
+            elong = -0.527800806;
+            phi = -1.2345856;
+            hm = 2738.0;
+            xp = 2.47230737e-7;
+            yp = 1.82640464e-6;
+            phpa = 731.0;
+            tc = 12.8;
+            rh = 0.59;
+            wl = 0.55;
+
+            ob1 = 2.710085107986886201;
+            ob2 = 0.1717653435758265198;
+            j = Sofa.Atoc13("R", ob1, ob2, utc1, utc2, dut1, elong, phi, hm, xp, yp, phpa, tc, rh, wl, ref rc, ref dc);
+
+            Assert.Equal(0, j);
+            Assert.Equal(2.709956744659136129, rc, 12);
+            Assert.Equal(0.1741696500898471362, dc, 12);
+
+            ob1 = -0.09247619879782006106;
+            ob2 = 0.1717653435758265198;
+            j = Sofa.Atoc13("H", ob1, ob2, utc1, utc2, dut1, elong, phi, hm, xp, yp, phpa, tc, rh, wl, ref rc, ref dc);
+            Assert.Equal(0, j);
+            Assert.Equal(2.709956744659734086, rc, 12);
+            Assert.Equal(0.1741696500898471362, dc, 12);
+
+            ob1 = 0.09233952224794989993;
+            ob2 = 1.407758704513722461;
+            j = Sofa.Atoc13("A", ob1, ob2, utc1, utc2, dut1, elong, phi, hm, xp, yp, phpa, tc, rh, wl, ref rc, ref dc);
+            Assert.Equal(0, j);
+            Assert.Equal(2.709956744659734086, rc, 12);
+            Assert.Equal(0.1741696500898471366, dc, 12);
+        }
+
+        [Fact]
         public void Atoi13()
         {
             double utc1 = 2456384.5;
@@ -1198,6 +1040,46 @@ namespace SOFA
             Assert.Equal(0, j);
             Assert.Equal(2.710121574448138676, ri, 12);
             Assert.Equal(0.1729371839116608781, di, 12);
+        }
+
+        [Fact]
+        public void Atoi13_2()
+        {
+            // Atoi13 tests
+            utc1 = 2456384.5;
+            utc2 = 0.969254051;
+            dut1 = 0.1550675;
+            elong = -0.527800806;
+            phi = -1.2345856;
+            hm = 2738.0;
+            xp = 2.47230737e-7;
+            yp = 1.82640464e-6;
+            phpa = 731.0;
+            tc = 12.8;
+            rh = 0.59;
+            wl = 0.55;
+
+            ob1 = 2.710085107986886201;
+            ob2 = 0.1717653435758265198;
+            j = Sofa.Atoi13("R", ob1, ob2, utc1, utc2, dut1, elong, phi, hm, xp, yp, phpa, tc, rh, wl, ref ri, ref di);
+            Assert.Equal(0, j);
+            Assert.Equal(2.710121574447540810, ri, 12);
+            Assert.Equal(0.1729371839116608778, di, 12);
+
+            ob1 = -0.09247619879782006106;
+            ob2 = 0.1717653435758265198;
+            j = Sofa.Atoi13("H", ob1, ob2, utc1, utc2, dut1, elong, phi, hm, xp, yp, phpa, tc, rh, wl, ref ri, ref di);
+            Assert.Equal(0, j);
+            Assert.Equal(2.710121574448138676, ri, 12);
+            Assert.Equal(0.1729371839116608778, di, 12);
+
+            ob1 = 0.09233952224794989993;
+            ob2 = 1.407758704513722461;
+            j = Sofa.Atoi13("A", ob1, ob2, utc1, utc2, dut1, elong, phi, hm, xp, yp, phpa, tc, rh, wl, ref ri, ref di);
+            Assert.Equal(0, j);
+            Assert.Equal(2.710121574448138676, ri, 12);
+            Assert.Equal(0.1729371839116608781, di, 12);
+
         }
 
         [Fact]
@@ -1791,6 +1673,37 @@ namespace SOFA
             Assert.Equal(3333, ihmsf[3]);
         }
 
+        [Fact]
+        public void Dat()
+        {
+            // Arrange
+            int year = 2017;
+            int month = 9;
+            int day = 1;
+            double frac = 0.0;
+
+            // Act
+            double deltat = 0;
+            short j = Sofa.Dat(year, month, day, frac, ref deltat);
+
+            // Assert
+            Assert.Equal(0, j);
+            Assert.Equal(37.0, deltat);
+        }
+
+        [Fact]
+        public void Dat_2()
+        {
+            // Dat tests
+
+            DateTime testDate = sofaDatTestDate;
+            double leapSeconds = 0.0;
+            j = Sofa.Dat(testDate.Year, testDate.Month, testDate.Day, testDate.TimeOfDay.TotalHours / 24.0, ref leapSeconds);
+
+            Assert.Equal(0, j); // Return code is 0 when called for dates that are less than 5 years after the SOFA release year
+            Assert.Equal(37.0, leapSeconds, 6);
+        }
+
 
         [Fact]
         public void Dat_3()
@@ -1811,21 +1724,16 @@ namespace SOFA
         }
 
         [Fact]
-        public void Dat()
+        public void DatPlusFiveYears()
         {
-            // Arrange
-            int year = 2017;
-            int month = 9;
-            int day = 1;
-            double frac = 0.0;
+            // Dat tests
 
-            // Act
-            double deltat = 0;
-            short j = Sofa.Dat(year, month, day, frac, ref deltat);
+            DateTime testDate = sofaDatTestDate.AddYears(5);
+            double leapSeconds = 0.0;
+            j = Sofa.Dat(testDate.Year, testDate.Month, testDate.Day, testDate.TimeOfDay.TotalHours / 24.0, ref leapSeconds);
 
-            // Assert
-            Assert.Equal(0, j);
-            Assert.Equal(37.0, deltat);
+            Assert.Equal(1, j); // The return code is 1 when called for dates that are 5 years or more after the SOFA release year
+            Assert.Equal(37.0, leapSeconds, 6);
         }
 
 
@@ -1869,6 +1777,16 @@ namespace SOFA
             // Assert
             Assert.Equal(0, j);
             Assert.Equal(2449534.49999, d1 + d2, TOLERANCE);
+        }
+
+        [Fact]
+        public void Dtf2d_2()
+        {
+            // Dtf2d tests
+
+            j = Sofa.Dtf2d("UTC", 1994, 6, 30, 23, 59, 60.13599, ref u1, ref u2);
+            Assert.Equal(0, j);
+            Assert.Equal(2449534.49999, u1 + u2, 6);
         }
 
         [Fact]
@@ -2008,20 +1926,18 @@ namespace SOFA
         }
 
         [Fact]
-        public void Eform_WGS84()
+        public void Eform_Bad2()
         {
             // Arrange
-            SofaReferenceEllipsoids id = SofaReferenceEllipsoids.WGS84;
+            int id = 4;
 
             // Act
             double a = 0;
             double f = 0;
-            int j = Sofa.Eform(id, ref a, ref f);
+            int j = Sofa.Eform((SofaReferenceEllipsoids)id, ref a, ref f);
 
             // Assert
-            Assert.Equal(0, j);
-            Assert.Equal(6378137.0, a, 1e-10);
-            Assert.Equal(0.3352810664747480720e-2, f, 1e-18);
+            Assert.Equal(-1, j);
         }
 
         [Fact]
@@ -2059,18 +1975,20 @@ namespace SOFA
         }
 
         [Fact]
-        public void Eform_Bad2()
+        public void Eform_WGS84()
         {
             // Arrange
-            int id = 4;
+            SofaReferenceEllipsoids id = SofaReferenceEllipsoids.WGS84;
 
             // Act
             double a = 0;
             double f = 0;
-            int j = Sofa.Eform((SofaReferenceEllipsoids)id, ref a, ref f);
+            int j = Sofa.Eform(id, ref a, ref f);
 
             // Assert
-            Assert.Equal(-1, j);
+            Assert.Equal(0, j);
+            Assert.Equal(6378137.0, a, 1e-10);
+            Assert.Equal(0.3352810664747480720e-2, f, 1e-18);
         }
 
         [Fact]
@@ -2086,6 +2004,14 @@ namespace SOFA
 
             // Assert
             Assert.Equal(-0.1332882371941833644e-2, eo, TOLERANCE);
+        }
+
+        [Fact]
+        public void Eo06a_2()
+        {
+            // Eo06a tests
+            eo = Sofa.Eo06a(2400000.5, 53736.0);
+            Assert.Equal(-0.1332882371941833644e-2, eo, 15);
         }
 
         [Fact]
@@ -2875,6 +2801,12 @@ namespace SOFA
         }
 
         [Fact]
+        public void IssueDate()
+        {
+            Assert.Equal("2023-10-11", Sofa.SofaIssueDate());
+        }
+
+        [Fact]
         public void Jd2cal()
         {
             const double TOLERANCE = 1e-7;
@@ -3289,6 +3221,17 @@ namespace SOFA
         }
 
         [Fact]
+        public void Pap()
+        {
+            double[] a = { 1.0, 0.1, 0.2 };
+            double[] b = { -3.0, 1e-3, 0.2 };
+
+            double theta = Sofa.Pap(a, b);
+
+            Assert.Equal(0.3671514267841113674, theta, 12);
+        }
+
+        [Fact]
         public void Pap2()
         {
             const double TOLERANCE = 1e-12;
@@ -3299,6 +3242,19 @@ namespace SOFA
             double theta = Sofa.Pap(a, b);
             // Assert
             Assert.Equal(0.3671514267841113674, theta, TOLERANCE);
+        }
+
+        [Fact]
+        public void Pas()
+        {
+            double al = 1.0;
+            double ap = 0.1;
+            double bl = 0.2;
+            double bp = -1.0;
+
+            double theta = Sofa.Pas(al, ap, bl, bp);
+
+            Assert.Equal(-2.724544922932270424, theta, 12);
         }
 
         [Fact]
@@ -3327,6 +3283,17 @@ namespace SOFA
             Assert.Equal(-0.5092634016326478238e-3, bzeta, TOLERANCE);
             Assert.Equal(-0.3602772060566044413e-3, bz, TOLERANCE);
             Assert.Equal(-0.3779735537167811177e-3, btheta, TOLERANCE);
+        }
+
+        [Fact]
+        public void Pdp()
+        {
+            double[] a = { 2.0, 2.0, 3.0 };
+            double[] b = { 1.0, 3.0, 4.0 };
+
+            double adb = Sofa.Pdp(a, b);
+
+            Assert.Equal(20, adb, 12);
         }
 
         [Fact]
@@ -3682,6 +3649,25 @@ namespace SOFA
             Assert.Equal(0.4063238496887249798e-4, deps, 12);
         }
 
+
+
+        [Fact]
+        public void Pn06a_2()
+        {
+            const double TOLERANCE = 1e-12;
+            // Act
+            double dpsi = 0, deps = 0, epsa = 0;
+            double[] rb = new double[9];
+            double[] rp = new double[9];
+            double[] rbp = new double[9];
+            double[] rn = new double[9];
+            double[] rbpn = new double[9];
+            Sofa.Pn06a(2400000.5, 53736.0, ref dpsi, ref deps, ref epsa, rb, rp, rbp, rn, rbpn);
+            // Assert
+            Assert.Equal(-0.9630912025820308797e-5, dpsi, TOLERANCE);
+            Assert.Equal(0.4063238496887249798e-4, deps, TOLERANCE);
+        }
+
         [Fact]
         public void Pnm00a()
         {
@@ -3762,6 +3748,35 @@ namespace SOFA
         }
 
         [Fact]
+        public void Ppp()
+        {
+            double[] a = { 2.0, 2.0, 3.0 };
+            double[] b = { 1.0, 3.0, 4.0 };
+            double[] apb = new double[3];
+
+            Sofa.Ppp(a, b, apb);
+
+            Assert.Equal(3.0, apb[0], 12);
+            Assert.Equal(5.0, apb[1], 12);
+            Assert.Equal(7.0, apb[2], 12);
+        }
+
+        [Fact]
+        public void Ppsp()
+        {
+            double[] a = { 2.0, 2.0, 3.0 };
+            double s = 5.0;
+            double[] b = { 1.0, 3.0, 4.0 };
+            double[] apsb = new double[3];
+
+            Sofa.Ppsp(a, s, b, apsb);
+
+            Assert.Equal(7.0, apsb[0], 12);
+            Assert.Equal(17.0, apsb[1], 12);
+            Assert.Equal(23.0, apsb[2], 12);
+        }
+
+        [Fact]
         public void Pr00()
         {
             // Arrange
@@ -3791,6 +3806,94 @@ namespace SOFA
             Assert.Equal(0.5588961642000161243e-2, zeta, 12);
             Assert.Equal(0.5589922365870680624e-2, z, 12);
             Assert.Equal(0.4858945471687296760e-2, theta, 12);
+        }
+
+        [Fact]
+        public void Pv2p()
+        {
+            double[] pv = new double[] { 0.3, 1.2, -2.5, -0.5, 3.1, 0.9 };
+            double[] p = new double[3];
+
+            Sofa.Pv2p(pv, p);
+
+            Assert.Equal(0.3, p[0], 0);
+            Assert.Equal(1.2, p[1], 0);
+            Assert.Equal(-2.5, p[2], 0);
+        }
+
+        [Fact]
+        public void Pv2s()
+        {
+            double[] pv = new double[] { -0.4514964673880165, 0.03093394277342585, 0.05594668105108779, 1.292270850663260e-5, 2.652814182060692e-6, 2.568431853930293e-6 };
+            double theta = 0, phi = 0, r = 0, td = 0, pd = 0, rd = 0;
+
+            Sofa.Pv2s(pv, ref theta, ref phi, ref r, ref td, ref pd, ref rd);
+
+            Assert.Equal(3.073185307179586515, theta, 12);
+            Assert.Equal(0.1229999999999999992, phi, 12);
+            Assert.Equal(0.4559999999999999757, r, 12);
+            Assert.Equal(-0.7800000000000000364e-5, td, 15);
+            Assert.Equal(0.9010000000000001639e-5, pd, 15);
+            Assert.Equal(-0.1229999999999999832e-4, rd, 15);
+        }
+
+        [Fact]
+        public void Pvdpv()
+        {
+            double[] a = new double[] { 2.0, 2.0, 3.0, 6.0, 0.0, 4.0 };
+            double[] b = new double[] { 1.0, 3.0, 4.0, 0.0, 2.0, 8.0 };
+            double[] adb = new double[2];
+
+            Sofa.Pvdpv(a, b, adb);
+
+            Assert.Equal(20.0, adb[0], 12);
+            Assert.Equal(50.0, adb[1], 12);
+        }
+
+        [Fact]
+        public void Pvm()
+        {
+            double[] pv = new double[] { 0.3, 1.2, -2.5, 0.45, -0.25, 1.1 };
+            double r = 0, s = 0;
+
+            Sofa.Pvm(pv, ref r, ref s);
+
+            Assert.Equal(2.789265136196270604, r, 12);
+            Assert.Equal(1.214495780149111922, s, 12);
+        }
+
+        [Fact]
+        public void Pvmpv()
+        {
+            double[] a = new double[] { 2.0, 2.0, 3.0, 5.0, 6.0, 3.0 };
+            double[] b = new double[] { 1.0, 3.0, 4.0, 3.0, 2.0, 1.0 };
+            double[] amb = new double[6];
+
+            Sofa.Pvmpv(a, b, amb);
+
+            Assert.Equal(1.0, amb[0], 12);
+            Assert.Equal(-1.0, amb[1], 12);
+            Assert.Equal(-1.0, amb[2], 12);
+            Assert.Equal(2.0, amb[3], 12);
+            Assert.Equal(4.0, amb[4], 12);
+            Assert.Equal(2.0, amb[5], 12);
+        }
+
+        [Fact]
+        public void Pvppv()
+        {
+            double[] a = new double[] { 2.0, 2.0, 3.0, 5.0, 6.0, 3.0 };
+            double[] b = new double[] { 1.0, 3.0, 4.0, 3.0, 2.0, 1.0 };
+            double[] apb = new double[6];
+
+            Sofa.Pvppv(a, b, apb);
+
+            Assert.Equal(3.0, apb[0], 12);
+            Assert.Equal(5.0, apb[1], 12);
+            Assert.Equal(7.0, apb[2], 12);
+            Assert.Equal(8.0, apb[3], 12);
+            Assert.Equal(8.0, apb[4], 12);
+            Assert.Equal(4.0, apb[5], 12);
         }
 
         [Fact]
@@ -3885,142 +3988,6 @@ namespace SOFA
             Assert.Equal(-245216.5048590656190, p[2], 6);
         }
 
-
-
-        [Fact]
-        public void Pn06a_2()
-        {
-            const double TOLERANCE = 1e-12;
-            // Act
-            double dpsi = 0, deps = 0, epsa = 0;
-            double[] rb = new double[9];
-            double[] rp = new double[9];
-            double[] rbp = new double[9];
-            double[] rn = new double[9];
-            double[] rbpn = new double[9];
-            Sofa.Pn06a(2400000.5, 53736.0, ref dpsi, ref deps, ref epsa, rb, rp, rbp, rn, rbpn);
-            // Assert
-            Assert.Equal(-0.9630912025820308797e-5, dpsi, TOLERANCE);
-            Assert.Equal(0.4063238496887249798e-4, deps, TOLERANCE);
-        }
-
-        [Fact]
-        public void Ppp()
-        {
-            double[] a = { 2.0, 2.0, 3.0 };
-            double[] b = { 1.0, 3.0, 4.0 };
-            double[] apb = new double[3];
-
-            Sofa.Ppp(a, b, apb);
-
-            Assert.Equal(3.0, apb[0], 12);
-            Assert.Equal(5.0, apb[1], 12);
-            Assert.Equal(7.0, apb[2], 12);
-        }
-
-        [Fact]
-        public void Ppsp()
-        {
-            double[] a = { 2.0, 2.0, 3.0 };
-            double s = 5.0;
-            double[] b = { 1.0, 3.0, 4.0 };
-            double[] apsb = new double[3];
-
-            Sofa.Ppsp(a, s, b, apsb);
-
-            Assert.Equal(7.0, apsb[0], 12);
-            Assert.Equal(17.0, apsb[1], 12);
-            Assert.Equal(23.0, apsb[2], 12);
-        }
-
-        [Fact]
-        public void Pv2p()
-        {
-            double[] pv = new double[] { 0.3, 1.2, -2.5, -0.5, 3.1, 0.9 };
-            double[] p = new double[3];
-
-            Sofa.Pv2p(pv, p);
-
-            Assert.Equal(0.3, p[0], 0);
-            Assert.Equal(1.2, p[1], 0);
-            Assert.Equal(-2.5, p[2], 0);
-        }
-
-        [Fact]
-        public void Pv2s()
-        {
-            double[] pv = new double[] { -0.4514964673880165, 0.03093394277342585, 0.05594668105108779, 1.292270850663260e-5, 2.652814182060692e-6, 2.568431853930293e-6 };
-            double theta = 0, phi = 0, r = 0, td = 0, pd = 0, rd = 0;
-
-            Sofa.Pv2s(pv, ref theta, ref phi, ref r, ref td, ref pd, ref rd);
-
-            Assert.Equal(3.073185307179586515, theta, 12);
-            Assert.Equal(0.1229999999999999992, phi, 12);
-            Assert.Equal(0.4559999999999999757, r, 12);
-            Assert.Equal(-0.7800000000000000364e-5, td, 15);
-            Assert.Equal(0.9010000000000001639e-5, pd, 15);
-            Assert.Equal(-0.1229999999999999832e-4, rd, 15);
-        }
-
-        [Fact]
-        public void Pvdpv()
-        {
-            double[] a = new double[] { 2.0, 2.0, 3.0, 6.0, 0.0, 4.0 };
-            double[] b = new double[] { 1.0, 3.0, 4.0, 0.0, 2.0, 8.0 };
-            double[] adb = new double[2];
-
-            Sofa.Pvdpv(a, b, adb);
-
-            Assert.Equal(20.0, adb[0], 12);
-            Assert.Equal(50.0, adb[1], 12);
-        }
-
-        [Fact]
-        public void Pvm()
-        {
-            double[] pv = new double[] { 0.3, 1.2, -2.5, 0.45, -0.25, 1.1 };
-            double r = 0, s = 0;
-
-            Sofa.Pvm(pv, ref r, ref s);
-
-            Assert.Equal(2.789265136196270604, r, 12);
-            Assert.Equal(1.214495780149111922, s, 12);
-        }
-
-        [Fact]
-        public void Pvmpv()
-        {
-            double[] a = new double[] { 2.0, 2.0, 3.0, 5.0, 6.0, 3.0 };
-            double[] b = new double[] { 1.0, 3.0, 4.0, 3.0, 2.0, 1.0 };
-            double[] amb = new double[6];
-
-            Sofa.Pvmpv(a, b, amb);
-
-            Assert.Equal(1.0, amb[0], 12);
-            Assert.Equal(-1.0, amb[1], 12);
-            Assert.Equal(-1.0, amb[2], 12);
-            Assert.Equal(2.0, amb[3], 12);
-            Assert.Equal(4.0, amb[4], 12);
-            Assert.Equal(2.0, amb[5], 12);
-        }
-
-        [Fact]
-        public void Pvppv()
-        {
-            double[] a = new double[] { 2.0, 2.0, 3.0, 5.0, 6.0, 3.0 };
-            double[] b = new double[] { 1.0, 3.0, 4.0, 3.0, 2.0, 1.0 };
-            double[] apb = new double[6];
-
-            Sofa.Pvppv(a, b, apb);
-
-            Assert.Equal(3.0, apb[0], 12);
-            Assert.Equal(5.0, apb[1], 12);
-            Assert.Equal(7.0, apb[2], 12);
-            Assert.Equal(8.0, apb[3], 12);
-            Assert.Equal(8.0, apb[4], 12);
-            Assert.Equal(4.0, apb[5], 12);
-        }
-
         [Fact]
         public void Pvxpv()
         {
@@ -4050,6 +4017,38 @@ namespace SOFA
             Assert.Equal(-1.0, axb[0], 12);
             Assert.Equal(-5.0, axb[1], 12);
             Assert.Equal(4.0, axb[2], 12);
+        }
+
+        [Fact]
+        public void Refco()
+        {
+            double phpa = 800.0;
+            double tc = 10.0;
+            double rh = 0.9;
+            double wl = 0.4;
+            double refa = 0, refb = 0;
+
+            Sofa.Refco(phpa, tc, rh, wl, ref refa, ref refb);
+
+            Assert.Equal(0.2264949956241415009e-3, refa, 15);
+            Assert.Equal(-0.2598658261729343970e-6, refb, 15);
+        }
+
+        [Fact]
+        public void ReleaseNumber()
+        {
+            Assert.Equal("19", Sofa.SofaReleaseNumber().ToString());
+        }
+
+        [Fact]
+        public void RevisionDate()
+        {
+            Assert.Equal("2023-10-11", Sofa.SofaRevisionDate());
+        }
+        [Fact]
+        public void RevisionNumber()
+        {
+            Assert.Equal("0", Sofa.SofaRevisionNumber().ToString());
         }
 
         [Fact]
@@ -4192,240 +4191,6 @@ namespace SOFA
             Assert.Equal(5.0, r[8], 12);
         }
 
-        [Fact]
-        public void S2c()
-        {
-            double[] c = new double[3];
-
-            Sofa.S2c(3.0123, -0.999, c);
-
-            Assert.Equal(-0.5366267667260523906, c[0], 12);
-            Assert.Equal(0.0697711109765145365, c[1], 12);
-            Assert.Equal(-0.8409302618566214041, c[2], 12);
-        }
-
-        [Fact]
-        public void S2p()
-        {
-            double[] p = new double[3];
-
-            Sofa.S2p(-3.21, 0.123, 0.456, p);
-
-            Assert.Equal(-0.4514964673880165228, p[0], 12);
-            Assert.Equal(0.0309339427734258688, p[1], 12);
-            Assert.Equal(0.0559466810510877933, p[2], 12);
-        }
-
-        [Fact]
-        public void S2pv()
-        {
-            double[] pv = new double[6];
-
-            Sofa.S2pv(-3.21, 0.123, 0.456, -7.8e-6, 9.01e-6, -1.23e-5, pv);
-
-            Assert.Equal(-0.4514964673880165228, pv[0], 12);
-            Assert.Equal(0.0309339427734258688, pv[1], 12);
-            Assert.Equal(0.0559466810510877933, pv[2], 12);
-            Assert.Equal(0.1292270850663260170e-4, pv[3], 15);
-            Assert.Equal(0.2652814182060691422e-5, pv[4], 15);
-            Assert.Equal(0.2568431853930292259e-5, pv[5], 15);
-        }
-
-        [Fact]
-        public void Sxp()
-        {
-            double s = 2.0;
-            double[] p = { 0.3, 1.2, -2.5 };
-            double[] sp = new double[3];
-
-            Sofa.Sxp(s, p, sp);
-
-            Assert.Equal(0.6, sp[0], 0);
-            Assert.Equal(2.4, sp[1], 0);
-            Assert.Equal(-5.0, sp[2], 0);
-        }
-
-        [Fact]
-        public void Sxpv()
-        {
-            double s = 2.0;
-            double[] pv = new double[] { 0.3, 1.2, -2.5, 0.5, 3.2, -0.7 };
-            double[] spv = new double[6];
-
-            Sofa.Sxpv(s, pv, spv);
-
-            Assert.Equal(0.6, spv[0], 0);
-            Assert.Equal(2.4, spv[1], 0);
-            Assert.Equal(-5.0, spv[2], 0);
-            Assert.Equal(1.0, spv[3], 0);
-            Assert.Equal(6.4, spv[4], 0);
-            Assert.Equal(-1.4, spv[5], 0);
-        }
-
-        [Fact]
-        public void Tr()
-        {
-            double[] r = new double[] { 2.0, 3.0, 2.0, 3.0, 2.0, 3.0, 3.0, 4.0, 5.0 };
-            double[] rt = new double[9];
-
-            Sofa.Tr(r, rt);
-
-            Assert.Equal(2.0, rt[0], 0);
-            Assert.Equal(3.0, rt[1], 0);
-            Assert.Equal(3.0, rt[2], 0);
-            Assert.Equal(3.0, rt[3], 0);
-            Assert.Equal(2.0, rt[4], 0);
-            Assert.Equal(4.0, rt[5], 0);
-            Assert.Equal(2.0, rt[6], 0);
-            Assert.Equal(3.0, rt[7], 0);
-            Assert.Equal(5.0, rt[8], 0);
-        }
-
-        [Fact]
-        public void Trxp()
-        {
-            double[] r = new double[] { 2.0, 3.0, 2.0, 3.0, 2.0, 3.0, 3.0, 4.0, 5.0 };
-            double[] p = { 0.2, 1.5, 0.1 };
-            double[] trp = new double[3];
-
-            Sofa.Trxp(r, p, trp);
-
-            Assert.Equal(5.2, trp[0], 12);
-            Assert.Equal(4.0, trp[1], 12);
-            Assert.Equal(5.4, trp[2], 12);
-        }
-
-        [Fact]
-        public void Trxpv()
-        {
-            double[] r = new double[] { 2.0, 3.0, 2.0, 3.0, 2.0, 3.0, 3.0, 4.0, 5.0 };
-            double[] pv = new double[] { 0.2, 1.5, 0.1, 1.5, 0.2, 0.1 };
-            double[] trpv = new double[6];
-
-            Sofa.Trxpv(r, pv, trpv);
-
-            Assert.Equal(5.2, trpv[0], 12);
-            Assert.Equal(4.0, trpv[1], 12);
-            Assert.Equal(5.4, trpv[2], 12);
-            Assert.Equal(3.9, trpv[3], 12);
-            Assert.Equal(5.3, trpv[4], 12);
-            Assert.Equal(4.1, trpv[5], 12);
-        }
-
-        [Fact]
-        public void Zp()
-        {
-            double[] p = { 0.3, 1.2, -2.5 };
-
-            Sofa.Zp(p);
-
-            Assert.Equal(0.0, p[0], 0);
-            Assert.Equal(0.0, p[1], 0);
-            Assert.Equal(0.0, p[2], 0);
-        }
-
-        [Fact]
-        public void Zpv()
-        {
-            double[] pv = new double[] { 0.3, 1.2, -2.5, -0.5, 3.1, 0.9 };
-
-            Sofa.Zpv(pv);
-
-            Assert.Equal(0.0, pv[0], 0);
-            Assert.Equal(0.0, pv[1], 0);
-            Assert.Equal(0.0, pv[2], 0);
-            Assert.Equal(0.0, pv[3], 0);
-            Assert.Equal(0.0, pv[4], 0);
-            Assert.Equal(0.0, pv[5], 0);
-        }
-
-        [Fact]
-        public void Zr()
-        {
-            double[] r = new double[] { 2.0, 3.0, 3.0, 3.0, 2.0, 4.0, 2.0, 3.0, 5.0 };
-
-            Sofa.Zr(r);
-
-            for (int i = 0; i < 9; i++)
-            {
-                Assert.Equal(0.0, r[i], 0);
-            }
-        }
-
-        [Fact]
-        public void Pdp()
-        {
-            double[] a = { 2.0, 2.0, 3.0 };
-            double[] b = { 1.0, 3.0, 4.0 };
-
-            double adb = Sofa.Pdp(a, b);
-
-            Assert.Equal(20, adb, 12);
-        }
-
-        [Fact]
-        public void Pap()
-        {
-            double[] a = { 1.0, 0.1, 0.2 };
-            double[] b = { -3.0, 1e-3, 0.2 };
-
-            double theta = Sofa.Pap(a, b);
-
-            Assert.Equal(0.3671514267841113674, theta, 12);
-        }
-
-        [Fact]
-        public void Pas()
-        {
-            double al = 1.0;
-            double ap = 0.1;
-            double bl = 0.2;
-            double bp = -1.0;
-
-            double theta = Sofa.Pas(al, ap, bl, bp);
-
-            Assert.Equal(-2.724544922932270424, theta, 12);
-        }
-
-        [Fact]
-        public void Sepp()
-        {
-            double[] a = { 1.0, 0.1, 0.2 };
-            double[] b = { -3.0, 1e-3, 0.2 };
-
-            double s = Sofa.Sepp(a, b);
-
-            Assert.Equal(2.860391919024660768, s, 12);
-        }
-
-        [Fact]
-        public void Seps()
-        {
-            double al = 1.0;
-            double ap = 0.1;
-            double bl = 0.2;
-            double bp = -3.0;
-
-            double s = Sofa.Seps(al, ap, bl, bp);
-
-            Assert.Equal(2.346722016996998842, s, 14);
-        }
-
-        [Fact]
-        public void Refco()
-        {
-            double phpa = 800.0;
-            double tc = 10.0;
-            double rh = 0.9;
-            double wl = 0.4;
-            double refa = 0, refb = 0;
-
-            Sofa.Refco(phpa, tc, rh, wl, ref refa, ref refb);
-
-            Assert.Equal(0.2264949956241415009e-3, refa, 15);
-            Assert.Equal(-0.2598658261729343970e-6, refb, 15);
-        }
-
 
 
 
@@ -4489,6 +4254,45 @@ namespace SOFA
         }
 
         [Fact]
+        public void S2c()
+        {
+            double[] c = new double[3];
+
+            Sofa.S2c(3.0123, -0.999, c);
+
+            Assert.Equal(-0.5366267667260523906, c[0], 12);
+            Assert.Equal(0.0697711109765145365, c[1], 12);
+            Assert.Equal(-0.8409302618566214041, c[2], 12);
+        }
+
+        [Fact]
+        public void S2p()
+        {
+            double[] p = new double[3];
+
+            Sofa.S2p(-3.21, 0.123, 0.456, p);
+
+            Assert.Equal(-0.4514964673880165228, p[0], 12);
+            Assert.Equal(0.0309339427734258688, p[1], 12);
+            Assert.Equal(0.0559466810510877933, p[2], 12);
+        }
+
+        [Fact]
+        public void S2pv()
+        {
+            double[] pv = new double[6];
+
+            Sofa.S2pv(-3.21, 0.123, 0.456, -7.8e-6, 9.01e-6, -1.23e-5, pv);
+
+            Assert.Equal(-0.4514964673880165228, pv[0], 12);
+            Assert.Equal(0.0309339427734258688, pv[1], 12);
+            Assert.Equal(0.0559466810510877933, pv[2], 12);
+            Assert.Equal(0.1292270850663260170e-4, pv[3], 15);
+            Assert.Equal(0.2652814182060691422e-5, pv[4], 15);
+            Assert.Equal(0.2568431853930292259e-5, pv[5], 15);
+        }
+
+        [Fact]
         public void S2xpv()
         {
             // Arrange
@@ -4507,6 +4311,30 @@ namespace SOFA
             Assert.Equal(1.5, spv[3], 12);
             Assert.Equal(6.9, spv[4], 12);
             Assert.Equal(-1.2, spv[5], 12);
+        }
+
+        [Fact]
+        public void Sepp()
+        {
+            double[] a = { 1.0, 0.1, 0.2 };
+            double[] b = { -3.0, 1e-3, 0.2 };
+
+            double s = Sofa.Sepp(a, b);
+
+            Assert.Equal(2.860391919024660768, s, 12);
+        }
+
+        [Fact]
+        public void Seps()
+        {
+            double al = 1.0;
+            double ap = 0.1;
+            double bl = 0.2;
+            double bp = -3.0;
+
+            double s = Sofa.Seps(al, ap, bl, bp);
+
+            Assert.Equal(2.346722016996998842, s, 14);
         }
 
         [Fact]
@@ -4581,6 +4409,47 @@ namespace SOFA
         }
 
         [Fact]
+        public void Sxp()
+        {
+            double s = 2.0;
+            double[] p = { 0.3, 1.2, -2.5 };
+            double[] sp = new double[3];
+
+            Sofa.Sxp(s, p, sp);
+
+            Assert.Equal(0.6, sp[0], 0);
+            Assert.Equal(2.4, sp[1], 0);
+            Assert.Equal(-5.0, sp[2], 0);
+        }
+
+        [Fact]
+        public void Sxpv()
+        {
+            double s = 2.0;
+            double[] pv = new double[] { 0.3, 1.2, -2.5, 0.5, 3.2, -0.7 };
+            double[] spv = new double[6];
+
+            Sofa.Sxpv(s, pv, spv);
+
+            Assert.Equal(0.6, spv[0], 0);
+            Assert.Equal(2.4, spv[1], 0);
+            Assert.Equal(-5.0, spv[2], 0);
+            Assert.Equal(1.0, spv[3], 0);
+            Assert.Equal(6.4, spv[4], 0);
+            Assert.Equal(-1.4, spv[5], 0);
+        }
+
+        [Fact]
+        public void Taitt()
+        {
+            // TaiTT tests
+            j = Sofa.Taitt(2453750.5, 0.892482639, ref t1, ref t2);
+            Assert.Equal(0, j);
+            Assert.Equal(2453750.5, t1, 6);
+            Assert.Equal(0.892855139, t2, 12);
+        }
+
+        [Fact]
         public void Taiut1()
         {
             // Arrange
@@ -4594,6 +4463,16 @@ namespace SOFA
             Assert.Equal(0, j);
             Assert.Equal(2453750.5, u1, 6);
             Assert.Equal(0.8921045614537037037, u2, 12);
+        }
+
+        [Fact]
+        public void Taiutc()
+        {
+            // TaiUtc tests
+            j = Sofa.Taiutc(2453750.5, 0.892482639, ref u1, ref u2);
+            Assert.Equal(0, j);
+            Assert.Equal(2453750.5, u1, 6);
+            Assert.Equal(0.8921006945555555556, u2, 12);
         }
 
         [Fact]
@@ -4637,12 +4516,20 @@ namespace SOFA
         }
 
         [Fact]
-        public void Tf2a_PositiveSign()
+        public void Tf2a_2()
+        {
+            // Tf2a tests
+            j = Sofa.Tf2a('+', 4, 58, 20.2, ref a);
+
+            Assert.Equal(0, j);
+            Assert.Equal(1.301739278189537429, a, 12);
+        }
+        [Fact]
+        public void Tf2a_BadValue()
         {
             double rad = 0;
-            int j = Sofa.Tf2a('+', 4, 58, 20.2, ref rad);
-            Assert.Equal(0, j);
-            Assert.Equal(1.301739278189537429, rad, 12);
+            int j = Sofa.Tf2a('+', 25, 0, 0, ref rad);
+            Assert.Equal(1, j);
         }
         [Fact]
         public void Tf2a_NegativeSign()
@@ -4652,12 +4539,14 @@ namespace SOFA
             Assert.Equal(0, j);
             Assert.Equal(-1.301739278189537429, rad, 12);
         }
+
         [Fact]
-        public void Tf2a_BadValue()
+        public void Tf2a_PositiveSign()
         {
             double rad = 0;
-            int j = Sofa.Tf2a('+', 25, 0, 0, ref rad);
-            Assert.Equal(1, j);
+            int j = Sofa.Tf2a('+', 4, 58, 20.2, ref rad);
+            Assert.Equal(0, j);
+            Assert.Equal(1.301739278189537429, rad, 12);
         }
 
         [Fact]
@@ -4752,6 +4641,56 @@ namespace SOFA
         }
 
         [Fact]
+        public void Tr()
+        {
+            double[] r = new double[] { 2.0, 3.0, 2.0, 3.0, 2.0, 3.0, 3.0, 4.0, 5.0 };
+            double[] rt = new double[9];
+
+            Sofa.Tr(r, rt);
+
+            Assert.Equal(2.0, rt[0], 0);
+            Assert.Equal(3.0, rt[1], 0);
+            Assert.Equal(3.0, rt[2], 0);
+            Assert.Equal(3.0, rt[3], 0);
+            Assert.Equal(2.0, rt[4], 0);
+            Assert.Equal(4.0, rt[5], 0);
+            Assert.Equal(2.0, rt[6], 0);
+            Assert.Equal(3.0, rt[7], 0);
+            Assert.Equal(5.0, rt[8], 0);
+        }
+
+        [Fact]
+        public void Trxp()
+        {
+            double[] r = new double[] { 2.0, 3.0, 2.0, 3.0, 2.0, 3.0, 3.0, 4.0, 5.0 };
+            double[] p = { 0.2, 1.5, 0.1 };
+            double[] trp = new double[3];
+
+            Sofa.Trxp(r, p, trp);
+
+            Assert.Equal(5.2, trp[0], 12);
+            Assert.Equal(4.0, trp[1], 12);
+            Assert.Equal(5.4, trp[2], 12);
+        }
+
+        [Fact]
+        public void Trxpv()
+        {
+            double[] r = new double[] { 2.0, 3.0, 2.0, 3.0, 2.0, 3.0, 3.0, 4.0, 5.0 };
+            double[] pv = new double[] { 0.2, 1.5, 0.1, 1.5, 0.2, 0.1 };
+            double[] trpv = new double[6];
+
+            Sofa.Trxpv(r, pv, trpv);
+
+            Assert.Equal(5.2, trpv[0], 12);
+            Assert.Equal(4.0, trpv[1], 12);
+            Assert.Equal(5.4, trpv[2], 12);
+            Assert.Equal(3.9, trpv[3], 12);
+            Assert.Equal(5.3, trpv[4], 12);
+            Assert.Equal(4.1, trpv[5], 12);
+        }
+
+        [Fact]
         public void Tttai()
         {
             double tai1 = 0, tai2 = 0;
@@ -4759,6 +4698,16 @@ namespace SOFA
             Assert.Equal(0, j);
             Assert.Equal(2453750.5, tai1, 6);
             Assert.Equal(0.892110139, tai2, 9);
+        }
+
+        [Fact]
+        public void Tttai_2()
+        {
+            // TTTai tests
+            j = Sofa.Tttai(2453750.5, 0.892482639, ref a1, ref a2);
+            Assert.Equal(0, j);
+            Assert.Equal(2453750.5, a1, 6);
+            Assert.Equal(0.892110139, a2, 12);
         }
 
         [Fact]
@@ -4832,6 +4781,17 @@ namespace SOFA
         }
 
         [Fact]
+        public void Utctai_2()
+        {
+            // UtcTai tests
+            j = Sofa.Utctai(2453750.5, 0.892100694, ref u1, ref u2);
+
+            Assert.Equal(0, j);
+            Assert.Equal(2453750.5, u1, 6);
+            Assert.Equal(0.8924826384444444444, u2, 12);
+        }
+
+        [Fact]
         public void Utcut1()
         {
             double ut11 = 0, ut12 = 0;
@@ -4878,6 +4838,46 @@ namespace SOFA
             Assert.Equal(0.5791308482835292617e-3, x, 14);
             Assert.Equal(0.4020580099454020310e-4, y, 15);
             Assert.Equal(-0.1220032294164579896e-7, s, 15);
+        }
+
+        [Fact]
+        public void Zp()
+        {
+            double[] p = { 0.3, 1.2, -2.5 };
+
+            Sofa.Zp(p);
+
+            Assert.Equal(0.0, p[0], 0);
+            Assert.Equal(0.0, p[1], 0);
+            Assert.Equal(0.0, p[2], 0);
+        }
+
+        [Fact]
+        public void Zpv()
+        {
+            double[] pv = new double[] { 0.3, 1.2, -2.5, -0.5, 3.1, 0.9 };
+
+            Sofa.Zpv(pv);
+
+            Assert.Equal(0.0, pv[0], 0);
+            Assert.Equal(0.0, pv[1], 0);
+            Assert.Equal(0.0, pv[2], 0);
+            Assert.Equal(0.0, pv[3], 0);
+            Assert.Equal(0.0, pv[4], 0);
+            Assert.Equal(0.0, pv[5], 0);
+        }
+
+        [Fact]
+        public void Zr()
+        {
+            double[] r = new double[] { 2.0, 3.0, 3.0, 3.0, 2.0, 4.0, 2.0, 3.0, 5.0 };
+
+            Sofa.Zr(r);
+
+            for (int i = 0; i < 9; i++)
+            {
+                Assert.Equal(0.0, r[i], 0);
+            }
         }
     }
 }
