@@ -145,6 +145,7 @@ namespace ASCOM.Tools
             /// </summary>
             public double ypl;
 
+
             /// <summary>
             /// Sine of geodetic latitude
             /// </summary>
@@ -205,7 +206,6 @@ namespace ASCOM.Tools
             }
 #endif
 
-            // pv[2][3] marshalled row-major length 6
             /// <summary>
             /// Barycentric position velocity vector [2,3] of the body (au, au/day)
             /// </summary>
@@ -214,7 +214,6 @@ namespace ASCOM.Tools
         }
 
         #endregion
-
 
         #region Enums
 
@@ -274,6 +273,19 @@ namespace ASCOM.Tools
         #region Sofa entry points
 
         /// <summary>
+        /// Computes the nutation matrix for a given date using the IAU 2000A nutation model.
+        /// </summary>
+        /// <remarks>This method is a P/Invoke wrapper for the SOFA library function 'iauNum00a'. The
+        /// nutation matrix transforms vectors from the mean equator and equinox of date to the true equator and equinox
+        /// of date. The input date should be supplied as a two-part Julian Date for maximum precision. The method does
+        /// not return a value; the result is provided via the 'rmatn' output array.</remarks>
+        /// <param name="date1">The first part of the Julian Date representing the Terrestrial Time (TT) of the desired epoch. This is
+        /// typically the integer part.</param>
+        /// <param name="date2">The second part of the Julian Date representing the Terrestrial Time (TT) of the desired epoch. This is
+        /// typically the fractional part, allowing for extended precision.</param>
+        /// <param name="rmatn">An array of length 9 that receives the computed 3×3 nutation matrix in row-major order. The array must not
+        /// be null.</param>
+        /// <summary>
         /// Angle to degrees, arcminutes, arcseconds, fraction.
         /// </summary>
         /// <param name="ndp">Number of decimal places of arcseconds.</param>
@@ -303,8 +315,6 @@ namespace ASCOM.Tools
             [Out, MarshalAs(UnmanagedType.LPArray, SizeConst = 4)] int[] ihmsf // length 4: h,m,s,fraction
         );
 
-        /* -- Astronomy/HorizonEquatorial -- */
-
         /// <summary>
         /// Aberration helper: convert position vector in star's natural system to proper
         /// place with observer velocity etc.
@@ -315,7 +325,11 @@ namespace ASCOM.Tools
         /// <param name="bm1">Lorentz factor: sqrt(1-|v|^2).</param>
         /// <param name="ppr">Proper direction to the star.</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauAb", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void Ab([MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] pnat, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] v, double s, double bm1, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] ppr);
+        public static extern void Ab([MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] pnat,
+                                     [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] v,
+                                     double s,
+                                     double bm1,
+                                     [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] ppr);
 
         /// <summary>
         /// Azimuth and altitude to hour angle and declination.
@@ -374,7 +388,11 @@ namespace ASCOM.Tools
         /// <param name="ehp">Earth heliocentric position (length 3).</param>
         /// <param name="astrom">Returned star-independent astrometry parameters.</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauApcg", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void Apcg(double date1, double date2, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] ebpv, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] ehp, ref Astrom astrom);
+        public static extern void Apcg(double date1,
+                                       double date2,
+                                       [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] ebpv,
+                                       [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] ehp,
+                                       ref Astrom astrom);
 
         /// <summary>
         /// Prepare star-independent astrometry parameters (IAU 2000/2006) using internal Earth ephemeris.
@@ -397,7 +415,14 @@ namespace ASCOM.Tools
         /// <param name="s">CIO locator s.</param>
         /// <param name="astrom">Returned star-independent astrometry parameters.</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauApci", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void Apci(double date1, double date2, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] ebpv, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] ehp, double x, double y, double s, ref Astrom astrom);
+        public static extern void Apci(double date1,
+                                       double date2,
+                                       [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] ebpv,
+                                       [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] ehp,
+                                       double x,
+                                       double y,
+                                       double s,
+                                       ref Astrom astrom);
 
         /// <summary>
         /// Prepare astrometry parameters (IAU 2000/2006) and return equation of the origins.
@@ -430,7 +455,23 @@ namespace ASCOM.Tools
         /// <param name="refb">Refraction constant B.</param>
         /// <param name="astrom">Returned astrometry parameters.</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauApco", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void Apco(double date1, double date2, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] ebpv, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] ehp, double x, double y, double s, double theta, double elong, double phi, double hm, double xp, double yp, double sp, double refa, double refb, ref Astrom astrom);
+        public static extern void Apco(double date1,
+                                       double date2,
+                                       [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] ebpv,
+                                       [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] ehp,
+                                       double x,
+                                       double y,
+                                       double s,
+                                       double theta,
+                                       double elong,
+                                       double phi,
+                                       double hm,
+                                       double xp,
+                                       double yp,
+                                       double sp,
+                                       double refa,
+                                       double refb,
+                                       ref Astrom astrom);
 
         /// <summary>
         /// Convenience wrapper to prepare astrometry parameters for observed place (IAU 2000/2006).
@@ -452,7 +493,20 @@ namespace ASCOM.Tools
         /// <param name="eo">Returned equation of the origins.</param>
         /// <returns>Status code: 0 = OK, non-zero signals a problem (see SOFA documentation).</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauApco13", CallingConvention = CallingConvention.Cdecl)]
-        public static extern int Apco13(double utc1, double utc2, double dut1, double elong, double phi, double hm, double xp, double yp, double phpa, double tc, double rh, double wl, ref Astrom astrom, ref double eo);
+        public static extern int Apco13(double utc1,
+                                        double utc2,
+                                        double dut1,
+                                        double elong,
+                                        double phi,
+                                        double hm,
+                                        double xp,
+                                        double yp,
+                                        double phpa,
+                                        double tc,
+                                        double rh,
+                                        double wl,
+                                        ref Astrom astrom,
+                                        ref double eo);
 
         /// <summary>
         /// Prepare astrometry parameters using pv and Earth heliocentric/barycentric vectors.
@@ -464,7 +518,12 @@ namespace ASCOM.Tools
         /// <param name="ehp">Earth heliocentric position (length 3).</param>
         /// <param name="astrom">Returned star-independent astrometry parameters.</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauApcs", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void Apcs(double date1, double date2, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] pv, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] ebpv, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] ehp, ref Astrom astrom);
+        public static extern void Apcs(double date1,
+                                       double date2,
+                                       [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] pv,
+                                       [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] ebpv,
+                                       [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] ehp,
+                                       ref Astrom astrom);
 
         /// <summary>
         /// Prepare astrometry parameters using pv (IAU 2000/2006).
@@ -527,7 +586,19 @@ namespace ASCOM.Tools
         /// <param name="astrom">Returned astrometry parameters.</param>
         /// <returns>Status code: 0 = OK, non-zero signals a problem (see SOFA documentation).</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauApio13", CallingConvention = CallingConvention.Cdecl)]
-        public static extern int Apio13(double utc1, double utc2, double dut1, double elong, double phi, double hm, double xp, double yp, double phpa, double tc, double rh, double wl, ref Astrom astrom);
+        public static extern int Apio13(double utc1,
+                                        double utc2,
+                                        double dut1,
+                                        double elong,
+                                        double phi,
+                                        double hm,
+                                        double xp,
+                                        double yp,
+                                        double phpa,
+                                        double tc,
+                                        double rh,
+                                        double wl,
+                                        ref Astrom astrom);
 
         /// <summary>
         /// Catalog-to-catalog transformation (example).
@@ -589,6 +660,7 @@ namespace ASCOM.Tools
         /// border-left-color: #000000; border-left-style: Solid; 
         /// border-top-color: #000000; border-top-style: Solid; 
         /// border-right-color: #000000; border-right-style: Solid;
+
         /// border-bottom-color: #000000; border-bottom-style: Solid; 
         /// border-right-width: 1px; border-left-width: 1px; border-top-width: 1px; border-bottom-width: 1px; 
         /// background-color: #00ffff;" width="110px">
@@ -693,7 +765,17 @@ namespace ASCOM.Tools
         /// </list>
         /// </remarks>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauAtci13", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void Atci13(double rc, double dc, double pr, double pd, double px, double rv, double date1, double date2, ref double ri, ref double di, ref double eo);
+        public static extern void Atci13(double rc,
+                                         double dc,
+                                         double pr,
+                                         double pd,
+                                         double px,
+                                         double rv,
+                                         double date1,
+                                         double date2,
+                                         ref double ri,
+                                         ref double di,
+                                         ref double eo);
 
         /// <summary>
         /// ICRS->CIRS using prepared astrometry (inverse of atci).
@@ -725,7 +807,17 @@ namespace ASCOM.Tools
         /// <param name="ri">Returned CIRS right ascension (radians).</param>
         /// <param name="di">Returned CIRS declination (radians).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauAtciqn", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void Atciqn(double rc, double dc, double pr, double pd, double px, double rv, ref Astrom astrom, int n, LdBody[] b, ref double ri, ref double di);
+        public static extern void Atciqn(double rc,
+                                         double dc,
+                                         double pr,
+                                         double pd,
+                                         double px,
+                                         double rv,
+                                         ref Astrom astrom,
+                                         int n,
+                                         LdBody[] b,
+                                         ref double ri,
+                                         ref double di);
 
         /// <summary>
         /// Quick form of atci for zeroing proper motion/parallax.
@@ -791,7 +883,30 @@ namespace ASCOM.Tools
         /// </list>
         /// </remarks>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauAtco13", CallingConvention = CallingConvention.Cdecl)]
-        public static extern short Atco13(double rc, double dc, double pr, double pd, double px, double rv, double utc1, double utc2, double dut1, double elong, double phi, double hm, double xp, double yp, double phpa, double tc, double rh, double wl, ref double aob, ref double zob, ref double hob, ref double dob, ref double rob, ref double eo);
+        public static extern short Atco13(double rc,
+                                          double dc,
+                                          double pr,
+                                          double pd,
+                                          double px,
+                                          double rv,
+                                          double utc1,
+                                          double utc2,
+                                          double dut1,
+                                          double elong,
+                                          double phi,
+                                          double hm,
+                                          double xp,
+                                          double yp,
+                                          double phpa,
+                                          double tc,
+                                          double rh,
+                                          double wl,
+                                          ref double aob,
+                                          ref double zob,
+                                          ref double hob,
+                                          ref double dob,
+                                          ref double rob,
+                                          ref double eo);
 
         /// <summary>
         /// Transform star RA,Dec from geocentric CIRS to ICRS astrometric using the SOFA Atic13 function.
@@ -998,7 +1113,25 @@ namespace ASCOM.Tools
         /// </list>
         /// </remarks>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauAtio13", CallingConvention = CallingConvention.Cdecl)]
-        public static extern short Atio13(double ri, double di, double utc1, double utc2, double dut1, double elong, double phi, double hm, double xp, double yp, double phpa, double tc, double rh, double wl, ref double aob, ref double zob, ref double hob, ref double dob, ref double rob);
+        public static extern short Atio13(double ri,
+                                          double di,
+                                          double utc1,
+                                          double utc2,
+                                          double dut1,
+                                          double elong,
+                                          double phi,
+                                          double hm,
+                                          double xp,
+                                          double yp,
+                                          double phpa,
+                                          double tc,
+                                          double rh,
+                                          double wl,
+                                          ref double aob,
+                                          ref double zob,
+                                          ref double hob,
+                                          ref double dob,
+                                          ref double rob);
 
         /// <summary>
         /// CIRS to observed place using prepared astrometry.
@@ -1013,8 +1146,6 @@ namespace ASCOM.Tools
         /// <param name="rob">Returned observed right ascension (radians).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauAtioq", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Atioq(double ri, double di, ref Astrom astrom, ref double aob, ref double zob, ref double hob, ref double dob, ref double rob);
-
-        /* -- Astronomy/Timescales (additional) -- */
 
         /// <summary>
         /// Observed place at a ground based site to ICRS astrometric RA,Dec using the SOFA Atoc13 function.
@@ -1067,7 +1198,23 @@ namespace ASCOM.Tools
         /// </list>
         /// </remarks>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauAtoc13", CallingConvention = CallingConvention.Cdecl)]
-        public static extern short Atoc13(string type, double ob1, double ob2, double utc1, double utc2, double dut1, double elong, double phi, double hm, double xp, double yp, double phpa, double tc, double rh, double wl, ref double rc, ref double dc);
+        public static extern short Atoc13(string type,
+                                          double ob1,
+                                          double ob2,
+                                          double utc1,
+                                          double utc2,
+                                          double dut1,
+                                          double elong,
+                                          double phi,
+                                          double hm,
+                                          double xp,
+                                          double yp,
+                                          double phpa,
+                                          double tc,
+                                          double rh,
+                                          double wl,
+                                          ref double rc,
+                                          ref double dc);
 
         /// <summary>
         ///  Observed place to CIRS using the SOFA Atoi13 function.
@@ -1124,7 +1271,23 @@ namespace ASCOM.Tools
         /// </list>
         /// </remarks>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauAtoi13", CallingConvention = CallingConvention.Cdecl)]
-        public static extern short Atoi13(string type, double ob1, double ob2, double utc1, double utc2, double dut1, double elong, double phi, double hm, double xp, double yp, double phpa, double tc, double rh, double wl, ref double ri, ref double di);
+        public static extern short Atoi13(string type,
+                                          double ob1,
+                                          double ob2,
+                                          double utc1,
+                                          double utc2,
+                                          double dut1,
+                                          double elong,
+                                          double phi,
+                                          double hm,
+                                          double xp,
+                                          double yp,
+                                          double phpa,
+                                          double tc,
+                                          double rh,
+                                          double wl,
+                                          ref double ri,
+                                          ref double di);
 
         /// <summary>
         /// Observed place to CIRS using prepared astrometry.
@@ -1233,7 +1396,10 @@ namespace ASCOM.Tools
         /// <param name="rbpn">Bias-precession-nutation matrix (row-major, length 9).</param>
         /// <param name="rc2i">Returned celestial-to-intermediate matrix (row-major, length 9).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauC2ibpn", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void C2ibpn(double date1, double date2, [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rbpn, [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rc2i);
+        public static extern void C2ibpn(double date1,
+                                         double date2,
+                                         [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rbpn,
+                                         [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rc2i);
 
         /// <summary>
         /// CIO coordinates from X,Y.
@@ -1276,7 +1442,13 @@ namespace ASCOM.Tools
         /// <param name="yp">Polar motion Y (radians).</param>
         /// <param name="rc2t">Returned ICRS-to-ITRS matrix (row-major, length 9).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauC2t00a", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void C2t00a(double tta, double ttb, double uta, double utb, double xp, double yp, [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rc2t);
+        public static extern void C2t00a(double tta,
+                                         double ttb,
+                                         double uta,
+                                         double utb,
+                                         double xp,
+                                         double yp,
+                                         [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rc2t);
 
         /// <summary>
         /// ICRS to ITRS matrix (IAU 2000B).
@@ -1289,7 +1461,13 @@ namespace ASCOM.Tools
         /// <param name="yp">Polar motion Y (radians).</param>
         /// <param name="rc2t">Returned ICRS-to-ITRS matrix (row-major, length 9).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauC2t00b", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void C2t00b(double tta, double ttb, double uta, double utb, double xp, double yp, [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rc2t);
+        public static extern void C2t00b(double tta,
+                                         double ttb,
+                                         double uta,
+                                         double utb,
+                                         double xp,
+                                         double yp,
+                                         [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rc2t);
 
         /// <summary>
         /// ICRS to ITRS matrix (IAU 2006/2000A).
@@ -1302,7 +1480,13 @@ namespace ASCOM.Tools
         /// <param name="yp">Polar motion Y (radians).</param>
         /// <param name="rc2t">Returned ICRS-to-ITRS matrix (row-major, length 9).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauC2t06a", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void C2t06a(double tta, double ttb, double uta, double utb, double xp, double yp, [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rc2t);
+        public static extern void C2t06a(double tta,
+                                         double ttb,
+                                         double uta,
+                                         double utb,
+                                         double xp,
+                                         double yp,
+                                         [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rc2t);
 
         /// <summary>
         /// Form ICRS to ITRS matrix from CIO and polar motion.
@@ -1444,7 +1628,6 @@ namespace ASCOM.Tools
         /// <returns>Status: +1 = dubious year, 0 = OK, -1 = unacceptable date.</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauD2dtf", CallingConvention = CallingConvention.Cdecl)]
         public static extern int D2dtf([MarshalAs(UnmanagedType.LPStr)] string scale, int ndp, double d1, double d2, ref int iy, ref int im, ref int id, int[] ihmsf);
-        //                                            int iauD2dtf(const char *scale, int ndp, double d1, double d2,     int* iy,    int* im,    int* id, int ihmsf[4])
 
         /// <summary>
         /// Decompose days into hours, minutes, seconds, fraction.
@@ -1461,7 +1644,7 @@ namespace ASCOM.Tools
         public static extern void D2tf(
             int ndp,
             double days,
-            [MarshalAs(UnmanagedType.U1)] out byte sign,               // '+' or '-'
+            [MarshalAs(UnmanagedType.U1)] out byte sign, // '+' or '-'
             [Out, MarshalAs(UnmanagedType.LPArray, SizeConst = 4)] int[] ihmsf // length 4: h,m,s,fraction
         );
 
@@ -1476,8 +1659,6 @@ namespace ASCOM.Tools
         /// <returns>status: 1 = dubious year, 0 = OK, −1 = bad year, −2 = bad month, −3 = bad day, −4 = bad fraction, −5 = internal error</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauDat", CallingConvention = CallingConvention.Cdecl)]
         public static extern short Dat(int Year, int Month, int Day, double DayFraction, ref double ReturnedLeapSeconds);
-
-        /* -- Astronomy/Calendars -- */
 
         /// <summary>
         /// Approximate TDB−TT for an observer on the Earth.
@@ -1623,6 +1804,7 @@ namespace ASCOM.Tools
         /// border-left-color: #000000; border-left-style: Solid; 
         /// border-top-color: #000000; border-top-style: Solid; 
         /// border-right-color: #000000; border-right-style: Solid;
+
         /// border-bottom-color: #000000; border-bottom-style: Solid; 
         /// border-right-width: 1px; border-left-width: 1px; border-top-width: 1px; border-bottom-width: 1px; 
         /// background-color: #00ffff;" width="110px">
@@ -1793,7 +1975,10 @@ namespace ASCOM.Tools
         /// <param name="pvb">Returned barycentric Earth position/velocity (length 6).</param>
         /// <returns>Status code: 0 = OK, &lt;0 indicates an error condition.</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauEpv00", CallingConvention = CallingConvention.Cdecl)]
-        public static extern int Epv00(double date1, double date2, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] pvh, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] pvb);
+        public static extern int Epv00(double date1,
+                                       double date2,
+                                       [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] pvh,
+                                       [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] pvb);
 
         /// <summary>
         /// Transform equatorial to ecliptic coordinates.
@@ -1815,8 +2000,6 @@ namespace ASCOM.Tools
         /// <returns>Equation of the equinoxes in radians.</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauEqeq94", CallingConvention = CallingConvention.Cdecl)]
         public static extern double Eqeq94(double date1, double date2);
-
-        /* -- Astronomy/PrecNutPolar (more functions) -- */
 
         /// <summary>
         ///  Earth rotation angle (IAU 2000 model)
@@ -1938,8 +2121,6 @@ namespace ASCOM.Tools
         /// <returns>Angle in radians.</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauFave03", CallingConvention = CallingConvention.Cdecl)]
         public static extern double Fave03(double t);
-
-        /* -- Selected Rotation/Time/Matrix helpers -- */
 
         /// <summary>
         /// Transform between FK4 and FK5 star catalog systems.
@@ -2113,8 +2294,6 @@ namespace ASCOM.Tools
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauG2icrs", CallingConvention = CallingConvention.Cdecl)]
         public static extern void G2icrs(double dl, double db, ref double dr, ref double dd);
 
-        /* -- Astronomy/GeodeticGeocentric -- */
-
         /// <summary>
         /// Geocentric to geodetic coordinates.
         /// </summary>
@@ -2125,7 +2304,11 @@ namespace ASCOM.Tools
         /// <param name="height">Returned height above ellipsoid (meters).</param>
         /// <returns>Status code: 0 = OK, &lt;0 indicates an error condition.</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauGc2gd", CallingConvention = CallingConvention.Cdecl)]
-        public static extern int Gc2gd(SofaReferenceEllipsoids n, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] xyz, ref double elong, ref double phi, ref double height);
+        public static extern int Gc2gd(SofaReferenceEllipsoids n,
+                                       [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] xyz,
+                                       ref double elong,
+                                       ref double phi,
+                                       ref double height);
 
         /// <summary>
         /// Geocentric to geodetic coordinates (given ellipsoid).
@@ -2138,7 +2321,12 @@ namespace ASCOM.Tools
         /// <param name="height">Returned height above ellipsoid (meters).</param>
         /// <returns>Status code: 0 = OK, &lt;0 indicates an error condition.</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauGc2gde", CallingConvention = CallingConvention.Cdecl)]
-        public static extern int Gc2gde(double a, double f, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] xyz, ref double elong, ref double phi, ref double height);
+        public static extern int Gc2gde(double a,
+                                        double f,
+                                        [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] xyz,
+                                        ref double elong,
+                                        ref double phi,
+                                        ref double height);
 
         /// <summary>
         /// Geodetic to geocentric coordinates.
@@ -2150,7 +2338,11 @@ namespace ASCOM.Tools
         /// <param name="xyz">Returned geocentric Cartesian coordinates (meters, length 3).</param>
         /// <returns>Status code: 0 = OK, &lt;0 indicates an error condition.</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauGd2gc", CallingConvention = CallingConvention.Cdecl)]
-        public static extern int Gd2gc(SofaReferenceEllipsoids n, double elong, double phi, double height, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] xyz);
+        public static extern int Gd2gc(SofaReferenceEllipsoids n,
+                                       double elong,
+                                       double phi,
+                                       double height,
+                                       [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] xyz);
 
         /// <summary>
         /// Geodetic to geocentric coordinates (given ellipsoid).
@@ -2164,8 +2356,6 @@ namespace ASCOM.Tools
         /// <returns>Status code: 0 = OK, &lt;0 indicates an error condition.</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauGd2gce", CallingConvention = CallingConvention.Cdecl)]
         public static extern int Gd2gce(double a, double f, double elong, double phi, double height, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] xyz);
-
-        /* -- Astronomy/Gnomonic -- */
 
         /// <summary>
         /// Greenwich mean sidereal time (model consistent with IAU 2000 resolutions
@@ -2310,8 +2500,6 @@ namespace ASCOM.Tools
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauHd2pa", CallingConvention = CallingConvention.Cdecl)]
         public static extern double Hd2pa(double ha, double dec, double phi);
 
-        /* -- Astronomy/Astrometry (additional) -- */
-
         /// <summary>
         /// Transform from Hipparcos to FK5 (catalog).
         /// </summary>
@@ -2373,8 +2561,6 @@ namespace ASCOM.Tools
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauJdcalf", CallingConvention = CallingConvention.Cdecl)]
         public static extern int Jdcalf(int ndp, double dj1, double dj2, int[] iymdf);
 
-        /* -- Astronomy/Astrometry -- */
-
         /// <summary>
         /// Light deflection by a single body.
         /// </summary>
@@ -2386,7 +2572,13 @@ namespace ASCOM.Tools
         /// <param name="dlim">Deflection limiter.</param>
         /// <param name="p1">Returned deflected direction (length 3).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauLd", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void Ld(double bm, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] p, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] q, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] e, double em, double dlim, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] p1);
+        public static extern void Ld(double bm,
+                                     [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] p,
+                                     [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] q,
+                                     [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] e,
+                                     double em,
+                                     double dlim,
+                                     [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] p1);
 
         /// <summary>
         /// Light deflection for list of bodies.
@@ -2397,7 +2589,11 @@ namespace ASCOM.Tools
         /// <param name="sc">Coordinate direction (length 3).</param>
         /// <param name="sn">Returned coordinate direction, corrected (length 3).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauLdn", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void Ldn(int n, LdBody[] b, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] ob, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] sc, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] sn);
+        public static extern void Ldn(int n,
+                                      LdBody[] b,
+                                      [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] ob,
+                                      [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] sc,
+                                      [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] sn);
 
         /// <summary>
         /// Sun-specific light deflection helper.
@@ -2407,7 +2603,10 @@ namespace ASCOM.Tools
         /// <param name="em">Distance from Sun to observer.</param>
         /// <param name="p1">Returned deflected direction (length 3).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauLdsun", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void Ldsun([MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] p, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] e, double em, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] p1);
+        public static extern void Ldsun([MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] p,
+                                        [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] e,
+                                        double em,
+                                        [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] p1);
 
         /// <summary>
         /// Transform ecliptic to equatorial (FK4 epoch related).
@@ -2438,8 +2637,6 @@ namespace ASCOM.Tools
         /// <param name="db">Returned ecliptic latitude (radians).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauLteqec", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Lteqec(double epj, double dr, double dd, ref double dl, ref double db);
-
-        /* -- Astronomy/GalacticCoordinates -- */
 
         /// <summary>
         /// Precession matrix, Besselian epoch.
@@ -2481,21 +2678,6 @@ namespace ASCOM.Tools
         /// <param name="pv">Returned Moon position/velocity (length 6).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauMoon98", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Moon98(double date1, double date2, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] pv);
-
-        /// <summary>
-        /// Computes the nutation matrix for a given date using the IAU 2000A nutation model.
-        /// </summary>
-        /// <remarks>This method is a P/Invoke wrapper for the SOFA library function 'iauNum00a'. The
-        /// nutation matrix transforms vectors from the mean equator and equinox of date to the true equator and equinox
-        /// of date. The input date should be supplied as a two-part Julian Date for maximum precision. The method does
-        /// not return a value; the result is provided via the 'rmatn' output array.</remarks>
-        /// <param name="date1">The first part of the Julian Date representing the Terrestrial Time (TT) of the desired epoch. This is
-        /// typically the integer part.</param>
-        /// <param name="date2">The second part of the Julian Date representing the Terrestrial Time (TT) of the desired epoch. This is
-        /// typically the fractional part, allowing for extended precision.</param>
-        /// <param name="rmatn">An array of length 9 that receives the computed 3×3 nutation matrix in row-major order. The array must not
-        /// be null.</param>
-
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauNum00a", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Num00a(double date1, double date2, [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rmatn);
 
@@ -2589,8 +2771,6 @@ namespace ASCOM.Tools
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauNutm80", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Nutm80(double date1, double date2, [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rmatn);
 
-        /* -- VectorMatrix/AngleOps (additional) -- */
-
         /// <summary>
         /// Calculates the mean obliquity of the ecliptic for a given date using the IAU 2006 precession model.
         /// </summary>
@@ -2614,8 +2794,6 @@ namespace ASCOM.Tools
         /// <returns>Mean obliquity in radians.</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauObl80", CallingConvention = CallingConvention.Cdecl)]
         public static extern double Obl80(double date1, double date2);
-
-        /* -- Astronomy/PrecNutPolar (additional) -- */
 
         /// <summary>
         /// CIO RA and Earth Orientation parameters (high precision).
@@ -2782,7 +2960,9 @@ namespace ASCOM.Tools
         /// <param name="b">Second vector (length 3).</param>
         /// <param name="amb">Returned vector <c>a-b</c> (length 3).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauPmp", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void Pmp([MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] a, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] b, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] amb);
+        public static extern void Pmp([MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] a,
+                                      [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] b,
+                                      [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] amb);
 
         /// <summary>
         /// Proper motion an parallax propagation helper.
@@ -2797,7 +2977,15 @@ namespace ASCOM.Tools
         /// <param name="pob">Observer barycentric position (length 3).</param>
         /// <param name="pco">Returned coordinate direction (length 3).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauPmpx", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void Pmpx(double rc, double dc, double pr, double pd, double px, double rv, double pmt, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] pob, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] pco);
+        public static extern void Pmpx(double rc,
+                                       double dc,
+                                       double pr,
+                                       double pd,
+                                       double px,
+                                       double rv,
+                                       double pmt,
+                                       [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] pob,
+                                       [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] pco);
 
         /// <summary>
         /// Safe proper-motion propagation (returns status).
@@ -2820,7 +3008,22 @@ namespace ASCOM.Tools
         /// <param name="rv2">Returned radial velocity (km/s).</param>
         /// <returns>Status code: 0 = OK, &lt;0 indicates an error condition.</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauPmsafe", CallingConvention = CallingConvention.Cdecl)]
-        public static extern int Pmsafe(double ra1, double dec1, double pmr1, double pmd1, double px1, double rv1, double ep1a, double ep1b, double ep2a, double ep2b, ref double ra2, ref double dec2, ref double pmr2, ref double pmd2, ref double px2, ref double rv2);
+        public static extern int Pmsafe(double ra1,
+                                        double dec1,
+                                        double pmr1,
+                                        double pmd1,
+                                        double px1,
+                                        double rv1,
+                                        double ep1a,
+                                        double ep1b,
+                                        double ep2a,
+                                        double ep2b,
+                                        ref double ra2,
+                                        ref double dec2,
+                                        ref double pmr2,
+                                        ref double pmd2,
+                                        ref double px2,
+                                        ref double rv2);
 
         /// <summary>
         /// Normalize a 3D vector.
@@ -2829,7 +3032,9 @@ namespace ASCOM.Tools
         /// <param name="r">Returned magnitude.</param>
         /// <param name="u">Returned unit vector (length 3).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauPn", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void Pn([MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] p, ref double r, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] u);
+        public static extern void Pn([MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] p,
+                                     ref double r,
+                                     [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] u);
 
         /// <summary>
         /// Precession-nutation matrix (full precision).
@@ -2997,8 +3202,6 @@ namespace ASCOM.Tools
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauPnm80", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Pnm80(double date1, double date2, [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rmatpn);
 
-        /* -- Astronomy/RotationAndTime (additional 2) -- */
-
         /// <summary>
         /// Polar motion matrix.
         /// </summary>
@@ -3016,7 +3219,9 @@ namespace ASCOM.Tools
         /// <param name="b">Second vector (length 3).</param>
         /// <param name="apb">Returned vector <c>a+b</c> (length 3).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauPpp", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void Ppp([MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] a, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] b, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] apb);
+        public static extern void Ppp([MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] a,
+                                      [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] b,
+                                      [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] apb);
 
         /// <summary>
         /// Add a scaled 3D vector to another 3D vector.
@@ -3026,7 +3231,10 @@ namespace ASCOM.Tools
         /// <param name="b">Second vector (length 3).</param>
         /// <param name="apsb">Returned vector <c>a + s*b</c> (length 3).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauPpsp", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void Ppsp([MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] a, double s, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] b, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] apsb);
+        public static extern void Ppsp([MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] a,
+                                       double s,
+                                       [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] b,
+                                       [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] apsb);
 
         /// <summary>
         /// Fundamental arguments (mean elements of lunar orbit).
@@ -3059,8 +3267,6 @@ namespace ASCOM.Tools
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauPv2p", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Pv2p([MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] pv, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] p);
 
-        /* -- VectorMatrix/Initialization (additional) -- */
-
         /// <summary>
         /// Position-velocity vector to spherical coordinates.
         /// </summary>
@@ -3072,7 +3278,13 @@ namespace ASCOM.Tools
         /// <param name="pd">Returned rate of change of <paramref name="phi"/>.</param>
         /// <param name="rd">Returned rate of change of <paramref name="r"/>.</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauPv2s", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void Pv2s([MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] pv, ref double theta, ref double phi, ref double r, ref double td, ref double pd, ref double rd);
+        public static extern void Pv2s([MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] pv,
+                                       ref double theta,
+                                       ref double phi,
+                                       ref double r,
+                                       ref double td,
+                                       ref double pd,
+                                       ref double rd);
 
         /// <summary>
         /// Scalar product of two 6D position-velocity vectors.
@@ -3081,7 +3293,9 @@ namespace ASCOM.Tools
         /// <param name="b">Second position-velocity vector (length 6).</param>
         /// <param name="adb">Returned dot products (length 2): position·position and velocity·velocity.</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauPvdpv", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void Pvdpv([MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] a, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] b, [MarshalAs(UnmanagedType.LPArray, SizeConst = 2)] double[] adb);
+        public static extern void Pvdpv([MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] a,
+                                        [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] b,
+                                        [MarshalAs(UnmanagedType.LPArray, SizeConst = 2)] double[] adb);
 
         /// <summary>
         /// Magnitude and unit vector of a 6D position-velocity vector.
@@ -3099,7 +3313,9 @@ namespace ASCOM.Tools
         /// <param name="b">Second position-velocity vector (length 6).</param>
         /// <param name="amb">Returned vector <c>a-b</c> (length 6).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauPvmpv", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void Pvmpv([MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] a, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] b, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] amb);
+        public static extern void Pvmpv([MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] a,
+                                        [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] b,
+                                        [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] amb);
 
         /// <summary>
         /// Add two 6D position-velocity vectors.
@@ -3108,7 +3324,9 @@ namespace ASCOM.Tools
         /// <param name="b">Second position-velocity vector (length 6).</param>
         /// <param name="apb">Returned vector <c>a+b</c> (length 6).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauPvppv", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void Pvppv([MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] a, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] b, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] apb);
+        public static extern void Pvppv([MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] a,
+                                        [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] b,
+                                        [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] apb);
 
         /// <summary>
         /// Position-velocity vector to spherical polar coordinates.
@@ -3143,7 +3361,14 @@ namespace ASCOM.Tools
         /// <param name="theta">Earth rotation angle (radians).</param>
         /// <param name="pv">Returned position/velocity vector (length 6).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauPvtob", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void Pvtob(double elong, double phi, double height, double xp, double yp, double sp, double theta, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] pv);
+        public static extern void Pvtob(double elong,
+                                        double phi,
+                                        double height,
+                                        double xp,
+                                        double yp,
+                                        double sp,
+                                        double theta,
+                                        [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] pv);
 
         /// <summary>
         /// Update a 6D position-velocity vector by adding a constant velocity step.
@@ -3152,7 +3377,9 @@ namespace ASCOM.Tools
         /// <param name="pv">Position-velocity vector at the start epoch (length 6).</param>
         /// <param name="upv">Returned updated position-velocity vector (length 6).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauPvu", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void Pvu(double dt, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] pv, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] upv);
+        public static extern void Pvu(double dt,
+                                      [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] pv,
+                                      [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] upv);
 
         /// <summary>
         /// Update a 6D position-velocity vector by interpolating to a different time.
@@ -3161,7 +3388,9 @@ namespace ASCOM.Tools
         /// <param name="pv">Position-velocity vector at the start epoch (length 6).</param>
         /// <param name="p">Returned position vector at the shifted epoch (length 3).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauPvup", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void Pvup(double dt, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] pv, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] p);
+        public static extern void Pvup(double dt,
+                                       [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] pv,
+                                       [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] p);
 
         /// <summary>
         /// Cross product of two 6D position-velocity vectors.
@@ -3170,7 +3399,9 @@ namespace ASCOM.Tools
         /// <param name="b">Second position-velocity vector (length 6).</param>
         /// <param name="axb">Returned cross product (length 6).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauPvxpv", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void Pvxpv([MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] a, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] b, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] axb);
+        public static extern void Pvxpv([MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] a,
+                                        [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] b,
+                                        [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] axb);
 
         /// <summary>
         /// Cross product of two 3D vectors.
@@ -3179,7 +3410,9 @@ namespace ASCOM.Tools
         /// <param name="b">Second vector (length 3).</param>
         /// <param name="axb">Returned cross product (length 3).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauPxp", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void Pxp([MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] a, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] b, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] axb);
+        public static extern void Pxp([MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] a,
+                                      [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] b,
+                                      [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] axb);
 
         /// <summary>
         /// Refraction constants from meteorology and wavelength.
@@ -3192,8 +3425,6 @@ namespace ASCOM.Tools
         /// <param name="refb">Returned refraction constant B.</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauRefco", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Refco(double phpa, double tc, double rh, double wl, ref double refa, ref double refb);
-
-        /* -- Astronomy/Ephemerides -- */
 
         /// <summary>
         /// Convert a rotation matrix to a rotation vector.
@@ -3210,8 +3441,6 @@ namespace ASCOM.Tools
         /// <param name="r">Returned rotation matrix (row-major, length 9).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauRv2m", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Rv2m([MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] w, [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] r);
-
-        /* -- VectorMatrix/SeparationAndAngle (additional) -- */
 
         /// <summary>
         /// Applies a rotation around the X-axis to a 3×3 rotation matrix by a specified angle, in radians.
@@ -3233,7 +3462,9 @@ namespace ASCOM.Tools
         /// <param name="p">Vector (length 3).</param>
         /// <param name="rp">Returned vector (length 3).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauRxp", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void Rxp([MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] r, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] p, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] rp);
+        public static extern void Rxp([MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] r,
+                                      [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] p,
+                                      [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] rp);
 
         /// <summary>
         /// Multiply a 3x3 matrix by a 6D position-velocity vector.
@@ -3242,7 +3473,9 @@ namespace ASCOM.Tools
         /// <param name="pv">Position-velocity vector (length 6).</param>
         /// <param name="rpv">Returned position-velocity vector (length 6).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauRxpv", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void Rxpv([MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] r, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] pv, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] rpv);
+        public static extern void Rxpv([MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] r,
+                                       [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] pv,
+                                       [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] rpv);
 
         /// <summary>
         /// Multiply two 3x3 matrices.
@@ -3251,9 +3484,9 @@ namespace ASCOM.Tools
         /// <param name="b">Second 3×3 matrix (row-major, length 9).</param>
         /// <param name="atb">Returned product matrix (row-major, length 9).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauRxr", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void Rxr([MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] a, [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] b, [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] atb);
-
-        /* -- VectorMatrix/MatrixVectorProducts (additional) -- */
+        public static extern void Rxr([MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] a,
+                                      [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] b,
+                                      [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] atb);
 
         /// <summary>
         /// Applies a rotation about the Y-axis by the specified angle and returns the corresponding rotation matrix.
@@ -3367,8 +3600,6 @@ namespace ASCOM.Tools
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauS2pv", CallingConvention = CallingConvention.Cdecl)]
         public static extern void S2pv(double theta, double phi, double r, double td, double pd, double rd, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] pv);
 
-        /* -- VectorMatrix/VectorOps (additional) -- */
-
         /// <summary>
         /// Multiply a 6D position-velocity vector by a scalar and another 6D position-velocity vector.
         /// </summary>
@@ -3377,7 +3608,10 @@ namespace ASCOM.Tools
         /// <param name="pv">Input position-velocity vector (length 6).</param>
         /// <param name="spv">Returned scaled position-velocity vector (length 6).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauS2xpv", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void S2xpv(double s1, double s2, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] pv, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] spv);
+        public static extern void S2xpv(double s1,
+                                        double s2,
+                                        [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] pv,
+                                        [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] spv);
 
         /// <summary>
         /// Separation between two 3D vectors.
@@ -3398,8 +3632,6 @@ namespace ASCOM.Tools
         /// <returns>Separation angle (radians).</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauSeps", CallingConvention = CallingConvention.Cdecl)]
         public static extern double Seps(double al, double ap, double bl, double bp);
-
-        /* -- VectorMatrix/SphericalCartesian (additional) -- */
 
         /// <summary>
         /// The TIO locator (sp).
@@ -3472,8 +3704,6 @@ namespace ASCOM.Tools
             double rv,
             [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] pv);
 
-        /* -- Astronomy/EclipticCoordinates -- */
-
         /// <summary>
         /// Multiply a 3D vector by a scalar.
         /// </summary>
@@ -3481,7 +3711,9 @@ namespace ASCOM.Tools
         /// <param name="p">Input vector (length 3).</param>
         /// <param name="sp">Returned scaled vector (length 3).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauSxp", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void Sxp(double s, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] p, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] sp);
+        public static extern void Sxp(double s,
+                                      [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] p,
+                                      [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] sp);
 
         /// <summary>
         /// Multiply a 6D position-velocity vector by a scalar.
@@ -3490,7 +3722,9 @@ namespace ASCOM.Tools
         /// <param name="pv">Input position-velocity vector (length 6).</param>
         /// <param name="spv">Returned scaled position-velocity vector (length 6).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauSxpv", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void Sxpv(double s, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] pv, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] spv);
+        public static extern void Sxpv(double s,
+                                       [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] pv,
+                                       [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] spv);
 
         /// <summary>
         /// Time scale transformation:  International Atomic Time, TAI, to Terrestrial Time, TT.
@@ -3583,8 +3817,6 @@ namespace ASCOM.Tools
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauTdbtcb", CallingConvention = CallingConvention.Cdecl)]
         public static extern int Tdbtcb(double tdb1, double tdb2, ref double tcb1, ref double tcb2);
 
-        /* -- Astronomy/RotationAndTime (additional) -- */
-
         /// <summary>
         /// Time scale transformation: Barycentric Dynamical Time (TDB) to Terrestrial Time (TT).
         /// </summary>
@@ -3632,8 +3864,6 @@ namespace ASCOM.Tools
         /// <returns>Status code: 0 = OK, &lt;0 = error.</returns>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauTf2d", CallingConvention = CallingConvention.Cdecl)]
         public static extern int Tf2d(char s, int ihour, int imin, double sec, ref double days);
-
-        /* -- VectorMatrix/CopyExtendExtract (additional) -- */
 
         /// <summary>
         /// Gnomonic projection: (ξ,η) to (α,δ).
@@ -3736,7 +3966,9 @@ namespace ASCOM.Tools
         /// <param name="p">Vector (length 3).</param>
         /// <param name="trp">Returned vector (length 3).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauTrxp", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void Trxp([MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] r, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] p, [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] trp);
+        public static extern void Trxp([MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] r,
+                                       [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] p,
+                                       [MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] double[] trp);
 
         /// <summary>
         /// Multiply the transpose of a 3x3 matrix by a 6D position-velocity vector.
@@ -3745,9 +3977,9 @@ namespace ASCOM.Tools
         /// <param name="pv">Position-velocity vector (length 6).</param>
         /// <param name="trpv">Returned position-velocity vector (length 6).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauTrxpv", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void Trxpv([MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] r, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] pv, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] trpv);
-
-        /* -- VectorMatrix/RotationVectors (additional) -- */
+        public static extern void Trxpv([MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] r,
+                                        [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] pv,
+                                        [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] trpv);
 
         /// <summary>
         /// Time scale transformation:  Terrestrial Time, TT, to International Atomic Time, TAI.
@@ -3933,8 +4165,6 @@ namespace ASCOM.Tools
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauXys06a", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Xys06a(double date1, double date2, ref double x, ref double y, ref double s);
 
-        /* -- Astronomy/StarCatalogs -- */
-
         /// <summary>
         /// Zero a 3-element position vector.
         /// </summary>
@@ -3949,8 +4179,6 @@ namespace ASCOM.Tools
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauZpv", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Zpv([MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] pv);
 
-        /* -- VectorMatrix/MatrixOps (additional) -- */
-
         /// <summary>
         /// Initialize a rotation matrix to the null (all zeros) matrix.
         /// </summary>
@@ -3958,7 +4186,6 @@ namespace ASCOM.Tools
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauZr", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Zr([MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] r);
 
-        /* -- Timescales (additional) -- */
         #endregion
 
     }
