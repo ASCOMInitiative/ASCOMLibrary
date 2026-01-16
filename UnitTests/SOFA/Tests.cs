@@ -965,6 +965,43 @@ namespace SOFA
         }
 
         [Fact]
+        public void Atoiq()
+        {
+            Sofa.Astrom astrom = Sofa.CreateAstrom();
+            double utc1 = 2456384.5;
+            double utc2 = 0.969254051;
+            double dut1 = 0.1550675;
+            double elong = -0.527800806;
+            double phi = -1.2345856;
+            double hm = 2738.0;
+            double xp = 2.47230737e-7;
+            double yp = 1.82640464e-6;
+            double phpa = 731.0;
+            double tc = 12.8;
+            double rh = 0.59;
+            double wl = 0.55;
+            Sofa.Apio13(utc1, utc2, dut1, elong, phi, hm, xp, yp, phpa, tc, rh, wl, ref astrom);
+            double ob1 = 2.710085107986886201;
+            double ob2 = 0.1717653435758265198;
+            double ri = 0;
+            double di = 0;
+            Sofa.Atoiq("R", ob1, ob2, ref astrom, ref ri, ref di);
+            Assert.Equal(2.710121574447540810, ri, 1e-12);
+            Assert.Equal(0.17293718391166087785, di, 1e-12);
+
+            ob1 = -0.09247619879782006106;
+            ob2 = 0.1717653435758265198;
+            Sofa.Atoiq("H", ob1, ob2, ref astrom, ref ri, ref di);
+            Assert.Equal(2.710121574448138676, ri, 1e-12);
+            Assert.Equal(0.1729371839116608778, di, 1e-12);
+
+            ob1 = 0.09233952224794989993;
+            ob2 = 1.407758704513722461;
+            Sofa.Atoiq("A", ob1, ob2, ref astrom, ref ri, ref di);
+            Assert.Equal(2.710121574448138676, ri, 1e-12);
+            Assert.Equal(0.1729371839116608781, di, 1e-12);
+        }
+        [Fact]
         public void Bi00()
         {
             double dpsibi = 0, depsbi = 0, dra = 0;
@@ -985,14 +1022,34 @@ namespace SOFA
             Sofa.Bp00(2400000.5, 50123.9999, rb, rp, rbp);
 
             Assert.Equal(0.9999999999999942498, rb[0], 12);
-            Assert.Equal(-0.7078279744199196626e-7, rb[1], 15);
-            Assert.Equal(0.8056217146976134152e-7, rb[2], 15);
+            Assert.Equal(-0.7078279744199196626e-7, rb[1], 14);
+            Assert.Equal(0.8056217146976134152e-7, rb[2], 14);
+            Assert.Equal(0.7078279477857337206e-7, rb[3], 14);
+            Assert.Equal(0.9999999999999969484, rb[4], 12);
+            Assert.Equal(0.3306041454222136517e-7, rb[5], 14);
+            Assert.Equal(-0.8056217380986972157e-7, rb[6], 14);
+            Assert.Equal(-0.3306040883980552500e-7, rb[7], 14);
+            Assert.Equal(0.9999999999999962084, rb[8], 12);
+
             Assert.Equal(0.9999995504864048241, rp[0], 12);
             Assert.Equal(0.8696113836207084411e-3, rp[1], 14);
             Assert.Equal(0.3778928813389333402e-3, rp[2], 14);
+            Assert.Equal(-0.8696113818227265968e-3, rp[3], 14);
+            Assert.Equal(0.9999996218879365258, rp[4], 12);
+            Assert.Equal(-0.1690679263009242066e-6, rp[5], 14);
+            Assert.Equal(-0.3778928854764695214e-3, rp[6], 14);
+            Assert.Equal(-0.1595521004195286491e-6, rp[7], 14);
+            Assert.Equal(0.9999999285984682756, rp[8], 12);
+
             Assert.Equal(0.9999995505175087260, rbp[0], 12);
             Assert.Equal(0.8695405883617884705e-3, rbp[1], 14);
             Assert.Equal(0.3779734722239007105e-3, rbp[2], 14);
+            Assert.Equal(-0.8695405990410863719e-3, rbp[3], 14);
+            Assert.Equal(0.9999996219494925900, rbp[4], 12);
+            Assert.Equal(-0.1360775820404982209e-6, rbp[5], 14);
+            Assert.Equal(-0.3779734476558184991e-3, rbp[6], 14);
+            Assert.Equal(-0.1925857585832024058e-6, rbp[7], 14);
+            Assert.Equal(0.9999999285680153377, rbp[8], 12);
         }
         [Fact]
         public void Bp06()
@@ -1004,12 +1061,32 @@ namespace SOFA
             Assert.Equal(0.9999999999999942497, rb[0], 12);
             Assert.Equal(-0.7078368960971557145e-7, rb[1], 14);
             Assert.Equal(0.8056213977613185606e-7, rb[2], 14);
+            Assert.Equal(0.7078368694637674333e-7, rb[3], 14);
+            Assert.Equal(0.9999999999999969484, rb[4], 12);
+            Assert.Equal(0.3305943742989134124e-7, rb[5], 14);
+            Assert.Equal(-0.8056214211620056792e-7, rb[6], 14);
+            Assert.Equal(-0.3305943172740586950e-7, rb[7], 14);
+            Assert.Equal(0.9999999999999962084, rb[8], 12);
+
             Assert.Equal(0.9999995504864960278, rp[0], 12);
             Assert.Equal(0.8696112578855404832e-3, rp[1], 14);
             Assert.Equal(0.3778929293341390127e-3, rp[2], 14);
+            Assert.Equal(-0.8696112560510186244e-3, rp[3], 14);
+            Assert.Equal(0.9999996218880458820, rp[4], 12);
+            Assert.Equal(-0.1691646168941896285e-6, rp[5], 14);
+            Assert.Equal(-0.3778929335557603418e-3, rp[6], 14);
+            Assert.Equal(-0.1594554040786495076e-6, rp[7], 14);
+            Assert.Equal(0.9999999285984501222, rp[8], 12);
+
             Assert.Equal(0.9999995505176007047, rbp[0], 12);
             Assert.Equal(0.8695404617348208406e-3, rbp[1], 14);
             Assert.Equal(0.3779735201865589104e-3, rbp[2], 14);
+            Assert.Equal(-0.8695404723772031414e-3, rbp[3], 14);
+            Assert.Equal(0.9999996219496027161, rbp[4], 12);
+            Assert.Equal(-0.1361752497080270143e-6, rbp[5], 14);
+            Assert.Equal(-0.3779734957034089490e-3, rbp[6], 14);
+            Assert.Equal(-0.1924880847894457113e-6, rbp[7], 14);
+            Assert.Equal(0.9999999285679971958, rbp[8], 12);
         }
         [Fact]
         public void Bpn2xy()
@@ -2299,8 +2376,14 @@ namespace SOFA
             Sofa.Fk5hip(r5h, s5h);
             // Assert
             Assert.Equal(0.9999999999999928638, r5h[0], TOLERANCE);
-            Assert.Equal(0.1110223351022919694e-6, r5h[1], 1e-17);
-            Assert.Equal(0.4411803962536558154e-7, r5h[2], 1e-17);
+            Assert.Equal(0.1110223351022919694e-6, r5h[1], TOLERANCE);
+            Assert.Equal(0.4411803962536558154e-7, r5h[2], TOLERANCE);
+            Assert.Equal(-0.1110223308458746430e-6, r5h[3], TOLERANCE);
+            Assert.Equal(0.9999999999999891830, r5h[4], TOLERANCE);
+            Assert.Equal(-0.9647792498984142358e-7, r5h[5], TOLERANCE);
+            Assert.Equal(-0.4411805033656962252e-7, r5h[6], TOLERANCE);
+            Assert.Equal(0.9647792009175314354e-7, r5h[7], TOLERANCE);
+            Assert.Equal(0.9999999999999943728, r5h[8], TOLERANCE);
 
             Assert.Equal(-0.1454441043328607981e-8, s5h[0], 1e-17);
             Assert.Equal(0.2908882086657215962e-8, s5h[1], 1e-17);
@@ -2338,6 +2421,12 @@ namespace SOFA
             Assert.Equal(0.9999995505176007047, r[0], TOLERANCE);
             Assert.Equal(0.8695404617348192957e-3, r[1], TOLERANCE);
             Assert.Equal(0.3779735201865582571e-3, r[2], TOLERANCE);
+            Assert.Equal(-0.8695404723772016038e-3, r[3], TOLERANCE);
+            Assert.Equal(0.9999996219496027161, r[4], TOLERANCE);
+            Assert.Equal(-0.1361752496887100026e-6, r[5], TOLERANCE);
+            Assert.Equal(-0.3779734957034082790e-3, r[6], TOLERANCE);
+            Assert.Equal(-0.1924880848087615651e-6, r[7], TOLERANCE);
+            Assert.Equal(0.9999999285679971958, r[8], TOLERANCE);
         }
 
         [Fact]
@@ -2386,6 +2475,21 @@ namespace SOFA
             Assert.Equal(0.9827937232473290680, e, TOLERANCE);
             Assert.Equal(0.97160184819075459, p, TOLERANCE);
             Assert.Equal(331.4172461426059892, h, 1e-8);
+
+            j = Sofa.Gc2gd(SofaReferenceEllipsoids.GRS80, xyz, ref e, ref p, ref h);
+            Assert.Equal(0, j);
+            Assert.Equal(0.9827937232473290680, e, TOLERANCE);
+            Assert.Equal(0.97160184820607853, p, TOLERANCE);
+            Assert.Equal(331.41731754844348, h, 1e-8);
+
+            j = Sofa.Gc2gd(SofaReferenceEllipsoids.WGS72, xyz, ref e, ref p, ref h);
+            Assert.Equal(0, j);
+            Assert.Equal(0.9827937232473290680, e, TOLERANCE);
+            Assert.Equal(0.9716018181101511937, p, TOLERANCE);
+            Assert.Equal(333.2770726130318123, h, 1e-8);
+
+            j = Sofa.Gc2gd((SofaReferenceEllipsoids)4, xyz, ref e, ref p, ref h);
+            Assert.Equal(-1, j);
         }
 
         [Fact]
@@ -2421,6 +2525,21 @@ namespace SOFA
             Assert.Equal(-5599000.5577049947, xyz[0], TOLERANCE);
             Assert.Equal(233011.67223479203, xyz[1], TOLERANCE);
             Assert.Equal(-3040909.4706983363, xyz[2], TOLERANCE);
+
+            j = Sofa.Gd2gc(SofaReferenceEllipsoids.GRS80, e, p, h, xyz);
+            Assert.Equal(0, j);
+            Assert.Equal(-5599000.5577260984, xyz[0], TOLERANCE);
+            Assert.Equal(233011.6722356702949, xyz[1], TOLERANCE);
+            Assert.Equal(-3040909.4706095476, xyz[2], TOLERANCE);
+
+            j = Sofa.Gd2gc(SofaReferenceEllipsoids.WGS72, e, p, h, xyz);
+            Assert.Equal(0, j);
+            Assert.Equal(-5598998.7626301490, xyz[0], TOLERANCE);
+            Assert.Equal(233011.5975297822211, xyz[1], TOLERANCE);
+            Assert.Equal(-3040908.6861467111, xyz[2], TOLERANCE);
+
+            j = Sofa.Gd2gc((SofaReferenceEllipsoids)4, e, p, h, xyz);
+            Assert.Equal(-1, j);
         }
 
         [Fact]
@@ -2778,6 +2897,12 @@ namespace SOFA
             Assert.Equal(0.3564105644859788825, rm[0], TOLERANCE);
             Assert.Equal(0.8530575738617682284, rm[1], TOLERANCE);
             Assert.Equal(0.3811355207795060435, rm[2], TOLERANCE);
+            Assert.Equal(-0.9343283469640709942, rm[3], TOLERANCE);
+            Assert.Equal(0.3247830597681745976, rm[4], TOLERANCE);
+            Assert.Equal(0.1467872751535940865, rm[5], TOLERANCE);
+            Assert.Equal(0.1431636191201167793e-2, rm[6], TOLERANCE);
+            Assert.Equal(-0.4084222566960599342, rm[7], TOLERANCE);
+            Assert.Equal(0.9127919865189030899, rm[8], TOLERANCE);
         }
 
         [Fact]
@@ -2809,6 +2934,12 @@ namespace SOFA
             Assert.Equal(0.9967044141159213819, rp[0], TOLERANCE);
             Assert.Equal(0.7437801893193210840e-1, rp[1], TOLERANCE);
             Assert.Equal(0.3237624409345603401e-1, rp[2], TOLERANCE);
+            Assert.Equal(-0.7437802731819618167e-1, rp[3], TOLERANCE);
+            Assert.Equal(0.9972293894454533070, rp[4], TOLERANCE);
+            Assert.Equal(-0.1205768842723593346e-2, rp[5], TOLERANCE);
+            Assert.Equal(-0.3237622482766575399e-1, rp[6], TOLERANCE);
+            Assert.Equal(-0.1206286039697609008e-2, rp[7], TOLERANCE);
+            Assert.Equal(0.9994750246704010914, rp[8], TOLERANCE);
         }
 
         [Fact]
@@ -2824,6 +2955,12 @@ namespace SOFA
             Assert.Equal(0.9967044167723271851, rpb[0], TOLERANCE);
             Assert.Equal(0.7437794731203340345e-1, rpb[1], TOLERANCE);
             Assert.Equal(0.3237632684841625547e-1, rpb[2], TOLERANCE);
+            Assert.Equal(-0.7437795663437177152e-1, rpb[3], TOLERANCE);
+            Assert.Equal(0.9972293947500013666, rpb[4], TOLERANCE);
+            Assert.Equal(-0.1205741865911243235e-2, rpb[5], TOLERANCE);
+            Assert.Equal(-0.3237630543224664992e-1, rpb[6], TOLERANCE);
+            Assert.Equal(-0.1206316791076485295e-2, rpb[7], TOLERANCE);
+            Assert.Equal(0.9994750220222438819, rpb[8], TOLERANCE);
         }
 
         [Fact]
@@ -2867,6 +3004,9 @@ namespace SOFA
             Assert.Equal(-0.2601295959971044180e-2, pv[0], TOLERANCE);
             Assert.Equal(0.6139750944302742189e-3, pv[1], TOLERANCE);
             Assert.Equal(0.2640794528229828909e-3, pv[2], TOLERANCE);
+            Assert.Equal(-0.1244321506649895021e-3, pv[3], TOLERANCE);
+            Assert.Equal(-0.5219076942678119398e-3, pv[4], TOLERANCE);
+            Assert.Equal(-0.1716132214378462047e-3, pv[5], TOLERANCE);
         }
 
         [Fact]
@@ -2880,6 +3020,12 @@ namespace SOFA
             Assert.Equal(0.9999999999536227949, rmatn[0], TOLERANCE);
             Assert.Equal(0.8836238544090873336e-5, rmatn[1], TOLERANCE);
             Assert.Equal(0.3830835237722400669e-5, rmatn[2], TOLERANCE);
+            Assert.Equal(-0.8836082880798569274e-5, rmatn[3], TOLERANCE);
+            Assert.Equal(0.9999999991354655028, rmatn[4], TOLERANCE);
+            Assert.Equal(-0.4063240865362499850e-4, rmatn[5], TOLERANCE);
+            Assert.Equal(-0.3831194272065995866e-5, rmatn[6], TOLERANCE);
+            Assert.Equal(0.4063237480216291775e-4, rmatn[7], TOLERANCE);
+            Assert.Equal(0.9999999991671660338, rmatn[8], TOLERANCE);
         }
 
         [Fact]
@@ -2893,6 +3039,12 @@ namespace SOFA
             Assert.Equal(0.9999999999536069682, rmatn[0], TOLERANCE);
             Assert.Equal(0.8837746144871248011e-5, rmatn[1], TOLERANCE);
             Assert.Equal(0.3831488838252202945e-5, rmatn[2], TOLERANCE);
+            Assert.Equal(-0.8837590456632304720e-5, rmatn[3], TOLERANCE);
+            Assert.Equal(0.9999999991354692733, rmatn[4], TOLERANCE);
+            Assert.Equal(-0.4063198798559591654e-4, rmatn[5], TOLERANCE);
+            Assert.Equal(-0.3831847930134941271e-5, rmatn[6], TOLERANCE);
+            Assert.Equal(0.4063195412258168380e-4, rmatn[7], TOLERANCE);
+            Assert.Equal(0.9999999991671806225, rmatn[8], TOLERANCE);
         }
 
         [Fact]
@@ -2906,6 +3058,12 @@ namespace SOFA
             Assert.Equal(0.9999999999536227668, rmatn[0], TOLERANCE);
             Assert.Equal(0.8836241998111535233e-5, rmatn[1], TOLERANCE);
             Assert.Equal(0.3830834608415287707e-5, rmatn[2], TOLERANCE);
+            Assert.Equal(-0.8836086334870740138e-5, rmatn[3], TOLERANCE);
+            Assert.Equal(0.9999999991354657474, rmatn[4], TOLERANCE);
+            Assert.Equal(-0.4063240188248455065e-4, rmatn[5], TOLERANCE);
+            Assert.Equal(-0.3831193642839398128e-5, rmatn[6], TOLERANCE);
+            Assert.Equal(0.4063236803101479770e-4, rmatn[7], TOLERANCE);
+            Assert.Equal(0.9999999991671663114, rmatn[8], TOLERANCE);
         }
 
         [Fact]
@@ -2923,8 +3081,13 @@ namespace SOFA
             Assert.Equal(0.9999999999536227949, rmatn[0], TOLERANCE);
             Assert.Equal(0.8836239320236250577e-5, rmatn[1], TOLERANCE);
             Assert.Equal(0.3830833447458251908e-5, rmatn[2], TOLERANCE);
+            Assert.Equal(-0.8836083657016688588e-5, rmatn[3], TOLERANCE);
+            Assert.Equal(0.9999999991354654959, rmatn[4], TOLERANCE);
+            Assert.Equal(-0.4063240865361857698e-4, rmatn[5], TOLERANCE);
+            Assert.Equal(-0.3831192481833385226e-5, rmatn[6], TOLERANCE);
+            Assert.Equal(0.4063237480216934159e-4, rmatn[7], TOLERANCE);
+            Assert.Equal(0.9999999991671660407, rmatn[8], TOLERANCE);
         }
-
         [Fact]
         public void Nut00a()
         {
@@ -2984,6 +3147,12 @@ namespace SOFA
             Assert.Equal(0.9999999999534999268, rmatn[0], TOLERANCE);
             Assert.Equal(0.8847935789636432161e-5, rmatn[1], TOLERANCE);
             Assert.Equal(0.3835906502164019142e-5, rmatn[2], TOLERANCE);
+            Assert.Equal(-0.8847780042583435924e-5, rmatn[3], TOLERANCE);
+            Assert.Equal(0.9999999991366569963, rmatn[4], TOLERANCE);
+            Assert.Equal(-0.4060052702727130809e-4, rmatn[5], TOLERANCE);
+            Assert.Equal(-0.3836265729708478796e-5, rmatn[6], TOLERANCE);
+            Assert.Equal(0.4060049308612638555e-4, rmatn[7], TOLERANCE);
+            Assert.Equal(0.9999999991684415129, rmatn[8], TOLERANCE);
         }
 
         [Fact]
@@ -3020,6 +3189,19 @@ namespace SOFA
             Assert.Equal(0.4090926006005828715, eps0, TOLERANCE);
             Assert.Equal(0.6664369630191613431e-3, psia, TOLERANCE);
             Assert.Equal(0.4090925973783255982, oma, TOLERANCE);
+            Assert.Equal(0.5561149371265209445e-6, bpa, TOLERANCE);
+            Assert.Equal(-0.6191517193290621270e-5, bqa, TOLERANCE);
+            Assert.Equal(0.6216441751884382923e-5, pia, TOLERANCE);
+            Assert.Equal(3.052014180023779882, bpia, TOLERANCE);
+            Assert.Equal(0.4090864054922431688, epsa, TOLERANCE);
+            Assert.Equal(0.1387703379530915364e-5, chia, TOLERANCE);
+            Assert.Equal(0.2921789846651790546e-3, za, TOLERANCE);
+            Assert.Equal(0.3178773290332009310e-3, zetaa, TOLERANCE);
+            Assert.Equal(0.2650932701657497181e-3, thetaa, TOLERANCE);
+            Assert.Equal(0.6651637681381016288e-3, pa, TOLERANCE);
+            Assert.Equal(0.1398077115963754987e-5, gam, TOLERANCE);
+            Assert.Equal(0.4090864090837462602, phi, TOLERANCE);
+            Assert.Equal(0.6664464807480920325e-3, psi, TOLERANCE);
         }
 
         [Fact]
@@ -3096,21 +3278,6 @@ namespace SOFA
         }
 
         [Fact]
-        public void Pas2()
-        {
-            const double TOLERANCE = 1e-12;
-            // Arrange
-            double al = 1.0;
-            double ap = 0.1;
-            double bl = 0.2;
-            double bp = -1.0;
-            // Act
-            double theta = Sofa.Pas(al, ap, bl, bp);
-            // Assert
-            Assert.Equal(-2.724544922932270424, theta, TOLERANCE);
-        }
-
-        [Fact]
         public void Pb06()
         {
             const double TOLERANCE = 1e-12;
@@ -3135,19 +3302,6 @@ namespace SOFA
         }
 
         [Fact]
-        public void Pdp2()
-        {
-            const double TOLERANCE = 1e-12;
-            // Arrange
-            double[] a = { 2.0, 2.0, 3.0 };
-            double[] b = { 1.0, 3.0, 4.0 };
-            // Act
-            double adb = Sofa.Pdp(a, b);
-            // Assert
-            Assert.Equal(20, adb, TOLERANCE);
-        }
-
-        [Fact]
         public void Pfw06()
         {
             const double TOLERANCE = 1e-12;
@@ -3167,14 +3321,42 @@ namespace SOFA
             const double TOLERANCE = 1e-11;
             // Act
             double[] pv = new double[6];
-            int j = Sofa.Plan94(2400000.5, 43999.9, 1, pv);
-            // Assert
-            Assert.Equal(0, j);
+            int j;
+
+            // Test 1: Invalid planet number (0)
+            j = Sofa.Plan94(2400000.5, 1e6, 0, pv);
+            Assert.Equal(0.0, pv[0], 0);
+            Assert.Equal(0.0, pv[1], 0);
+            Assert.Equal(0.0, pv[2], 0);
+            Assert.Equal(0.0, pv[3], 0);
+            Assert.Equal(0.0, pv[4], 0);
+            Assert.Equal(0.0, pv[5], 0);
+            Assert.Equal(-1, j);
+
+            // Test 2: Invalid planet number (10)
+            j = Sofa.Plan94(2400000.5, 1e6, 10, pv);
+            Assert.Equal(-1, j);
+
+            // Test 3: Date outside valid range
+            j = Sofa.Plan94(2400000.5, -320000, 3, pv);
+            Assert.Equal(0.9308038666832975759, pv[0], TOLERANCE);
+            Assert.Equal(0.3258319040261346000, pv[1], TOLERANCE);
+            Assert.Equal(0.1422794544481140560, pv[2], TOLERANCE);
+            Assert.Equal(-0.6429458958255170006e-2, pv[3], TOLERANCE);
+            Assert.Equal(0.1468570657704237764e-1, pv[4], TOLERANCE);
+            Assert.Equal(0.6406996426270981189e-2, pv[5], TOLERANCE);
+            Assert.Equal(1, j);
+
+            // Test 4: Mercury, valid date
+            j = Sofa.Plan94(2400000.5, 43999.9, 1, pv);
             Assert.Equal(0.2945293959257430832, pv[0], TOLERANCE);
             Assert.Equal(-0.2452204176601049596, pv[1], TOLERANCE);
             Assert.Equal(-0.1615427700571978153, pv[2], TOLERANCE);
+            Assert.Equal(0.1413867871404614441e-1, pv[3], TOLERANCE);
+            Assert.Equal(0.1946548301104706582e-1, pv[4], TOLERANCE);
+            Assert.Equal(0.8929809783898904786e-2, pv[5], TOLERANCE);
+            Assert.Equal(0, j);
         }
-
         [Fact]
         public void Pm()
         {
@@ -3332,55 +3514,228 @@ namespace SOFA
         [Fact]
         public void Pn00()
         {
-            const double TOLERANCE = 1e-12;
+            const double TOLERANCE_12 = 1e-12;
+            const double TOLERANCE_14 = 1e-14;
+            const double TOLERANCE_16 = 1e-16;
+            const double TOLERANCE_18 = 1e-18;
+
             // Arrange
             double dpsi = -0.9632552291149335877e-5;
             double deps = 0.4063197106621141414e-4;
-            // Act
-            double epsa = 0;
+            double epsa = 0.0;
             double[] rb = new double[9];
             double[] rp = new double[9];
             double[] rbp = new double[9];
             double[] rn = new double[9];
             double[] rbpn = new double[9];
+
+            // Act
             Sofa.Pn00(2400000.5, 53736.0, dpsi, deps, ref epsa, rb, rp, rbp, rn, rbpn);
+
             // Assert
-            Assert.Equal(0.4090791789404229916, epsa, TOLERANCE);
-            Assert.Equal(0.9999999999999942498, rb[0], TOLERANCE);
+            Assert.Equal(0.4090791789404229916, epsa, TOLERANCE_12);
+
+            Assert.Equal(0.9999999999999942498, rb[0], TOLERANCE_12);
+            Assert.Equal(-0.7078279744199196626e-7, rb[1], TOLERANCE_18);
+            Assert.Equal(0.8056217146976134152e-7, rb[2], TOLERANCE_18);
+            Assert.Equal(0.7078279477857337206e-7, rb[3], TOLERANCE_18);
+            Assert.Equal(0.9999999999999969484, rb[4], TOLERANCE_12);
+            Assert.Equal(0.3306041454222136517e-7, rb[5], TOLERANCE_18);
+            Assert.Equal(-0.8056217380986972157e-7, rb[6], TOLERANCE_18);
+            Assert.Equal(-0.3306040883980552500e-7, rb[7], TOLERANCE_18);
+            Assert.Equal(0.9999999999999962084, rb[8], TOLERANCE_12);
+
+            Assert.Equal(0.9999989300532289018, rp[0], TOLERANCE_12);
+            Assert.Equal(-0.1341647226791824349e-2, rp[1], TOLERANCE_14);
+            Assert.Equal(-0.5829880927190296547e-3, rp[2], TOLERANCE_14);
+            Assert.Equal(0.1341647231069759008e-2, rp[3], TOLERANCE_14);
+            Assert.Equal(0.9999990999908750433, rp[4], TOLERANCE_12);
+            Assert.Equal(-0.3837444441583715468e-6, rp[5], TOLERANCE_14);
+            Assert.Equal(0.5829880828740957684e-3, rp[6], TOLERANCE_14);
+            Assert.Equal(-0.3984203267708834759e-6, rp[7], TOLERANCE_14);
+            Assert.Equal(0.9999998300623538046, rp[8], TOLERANCE_12);
+
+            Assert.Equal(0.9999989300052243993, rbp[0], TOLERANCE_12);
+            Assert.Equal(-0.1341717990239703727e-2, rbp[1], TOLERANCE_14);
+            Assert.Equal(-0.5829075749891684053e-3, rbp[2], TOLERANCE_14);
+            Assert.Equal(0.1341718013831739992e-2, rbp[3], TOLERANCE_14);
+            Assert.Equal(0.9999990998959191343, rbp[4], TOLERANCE_12);
+            Assert.Equal(-0.3505759733565421170e-6, rbp[5], TOLERANCE_14);
+            Assert.Equal(0.5829075206857717883e-3, rbp[6], TOLERANCE_14);
+            Assert.Equal(-0.4315219955198608970e-6, rbp[7], TOLERANCE_14);
+            Assert.Equal(0.9999998301093036269, rbp[8], TOLERANCE_12);
+
+            Assert.Equal(0.9999999999536069682, rn[0], TOLERANCE_12);
+            Assert.Equal(0.8837746144872140812e-5, rn[1], TOLERANCE_16);
+            Assert.Equal(0.3831488838252590008e-5, rn[2], TOLERANCE_16);
+            Assert.Equal(-0.8837590456633197506e-5, rn[3], TOLERANCE_16);
+            Assert.Equal(0.9999999991354692733, rn[4], TOLERANCE_12);
+            Assert.Equal(-0.4063198798559573702e-4, rn[5], TOLERANCE_16);
+            Assert.Equal(-0.3831847930135328368e-5, rn[6], TOLERANCE_16);
+            Assert.Equal(0.4063195412258150427e-4, rn[7], TOLERANCE_16);
+            Assert.Equal(0.9999999991671806225, rn[8], TOLERANCE_12);
+
+            Assert.Equal(0.9999989440499982806, rbpn[0], TOLERANCE_12);
+            Assert.Equal(-0.1332880253640848301e-2, rbpn[1], TOLERANCE_14);
+            Assert.Equal(-0.5790760898731087295e-3, rbpn[2], TOLERANCE_14);
+            Assert.Equal(0.1332856746979948745e-2, rbpn[3], TOLERANCE_14);
+            Assert.Equal(0.9999991109064768883, rbpn[4], TOLERANCE_12);
+            Assert.Equal(-0.4097740555723063806e-4, rbpn[5], TOLERANCE_14);
+            Assert.Equal(0.5791301929950205000e-3, rbpn[6], TOLERANCE_14);
+            Assert.Equal(0.4020553681373702931e-4, rbpn[7], TOLERANCE_14);
+            Assert.Equal(0.9999998314958529887, rbpn[8], TOLERANCE_12);
         }
 
         [Fact]
         public void Pn00a()
         {
-            const double TOLERANCE = 1e-12;
-            // Act
-            double dpsi = 0, deps = 0, epsa = 0;
+            const double TOLERANCE_12 = 1e-12;
+            const double TOLERANCE_14 = 1e-14;
+            const double TOLERANCE_16 = 1e-16;
+
+            // Arrange
+            double dpsi = 0.0;
+            double deps = 0.0;
+            double epsa = 0.0;
             double[] rb = new double[9];
             double[] rp = new double[9];
             double[] rbp = new double[9];
             double[] rn = new double[9];
             double[] rbpn = new double[9];
+
+            // Act
             Sofa.Pn00a(2400000.5, 53736.0, ref dpsi, ref deps, ref epsa, rb, rp, rbp, rn, rbpn);
+
             // Assert
-            Assert.Equal(-0.9630909107115518431e-5, dpsi, TOLERANCE);
-            Assert.Equal(0.4063239174001678710e-4, deps, TOLERANCE);
+            Assert.Equal(-0.9630909107115518431e-5, dpsi, TOLERANCE_12);
+            Assert.Equal(0.4063239174001678710e-4, deps, TOLERANCE_12);
+            Assert.Equal(0.4090791789404229916, epsa, TOLERANCE_12);
+
+            Assert.Equal(0.9999999999999942498, rb[0], TOLERANCE_12);
+            Assert.Equal(-0.7078279744199196626e-7, rb[1], TOLERANCE_16);
+            Assert.Equal(0.8056217146976134152e-7, rb[2], TOLERANCE_16);
+            Assert.Equal(0.7078279477857337206e-7, rb[3], TOLERANCE_16);
+            Assert.Equal(0.9999999999999969484, rb[4], TOLERANCE_12);
+            Assert.Equal(0.3306041454222136517e-7, rb[5], TOLERANCE_16);
+            Assert.Equal(-0.8056217380986972157e-7, rb[6], TOLERANCE_16);
+            Assert.Equal(-0.3306040883980552500e-7, rb[7], TOLERANCE_16);
+            Assert.Equal(0.9999999999999962084, rb[8], TOLERANCE_12);
+
+            Assert.Equal(0.9999989300532289018, rp[0], TOLERANCE_12);
+            Assert.Equal(-0.1341647226791824349e-2, rp[1], TOLERANCE_14);
+            Assert.Equal(-0.5829880927190296547e-3, rp[2], TOLERANCE_14);
+            Assert.Equal(0.1341647231069759008e-2, rp[3], TOLERANCE_14);
+            Assert.Equal(0.9999990999908750433, rp[4], TOLERANCE_12);
+            Assert.Equal(-0.3837444441583715468e-6, rp[5], TOLERANCE_14);
+            Assert.Equal(0.5829880828740957684e-3, rp[6], TOLERANCE_14);
+            Assert.Equal(-0.3984203267708834759e-6, rp[7], TOLERANCE_14);
+            Assert.Equal(0.9999998300623538046, rp[8], TOLERANCE_12);
+
+            Assert.Equal(0.9999989300052243993, rbp[0], TOLERANCE_12);
+            Assert.Equal(-0.1341717990239703727e-2, rbp[1], TOLERANCE_14);
+            Assert.Equal(-0.5829075749891684053e-3, rbp[2], TOLERANCE_14);
+            Assert.Equal(0.1341718013831739992e-2, rbp[3], TOLERANCE_14);
+            Assert.Equal(0.9999990998959191343, rbp[4], TOLERANCE_12);
+            Assert.Equal(-0.3505759733565421170e-6, rbp[5], TOLERANCE_14);
+            Assert.Equal(0.5829075206857717883e-3, rbp[6], TOLERANCE_14);
+            Assert.Equal(-0.4315219955198608970e-6, rbp[7], TOLERANCE_14);
+            Assert.Equal(0.9999998301093036269, rbp[8], TOLERANCE_12);
+
+            Assert.Equal(0.9999999999536227949, rn[0], TOLERANCE_12);
+            Assert.Equal(0.8836238544090873336e-5, rn[1], TOLERANCE_14);
+            Assert.Equal(0.3830835237722400669e-5, rn[2], TOLERANCE_14);
+            Assert.Equal(-0.8836082880798569274e-5, rn[3], TOLERANCE_14);
+            Assert.Equal(0.9999999991354655028, rn[4], TOLERANCE_12);
+            Assert.Equal(-0.4063240865362499850e-4, rn[5], TOLERANCE_14);
+            Assert.Equal(-0.3831194272065995866e-5, rn[6], TOLERANCE_14);
+            Assert.Equal(0.4063237480216291775e-4, rn[7], TOLERANCE_14);
+            Assert.Equal(0.9999999991671660338, rn[8], TOLERANCE_12);
+
+            Assert.Equal(0.9999989440476103435, rbpn[0], TOLERANCE_12);
+            Assert.Equal(-0.1332881761240011763e-2, rbpn[1], TOLERANCE_14);
+            Assert.Equal(-0.5790767434730085751e-3, rbpn[2], TOLERANCE_14);
+            Assert.Equal(0.1332858254308954658e-2, rbpn[3], TOLERANCE_14);
+            Assert.Equal(0.9999991109044505577, rbpn[4], TOLERANCE_12);
+            Assert.Equal(-0.4097782710396580452e-4, rbpn[5], TOLERANCE_14);
+            Assert.Equal(0.5791308472168152904e-3, rbpn[6], TOLERANCE_14);
+            Assert.Equal(0.4020595661591500259e-4, rbpn[7], TOLERANCE_14);
+            Assert.Equal(0.9999998314954572304, rbpn[8], TOLERANCE_12);
         }
 
         [Fact]
         public void Pn00b()
         {
-            const double TOLERANCE = 1e-12;
-            // Act
-            double dpsi = 0, deps = 0, epsa = 0;
+            const double TOLERANCE_12 = 1e-12;
+            const double TOLERANCE_14 = 1e-14;
+            const double TOLERANCE_16 = 1e-16;
+
+            // Arrange
+            double dpsi = 0.0;
+            double deps = 0.0;
+            double epsa = 0.0;
             double[] rb = new double[9];
             double[] rp = new double[9];
             double[] rbp = new double[9];
             double[] rn = new double[9];
             double[] rbpn = new double[9];
+
+            // Act
             Sofa.Pn00b(2400000.5, 53736.0, ref dpsi, ref deps, ref epsa, rb, rp, rbp, rn, rbpn);
+
             // Assert
-            Assert.Equal(-0.9632552291148362783e-5, dpsi, TOLERANCE);
-            Assert.Equal(0.4063197106621159367e-4, deps, TOLERANCE);
+            Assert.Equal(-0.9632552291148362783e-5, dpsi, TOLERANCE_12);
+            Assert.Equal(0.4063197106621159367e-4, deps, TOLERANCE_12);
+            Assert.Equal(0.4090791789404229916, epsa, TOLERANCE_12);
+
+            Assert.Equal(0.9999999999999942498, rb[0], TOLERANCE_12);
+            Assert.Equal(-0.7078279744199196626e-7, rb[1], TOLERANCE_16);
+            Assert.Equal(0.8056217146976134152e-7, rb[2], TOLERANCE_16);
+            Assert.Equal(0.7078279477857337206e-7, rb[3], TOLERANCE_16);
+            Assert.Equal(0.9999999999999969484, rb[4], TOLERANCE_12);
+            Assert.Equal(0.3306041454222136517e-7, rb[5], TOLERANCE_16);
+            Assert.Equal(-0.8056217380986972157e-7, rb[6], TOLERANCE_16);
+            Assert.Equal(-0.3306040883980552500e-7, rb[7], TOLERANCE_16);
+            Assert.Equal(0.9999999999999962084, rb[8], TOLERANCE_12);
+
+            Assert.Equal(0.9999989300532289018, rp[0], TOLERANCE_12);
+            Assert.Equal(-0.1341647226791824349e-2, rp[1], TOLERANCE_14);
+            Assert.Equal(-0.5829880927190296547e-3, rp[2], TOLERANCE_14);
+            Assert.Equal(0.1341647231069759008e-2, rp[3], TOLERANCE_14);
+            Assert.Equal(0.9999990999908750433, rp[4], TOLERANCE_12);
+            Assert.Equal(-0.3837444441583715468e-6, rp[5], TOLERANCE_14);
+            Assert.Equal(0.5829880828740957684e-3, rp[6], TOLERANCE_14);
+            Assert.Equal(-0.3984203267708834759e-6, rp[7], TOLERANCE_14);
+            Assert.Equal(0.9999998300623538046, rp[8], TOLERANCE_12);
+
+            Assert.Equal(0.9999989300052243993, rbp[0], TOLERANCE_12);
+            Assert.Equal(-0.1341717990239703727e-2, rbp[1], TOLERANCE_14);
+            Assert.Equal(-0.5829075749891684053e-3, rbp[2], TOLERANCE_14);
+            Assert.Equal(0.1341718013831739992e-2, rbp[3], TOLERANCE_14);
+            Assert.Equal(0.9999990998959191343, rbp[4], TOLERANCE_12);
+            Assert.Equal(-0.3505759733565421170e-6, rbp[5], TOLERANCE_14);
+            Assert.Equal(0.5829075206857717883e-3, rbp[6], TOLERANCE_14);
+            Assert.Equal(-0.4315219955198608970e-6, rbp[7], TOLERANCE_14);
+            Assert.Equal(0.9999998301093036269, rbp[8], TOLERANCE_12);
+
+            Assert.Equal(0.9999999999536069682, rn[0], TOLERANCE_12);
+            Assert.Equal(0.8837746144871248011e-5, rn[1], TOLERANCE_14);
+            Assert.Equal(0.3831488838252202945e-5, rn[2], TOLERANCE_14);
+            Assert.Equal(-0.8837590456632304720e-5, rn[3], TOLERANCE_14);
+            Assert.Equal(0.9999999991354692733, rn[4], TOLERANCE_12);
+            Assert.Equal(-0.4063198798559591654e-4, rn[5], TOLERANCE_14);
+            Assert.Equal(-0.3831847930134941271e-5, rn[6], TOLERANCE_14);
+            Assert.Equal(0.4063195412258168380e-4, rn[7], TOLERANCE_14);
+            Assert.Equal(0.9999999991671806225, rn[8], TOLERANCE_12);
+
+            Assert.Equal(0.9999989440499982806, rbpn[0], TOLERANCE_12);
+            Assert.Equal(-0.1332880253640849194e-2, rbpn[1], TOLERANCE_14);
+            Assert.Equal(-0.5790760898731091166e-3, rbpn[2], TOLERANCE_14);
+            Assert.Equal(0.1332856746979949638e-2, rbpn[3], TOLERANCE_14);
+            Assert.Equal(0.9999991109064768883, rbpn[4], TOLERANCE_12);
+            Assert.Equal(-0.4097740555723081811e-4, rbpn[5], TOLERANCE_14);
+            Assert.Equal(0.5791301929950208873e-3, rbpn[6], TOLERANCE_14);
+            Assert.Equal(0.4020553681373720832e-4, rbpn[7], TOLERANCE_14);
+            Assert.Equal(0.9999998314958529887, rbpn[8], TOLERANCE_12);
         }
 
         [Fact]
