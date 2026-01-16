@@ -14,10 +14,16 @@
 
   <ItemGroup>
     <None Include="..\.editorconfig" Link=".editorconfig" />
-    <None Include="..\ASCOM.AstrometryTools\NovasLibraries\win-x64\libnovas.dll" Link="libnovas.dll">
+    <None Include="..\ASCOM.AstrometryTools\NovasLibraries\win-x64\libnovas.dll" Link="libnovas.dll" Condition="'$(PROCESSOR_ARCHITECTURE)'=='AMD64'">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="..\ASCOM.AstrometryTools\SOFALibraries\win-x64\libsofa.dll" Link="libsofa.dll">
+    <None Include="..\ASCOM.AstrometryTools\SOFALibraries\win-x64\libsofa.dll" Link="libsofa.dll" Condition="'$(PROCESSOR_ARCHITECTURE)'=='AMD64'">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="..\ASCOM.AstrometryTools\NovasLibraries\win-arm64\libnovas.dll" Link="libnovas.dll" Condition="'$(PROCESSOR_ARCHITECTURE)'=='ARM64'">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="..\ASCOM.AstrometryTools\SOFALibraries\win-arm64\libsofa.dll" Link="libsofa.dll" Condition="'$(PROCESSOR_ARCHITECTURE)'=='ARM64'">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
