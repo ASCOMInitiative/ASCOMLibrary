@@ -273,19 +273,6 @@ namespace ASCOM.Tools
         #region Sofa entry points
 
         /// <summary>
-        /// Computes the nutation matrix for a given date using the IAU 2000A nutation model.
-        /// </summary>
-        /// <remarks>This method is a P/Invoke wrapper for the SOFA library function 'iauNum00a'. The
-        /// nutation matrix transforms vectors from the mean equator and equinox of date to the true equator and equinox
-        /// of date. The input date should be supplied as a two-part Julian Date for maximum precision. The method does
-        /// not return a value; the result is provided via the 'rmatn' output array.</remarks>
-        /// <param name="date1">The first part of the Julian Date representing the Terrestrial Time (TT) of the desired epoch. This is
-        /// typically the integer part.</param>
-        /// <param name="date2">The second part of the Julian Date representing the Terrestrial Time (TT) of the desired epoch. This is
-        /// typically the fractional part, allowing for extended precision.</param>
-        /// <param name="rmatn">An array of length 9 that receives the computed 3×3 nutation matrix in row-major order. The array must not
-        /// be null.</param>
-        /// <summary>
         /// Angle to degrees, arcminutes, arcseconds, fraction.
         /// </summary>
         /// <param name="ndp">Number of decimal places of arcseconds.</param>

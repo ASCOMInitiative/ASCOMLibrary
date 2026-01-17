@@ -10,12 +10,17 @@
 
   <ItemGroup>
     <Compile Remove="Sofa.cs" />
+    <Compile Remove="SofaUpdated.cs" />
   </ItemGroup>
 
   <ItemGroup>
     <None Include="Sofa.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ASCOM.Tools" Version="3.0.0-rc.10" />
   </ItemGroup>
 
 </Project>
