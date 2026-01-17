@@ -296,7 +296,7 @@ namespace ASCOM.Tools
         public static extern void A2af(
             int ndp,
             double angle,
-            [MarshalAs(UnmanagedType.I1)] out byte sign,               // '+' or '-'
+            [MarshalAs(UnmanagedType.U1)] out char sign,               // '+' or '-'
             [Out, MarshalAs(UnmanagedType.LPArray, SizeConst = 4)] int[] idmsf // length 4: h,m,s,fraction
         );
 
@@ -311,7 +311,7 @@ namespace ASCOM.Tools
         public static extern void A2tf(
             int ndp,
             double angle,
-            [MarshalAs(UnmanagedType.I1)] out byte sign,               // '+' or '-'
+            [MarshalAs(UnmanagedType.U1)] out char sign,               // '+' or '-'
             [Out, MarshalAs(UnmanagedType.LPArray, SizeConst = 4)] int[] ihmsf // length 4: h,m,s,fraction
         );
 
@@ -660,7 +660,6 @@ namespace ASCOM.Tools
         /// border-left-color: #000000; border-left-style: Solid; 
         /// border-top-color: #000000; border-top-style: Solid; 
         /// border-right-color: #000000; border-right-style: Solid;
-
         /// border-bottom-color: #000000; border-bottom-style: Solid; 
         /// border-right-width: 1px; border-left-width: 1px; border-top-width: 1px; border-bottom-width: 1px; 
         /// background-color: #00ffff;" width="110px">
@@ -1644,7 +1643,7 @@ namespace ASCOM.Tools
         public static extern void D2tf(
             int ndp,
             double days,
-            [MarshalAs(UnmanagedType.U1)] out byte sign, // '+' or '-'
+            [MarshalAs(UnmanagedType.U1)] out char sign, // '+' or '-'
             [Out, MarshalAs(UnmanagedType.LPArray, SizeConst = 4)] int[] ihmsf // length 4: h,m,s,fraction
         );
 
@@ -1804,7 +1803,6 @@ namespace ASCOM.Tools
         /// border-left-color: #000000; border-left-style: Solid; 
         /// border-top-color: #000000; border-top-style: Solid; 
         /// border-right-color: #000000; border-right-style: Solid;
-
         /// border-bottom-color: #000000; border-bottom-style: Solid; 
         /// border-right-width: 1px; border-left-width: 1px; border-top-width: 1px; border-bottom-width: 1px; 
         /// background-color: #00ffff;" width="110px">
@@ -2678,6 +2676,16 @@ namespace ASCOM.Tools
         /// <param name="pv">Returned Moon position/velocity (length 6).</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauMoon98", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Moon98(double date1, double date2, [MarshalAs(UnmanagedType.LPArray, SizeConst = 6)] double[] pv);
+
+        /// <summary>
+        /// Computes the nutation matrix for a given date using the IAU 2000A nutation model.
+        /// </summary>
+        /// <param name="date1">The first part of the Julian Date representing the Terrestrial Time (TT) of the desired date. Typically,
+        /// this is the integer part of the Julian Date.</param>
+        /// <param name="date2">The second part of the Julian Date representing the Terrestrial Time (TT) of the desired date. This is
+        /// usually the fractional part of the Julian Date. The sum of date1 and date2 gives the full Julian Date.</param>
+        /// <param name="rmatn">When the method returns, contains a 3×3 nutation matrix in row-major order. The array must have a length of
+        /// at least 9 elements.</param>
         [DllImport(SOFA_LIBRARY, EntryPoint = "iauNum00a", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Num00a(double date1, double date2, [MarshalAs(UnmanagedType.LPArray, SizeConst = 9)] double[] rmatn);
 

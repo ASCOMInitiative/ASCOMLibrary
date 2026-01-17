@@ -54,7 +54,7 @@ namespace SOFA
         [Fact]
         public void A2af()
         {
-            byte sign = (byte)'X';
+            char sign = 'X';
             int[] idmsf = new int[4];
             Sofa.A2af(4, 2.345, out sign, idmsf);
             char signChar = (char)sign;
@@ -68,7 +68,7 @@ namespace SOFA
         [Fact]
         public void A2tf()
         {
-            byte sign = (byte)'X';
+            char sign = 'X';
             int[] ihmsf = new int[4];
             Sofa.A2tf(4, -3.01234, out sign, ihmsf);
             char signChar = (char)sign;
@@ -1620,7 +1620,7 @@ namespace SOFA
             double days = -0.987654321;
 
             // Act
-            byte sign = (byte)'X';
+            char sign = 'X';
             int[] ihmsf = new int[4];
             Sofa.D2tf(ndp, days, out sign, ihmsf);
             char signChar = (char)sign;
