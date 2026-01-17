@@ -4299,8 +4299,8 @@ namespace SOFA
         [Fact]
         public void Rm2v()
         {
-            double[] r = new double[] { 0.00, -0.80, -0.60, 0.80, -0.36, 0.48, 0.60, 0.48, -0.64 };
-            double[] w = new double[9];
+            double[] r = new double[9] { 0.00, -0.80, -0.60, 0.80, -0.36, 0.48, 0.60, 0.48, -0.64 };
+            double[] w = new double[3];
 
             Sofa.Rm2v(r, w);
 
