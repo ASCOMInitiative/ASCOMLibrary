@@ -1,7 +1,5 @@
-using ASCOM.Tools.Novas31;
 using System;
 using System.Runtime.InteropServices;
-using System.Text;
 
 namespace ASCOM.Tools
 {
@@ -36,14 +34,13 @@ namespace ASCOM.Tools
         ///</remarks>
         public static Astrom CreateAstrom()
         {
-            Astrom a = new Astrom
+            return new Astrom
             {
                 eb = new double[3],
                 eh = new double[3],
                 v = new double[3],
                 bpn = new double[9]
             };
-            return a;
         }
 
         /// <summary>
@@ -58,11 +55,10 @@ namespace ASCOM.Tools
         ///</remarks>
         public static LdBody CreateLdBody()
         {
-            LdBody ld = new LdBody
+            return new LdBody
             {
                 pv = new double[6]
             };
-            return ld;
         }
 
         /// <summary>
@@ -282,24 +278,34 @@ namespace ASCOM.Tools
         /// </summary>
         /// <param name="array">The array to validate.</param>
         /// <param name="expectedSize">The expected size of the array.</param>
-        /// <param name="paramName">The name of the parameter being validated.</param>
+        /// <param name="arrayName">The name of the parameter being validated.</param>
         /// <exception cref="ArgumentNullException">Thrown if the array is null.</exception>
         /// <exception cref="ArgumentException">Thrown if the array does not have the expected size.</exception>
-        private static void ValidateArray(Array array, int expectedSize, string paramName)
+        private static void ValidateArray(Array array, int expectedSize, string arrayName)
         {
             if (array == null)
             {
-                throw new ArgumentNullException(paramName, $"Array {paramName} cannot be null.");
+                throw new ArgumentNullException(arrayName, $"Array {arrayName} cannot be null.");
             }
 
             if (array.Length != expectedSize)
             {
-                throw new ArgumentException(
-                    $"Array {paramName} must have exactly {expectedSize} elements (length was {array.Length}).",
-                    paramName);
+                throw new ArgumentException($"Array {arrayName} must have exactly {expectedSize} elements (length was {array.Length}).", arrayName);
             }
         }
 
+
+        private static void ValidateString(string stringParameter, int expectedSize, string parameterName)
+        {
+            if (stringParameter is null)
+            {
+                throw new ArgumentNullException(parameterName, $"String {stringParameter} cannot be null and must be at least {expectedSize} characters long.");
+            }
+            if ((stringParameter.Length < expectedSize) & (stringParameter.Length > 0))
+            {
+                throw new ArgumentException($"String {parameterName} must have {expectedSize} or more elements (supplied string length was {stringParameter.Length}).", parameterName);
+            }
+        }
         #endregion
 
         #region Sofa entry points
@@ -311,7 +317,7 @@ namespace ASCOM.Tools
         private static extern void iauA2af(
             int ndp,
             double angle,
-            [MarshalAs(UnmanagedType.U1)] out char sign,               // '+' or '-'
+            out byte sign,               // '+' or '-'
             [Out, MarshalAs(UnmanagedType.LPArray, SizeConst = 4)] int[] idmsf // length 4: h,m,s,fraction
         );
 
@@ -328,7 +334,8 @@ namespace ASCOM.Tools
         {
             ValidateArray(idmsf, 4, nameof(idmsf));
 
-            iauA2af(ndp, angle, out sign, idmsf);
+            iauA2af(ndp, angle, out byte signByte, idmsf);
+            sign = Convert.ToChar(signByte);
         }
 
         /// <summary>
@@ -338,7 +345,7 @@ namespace ASCOM.Tools
         private static extern void iauA2tf(
             int ndp,
             double angle,
-            [MarshalAs(UnmanagedType.U1)] out char sign,               // '+' or '-'
+            out byte sign,               // '+' or '-'
             [Out, MarshalAs(UnmanagedType.LPArray, SizeConst = 4)] int[] ihmsf // length 4: h,m,s,fraction
         );
 
@@ -355,7 +362,8 @@ namespace ASCOM.Tools
         {
             ValidateArray(ihmsf, 4, nameof(ihmsf));
 
-            iauA2tf(ndp, angle, out sign, ihmsf);
+            iauA2tf(ndp, angle, out byte signByte, ihmsf);
+            sign = Convert.ToChar(signByte);
         }
 
         /// <summary>
@@ -1541,6 +1549,7 @@ namespace ASCOM.Tools
         /// <returns>Return value from Atoc13</returns>
         public static short Atoc13(string type, double ob1, double ob2, double utc1, double utc2, double dut1, double elong, double phi, double hm, double xp, double yp, double phpa, double tc, double rh, double wl, ref double rc, ref double dc)
         {
+            ValidateString(type, 1, nameof(type));
             return iauAtoc13(type, ob1, ob2, utc1, utc2, dut1, elong, phi, hm, xp, yp, phpa, tc, rh, wl, ref rc, ref dc);
         }
 
@@ -1624,6 +1633,7 @@ namespace ASCOM.Tools
         /// <returns>Return value from Atoi13</returns>
         public static short Atoi13(string type, double ob1, double ob2, double utc1, double utc2, double dut1, double elong, double phi, double hm, double xp, double yp, double phpa, double tc, double rh, double wl, ref double ri, ref double di)
         {
+            ValidateString(type, 1, nameof(type));
             return iauAtoi13(type, ob1, ob2, utc1, utc2, dut1, elong, phi, hm, xp, yp, phpa, tc, rh, wl, ref ri, ref di);
         }
 
@@ -1644,6 +1654,7 @@ namespace ASCOM.Tools
         /// <param name="di">Returned CIRS declination (radians).</param>
         public static void Atoiq(string type, double ob1, double ob2, ref Astrom astrom, ref double ri, ref double di)
         {
+            ValidateString(type, 1, nameof(type));
             iauAtoiq(type, ob1, ob2, ref astrom, ref ri, ref di);
         }
 
@@ -2252,6 +2263,7 @@ namespace ASCOM.Tools
         /// <returns>Return value from D2dtf</returns>
         public static int D2dtf(string scale, int ndp, double d1, double d2, ref int iy, ref int im, ref int id, int[] ihmsf)
         {
+            ValidateString(scale, 0, nameof(scale));
             return iauD2dtf(scale, ndp, d1, d2, ref iy, ref im, ref id, ihmsf);
         }
 
@@ -2262,7 +2274,7 @@ namespace ASCOM.Tools
         private static extern void iauD2tf(
             int ndp,
             double days,
-            [MarshalAs(UnmanagedType.U1)] out char sign, // '+' or '-'
+            out byte sign, // '+' or '-'
             [Out, MarshalAs(UnmanagedType.LPArray, SizeConst = 4)] int[] ihmsf // length 4: h,m,s,fraction
         );
 
@@ -2283,7 +2295,8 @@ namespace ASCOM.Tools
         {
             ValidateArray(ihmsf, 4, nameof(ihmsf));
 
-            iauD2tf(ndp, days, out sign, ihmsf);
+            iauD2tf(ndp, days, out byte signByte, ihmsf);
+            sign=Convert.ToChar(signByte);
         }
 
         /// <summary>
@@ -2369,6 +2382,7 @@ namespace ASCOM.Tools
         /// <returns>Return value from Dtf2d</returns>
         public static short Dtf2d(string scale, int iy, int im, int id, int ihr, int imn, double sec, ref double d1, ref double d2)
         {
+            ValidateString(scale, 0, nameof(scale));
             return iauDtf2d(scale, iy, im, id, ihr, imn, sec, ref d1, ref d2);
         }
 

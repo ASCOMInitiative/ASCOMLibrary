@@ -2,7 +2,7 @@
  <PropertyGroup>
 	<!-- This is the solution level version for NuGet packages, This should be x.x.x semver (or x.x.x-suffix for pre-release -->
 	<!-- https://docs.microsoft.com/en-us/nuget/concepts/package-versioning -->
-   <Version>3.0.0-rc.19</Version>
+   <Version>3.0.0-rc.21</Version>
    <LibraryFrameworks>netstandard2.0;net8.0;net9.0;net10.0</LibraryFrameworks>
    <Copyright>Copyright (c) ASCOM Initiative 2019-2026</Copyright>
    <Company>ASCOM Initiative</Company>

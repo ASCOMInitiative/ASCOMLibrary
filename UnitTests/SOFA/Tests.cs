@@ -1,10 +1,8 @@
+// Suppress IDE0300 array initialisation warnings for this file
+#pragma warning disable IDE0300
+
 using ASCOM.Tools;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.NetworkInformation;
-using System.Text;
-using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 using static ASCOM.Tools.Sofa;
@@ -13,7 +11,7 @@ namespace SOFA
 {
     public class SofaTests
     {
-        DateTime sofaDatTestDate = new DateTime(2024, 1, 1, 0, 0, 0); // This must be the first day of the year following the SOFA release
+        readonly DateTime sofaDatTestDate = new DateTime(2024, 1, 1, 0, 0, 0); // This must be the first day of the year following the SOFA release
 
         private readonly ITestOutputHelper logger;
 
@@ -54,11 +52,9 @@ namespace SOFA
         [Fact]
         public void A2af()
         {
-            char sign = 'X';
             int[] idmsf = new int[4];
-            Sofa.A2af(4, 2.345, out sign, idmsf);
-            char signChar = (char)sign;
-            Assert.Equal('+', signChar);
+            Sofa.A2af(4, 2.345, out char sign, idmsf);
+            Assert.Equal('+', sign);
             Assert.Equal(134, idmsf[0]);
             Assert.Equal(21, idmsf[1]);
             Assert.Equal(30, idmsf[2]);
@@ -68,11 +64,9 @@ namespace SOFA
         [Fact]
         public void A2tf()
         {
-            char sign = 'X';
             int[] ihmsf = new int[4];
-            Sofa.A2tf(4, -3.01234, out sign, ihmsf);
-            char signChar = (char)sign;
-            Assert.Equal('-', signChar);
+            Sofa.A2tf(4, -3.01234, out char sign, ihmsf);
+            Assert.Equal('-', sign);
             Assert.Equal(11, ihmsf[0]);
             Assert.Equal(30, ihmsf[1]);
             Assert.Equal(22, ihmsf[2]);
@@ -478,8 +472,10 @@ namespace SOFA
         [Fact]
         public void Aper()
         {
-            var astrom = new Sofa.Astrom();
-            astrom.along = 1.234;
+            var astrom = new Sofa.Astrom
+            {
+                along = 1.234
+            };
             double theta = 5.678;
             Sofa.Aper(theta, ref astrom);
             Assert.Equal(6.912000000000000000, astrom.eral, 12);
@@ -488,8 +484,10 @@ namespace SOFA
         [Fact]
         public void Aper13()
         {
-            var astrom = new Sofa.Astrom();
-            astrom.along = 1.234;
+            var astrom = new Sofa.Astrom
+            {
+                along = 1.234
+            };
             double ut11 = 2456165.5;
             double ut12 = 0.401182685;
             Sofa.Aper13(ut11, ut12, ref astrom);
@@ -1620,12 +1618,11 @@ namespace SOFA
             double days = -0.987654321;
 
             // Act
-            char sign = 'X';
             int[] ihmsf = new int[4];
-            Sofa.D2tf(ndp, days, out sign, ihmsf);
-            char signChar = (char)sign;
+            Sofa.D2tf(ndp, days, out char sign, ihmsf);
+
             // Assert
-            Assert.Equal('-', signChar);
+            Assert.Equal('-', sign);
             Assert.Equal(23, ihmsf[0]);
             Assert.Equal(42, ihmsf[1]);
             Assert.Equal(13, ihmsf[2]);
