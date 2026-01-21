@@ -5,7 +5,7 @@ A set of cross-platform tools to support astrometry requirements. The components
 This release supports the interface updates introduced in ASCOM Platform 7.
 
 ## Utilities
-* Transform...
+* Transform.
 * Sofa is a cross platform release of the ASCOM Platform's SOFA component.
 * Novas is a cross platform release of the ASCOM Platform's NOVAS3.1 component.
 * NOVASCOM
