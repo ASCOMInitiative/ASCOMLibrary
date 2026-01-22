@@ -6,10 +6,11 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Product>ASCOM NetStandard types</Product>
     <Description>
-      A .NET library providing common Interfaces, enums and other types for ASCOM projects.
-
-      Includes support for the interface updates introduced in ASCOM Platform 7.
+      Library of components providing common Interfaces, enums and other types for ASCOM projects.
     </Description>
+    <PackageReleaseNotes>
+      See README.md for full details of changes in this release.
+    </PackageReleaseNotes>
     <Authors>Daniel Van Noord and Peter Simpson</Authors>
     <PackageProjectUrl>https://ascom-standards.org/</PackageProjectUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>

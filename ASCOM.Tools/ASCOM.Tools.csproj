@@ -4,10 +4,13 @@
     <TargetFrameworks>$(LibraryFrameworks)</TargetFrameworks>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>		<PackageId>ASCOM.Tools</PackageId>
 		<Authors>Daniel Van Noord and Peter Simpson</Authors>
-		<Description>A set of .NET components to support development of ASCOM clients, drivers and Alpaca devices.
-
-Includes support for the interface updates introduced in ASCOM Platform 7.</Description>
-		<PackageIcon>ASCOMBoarderless.png</PackageIcon>
+		<Description>
+      Library of components to support development of ASCOM clients, drivers and Alpaca devices with support for interface updates in ASCOM Platform 7.
+    </Description>
+    <PackageReleaseNotes>
+      See README.md for full details of changes in this release.
+    </PackageReleaseNotes>
+    <PackageIcon>ASCOMBoarderless.png</PackageIcon>
 		<Configurations>Debug;Release</Configurations>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>

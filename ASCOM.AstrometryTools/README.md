@@ -1,23 +1,15 @@
-# ASCOM.AstrometryTools
+## ASCOM.AstrometryTools
 
-A set of cross-platform tools to support astrometry requirements. The components include the NOVAS and SOFA native libraries.
+Library of Astrometry components mirroring those in the ASCOM Platform.
 
-This release supports the interface updates introduced in ASCOM Platform 7.
-
-## Utilities
-* Transform...
-* Sofa is a cross platform release of the ASCOM Platform's SOFA component.
-* Novas is a cross platform release of the ASCOM Platform's NOVAS3.1 component.
-* NOVASCOM
-* Kepler
-
-# Version History
-The version history only contains entries when a change is made, if a release version is not listed below, there was no change to this component in that release.
+## Version History
+The version history only contains entries when a change is made.
 
 ***Release 3.0.0***
 * BUG-FIX - Fixed bug where the NOVAS component gave incorrect answers on 32bit Windows platforms. Other platforms were unaffected.
-*  ADDED - Support for .NET 8.0, 9.0 and 10.0 target frameworks. It will no longer be necessary for applications that use these frameworks to 
+* ADDED - Support for .NET 8.0, 9.0 and 10.0 target frameworks. It will no longer be necessary for applications that use these frameworks to 
 rely on the .NET Standard 2.0 component.
+* ADDED - Over 200 additional SOFA functions, now, all functions in the SOFA library are available.
 
 ***Release 2.2.0***
 * Add SetObserved() and SetAzimuthElevationObserved() methods to the Transform component.
@@ -54,3 +46,10 @@ rely on the .NET Standard 2.0 component.
 * SOFA updated to Release 19 dated 11th October 2023.
 * Fix - AstroUtilities.JulianDateFromDateTime extended to handle dates more than 5 years in the future.
 * Fix - Removed very small error (6th decimal place) in AstroUtilities.JulianDate function
+
+## Utilities
+* Transform...
+* Sofa is a cross platform release of the ASCOM Platform's SOFA component.
+* Novas is a cross platform release of the ASCOM Platform's NOVAS3.1 component.
+* NOVASCOM
+* Kepler

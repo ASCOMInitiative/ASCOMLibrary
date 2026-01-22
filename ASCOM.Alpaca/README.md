@@ -1,20 +1,9 @@
-# ASCOM.Alpaca
+## ASCOM.Alpaca
 
-A set of client tools to discover and access Alpaca devices. Written to .Net Standard 2.0 for maximum applicability.
+Library of ASCOM Alpaca client and discovery components.
 
-This release supports the interface updates introduced in ASCOM Platform 7.
-
-Please note that you will need to add this PropertyGroup to .NET projects that target Android in order for Alpaca discovery to work as expected:
-```xml
-    <PropertyGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
-        <UseNativeHttpHandler>false</UseNativeHttpHandler>
-    </PropertyGroup>
-```
-
-This may also be the case for projects that target IOS, but has not yet been confirmed.
-
-# Version History
-The version history only contains entries when a change is made, if a release version is not listed below, there was no change to this component in that release.
+## Version History
+The version history only contains entries when a change is made.
 
 ***Release 3.0.0***
 * POTENTIALLY BREAKING CHANGE - The client's [`100-CONTINUE`](https://dev.to/mrcaidev/everything-you-need-to-know-about-100-continue-3mn5)
@@ -97,3 +86,13 @@ usually shorter and facilitates quicker return to the client when the Alpaca dev
 ***Release 1.0.96***
 * Added support for trusting user generated certificates.
 * Improved handling of Alpaca management information during discovery on Linux, Arm and MacOS operating systems.
+
+## Notes
+Please note that you will need to add this PropertyGroup to .NET projects that target Android in order for Alpaca discovery to work as expected:
+```xml
+    <PropertyGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
+        <UseNativeHttpHandler>false</UseNativeHttpHandler>
+    </PropertyGroup>
+```
+
+This may also be the case for projects that target IOS, but has not yet been confirmed.

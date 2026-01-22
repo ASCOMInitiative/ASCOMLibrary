@@ -1,41 +1,45 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-	<PropertyGroup>
-		<OutputType>Library</OutputType>
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
     <TargetFrameworks>$(LibraryFrameworks)</TargetFrameworks>
     <ApplicationIcon />
-		<StartupObject />
-		<RootNamespace>ASCOM.Alpaca</RootNamespace>
-		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-		<Authors>Daniel Van Noord and Peter Simpson</Authors>
-		<Description>A .NET library providing ASCOM Alpaca device / driver specific components.</Description>
-		<PackageLicenseExpression>MIT</PackageLicenseExpression>
-		<PackageIcon>ASCOMBoarderless.png</PackageIcon>
-		<PackageReleaseNotes>Initial release supporting all device types except Video and targeting .NET Standard 2.0.</PackageReleaseNotes>
-		<PackageId>ASCOM.Alpaca.Device</PackageId>
-		<RepositoryUrl>https://www.myget.org/F/ascom-initiative/api/v3/index.json</RepositoryUrl>
-		<Configurations>Debug;Release</Configurations>
-		<GenerateDocumentationFile>True</GenerateDocumentationFile>
-		<PackageReadmeFile>README.md</PackageReadmeFile>
-	</PropertyGroup>
+    <StartupObject />
+    <RootNamespace>ASCOM.Alpaca</RootNamespace>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Authors>Daniel Van Noord and Peter Simpson</Authors>
+    <Description>
+      Library of ASCOM Alpaca device specific components.
+    </Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageIcon>ASCOMBoarderless.png</PackageIcon>
+    <PackageReleaseNotes>
+      See README.md for full details of changes in this release.
+    </PackageReleaseNotes>
+    <PackageId>ASCOM.Alpaca.Device</PackageId>
+    <RepositoryUrl>https://www.myget.org/F/ascom-initiative/api/v3/index.json</RepositoryUrl>
+    <Configurations>Debug;Release</Configurations>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-		<DebugType>embedded</DebugType>
-		<DebugSymbols>true</DebugSymbols>
-	</PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DebugType>embedded</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
 
-	<ItemGroup>
-		<None Include="..\ASCOMBoarderless.png">
-			<Pack>True</Pack>
-			<PackagePath></PackagePath>
-		</None>
-		<None Include="README.md"
+  <ItemGroup>
+    <None Include="..\ASCOMBoarderless.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+    <None Include="README.md"
 			Pack="true"
 			PackagePath="\"/>
-	</ItemGroup>
+  </ItemGroup>
 
-	<ItemGroup>
-		<ProjectReference Include="..\ASCOM.Common\ASCOM.Common.csproj" />
-	</ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ASCOM.Common\ASCOM.Common.csproj" />
+  </ItemGroup>
 
 </Project>

@@ -3,8 +3,13 @@
 		<AssemblyTitle>ASCOM Stand Alone Chooser</AssemblyTitle>
 		<Authors>Peter Simpson</Authors>
 		<Product>ASCOM Stand Alone Chooser</Product>
-		<Description>Stand alone Chooser component for .NET Framework 4.7.2 and later and .NET 8 and later projects.</Description>
-		<LangVersion>latest</LangVersion>
+		<Description>
+      Stand alone Chooser component for .NET Framework 4.7.2 and later and .NET 8 and later projects.
+    </Description>
+    <PackageReleaseNotes>
+      See README.md for full details of changes in this release.
+    </PackageReleaseNotes>
+    <LangVersion>latest</LangVersion>
 		<RootNamespace>ASCOM.Com</RootNamespace>
 		<AssemblyName>ASCOM.Com.ChooserSA</AssemblyName>
 		<TargetFrameworks>net8.0-windows; net472; net9.0-windows; net10.0-windows</TargetFrameworks>

@@ -1,54 +1,57 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-	<PropertyGroup>
+  <PropertyGroup>
     <TargetFrameworks>$(LibraryFrameworks)</TargetFrameworks>
     <Authors>ASCOM Initiative, Daniel Van Noord and Peter Simpson</Authors>
-		<Description>A .NET library for accessing ASCOM COM based drivers on Windows platforms and for reading ASCOM Profile information.
+    <Description>
+      Library of components for accessing ASCOM COM based drivers on Windows platforms and for reading ASCOM Profile information.
+    </Description>
+    <PackageReleaseNotes>
+      See README.md for full details of changes in this release.
+    </PackageReleaseNotes>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageId>ASCOM.Com.Components</PackageId>
+    <PackageIcon>ASCOMBoarderless.png</PackageIcon>
+    <PackageTags>ascom;alpaca;com;driveraccess</PackageTags>
+    <Product>ASCOM COM Components</Product>
+    <Configurations>Debug;Release</Configurations>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
 
-Includes support for the interface updates introduced in ASCOM Platform 7.</Description>
-		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-		<PackageId>ASCOM.Com.Components</PackageId>
-		<PackageIcon>ASCOMBoarderless.png</PackageIcon>
-		<PackageTags>ascom;alpaca;com;driveraccess</PackageTags>
-		<Product>ASCOM COM Components</Product>
-		<Configurations>Debug;Release</Configurations>
-		<GenerateDocumentationFile>True</GenerateDocumentationFile>
-		<PackageLicenseExpression>MIT</PackageLicenseExpression>
-		<PackageReadmeFile>README.md</PackageReadmeFile>
-	</PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DebugType>embedded</DebugType>
+  </PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-	  <DebugType>embedded</DebugType>
-	</PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DebugType>embedded</DebugType>
+  </PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-	  <DebugType>embedded</DebugType>
-	</PropertyGroup>
+  <ItemGroup>
+    <None Remove="README.md" />
+  </ItemGroup>
 
-	<ItemGroup>
-		<None Remove="README.md" />
-	</ItemGroup>
+  <ItemGroup>
+    <None Include="..\ASCOMBoarderless.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+    <None Include="README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
-	<ItemGroup>
-		<None Include="..\ASCOMBoarderless.png">
-			<Pack>True</Pack>
-			<PackagePath></PackagePath>
-		</None>
-		<None Include="README.md">
-			<Pack>True</Pack>
-			<PackagePath>\</PackagePath>
-		</None>
-	</ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="ASCOM.Exception.Library" Version="7.0.1" />
+    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+    <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
+  </ItemGroup>
 
-	<ItemGroup>
-		<PackageReference Include="ASCOM.Exception.Library" Version="7.0.1" />
-		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-		<PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<ProjectReference Include="..\ASCOM.Common\ASCOM.Common.csproj" />
-		<ProjectReference Include="..\ASCOM.Tools\ASCOM.Tools.csproj" />
-	</ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ASCOM.Common\ASCOM.Common.csproj" />
+    <ProjectReference Include="..\ASCOM.Tools\ASCOM.Tools.csproj" />
+  </ItemGroup>
 
 </Project>
