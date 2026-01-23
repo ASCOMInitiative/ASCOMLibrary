@@ -16,6 +16,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="ASCOM.Exception.Library" Version="7.1.0-rc.3" />
+		<PackageReference Include="ASCOM.Exception.Library" Version="7.0.1" />
 	</ItemGroup>
 </Project>
