@@ -8,13 +8,13 @@
         /// <summary>
         /// True while the calibrator brightness is not stable.
         /// </summary>
-        /// <remarks>This is the completion variable used to monitor progress of the <see cref="ICoverCalibratorV1.Brightness"/> method.</remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/covercalibrator.html#CoverCalibrator.CalibratorChanging">Canonical definition</see></remarks>
         bool CalibratorChanging { get; }
 
         /// <summary>
         /// True while the cover is in motion.
         /// </summary>
-        /// <remarks>This is the completion variable used to monitor progress of the <see cref="ICoverCalibratorV1.OpenCover"/> and <see cref="ICoverCalibratorV1.CloseCover"/> methods.</remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/covercalibrator.html#CoverCalibrator.CoverMoving">Canonical definition</see></remarks>
         bool CoverMoving { get; }
     }
 }
