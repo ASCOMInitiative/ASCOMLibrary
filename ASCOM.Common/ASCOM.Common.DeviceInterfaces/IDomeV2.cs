@@ -26,10 +26,7 @@
         /// </summary>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>
-        /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
-        /// Calling this method will immediately disable hardware slewing (<see cref="Slaved" /> will become False). Raises an error if a communications failure occurs, or if the command is known to have failed. 
-        /// </remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/dome.html#Dome.AbortSlew">Canonical definition</see></remarks>
         void AbortSlew();
 
         /// <summary>
@@ -38,9 +35,7 @@
         /// <exception cref="NotImplementedException">If the property is not implemented</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>
-        /// Raises an error only if no altitude control. If actual dome altitude can not be read, then reports back the last slew position. 
-        /// </remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/dome.html#Dome.Altitude">Canonical definition</see></remarks>
         double Altitude { get; }
 
         /// <summary>
@@ -56,13 +51,7 @@
         /// <exception cref="NotImplementedException">If the property is not implemented</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>
-        /// <para>The home position is normally defined by a hardware sensor positioned around the dome circumference and represents a fixed, known azimuth reference.</para>
-        /// <para>For some devices, the home position may represent a small range of azimuth values, rather than a discrete value, since dome inertia, the resolution of the home position sensor and/or the azimuth encoder may be
-        /// insufficient to return the exact same azimuth value on each occasion. Some dome controllers, on the other hand, will always force the azimuth reading to a fixed value whenever the home position sensor is active.
-        /// Because of these potential differences in behaviour, applications should not rely on the reported azimuth position being identical each time <see cref="AtHome" /> is set <c>true</c>.</para>
-        /// </remarks>
-        /// [ASCOM-135] TPL - Updated documentation
+        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/dome.html#Dome.AtHome">Canonical definition</see></remarks>
         bool AtHome { get; }
 
         /// <summary>
@@ -71,9 +60,7 @@
         /// <exception cref="NotImplementedException">If the property is not implemented</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>
-        /// Set only following a <see cref="Park" /> operation and reset with any slew operation. Raises an error if not supported. 
-        /// </remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/dome.html#Dome.AtPark">Canonical definition</see></remarks>
         bool AtPark { get; }
 
         /// <summary>
@@ -82,7 +69,7 @@
         /// <exception cref="NotImplementedException">If the property is not implemented</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>Raises an error only if no azimuth control. If actual dome azimuth can not be read, then reports back last slew position</remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/dome.html#Dome.Azimuth">Canonical definition</see></remarks>
         double Azimuth { get; }
 
         /// <summary>
@@ -90,9 +77,7 @@
         /// </summary>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>
-        /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
-        /// </remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/dome.html#Dome.CanFindHome">Canonical definition</see></remarks>
         bool CanFindHome { get; }
 
         /// <summary>
@@ -100,9 +85,7 @@
         /// </summary>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>
-        /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
-        /// </remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/dome.html#Dome.CanPark">Canonical definition</see></remarks>
         bool CanPark { get; }
 
         /// <summary>
@@ -110,9 +93,7 @@
         /// </summary>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>
-        /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
-        /// </remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/dome.html#Dome.CanSetAltitude">Canonical definition</see></remarks>
         bool CanSetAltitude { get; }
 
         /// <summary>
@@ -120,9 +101,7 @@
         /// </summary>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>
-        /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
-        /// </remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/dome.html#Dome.CanSetAzimuth">Canonical definition</see></remarks>
         bool CanSetAzimuth { get; }
 
         /// <summary>
@@ -130,9 +109,7 @@
         /// </summary>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>
-        /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
-        /// </remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/dome.html#Dome.CanSetPark">Canonical definition</see></remarks>
         bool CanSetPark { get; }
 
         /// <summary>
@@ -140,9 +117,7 @@
         /// </summary>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>
-        /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
-        /// </remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/dome.html#Dome.CanSetShutter">Canonical definition</see></remarks>
         bool CanSetShutter { get; }
 
         /// <summary>
@@ -150,10 +125,7 @@
         /// </summary>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>
-        /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
-        /// See the notes for the <see cref="Slaved" /> property.
-        /// </remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/dome.html#Dome.CanSlave">Canonical definition</see></remarks>
         bool CanSlave { get; }
 
         /// <summary>
@@ -161,9 +133,7 @@
         /// </summary>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>
-        /// <p style="color:red"><b>Must be implemented, must not throw a NotImplementedException.</b></p>
-        /// </remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/dome.html#Dome.CanSyncAzimuth">Canonical definition</see></remarks>
         bool CanSyncAzimuth { get; }
 
         /// <summary>
@@ -172,6 +142,7 @@
         /// <exception cref="NotImplementedException">If the method is not implemented</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/dome.html#Dome.CloseShutter">Canonical definition</see></remarks>
         void CloseShutter();
 
         /// <summary>
@@ -181,10 +152,7 @@
         /// <exception cref="SlavedException">Thrown if <see cref="Slaved"/> is <see langword="true"/>.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>
-        /// After Home position is established initializes <see cref="Azimuth" /> to the default value and sets the <see cref="AtHome" /> flag. 
-        /// Exception if not supported or communications failure. Raises an error if <see cref="Slaved" /> is True.
-        /// </remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/dome.html#Dome.FindHome">Canonical definition</see></remarks>
         void FindHome();
 
         /// <summary>
@@ -193,9 +161,7 @@
         /// <exception cref="NotImplementedException">If the method is not implemented</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>
-        /// Raises an error if not supported or if a communications failure occurs. 
-        /// </remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/dome.html#Dome.OpenShutter">Canonical definition</see></remarks>
         void OpenShutter();
 
         /// <summary>
@@ -204,9 +170,7 @@
         /// <exception cref="NotImplementedException">If the method is not implemented</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>
-        /// After assuming programmed park position, sets <see cref="AtPark" /> flag. Raises an error if <see cref="Slaved" /> is True, or if not supported, or if a communications failure has occurred. 
-        /// </remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/dome.html#Dome.Park">Canonical definition</see></remarks>
         void Park();
 
         /// <summary>
@@ -215,9 +179,7 @@
         /// <exception cref="NotImplementedException">If the method is not implemented</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>
-        /// Raises an error if not supported or if a communications failure occurs. 
-        /// </remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/dome.html#Dome.SetPark">Canonical definition</see></remarks>
         void SetPark();
 
         /// <summary>
@@ -226,9 +188,7 @@
         /// <exception cref="NotImplementedException">If the property is not implemented</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>
-        /// Raises an error only if no shutter control. If actual shutter status can not be read, then reports back the last shutter state. 
-        /// </remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/dome.html#Dome.ShutterStatus">Canonical definition</see></remarks>
         ShutterState ShutterStatus { get; }
 
         /// <summary>
@@ -237,12 +197,7 @@
         /// <exception cref="NotImplementedException">If Slaved can not be set.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>
-        /// <p style="color:red;margin-bottom:0"><b>Slaved Read must be implemented and must not throw a NotImplementedException. </b></p>
-        /// <p style="color:red;margin-top:0"><b>Slaved Write can throw a NotImplementedException.</b></p>
-        /// Set this property to True to enable dome-telescope hardware slaving, if supported (see <see cref="CanSlave" />). Raises an exception on any attempt to set 
-        /// this property if hardware slaving is not supported). Always returns False if hardware slaving is not supported. 
-        /// </remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/dome.html#Dome.Slaved">Canonical definition</see></remarks>
         bool Slaved { get; set; }
 
         /// <summary>
@@ -250,10 +205,7 @@
         /// </summary>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>
-        /// <p style="color:red;margin-bottom:0"><b>Slewing must be implemented and must not throw a NotImplementedException. </b></p>
-        /// Raises an error if <see cref="Slaved" /> is True, if not supported, if a communications failure occurs, or if the dome can not reach indicated azimuth. 
-        /// </remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/dome.html#Dome.Slewing">Canonical definition</see></remarks>
         bool Slewing { get; }
 
         /// <summary>
@@ -263,9 +215,7 @@
         /// <exception cref="InvalidValueException">If the supplied altitude is outside the range 0..90 degrees.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>
-        /// Raises an error if <see cref="Slaved" /> is True, if not supported, if a communications failure occurs, or if the dome can not reach indicated altitude. 
-        /// </remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/dome.html#Dome.SlewToAltitude">Canonical definition</see></remarks>
         /// <param name="Altitude">Target dome altitude (degrees, horizon zero and increasing positive to 90 zenith)</param>
         void SlewToAltitude(double Altitude);
 
@@ -277,9 +227,7 @@
         /// <exception cref="SlavedException">Thrown if <see cref="Slaved"/> is <see langword="true"/>.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>
-        /// Raises an error if <see cref="Slaved" /> is True, if not supported, if a communications failure occurs, or if the dome can not reach indicated azimuth. 
-        /// </remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/dome.html#Dome.SlewToAzimuth">Canonical definition</see></remarks>
         /// <param name="Azimuth">Target azimuth (degrees, North zero and increasing clockwise. i.e., 90 East, 180 South, 270 West)</param>
         void SlewToAzimuth(double Azimuth);
 
@@ -290,9 +238,7 @@
         /// <exception cref="InvalidValueException">If the supplied azimuth is outside the range 0..360 degrees.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>
-        /// Raises an error if not supported or if a communications failure occurs. 
-        /// </remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/dome.html#Dome.SyncToAzimuth">Canonical definition</see></remarks>
         /// <param name="Azimuth">Target azimuth (degrees, North zero and increasing clockwise. i.e., 90 East, 180 South, 270 West)</param>
         void SyncToAzimuth(double Azimuth);
     }
