@@ -1,25 +1,55 @@
---- 
-uid: cf197185*7fa2*4b56*bb1a*75aaebd459bb
-alt*uid: VersionHistory
+---
+uid: cf197185-7fa2-4b56-bb1a-75aaebd459bb
 title: Version History
+tocTitle: Version History
+# linkText: Optional Text to Use For Links
+# keywords: keyword, term 1, term 2, "term, with comma"
+# alt-uid: optional-alternate-id
+# summary: Optional summary abstract
 ---
 
-## Version 2.2.1
+## Version 3.0.0
+### Changes for all components in this release
+* ADDED - Support for .NET 8.0, 9.0 and 10.0 target frameworks. It will no longer be necessary for applications that use these frameworks to 
+rely on the .NET Standard 2.0 component.
 
+### Alpaca Client changes in this release
+* POTENTIALLY BREAKING CHANGE - The client's [`100-CONTINUE`](https://dev.to/mrcaidev/everything-you-need-to-know-about-100-continue-3mn5)
+behaviour is no longer enabled by default to improve network performance by removing a network round-trip on each `PUT` request.
+  * This change is expected to be transparent for clients and devices because Alpaca devices should already be capable of handling requests from other clients 
+that do not use the `EXPECT 100-CONTINUE` protocol. Out of an abundance of caution, the change is marked as potentially breaking and the major version number has been increased.
+  * This change results in Alpaca clients now sending both the headers and body in one operation.
+  * If required, the original `100-CONTINUE` behaviour can be restored by setting the new Alpaca client `request100Continue` parameter to `TRUE`.
+  * The previous 100-CONTINUE behaviour caused the client to:
+    * add an EXPECT 100-CONTNUE header to the request,
+    * send only the request headers to the Alpaca device,
+    * wait for the device to return a 100-CONTINUE response,
+    * finally send the request body and wait for the device response.
+* ADDED - A new telescope client configuration parameter: `throwOnBadDateTimeJSON`, which defaults to FALSE. This is primarily for use by Conform to support 
+validation of DateTime values returned by Alpaca devices that do not conform to the Alpaca specification.
+* ADDED - A new telescope client configuration parameter: `request100Continue`, which defaults to FALSE. This enables or disables `100-CONTINUE HTTP` behaviour.
+* ADDED - Further client creation initialisers for the AlpacaClient and Alpaca device classes that expect a single AlpacaConfiguration class. 
+The AlpacaConfiguration class encapsulates all Alpaca client configuration parameters and enables them to be set in a way that makes the configuration 
+obvious in the source code.
+* BUG-FIX - Fixed bug where `T AlpacaClient.GetDevice<T>` failed when creating a telescope client.
+
+### Astrometry Tools changes in this release
+* BUG-FIX - Fixed bug where the NOVAS component gave incorrect answers on 32bit Windows platforms. Other platforms were unaffected.
+* ADDED - Over 200 additional SOFA functions, now, all functions in the SOFA library are available.
+
+## Version 2.2.1
 **Changes in this release**:
 
 * ASCOM.Com.ChooserSA * Added a static Choose() method that enables a Chooser to be displayed without having to create and dispose of a ChooserSA instance.
 * ASCOM.Com.Chooser * All Choose() methods are now marked as obsolete (see note below).
 
-- **Note:** The Choose methods in the ASCOM.Com.Chooser component have been marked as obsolete in favour of using the Library's stand*alone Chooser (ASCOM.Com.ChooserSA) component.
-This is because
- 
+- **Note:** The Choose methods in the ASCOM.Com.Chooser component have been marked as obsolete in favour of using the Library's stand-alone Chooser (ASCOM.Com.ChooserSA) component.
+This is because:
   * ASCOM.Com.Chooser is just a thin wrapper around the .NET 3.5 Framework Platform COM Chooser, while the ASCOM.Com.ChooserSA component is a complete re*write in .NET Core with no dependency on the .NET Framework.
-  * The Chooser component is not reliable in projects that target .NET 9 and later. See the [](@ef3d33c3*7a7d*4e22*a4bf*7f5b2faf7f10) help topic for more information.
+  * The Chooser component is not reliable in projects that target .NET 9 and later. See the [](@ef3d33c3-7a7d-4e22-a4bf-7f5b2faf7f10) help topic for more information.
   * This is not a breaking change, the obsolete message appears as a Warning after compilation, but allows compilation to proceed to its normal conclusion.
 
 ## Version 2.2.0
-
 **Changes in this release**:
  
 * Astrometry Tools * Added the SetObserved and SetAzElObserved options to the Transform component.

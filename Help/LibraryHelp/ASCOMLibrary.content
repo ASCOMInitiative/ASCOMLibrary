@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Topics>
-  <Topic id="3e0a4970-b422-4427-bb1e-789bb79e1b4f" visible="True" />
-  <Topic id="cf197185-7fa2-4b56-bb1a-75aaebd459bb" visible="True" isSelected="true" />
+  <Topic id="3e0a4970-b422-4427-bb1e-789bb79e1b4f" visible="True" isSelected="true" />
+  <Topic id="cf197185-7fa2-4b56-bb1a-75aaebd459bb" visible="True" />
   <Topic id="448ecc79-4087-401f-97ca-3e2af8022a62" visible="True" title="What is in each ASCOM Library package" />
   <Topic id="a99ce334-4008-4927-928e-833557065d59" visible="True" noFile="true" title="Asynchronous Library Methods (async await)">
     <Topic id="d0969e72-58ac-4f66-b725-8147769b8c5f" visible="True" title="How to discover Alpaca devices asynchronously" />
