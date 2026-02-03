@@ -10,6 +10,16 @@ namespace ASCOM.Common.DeviceInterfaces
     public interface ITelescopeV4 : IAscomDeviceV2, ITelescopeV3
     {
         /// <summary>
+        /// Stops a slew in progress.
+        /// </summary>
+        /// <exception cref="NotImplementedException">If the method is not implemented</exception>
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+        /// <exception cref="ParkedException">If the telescope is parked (ITelescopeV4 and later).</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.AbortSlew">Canonical definition</see></remarks>
+        new void AbortSlew();
+
+        /// <summary>
         /// True if the telescope is stopped in the Home position. Set only following a <see cref="FindHome"></see> operation,
         /// and reset with any slew operation. This property must be False if the telescope does not support homing. 
         /// </summary>

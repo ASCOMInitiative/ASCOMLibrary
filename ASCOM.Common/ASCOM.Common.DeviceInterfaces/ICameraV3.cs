@@ -170,6 +170,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// </summary>
         /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.ElectronsPerADU">Canonical definition</see></remarks>
         /// <value>The electrons per ADU.</value>
+        /// <exception cref="PropertyNotImplementedException">Not supported</exception>
 		/// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
 		/// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         double ElectronsPerADU { get; }
@@ -178,6 +179,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// Reports the full well capacity of the camera in electrons, at the current camera settings (binning, SetupDialog settings, etc.)
         /// </summary>
         /// <value>The full well capacity.</value>
+        /// <exception cref="PropertyNotImplementedException">Not supported</exception>
 		/// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
 		/// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         double FullWellCapacity { get; }
@@ -198,6 +200,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// </summary>
         /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.HeatSinkTemperature">Canonical definition</see></remarks>
         /// <value>The heat sink temperature.</value>
+        /// <exception cref="PropertyNotImplementedException">Not supported</exception>
 		/// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
 		/// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         double HeatSinkTemperature { get; }
@@ -217,9 +220,10 @@ namespace ASCOM.Common.DeviceInterfaces
         /// </summary>
         /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.ImageArrayVariant">Canonical definition</see></remarks>
         /// <value>The image array variant.</value>
+        /// <exception cref="PropertyNotImplementedException">Not supported</exception>
         /// <exception cref="InvalidOperationException">If no image data is available.</exception>
-		/// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
-		/// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
+        /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
+        /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         object ImageArrayVariant { get; }
 
         /// <summary>

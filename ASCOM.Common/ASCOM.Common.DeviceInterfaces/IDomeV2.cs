@@ -213,6 +213,7 @@
         /// </summary>
         /// <exception cref="NotImplementedException">If the method is not implemented</exception>
         /// <exception cref="InvalidValueException">If the supplied altitude is outside the range 0..90 degrees.</exception>
+        /// <exception cref="SlavedException">Thrown if slaving is enabled.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/dome.html#Dome.SlewToAltitude">Canonical definition</see></remarks>

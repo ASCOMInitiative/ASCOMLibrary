@@ -7,7 +7,6 @@ namespace ASCOM.Common.DeviceInterfaces
     /// </summary>
     public interface ITelescopeV3 : IAscomDevice
     {
-
         /// <summary>
         /// Stops a slew in progress.
         /// </summary>
