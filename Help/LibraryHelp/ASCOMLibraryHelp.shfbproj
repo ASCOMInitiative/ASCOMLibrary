@@ -167,9 +167,10 @@
     <None Include="How to discover Alpaca devices.aml" />
     <None Include="How to create clients for discovered Alpaca devices.aml" />
     <None Include="How to select an Alpaca device.aml" />
+    <None Include="VersionHistory.md" />
     <None Include="PierSideAndPointingState.md" />
     <None Include="MigrationToTheLibrary.md" />
-    <None Include="VersionHistory.aml" />
+    <None Include="VersionHistory.aml.bak" />
     <None Include="SeamlessAlpacaAndCom.aml" />
     <None Include="PackageMapping.aml" />
     <None Include="UsingAsyncClientExtensions.aml" />
