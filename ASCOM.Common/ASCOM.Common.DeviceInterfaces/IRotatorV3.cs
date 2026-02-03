@@ -22,6 +22,7 @@
         /// </summary>
         /// <exception cref="NotImplementedException">Throw a NotImplementedException if the rotator cannot halt.</exception>
         /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/rotator.html#Rotator.Halt">Canonical definition</see></remarks>
+        void Halt();
 
         /// <summary>
         /// Indicates whether the rotator is currently moving
@@ -75,6 +76,7 @@
         /// </summary>
         /// <exception cref="NotImplementedException">Throw a NotImplementedException if the rotator does not know its step size.</exception>
         /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/rotator.html#Rotator.StepSize">Canonical definition</see></remarks>
+        float StepSize { get; }
 
         /// <summary>
         /// The destination position angle for Move() and MoveAbsolute().
@@ -89,6 +91,7 @@
         /// This returns the raw mechanical position of the rotator in degrees.
         /// </summary>
         /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/rotator.html#Rotator.MechanicalPosition">Canonical definition</see></remarks>
+        float MechanicalPosition { get; }
 
         /// <summary>
         /// Syncs the rotator to the specified position angle without moving it. 
@@ -98,6 +101,7 @@
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/rotator.html#Rotator.Sync">Canonical definition</see></remarks>
+        void Sync(float Position);
 
         /// <summary>
         /// Moves the rotator to the specified mechanical angle. 
