@@ -11,7 +11,7 @@
         /// <exception cref="MethodNotImplementedException">When CanAsync(id) is false.</exception>
         /// <param name="id">Switch number.</param>
         /// <param name="state">New boolean state.</param>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/switch.html#Switch.SetAsync">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/switch.html#Switch.SetAsync">Canonical Definition</see></remarks>
         void SetAsync(short id, bool state);
 
         /// <summary>
@@ -20,7 +20,7 @@
         /// <param name="id">Switch number.</param>
         /// <param name="value">New double value.</param>
         /// <exception cref="MethodNotImplementedException">When CanAsync(id) is false.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/switch.html#Switch.SetAsyncValue">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/switch.html#Switch.SetAsyncValue">Canonical Definition</see></remarks>
         void SetAsyncValue(short id, double value);
 
         /// <summary>
@@ -28,7 +28,7 @@
         /// </summary>
         /// <param name="id">Switch number.</param>
         /// <returns>True if the switch can operate asynchronously.</returns>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/switch.html#Switch.CanAsync">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/switch.html#Switch.CanAsync">Canonical Definition</see></remarks>
         bool CanAsync(short id);
 
         /// <summary>
@@ -37,14 +37,14 @@
         /// <param name="id">Switch number.</param>
         /// <returns>False while an asynchronous operation is underway and true when it has completed.</returns>
         /// <exception cref="OperationCancelledException">When an in-progress operation is cancelled by the <see cref="CancelAsync(short)"/> method.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/switch.html#Switch.StateChangeComplete">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/switch.html#Switch.StateChangeComplete">Canonical Definition</see></remarks>
         bool StateChangeComplete(short id);
 
         /// <summary>
         /// Cancels an in-progress asynchronous operation.
         /// </summary>
         /// <param name="id">Switch number.</param>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/switch.html#Switch.CancelAsync">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/switch.html#Switch.CancelAsync">Canonical Definition</see></remarks>
         void CancelAsync(short id);
     }
 }

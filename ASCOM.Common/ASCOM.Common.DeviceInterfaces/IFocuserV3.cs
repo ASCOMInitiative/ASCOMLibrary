@@ -16,7 +16,7 @@
         /// </summary>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/focuser.html#Focuser.Absolute">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/focuser.html#Focuser.Absolute">Canonical Definition</see></remarks>
         bool Absolute { get; }
 
         /// <summary>
@@ -25,7 +25,7 @@
         /// <exception cref="NotImplementedException">Focuser does not support this method.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/focuser.html#Focuser.Halt">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/focuser.html#Focuser.Halt">Canonical Definition</see></remarks>
         void Halt();
 
         /// <summary>
@@ -33,7 +33,7 @@
         /// </summary>
         /// <exception cref="NotConnectedException">If the driver is not connected.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/focuser.html#Focuser.IsMoving">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/focuser.html#Focuser.IsMoving">Canonical Definition</see></remarks>
         bool IsMoving { get; }
 
         /// <summary>
@@ -42,7 +42,7 @@
         /// </summary>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/focuser.html#Focuser.MaxIncrement">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/focuser.html#Focuser.MaxIncrement">Canonical Definition</see></remarks>
         int MaxIncrement { get; }
 
         /// <summary>
@@ -50,7 +50,7 @@
         /// </summary>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/focuser.html#Focuser.MaxStep">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/focuser.html#Focuser.MaxStep">Canonical Definition</see></remarks>
         int MaxStep { get; }
 
         /// <summary>
@@ -60,7 +60,7 @@
         /// <exception cref="InvalidValueException">If Position would result in a movement beyond <see cref="MaxStep"/> or otherwise out of range for the focuser.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/focuser.html#Focuser.Move">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/focuser.html#Focuser.Move">Canonical Definition</see></remarks>
         void Move(int Position);
 
         /// <summary>
@@ -69,7 +69,7 @@
         /// <exception cref="NotImplementedException">If the property is not available for this device.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/focuser.html#Focuser.Position">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/focuser.html#Focuser.Position">Canonical Definition</see></remarks>
         int Position { get; }
 
         /// <summary>
@@ -78,7 +78,7 @@
         /// <exception cref= "NotImplementedException">If the focuser does not intrinsically know what the step size is.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/focuser.html#Focuser.StepSize">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/focuser.html#Focuser.StepSize">Canonical Definition</see></remarks>
         double StepSize { get; }
 
         /// <summary>
@@ -87,7 +87,7 @@
         /// <exception cref="NotImplementedException">If <see cref="TempCompAvailable" /> is False and an attempt is made to set <see cref="TempComp" /> to true.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/focuser.html#Focuser.TempComp">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/focuser.html#Focuser.TempComp">Canonical Definition</see></remarks>
         bool TempComp { get; set; }
 
         /// <summary>
@@ -95,7 +95,7 @@
         /// </summary>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/focuser.html#Focuser.TempCompAvailable">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/focuser.html#Focuser.TempCompAvailable">Canonical Definition</see></remarks>
         bool TempCompAvailable { get; }
 
         /// <summary>
@@ -104,7 +104,7 @@
         /// <exception cref="NotImplementedException">If the property is not available for this device.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/focuser.html#Focuser.Temperature">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/focuser.html#Focuser.Temperature">Canonical Definition</see></remarks>
         double Temperature { get; }
     }
 }

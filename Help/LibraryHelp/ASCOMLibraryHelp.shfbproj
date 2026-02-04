@@ -161,6 +161,7 @@
     <None Include="AlpacaAndAscomDevices.aml" />
     <None Include="AsyncClientExtensions.aml" />
     <None Include="HowToDisplayAChooser.aml" />
+    <Content Include="icons\favicon.ico" />
     <None Include="Introduction.aml" />
     <None Include="DeviceDriverPointers.aml" />
     <None Include="ApplicationDeveloperPointers.aml" />

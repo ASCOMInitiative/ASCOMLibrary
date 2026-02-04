@@ -17,7 +17,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <summary>
         /// Aborts the current exposure, if any, and returns the camera to Idle state.
         /// </summary>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.AbortExposure">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.AbortExposure">Canonical Definition</see></remarks>
         /// <exception cref="NotImplementedException">If CanAbortExposure is false.</exception>
         /// <exception cref="InvalidOperationException">Thrown if abort is not currently possible (e.g. during download).</exception>
         /// <exception cref="NotConnectedException">Thrown if the driver is not connected.</exception>
@@ -27,7 +27,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <summary>
         /// Sets the binning factor for the X axis, also returns the current value.
         /// </summary>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.BinX">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.BinX">Canonical Definition</see></remarks>
         /// <value>The X binning value</value>
         /// <exception cref="InvalidValueException">Must throw an exception for illegal binning values</exception>
 		/// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
@@ -37,7 +37,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <summary>
         /// Sets the binning factor for the Y axis, also returns the current value.
         /// </summary>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.BinY">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.BinY">Canonical Definition</see></remarks>
         /// <value>The Y binning value.</value>
         /// <exception cref="InvalidValueException">Must throw an exception for illegal binning values</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
@@ -47,7 +47,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <summary>
         /// Returns the current camera operational state
         /// </summary>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.CameraState">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.CameraState">Canonical Definition</see></remarks>
         /// <value>The state of the camera.</value>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
@@ -77,13 +77,13 @@ namespace ASCOM.Common.DeviceInterfaces
         /// </value>
 		/// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
 		/// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.CanAbortExposure">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.CanAbortExposure">Canonical Definition</see></remarks>
         bool CanAbortExposure { get; }
 
         /// <summary>
         /// Returns a flag showing whether this camera supports asymmetric binning
         /// </summary>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.CanAsymmetricBin">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.CanAsymmetricBin">Canonical Definition</see></remarks>
         /// <value>
         /// <c>true</c> if this instance can asymmetric bin; otherwise, <c>false</c>.
         /// </value>
@@ -99,13 +99,13 @@ namespace ASCOM.Common.DeviceInterfaces
         /// </value>
 		/// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
 		/// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.CanGetCoolerPower">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.CanGetCoolerPower">Canonical Definition</see></remarks>
         bool CanGetCoolerPower { get; }
 
         /// <summary>
         /// Returns a flag indicating whether this camera supports pulse guiding
         /// </summary>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.CanPulseGuide">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.CanPulseGuide">Canonical Definition</see></remarks>
         /// <value>
         /// <c>true</c> if this instance can pulse guide; otherwise, <c>false</c>.
         /// </value>
@@ -116,7 +116,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <summary>
         /// Returns a flag indicating whether this camera supports setting the CCD temperature
         /// </summary>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.CanSetCCDTemperature">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.CanSetCCDTemperature">Canonical Definition</see></remarks>
         /// <value>
         /// <c>true</c> if this instance can set CCD temperature; otherwise, <c>false</c>.
         /// </value>
@@ -127,7 +127,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <summary>
         /// Returns a flag indicating whether this camera can stop an exposure that is in progress
         /// </summary>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.CanStopExposure">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.CanStopExposure">Canonical Definition</see></remarks>
         /// <value>
         /// <c>true</c> if the camera can stop the exposure; otherwise, <c>false</c>.
         /// </value>
@@ -148,7 +148,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <summary>
         /// Turns on and off the camera cooler, and returns the current on/off state.
         /// </summary>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.CoolerOn">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.CoolerOn">Canonical Definition</see></remarks>
         /// <value><c>true</c> if the cooler is on; otherwise, <c>false</c>.</value>
         /// <exception cref=" NotImplementedException">not supported</exception>
 		/// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
@@ -158,7 +158,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <summary>
         /// Returns the present cooler power level, in percent.
         /// </summary>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.CoolerPower">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.CoolerPower">Canonical Definition</see></remarks>
         /// <value>The cooler power.</value>
         /// <exception cref=" NotImplementedException">not supported</exception>
 		/// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
@@ -168,7 +168,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <summary>
         /// Returns the gain of the camera in photoelectrons per A/D unit.
         /// </summary>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.ElectronsPerADU">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.ElectronsPerADU">Canonical Definition</see></remarks>
         /// <value>The electrons per ADU.</value>
         /// <exception cref="PropertyNotImplementedException">Not supported</exception>
 		/// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
@@ -187,7 +187,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <summary>
         /// Returns a flag indicating whether this camera has a mechanical shutter
         /// </summary>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.HasShutter">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.HasShutter">Canonical Definition</see></remarks>
         /// <value>
         /// <c>true</c> if this instance has shutter; otherwise, <c>false</c>.
         /// </value>
@@ -198,7 +198,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <summary>
         /// Returns the current heat sink temperature (called "ambient temperature" by some manufacturers) in degrees Celsius.
         /// </summary>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.HeatSinkTemperature">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.HeatSinkTemperature">Canonical Definition</see></remarks>
         /// <value>The heat sink temperature.</value>
         /// <exception cref="PropertyNotImplementedException">Not supported</exception>
 		/// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
@@ -208,7 +208,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <summary>
         /// Returns a safearray of int of size <see cref="NumX" /> * <see cref="NumY" /> containing the pixel values from the last exposure.
         /// </summary>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.ImageArray">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.ImageArray">Canonical Definition</see></remarks>
         /// <value>The image array.</value>
         /// <exception cref="InvalidOperationException">If no image data is available.</exception>
 		/// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
@@ -218,7 +218,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <summary>
         /// Returns a safearray of Variant of size <see cref="NumX" /> * <see cref="NumY" /> containing the pixel values from the last exposure.
         /// </summary>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.ImageArrayVariant">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.ImageArrayVariant">Canonical Definition</see></remarks>
         /// <value>The image array variant.</value>
         /// <exception cref="PropertyNotImplementedException">Not supported</exception>
         /// <exception cref="InvalidOperationException">If no image data is available.</exception>
@@ -229,7 +229,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <summary>
         /// Returns a flag indicating whether the image is ready to be downloaded from the camera
         /// </summary>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.ImageReady">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.ImageReady">Canonical Definition</see></remarks>
         /// <value><c>true</c> if [image ready]; otherwise, <c>false</c>.</value>
 		/// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
 		/// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
@@ -238,7 +238,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <summary>
         /// Returns a flag indicating whether the camera is currently in a <see cref="PulseGuide">PulseGuide</see> operation.
         /// </summary>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.IsPulseGuiding">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.IsPulseGuiding">Canonical Definition</see></remarks>
         /// <value>
         /// <c>true</c> if this instance is pulse guiding; otherwise, <c>false</c>.
         /// </value>
@@ -249,7 +249,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <summary>
         /// Reports the actual exposure duration in seconds (i.e. shutter open time).
         /// </summary>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.LastExposureDuration">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.LastExposureDuration">Canonical Definition</see></remarks>
         /// <value>The last duration of the exposure.</value>
         /// <exception cref="NotImplementedException">If the property is not implemented</exception>
         /// <exception cref="InvalidOperationException">If called before any exposure has been taken</exception>
@@ -344,7 +344,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <summary>
         /// Activates the Camera's mount control system to instruct the mount to move in a particular direction for a given period of time
         /// </summary>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.PulseGuide">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.PulseGuide">Canonical Definition</see></remarks>
         /// <param name="Direction">The direction of movement.</param>
         /// <param name="Duration">The duration of movement in milli-seconds.</param>
         /// <exception cref="NotImplementedException">PulseGuide command is unsupported</exception>
@@ -355,7 +355,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <summary>
         /// Sets the camera cooler setpoint in degrees Celsius, and returns the current setpoint.
         /// </summary>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.SetCCDTemperature">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.SetCCDTemperature">Canonical Definition</see></remarks>
         /// <value>The set CCD temperature.</value>
         /// <exception cref="InvalidValueException">Must throw an InvalidValueException if an attempt is made to set a value is outside the 
         /// camera's valid temperature setpoint range.</exception>
@@ -367,7 +367,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <summary>
         /// Starts an exposure. Use <see cref="ImageReady" /> to check when the exposure is complete.
         /// </summary>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.StartExposure">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.StartExposure">Canonical Definition</see></remarks>
         /// <param name="Duration">Duration of exposure in seconds, can be zero if <see cref="StartExposure">Light</see> is <c>false</c></param>
         /// <param name="Light"><c>true</c> for light frame, <c>false</c> for dark frame (ignored if no shutter)</param>
         /// <exception cref=" InvalidValueException"><see cref="NumX" />, <see cref="NumY" />, <see cref="BinX" />,
@@ -380,7 +380,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <summary>
         /// Sets the subframe start position for the X axis (0 based) and returns the current value.
         /// </summary>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.StartX">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.StartX">Canonical Definition</see></remarks>
         /// <value>The start X.</value>
 		/// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
 		/// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
@@ -389,7 +389,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <summary>
         /// Sets the subframe start position for the Y axis (0 based). Also returns the current value.
         /// </summary>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.StartY">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.StartY">Canonical Definition</see></remarks>
         /// <value>The start Y.</value>
 		/// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
 		/// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
@@ -398,7 +398,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <summary>
         /// Stops the current exposure, if any.
         /// </summary>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.StopExposure">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.StopExposure">Canonical Definition</see></remarks>
         /// <exception cref="NotImplementedException">Must throw an exception if CanStopExposure is <c>false</c></exception>
 		/// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
 		/// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
@@ -415,7 +415,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="NotImplementedException">Monochrome cameras must throw this exception, colour cameras must not.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.BayerOffsetX">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.BayerOffsetX">Canonical Definition</see></remarks>
         short BayerOffsetX { get; }
 
         /// <summary>
@@ -425,7 +425,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="NotImplementedException">Monochrome cameras must throw this exception, colour cameras must not.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.BayerOffsetY">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.BayerOffsetY">Canonical Definition</see></remarks>
         short BayerOffsetY { get; }
 
         /// <summary>
@@ -434,7 +434,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <returns><c>true</c> when the camera supports a fast readout mode</returns>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.CanFastReadout">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.CanFastReadout">Canonical Definition</see></remarks>
         bool CanFastReadout { get; }
 
         /// <summary>
@@ -443,7 +443,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <returns>The maximum exposure time, in seconds, that the camera supports</returns>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.ExposureMax">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.ExposureMax">Canonical Definition</see></remarks>
         double ExposureMax { get; }
 
         /// <summary>
@@ -452,7 +452,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <returns>The minimum exposure time, in seconds, that the camera supports through <see cref="StartExposure">StartExposure</see></returns>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.ExposureMin">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.ExposureMin">Canonical Definition</see></remarks>
         double ExposureMin { get; }
 
         /// <summary>
@@ -461,7 +461,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <returns>The smallest increment in exposure time supported by <see cref="StartExposure">StartExposure</see>.</returns>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.ExposureResolution">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.ExposureResolution">Canonical Definition</see></remarks>
         double ExposureResolution { get; }
 
         /// <summary>
@@ -471,7 +471,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="NotImplementedException">Thrown if <see cref="CanFastReadout" /> is <c>false</c>.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.FastReadout">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.FastReadout">Canonical Definition</see></remarks>
         bool FastReadout { get; set; }
 
         /// <summary>
@@ -485,7 +485,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="InvalidValueException">When the supplied value is not valid.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.Gain">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.Gain">Canonical Definition</see></remarks>
         short Gain { get; set; }
 
         /// <summary>
@@ -495,7 +495,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="NotImplementedException">When the <see cref="Gain"/> property is not implemented or is operating in <b>GAINS INDEX</b> mode.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.GainMax">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.GainMax">Canonical Definition</see></remarks>
         short GainMax { get; }
 
         /// <summary>
@@ -505,7 +505,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="NotImplementedException">When the <see cref="Gain"/> property is not implemented or is operating in <b>GAINS INDEX</b> mode.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.GainMin">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.GainMin">Canonical Definition</see></remarks>
         short GainMin { get; }
 
         /// <summary>
@@ -515,7 +515,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="NotImplementedException">When the <see cref="Gain"/> property is not implemented or is operating in <b>GAIN VALUE</b> mode.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.Gains">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.Gains">Canonical Definition</see></remarks>
         IList<string> Gains { get; }
 
         /// <summary>
@@ -525,7 +525,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="InvalidOperationException">Thrown when it is inappropriate to call <see cref="PercentCompleted" /></exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.PercentCompleted">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.PercentCompleted">Canonical Definition</see></remarks>
         short PercentCompleted { get; }
 
         /// <summary>
@@ -537,7 +537,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="InvalidValueException">Must throw an exception if set to an illegal or unavailable mode.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.ReadoutMode">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.ReadoutMode">Canonical Definition</see></remarks>
         short ReadoutMode { get; set; }
 
         /// <summary>
@@ -546,7 +546,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <returns>An ArrayList of readout mode names</returns>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.ReadoutModes">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.ReadoutModes">Canonical Definition</see></remarks>
         IList<string> ReadoutModes { get; }
 
         /// <summary>
@@ -556,7 +556,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <returns>The name of the sensor used within the camera.</returns>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.SensorName">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.SensorName">Canonical Definition</see></remarks>
         string SensorName { get; }
 
         /// <summary>
@@ -566,7 +566,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <returns>The <see cref="SensorType" /> enum value of the camera sensor</returns>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.SensorType">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.SensorType">Canonical Definition</see></remarks>
         SensorType SensorType { get; }
 
         #endregion
@@ -584,7 +584,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="InvalidValueException">When the supplied value is not valid.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.Offset">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.Offset">Canonical Definition</see></remarks>
         int Offset { get; set; }
 
         /// <summary>
@@ -594,7 +594,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="NotImplementedException">When the <see cref="Offset"/> property is not implemented or is operating in <b>OFFSETS INDEX</b> mode.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.OffsetMax">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.OffsetMax">Canonical Definition</see></remarks>
         int OffsetMax { get; }
 
         /// <summary>
@@ -604,7 +604,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="NotImplementedException">When the <see cref="Offset"/> property is not implemented or is operating in <b>OFFSETS INDEX</b> mode.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.OffsetMin">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.OffsetMin">Canonical Definition</see></remarks>
         int OffsetMin { get; }
 
         /// <summary>
@@ -614,7 +614,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="NotImplementedException">When the <see cref="Offset"/> property is not implemented or is operating in <b>OFFSET VALUE</b> mode.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.Offsets">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.Offsets">Canonical Definition</see></remarks>
         IList<string> Offsets { get; }
 
         /// <summary>
@@ -624,7 +624,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="InvalidValueException">When the supplied value is not valid.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.SubExposureDuration">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.SubExposureDuration">Canonical Definition</see></remarks>
         double SubExposureDuration { get; set; }
 
         #endregion

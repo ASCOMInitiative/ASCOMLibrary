@@ -13,7 +13,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="NotImplementedException">If the method is not implemented</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.AbortSlew">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.AbortSlew">Canonical Definition</see></remarks>
         void AbortSlew();
 
         /// <summary>
@@ -22,7 +22,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="NotImplementedException">If the property is not implemented</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.AlignmentMode">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.AlignmentMode">Canonical Definition</see></remarks>
         AlignmentMode AlignmentMode { get; }
 
         /// <summary>
@@ -31,7 +31,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="NotImplementedException">If the property is not implemented</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.Altitude">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.Altitude">Canonical Definition</see></remarks>
         double Altitude { get; }
 
         /// <summary>
@@ -40,7 +40,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="NotImplementedException">If the property is not implemented</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.ApertureArea">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.ApertureArea">Canonical Definition</see></remarks>
         double ApertureArea { get; }
 
         /// <summary>
@@ -49,7 +49,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="NotImplementedException">If the property is not implemented</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.ApertureDiameter">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.ApertureDiameter">Canonical Definition</see></remarks>
         double ApertureDiameter { get; }
 
         /// <summary>
@@ -58,7 +58,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// </summary>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.AtHome">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.AtHome">Canonical Definition</see></remarks>
         bool AtHome { get; }
 
         /// <summary>
@@ -66,7 +66,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// </summary>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.AtPark">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.AtPark">Canonical Definition</see></remarks>
         bool AtPark { get; }
 
         /// <summary>
@@ -77,7 +77,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="InvalidValueException">If an invalid Axis is specified.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.AxisRates">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.AxisRates">Canonical Definition</see></remarks>
         IAxisRates AxisRates(TelescopeAxis Axis);
 
         /// <summary>
@@ -86,7 +86,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="NotImplementedException">If the property is not implemented</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.Azimuth">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.Azimuth">Canonical Definition</see></remarks>
         double Azimuth { get; }
 
         /// <summary>
@@ -94,7 +94,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// </summary>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.CanFindHome">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.CanFindHome">Canonical Definition</see></remarks>
         bool CanFindHome { get; }
 
         /// <summary>
@@ -106,7 +106,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <param name="Axis">Primary, Secondary or Tertiary axis</param>
         /// <returns>Boolean indicating can or can not move the requested axis</returns>
         /// <exception cref="InvalidValueException">If an invalid Axis is specified.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.CanMoveAxis">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.CanMoveAxis">Canonical Definition</see></remarks>
         bool CanMoveAxis(TelescopeAxis Axis);
 
         /// <summary>
@@ -114,7 +114,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// </summary>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.CanPark">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.CanPark">Canonical Definition</see></remarks>
         bool CanPark { get; }
 
         /// <summary>
@@ -122,7 +122,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// </summary>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.CanPulseGuide">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.CanPulseGuide">Canonical Definition</see></remarks>
         bool CanPulseGuide { get; }
 
         /// <summary>
@@ -130,7 +130,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// </summary>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.CanSetDeclinationRate">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.CanSetDeclinationRate">Canonical Definition</see></remarks>
         bool CanSetDeclinationRate { get; }
 
         /// <summary>
@@ -138,7 +138,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// </summary>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.CanSetGuideRates">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.CanSetGuideRates">Canonical Definition</see></remarks>
         bool CanSetGuideRates { get; }
 
         /// <summary>
@@ -146,7 +146,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// </summary>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.CanSetPark">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.CanSetPark">Canonical Definition</see></remarks>
         bool CanSetPark { get; }
 
         /// <summary>
@@ -154,7 +154,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// </summary>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.CanSetPierSide">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.CanSetPierSide">Canonical Definition</see></remarks>
         bool CanSetPierSide { get; }
 
         /// <summary>
@@ -162,7 +162,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// </summary>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.CanSetRightAscensionRate">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.CanSetRightAscensionRate">Canonical Definition</see></remarks>
         bool CanSetRightAscensionRate { get; }
 
         /// <summary>
@@ -170,7 +170,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// </summary>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.CanSetTracking">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.CanSetTracking">Canonical Definition</see></remarks>
         bool CanSetTracking { get; }
 
         /// <summary>
@@ -178,7 +178,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// </summary>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.CanSlew">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.CanSlew">Canonical Definition</see></remarks>
         bool CanSlew { get; }
 
         /// <summary>
@@ -186,7 +186,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// </summary>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.CanSlewAltAz">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.CanSlewAltAz">Canonical Definition</see></remarks>
         bool CanSlewAltAz { get; }
 
         /// <summary>
@@ -194,7 +194,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// </summary>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.CanSlewAltAzAsync">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.CanSlewAltAzAsync">Canonical Definition</see></remarks>
         bool CanSlewAltAzAsync { get; }
 
         /// <summary>
@@ -202,7 +202,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// </summary>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.CanSlewAsync">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.CanSlewAsync">Canonical Definition</see></remarks>
         bool CanSlewAsync { get; }
 
         /// <summary>
@@ -210,7 +210,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// </summary>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.CanSync">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.CanSync">Canonical Definition</see></remarks>
         bool CanSync { get; }
 
         /// <summary>
@@ -218,7 +218,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// </summary>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.CanSyncAltAz">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.CanSyncAltAz">Canonical Definition</see></remarks>
         bool CanSyncAltAz { get; }
 
         /// <summary>
@@ -226,7 +226,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// </summary>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.CanUnpark">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.CanUnpark">Canonical Definition</see></remarks>
         bool CanUnpark { get; }
 
         /// <summary>
@@ -235,7 +235,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// </summary>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.Declination">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.Declination">Canonical Definition</see></remarks>
         double Declination { get; }
 
         /// <summary>
@@ -245,7 +245,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="InvalidValueException">If an invalid DeclinationRate is specified</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.DeclinationRate">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.DeclinationRate">Canonical Definition</see></remarks>
         double DeclinationRate { get; set; }
 
         /// <summary>
@@ -258,7 +258,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="InvalidValueException">If an invalid RightAscension or Declination is specified.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.DestinationSideOfPier">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.DestinationSideOfPier">Canonical Definition</see></remarks>
         PointingState DestinationSideOfPier(double RightAscension, double Declination);
 
         /// <summary>
@@ -267,7 +267,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="NotImplementedException">Either read or write or both properties can throw NotImplementedException if not implemented</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.DoesRefraction">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.DoesRefraction">Canonical Definition</see></remarks>
         bool DoesRefraction { get; set; }
 
         /// <summary>
@@ -275,7 +275,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// </summary>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.EquatorialSystem">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.EquatorialSystem">Canonical Definition</see></remarks>
         EquatorialCoordinateType EquatorialSystem { get; }
 
         /// <summary>
@@ -284,7 +284,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="NotImplementedException">If the method is not implemented and <see cref="CanFindHome" /> is False</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.FindHome">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.FindHome">Canonical Definition</see></remarks>
         void FindHome();
 
         /// <summary>
@@ -293,7 +293,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="NotImplementedException">If the property is not implemented</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.FocalLength">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.FocalLength">Canonical Definition</see></remarks>
         double FocalLength { get; }
 
         /// <summary>
@@ -303,7 +303,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="InvalidValueException">If an invalid guide rate is set.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.GuideRateDeclination">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.GuideRateDeclination">Canonical Definition</see></remarks>
         double GuideRateDeclination { get; set; }
 
         /// <summary>
@@ -313,7 +313,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="InvalidValueException">If an invalid guide rate is set.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.GuideRateRightAscension">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.GuideRateRightAscension">Canonical Definition</see></remarks>
         double GuideRateRightAscension { get; set; }
 
         /// <summary>
@@ -322,7 +322,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="NotImplementedException">If <see cref="CanPulseGuide" /> is False</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.IsPulseGuiding">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.IsPulseGuiding">Canonical Definition</see></remarks>
         bool IsPulseGuiding { get; }
 
         /// <summary>
@@ -334,7 +334,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="InvalidValueException">If an invalid axis or rate is given.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.MoveAxis">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.MoveAxis">Canonical Definition</see></remarks>
         void MoveAxis(TelescopeAxis Axis, double Rate);
 
         /// <summary>
@@ -343,7 +343,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="NotImplementedException">If the method is not implemented and <see cref="CanPark" /> is False</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.Park">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.Park">Canonical Definition</see></remarks>
         void Park();
 
         /// <summary>
@@ -357,7 +357,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="InvalidOperationException">If the pulse guide cannot be effected e.g. if the telescope is slewing or is not tracking.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.PulseGuide">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.PulseGuide">Canonical Definition</see></remarks>
         void PulseGuide(GuideDirection Direction, int Duration);
 
         /// <summary>
@@ -366,7 +366,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// </summary>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.RightAscension">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.RightAscension">Canonical Definition</see></remarks>
         double RightAscension { get; }
 
         /// <summary>
@@ -376,7 +376,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="InvalidValueException">If an invalid rate is set.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.RightAscensionRate">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.RightAscensionRate">Canonical Definition</see></remarks>
         double RightAscensionRate { get; set; }
 
         /// <summary>
@@ -385,7 +385,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="NotImplementedException">If the method is not implemented and <see cref="CanPark" /> is False</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.SetPark">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.SetPark">Canonical Definition</see></remarks>
         void SetPark();
 
         /// <summary>
@@ -395,7 +395,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="InvalidValueException">If an invalid side of pier is set.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.SideOfPier">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.SideOfPier">Canonical Definition</see></remarks>
         PointingState SideOfPier { get; set; }
 
         /// <summary>
@@ -403,7 +403,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// </summary>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.SiderealTime">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.SiderealTime">Canonical Definition</see></remarks>
         double SiderealTime { get; }
 
         /// <summary>
@@ -414,7 +414,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="InvalidOperationException">If the application must set the elevation before reading it, but has not.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.SiteElevation">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.SiteElevation">Canonical Definition</see></remarks>
         double SiteElevation { get; set; }
 
         /// <summary>
@@ -425,7 +425,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="InvalidOperationException">If the application must set the latitude before reading it, but has not.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.SiteLatitude">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.SiteLatitude">Canonical Definition</see></remarks>
         double SiteLatitude { get; set; }
 
         /// <summary>
@@ -436,7 +436,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="InvalidOperationException">If the application must set the longitude before reading it, but has not.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.SiteLongitude">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.SiteLongitude">Canonical Definition</see></remarks>
         double SiteLongitude { get; set; }
 
         /// <summary>
@@ -446,7 +446,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="NotImplementedException">If the property is not implemented.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.Slewing">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.Slewing">Canonical Definition</see></remarks>
         bool Slewing { get; }
 
         /// <summary>
@@ -456,7 +456,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="InvalidValueException">If an invalid settle time is set.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.SlewSettleTime">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.SlewSettleTime">Canonical Definition</see></remarks>
         short SlewSettleTime { get; set; }
 
         /// <summary>
@@ -467,7 +467,7 @@ namespace ASCOM.Common.DeviceInterfaces
 		/// <exception cref="ParkedException">If the telescope is parked</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.SlewToAltAz">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.SlewToAltAz">Canonical Definition</see></remarks>
         /// <param name="Azimuth">Target azimuth (degrees, North-referenced, positive East/clockwise).</param>
         /// <param name="Altitude">Target altitude (degrees, positive up)</param>
         void SlewToAltAz(double Azimuth, double Altitude);
@@ -482,7 +482,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="ParkedException">If the telescope is parked</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.SlewToAltAzAsync">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.SlewToAltAzAsync">Canonical Definition</see></remarks>
         void SlewToAltAzAsync(double Azimuth, double Altitude);
 
         /// <summary>
@@ -495,7 +495,7 @@ namespace ASCOM.Common.DeviceInterfaces
 		/// <exception cref="ParkedException">If the telescope is parked</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.SlewToCoordinates">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.SlewToCoordinates">Canonical Definition</see></remarks>
         void SlewToCoordinates(double RightAscension, double Declination);
 
         /// <summary>
@@ -508,7 +508,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="InvalidValueException">If an invalid right ascension or declination is given.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.SlewToCoordinatesAsync">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.SlewToCoordinatesAsync">Canonical Definition</see></remarks>
         void SlewToCoordinatesAsync(double RightAscension, double Declination);
 
         /// <summary>
@@ -518,7 +518,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="ParkedException">If the telescope is parked</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.SlewToTarget">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.SlewToTarget">Canonical Definition</see></remarks>
         void SlewToTarget();
 
         /// <summary>
@@ -529,7 +529,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="ParkedException">If the telescope is parked</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.SlewToTargetAsync">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.SlewToTargetAsync">Canonical Definition</see></remarks>
         void SlewToTargetAsync();
 
         /// <summary>
@@ -542,7 +542,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="ParkedException">If the telescope is parked</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.SyncToAltAz">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.SyncToAltAz">Canonical Definition</see></remarks>
         void SyncToAltAz(double Azimuth, double Altitude);
 
         /// <summary>
@@ -555,7 +555,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="ParkedException">If the telescope is parked</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.SyncToCoordinates">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.SyncToCoordinates">Canonical Definition</see></remarks>
         void SyncToCoordinates(double RightAscension, double Declination);
 
         /// <summary>
@@ -565,7 +565,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="ParkedException">If the telescope is parked</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.SyncToTarget">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.SyncToTarget">Canonical Definition</see></remarks>
         void SyncToTarget();
 
         /// <summary>
@@ -576,7 +576,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="InvalidOperationException">If the property is read before being set for the first time.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.TargetDeclination">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.TargetDeclination">Canonical Definition</see></remarks>
         double TargetDeclination { get; set; }
 
         /// <summary>
@@ -587,7 +587,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="InvalidOperationException">If the property is read before being set for the first time.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.TargetRightAscension">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.TargetRightAscension">Canonical Definition</see></remarks>
         double TargetRightAscension { get; set; }
 
         /// <summary>
@@ -596,7 +596,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="NotImplementedException">If Tracking Write is not implemented.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.Tracking">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.Tracking">Canonical Definition</see></remarks>
         bool Tracking { get; set; }
 
         /// <summary>
@@ -606,7 +606,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="InvalidValueException">If an invalid drive rate is set.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.TrackingRate">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.TrackingRate">Canonical Definition</see></remarks>
         DriveRate TrackingRate { get; set; }
 
         /// <summary>
@@ -615,7 +615,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// </summary>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.TrackingRates">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.TrackingRates">Canonical Definition</see></remarks>
         ITrackingRates TrackingRates { get; }
 
         /// <summary>
@@ -624,7 +624,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="NotImplementedException">If the method is not implemented and <see cref="CanUnpark" /> is False</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.Unpark">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.Unpark">Canonical Definition</see></remarks>
         void Unpark();
 
         /// <summary>
@@ -635,7 +635,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="InvalidOperationException">When UTCDate is read and the mount cannot provide this property itself and a value has not yet be established by writing to the property.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.UTCDate">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/telescope.html#Telescope.UTCDate">Canonical Definition</see></remarks>
         DateTime UTCDate { get; set; }
     }
 }

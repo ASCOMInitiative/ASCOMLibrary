@@ -40,7 +40,7 @@
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <returns>The number of devices managed by this driver.</returns>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/switch.html#Switch.MaxSwitch">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/switch.html#Switch.MaxSwitch">Canonical Definition</see></remarks>
         short MaxSwitch { get; }
 
         /// <summary>
@@ -51,7 +51,7 @@
         /// <param name="id">The device number (0 to <see cref="MaxSwitch"/> - 1)</param>
         /// <returns>The name of the device</returns>
         /// <exception cref="InvalidValueException">If id is outside the range 0 to <see cref="MaxSwitch"/> - 1</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/switch.html#Switch.GetSwitchName">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/switch.html#Switch.GetSwitchName">Canonical Definition</see></remarks>
         string GetSwitchName(short id);
 
         /// <summary>
@@ -63,7 +63,7 @@
         /// <exception cref="InvalidValueException">If id is outside the range 0 to <see cref="MaxSwitch"/> - 1</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/switch.html#Switch.SetSwitchName">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/switch.html#Switch.SetSwitchName">Canonical Definition</see></remarks>
         void SetSwitchName(short id, string name);
 
         /// <summary>
@@ -77,7 +77,7 @@
         /// <exception cref="InvalidValueException">If id is outside the range 0 to <see cref="MaxSwitch"/> - 1</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/switch.html#Switch.GetSwitchDescription">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/switch.html#Switch.GetSwitchDescription">Canonical Definition</see></remarks>
         string GetSwitchDescription(short id);
 
         /// <summary>
@@ -91,7 +91,7 @@
         ///  <c>true</c> if the device can be written to, otherwise <c>false</c>.
         /// </returns>
         /// <exception cref="InvalidValueException">If id is outside the range 0 to <see cref="MaxSwitch"/> - 1</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/switch.html#Switch.CanWrite">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/switch.html#Switch.CanWrite">Canonical Definition</see></remarks>
         bool CanWrite(short id);
 
         /// <summary>
@@ -103,7 +103,7 @@
         /// <exception cref="InvalidValueException">If id is outside the range 0 to <see cref="MaxSwitch"/> - 1</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/switch.html#Switch.GetSwitch">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/switch.html#Switch.GetSwitch">Canonical Definition</see></remarks>
         bool GetSwitch(short id);
 
         /// <summary>
@@ -115,7 +115,7 @@
        /// <exception cref="InvalidValueException">If id is outside the range 0 to <see cref="MaxSwitch"/> - 1</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/switch.html#Switch.SetSwitch">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/switch.html#Switch.SetSwitch">Canonical Definition</see></remarks>
         void SetSwitch(short id, bool state);
 
         /// <summary>
@@ -126,7 +126,7 @@
         /// <exception cref="InvalidValueException">If id is outside the range 0 to <see cref="MaxSwitch"/> - 1</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/switch.html#Switch.MaxSwitchValue">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/switch.html#Switch.MaxSwitchValue">Canonical Definition</see></remarks>
         double MaxSwitchValue(short id);
 
         /// <summary>
@@ -137,7 +137,7 @@
         /// <exception cref="InvalidValueException">If id is outside the range 0 to <see cref="MaxSwitch"/> - 1</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/switch.html#Switch.MinSwitchValue">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/switch.html#Switch.MinSwitchValue">Canonical Definition</see></remarks>
         double MinSwitchValue(short id);
 
         /// <summary>
@@ -148,7 +148,7 @@
         /// <exception cref="InvalidValueException">If id is outside the range 0 to <see cref="MaxSwitch"/> - 1</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/switch.html#Switch.SwitchStep">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/switch.html#Switch.SwitchStep">Canonical Definition</see></remarks>
         double SwitchStep(short id);
 
         /// <summary>
@@ -161,7 +161,7 @@
         /// <see cref="MaxSwitchValue"/>.</returns>
         /// <exception cref="InvalidOperationException">If there is a temporary condition that prevents the device value being returned.</exception>
         /// <exception cref="InvalidValueException">If id is outside the range 0 to <see cref="MaxSwitch"/> - 1</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/switch.html#Switch.GetSwitchValue">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/switch.html#Switch.GetSwitchValue">Canonical Definition</see></remarks>
         double GetSwitchValue(short id);
 
         /// <summary>
@@ -174,7 +174,7 @@
         /// <exception cref="InvalidValueException">If value is outside the range <see cref="MinSwitchValue"/> to <see cref="MaxSwitchValue"/></exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/switch.html#Switch.SetSwitchValue">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/switch.html#Switch.SetSwitchValue">Canonical Definition</see></remarks>
         void SetSwitchValue(short id, double value);
     }
 }

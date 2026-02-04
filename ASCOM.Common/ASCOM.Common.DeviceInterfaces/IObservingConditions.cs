@@ -19,7 +19,7 @@
         /// <exception cref="InvalidValueException">If the value set is not available for this driver. All drivers must accept 0.0 to specify that an instantaneous value is available.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/observingconditions.html#ObservingConditions.AveragePeriod">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/observingconditions.html#ObservingConditions.AveragePeriod">Canonical Definition</see></remarks>
         double AveragePeriod { get; set; }
 
         /// <summary>
@@ -29,7 +29,7 @@
         /// <exception cref="NotImplementedException">If this property is not available.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/observingconditions.html#ObservingConditions.CloudCover">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/observingconditions.html#ObservingConditions.CloudCover">Canonical Definition</see></remarks>
         double CloudCover { get; }
 
         /// <summary>
@@ -39,7 +39,7 @@
         /// <exception cref="NotImplementedException">If this property is not available.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/observingconditions.html#ObservingConditions.DewPoint">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/observingconditions.html#ObservingConditions.DewPoint">Canonical Definition</see></remarks>
         double DewPoint { get; }
 
         /// <summary>
@@ -49,7 +49,7 @@
         /// <exception cref="NotImplementedException">If this property is not available.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/observingconditions.html#ObservingConditions.Humidity">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/observingconditions.html#ObservingConditions.Humidity">Canonical Definition</see></remarks>
         double Humidity { get; }
 
         /// <summary>
@@ -59,7 +59,7 @@
         /// <exception cref="NotImplementedException">If this property is not available.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/observingconditions.html#ObservingConditions.Pressure">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/observingconditions.html#ObservingConditions.Pressure">Canonical Definition</see></remarks>
         double Pressure { get; }
 
         /// <summary>
@@ -69,7 +69,7 @@
         /// <exception cref="NotImplementedException">If this property is not available.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/observingconditions.html#ObservingConditions.RainRate">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/observingconditions.html#ObservingConditions.RainRate">Canonical Definition</see></remarks>
         double RainRate { get; }
 
         /// <summary>
@@ -79,7 +79,7 @@
         /// <exception cref="NotImplementedException">If this property is not available.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/observingconditions.html#ObservingConditions.SkyBrightness">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/observingconditions.html#ObservingConditions.SkyBrightness">Canonical Definition</see></remarks>
         double SkyBrightness { get; }
 
         /// <summary>
@@ -89,7 +89,7 @@
         /// <exception cref="NotImplementedException">If this property is not available.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/observingconditions.html#ObservingConditions.SkyQuality">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/observingconditions.html#ObservingConditions.SkyQuality">Canonical Definition</see></remarks>
         double SkyQuality { get; }
 
         /// <summary>
@@ -99,7 +99,7 @@
         /// <exception cref="NotImplementedException">If this property is not available.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/observingconditions.html#ObservingConditions.StarFWHM">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/observingconditions.html#ObservingConditions.StarFWHM">Canonical Definition</see></remarks>
         double StarFWHM { get; }
 
         /// <summary>
@@ -109,7 +109,7 @@
         /// <exception cref="NotImplementedException">If this property is not available.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/observingconditions.html#ObservingConditions.SkyTemperature">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/observingconditions.html#ObservingConditions.SkyTemperature">Canonical Definition</see></remarks>
         double SkyTemperature { get; }
 
         /// <summary>
@@ -119,7 +119,7 @@
         /// <exception cref="NotImplementedException">If this property is not available.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/observingconditions.html#ObservingConditions.Temperature">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/observingconditions.html#ObservingConditions.Temperature">Canonical Definition</see></remarks>
         double Temperature { get; }
 
         /// <summary>
@@ -129,7 +129,7 @@
         /// <exception cref="NotImplementedException">If this property is not available.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/observingconditions.html#ObservingConditions.WindDirection">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/observingconditions.html#ObservingConditions.WindDirection">Canonical Definition</see></remarks>
         double WindDirection { get; }
 
         /// <summary>
@@ -139,7 +139,7 @@
         /// <exception cref="NotImplementedException">If this property is not available.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/observingconditions.html#ObservingConditions.WindGust">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/observingconditions.html#ObservingConditions.WindGust">Canonical Definition</see></remarks>
         double WindGust { get; }
 
         /// <summary>
@@ -149,7 +149,7 @@
         /// <exception cref="NotImplementedException">If this property is not available.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/observingconditions.html#ObservingConditions.WindSpeed">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/observingconditions.html#ObservingConditions.WindSpeed">Canonical Definition</see></remarks>
         double WindSpeed { get; }
 
 
@@ -162,7 +162,7 @@
         /// <exception cref="InvalidValueException">If an invalid property name parameter is supplied.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/observingconditions.html#ObservingConditions.TimeSinceLastUpdate">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/observingconditions.html#ObservingConditions.TimeSinceLastUpdate">Canonical Definition</see></remarks>
         double TimeSinceLastUpdate(string PropertyName);
 
         /// <summary>
@@ -174,7 +174,7 @@
         /// <exception cref="InvalidValueException">If an invalid property name parameter is supplied.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/observingconditions.html#ObservingConditions.SensorDescription">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/observingconditions.html#ObservingConditions.SensorDescription">Canonical Definition</see></remarks>
         string SensorDescription(string PropertyName);
 
         /// <summary>
@@ -183,7 +183,7 @@
         /// <exception cref="NotImplementedException">If this method is not available.</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/observingconditions.html#ObservingConditions.Refresh">Canonical definition</see></remarks>
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/observingconditions.html#ObservingConditions.Refresh">Canonical Definition</see></remarks>
         void Refresh();
     }
 }

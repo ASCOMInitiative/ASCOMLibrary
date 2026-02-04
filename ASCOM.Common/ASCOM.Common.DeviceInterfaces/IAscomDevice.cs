@@ -24,7 +24,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
         /// <exception cref="ActionNotImplementedException">It is intended that the <see cref="SupportedActions"/> method will inform clients of driver capabilities, but the driver must still throw 
 		/// an <see cref="ASCOM.ActionNotImplementedException"/> exception  if it is asked to perform an action that it does not support.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.Action">Canonical definition.</see>.
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.Action">Canonical Definition</see>.
         /// <para><b>Please Note</b>: The Camera definition in the link applies to all device types.</para></remarks>
         string Action(string actionName, string actionParameters);
 
@@ -40,7 +40,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="NotImplementedException">If the method is not implemented</exception>
         /// <exception cref="NotConnectedException">If the driver is not connected.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.CommandBlind">Canonical definition.</see>.
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.CommandBlind">Canonical Definition</see>.
         /// <para><b>Please Note</b>: The Camera definition in the link applies to all device types.</para></remarks>
         void CommandBlind(string command, bool raw = false);
 
@@ -59,7 +59,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="NotImplementedException">If the method is not implemented</exception>
         /// <exception cref="NotConnectedException">If the driver is not connected.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.CommandBool">Canonical definition.</see>.
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.CommandBool">Canonical Definition</see>.
         /// <para><b>Please Note</b>: The Camera definition in the link applies to all device types.</para></remarks>
         bool CommandBool(string command, bool raw = false);
 
@@ -78,7 +78,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <exception cref="NotImplementedException">If the method is not implemented</exception>
         /// <exception cref="NotConnectedException">If the driver is not connected.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.CommandString">Canonical definition.</see>.
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.CommandString">Canonical Definition</see>.
         /// <para><b>Please Note</b>: The Camera definition in the link applies to all device types.</para></remarks>
         string CommandString(string command, bool raw = false);
 
@@ -88,7 +88,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// </summary>
         /// <value><c>true</c> if connected; otherwise, <c>false</c>.</value>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.Connected">Canonical definition.</see>.
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.Connected">Canonical Definition</see>.
         /// <para><b>Please Note</b>: The Camera definition in the link applies to all device types.</para></remarks>
         bool Connected { get; set; }
 
@@ -98,7 +98,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <value>The description.</value>
         /// <exception cref="NotConnectedException">When <see cref="Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.Description">Canonical definition.</see>.
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.Description">Canonical Definition</see>.
         /// <para><b>Please Note</b>: The Camera definition in the link applies to all device types.</para></remarks>
         string Description { get; }
 
@@ -106,7 +106,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// Descriptive and version information about this ASCOM driver.
         /// </summary>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.DriverInfo">Canonical definition.</see>.
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.DriverInfo">Canonical Definition</see>.
         /// <para><b>Please Note</b>: The Camera definition in the link applies to all device types.</para></remarks>
         string DriverInfo { get; }
 
@@ -114,7 +114,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// A string in the form "n.n" containing only the major and minor version of the driver.
         /// </summary>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. The device did not successfully complete the request.</exception> 
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.DriverVersion">Canonical definition.</see>.
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.DriverVersion">Canonical Definition</see>.
         /// <para><b>Please Note</b>: The Camera definition in the link applies to all device types.</para></remarks>
         string DriverVersion { get; }
 
@@ -122,7 +122,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// The interface version number that this device implements.
         /// </summary>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.InterfaceVersion">Canonical definition.</see>.
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.InterfaceVersion">Canonical Definition</see>.
         /// <para><b>Please Note</b>: The Camera definition in the link applies to all device types.</para></remarks>
         short InterfaceVersion { get; }
 
@@ -130,7 +130,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// The short name of the driver, for display purposes
         /// </summary>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.Name">Canonical definition.</see>.
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.Name">Canonical Definition</see>.
         /// <para><b>Please Note</b>: The Camera definition in the link applies to all device types.</para></remarks>
         string Name { get; }
 
@@ -140,7 +140,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// <value>An ArrayList of strings (SafeArray collection) containing the names of supported actions.</value>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
         /// <exception cref="DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception>
-        /// <remarks>See this link for the canonical definition, which may include further information: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.SupportedActions">Canonical definition.</see>.
+        /// <remarks>See this link for the canonical definition, which may include further information and implementation requirements: <see href="https://ascom-standards.org/newdocs/camera.html#Camera.SupportedActions">Canonical Definition</see>.
         /// <para><b>Please Note</b>: The Camera definition in the link applies to all device types.</para></remarks>
         IList<string> SupportedActions { get; }
 
