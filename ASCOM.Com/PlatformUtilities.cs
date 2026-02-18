@@ -419,28 +419,46 @@ namespace ASCOM.Com
                 { 22621, "Windows 11 (22H2)" },
                 { 22631, "Windows 11 (23H2)" },
                 { 26100, "Windows 11 (24H2)" },
-                { 26200, "Windows 11 (25H2)" }
-            }; // !!!!! NOTE !!!!! - If you add to this list you must also change the "later than XXXX" message in the try-catch block below!
+                { 26200, "Windows 11 (25H2)" },
+                { 26300, "Windows 11 (26H2)" },
+                { 28000, "Windows 11 (26H1)" }
+            }; 
 
             try
             {
-                // Use the build number to determine the OS name - Select the appropriate OS product label based on the build number
-                if (osBuildNames.ContainsKey(buildNumber)) // This is a recognised build number
-                    return osBuildNames[buildNumber];
-
+                // Handle special cases first
                 if (buildNumber == 0) // Something probably went wrong
                     return "Unknown OS version (0)";
 
                 if ((buildNumber > 0) & (buildNumber < 10000))
                     return "Earlier than Windows 10 (build < 10000)";
 
-                if ((buildNumber >= 10000) & (buildNumber < 19041))
+                // Check for exact match
+                if (osBuildNames.ContainsKey(buildNumber))
+                    return osBuildNames[buildNumber];
+
+                // Get sorted list of build numbers
+                List<int> sortedBuildNumbers = osBuildNames.Keys.OrderBy(k => k).ToList();
+
+                // Handle build numbers less than the minimum known version
+                if (buildNumber < sortedBuildNumbers[0])
                     return $"Windows 10 (build {buildNumber})";
 
-                if (buildNumber > osBuildNames.Keys.Max())
-                    return "Windows 11 (later than 25H2)";
+                // Handle build numbers greater than the maximum known version by returning the latest known version with an "or later" suffix
+                if (buildNumber > sortedBuildNumbers[sortedBuildNumbers.Count - 1])
+                    return $"{osBuildNames[sortedBuildNumbers[sortedBuildNumbers.Count - 1]]} or later"; 
 
-                return $"ASCOMLibrary.OSBuildName - Unknown OS build number: {buildNumber}";
+                // Return the largest key that is less than or equal to the build number
+                int matchingKey = sortedBuildNumbers[0];
+                foreach (int key in sortedBuildNumbers)
+                {
+                    if (key <= buildNumber)
+                        matchingKey = key;
+                    else
+                        break;
+                }
+
+                return osBuildNames[matchingKey];
             }
             catch (Exception ex)
             {
