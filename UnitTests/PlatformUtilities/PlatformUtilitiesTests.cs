@@ -5,7 +5,7 @@ using System;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace UtilitityTests
+namespace PlatformUtilities
 {
 #if NET8_0_OR_GREATER
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
@@ -40,7 +40,7 @@ namespace UtilitityTests
         [Fact]
         public void IsPlatformVersionBad()
         {
-            Assert.False(ASCOM.Com.PlatformUtilities.IsMinimumRequiredVersion(7, 1, 3, 3001));
+            Assert.False(ASCOM.Com.PlatformUtilities.IsMinimumRequiredVersion(7, 1, 3, 65535));
         }
 
         [Fact]
@@ -104,7 +104,7 @@ namespace UtilitityTests
         [Fact]
         public void PlatformServicePack()
         {
-            Assert.True(ASCOM.Com.PlatformUtilities.ServicePack == 2);
+            Assert.True(ASCOM.Com.PlatformUtilities.ServicePack == 3);
         }
 
         [Fact]
