@@ -5,8 +5,13 @@ Library of components to support development of ASCOM clients, drivers and Alpac
 ## Version History
 The version history only contains entries when a change is made.
 
+***Release 3.0.1***
+* Improved TraceLogger resilience in the face of abandoned mutexes. If an abandoned mutex is detected, a warning is logged 
+to the log file and the logger continues to operate as normal. This should prevent the logger from becoming unusable 
+after an abandoned mutex and should allow it to recover gracefully from this situation.
+
 ***Release 3.0.0***
-*  ADDED - Support for .NET 8.0, 9.0 and 10.0 target frameworks. It will no longer be necessary for applications that use these frameworks to 
+* ADDED - Support for .NET 8.0, 9.0 and 10.0 target frameworks. It will no longer be necessary for applications that use these frameworks to 
 rely on the .NET Standard 2.0 component.
 
 ***Release 2.0.0***
