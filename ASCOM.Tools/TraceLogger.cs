@@ -206,7 +206,8 @@ namespace ASCOM.Tools
         /// </remarks>
         public void LogMessage(string identifier, string message)
         {
-            bool gotMutex;
+            bool gotMutex = false;
+            bool abandonedMutexDetected = false;
 
             // Return immediately if the logger is not enabled
             if (!Enabled) return;
@@ -217,23 +218,27 @@ namespace ASCOM.Tools
             // Get the trace logger mutex
             try
             {
-                gotMutex = loggerMutex.WaitOne(MUTEX_WAIT_TIME, false);
-            }
-            catch (AbandonedMutexException ex)
-            {
-                throw new DriverException($"TraceLogger - Abandoned Mutex Exception for file {LogFileName}, in method {identifier}, when writing message: '{message}'. See inner exception for detail", ex);
-            }
+                try
+                {
+                    gotMutex = loggerMutex.WaitOne(MUTEX_WAIT_TIME, false);
+                }
+                catch (AbandonedMutexException)
+                {
+                    // The mutex was abandoned by another thread, but we now own it
+                    gotMutex = true;
+                    abandonedMutexDetected = true;
+                }
 
-            if (!gotMutex)
-            {
-                throw new DriverException($"TraceLogger - Timed out waiting for TraceLogger mutex after {MUTEX_WAIT_TIME}ms in method {identifier}, when writing message: '{message}'");
-            }
+                // Check that we got the mutex, if not throw a timeout exception
+                if (!gotMutex)
+                {
+                    throw new DriverException($"TraceLogger - Timed out waiting for TraceLogger mutex after {MUTEX_WAIT_TIME}ms in method {identifier}, when writing message: '{message}'");
+                }
 
-            // We have the mutex and can now persist the message
-            try
-            {
+                // We have the mutex and can now persist the message
                 // Create the log file if it doesn't yet exist
-                if (logFileStream == null) CreateLogFile();
+                if (logFileStream == null) 
+                    CreateLogFile();
 
                 // Right pad the identifier string to the required column width
                 identifier = identifier.PadRight(identifierWidthValue);
@@ -245,15 +250,28 @@ namespace ASCOM.Tools
                 logFileStream.WriteLine($"{messageDateTime:HH:mm:ss.fff} {MakePrintable(identifier)} {MakePrintable(message)}");
                 logFileStream.Flush(); // Flush to make absolutely sure that the data is persisted to disk and can't be lost in an application crash
 
-                // Update the day on which the last message was written
+                // Report abandoned mutex if detected
+                if (abandonedMutexDetected)
+                {
+                    logFileStream.WriteLine($"{messageDateTime:HH:mm:ss.fff} {"[WARNING]".PadRight(identifierWidthValue)} TraceLogger - Abandoned mutex detected for file {LogFileName}");
+                    logFileStream.Flush();
+                }
             }
-            catch (Exception ex)
+            catch (DriverException) // Re-throw timed out exceptions with full stack trace preserved
+            {
+                throw;
+            }
+            catch (Exception ex) // Handle any other exceptions.
             {
                 throw new DriverException($"TraceLogger - Exception formatting message '{identifier}' - '{message}': {ex.Message}. See inner exception for details", ex);
             }
-            finally
+            finally // Release the mutex.
             {
-                loggerMutex.ReleaseMutex();
+                // Only release the mutex if we successfully acquired it
+                if (gotMutex)
+                {
+                    loggerMutex.ReleaseMutex();
+                }
             }
         }
 
