@@ -24,9 +24,10 @@ namespace ASCOM.Tools
     ///</remarks>
     public class TraceLogger : IDisposable, ITraceLogger
     {
+        #region Constants
+
         // Configuration constants
         private const int IDENTIFIER_WIDTH_DEFAULT = 25;
-        private const int MUTEX_WAIT_TIME = 5000;
         private const int MAXIMUM_UNIQUE_SUFFIX_ATTEMPTS = 20;
 
         // Path and file name constants for auto generated paths and file names
@@ -49,17 +50,27 @@ namespace ASCOM.Tools
         private const bool AUTO_GENERATE_FILEPATH__DEFAULT = true;
         private const bool RESPECT_CRLF_DEFAULT = true;
 
+        #endregion
+
+        #region Variables
+
+        // Lock object to ensure file creation (if required) and write happen as an atomic unit.
+#if NET9_0_OR_GREATER
+        private readonly Lock lockObject = new();
+#else
+        private readonly object lockObject = new object();
+#endif
         // Property backing variables
         private readonly string logFileType;
         private int identifierWidthValue;
 
         // Global fields
         private StreamWriter logFileStream;
-        private Mutex loggerMutex;
         private readonly bool autoGenerateFileName;
         private readonly bool autoGenerateFilePath;
         private bool traceLoggerHasBeenDisposed;
-        private string mutexName;
+
+        #endregion
 
         #region Initialise and Dispose
 
@@ -122,10 +133,6 @@ namespace ASCOM.Tools
         {
             traceLoggerHasBeenDisposed = false;
             identifierWidthValue = IDENTIFIER_WIDTH_DEFAULT;
-
-            mutexName = Guid.NewGuid().ToString().ToUpper();
-            loggerMutex = new Mutex(false, mutexName);
-
             UseUtcTime = USE_UTC_DEFAULT;
             RespectCrLf = RESPECT_CRLF_DEFAULT;
         }
@@ -138,48 +145,19 @@ namespace ASCOM.Tools
         /// <remarks></remarks>
         protected virtual void Dispose(bool disposing)
         {
-            if (traceLoggerHasBeenDisposed) return;
+            if (traceLoggerHasBeenDisposed)
+                return;
 
             if (disposing)
             {
                 if (logFileStream != null)
                 {
-                    try
-                    {
-                        logFileStream.Flush();
-                    }
-                    catch
-                    {
-                    }
-                    try
-                    {
-                        logFileStream.Close();
-                    }
-                    catch
-                    {
-                    }
-                    try
-                    {
-                        logFileStream.Dispose();
-                    }
-                    catch
-                    {
-                    }
+                    try { logFileStream.Flush(); } catch { }
+                    try { logFileStream.Close(); } catch { }
+                    try { logFileStream.Dispose(); } catch { }
 
                     logFileStream = null;
                 }
-                if (loggerMutex != null)
-                {
-                    try
-                    {
-                        loggerMutex.Close();
-                    }
-                    catch
-                    {
-                    }
-                    loggerMutex = null;
-                }
-
                 traceLoggerHasBeenDisposed = true;
             }
         }
@@ -206,72 +184,34 @@ namespace ASCOM.Tools
         /// </remarks>
         public void LogMessage(string identifier, string message)
         {
-            bool gotMutex = false;
-            bool abandonedMutexDetected = false;
-
             // Return immediately if the logger is not enabled
             if (!Enabled) return;
 
             // Ignore attempts to write to the logger after it is disposed
             if (traceLoggerHasBeenDisposed) return;
 
-            // Get the trace logger mutex
             try
             {
-                try
-                {
-                    gotMutex = loggerMutex.WaitOne(MUTEX_WAIT_TIME, false);
-                }
-                catch (AbandonedMutexException)
-                {
-                    // The mutex was abandoned by another thread, but we now own it
-                    gotMutex = true;
-                    abandonedMutexDetected = true;
-                }
-
-                // Check that we got the mutex, if not throw a timeout exception
-                if (!gotMutex)
-                {
-                    throw new DriverException($"TraceLogger - Timed out waiting for TraceLogger mutex after {MUTEX_WAIT_TIME}ms in method {identifier}, when writing message: '{message}'");
-                }
-
-                // We have the mutex and can now persist the message
-                // Create the log file if it doesn't yet exist
-                if (logFileStream == null) 
-                    CreateLogFile();
-
                 // Right pad the identifier string to the required column width
                 identifier = identifier.PadRight(identifierWidthValue);
 
-                // Get a DateTime object in either local or UTC time as determined by configuration
-                DateTime messageDateTime = DateTimeNow();
-
-                // Write the message to the log file
-                logFileStream.WriteLine($"{messageDateTime:HH:mm:ss.fff} {MakePrintable(identifier)} {MakePrintable(message)}");
-                logFileStream.Flush(); // Flush to make absolutely sure that the data is persisted to disk and can't be lost in an application crash
-
-                // Report abandoned mutex if detected
-                if (abandonedMutexDetected)
+                lock (lockObject)
                 {
-                    logFileStream.WriteLine($"{messageDateTime:HH:mm:ss.fff} {"[WARNING]".PadRight(identifierWidthValue)} TraceLogger - Abandoned mutex detected for file {LogFileName}");
-                    logFileStream.Flush();
+                    // Create the log file if it doesn't yet exist
+                    if (logFileStream == null)
+                        CreateLogFile();
+
+                    // Get a DateTime object in either local or UTC time as determined by configuration
+                    DateTime messageDateTime = DateTimeNow();
+
+                    // Write the message to the log file
+                    logFileStream.WriteLine($"{messageDateTime:HH:mm:ss.fff} {MakePrintable(identifier)} {MakePrintable(message)}");
+                    logFileStream.Flush(); // Flush to make absolutely sure that the data is persisted to disk and can't be lost in an application crash
                 }
-            }
-            catch (DriverException) // Re-throw timed out exceptions with full stack trace preserved
-            {
-                throw;
             }
             catch (Exception ex) // Handle any other exceptions.
             {
                 throw new DriverException($"TraceLogger - Exception formatting message '{identifier}' - '{message}': {ex.Message}. See inner exception for details", ex);
-            }
-            finally // Release the mutex.
-            {
-                // Only release the mutex if we successfully acquired it
-                if (gotMutex)
-                {
-                    loggerMutex.ReleaseMutex();
-                }
             }
         }
 
