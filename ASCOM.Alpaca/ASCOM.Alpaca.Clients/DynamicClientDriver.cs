@@ -35,12 +35,12 @@ namespace ASCOM.Alpaca.Clients
         private const ImageArrayTransferType IMAGE_ARRAY_TRANSFER_TYPE_DEFAULT = ImageArrayTransferType.Base64HandOff;
 
         // Dynamic client configuration constants
-        private const int SOCKET_ERROR_MAXIMUM_RETRIES = 1; // The number of retries that the client will make when it receives a socket actively refused error from the remote device
         private const int SOCKET_ERROR_RETRY_DELAY_TIME = 100; // The delay time (milliseconds) between socket actively refused retries
         private const string CONTENT_TYPE_HEADER_NAME = "Content-Type"; // Name of HTTP header used to affirm the type of data returned by the device
 
         //Private variables
         private static uint uniqueTransactionNumber = 0; // Unique number that increments on each call to TransactionNumber
+        private static int numberOfRetries = AlpacaClient.NUMBER_OF_RETRIES_DEFAULT; // Number of times to retry a request if the socket connection is actively refused by the device. This can happen if the device is busy and cannot respond to the request. A value of zero means no retries, a value of one means one retry and so on.
 
         // Lock objects
         private readonly static object transactionCountlockObject = new object();
@@ -57,6 +57,19 @@ namespace ASCOM.Alpaca.Clients
         }
 
         #endregion
+
+        #region static methods
+
+        /// <summary>
+        /// Sets the number of retries when when a connection is refused or fails. Default is 1.
+        /// </summary>
+        /// <param name="numberOfRetries">The number of retries to set.</param>
+        public static void SetNumberOfRetries(int numberOfRetries)
+        {
+            DynamicClientDriver.numberOfRetries = numberOfRetries;
+        }
+
+        #endregion 
 
         #region Utility code
 
@@ -115,7 +128,18 @@ namespace ASCOM.Alpaca.Clients
                                                  uint clientNumber, DeviceTypes deviceType, string userName, string password, ImageArrayCompression imageArrayCompression, ILogger logger,
                                                  string userAgentProductName, string userAgentProductVersion, bool trustUnsignedSslCertificates, bool request100Continue)
         {
-            string clientHostAddress = $"{serviceType.ToString().ToLowerInvariant()}://{ipAddressString}:{portNumber}";
+            // Extract any IPv6 zone identifier (e.g. %2 in fe80::1%2 or [fe80::1%2]) before building the URI.
+            // .NET's Uri class strips zone identifiers at every parsing step, so the zone is removed here
+            // and re-applied at the TCP socket level on .NET 5+ via SocketsHttpHandler.ConnectCallback.
+            string normalizedIpAddress = ipAddressString.TrimStart('[').TrimEnd(']');
+            int zoneDelimiterIndex = normalizedIpAddress.IndexOf('%');
+            string ipv6ZoneId = zoneDelimiterIndex >= 0 ? normalizedIpAddress.Substring(zoneDelimiterIndex + 1) : null;
+            string ipv6AddressWithoutZone = zoneDelimiterIndex >= 0 ? normalizedIpAddress.Substring(0, zoneDelimiterIndex) : null;
+
+            // Build the URI address without the zone identifier. For IPv6 addresses that had a zone,
+            // add the required URI brackets back around the bare address.
+            string ipForUri = ipv6ZoneId != null ? $"[{ipv6AddressWithoutZone}]" : ipAddressString;
+            string clientHostAddress = $"{serviceType.ToString().ToLowerInvariant()}://{ipForUri}:{portNumber}";
 
             AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, Devices.DeviceTypeToString(deviceType), $"Connecting to device: {ipAddressString}:{portNumber} through URL: {clientHostAddress}");
 
@@ -305,6 +329,54 @@ namespace ASCOM.Alpaca.Clients
                     throw new InvalidValueException($"Invalid image array compression value: {imageArrayCompression}");
             }
 
+            #if NET5_0_OR_GREATER
+            // On .NET 5+, use SocketsHttpHandler. When an IPv6 zone identifier is present, the
+            // ConnectCallback re-injects the stripped zone identifier at the TCP socket level.
+            SocketsHttpHandler socketsHandler = new SocketsHttpHandler
+            {
+                PreAuthenticate = true,
+                AutomaticDecompression = decompressionMethods
+            };
+
+            if (trustUnsignedSslCertificates)
+            {
+                socketsHandler.SslOptions = new System.Net.Security.SslClientAuthenticationOptions
+                {
+                    RemoteCertificateValidationCallback = (message, cert, chain, errors) => true
+                };
+            }
+
+            if (ipv6ZoneId != null)
+            {
+                string capturedZoneId = ipv6ZoneId;
+                string capturedAddress = ipv6AddressWithoutZone;
+
+                socketsHandler.ConnectCallback = async (context, cancellationToken) =>
+                {
+                    // Re-apply the zone identifier that Uri stripped from the host.
+                    string addressWithZone = $"{capturedAddress}%{capturedZoneId}";
+                    if (IPAddress.TryParse(addressWithZone, out IPAddress ipAddress))
+                    {
+                        Socket socket = new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+                        try
+                        {
+                            socket.NoDelay = true;
+                            await socket.ConnectAsync(new IPEndPoint(ipAddress, context.DnsEndPoint.Port), cancellationToken).ConfigureAwait(false);
+                            return new NetworkStream(socket, ownsSocket: true);
+                        }
+                        catch
+                        {
+                            socket.Dispose();
+                            throw;
+                        }
+                    }
+                    throw new InvalidOperationException($"Cannot parse IPv6 address with zone identifier: '{addressWithZone}'");
+                };
+            }
+
+            // Create a new client pointing at the alpaca device
+            httpClient = new HttpClient(socketsHandler);
+#else
             // Create a new HTTP handler to control authentication and automatic decompression
             HttpClientHandler httpClientHandler = new HttpClientHandler
             {
@@ -325,6 +397,7 @@ namespace ASCOM.Alpaca.Clients
 
             // Create a new client pointing at the alpaca device
             httpClient = new HttpClient(httpClientHandler);
+#endif
 
             // Add a basic authenticator if the user name is not null
             if (!string.IsNullOrEmpty(userName))
@@ -346,8 +419,10 @@ namespace ASCOM.Alpaca.Clients
                 httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(authenticationBytes));
             }
 
-            // Set the base URI for the device
+            // Set the base URI for the device. The zone identifier (if any) was omitted from
+            // clientHostAddress above; it is re-applied at the TCP socket level on .NET 5+.
             httpClient.BaseAddress = new Uri(clientHostAddress);
+            AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, Devices.DeviceTypeToString(deviceType), $"Client IP address: {ipAddressString}:{portNumber}, HttpClient base address: {httpClient.BaseAddress}");
 
             string userproductName = userAgentProductName;
             string productVersion = userAgentProductVersion;
@@ -723,7 +798,7 @@ namespace ASCOM.Alpaca.Clients
                                     break;
 
                                 default:
-                                    throw new InvalidValueException($"Invalid image array transfer type: {imageArrayTransferType} - Correct this in the Dynamic Client setup dialogue.");
+                                    throw new InvalidValueException($"Invalid image array transfer type: {imageArrayTransferType} - Correct this in the Dynamic Client setup dialogue or Alpaca client call.");
                             }
                         }
                     }
@@ -773,7 +848,7 @@ namespace ASCOM.Alpaca.Clients
                     }
                     else
                     {
-                        throw new InvalidValueException($"DynamicClientDriver only supports the GET and PUT methods. It does not support the {httpMethod} method.");
+                        throw new InvalidValueException($"Alpaca clients only support HTTP GET and PUT methods. They do not support the {httpMethod} method.");
                     }
 
                     // Log the default headers 
@@ -1153,7 +1228,7 @@ namespace ASCOM.Alpaca.Clients
                             if (axisRatesResponse.Value != null) // A AxisRates object was returned so process the response normally
                             {
                                 AxisRates axisRates = new AxisRates((TelescopeAxis)(Convert.ToInt32(parameters[AlpacaConstants.AXIS_PARAMETER_NAME])), logger);
-                                AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, string.Format(LOG_FORMAT_STRING, axisRatesResponse.ClientTransactionID.ToString(), axisRatesResponse.ServerTransactionID.ToString(), axisRatesResponse.Value.Count.ToString()));
+                                AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, string.Format(LOG_FORMAT_STRING, axisRatesResponse.ClientTransactionID, axisRatesResponse.ServerTransactionID, axisRatesResponse.Value.Count));
                                 foreach (AxisRate rr in axisRatesResponse.Value)
                                 {
                                     axisRates.Add(rr.Minimum, rr.Maximum, logger);
@@ -1603,20 +1678,20 @@ namespace ASCOM.Alpaca.Clients
                             if (ex1 is TaskCanceledException) // Handle communications timeout exceptions using retries
                             {
                                 retryCounter += 1; // Increment the retry counter
-                                if (retryCounter <= SOCKET_ERROR_MAXIMUM_RETRIES) // The retry count is less than or equal to the maximum allowed so retry the command
+                                if (retryCounter <= numberOfRetries) // The retry count is less than or equal to the maximum allowed so retry the command
                                 {
                                     AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"{method} {ex1.Message}");
                                     AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, "Timeout exception: " + ex1.ToString());
 
                                     // Log that we are retrying the command and wait a short time in the hope that the transient condition clears
-                                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"Timeout exception - retry-count {retryCounter}/{SOCKET_ERROR_MAXIMUM_RETRIES}");
+                                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"Timeout exception - retry-count {retryCounter}/{numberOfRetries}");
                                     Thread.Sleep(SOCKET_ERROR_RETRY_DELAY_TIME);
                                 }
                                 else // The retry count exceeds the maximum allowed so throw the exception to the client
                                 {
-                                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"{method} {ex1.Message}");
+                                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"{method} Retry count {numberOfRetries} exceeded:  {ex1.Message}");
                                     AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, "Timeout exception: " + ex1.ToString());
-                                    throw new TimeoutException($"Dynamic client timeout for method {method}: {client.BaseAddress}");
+                                    throw new TimeoutException($"Alpaca client timeout for method {method}: {client.BaseAddress}");
                                 }
                             }
                             else if (ex1 is HttpRequestException) // A communications error of some kind
@@ -1624,13 +1699,13 @@ namespace ASCOM.Alpaca.Clients
                                 if (ex1.InnerException is SocketException) // There is an inner exception and it is a SocketException so apply the retry logic
                                 {
                                     retryCounter += 1; // Increment the retry counter
-                                    if (retryCounter <= SOCKET_ERROR_MAXIMUM_RETRIES) // The retry count is less than or equal to the maximum allowed so retry the command
+                                    if (retryCounter <= numberOfRetries) // The retry count is less than or equal to the maximum allowed so retry the command
                                     {
                                         AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"{method} {ex1.Message}");
                                         AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, "SocketException: " + ex1.ToString());
 
                                         // Log that we are retrying the command and wait a short time in the hope that the transient condition clears
-                                        AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"Socket exception, retrying command - retry-count {retryCounter}/{SOCKET_ERROR_MAXIMUM_RETRIES}");
+                                        AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, method, $"Socket exception, retrying command - retry-count {retryCounter}/{numberOfRetries}");
                                         Thread.Sleep(SOCKET_ERROR_RETRY_DELAY_TIME);
                                     }
                                     else // The retry count exceeds the maximum allowed so throw the exception to the client
@@ -1940,7 +2015,7 @@ namespace ASCOM.Alpaca.Clients
                                 return returnArray;
 
                             default:
-                                throw new InvalidValueException("DynamicRemoteClient Driver Camera.ImageArrayVariant: Unsupported return array rank from DynamicClientDriver.GetValue<Array>: " + returnArray.Rank);
+                                throw new InvalidValueException("Alpaca client - Camera.ImageArrayVariant: Unsupported return array rank from DynamicClientDriver.GetValue<Array>: " + returnArray.Rank);
                         }
                     case 3:
                         objectArray3D = new object[returnArray.GetLength(0), returnArray.GetLength(1), returnArray.GetLength(2)];

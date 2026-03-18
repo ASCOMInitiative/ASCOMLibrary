@@ -30,12 +30,23 @@ namespace ASCOM.Alpaca.Clients
         internal const bool TRUST_USER_GENERATED_SSL_CERTIFICATES_DEFAULT = false; // Default for whether or not to trust user generated SSL certificates
         internal const bool THROW_ON_BAD_JSON_DATE_TIME_DEFAULT = false; // Default for whether or not to throw an exception if a JSON date time value is not in the expected ISO 8601 UTZ format (has a trailing Z character).
         internal const bool CLIENT_REQUEST_100_CONTINUE_DEFAULT = false; // Default for whether or not to use the Expect: 100-continue header in requests
+        internal const int NUMBER_OF_RETRIES_DEFAULT = 1; // Default number of retries for failed requests
 
         internal const string CLIENT_USER_AGENT_PRODUCT_NAME = "ASCOMAlpacaClient";
 
         #endregion
 
         #region Public static methods
+
+        /// <summary>
+        /// Sets the number of retries for failed requests to the specified value for all clients (default 1).
+        /// </summary>
+        /// <param name="numberOfRetries">The number of retries for failed requests.</param>
+        public static void SetClientRetries(int numberOfRetries)
+        {
+            // Set the value in the dynamic client driver which is used by all clients created by this factory. This ensures that the retry behaviour is consistent across all clients regardless of how they are created.
+            DynamicClientDriver.SetNumberOfRetries(numberOfRetries);
+        }
 
         /// <summary>
         /// Creates and returns an instance of an Alpaca device of the specified type using the provided configuration
@@ -120,24 +131,24 @@ namespace ASCOM.Alpaca.Clients
             if (ascomDevice is null)
                 throw new InvalidValueException($"AlpacaClient.GetDevice - The supplied AscomDevice parameter is null");
 
-            return (T)GetDevice<T>(ascomDevice.ServiceType, 
-                ascomDevice.IpAddress, 
-                ascomDevice.IpPort, 
+            return (T)GetDevice<T>(ascomDevice.ServiceType,
+                ascomDevice.IpAddress,
+                ascomDevice.IpPort,
                 ascomDevice.AlpacaDeviceNumber,
-                establishConnectionTimeout, 
-                standardDeviceResponseTimeout, 
-                longDeviceResponseTimeout, 
-                clientNumber, 
-                userName, 
-                password, 
-                strictCasing, 
-                logger, 
-                imageArrayTransferType, 
+                establishConnectionTimeout,
+                standardDeviceResponseTimeout,
+                longDeviceResponseTimeout,
+                clientNumber,
+                userName,
+                password,
+                strictCasing,
+                logger,
+                imageArrayTransferType,
                 imageArrayCompression,
-                userAgentProductName, 
-                userAgentProductVersion, 
-                trustUserGeneratedSslCertificates, 
-                throwOnBadDateTimeJSON, 
+                userAgentProductName,
+                userAgentProductVersion,
+                trustUserGeneratedSslCertificates,
+                throwOnBadDateTimeJSON,
                 request100Continue);
         }
 
@@ -259,5 +270,6 @@ namespace ASCOM.Alpaca.Clients
         }
 
         #endregion
+
     }
 }
