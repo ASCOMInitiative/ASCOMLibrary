@@ -110,20 +110,22 @@ namespace ASCOM.Alpaca.Clients
         /// <summary>
         /// Create and configure a REST client to communicate with the Alpaca device
         /// </summary>
-        /// <param name="httpClient"></param>
-        /// <param name="ipAddressString"></param>
-        /// <param name="portNumber"></param>
-        /// <param name="serviceType"></param>
-        /// <param name="logger"></param>
-        /// <param name="clientNumber"></param>
-        /// <param name="deviceType"></param>
-        /// <param name="userName"></param>
-        /// <param name="password"></param>
-        /// <param name="imageArrayCompression"></param>
-        /// <param name="userAgentProductName"></param>
-        /// <param name="userAgentProductVersion"></param>
-        /// <param name="trustUnsignedSslCertificates"></param>
-        /// <param name="request100Continue"></param>
+        /// <param name="httpClient">HttpClient instance to initialise</param>
+        /// <param name="serviceType">HTTP or HTTPS</param>
+        /// <param name="ipAddressString">Device IP address or host name. IPv6 link-local addresses may include a zone identifier (e.g. <c>fe80::1%2</c> or <c>[fe80::1%2]</c>). 
+        /// Zone identifiers are fully supported on .NET 5 and later but .NET Standard 2.x and .NET Framework 4.x do not have appropriate support and the zone identifier is stripped. 
+        /// Connections to IPv6 link-local addresses on multi-homed hosts may fail on these platforms; use an IPv4 address, a DNS host name, or a non-link-local IPv6 address instead.</param>
+        /// <param name="portNumber">Alpaca port number on the device</param>
+        /// <param name="clientNumber">Client number assigned to this connection</param>
+        /// <param name="deviceType">Alpaca device type</param>
+        /// <param name="userName">Optional HTTP Basic authentication user name</param>
+        /// <param name="password">Optional HTTP Basic authentication password</param>
+        /// <param name="imageArrayCompression">Compression to request for image array transfers</param>
+        /// <param name="logger">Logger for diagnostic messages</param>
+        /// <param name="userAgentProductName">Product name for the User-Agent header</param>
+        /// <param name="userAgentProductVersion">Product version for the User-Agent header</param>
+        /// <param name="trustUnsignedSslCertificates">When <see langword="true"/> self-signed SSL certificates are accepted</param>
+        /// <param name="request100Continue">When <see langword="true"/> 100-Continue is requested on PUT</param>
         internal static void CreateHttpClient(ref HttpClient httpClient, ServiceType serviceType, string ipAddressString, decimal portNumber,
                                                  uint clientNumber, DeviceTypes deviceType, string userName, string password, ImageArrayCompression imageArrayCompression, ILogger logger,
                                                  string userAgentProductName, string userAgentProductVersion, bool trustUnsignedSslCertificates, bool request100Continue)
@@ -329,9 +331,9 @@ namespace ASCOM.Alpaca.Clients
                     throw new InvalidValueException($"Invalid image array compression value: {imageArrayCompression}");
             }
 
-            #if NET5_0_OR_GREATER
-            // On .NET 5+, use SocketsHttpHandler. When an IPv6 zone identifier is present, the
-            // ConnectCallback re-injects the stripped zone identifier at the TCP socket level.
+            // Create an HttpClient instance that works with link-local IPv6 addresses on multi-homed systems if possible.
+#if NET5_0_OR_GREATER
+            // On .NET 5+, use SocketsHttpHandler. When an IPv6 zone identifier is present, the ConnectCallback re-injects the stripped zone identifier at the TCP socket level.
             SocketsHttpHandler socketsHandler = new SocketsHttpHandler
             {
                 PreAuthenticate = true,
@@ -377,6 +379,9 @@ namespace ASCOM.Alpaca.Clients
             // Create a new client pointing at the alpaca device
             httpClient = new HttpClient(socketsHandler);
 #else
+            // On earlier frameworks, use HttpClientHandler. IPv6 zone identifiers are not supported on these platforms, so any zone identifier is stripped from the host and not re-applied. 
+            // Connections to link-local IPv6 addresses on multi-homed hosts may fail on these platforms; use an IPv4 address, a DNS hostname, or a non-link-local IPv6 address instead.
+
             // Create a new HTTP handler to control authentication and automatic decompression
             HttpClientHandler httpClientHandler = new HttpClientHandler
             {
