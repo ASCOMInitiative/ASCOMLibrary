@@ -5,6 +5,15 @@ Library of ASCOM Alpaca client and discovery components.
 ## Version History
 The version history only contains entries when a change is made.
 
+***Release 3.1.0***
+* REVISED - Alpaca client help text is now consistent with the online canonical documentation for the interface.
+* ADDED - The number of communication re-trys made by the Alpaca clients can now be configured from the default value of 1. The set 
+value applies to all Alpaca clients instances.
+* BUG-FIX - The Alpaca clients returned a socket exception when connecting to link-local IPv6 addresses on multi-network devices. 
+This fix works for .NET 8.0 and later applications but there is no known work-round for .NETStandard2.0 applications such as 
+.NET Framework 4.x. .NETStandard2.0 applications will continue to work on devices using IPv6 addresses that have a single network interface as 
+well as all IPv4 configurations.
+
 ***Release 3.0.0***
 * POTENTIALLY BREAKING CHANGE - The client's [`100-CONTINUE`](https://dev.to/mrcaidev/everything-you-need-to-know-about-100-continue-3mn5)
 behaviour is no longer enabled by default to improve network performance by removing a network round-trip on each `PUT` request.

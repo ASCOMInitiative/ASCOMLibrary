@@ -5,8 +5,12 @@ Library of components to support development of ASCOM clients, drivers and Alpac
 ## Version History
 The version history only contains entries when a change is made.
 
+***Release 3.1.0***
+* REVISED - TraceLogger locking is now handled by a reliable lock mechanic eliminating the possibility of AbandonedMutexExceptions 
+disrupting client operation.
+
 ***Release 3.0.1***
-* Improved TraceLogger resilience in the face of abandoned mutexes. If an abandoned mutex is detected, a warning is logged 
+* REVISED - Improved TraceLogger resilience in the face of abandoned mutexes. If an abandoned mutex is detected, a warning is logged 
 to the log file and the logger continues to operate as normal. This should prevent the logger from becoming unusable 
 after an abandoned mutex and should allow it to recover gracefully from this situation.
 
