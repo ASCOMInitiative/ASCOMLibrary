@@ -1,14 +1,25 @@
-﻿using ASCOM.Common.Interfaces;
+﻿using ASCOM.Common;
+using ASCOM.Common.Interfaces;
 using Microsoft.Win32;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Threading;
 using System.IO;
-using static System.Environment;
-using ASCOM.Common;
-using System.Collections.Generic;
+using System.IO.Pipelines;
 using System.Linq;
+using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.ComTypes;
+using System.Threading;
+using static System.Environment;
+
+#if NET8_0_OR_GREATER
+
+using System.Reflection.Metadata;
+using System.Reflection.PortableExecutable;
+using System.Runtime.Versioning;
+
+#endif
 
 namespace ASCOM.Com
 {
@@ -86,6 +97,380 @@ namespace ASCOM.Com
         }
 
         #endregion
+
+#region COM driver metadata
+
+#if NET8_0_OR_GREATER
+
+        #region Public static members
+
+        /// <summary>
+        /// Creates a <see cref="ComDriverMetadata"/> snapshot for the specified COM ProgID
+        /// by inspecting the COM registration and DLL on disk.
+        /// </summary>
+        /// <param name="progId">The COM ProgID to validate (e.g. "ASCOM.Simulator.Telescope").</param>
+        /// <param name="logger">A logger that implements the <see cref="ITraceLogger"/> interface. Used for diagnostic output.</param>
+        /// <returns>A <see cref="ComDriverMetadata"/> instance containing all discovered properties.</returns>
+        public static ComDriverMetadata GetComDriverMetadata(string progId, ITraceLogger? logger)
+        {
+            LogMessage($"Initialising for ProgID: {progId}", logger);
+
+            string? clsid = FindClsid(progId, logger);
+
+            if (clsid == null)
+            {
+                LogMessage($"ProgID '{progId}' is not registered.", logger);
+                LogMessage("", logger);
+
+                return new ComDriverMetadata(
+                    progId,
+                    isRegistered: false,
+                    comType: ComType.Unknown,
+                    dllPath: null,
+                    dllVersion: null,
+                    dllArchitecture: Architecture.Unknown,
+                    is32BitCompatible: false,
+                    is64BitCompatible: false,
+                    clrVersion: ClrVersion.Unknown);
+            }
+
+            LogMessage($"CLSID: {clsid}", logger);
+
+            // In-process (DLL) server
+            string? rawDllPath = FindServerPath(clsid, "InprocServer32", logger);
+            if (rawDllPath != null)
+            {
+                // .NET COM servers register mscoree.dll as the InprocServer32 default value.
+                // The actual assembly location is in the CodeBase value under InprocServer32.
+                if (IsMscoree(rawDllPath))
+                {
+                    LogMessage("InprocServer32 default is mscoree.dll — looking for CodeBase value.", logger);
+                    rawDllPath = FindCodeBase(clsid, logger);
+                    if (rawDllPath == null)
+                    {
+                        LogMessage("No CodeBase found for this .NET COM server.", logger);
+                        LogMessage("", logger);
+
+                        return new ComDriverMetadata(
+                            progId,
+                            isRegistered: true,
+                            comType: ComType.InProcess,
+                            dllPath: null,
+                            dllVersion: null,
+                            dllArchitecture: Architecture.Unknown,
+                            is32BitCompatible: false,
+                            is64BitCompatible: false,
+                            clrVersion: ClrVersion.Unknown);
+                    }
+                }
+
+                string dllPath = NormaliseDllPath(rawDllPath);
+                LogMessage($"DLL path: {dllPath}", logger);
+                string? dllVersion = ReadDllVersion(dllPath, logger);
+                (Architecture dllArchitecture, bool is32BitCompatible, bool is64BitCompatible, ClrVersion clrVersion) = ReadPeInfo(dllPath, logger);
+
+                LogMessage("", logger);
+
+                return new ComDriverMetadata(
+                    progId,
+                    isRegistered: true,
+                    comType: ComType.InProcess,
+                    dllPath: dllPath,
+                    dllVersion: dllVersion,
+                    dllArchitecture: dllArchitecture,
+                    is32BitCompatible: is32BitCompatible,
+                    is64BitCompatible: is64BitCompatible,
+                    clrVersion: clrVersion);
+            }
+
+            // Out-of-process (EXE) server
+            string? exePath = FindServerPath(clsid, "LocalServer32", logger);
+            if (exePath != null)
+            {
+                LogMessage($"Out-of-process server: {exePath}", logger);
+                LogMessage("", logger);
+
+                return new ComDriverMetadata(
+                    progId,
+                    isRegistered: true,
+                    comType: ComType.OutOfProcess,
+                    dllPath: null,
+                    dllVersion: null,
+                    dllArchitecture: Architecture.Unknown,
+                    is32BitCompatible: true,
+                    is64BitCompatible: true,
+                    clrVersion: ClrVersion.Unknown);
+            }
+
+            LogMessage($"CLSID '{clsid}' has no InprocServer32 or LocalServer32 registration.", logger);
+            LogMessage("", logger);
+
+            return new ComDriverMetadata(
+                progId,
+                isRegistered: false,
+                comType: ComType.Unknown,
+                dllPath: null,
+                dllVersion: null,
+                dllArchitecture: Architecture.Unknown,
+                is32BitCompatible: false,
+                is64BitCompatible: false,
+                clrVersion: ClrVersion.Unknown);
+        }
+
+        #endregion
+
+        #region PE file inspection
+
+        internal static string? ReadDllVersion(string dllPath, ITraceLogger? traceLogger)
+        {
+            try
+            {
+                FileVersionInfo info = FileVersionInfo.GetVersionInfo(dllPath);
+                string? version = info.FileVersion;
+                LogMessage($"DLL version: {version}", traceLogger);
+                return version;
+            }
+            catch (Exception ex)
+            {
+                LogMessage($"Could not read DLL version from '{dllPath}': {ex.Message}", traceLogger);
+                return null;
+            }
+        }
+
+        internal static (Architecture architecture, bool is32BitCompatible, bool is64BitCompatible, ClrVersion clrVersion) ReadPeInfo(
+            string dllPath, ITraceLogger? traceLogger)
+        {
+            try
+            {
+                using FileStream stream = File.OpenRead(dllPath);
+                using PEReader peReader = new PEReader(stream);
+
+                Machine machine = peReader.PEHeaders.CoffHeader.Machine;
+                bool isManaged = peReader.PEHeaders.CorHeader != null;
+
+                LogMessage($"PE machine: {machine}, managed: {isManaged}", traceLogger);
+
+                if (isManaged)
+                {
+                    (Architecture architecture, bool is32BitCompatible, bool is64BitCompatible, ClrVersion clrVersion) managedPeInfo = ReadManagedPeInfo(peReader, machine, traceLogger);
+
+                    return managedPeInfo;
+                }
+                else
+                {
+                    return ReadNativePeInfo(machine, traceLogger);
+                }
+            }
+            catch (Exception ex)
+            {
+                LogMessage($"Could not read PE info from '{dllPath}': {ex.Message}", traceLogger);
+
+                // Take a punt on it being compatible, if not we get some sort of informative exception thrown. Better than giving up without trying!
+                LogMessage("Is 32bit compatible: true", traceLogger);
+                LogMessage("Is 64bit compatible: true", traceLogger);
+                return (Architecture.Unknown, true, true, ClrVersion.Unknown);
+            }
+        }
+
+        private static (Architecture architecture, bool is32BitCompatible, bool is64BitCompatible, ClrVersion clrVersion) ReadManagedPeInfo(PEReader peReader, Machine machine, ITraceLogger? traceLogger)
+        {
+            ClrVersion clrVersion = ReadClrVersion(peReader, traceLogger);
+            CorFlags corFlags = peReader.PEHeaders.CorHeader!.Flags;
+
+            if (machine == Machine.Amd64)
+            {
+                LogMessage("Architecture: x64 managed", traceLogger);
+                LogMessage("Is 32bit compatible: false", traceLogger);
+                LogMessage("Is 64bit compatible: true", traceLogger);
+                return (Architecture.X64, false, true, clrVersion);
+            }
+
+            if ((corFlags & CorFlags.Requires32Bit) != 0)
+            {
+                LogMessage("Architecture: x86 managed (32-bit required)", traceLogger);
+                LogMessage("Is 32bit compatible: true", traceLogger);
+                LogMessage("Is 64bit compatible: false", traceLogger);
+                return (Architecture.X86, true, false, clrVersion);
+            }
+
+            // ILOnly set, I386 machine, no Requires32Bit flag = AnyCPU
+            LogMessage("Architecture: MSIL (AnyCPU)", traceLogger);
+
+            // Set Is64BitCompatible to false for .NET 1.0 assemblies, which are technically AnyCPU but require the 32-bit .NET runtime and won't load in a 64-bit process.
+            if (clrVersion == ClrVersion.Clr1)
+            {
+                LogMessage("Is 32bit compatible: true", traceLogger);
+                LogMessage("Is 64bit compatible: false (Forced because CLR= v1)", traceLogger);
+                return (Architecture.Msil, true, false, clrVersion);
+            }
+
+            LogMessage("Is 32bit compatible: true", traceLogger);
+            LogMessage("Is 64bit compatible: true", traceLogger);
+            return (Architecture.Msil, true, true, clrVersion);
+        }
+
+        private static (Architecture architecture, bool is32BitCompatible, bool is64BitCompatible, ClrVersion clrVersion) ReadNativePeInfo(Machine machine, ITraceLogger? traceLogger)
+        {
+            switch (machine)
+            {
+                case Machine.I386:
+                    LogMessage("Architecture: native x86", traceLogger);
+                    LogMessage("Is 32bit compatible: true", traceLogger);
+                    LogMessage("Is 64bit compatible: false", traceLogger);
+                    return (Architecture.X86, true, false, ClrVersion.Unknown);
+
+                case Machine.Amd64:
+                    LogMessage("Architecture: native x64", traceLogger);
+                    LogMessage("Is 32bit compatible: false", traceLogger);
+                    LogMessage("Is 64bit compatible: true", traceLogger);
+                    return (Architecture.X64, false, true, ClrVersion.Unknown);
+
+                case Machine.Arm:
+                    LogMessage("Architecture: native ARM", traceLogger);
+                    LogMessage("Is 32bit compatible: true", traceLogger);
+                    LogMessage("Is 64bit compatible: false", traceLogger);
+                    return (Architecture.Arm, true, false, ClrVersion.Unknown);
+
+                case Machine.Arm64:
+                    LogMessage("Architecture: native ARM64", traceLogger);
+                    LogMessage("Is 32bit compatible: false", traceLogger);
+                    LogMessage("Is 64bit compatible: true", traceLogger);
+                    return (Architecture.Arm64, false, true, ClrVersion.Unknown);
+
+                default:
+                    LogMessage($"Architecture: unrecognised machine type {machine}", traceLogger);
+
+                    // Take a punt on it being compatible, if not we get some sort of informative exception thrown. Better than giving up without trying!
+                    LogMessage("Is 32bit compatible: true", traceLogger);
+                    LogMessage("Is 64bit compatible: true", traceLogger);
+                    return (Architecture.Unknown, true, true, ClrVersion.Unknown);
+            }
+        }
+
+        // Reads the CLR metadata version string (e.g. "v4.0.30319") and maps it to a ClrVersion enum value.
+        private static ClrVersion ReadClrVersion(PEReader peReader, ITraceLogger? traceLogger)
+        {
+            try
+            {
+                MetadataReader metadataReader = peReader.GetMetadataReader();
+                string version = metadataReader.MetadataVersion;
+                LogMessage($"CLR metadata version: {version}", traceLogger);
+
+                if (version.StartsWith("v1.")) return ClrVersion.Clr1;
+                if (version.StartsWith("v2.")) return ClrVersion.Clr2;
+                if (version.StartsWith("v4.")) return ClrVersion.Clr4;
+
+                return ClrVersion.Unknown;
+            }
+            catch (Exception ex)
+            {
+                LogMessage($"Could not read CLR version: {ex.Message}", traceLogger);
+                return ClrVersion.Unknown;
+            }
+        }
+
+        #endregion
+
+        #region Support code
+
+        private static void LogMessage(string message, ITraceLogger? logger)
+        {
+            logger?.LogMessage("ComDriverProperties", message);
+        }
+
+        // Looks up the CLSID string for a ProgID, checking 64-bit then 32-bit registry views.
+        private static string? FindClsid(string progId, ITraceLogger? traceLogger)
+        {
+            string? clsid = TryReadClsid(progId, RegistryView.Registry64);
+            if (clsid != null)
+            {
+                LogMessage("CLSID found in 64-bit registry view.", traceLogger);
+                return clsid;
+            }
+
+            clsid = TryReadClsid(progId, RegistryView.Registry32);
+            if (clsid != null)
+            {
+                LogMessage("CLSID found in 32-bit registry view.", traceLogger);
+            }
+
+            return clsid;
+        }
+
+        private static string? TryReadClsid(string progId, RegistryView view)
+        {
+            using RegistryKey baseKey = RegistryKey.OpenBaseKey(RegistryHive.ClassesRoot, view);
+            using RegistryKey? progIdKey = baseKey.OpenSubKey($"{progId}\\CLSID");
+            return progIdKey?.GetValue(null) as string;
+        }
+
+        // Reads the default value from HKCR\CLSID\{clsid}\{serverType}, checking both registry views.
+        private static string? FindServerPath(string clsid, string serverType, ITraceLogger? traceLogger)
+        {
+            string? path = TryReadServerPath(clsid, serverType, RegistryView.Registry64);
+            if (path != null) return path;
+            return TryReadServerPath(clsid, serverType, RegistryView.Registry32);
+        }
+
+        private static string? TryReadServerPath(string clsid, string serverType, RegistryView view)
+        {
+            using RegistryKey baseKey = RegistryKey.OpenBaseKey(RegistryHive.ClassesRoot, view);
+            using RegistryKey? serverKey = baseKey.OpenSubKey($"CLSID\\{clsid}\\{serverType}");
+            return serverKey?.GetValue(null) as string;
+        }
+
+        // Returns true when the InprocServer32 default value points to the .NET runtime host (mscoree.dll).
+        private static bool IsMscoree(string path)
+        {
+            return string.Equals(
+                Path.GetFileName(path.Trim().Trim('"')),
+                "mscoree.dll",
+                StringComparison.OrdinalIgnoreCase);
+        }
+
+        // Reads the CodeBase value from HKCR\CLSID\{clsid}\InprocServer32, checking both registry views.
+        private static string? FindCodeBase(string clsid, ITraceLogger? traceLogger)
+        {
+            string? codeBase = TryReadCodeBase(clsid, RegistryView.Registry64);
+            if (codeBase != null)
+            {
+                LogMessage($"CodeBase found in 64-bit registry: {codeBase}", traceLogger);
+                return codeBase;
+            }
+
+            codeBase = TryReadCodeBase(clsid, RegistryView.Registry32);
+            if (codeBase != null)
+            {
+                LogMessage($"CodeBase found in 32-bit registry: {codeBase}", traceLogger);
+            }
+
+            return codeBase;
+        }
+
+        private static string? TryReadCodeBase(string clsid, RegistryView view)
+        {
+            using RegistryKey baseKey = RegistryKey.OpenBaseKey(RegistryHive.ClassesRoot, view);
+            using RegistryKey? serverKey = baseKey.OpenSubKey($"CLSID\\{clsid}\\InprocServer32");
+            return serverKey?.GetValue("CodeBase") as string;
+        }
+
+        // Converts a raw DLL path to a normalised local file path, handling file:/// URIs
+        // (used by .NET COM CodeBase values) and environment variables (used by native COM servers).
+        private static string NormaliseDllPath(string rawPath)
+        {
+            string trimmed = rawPath.Trim('"');
+            if (trimmed.StartsWith("file:///", StringComparison.OrdinalIgnoreCase))
+            {
+                return new Uri(trimmed).LocalPath;
+            }
+            return Environment.ExpandEnvironmentVariables(trimmed);
+        }
+
+        #endregion
+
+#endif
+
+#endregion
 
         #region Logger configuration
 
