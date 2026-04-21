@@ -6,7 +6,7 @@ using System;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace InterfaceVersionTests
+namespace PlatformUtilitiesTests
 {
     public class InterfaceVersionTests
     {

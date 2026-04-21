@@ -5,7 +5,7 @@ using System;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace PlatformUtilities
+namespace PlatformUtilitiesTests
 {
 #if NET8_0_OR_GREATER
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]

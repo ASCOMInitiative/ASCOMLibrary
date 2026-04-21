@@ -1,6 +1,9 @@
 namespace ASCOM.Com
 {
     /// <summary>Indicates the processor architecture of a COM driver DLL.</summary>
+    /// <remarks>
+    /// <para>This enum supports the <c>PlatformUtilities.GetComDriverMetadata</c> method, which is only available in projects targeting .NET 8 and later.</para>
+    /// </remarks>
     public enum Architecture
     {
         /// <summary>The architecture could not be determined.</summary>

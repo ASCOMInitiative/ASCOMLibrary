@@ -21,13 +21,14 @@
     <DocumentationSources>
       <DocumentationSource sourceFile="..\..\ASCOM.Alpaca\ASCOM.Alpaca.csproj" />
       <DocumentationSource sourceFile="..\..\ASCOM.Alpaca.Device\ASCOM.Alpaca.Device.csproj" />
-      <DocumentationSource sourceFile="..\..\ASCOM.Com\ASCOM.Com.csproj" />
       <DocumentationSource sourceFile="..\..\ASCOM.Common\ASCOM.Common.csproj" />
       <DocumentationSource sourceFile="..\..\ASCOM.Tools\ASCOM.Tools.csproj" />
       <DocumentationSource sourceFile="..\..\ASCOM.Tools\NamespaceDocs.xml" />
       <DocumentationSource sourceFile="..\..\ASCOM.AstrometryTools\ASCOM.AstrometryTools.csproj" />
       <DocumentationSource sourceFile="..\PackageAccessProject\ASCOM.Exceptions.dll" />
       <DocumentationSource sourceFile="..\PackageAccessProject\ASCOM.Exceptions.xml" />
+      <DocumentationSource sourceFile="..\..\ASCOM.Com\bin\Debug\net10.0\ASCOM.Com.dll" />
+      <DocumentationSource sourceFile="..\..\ASCOM.Com\bin\Debug\net10.0\ASCOM.Com.xml" />
     </DocumentationSources>
     <HelpFileFormat>Website</HelpFileFormat>
     <SyntaxFilters>C#, Visual Basic</SyntaxFilters>
@@ -48,7 +49,7 @@
     <MaximumGroupParts>2</MaximumGroupParts>
     <Preliminary>False</Preliminary>
     <CopyrightHref>https://www.ascom-standards.org</CopyrightHref>
-    <CopyrightText>Copyright &amp;#169%3b 2021 - 2025 ASCOM Initiative</CopyrightText>
+    <CopyrightText>Copyright &amp;#169%3b 2021 - 2026 ASCOM Initiative</CopyrightText>
     <SdkLinkTarget>Blank</SdkLinkTarget>
     <NamespaceSummaries>
       <NamespaceSummaryItem name="(global)" isDocumented="False">ASCOM Standard Root Global</NamespaceSummaryItem>
@@ -83,11 +84,11 @@
     <PlugInConfigurations>
       <PlugInConfig id="Version Builder" enabled="True">
         <configuration>
-          <currentProject label=".NET Standard" version="2.0" ripOldApis="true" />
-          <versions>
-            <version label=".NET" version=".NET 8.0 and later" helpFileProject="..\ChooserSAHelp\ChooserSAHelp.shfbproj" />
-          </versions>
-        </configuration>
+  <currentProject label="" version=".NET Standard 2.0, .NET 8 .NET 9. .NET 10" ripOldApis="true" />
+  <versions>
+    <version label=".NET" version=".NET 8.0 and later" helpFileProject="..\ChooserSAHelp\ChooserSAHelp.shfbproj" />
+  </versions>
+</configuration>
       </PlugInConfig>
     </PlugInConfigurations>
     <VisibleItems>Attributes, ExplicitInterfaceImplementations, InheritedMembers, ProtectedInternalAsProtected</VisibleItems>

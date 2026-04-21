@@ -2,6 +2,7 @@
 
 # VSSpell001: Spell Check
 dotnet_diagnostic.VSSpell001.severity = none
+dotnet_diagnostic.IDE0074.severity = none
 csharp_indent_labels = one_less_than_current
 csharp_space_around_binary_operators = before_and_after
 csharp_using_directive_placement = outside_namespace:silent

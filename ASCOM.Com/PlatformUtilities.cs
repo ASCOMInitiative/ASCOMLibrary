@@ -1,4 +1,5 @@
-﻿using ASCOM.Common;
+﻿
+using ASCOM.Common;
 using ASCOM.Common.Interfaces;
 using Microsoft.Win32;
 using System;
@@ -27,7 +28,7 @@ namespace ASCOM.Com
     /// Utilities relevant to Windows / COM Driver / ASCOM Platform development
     /// </summary>
 #if NET8_0_OR_GREATER
-    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+    [SupportedOSPlatform("windows")]
 #endif
     public static class PlatformUtilities
     {
@@ -98,9 +99,10 @@ namespace ASCOM.Com
 
         #endregion
 
-#region COM driver metadata
+        #region COM driver metadata
 
 #if NET8_0_OR_GREATER
+#nullable enable 
 
         #region Public static members
 
@@ -111,9 +113,17 @@ namespace ASCOM.Com
         /// <param name="progId">The COM ProgID to validate (e.g. "ASCOM.Simulator.Telescope").</param>
         /// <param name="logger">A logger that implements the <see cref="ITraceLogger"/> interface. Used for diagnostic output.</param>
         /// <returns>A <see cref="ComDriverMetadata"/> instance containing all discovered properties.</returns>
+        /// <exception cref="InvalidValueException">Thrown if the specified ProgID is null, empty, or not registered.</exception>
+        /// <remarks>
+        /// <p style="color:red;"><b>Note: This method is only available in projects targeting .NET 8 and later.</b></p>
+        /// </remarks>
         public static ComDriverMetadata GetComDriverMetadata(string progId, ITraceLogger? logger)
         {
-            LogMessage($"Initialising for ProgID: {progId}", logger);
+            // Validate that a sensible ProgID was provided
+            if (string.IsNullOrEmpty(progId))
+                throw new InvalidValueException($"{nameof(progId)} is null or empty.");
+
+            LogMessage($"Requested ProgID: {progId}", logger);
 
             string? clsid = FindClsid(progId, logger);
 
@@ -375,7 +385,7 @@ namespace ASCOM.Com
 
         private static void LogMessage(string message, ITraceLogger? logger)
         {
-            logger?.LogMessage("ComDriverProperties", message);
+            logger?.LogMessage("GetComDriverMetadata", message);
         }
 
         // Looks up the CLSID string for a ProgID, checking 64-bit then 32-bit registry views.
@@ -468,9 +478,11 @@ namespace ASCOM.Com
 
         #endregion
 
+#nullable disable
+
 #endif
 
-#endregion
+        #endregion
 
         #region Logger configuration
 
@@ -807,7 +819,7 @@ namespace ASCOM.Com
                 { 26200, "Windows 11 (25H2)" },
                 { 26300, "Windows 11 (26H2)" },
                 { 28000, "Windows 11 (26H1)" }
-            }; 
+            };
 
             try
             {
@@ -831,7 +843,7 @@ namespace ASCOM.Com
 
                 // Handle build numbers greater than the maximum known version by returning the latest known version with an "or later" suffix
                 if (buildNumber > sortedBuildNumbers[sortedBuildNumbers.Count - 1])
-                    return $"{osBuildNames[sortedBuildNumbers[sortedBuildNumbers.Count - 1]]} or later"; 
+                    return $"{osBuildNames[sortedBuildNumbers[sortedBuildNumbers.Count - 1]]} or later";
 
                 // Return the largest key that is less than or equal to the build number
                 int matchingKey = sortedBuildNumbers[0];
