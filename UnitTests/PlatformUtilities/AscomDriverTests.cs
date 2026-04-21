@@ -3,6 +3,7 @@
 using System;
 using Xunit;
 using ASCOM.Com;
+using ASCOM;
 
 
 namespace PlatformUtilitiesTests
@@ -23,6 +24,18 @@ namespace PlatformUtilitiesTests
 
         public void Dispose()
         {
+        }
+
+        [Fact]
+        public void ThrowsWhenNullProgId()
+        {
+            Assert.Throws<InvalidValueException>(() => PlatformUtilities.GetComDriverMetadata(null, logger));
+        }
+
+        [Fact]
+        public void ThrowsWhenEmptyProgId()
+        {
+            Assert.Throws<InvalidValueException>(() => PlatformUtilities.GetComDriverMetadata(string.Empty, logger));
         }
 
         [Fact]

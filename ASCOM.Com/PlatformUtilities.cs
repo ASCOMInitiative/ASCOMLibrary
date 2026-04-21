@@ -113,7 +113,7 @@ namespace ASCOM.Com
         /// <param name="progId">The COM ProgID to validate (e.g. "ASCOM.Simulator.Telescope").</param>
         /// <param name="logger">A logger that implements the <see cref="ITraceLogger"/> interface. Used for diagnostic output.</param>
         /// <returns>A <see cref="ComDriverMetadata"/> instance containing all discovered properties.</returns>
-        /// <exception cref="InvalidValueException">Thrown if the specified ProgID is null, empty, or not registered.</exception>
+        /// <exception cref="InvalidValueException">Thrown if the progID parameter is null or <see cref="string.Empty"/>.</exception>
         /// <remarks>
         /// <p style="color:red;"><b>Note: This method is only available in projects targeting .NET 8 and later.</b></p>
         /// </remarks>
