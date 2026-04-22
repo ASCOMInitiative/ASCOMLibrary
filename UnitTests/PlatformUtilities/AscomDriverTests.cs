@@ -4,6 +4,7 @@ using System;
 using Xunit;
 using ASCOM.Com;
 using ASCOM;
+using ASCOM.Common.Interfaces;
 
 
 namespace PlatformUtilitiesTests
@@ -20,6 +21,9 @@ namespace PlatformUtilitiesTests
         static AscomDrivertests()
         {
             logger = new ASCOM.Tools.TraceLogger("AscomDrivertests", true);
+            logger.SetMinimumLoggingLevel(LogLevel.Verbose);
+            logger.LogMessage("AscomDrivertests", "Starting AscomDrivertests");
+            logger.LogMessage("AscomDrivertests", "");
         }
 
         public void Dispose()
@@ -29,19 +33,19 @@ namespace PlatformUtilitiesTests
         [Fact]
         public void ThrowsWhenNullProgId()
         {
-            Assert.Throws<InvalidValueException>(() => PlatformUtilities.GetComDriverMetadata(null, logger));
+            Assert.Throws<InvalidValueException>(() => PlatformUtilities.GetComMetadata(null, logger));
         }
 
         [Fact]
         public void ThrowsWhenEmptyProgId()
         {
-            Assert.Throws<InvalidValueException>(() => PlatformUtilities.GetComDriverMetadata(string.Empty, logger));
+            Assert.Throws<InvalidValueException>(() => PlatformUtilities.GetComMetadata(string.Empty, logger));
         }
 
         [Fact]
         public void UnknownProgId()
         {
-            ComDriverMetadata tester = PlatformUtilities.GetComDriverMetadata("RubbishComId.NonExistentComId", logger);
+            ComMetadata tester = PlatformUtilities.GetComMetadata("RubbishComId.NonExistentComId", logger);
             Assert.Equal("RubbishComId.NonExistentComId", tester.ProgId);
             Assert.False(tester.IsRegistered);
             Assert.Equal(ClrVersion.Unknown, tester.ClrVersion);
@@ -56,7 +60,7 @@ namespace PlatformUtilitiesTests
         [Fact]
         public void InProcesssCamera()
         {
-            ComDriverMetadata tester =  PlatformUtilities.GetComDriverMetadata("ASCOM.Simulator.Camera", logger);
+            ComMetadata tester =  PlatformUtilities.GetComMetadata("ASCOM.Simulator.Camera", logger);
             Assert.Equal("ASCOM.Simulator.Camera", tester.ProgId);
             Assert.True(tester.IsRegistered);
             Assert.Equal(ClrVersion.Clr4, tester.ClrVersion);
@@ -71,7 +75,7 @@ namespace PlatformUtilitiesTests
         [Fact]
         public void InProcesssCameraNoLogger()
         {
-            ComDriverMetadata tester = PlatformUtilities.GetComDriverMetadata("ASCOM.Simulator.Camera", null);
+            ComMetadata tester = PlatformUtilities.GetComMetadata("ASCOM.Simulator.Camera", null);
             Assert.Equal("ASCOM.Simulator.Camera", tester.ProgId);
             Assert.True(tester.IsRegistered);
             Assert.Equal(ClrVersion.Clr4, tester.ClrVersion);
@@ -86,7 +90,7 @@ namespace PlatformUtilitiesTests
         [Fact]
         public void SiTechTelescope()
         {
-            ComDriverMetadata tester = PlatformUtilities.GetComDriverMetadata("Sitech.Telescope", logger);
+            ComMetadata tester = PlatformUtilities.GetComMetadata("Sitech.Telescope", logger);
             Assert.Equal("Sitech.Telescope", tester.ProgId);
             Assert.True(tester.IsRegistered);
             Assert.Equal(ClrVersion.Clr1, tester.ClrVersion); // This is a CLR1 assembly.
@@ -101,7 +105,7 @@ namespace PlatformUtilitiesTests
         [Fact]
         public void SiTechTelescopeNoLogger()
         {
-            ComDriverMetadata tester = PlatformUtilities.GetComDriverMetadata("Sitech.Telescope", null);
+            ComMetadata tester = PlatformUtilities.GetComMetadata("Sitech.Telescope", null);
             Assert.Equal("Sitech.Telescope", tester.ProgId);
             Assert.True(tester.IsRegistered);
             Assert.Equal(ClrVersion.Clr1, tester.ClrVersion); // This is a CLR1 assembly.
@@ -116,7 +120,7 @@ namespace PlatformUtilitiesTests
         [Fact]
         public void OutOfProcesssTelescope()
         {
-            ComDriverMetadata tester = PlatformUtilities.GetComDriverMetadata("ASCOM.Simulator.Telescope", logger);
+            ComMetadata tester = PlatformUtilities.GetComMetadata("ASCOM.Simulator.Telescope", logger);
             Assert.Equal("ASCOM.Simulator.Telescope", tester.ProgId);
             Assert.True(tester.IsRegistered);
             Assert.Equal(ComType.OutOfProcess, tester.ComType);
@@ -131,7 +135,7 @@ namespace PlatformUtilitiesTests
         [Fact]
         public void OutOfProcesssTelescopeNoLogger()
         {
-            ComDriverMetadata tester = PlatformUtilities.GetComDriverMetadata("ASCOM.Simulator.Telescope", null);
+            ComMetadata tester = PlatformUtilities.GetComMetadata("ASCOM.Simulator.Telescope", null);
             Assert.Equal("ASCOM.Simulator.Telescope", tester.ProgId);
             Assert.True(tester.IsRegistered);
             Assert.Equal(ComType.OutOfProcess, tester.ComType);

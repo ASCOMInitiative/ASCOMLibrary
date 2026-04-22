@@ -27,8 +27,7 @@
       <DocumentationSource sourceFile="..\..\ASCOM.AstrometryTools\ASCOM.AstrometryTools.csproj" />
       <DocumentationSource sourceFile="..\PackageAccessProject\ASCOM.Exceptions.dll" />
       <DocumentationSource sourceFile="..\PackageAccessProject\ASCOM.Exceptions.xml" />
-      <DocumentationSource sourceFile="..\..\ASCOM.Com\bin\Debug\net10.0\ASCOM.Com.dll" />
-      <DocumentationSource sourceFile="..\..\ASCOM.Com\bin\Debug\net10.0\ASCOM.Com.xml" />
+      <DocumentationSource sourceFile="..\..\ASCOM.Com\ASCOM.Com.csproj" />
     </DocumentationSources>
     <HelpFileFormat>Website</HelpFileFormat>
     <SyntaxFilters>C#, Visual Basic</SyntaxFilters>

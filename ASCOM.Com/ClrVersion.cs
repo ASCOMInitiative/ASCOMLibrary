@@ -4,7 +4,7 @@ namespace ASCOM.Com
     /// Identifies the major CLR (Common Language Runtime) version for which a managed assembly was built.
     /// </summary>
     /// <remarks>
-    /// <para>This enum supports the <c>PlatformUtilities.GetComDriverMetadata</c> method, which is only available in projects targeting .NET 8 and later.</para>
+    /// <para>This enum supports the <c>PlatformUtilities.GetComMetadata</c> method, which is only available in projects targeting .NET 8 and later.</para>
     /// </remarks>
     public enum ClrVersion
     {

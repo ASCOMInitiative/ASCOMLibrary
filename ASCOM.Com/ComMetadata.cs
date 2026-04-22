@@ -1,23 +1,41 @@
-#if NET8_0_OR_GREATER
-#nullable enable
 
 using System.Runtime.Versioning;
 
 namespace ASCOM.Com
 {
+    // Create a stub member for .NET Standard so that help functions correctly.
+#if NETSTANDARD2_0
     /// <summary>
-    /// Immutable snapshot of the properties discovered for a COM driver.
+    /// Immutable snapshot of a COM object's properties. Useful to determine COM driver compatibility without instantiating the COM object.
     /// </summary>
     /// <remarks>
-    /// <para>This class supports the <c>PlatformUtilities.GetComDriverMetadata</c> method, which is only available in projects targeting .NET 8 and later.</para>
+    /// <para>This class supports the <see cref="PlatformUtilities.GetComMetadata"/> method, which is only functional in projects targeting .NET 8 and later.</para>
     /// </remarks>
-    [SupportedOSPlatform("windows")]
-    public class ComDriverMetadata
+    public class ComMetadata
     {
         /// <summary>
-        /// Initialises a new instance of <see cref="ComDriverMetadata"/> with all property values.
+        /// Initialises a new instance of <see cref="ComMetadata"/> with all property values.
         /// </summary>
-        internal ComDriverMetadata(string progId, bool isRegistered, ComType comType, string? dllPath, string? dllVersion, Architecture dllArchitecture, bool is32BitCompatible, bool is64BitCompatible, ClrVersion clrVersion)
+        internal ComMetadata(string progId, bool isRegistered, ComType comType, string dllPath, string dllVersion, Architecture dllArchitecture, bool is32BitCompatible, bool is64BitCompatible, ClrVersion clrVersion)
+        {
+        }
+    }
+}
+#else
+#nullable enable
+    /// <summary>
+    /// Immutable snapshot of a COM object's properties. Useful to determine COM driver compatibility without instantiating the COM object.
+    /// </summary>
+    /// <remarks>
+    /// <para>This class supports the <c>PlatformUtilities.GetComMetadata</c> method, which is only available in projects targeting .NET 8 and later.</para>
+    /// </remarks>
+    [SupportedOSPlatform("windows")]
+    public class ComMetadata
+    {
+        /// <summary>
+        /// Initialises a new instance of <see cref="ComMetadata"/> with all property values.
+        /// </summary>
+        internal ComMetadata(string progId, bool isRegistered, ComType comType, string? dllPath, string? dllVersion, Architecture dllArchitecture, bool is32BitCompatible, bool is64BitCompatible, ClrVersion clrVersion)
         {
             ProgId = progId;
             IsRegistered = isRegistered;

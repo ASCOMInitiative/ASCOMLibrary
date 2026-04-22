@@ -101,23 +101,43 @@ namespace ASCOM.Com
 
         #region COM driver metadata
 
-#if NET8_0_OR_GREATER
-#nullable enable 
+        // .NET Standard 2.0 implementation to inform the user that this method does not work in .NET Standard 2.0 projects.
+#if NETSTANDARD2_0
+        /// <summary>
+        /// Creates a <see cref="ComMetadata"/> snapshot for the specified COM ProgID
+        /// by inspecting the COM registration and DLL on disk.
+        /// </summary>
+        /// <param name="progId">The COM ProgID to validate (e.g. "ASCOM.Simulator.Telescope").</param>
+        /// <param name="logger">A logger for diagnostic output that implements the <see cref="ILogger"/> interface. Use <see langword="null"/> if logging is not required.</param>
+        /// <returns>A <see cref="ComMetadata"/> instance containing all discovered properties.</returns>
+        /// <exception cref="InvalidValueException">Thrown if the progID parameter is null or <see cref="string.Empty"/>.</exception>
+        /// <exception cref="InvalidOperationException">Thrown if this method is called in a project targeting a framework earlier than .NET 8.</exception>
+        /// <remarks>
+        /// <p style="color:red;"><b>Note: This method is only available in projects targeting .NET 8 and later.</b></p>
+        /// </remarks>
+        public static ComMetadata GetComMetadata(string progId, ILogger logger)
+        {
+            throw new InvalidOperationException("This method is only available in projects targeting .NET 8 and later.");
+        }
+#else
+        // Functional .NET 8 and later implementation.
+#nullable enable
 
         #region Public static members
 
         /// <summary>
-        /// Creates a <see cref="ComDriverMetadata"/> snapshot for the specified COM ProgID
+        /// Creates a <see cref="ComMetadata"/> snapshot for the specified COM ProgID
         /// by inspecting the COM registration and DLL on disk.
         /// </summary>
         /// <param name="progId">The COM ProgID to validate (e.g. "ASCOM.Simulator.Telescope").</param>
-        /// <param name="logger">A logger that implements the <see cref="ITraceLogger"/> interface. Used for diagnostic output.</param>
-        /// <returns>A <see cref="ComDriverMetadata"/> instance containing all discovered properties.</returns>
+        /// <param name="logger">A logger for diagnostic output that implements the <see cref="ILogger"/> interface. Use <see langword="null"/> if logging is not required.</param>
+        /// <returns>A <see cref="ComMetadata"/> instance containing all discovered properties.</returns>
         /// <exception cref="InvalidValueException">Thrown if the progID parameter is null or <see cref="string.Empty"/>.</exception>
+        /// <exception cref="InvalidOperationException">Thrown if this method is called in a project targeting a framework earlier than .NET 8.</exception>
         /// <remarks>
         /// <p style="color:red;"><b>Note: This method is only available in projects targeting .NET 8 and later.</b></p>
         /// </remarks>
-        public static ComDriverMetadata GetComDriverMetadata(string progId, ITraceLogger? logger)
+        public static ComMetadata GetComMetadata(string progId, ILogger? logger)
         {
             // Validate that a sensible ProgID was provided
             if (string.IsNullOrEmpty(progId))
@@ -132,7 +152,7 @@ namespace ASCOM.Com
                 LogMessage($"ProgID '{progId}' is not registered.", logger);
                 LogMessage("", logger);
 
-                return new ComDriverMetadata(
+                return new ComMetadata(
                     progId,
                     isRegistered: false,
                     comType: ComType.Unknown,
@@ -161,7 +181,7 @@ namespace ASCOM.Com
                         LogMessage("No CodeBase found for this .NET COM server.", logger);
                         LogMessage("", logger);
 
-                        return new ComDriverMetadata(
+                        return new ComMetadata(
                             progId,
                             isRegistered: true,
                             comType: ComType.InProcess,
@@ -181,7 +201,7 @@ namespace ASCOM.Com
 
                 LogMessage("", logger);
 
-                return new ComDriverMetadata(
+                return new ComMetadata(
                     progId,
                     isRegistered: true,
                     comType: ComType.InProcess,
@@ -200,7 +220,7 @@ namespace ASCOM.Com
                 LogMessage($"Out-of-process server: {exePath}", logger);
                 LogMessage("", logger);
 
-                return new ComDriverMetadata(
+                return new ComMetadata(
                     progId,
                     isRegistered: true,
                     comType: ComType.OutOfProcess,
@@ -215,7 +235,7 @@ namespace ASCOM.Com
             LogMessage($"CLSID '{clsid}' has no InprocServer32 or LocalServer32 registration.", logger);
             LogMessage("", logger);
 
-            return new ComDriverMetadata(
+            return new ComMetadata(
                 progId,
                 isRegistered: false,
                 comType: ComType.Unknown,
@@ -231,7 +251,7 @@ namespace ASCOM.Com
 
         #region PE file inspection
 
-        internal static string? ReadDllVersion(string dllPath, ITraceLogger? traceLogger)
+        internal static string? ReadDllVersion(string dllPath, ILogger? traceLogger)
         {
             try
             {
@@ -248,7 +268,7 @@ namespace ASCOM.Com
         }
 
         internal static (Architecture architecture, bool is32BitCompatible, bool is64BitCompatible, ClrVersion clrVersion) ReadPeInfo(
-            string dllPath, ITraceLogger? traceLogger)
+            string dllPath, ILogger? traceLogger)
         {
             try
             {
@@ -282,7 +302,7 @@ namespace ASCOM.Com
             }
         }
 
-        private static (Architecture architecture, bool is32BitCompatible, bool is64BitCompatible, ClrVersion clrVersion) ReadManagedPeInfo(PEReader peReader, Machine machine, ITraceLogger? traceLogger)
+        private static (Architecture architecture, bool is32BitCompatible, bool is64BitCompatible, ClrVersion clrVersion) ReadManagedPeInfo(PEReader peReader, Machine machine, ILogger? traceLogger)
         {
             ClrVersion clrVersion = ReadClrVersion(peReader, traceLogger);
             CorFlags corFlags = peReader.PEHeaders.CorHeader!.Flags;
@@ -319,7 +339,7 @@ namespace ASCOM.Com
             return (Architecture.Msil, true, true, clrVersion);
         }
 
-        private static (Architecture architecture, bool is32BitCompatible, bool is64BitCompatible, ClrVersion clrVersion) ReadNativePeInfo(Machine machine, ITraceLogger? traceLogger)
+        private static (Architecture architecture, bool is32BitCompatible, bool is64BitCompatible, ClrVersion clrVersion) ReadNativePeInfo(Machine machine, ILogger? traceLogger)
         {
             switch (machine)
             {
@@ -358,7 +378,7 @@ namespace ASCOM.Com
         }
 
         // Reads the CLR metadata version string (e.g. "v4.0.30319") and maps it to a ClrVersion enum value.
-        private static ClrVersion ReadClrVersion(PEReader peReader, ITraceLogger? traceLogger)
+        private static ClrVersion ReadClrVersion(PEReader peReader, ILogger? traceLogger)
         {
             try
             {
@@ -383,13 +403,13 @@ namespace ASCOM.Com
 
         #region Support code
 
-        private static void LogMessage(string message, ITraceLogger? logger)
+        private static void LogMessage(string message, ILogger? logger)
         {
-            logger?.LogMessage("GetComDriverMetadata", message);
+            logger?.LogMessage( LogLevel.Debug,"GetComMetadata", message);
         }
 
         // Looks up the CLSID string for a ProgID, checking 64-bit then 32-bit registry views.
-        private static string? FindClsid(string progId, ITraceLogger? traceLogger)
+        private static string? FindClsid(string progId, ILogger? traceLogger)
         {
             string? clsid = TryReadClsid(progId, RegistryView.Registry64);
             if (clsid != null)
@@ -415,7 +435,7 @@ namespace ASCOM.Com
         }
 
         // Reads the default value from HKCR\CLSID\{clsid}\{serverType}, checking both registry views.
-        private static string? FindServerPath(string clsid, string serverType, ITraceLogger? traceLogger)
+        private static string? FindServerPath(string clsid, string serverType, ILogger? traceLogger)
         {
             string? path = TryReadServerPath(clsid, serverType, RegistryView.Registry64);
             if (path != null) return path;
@@ -439,7 +459,7 @@ namespace ASCOM.Com
         }
 
         // Reads the CodeBase value from HKCR\CLSID\{clsid}\InprocServer32, checking both registry views.
-        private static string? FindCodeBase(string clsid, ITraceLogger? traceLogger)
+        private static string? FindCodeBase(string clsid, ILogger? traceLogger)
         {
             string? codeBase = TryReadCodeBase(clsid, RegistryView.Registry64);
             if (codeBase != null)
