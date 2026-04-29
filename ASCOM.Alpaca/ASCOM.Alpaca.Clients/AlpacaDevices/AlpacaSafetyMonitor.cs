@@ -203,7 +203,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<bool>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "IsSafe", MemberTypes.Property);
+                return DynamicClientDriver.GetValue<bool>(CreateParameters(standardDeviceResponseTimeout, "IsSafe", MemberTypes.Property));
             }
         }
 

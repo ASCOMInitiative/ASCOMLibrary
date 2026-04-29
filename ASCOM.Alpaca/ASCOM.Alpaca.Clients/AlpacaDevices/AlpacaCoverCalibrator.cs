@@ -206,7 +206,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<CoverStatus>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "CoverState", MemberTypes.Property);
+                return DynamicClientDriver.GetValue<CoverStatus>(CreateParameters(standardDeviceResponseTimeout, "CoverState", MemberTypes.Property));
             }
         }
 
@@ -215,7 +215,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<CalibratorStatus>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "CalibratorState", MemberTypes.Property);
+                return DynamicClientDriver.GetValue<CalibratorStatus>(CreateParameters(standardDeviceResponseTimeout, "CalibratorState", MemberTypes.Property));
             }
         }
 
@@ -224,7 +224,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<int>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "Brightness", MemberTypes.Property);
+                return DynamicClientDriver.GetValue<int>(CreateParameters(standardDeviceResponseTimeout, "Brightness", MemberTypes.Property));
             }
         }
 
@@ -233,28 +233,28 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<int>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "MaxBrightness", MemberTypes.Property);
+                return DynamicClientDriver.GetValue<int>(CreateParameters(standardDeviceResponseTimeout, "MaxBrightness", MemberTypes.Property));
             }
         }
 
         /// <inheritdoc/>
         public void OpenCover()
         {
-            DynamicClientDriver.CallMethodWithNoParameters(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "OpenCover", MemberTypes.Method);
+            DynamicClientDriver.CallMethodWithNoParameters(CreateParameters(standardDeviceResponseTimeout, "OpenCover", MemberTypes.Method));
             LogMessage(logger, clientNumber, "AbortSlew", "Cover opened OK");
         }
 
         /// <inheritdoc/>
         public void CloseCover()
         {
-            DynamicClientDriver.CallMethodWithNoParameters(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "CloseCover", MemberTypes.Method);
+            DynamicClientDriver.CallMethodWithNoParameters(CreateParameters(standardDeviceResponseTimeout, "CloseCover", MemberTypes.Method));
             LogMessage(logger, clientNumber, "AbortSlew", "Cover closed OK");
         }
 
         /// <inheritdoc/>
         public void HaltCover()
         {
-            DynamicClientDriver.CallMethodWithNoParameters(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "HaltCover", MemberTypes.Method);
+            DynamicClientDriver.CallMethodWithNoParameters(CreateParameters(standardDeviceResponseTimeout, "HaltCover", MemberTypes.Method));
             LogMessage(logger, clientNumber, "AbortSlew", "Cover halted OK");
         }
 
@@ -265,13 +265,13 @@ namespace ASCOM.Alpaca.Clients
             {
                 { AlpacaConstants.BRIGHTNESS_PARAMETER_NAME, Brightness.ToString(CultureInfo.InvariantCulture) }
             };
-            DynamicClientDriver.SendToRemoteDevice<NoReturnValue>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "CalibratorOn", Parameters, HttpMethod.Put, MemberTypes.Method);
+            DynamicClientDriver.SendToRemoteDevice<NoReturnValue>(CreateParameters(standardDeviceResponseTimeout, "CalibratorOn", MemberTypes.Method), Parameters, HttpMethod.Put);
         }
 
         /// <inheritdoc/>
         public void CalibratorOff()
         {
-            DynamicClientDriver.CallMethodWithNoParameters(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "CalibratorOff", MemberTypes.Method);
+            DynamicClientDriver.CallMethodWithNoParameters(CreateParameters(standardDeviceResponseTimeout, "CalibratorOff", MemberTypes.Method));
             LogMessage(logger, clientNumber, "AbortSlew", $"Calibrator off OK");
         }
 
@@ -288,7 +288,7 @@ namespace ASCOM.Alpaca.Clients
                 if (DeviceCapabilities.HasConnectAndDeviceState(clientDeviceType, InterfaceVersion))
                 {
                     // Platform 7 or later device so return the device's CalibratorChanging property
-                    return DynamicClientDriver.GetValue<bool>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "CalibratorChanging", MemberTypes.Property);
+                    return DynamicClientDriver.GetValue<bool>(CreateParameters(standardDeviceResponseTimeout, "CalibratorChanging", MemberTypes.Property));
                 }
 
                 // Platform 6 or earlier device so use CalibratorState to determine the movement state.
@@ -305,7 +305,7 @@ namespace ASCOM.Alpaca.Clients
                 if (DeviceCapabilities.HasConnectAndDeviceState(clientDeviceType, InterfaceVersion))
                 {
                     // Platform 7 or later device so return the device's CoverMoving property
-                    return DynamicClientDriver.GetValue<bool>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "CoverMoving", MemberTypes.Property);
+                    return DynamicClientDriver.GetValue<bool>(CreateParameters(standardDeviceResponseTimeout, "CoverMoving", MemberTypes.Property));
                 }
 
                 // Platform 6 or earlier device so use CoverState to determine the movement state.

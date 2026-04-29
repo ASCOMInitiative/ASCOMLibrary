@@ -93,6 +93,10 @@ namespace ASCOM.Alpaca.Clients
 
         #endregion
 
+        /// <summary>Creates a Parameters instance from this client's connection fields.</summary>
+        internal Parameters CreateParameters(int timeout, string method, MemberTypes memberType)
+            => new Parameters(clientNumber, client, timeout, URIBase, strictCasing, logger, method, memberType);
+
         #region IAscomDevice common properties and methods.
 
         ///<inheritdoc/>
@@ -127,7 +131,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                bool response = DynamicClientDriver.GetValue<bool>(clientNumber, client, establishConnectionTimeout, URIBase, strictCasing, logger, "Connected", MemberTypes.Property);
+                bool response = DynamicClientDriver.GetValue<bool>(CreateParameters(establishConnectionTimeout, "Connected", MemberTypes.Property));
                 LogMessage(logger, clientNumber, "Connected", response.ToString());
                 return response;
             }
@@ -137,7 +141,7 @@ namespace ASCOM.Alpaca.Clients
                 try
                 {
                     LogMessage(logger, clientNumber, $"Connected", $"Setting {this.GetType().Name} Connected to {value}");
-                    DynamicClientDriver.SetBool(clientNumber, client, establishConnectionTimeout, URIBase, strictCasing, logger, "Connected", value, MemberTypes.Property);
+                    DynamicClientDriver.SetValue(CreateParameters(establishConnectionTimeout, "Connected", MemberTypes.Property), value);
                     LogMessage(logger, clientNumber, $"Connected", $"{this.GetType().Name} Connected set to {value} OK");
                 }
                 catch (Exception ex)
@@ -198,7 +202,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                string response = DynamicClientDriver.GetValue<string>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "Name", MemberTypes.Property);
+                string response = DynamicClientDriver.GetValue<string>(CreateParameters(standardDeviceResponseTimeout, "Name", MemberTypes.Property));
                 AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "Name", response);
                 return response;
             }
@@ -224,12 +228,12 @@ namespace ASCOM.Alpaca.Clients
             if (DeviceCapabilities.HasConnectAndDeviceState(clientDeviceType, InterfaceVersion))
             {
                 // Platform 7 or later device so use the device's Connect method
-                DynamicClientDriver.CallMethodWithNoParameters(clientNumber, client, establishConnectionTimeout, URIBase, strictCasing, logger, "Connect", MemberTypes.Method);
+                DynamicClientDriver.CallMethodWithNoParameters(CreateParameters(establishConnectionTimeout, "Connect", MemberTypes.Method));
                 return;
             }
 
             // Platform 6 or earlier device so use the Connected property
-            DynamicClientDriver.SetBool(clientNumber, client, establishConnectionTimeout, URIBase, strictCasing, logger, "Connected", true, MemberTypes.Property);
+            DynamicClientDriver.SetValue(CreateParameters(establishConnectionTimeout, "Connected", MemberTypes.Property), true);
         }
 
         ///<inheritdoc/>
@@ -239,12 +243,12 @@ namespace ASCOM.Alpaca.Clients
             if (DeviceCapabilities.HasConnectAndDeviceState(clientDeviceType, InterfaceVersion))
             {
                 // Platform 7 or later device so use the device's Disconnect method
-                DynamicClientDriver.CallMethodWithNoParameters(clientNumber, client, establishConnectionTimeout, URIBase, strictCasing, logger, "Disconnect", MemberTypes.Method);
+                DynamicClientDriver.CallMethodWithNoParameters(CreateParameters(establishConnectionTimeout, "Disconnect", MemberTypes.Method));
                 return;
             }
 
             // Platform 6 or earlier device so use the Connected property
-            DynamicClientDriver.SetBool(clientNumber, client, establishConnectionTimeout, URIBase, strictCasing, logger, "Connected", false, MemberTypes.Property);
+            DynamicClientDriver.SetValue(CreateParameters(establishConnectionTimeout, "Connected", MemberTypes.Property), false);
         }
 
         ///<inheritdoc/>
@@ -256,7 +260,7 @@ namespace ASCOM.Alpaca.Clients
                 if (DeviceCapabilities.HasConnectAndDeviceState(clientDeviceType, InterfaceVersion))
                 {
                     // Platform 7 or later device so return the device's Connecting property
-                    return DynamicClientDriver.GetValue<bool>(clientNumber, client, establishConnectionTimeout, URIBase, strictCasing, logger, "Connecting", MemberTypes.Property);
+                    return DynamicClientDriver.GetValue<bool>(CreateParameters(establishConnectionTimeout, "Connecting", MemberTypes.Property));
                 }
 
                 // Always return false for Platform 6 and earlier devices
@@ -274,7 +278,7 @@ namespace ASCOM.Alpaca.Clients
                 {
                     // Platform 7 or later device so return the device's value
                     // Note use of a concrete class here because System.Text.Json cannot de-serialise to an interface, it requires a concrete class
-                    List<StateValue> response = DynamicClientDriver.GetValue<List<StateValue>>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "DeviceState", MemberTypes.Property);
+                    List<StateValue> response = DynamicClientDriver.GetValue<List<StateValue>>(CreateParameters(standardDeviceResponseTimeout, "DeviceState", MemberTypes.Property));
 
                     // Here we convert the device response to a type that can be returned as a LIst<IStateValue> object.
                     // This is done by using LINQ to cast the returned List<StateValue> objects to the StateValue type and then returning them as a list. Convoluted, but it works!

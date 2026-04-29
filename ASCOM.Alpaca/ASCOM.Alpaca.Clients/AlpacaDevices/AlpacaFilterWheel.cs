@@ -203,7 +203,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<int[]>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "FocusOffsets", MemberTypes.Property);
+                return DynamicClientDriver.GetValue<int[]>(CreateParameters(standardDeviceResponseTimeout, "FocusOffsets", MemberTypes.Property));
             }
         }
 
@@ -212,7 +212,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<string[]>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "Names", MemberTypes.Property);
+                return DynamicClientDriver.GetValue<string[]>(CreateParameters(standardDeviceResponseTimeout, "Names", MemberTypes.Property));
             }
         }
 
@@ -221,12 +221,12 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<short>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "Position", MemberTypes.Property);
+                return DynamicClientDriver.GetValue<short>(CreateParameters(standardDeviceResponseTimeout, "Position", MemberTypes.Property));
             }
 
             set
             {
-                DynamicClientDriver.SetShort(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "Position", value, MemberTypes.Property);
+                DynamicClientDriver.SetValue(CreateParameters(standardDeviceResponseTimeout, "Position", MemberTypes.Property), value);
             }
         }
 

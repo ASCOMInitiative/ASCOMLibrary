@@ -209,7 +209,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<bool>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "CanReverse", MemberTypes.Property);
+                return DynamicClientDriver.GetValue<bool>(CreateParameters(standardDeviceResponseTimeout, "CanReverse", MemberTypes.Property));
             }
         }
 
@@ -218,7 +218,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<bool>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "IsMoving", MemberTypes.Property);
+                return DynamicClientDriver.GetValue<bool>(CreateParameters(standardDeviceResponseTimeout, "IsMoving", MemberTypes.Property));
             }
         }
 
@@ -227,7 +227,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<float>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "Position", MemberTypes.Property);
+                return DynamicClientDriver.GetValue<float>(CreateParameters(standardDeviceResponseTimeout, "Position", MemberTypes.Property));
             }
         }
 
@@ -236,12 +236,12 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<bool>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "Reverse", MemberTypes.Property);
+                return DynamicClientDriver.GetValue<bool>(CreateParameters(standardDeviceResponseTimeout, "Reverse", MemberTypes.Property));
             }
 
             set
             {
-                DynamicClientDriver.SetBool(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "Reverse", value, MemberTypes.Property);
+                DynamicClientDriver.SetValue(CreateParameters(standardDeviceResponseTimeout, "Reverse", MemberTypes.Property), value);
             }
         }
 
@@ -250,7 +250,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<float>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "StepSize", MemberTypes.Property);
+                return DynamicClientDriver.GetValue<float>(CreateParameters(standardDeviceResponseTimeout, "StepSize", MemberTypes.Property));
             }
         }
 
@@ -259,14 +259,14 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<float>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "TargetPosition", MemberTypes.Property);
+                return DynamicClientDriver.GetValue<float>(CreateParameters(standardDeviceResponseTimeout, "TargetPosition", MemberTypes.Property));
             }
         }
 
         /// <inheritdoc/>
         public void Halt()
         {
-            DynamicClientDriver.CallMethodWithNoParameters(clientNumber, client, longDeviceResponseTimeout, URIBase, strictCasing, logger, "Halt", MemberTypes.Method);
+            DynamicClientDriver.CallMethodWithNoParameters(CreateParameters(longDeviceResponseTimeout, "Halt", MemberTypes.Method));
             LogMessage(logger, clientNumber, "Halt", "Rotator halted OK");
         }
 
@@ -277,7 +277,7 @@ namespace ASCOM.Alpaca.Clients
             {
                 { AlpacaConstants.POSITION_PARAMETER_NAME, Position.ToString(CultureInfo.InvariantCulture) }
             };
-            DynamicClientDriver.SendToRemoteDevice<NoReturnValue>(clientNumber, client, longDeviceResponseTimeout, URIBase, strictCasing, logger, "Move", Parameters, HttpMethod.Put, MemberTypes.Method);
+            DynamicClientDriver.SendToRemoteDevice<NoReturnValue>(CreateParameters(longDeviceResponseTimeout, "Move", MemberTypes.Method), Parameters, HttpMethod.Put);
             LogMessage(logger, clientNumber, "Move", $"Rotator moved to relative position {Position} OK");
         }
 
@@ -288,7 +288,7 @@ namespace ASCOM.Alpaca.Clients
             {
                 { AlpacaConstants.POSITION_PARAMETER_NAME, Position.ToString(CultureInfo.InvariantCulture) }
             };
-            DynamicClientDriver.SendToRemoteDevice<NoReturnValue>(clientNumber, client, longDeviceResponseTimeout, URIBase, strictCasing, logger, "MoveAbsolute", Parameters, HttpMethod.Put, MemberTypes.Method);
+            DynamicClientDriver.SendToRemoteDevice<NoReturnValue>(CreateParameters(longDeviceResponseTimeout, "MoveAbsolute", MemberTypes.Method), Parameters, HttpMethod.Put);
             LogMessage(logger, clientNumber, "MoveAbsolute", $"Rotator moved to absolute position {Position} OK");
         }
 
@@ -301,7 +301,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<float>(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger, "MechanicalPosition", MemberTypes.Property);
+                return DynamicClientDriver.GetValue<float>(CreateParameters(standardDeviceResponseTimeout, "MechanicalPosition", MemberTypes.Property));
             }
         }
 
@@ -312,7 +312,7 @@ namespace ASCOM.Alpaca.Clients
             {
                 { AlpacaConstants.POSITION_PARAMETER_NAME, Position.ToString(CultureInfo.InvariantCulture) }
             };
-            DynamicClientDriver.SendToRemoteDevice<NoReturnValue>(clientNumber, client, longDeviceResponseTimeout, URIBase, strictCasing, logger, "Sync", Parameters, HttpMethod.Put, MemberTypes.Method);
+            DynamicClientDriver.SendToRemoteDevice<NoReturnValue>(CreateParameters(longDeviceResponseTimeout, "Sync", MemberTypes.Method), Parameters, HttpMethod.Put);
             LogMessage(logger, clientNumber, "Sync", $"Rotator synced to sky position {Position} OK");
         }
 
@@ -323,7 +323,7 @@ namespace ASCOM.Alpaca.Clients
             {
                 { AlpacaConstants.POSITION_PARAMETER_NAME, Position.ToString(CultureInfo.InvariantCulture) }
             };
-            DynamicClientDriver.SendToRemoteDevice<NoReturnValue>(clientNumber, client, longDeviceResponseTimeout, URIBase, strictCasing, logger, "MoveMechanical", Parameters, HttpMethod.Put, MemberTypes.Method);
+            DynamicClientDriver.SendToRemoteDevice<NoReturnValue>(CreateParameters(longDeviceResponseTimeout, "MoveMechanical", MemberTypes.Method), Parameters, HttpMethod.Put);
             LogMessage(logger, clientNumber, "MoveMechanical", $"Rotator moved to mechanical position {Position} OK");
         }
 
