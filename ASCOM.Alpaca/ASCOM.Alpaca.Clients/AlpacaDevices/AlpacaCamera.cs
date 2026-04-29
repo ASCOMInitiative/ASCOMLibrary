@@ -494,7 +494,10 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<Array>(CreateParameters(longDeviceResponseTimeout, "ImageArray", MemberTypes.Property), imageArrayTransferType, imageArrayCompression);
+                var p = CreateParameters(longDeviceResponseTimeout, "ImageArray", MemberTypes.Property);
+                p.ImageArrayTransferType = imageArrayTransferType;
+                p.ImageArrayCompression = imageArrayCompression;
+                return DynamicClientDriver.GetValue<Array>(p);
             }
         }
 

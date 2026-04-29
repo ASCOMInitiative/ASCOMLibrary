@@ -31,9 +31,6 @@ namespace ASCOM.Alpaca.Clients
         private const int DYNAMIC_DRIVER_ERROR_NUMBER = 4095; // Alpaca error number that will be returned when a required JSON "Value" element is either absent from the response or is set to "null"
 
         // Default image array transfer constants
-        private const ImageArrayCompression IMAGE_ARRAY_COMPRESSION_DEFAULT = ImageArrayCompression.None;
-        private const ImageArrayTransferType IMAGE_ARRAY_TRANSFER_TYPE_DEFAULT = ImageArrayTransferType.Base64HandOff;
-
         // Dynamic client configuration constants
         private const int SOCKET_ERROR_RETRY_DELAY_TIME = 100; // The delay time (milliseconds) between socket actively refused retries
         private const string CONTENT_TYPE_HEADER_NAME = "Content-Type"; // Name of HTTP header used to affirm the type of data returned by the device
@@ -531,15 +528,10 @@ namespace ASCOM.Alpaca.Clients
             SendToRemoteDevice<NoReturnValue>(p, formParameters, HttpMethod.Put);
         }
 
-        internal static T GetValue<T>(Parameters p, bool throwOnBadDateTimeJson = AlpacaClient.THROW_ON_BAD_JSON_DATE_TIME_DEFAULT)
-        {
-            return GetValue<T>(p, IMAGE_ARRAY_TRANSFER_TYPE_DEFAULT, IMAGE_ARRAY_COMPRESSION_DEFAULT, throwOnBadDateTimeJson);
-        }
-
-        internal static T GetValue<T>(Parameters p, ImageArrayTransferType imageArrayTransferType, ImageArrayCompression imageArrayCompression, bool throwOnBadDateTimeJson = AlpacaClient.THROW_ON_BAD_JSON_DATE_TIME_DEFAULT)
+        internal static T GetValue<T>(Parameters p)
         {
             Dictionary<string, string> formParameters = new Dictionary<string, string>();
-            return SendToRemoteDevice<T>(p, formParameters, HttpMethod.Get, imageArrayTransferType, imageArrayCompression, throwOnBadDateTimeJson);
+            return SendToRemoteDevice<T>(p, formParameters, HttpMethod.Get);
         }
 
         internal static void SetValue<T>(Parameters p, T parameterValue)
@@ -602,15 +594,7 @@ namespace ASCOM.Alpaca.Clients
         /// <summary>
         /// Send a command to the remote device, retrying a given number of times if a socket exception is received
         /// </summary>
-        internal static T SendToRemoteDevice<T>(Parameters p, Dictionary<string, string> parameters, HttpMethod httpMethod, bool throwOnBadDateTimeJson = AlpacaClient.THROW_ON_BAD_JSON_DATE_TIME_DEFAULT)
-        {
-            return SendToRemoteDevice<T>(p, parameters, httpMethod, IMAGE_ARRAY_TRANSFER_TYPE_DEFAULT, IMAGE_ARRAY_COMPRESSION_DEFAULT, throwOnBadDateTimeJson);
-        }
-
-        /// <summary>
-        /// Send a command to the remote device, retrying a given number of times if a socket exception is received, specifying an image array transfer type
-        /// </summary>
-        internal static T SendToRemoteDevice<T>(Parameters p, Dictionary<string, string> parameters, HttpMethod httpMethod, ImageArrayTransferType imageArrayTransferType, ImageArrayCompression imageArrayCompression, bool throwOnBadDateTimeJson = AlpacaClient.THROW_ON_BAD_JSON_DATE_TIME_DEFAULT)
+        internal static T SendToRemoteDevice<T>(Parameters p, Dictionary<string, string> parameters, HttpMethod httpMethod)
         {
             int retryCounter = 0; // Initialise the socket error retry counter
             Stopwatch sw = new Stopwatch(); // Stopwatch to time activities
@@ -668,7 +652,7 @@ namespace ASCOM.Alpaca.Clients
                         // If required, apply headers to control camera image array retrieval
                         if (typeof(T) == typeof(Array))
                         {
-                            switch (imageArrayTransferType)
+                            switch (p.ImageArrayTransferType)
                             {
                                 case ImageArrayTransferType.JSON:
                                     // No extra action because "accepts = application/json" will be applied automatically by the client
@@ -692,7 +676,7 @@ namespace ASCOM.Alpaca.Clients
                                     break;
 
                                 default:
-                                    throw new InvalidValueException($"Invalid image array transfer type: {imageArrayTransferType} - Correct this in the Dynamic Client setup dialogue or Alpaca client call.");
+                                    throw new InvalidValueException($"Invalid image array transfer type: {p.ImageArrayTransferType} - Correct this in the Dynamic Client setup dialogue or Alpaca client call.");
                             }
                         }
                     }
@@ -989,7 +973,7 @@ namespace ASCOM.Alpaca.Clients
                             AlpacaDeviceBaseClass.LogMessage(p.Logger, p.ClientNumber, p.Method, string.Format(LOG_FORMAT_STRING, dateTimeResponse.ClientTransactionID, dateTimeResponse.ServerTransactionID, dateTimeResponse.Value.ToString()));
 
                             // Report an issue if the JSON date-time string does not de-serialise to a UTC value.
-                            if (throwOnBadDateTimeJson & (dateTimeResponse.Value.Kind != DateTimeKind.Utc))
+                            if (p.ThrowOnBadDateTimeJson & (dateTimeResponse.Value.Kind != DateTimeKind.Utc))
                             {
                                 // Extract the JSON date-time string from the response, if possible
                                 string jsonDateTimeString = responseJson;
@@ -1227,7 +1211,7 @@ namespace ASCOM.Alpaca.Clients
                                 // Create a handler to indicate the compression levels supported by this client
                                 using (HttpClientHandler imageDownloadHandler = new HttpClientHandler())
                                 {
-                                    switch (imageArrayCompression)
+                                    switch (p.ImageArrayCompression)
                                     {
                                         case ImageArrayCompression.None:
                                             imageDownloadHandler.AutomaticDecompression = DecompressionMethods.None;
@@ -1242,7 +1226,7 @@ namespace ASCOM.Alpaca.Clients
                                             imageDownloadHandler.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip; // Allow both Deflate and GZip decompression
                                             break;
                                         default:
-                                            throw new InvalidValueException($"Unknown ImageArrayCompression value: {imageArrayCompression} - Can't proceed further!");
+                                            throw new InvalidValueException($"Unknown ImageArrayCompression value: {p.ImageArrayCompression} - Can't proceed further!");
                                     }
 
                                     // Create an HTTP client  to download the base64 string
@@ -1740,7 +1724,10 @@ namespace ASCOM.Alpaca.Clients
             object[,,] objectArray3D;
             Stopwatch sw = new Stopwatch();
 
-            returnArray = GetValue<Array>(new Parameters(clientNumber, client, timeout, URIBase, strictCasing, logger, "ImageArrayVariant", MemberTypes.Property), imageArrayTransferType, imageArrayCompression);
+            var p = new Parameters(clientNumber, client, timeout, URIBase, strictCasing, logger, "ImageArrayVariant", MemberTypes.Property);
+            p.ImageArrayTransferType = imageArrayTransferType;
+            p.ImageArrayCompression = imageArrayCompression;
+            returnArray = GetValue<Array>(p);
 
             try
             {

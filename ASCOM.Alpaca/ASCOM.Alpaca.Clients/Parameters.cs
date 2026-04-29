@@ -1,3 +1,4 @@
+using ASCOM.Common.Alpaca;
 using ASCOM.Common.Interfaces;
 
 using System.Net.Http;
@@ -18,6 +19,9 @@ namespace ASCOM.Alpaca.Clients
         internal ILogger Logger { get; }
         internal string Method { get; }
         internal MemberTypes MemberType { get; }
+        internal ImageArrayTransferType ImageArrayTransferType { get; set; } = AlpacaClient.CLIENT_IMAGEARRAYTRANSFERTYPE_DEFAULT;
+        internal ImageArrayCompression ImageArrayCompression { get; set; } = AlpacaClient.CLIENT_IMAGEARRAYCOMPRESSION_DEFAULT;
+        internal bool ThrowOnBadDateTimeJson { get; set; } = AlpacaClient.THROW_ON_BAD_JSON_DATE_TIME_DEFAULT;
 
         internal Parameters(uint clientNumber, HttpClient client, int timeout, string uriBase, bool strictCasing, ILogger logger, string method, MemberTypes memberType)
         {

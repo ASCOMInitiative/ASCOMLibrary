@@ -843,7 +843,9 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<DateTime>(CreateParameters(standardDeviceResponseTimeout, "UTCDate", MemberTypes.Property), throwOnBadDateTimeJSON);
+                var p = CreateParameters(standardDeviceResponseTimeout, "UTCDate", MemberTypes.Property);
+                p.ThrowOnBadDateTimeJson = throwOnBadDateTimeJSON;
+                return DynamicClientDriver.GetValue<DateTime>(p);
             }
             set
             {
