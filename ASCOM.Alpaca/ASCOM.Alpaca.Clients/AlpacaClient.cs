@@ -101,6 +101,7 @@ namespace ASCOM.Alpaca.Clients
         /// <param name="trustUserGeneratedSslCertificates">Trust user generated SSL certificates. Default: User generated SSL certificates are not trusted.</param>
         /// <param name="throwOnBadDateTimeJSON">Return an error if the UTCDate JSON format is incorrect (Only relevant to Telescope devices). Default: Will accept the provided format and not return an error.</param>
         /// <param name="request100Continue">Request that PUT requests use the 100CONTINUE HTTP protocol. Default: The 100CONTINUE protocol is not requested.</param>
+        /// <param name="numberOfRetries">Number of retries for failed requests. Default: 1</param>
         /// <returns>An Alpaca client instance for the supplied device and configuration</returns>
         /// <remarks>ASCOM Camera client specific parameters can be set through the <see cref="ImageArrayTransferType"/> and <see cref="ImageArrayCompression"/> properties.</remarks>
         public static T GetDevice<T>(AscomDevice ascomDevice,
@@ -118,7 +119,8 @@ namespace ASCOM.Alpaca.Clients
             string userAgentProductVersion = null,
             bool trustUserGeneratedSslCertificates = TRUST_USER_GENERATED_SSL_CERTIFICATES_DEFAULT,
             bool throwOnBadDateTimeJSON = THROW_ON_BAD_JSON_DATE_TIME_DEFAULT,
-            bool request100Continue = CLIENT_REQUEST_100_CONTINUE_DEFAULT)
+            bool request100Continue = CLIENT_REQUEST_100_CONTINUE_DEFAULT,
+            int numberOfRetries = NUMBER_OF_RETRIES_DEFAULT)
                                   where T : AlpacaDeviceBaseClass, new()
         {
             // Validate that the ascomDevice parameter is not null
@@ -143,7 +145,8 @@ namespace ASCOM.Alpaca.Clients
                 userAgentProductVersion,
                 trustUserGeneratedSslCertificates,
                 throwOnBadDateTimeJSON,
-                request100Continue);
+                request100Continue,
+                numberOfRetries);
         }
 
         /// <summary>
@@ -169,6 +172,7 @@ namespace ASCOM.Alpaca.Clients
         /// <param name="trustUserGeneratedSslCertificates">Trust user generated SSL certificates. Default: User generated SSL certificates are not trusted.</param>
         /// <param name="throwOnBadDateTimeJSON">Return an error if the UTCDate JSON format is incorrect (Only relevant to Telescope devices). Default: Will accept the provided format and not return an error.</param>
         /// <param name="request100Continue">Request that PUT requests use the 100CONTINUE HTTP protocol. Default: The 100CONTINUE protocol is not requested.</param>
+        /// <param name="numberOfRetries">Number of retries for failed requests. Default: 1</param>
         /// <returns>An Alpaca client of the specified type</returns>
         public static T GetDevice<T>(ServiceType serviceType = CLIENT_SERVICETYPE_DEFAULT,
             string ipAddressString = CLIENT_IPADDRESS_DEFAULT,
@@ -188,7 +192,8 @@ namespace ASCOM.Alpaca.Clients
             string userAgentProductVersion = null,
             bool trustUserGeneratedSslCertificates = TRUST_USER_GENERATED_SSL_CERTIFICATES_DEFAULT,
             bool throwOnBadDateTimeJSON = THROW_ON_BAD_JSON_DATE_TIME_DEFAULT,
-            bool request100Continue = CLIENT_REQUEST_100_CONTINUE_DEFAULT)
+            bool request100Continue = CLIENT_REQUEST_100_CONTINUE_DEFAULT,
+            int numberOfRetries = NUMBER_OF_RETRIES_DEFAULT)
                                   where T : AlpacaDeviceBaseClass, new()
         {
             if (typeof(T) == typeof(AlpacaCamera)) // Return a camera type with its additional parameters set
@@ -212,7 +217,8 @@ namespace ASCOM.Alpaca.Clients
                     userAgentProductName,
                     userAgentProductVersion,
                     trustUserGeneratedSslCertificates,
-                    request100Continue
+                    request100Continue,
+                    numberOfRetries
                 });
             }
             else if (typeof(T) == typeof(AlpacaTelescope)) // Return a telescope type with its additional parameters set
@@ -235,7 +241,8 @@ namespace ASCOM.Alpaca.Clients
                     userAgentProductVersion,
                     trustUserGeneratedSslCertificates,
                     throwOnBadDateTimeJSON, // Telescope specific parameter
-                    request100Continue
+                    request100Continue,
+                    numberOfRetries
                 });
             }
             else // Return a standard device client
@@ -257,7 +264,8 @@ namespace ASCOM.Alpaca.Clients
                     userAgentProductName,
                     userAgentProductVersion,
                     trustUserGeneratedSslCertificates,
-                    request100Continue
+                    request100Continue,
+                    numberOfRetries
                 });
             }
 
