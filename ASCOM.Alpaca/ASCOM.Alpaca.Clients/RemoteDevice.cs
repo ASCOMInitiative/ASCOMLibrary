@@ -28,7 +28,6 @@ namespace ASCOM.Alpaca.Clients
 
         //Private variables
         private static uint uniqueTransactionNumber = 0; // Unique number that increments on each call to TransactionNumber
-        private static int numberOfRetries = AlpacaClient.NUMBER_OF_RETRIES_DEFAULT; // Number of times to retry a request if the socket connection is actively refused by the device. This can happen if the device is busy and cannot respond to the request. A value of zero means no retries, a value of one means one retry and so on.
 
         // Lock objects
         private static readonly object transactionCountlockObject = new object();
@@ -45,19 +44,6 @@ namespace ASCOM.Alpaca.Clients
         }
 
         #endregion
-
-        #region static methods
-
-        /// <summary>
-        /// Sets the number of retries when when a connection is refused or fails. Default is 1.
-        /// </summary>
-        /// <param name="numberOfRetries">The number of retries to set.</param>
-        public static void SetNumberOfRetries(int numberOfRetries)
-        {
-            RemoteDevice.numberOfRetries = numberOfRetries;
-        }
-
-        #endregion 
 
         #region Utility code
 
@@ -585,7 +571,7 @@ namespace ASCOM.Alpaca.Clients
                     UriBuilder transactionUri = new UriBuilder($"{clientParameters.Client.BaseAddress}{clientParameters.URIBase}{clientParameters.Method}".ToLowerInvariant());
 
                     // Create a new request message to be sent to the device
-                    AlpacaDeviceBaseClass.LogMessage(clientParameters.Logger, clientParameters.ClientNumber, clientParameters.Method, $"HTTP {httpMethod} - UriBase: '{clientParameters.URIBase}', Device URI: {transactionUri.Uri}");
+                    AlpacaDeviceBaseClass.LogMessage(clientParameters.Logger, clientParameters.ClientNumber, clientParameters.Method, $"HTTP {httpMethod} - UriBase: '{clientParameters.URIBase}', Device URI: {transactionUri.Uri}, Retries: {clientParameters.NumberOfRetries}");
 
                     // Process HTTP GET and PUT methods
                     if (httpMethod == HttpMethod.Get) // HTTP GET methods
@@ -1516,18 +1502,18 @@ namespace ASCOM.Alpaca.Clients
                             if (ex1 is TaskCanceledException) // Handle communications p.Timeout exceptions using retries
                             {
                                 retryCounter += 1; // Increment the retry counter
-                                if (retryCounter <= numberOfRetries) // The retry count is less than or equal to the maximum allowed so retry the command
+                                if (retryCounter <= clientParameters.NumberOfRetries) // The retry count is less than or equal to the maximum allowed so retry the command
                                 {
                                     AlpacaDeviceBaseClass.LogMessage(clientParameters.Logger, clientParameters.ClientNumber, clientParameters.Method, $"{clientParameters.Method} {ex1.Message}");
                                     AlpacaDeviceBaseClass.LogMessage(clientParameters.Logger, clientParameters.ClientNumber, clientParameters.Method, "Timeout exception: " + ex1.ToString());
 
                                     // Log that we are retrying the command and wait a short time in the hope that the transient condition clears
-                                    AlpacaDeviceBaseClass.LogMessage(clientParameters.Logger, clientParameters.ClientNumber, clientParameters.Method, $"Timeout exception - retry-count {retryCounter}/{numberOfRetries}");
+                                    AlpacaDeviceBaseClass.LogMessage(clientParameters.Logger, clientParameters.ClientNumber, clientParameters.Method, $"Timeout exception - retry-count {retryCounter}/{clientParameters.NumberOfRetries}");
                                     Thread.Sleep(AlpacaClient.SOCKET_ERROR_RETRY_DELAY_TIME);
                                 }
                                 else // The retry count exceeds the maximum allowed so throw the exception to the client
                                 {
-                                    AlpacaDeviceBaseClass.LogMessage(clientParameters.Logger, clientParameters.ClientNumber, clientParameters.Method, $"{clientParameters.Method} Retry count {numberOfRetries} exceeded:  {ex1.Message}");
+                                    AlpacaDeviceBaseClass.LogMessage(clientParameters.Logger, clientParameters.ClientNumber, clientParameters.Method, $"{clientParameters.Method} Retry count {clientParameters.NumberOfRetries} exceeded:  {ex1.Message}");
                                     AlpacaDeviceBaseClass.LogMessage(clientParameters.Logger, clientParameters.ClientNumber, clientParameters.Method, "Timeout exception: " + ex1.ToString());
                                     throw new TimeoutException($"Alpaca client p.Timeout for p.Method {clientParameters.Method}: {clientParameters.Client.BaseAddress}");
                                 }
@@ -1537,13 +1523,13 @@ namespace ASCOM.Alpaca.Clients
                                 if (ex1.InnerException is SocketException) // There is an inner exception and it is a SocketException so apply the retry logic
                                 {
                                     retryCounter += 1; // Increment the retry counter
-                                    if (retryCounter <= numberOfRetries) // The retry count is less than or equal to the maximum allowed so retry the command
+                                    if (retryCounter <= clientParameters.NumberOfRetries) // The retry count is less than or equal to the maximum allowed so retry the command
                                     {
                                         AlpacaDeviceBaseClass.LogMessage(clientParameters.Logger, clientParameters.ClientNumber, clientParameters.Method, $"{clientParameters.Method} {ex1.Message}");
                                         AlpacaDeviceBaseClass.LogMessage(clientParameters.Logger, clientParameters.ClientNumber, clientParameters.Method, "SocketException: " + ex1.ToString());
 
                                         // Log that we are retrying the command and wait a short time in the hope that the transient condition clears
-                                        AlpacaDeviceBaseClass.LogMessage(clientParameters.Logger, clientParameters.ClientNumber, clientParameters.Method, $"Socket exception, retrying command - retry-count {retryCounter}/{numberOfRetries}");
+                                        AlpacaDeviceBaseClass.LogMessage(clientParameters.Logger, clientParameters.ClientNumber, clientParameters.Method, $"Socket exception, retrying command - retry-count {retryCounter}/{clientParameters.NumberOfRetries}");
                                         Thread.Sleep(AlpacaClient.SOCKET_ERROR_RETRY_DELAY_TIME);
                                     }
                                     else // The retry count exceeds the maximum allowed so throw the exception to the client

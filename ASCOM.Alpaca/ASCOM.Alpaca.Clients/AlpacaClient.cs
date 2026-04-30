@@ -43,16 +43,6 @@ namespace ASCOM.Alpaca.Clients
         #region Public static methods
 
         /// <summary>
-        /// Sets the number of retries for failed requests to the specified value for all clients (default 1).
-        /// </summary>
-        /// <param name="numberOfRetries">The number of retries for failed requests.</param>
-        public static void SetClientRetries(int numberOfRetries)
-        {
-            // Set the value in the dynamic client driver which is used by all clients created by this factory. This ensures that the retry behaviour is consistent across all clients regardless of how they are created.
-            RemoteDevice.SetNumberOfRetries(numberOfRetries);
-        }
-
-        /// <summary>
         /// Creates and returns an instance of an Alpaca device of the specified type using the provided configuration
         /// settings.
         /// </summary>

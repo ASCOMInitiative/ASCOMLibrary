@@ -44,6 +44,7 @@ namespace ASCOM.Alpaca.Clients
         internal bool trustUserGeneratedSslCertificates = AlpacaClient.TRUST_USER_GENERATED_SSL_CERTIFICATES_DEFAULT;
         internal bool throwOnBadDateTimeJSON = AlpacaClient.THROW_ON_BAD_JSON_DATE_TIME_DEFAULT;
         internal bool request100Continue = AlpacaClient.CLIENT_REQUEST_100_CONTINUE_DEFAULT;
+        internal int numberOfRetries = AlpacaClient.NUMBER_OF_RETRIES_DEFAULT;
 
         private short? interfaceVersion;
 
@@ -97,7 +98,7 @@ namespace ASCOM.Alpaca.Clients
         /// <summary>Creates a Parameters instance from this client's connection fields.</summary>
         internal Parameters CreateParameters(int timeout, string method, MemberTypes memberType)
         {
-            return new Parameters(clientNumber, client, timeout, uriBase, strictCasing, logger, method, memberType);
+            return new Parameters(clientNumber, client, timeout, uriBase, strictCasing, logger, method, memberType, numberOfRetries);
         }
 
         #region IAscomDevice common properties and methods.
@@ -111,7 +112,7 @@ namespace ASCOM.Alpaca.Clients
                 { AlpacaConstants.ACTION_COMMAND_PARAMETER_NAME, actionName },
                 { AlpacaConstants.ACTION_PARAMETERS_PARAMETER_NAME, actionParameters }
             };
-            string remoteString = RemoteDevice.Send<string>(new Parameters(clientNumber, client, longDeviceResponseTimeout, uriBase, strictCasing, logger, "Action", MemberTypes.Method), formParameters, HttpMethod.Put);
+            string remoteString = RemoteDevice.Send<string>(new Parameters(clientNumber, client, longDeviceResponseTimeout, uriBase, strictCasing, logger, "Action", MemberTypes.Method, numberOfRetries), formParameters, HttpMethod.Put);
             LogMessage(logger, clientNumber, "Action", $"Response length: {remoteString.Length}");
             LogMessage(logger, clientNumber, "Action", $"Response: {((remoteString.Length <= 100) ? remoteString : remoteString.Substring(0, 100))}");
             return remoteString;
@@ -125,7 +126,7 @@ namespace ASCOM.Alpaca.Clients
                 { AlpacaConstants.COMMAND_PARAMETER_NAME, command },
                 { AlpacaConstants.RAW_PARAMETER_NAME, raw.ToString() }
             };
-            RemoteDevice.Send<NoReturnValue>(new Parameters(clientNumber, client, longDeviceResponseTimeout, uriBase, strictCasing, logger, "CommandBlind", MemberTypes.Method), formParameters, HttpMethod.Put);
+            RemoteDevice.Send<NoReturnValue>(new Parameters(clientNumber, client, longDeviceResponseTimeout, uriBase, strictCasing, logger, "CommandBlind", MemberTypes.Method, numberOfRetries), formParameters, HttpMethod.Put);
             LogMessage(logger, clientNumber, "CommandBlind", "Completed OK");
         }
 
@@ -137,7 +138,7 @@ namespace ASCOM.Alpaca.Clients
                 { AlpacaConstants.COMMAND_PARAMETER_NAME, command },
                 { AlpacaConstants.RAW_PARAMETER_NAME, raw.ToString() }
             };
-            bool remoteBool = RemoteDevice.Send<bool>(new Parameters(clientNumber, client, longDeviceResponseTimeout, uriBase, strictCasing, logger, "CommandBool", MemberTypes.Method), formParameters, HttpMethod.Put);
+            bool remoteBool = RemoteDevice.Send<bool>(new Parameters(clientNumber, client, longDeviceResponseTimeout, uriBase, strictCasing, logger, "CommandBool", MemberTypes.Method, numberOfRetries), formParameters, HttpMethod.Put);
             AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "CommandBool", remoteBool.ToString());
             return remoteBool;
         }
@@ -150,7 +151,7 @@ namespace ASCOM.Alpaca.Clients
                 { AlpacaConstants.COMMAND_PARAMETER_NAME, command },
                 { AlpacaConstants.RAW_PARAMETER_NAME, raw.ToString() }
             };
-            string remoteString = RemoteDevice.Send<string>(new Parameters(clientNumber, client, longDeviceResponseTimeout, uriBase, strictCasing, logger, "CommandString", MemberTypes.Method), formParameters, HttpMethod.Put);
+            string remoteString = RemoteDevice.Send<string>(new Parameters(clientNumber, client, longDeviceResponseTimeout, uriBase, strictCasing, logger, "CommandString", MemberTypes.Method, numberOfRetries), formParameters, HttpMethod.Put);
             LogMessage(logger, clientNumber, "CommandString", remoteString);
             return remoteString;
         }
@@ -186,7 +187,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                string response = RemoteDevice.GetValue<string>(new Parameters(clientNumber, client, standardDeviceResponseTimeout, uriBase, strictCasing, logger, "Description", MemberTypes.Property));
+                string response = RemoteDevice.GetValue<string>(new Parameters(clientNumber, client, standardDeviceResponseTimeout, uriBase, strictCasing, logger, "Description", MemberTypes.Property, numberOfRetries));
                 LogMessage(logger, clientNumber, "Description", response);
 
                 return response;
@@ -198,7 +199,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return RemoteDevice.GetValue<string>(new Parameters(clientNumber, client, standardDeviceResponseTimeout, uriBase, strictCasing, logger, "DriverInfo", MemberTypes.Property));
+                return RemoteDevice.GetValue<string>(new Parameters(clientNumber, client, standardDeviceResponseTimeout, uriBase, strictCasing, logger, "DriverInfo", MemberTypes.Property, numberOfRetries));
             }
         }
 
@@ -207,7 +208,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                string remoteString = RemoteDevice.GetValue<string>(new Parameters(clientNumber, client, standardDeviceResponseTimeout, uriBase, strictCasing, logger, "DriverVersion", MemberTypes.Property));
+                string remoteString = RemoteDevice.GetValue<string>(new Parameters(clientNumber, client, standardDeviceResponseTimeout, uriBase, strictCasing, logger, "DriverVersion", MemberTypes.Property, numberOfRetries));
                 LogMessage(logger, clientNumber, "DriverVersion", remoteString);
                 return remoteString;
             }
@@ -224,7 +225,7 @@ namespace ASCOM.Alpaca.Clients
                     // Get the interface version
                     try
                     {
-                        interfaceVersion = RemoteDevice.GetValue<short>(new Parameters(clientNumber, client, establishConnectionTimeout, uriBase, strictCasing, logger, "InterfaceVersion", MemberTypes.Property));
+                        interfaceVersion = RemoteDevice.GetValue<short>(new Parameters(clientNumber, client, establishConnectionTimeout, uriBase, strictCasing, logger, "InterfaceVersion", MemberTypes.Property, numberOfRetries));
                         LogMessage(logger, clientNumber, "InterfaceVersion", interfaceVersion.ToString());
                     }
                     catch (Exception ex) // The method failed so assume that the driver has a version 1 interface where the InterfaceVersion method is not implemented
@@ -254,7 +255,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                List<string> supportedActions = RemoteDevice.GetValue<List<string>>(new Parameters(clientNumber, client, standardDeviceResponseTimeout, uriBase, strictCasing, logger, "SupportedActions", MemberTypes.Property));
+                List<string> supportedActions = RemoteDevice.GetValue<List<string>>(new Parameters(clientNumber, client, standardDeviceResponseTimeout, uriBase, strictCasing, logger, "SupportedActions", MemberTypes.Property, numberOfRetries));
                 LogMessage(logger, clientNumber, "SupportedActions", $"Returning {supportedActions.Count} actions");
 
                 List<string> returnValues = new List<string>();

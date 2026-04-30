@@ -108,5 +108,10 @@ namespace ASCOM.Alpaca.Clients
         /// is included in case any developers have made devices that depend on the client requesting 100-CONTINUE behaviour.
         /// See https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/100-continue for more information about HTTP 100-continue behaviour.</remarks>
         public bool Request100Continue { get; set; } = AlpacaClient.CLIENT_REQUEST_100_CONTINUE_DEFAULT;
+
+        /// <summary>
+        /// Sets the number of communication retries this client will make. Defaults to 1.
+        /// </summary>
+        public int NumberOfRetries { get; set; } = AlpacaClient.NUMBER_OF_RETRIES_DEFAULT;
     }
 }
