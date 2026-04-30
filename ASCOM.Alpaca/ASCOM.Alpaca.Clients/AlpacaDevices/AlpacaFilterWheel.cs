@@ -142,9 +142,9 @@ namespace ASCOM.Alpaca.Clients
                 // Set the device type
                 clientDeviceType = DeviceTypes.FilterWheel;
 
-                URIBase = $"{AlpacaConstants.API_URL_BASE}{AlpacaConstants.API_VERSION_V1}/{clientDeviceType}/{remoteDeviceNumber}/";
+                uriBase = $"{AlpacaConstants.API_URL_BASE}{AlpacaConstants.API_VERSION_V1}/{clientDeviceType}/{remoteDeviceNumber}/";
 
-                LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), "This devices's base URI: " + URIBase);
+                LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), "This devices's base URI: " + uriBase);
 
                 // List parameter values
                 LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"Service type: {serviceType}");

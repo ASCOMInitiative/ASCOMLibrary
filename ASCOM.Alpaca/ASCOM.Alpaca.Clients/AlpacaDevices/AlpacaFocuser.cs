@@ -147,7 +147,7 @@ namespace ASCOM.Alpaca.Clients
                 // Set the device type
                 clientDeviceType = DeviceTypes.Focuser;
 
-                URIBase = $"{AlpacaConstants.API_URL_BASE}{AlpacaConstants.API_VERSION_V1}/{clientDeviceType}/{remoteDeviceNumber}/";
+                uriBase = $"{AlpacaConstants.API_URL_BASE}{AlpacaConstants.API_VERSION_V1}/{clientDeviceType}/{remoteDeviceNumber}/";
 
 
                 // List parameter values

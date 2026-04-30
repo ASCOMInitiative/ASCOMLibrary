@@ -3,12 +3,14 @@ using ASCOM.Common.Alpaca;
 using ASCOM.Common.DeviceInterfaces;
 using ASCOM.Common.DeviceStateClasses;
 using ASCOM.Common.Interfaces;
-
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Net.Http;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace ASCOM.Alpaca.Clients
 {
@@ -150,7 +152,7 @@ namespace ASCOM.Alpaca.Clients
                 // Set the device type
                 clientDeviceType = Common.DeviceTypes.Camera;
 
-                URIBase = $"{AlpacaConstants.API_URL_BASE}{AlpacaConstants.API_VERSION_V1}/{clientDeviceType}/{remoteDeviceNumber}/";
+                uriBase = $"{AlpacaConstants.API_URL_BASE}{AlpacaConstants.API_VERSION_V1}/{clientDeviceType}/{remoteDeviceNumber}/";
 
                 // List parameter values
                 LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"Service type: {serviceType}");
@@ -506,7 +508,359 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.ImageArrayVariant(clientNumber, client, longDeviceResponseTimeout, URIBase, strictCasing, logger, imageArrayTransferType, imageArrayCompression);
+                Array returnArray;
+                object[,] objectArray2D;
+                object[,,] objectArray3D;
+                Stopwatch sw = new Stopwatch();
+
+                var p = new Parameters(clientNumber, client, longDeviceResponseTimeout, uriBase, strictCasing, logger, "ImageArrayVariant", MemberTypes.Property)
+                {
+                    ImageArrayTransferType = imageArrayTransferType,
+                    ImageArrayCompression = imageArrayCompression
+                };
+                returnArray = DynamicClientDriver.GetValue<Array>(p);
+
+                try
+                {
+                    string variantType = returnArray.GetType().Name;
+                    string elementType;
+                    switch (returnArray.Rank) // Process 2D and 3D variant arrays, all other types are unsupported
+                    {
+                        case 2: // 2D Array
+                            elementType = returnArray.GetValue(0, 0).GetType().Name;
+                            break;
+                        case 3: // 3D array
+                            elementType = returnArray.GetValue(0, 0, 0).GetType().Name;
+                            break;
+                        default:
+                            throw new InvalidValueException("ReturnImageArray: Received an unsupported return array rank: " + returnArray.Rank);
+                    }
+
+                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "ImageArrayVariant", $"Received {variantType} array of Rank {returnArray.Rank} with Length {returnArray.Length} and element type {elementType}");
+
+                    // convert to variant
+
+                    switch (returnArray.Rank)
+                    {
+                        case 2:
+                            objectArray2D = new object[returnArray.GetLength(0), returnArray.GetLength(1)];
+                            switch (variantType)
+                            {
+                                case "Byte[,]":
+                                    Byte[,] byte2DArray = (Byte[,])returnArray;
+
+                                    sw.Restart();
+                                    Parallel.For(0, returnArray.GetLength(0), (i) =>
+                                    {
+                                        for (int j = 0; j < returnArray.GetLength(1); j++)
+                                        {
+                                            objectArray2D[i, j] = byte2DArray[i, j];
+                                        }
+                                    });
+
+                                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "ImageArrayVariant", $"Finished copying Byte[,] array in {sw.ElapsedMilliseconds}ms.");
+                                    return objectArray2D;
+
+                                case "Int16[,]":
+                                    Int16[,] short2DArray = (Int16[,])returnArray;
+
+                                    sw.Restart();
+                                    Parallel.For(0, returnArray.GetLength(0), (i) =>
+                                    {
+                                        for (int j = 0; j < returnArray.GetLength(1); j++)
+                                        {
+                                            objectArray2D[i, j] = short2DArray[i, j];
+                                        }
+                                    });
+
+                                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "ImageArrayVariant", $"Finished copying Int16[,] array in {sw.ElapsedMilliseconds}ms.");
+                                    return objectArray2D;
+
+                                case "UInt16[,]":
+                                    UInt16[,] uint16Array2D = (UInt16[,])returnArray;
+
+                                    sw.Restart();
+                                    Parallel.For(0, returnArray.GetLength(0), (i) =>
+                                    {
+                                        for (int j = 0; j < returnArray.GetLength(1); j++)
+                                        {
+                                            objectArray2D[i, j] = uint16Array2D[i, j];
+                                        }
+                                    });
+
+                                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "ImageArrayVariant", $"Finished copying UInt16[,] array in {sw.ElapsedMilliseconds}ms.");
+                                    return objectArray2D;
+
+                                case "Int32[,]":
+                                    Int32[,] int2DArray = (Int32[,])returnArray;
+
+                                    sw.Restart();
+                                    Parallel.For(0, returnArray.GetLength(0), (i) =>
+                                    {
+                                        for (int j = 0; j < returnArray.GetLength(1); j++)
+                                        {
+                                            objectArray2D[i, j] = int2DArray[i, j];
+                                        }
+                                    });
+
+                                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "ImageArrayVariant", $"Finished copying Int32[,] array in {sw.ElapsedMilliseconds}ms.");
+                                    return objectArray2D;
+
+                                case "UInt32[,]":
+                                    UInt32[,] uint2DArray = (UInt32[,])returnArray;
+
+                                    sw.Restart();
+                                    Parallel.For(0, returnArray.GetLength(0), (i) =>
+                                    {
+                                        for (int j = 0; j < returnArray.GetLength(1); j++)
+                                        {
+                                            objectArray2D[i, j] = uint2DArray[i, j];
+                                        }
+                                    });
+
+                                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "ImageArrayVariant", $"Finished copying UInt32[,] array in {sw.ElapsedMilliseconds}ms.");
+                                    return objectArray2D;
+
+                                case "Int64[,]":
+                                    Int64[,] int64Array2D = (Int64[,])returnArray;
+
+                                    sw.Restart();
+                                    Parallel.For(0, returnArray.GetLength(0), (i) =>
+                                    {
+                                        for (int j = 0; j < returnArray.GetLength(1); j++)
+                                        {
+                                            objectArray2D[i, j] = int64Array2D[i, j];
+                                        }
+                                    });
+
+                                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "ImageArrayVariant", $"Finished copying Int64[,] array in {sw.ElapsedMilliseconds}ms.");
+                                    return objectArray2D;
+
+                                case "UInt64[,]":
+                                    UInt64[,] uint64Array2D = (UInt64[,])returnArray;
+
+                                    sw.Restart();
+                                    Parallel.For(0, returnArray.GetLength(0), (i) =>
+                                    {
+                                        for (int j = 0; j < returnArray.GetLength(1); j++)
+                                        {
+                                            objectArray2D[i, j] = uint64Array2D[i, j];
+                                        }
+                                    });
+
+                                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "ImageArrayVariant", $"Finished copying UInt64[,] array in {sw.ElapsedMilliseconds}ms.");
+                                    return objectArray2D;
+
+                                case "Single[,]":
+                                    Single[,] single2DArray = (Single[,])returnArray;
+
+                                    sw.Restart();
+                                    Parallel.For(0, returnArray.GetLength(0), (i) =>
+                                    {
+                                        for (int j = 0; j < returnArray.GetLength(1); j++)
+                                        {
+                                            objectArray2D[i, j] = single2DArray[i, j];
+                                        }
+                                    });
+
+                                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "ImageArrayVariant", $"Finished copying Single[,] array in {sw.ElapsedMilliseconds}ms.");
+                                    return objectArray2D;
+
+                                case "Double[,]":
+                                    Double[,] double2DArray = (Double[,])returnArray;
+
+                                    sw.Restart();
+                                    Parallel.For(0, returnArray.GetLength(0), (i) =>
+                                    {
+                                        for (int j = 0; j < returnArray.GetLength(1); j++)
+                                        {
+                                            objectArray2D[i, j] = double2DArray[i, j];
+                                        }
+                                    });
+
+                                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "ImageArrayVariant", $"Finished copying Double[,] array in {sw.ElapsedMilliseconds}ms.");
+                                    return objectArray2D;
+
+                                case "Object[,]":
+                                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "ImageArrayVariant", $"Received an Object[,] array, returning it directly to the client without further processing.");
+                                    return returnArray;
+
+                                default:
+                                    throw new InvalidValueException("Alpaca client - Camera.ImageArrayVariant: Unsupported return array rank from DynamicClientDriver.GetValue<Array>: " + returnArray.Rank);
+                            }
+                        case 3:
+                            objectArray3D = new object[returnArray.GetLength(0), returnArray.GetLength(1), returnArray.GetLength(2)];
+                            switch (variantType)
+                            {
+                                case "Byte[,,]":
+                                    Byte[,,] byte3DArray = (Byte[,,])returnArray;
+
+                                    sw.Restart();
+                                    Parallel.For(0, returnArray.GetLength(0), (i) =>
+                                    {
+                                        for (int j = 0; j < returnArray.GetLength(1); j++)
+                                        {
+                                            for (int k = 0; k < returnArray.GetLength(2); k++)
+                                                objectArray3D[i, j, k] = byte3DArray[i, j, k];
+                                        }
+                                    });
+
+                                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "ImageArrayVariant", $"Finished copying Byte[,,] array in {sw.ElapsedMilliseconds}ms.");
+                                    return objectArray3D;
+
+                                case "Int16[,,]":
+                                    Int16[,,] short3DArray = (Int16[,,])returnArray;
+
+                                    sw.Restart();
+                                    Parallel.For(0, returnArray.GetLength(0), (i) =>
+                                    {
+                                        for (int j = 0; j < returnArray.GetLength(1); j++)
+                                        {
+                                            for (int k = 0; k < returnArray.GetLength(2); k++)
+                                                objectArray3D[i, j, k] = short3DArray[i, j, k];
+                                        }
+                                    });
+
+                                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "ImageArrayVariant", $"Finished copying Int16[,,] array in {sw.ElapsedMilliseconds}ms.");
+                                    return objectArray3D;
+
+                                case "UInt16[,,]":
+                                    UInt16[,,] uint16Array3D = (UInt16[,,])returnArray;
+
+                                    sw.Restart();
+                                    Parallel.For(0, returnArray.GetLength(0), (i) =>
+                                    {
+                                        for (int j = 0; j < returnArray.GetLength(1); j++)
+                                        {
+                                            for (int k = 0; k < returnArray.GetLength(2); k++)
+                                                objectArray3D[i, j, k] = uint16Array3D[i, j, k];
+                                        }
+                                    });
+
+                                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "ImageArrayVariant", $"Finished copying UInt16[,,] array in {sw.ElapsedMilliseconds}ms.");
+                                    return objectArray3D;
+
+                                case "Int32[,,]":
+                                    Int32[,,] int3DArray = (Int32[,,])returnArray;
+
+                                    sw.Restart();
+                                    Parallel.For(0, returnArray.GetLength(0), (i) =>
+                                    {
+                                        for (int j = 0; j < returnArray.GetLength(1); j++)
+                                        {
+                                            for (int k = 0; k < returnArray.GetLength(2); k++)
+                                            {
+                                                objectArray3D[i, j, k] = int3DArray[i, j, k];
+                                            }
+                                        }
+                                    });
+
+                                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "ImageArrayVariant", $"Finished copying Int32[,,] array in {sw.ElapsedMilliseconds}ms.");
+                                    return objectArray3D;
+
+                                case "UInt32[,,]":
+                                    UInt32[,,] uint32Array3D = (UInt32[,,])returnArray;
+
+                                    sw.Restart();
+                                    Parallel.For(0, returnArray.GetLength(0), (i) =>
+                                    {
+                                        for (int j = 0; j < returnArray.GetLength(1); j++)
+                                        {
+                                            for (int k = 0; k < returnArray.GetLength(2); k++)
+                                            {
+                                                objectArray3D[i, j, k] = uint32Array3D[i, j, k];
+                                            }
+                                        }
+                                    });
+
+                                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "ImageArrayVariant", $"Finished copying UInt32[,,] array in {sw.ElapsedMilliseconds}ms.");
+                                    return objectArray3D;
+
+                                case "Int64[,,]":
+                                    Int64[,,] int64Array3D = (Int64[,,])returnArray;
+
+                                    sw.Restart();
+                                    Parallel.For(0, returnArray.GetLength(0), (i) =>
+                                    {
+                                        for (int j = 0; j < returnArray.GetLength(1); j++)
+                                        {
+                                            for (int k = 0; k < returnArray.GetLength(2); k++)
+                                            {
+                                                objectArray3D[i, j, k] = int64Array3D[i, j, k];
+                                            }
+                                        }
+                                    });
+
+                                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "ImageArrayVariant", $"Finished copying Int64[,,] array in {sw.ElapsedMilliseconds}ms.");
+                                    return objectArray3D;
+
+                                case "UInt64[,,]":
+                                    UInt64[,,] uint64Array3D = (UInt64[,,])returnArray;
+
+                                    sw.Restart();
+                                    Parallel.For(0, returnArray.GetLength(0), (i) =>
+                                    {
+                                        for (int j = 0; j < returnArray.GetLength(1); j++)
+                                        {
+                                            for (int k = 0; k < returnArray.GetLength(2); k++)
+                                            {
+                                                objectArray3D[i, j, k] = uint64Array3D[i, j, k];
+                                            }
+                                        }
+                                    });
+
+                                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "ImageArrayVariant", $"Finished copying UInt64[,,] array in {sw.ElapsedMilliseconds}ms.");
+                                    return objectArray3D;
+
+                                case "Single[,,]":
+                                    Single[,,] single3DDArray = (Single[,,])returnArray;
+
+                                    sw.Restart();
+                                    Parallel.For(0, returnArray.GetLength(0), (i) =>
+                                    {
+                                        for (int j = 0; j < returnArray.GetLength(1); j++)
+                                        {
+                                            for (int k = 0; k < returnArray.GetLength(2); k++)
+                                                objectArray3D[i, j, k] = single3DDArray[i, j, k];
+                                        }
+                                    });
+
+                                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "ImageArrayVariant", $"Finished copying Single[,,] array in {sw.ElapsedMilliseconds}ms.");
+                                    return objectArray3D;
+
+                                case "Double[,,]":
+                                    Double[,,] double3DDArray = (Double[,,])returnArray;
+
+                                    sw.Restart();
+                                    Parallel.For(0, returnArray.GetLength(0), (i) =>
+                                    {
+                                        for (int j = 0; j < returnArray.GetLength(1); j++)
+                                        {
+                                            for (int k = 0; k < returnArray.GetLength(2); k++)
+                                                objectArray3D[i, j, k] = double3DDArray[i, j, k];
+                                        }
+                                    });
+
+                                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "ImageArrayVariant", $"Finished copying Double[,,] array in {sw.ElapsedMilliseconds}ms.");
+                                    return objectArray3D;
+
+                                case "Object[,,]":
+                                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "ImageArrayVariant", $"Received an Object[,,] array, returning it directly to the client without further processing.");
+                                    return returnArray;
+
+                                default:
+                                    throw new InvalidValueException("DynamicRemoteClient Driver Camera.ImageArrayVariant: Unsupported return array rank from DynamicClientDriver.GetValue<Array>: " + returnArray.Rank);
+                            }
+
+                        default:
+                            throw new InvalidValueException("DynamicRemoteClient Driver Camera.ImageArrayVariant: Unsupported return array rank from DynamicClientDriver.GetValue<Array>: " + returnArray.Rank);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "ImageArrayVariant", $"Exception: \r\n{ex}");
+                    throw;
+                }
             }
         }
 

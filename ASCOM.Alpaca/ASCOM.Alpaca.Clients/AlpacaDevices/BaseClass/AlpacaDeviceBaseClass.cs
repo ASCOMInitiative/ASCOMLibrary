@@ -9,6 +9,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Reflection;
 using System.Text.Json;
+using System.Threading;
 
 namespace ASCOM.Alpaca.Clients
 {
@@ -33,7 +34,7 @@ namespace ASCOM.Alpaca.Clients
         internal uint clientNumber = AlpacaClient.CLIENT_CLIENTNUMBER_DEFAULT; // Unique number for this driver within the locaL server, i.e. across all drivers that the local server is serving
 
         internal HttpClient client; // Client to send and receive REST style messages to / from the remote device
-        internal string URIBase; // URI base unique to this driver
+        internal string uriBase; // URI base unique to this driver
         private bool disposedValue; // Whether or not the client has been Disposed()
         private readonly ClientConfiguration clientConfiguration; // The client configuration
 
@@ -88,14 +89,16 @@ namespace ASCOM.Alpaca.Clients
                 logger, ClientConfiguration.UserAgentProductName, ClientConfiguration.UserAgentProductVersion, trustUserGeneratedSslCertificates, ClientConfiguration.Request100Continue);
 
             // Reset the URI base in case the remote device number has changed
-            URIBase = $"{AlpacaConstants.API_URL_BASE}{AlpacaConstants.API_VERSION_V1}/{clientDeviceType}/{ClientConfiguration.RemoteDeviceNumber}/";
+            uriBase = $"{AlpacaConstants.API_URL_BASE}{AlpacaConstants.API_VERSION_V1}/{clientDeviceType}/{ClientConfiguration.RemoteDeviceNumber}/";
         }
 
         #endregion
 
         /// <summary>Creates a Parameters instance from this client's connection fields.</summary>
         internal Parameters CreateParameters(int timeout, string method, MemberTypes memberType)
-            => new Parameters(clientNumber, client, timeout, URIBase, strictCasing, logger, method, memberType);
+        {
+            return new Parameters(clientNumber, client, timeout, uriBase, strictCasing, logger, method, memberType);
+        }
 
         #region IAscomDevice common properties and methods.
 
@@ -103,27 +106,53 @@ namespace ASCOM.Alpaca.Clients
         public string Action(string actionName, string actionParameters)
         {
             LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"ACTION: About to submit Action: {actionName}");
-            string response = DynamicClientDriver.Action(clientNumber, client, longDeviceResponseTimeout, URIBase, strictCasing, logger, actionName, actionParameters);
-            LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"ACTION: Received response of length: {response.Length}");
-            return response;
+            Dictionary<string, string> formParameters = new Dictionary<string, string>
+            {
+                { AlpacaConstants.ACTION_COMMAND_PARAMETER_NAME, actionName },
+                { AlpacaConstants.ACTION_PARAMETERS_PARAMETER_NAME, actionParameters }
+            };
+            string remoteString = DynamicClientDriver.SendToRemoteDevice<string>(new Parameters(clientNumber, client, longDeviceResponseTimeout, uriBase, strictCasing, logger, "Action", MemberTypes.Method), formParameters, HttpMethod.Put);
+            LogMessage(logger, clientNumber, "Action", $"Response length: {remoteString.Length}");
+            LogMessage(logger, clientNumber, "Action", $"Response: {((remoteString.Length <= 100) ? remoteString : remoteString.Substring(0, 100))}");
+            return remoteString;
         }
 
         ///<inheritdoc/>
         public void CommandBlind(string command, bool raw = false)
         {
-            DynamicClientDriver.CommandBlind(clientNumber, client, longDeviceResponseTimeout, URIBase, strictCasing, logger, command, raw);
+            Dictionary<string, string> formParameters = new Dictionary<string, string>
+            {
+                { AlpacaConstants.COMMAND_PARAMETER_NAME, command },
+                { AlpacaConstants.RAW_PARAMETER_NAME, raw.ToString() }
+            };
+            DynamicClientDriver.SendToRemoteDevice<NoReturnValue>(new Parameters(clientNumber, client, longDeviceResponseTimeout, uriBase, strictCasing, logger, "CommandBlind", MemberTypes.Method), formParameters, HttpMethod.Put);
+            LogMessage(logger, clientNumber, "CommandBlind", "Completed OK");
         }
 
         ///<inheritdoc/>
         public bool CommandBool(string command, bool raw = false)
         {
-            return DynamicClientDriver.CommandBool(clientNumber, client, longDeviceResponseTimeout, URIBase, strictCasing, logger, command, raw);
+            Dictionary<string, string> formParameters = new Dictionary<string, string>
+            {
+                { AlpacaConstants.COMMAND_PARAMETER_NAME, command },
+                { AlpacaConstants.RAW_PARAMETER_NAME, raw.ToString() }
+            };
+            bool remoteBool = DynamicClientDriver.SendToRemoteDevice<bool>(new Parameters(clientNumber, client, longDeviceResponseTimeout, uriBase, strictCasing, logger, "CommandBool", MemberTypes.Method), formParameters, HttpMethod.Put);
+            AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "CommandBool", remoteBool.ToString());
+            return remoteBool;
         }
 
         ///<inheritdoc/>
         public string CommandString(string command, bool raw = false)
         {
-            return DynamicClientDriver.CommandString(clientNumber, client, longDeviceResponseTimeout, URIBase, strictCasing, logger, command, raw);
+            Dictionary<string, string> formParameters = new Dictionary<string, string>
+            {
+                { AlpacaConstants.COMMAND_PARAMETER_NAME, command },
+                { AlpacaConstants.RAW_PARAMETER_NAME, raw.ToString() }
+            };
+            string remoteString = DynamicClientDriver.SendToRemoteDevice<string>(new Parameters(clientNumber, client, longDeviceResponseTimeout, uriBase, strictCasing, logger, "CommandString", MemberTypes.Method), formParameters, HttpMethod.Put);
+            LogMessage(logger, clientNumber, "CommandString", remoteString);
+            return remoteString;
         }
 
         ///<inheritdoc/>
@@ -157,8 +186,9 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                string response = DynamicClientDriver.Description(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger);
-                AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "Description", response);
+                string response = DynamicClientDriver.GetValue<string>(new Parameters(clientNumber, client, standardDeviceResponseTimeout, uriBase, strictCasing, logger, "Description", MemberTypes.Property));
+                LogMessage(logger, clientNumber, "Description", response);
+
                 return response;
             }
         }
@@ -168,7 +198,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.DriverInfo(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger);
+                return DynamicClientDriver.GetValue<string>(new Parameters(clientNumber, client, standardDeviceResponseTimeout, uriBase, strictCasing, logger, "DriverInfo", MemberTypes.Property));
             }
         }
 
@@ -177,7 +207,9 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.DriverVersion(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger);
+                string remoteString = DynamicClientDriver.GetValue<string>(new Parameters(clientNumber, client, standardDeviceResponseTimeout, uriBase, strictCasing, logger, "DriverVersion", MemberTypes.Property));
+                LogMessage(logger, clientNumber, "DriverVersion", remoteString);
+                return remoteString;
             }
         }
 
@@ -189,8 +221,17 @@ namespace ASCOM.Alpaca.Clients
                 // Test whether the interface version has already been retrieved
                 if (!interfaceVersion.HasValue) // This is the first time the method has been called so get the interface version number from the driver and cache it
                 {
-                    try { interfaceVersion = DynamicClientDriver.InterfaceVersion(clientNumber, client, establishConnectionTimeout, URIBase, strictCasing, logger); } // Get the interface version
-                    catch { interfaceVersion = 1; } // The method failed so assume that the driver has a version 1 interface where the InterfaceVersion method is not implemented
+                    // Get the interface version
+                    try
+                    {
+                        interfaceVersion = DynamicClientDriver.GetValue<short>(new Parameters(clientNumber, client, establishConnectionTimeout, uriBase, strictCasing, logger, "InterfaceVersion", MemberTypes.Property));
+                        LogMessage(logger, clientNumber, "InterfaceVersion", interfaceVersion.ToString());
+                    }
+                    catch (Exception ex) // The method failed so assume that the driver has a version 1 interface where the InterfaceVersion method is not implemented
+                    {
+                        interfaceVersion = 1;
+                        LogMessage(logger, clientNumber, "InterfaceVersion", $"Threw exception: {ex.Message}. Returning default interface version: {interfaceVersion}.");
+                    }
                 }
 
                 return interfaceVersion.Value; // Return the newly retrieved or already cached value
@@ -213,7 +254,17 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.SupportedActions(clientNumber, client, standardDeviceResponseTimeout, URIBase, strictCasing, logger);
+                List<string> supportedActions = DynamicClientDriver.GetValue<List<string>>(new Parameters(clientNumber, client, standardDeviceResponseTimeout, uriBase, strictCasing, logger, "SupportedActions", MemberTypes.Property));
+                LogMessage(logger, clientNumber, "SupportedActions", $"Returning {supportedActions.Count} actions");
+
+                List<string> returnValues = new List<string>();
+                foreach (string action in supportedActions)
+                {
+                    returnValues.Add(action);
+                    LogMessage(logger, clientNumber, "SupportedActions", $"Returning action: {action}");
+                }
+
+                return returnValues;
             }
         }
 
