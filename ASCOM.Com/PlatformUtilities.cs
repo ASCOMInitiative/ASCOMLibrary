@@ -38,7 +38,7 @@ namespace ASCOM.Com
         const int MINIMUM_VALID_MINOR_VERSION = 0;
         const int MAXIMUM_VALID_MINOR_VERSION = 6;
         const int MINIMUM_VALID_SERVICEPACK_VERSION = 0;
-        const int MAXIMUM_VALID_SERVICEPACK_VERSION = 3;
+        const int MAXIMUM_VALID_SERVICEPACK_VERSION = 4;
         const int MINIMUM_BUILD_NUMBER = 0;
         const int MAXIMUM_BUILD_NUMBER = 65535;
 

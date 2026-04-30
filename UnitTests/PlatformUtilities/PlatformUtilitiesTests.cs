@@ -40,7 +40,7 @@ namespace PlatformUtilitiesTests
         [Fact]
         public void IsPlatformVersionBad()
         {
-            Assert.False(ASCOM.Com.PlatformUtilities.IsMinimumRequiredVersion(7, 1, 3, 65535));
+            Assert.False(ASCOM.Com.PlatformUtilities.IsMinimumRequiredVersion(7, 1, 4, 65535));
         }
 
         [Fact]
@@ -104,7 +104,7 @@ namespace PlatformUtilitiesTests
         [Fact]
         public void PlatformServicePack()
         {
-            Assert.True(ASCOM.Com.PlatformUtilities.ServicePack == 3);
+            Assert.True(ASCOM.Com.PlatformUtilities.ServicePack == 4);
         }
 
         [Fact]
