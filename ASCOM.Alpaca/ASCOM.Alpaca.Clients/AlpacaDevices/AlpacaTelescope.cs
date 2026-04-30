@@ -208,7 +208,7 @@ namespace ASCOM.Alpaca.Clients
         /// <inheritdoc/>
         public void AbortSlew()
         {
-            RemoteDevice.CallMethodWithNoParameters(CreateParameters(longDeviceResponseTimeout, "AbortSlew", MemberTypes.Method));
+            RemoteDevice.CallNoParameters(CreateParameters(longDeviceResponseTimeout, "AbortSlew", MemberTypes.Method));
             LogMessage(logger, clientNumber, "AbortSlew", $"Slew aborted OK.");
         }
 
@@ -497,7 +497,7 @@ namespace ASCOM.Alpaca.Clients
         /// <inheritdoc/>
         public void FindHome()
         {
-            RemoteDevice.CallMethodWithNoParameters(CreateParameters(longDeviceResponseTimeout, "FindHome", MemberTypes.Method));
+            RemoteDevice.CallNoParameters(CreateParameters(longDeviceResponseTimeout, "FindHome", MemberTypes.Method));
             LogMessage(logger, clientNumber, "FindHome", "Home found OK");
         }
 
@@ -559,7 +559,7 @@ namespace ASCOM.Alpaca.Clients
         /// <inheritdoc/>
         public void Park()
         {
-            RemoteDevice.CallMethodWithNoParameters(CreateParameters(longDeviceResponseTimeout, "Park", MemberTypes.Method));
+            RemoteDevice.CallNoParameters(CreateParameters(longDeviceResponseTimeout, "Park", MemberTypes.Method));
             LogMessage(logger, clientNumber, "Park", "Parked OK");
         }
 
@@ -599,7 +599,7 @@ namespace ASCOM.Alpaca.Clients
         /// <inheritdoc/>
         public void SetPark()
         {
-            RemoteDevice.CallMethodWithNoParameters(CreateParameters(standardDeviceResponseTimeout, "SetPark", MemberTypes.Method));
+            RemoteDevice.CallNoParameters(CreateParameters(standardDeviceResponseTimeout, "SetPark", MemberTypes.Method));
             LogMessage(logger, clientNumber, "SetPark", "Park set OK");
         }
 
@@ -728,14 +728,14 @@ namespace ASCOM.Alpaca.Clients
         /// <inheritdoc/>
         public void SlewToTarget()
         {
-            RemoteDevice.CallMethodWithNoParameters(CreateParameters(longDeviceResponseTimeout, "SlewToTarget", MemberTypes.Method));
+            RemoteDevice.CallNoParameters(CreateParameters(longDeviceResponseTimeout, "SlewToTarget", MemberTypes.Method));
             LogMessage(logger, clientNumber, "SlewToTarget", "Slew completed OK");
         }
 
         /// <inheritdoc/>
         public void SlewToTargetAsync()
         {
-            RemoteDevice.CallMethodWithNoParameters(CreateParameters(longDeviceResponseTimeout, "SlewToTargetAsync", MemberTypes.Method));
+            RemoteDevice.CallNoParameters(CreateParameters(longDeviceResponseTimeout, "SlewToTargetAsync", MemberTypes.Method));
             LogMessage(logger, clientNumber, "SlewToTargetAsync", "Slew completed OK");
         }
 
@@ -773,7 +773,7 @@ namespace ASCOM.Alpaca.Clients
         /// <inheritdoc/>
         public void SyncToTarget()
         {
-            RemoteDevice.CallMethodWithNoParameters(CreateParameters(standardDeviceResponseTimeout, "SyncToTarget", MemberTypes.Method));
+            RemoteDevice.CallNoParameters(CreateParameters(standardDeviceResponseTimeout, "SyncToTarget", MemberTypes.Method));
             LogMessage(logger, clientNumber, "SyncToTarget", "Slew completed OK");
         }
 
@@ -860,7 +860,7 @@ namespace ASCOM.Alpaca.Clients
         /// <inheritdoc/>
         public void Unpark()
         {
-            RemoteDevice.CallMethodWithNoParameters(CreateParameters(longDeviceResponseTimeout, "UnPark", MemberTypes.Method));
+            RemoteDevice.CallNoParameters(CreateParameters(longDeviceResponseTimeout, "UnPark", MemberTypes.Method));
             LogMessage(logger, clientNumber, "UnPark", "Unparked OK");
         }
 

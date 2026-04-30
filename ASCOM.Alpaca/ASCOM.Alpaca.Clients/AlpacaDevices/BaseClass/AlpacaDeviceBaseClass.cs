@@ -279,7 +279,7 @@ namespace ASCOM.Alpaca.Clients
             if (DeviceCapabilities.HasConnectAndDeviceState(clientDeviceType, InterfaceVersion))
             {
                 // Platform 7 or later device so use the device's Connect method
-                RemoteDevice.CallMethodWithNoParameters(CreateParameters(establishConnectionTimeout, "Connect", MemberTypes.Method));
+                RemoteDevice.CallNoParameters(CreateParameters(establishConnectionTimeout, "Connect", MemberTypes.Method));
                 return;
             }
 
@@ -294,7 +294,7 @@ namespace ASCOM.Alpaca.Clients
             if (DeviceCapabilities.HasConnectAndDeviceState(clientDeviceType, InterfaceVersion))
             {
                 // Platform 7 or later device so use the device's Disconnect method
-                RemoteDevice.CallMethodWithNoParameters(CreateParameters(establishConnectionTimeout, "Disconnect", MemberTypes.Method));
+                RemoteDevice.CallNoParameters(CreateParameters(establishConnectionTimeout, "Disconnect", MemberTypes.Method));
                 return;
             }
 

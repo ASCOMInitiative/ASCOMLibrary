@@ -213,19 +213,19 @@ namespace ASCOM.Alpaca.Clients
         /// <inheritdoc/>
         public double TimeSinceLastUpdate(string PropertyName)
         {
-            return RemoteDevice.GetStringIndexed<double>(CreateParameters(standardDeviceResponseTimeout, "TimeSinceLastUpdate", MemberTypes.Method), PropertyName);
+            return RemoteDevice.GetParameterNameIndexedValue<double>(CreateParameters(standardDeviceResponseTimeout, "TimeSinceLastUpdate", MemberTypes.Method), PropertyName);
         }
 
         /// <inheritdoc/>
         public string SensorDescription(string PropertyName)
         {
-            return RemoteDevice.GetStringIndexed<string>(CreateParameters(standardDeviceResponseTimeout, "SensorDescription", MemberTypes.Method), PropertyName);
+            return RemoteDevice.GetParameterNameIndexedValue<string>(CreateParameters(standardDeviceResponseTimeout, "SensorDescription", MemberTypes.Method), PropertyName);
         }
 
         /// <inheritdoc/>
         public void Refresh()
         {
-            RemoteDevice.CallMethodWithNoParameters(CreateParameters(standardDeviceResponseTimeout, "Refresh", MemberTypes.Method));
+            RemoteDevice.CallNoParameters(CreateParameters(standardDeviceResponseTimeout, "Refresh", MemberTypes.Method));
         }
 
         /// <inheritdoc/>

@@ -185,31 +185,31 @@ namespace ASCOM.Alpaca.Clients
         /// <inheritdoc/>
         public bool CanWrite(short id)
         {
-            return RemoteDevice.GetShortIndexed<bool>(CreateParameters(standardDeviceResponseTimeout, "CanWrite", MemberTypes.Method), id);
+            return RemoteDevice.GetIndexedValue<bool>(CreateParameters(standardDeviceResponseTimeout, "CanWrite", MemberTypes.Method), id);
         }
 
         /// <inheritdoc/>
         public bool GetSwitch(short id)
         {
-            return RemoteDevice.GetShortIndexed<bool>(CreateParameters(standardDeviceResponseTimeout, "GetSwitch", MemberTypes.Method), id);
+            return RemoteDevice.GetIndexedValue<bool>(CreateParameters(standardDeviceResponseTimeout, "GetSwitch", MemberTypes.Method), id);
         }
 
         /// <inheritdoc/>
         public string GetSwitchDescription(short id)
         {
-            return RemoteDevice.GetShortIndexed<string>(CreateParameters(standardDeviceResponseTimeout, "GetSwitchDescription", MemberTypes.Method), id);
+            return RemoteDevice.GetIndexedValue<string>(CreateParameters(standardDeviceResponseTimeout, "GetSwitchDescription", MemberTypes.Method), id);
         }
 
         /// <inheritdoc/>
         public string GetSwitchName(short id)
         {
-            return RemoteDevice.GetShortIndexed<string>(CreateParameters(standardDeviceResponseTimeout, "GetSwitchName", MemberTypes.Method), id);
+            return RemoteDevice.GetIndexedValue<string>(CreateParameters(standardDeviceResponseTimeout, "GetSwitchName", MemberTypes.Method), id);
         }
 
         /// <inheritdoc/>
         public double GetSwitchValue(short id)
         {
-            return RemoteDevice.GetShortIndexed<double>(CreateParameters(standardDeviceResponseTimeout, "GetSwitchValue", MemberTypes.Method), id);
+            return RemoteDevice.GetIndexedValue<double>(CreateParameters(standardDeviceResponseTimeout, "GetSwitchValue", MemberTypes.Method), id);
         }
 
         /// <inheritdoc/>
@@ -224,37 +224,37 @@ namespace ASCOM.Alpaca.Clients
         /// <inheritdoc/>
         public double MaxSwitchValue(short id)
         {
-            return RemoteDevice.GetShortIndexed<double>(CreateParameters(standardDeviceResponseTimeout, "MaxSwitchValue", MemberTypes.Method), id);
+            return RemoteDevice.GetIndexedValue<double>(CreateParameters(standardDeviceResponseTimeout, "MaxSwitchValue", MemberTypes.Method), id);
         }
 
         /// <inheritdoc/>
         public double MinSwitchValue(short id)
         {
-            return RemoteDevice.GetShortIndexed<double>(CreateParameters(standardDeviceResponseTimeout, "MinSwitchValue", MemberTypes.Method), id);
+            return RemoteDevice.GetIndexedValue<double>(CreateParameters(standardDeviceResponseTimeout, "MinSwitchValue", MemberTypes.Method), id);
         }
 
         /// <inheritdoc/>
         public double SwitchStep(short id)
         {
-            return RemoteDevice.GetShortIndexed<double>(CreateParameters(standardDeviceResponseTimeout, "SwitchStep", MemberTypes.Method), id);
+            return RemoteDevice.GetIndexedValue<double>(CreateParameters(standardDeviceResponseTimeout, "SwitchStep", MemberTypes.Method), id);
         }
 
         /// <inheritdoc/>
         public void SetSwitchName(short id, string name)
         {
-            RemoteDevice.SetStringWithShortParameter(CreateParameters(standardDeviceResponseTimeout, "SetSwitchName", MemberTypes.Method), id, name);
+            RemoteDevice.SetIndexedString(CreateParameters(standardDeviceResponseTimeout, "SetSwitchName", MemberTypes.Method), id, name);
         }
 
         /// <inheritdoc/>
         public void SetSwitch(short id, bool state)
         {
-            RemoteDevice.SetBoolWithShortParameter(CreateParameters(standardDeviceResponseTimeout, "SetSwitch", MemberTypes.Method), id, state);
+            RemoteDevice.SeIndexedBool(CreateParameters(standardDeviceResponseTimeout, "SetSwitch", MemberTypes.Method), id, state);
         }
 
         /// <inheritdoc/>
         public void SetSwitchValue(short id, double value)
         {
-            RemoteDevice.SetDoubleWithShortParameter(CreateParameters(standardDeviceResponseTimeout, "SetSwitchValue", MemberTypes.Method), id, value);
+            RemoteDevice.SetIndexedDouble(CreateParameters(standardDeviceResponseTimeout, "SetSwitchValue", MemberTypes.Method), id, value);
         }
 
         #endregion
@@ -268,7 +268,7 @@ namespace ASCOM.Alpaca.Clients
             if (DeviceCapabilities.HasConnectAndDeviceState(DeviceTypes.Switch, InterfaceVersion))
             {
                 // Platform 7 or later device so use the device's method
-                RemoteDevice.SetBoolWithShortParameter(CreateParameters(standardDeviceResponseTimeout, "SetAsync", MemberTypes.Method), id, state);
+                RemoteDevice.SeIndexedBool(CreateParameters(standardDeviceResponseTimeout, "SetAsync", MemberTypes.Method), id, state);
                 return;
             }
 
@@ -283,7 +283,7 @@ namespace ASCOM.Alpaca.Clients
             if (DeviceCapabilities.HasConnectAndDeviceState(DeviceTypes.Switch, InterfaceVersion))
             {
                 // Platform 7 or later device so use the device's method
-                RemoteDevice.SetDoubleWithShortParameter(CreateParameters(standardDeviceResponseTimeout, "SetAsyncValue", MemberTypes.Method), id, value);
+                RemoteDevice.SetIndexedDouble(CreateParameters(standardDeviceResponseTimeout, "SetAsyncValue", MemberTypes.Method), id, value);
                 return;
             }
 
@@ -298,7 +298,7 @@ namespace ASCOM.Alpaca.Clients
             if (DeviceCapabilities.HasConnectAndDeviceState(DeviceTypes.Switch, InterfaceVersion))
             {
                 // Platform 7 or later device so use the device's method
-                return RemoteDevice.GetShortIndexed<bool>(CreateParameters(standardDeviceResponseTimeout, "CanAsync", MemberTypes.Method), id);
+                return RemoteDevice.GetIndexedValue<bool>(CreateParameters(standardDeviceResponseTimeout, "CanAsync", MemberTypes.Method), id);
             }
 
             // Platform 6 or earlier device - async is not supported so return false to show no async support.
@@ -312,7 +312,7 @@ namespace ASCOM.Alpaca.Clients
             if (DeviceCapabilities.HasConnectAndDeviceState(DeviceTypes.Switch, InterfaceVersion))
             {
                 // Platform 7 or later device so use the device's method
-                return RemoteDevice.GetShortIndexed<bool>(CreateParameters(standardDeviceResponseTimeout, "StateChangeComplete", MemberTypes.Method), id);
+                return RemoteDevice.GetIndexedValue<bool>(CreateParameters(standardDeviceResponseTimeout, "StateChangeComplete", MemberTypes.Method), id);
             }
 
             // Platform 6 or earlier device

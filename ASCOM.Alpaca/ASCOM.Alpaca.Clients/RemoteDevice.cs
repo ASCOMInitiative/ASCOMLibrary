@@ -511,9 +511,9 @@ namespace ASCOM.Alpaca.Clients
 
         #endregion
 
-        #region Remote access methods
+        #region General access methods
 
-        internal static void CallMethodWithNoParameters(Parameters clientParameters)
+        internal static void CallNoParameters(Parameters clientParameters)
         {
             Dictionary<string, string> formParameters = new Dictionary<string, string>();
             Send<NoReturnValue>(clientParameters, formParameters, HttpMethod.Put);
@@ -525,6 +525,24 @@ namespace ASCOM.Alpaca.Clients
             return Send<T>(clientParameters, formParameters, HttpMethod.Get);
         }
 
+        internal static T GetIndexedValue<T>(Parameters clientParameters, short index)
+        {
+            Dictionary<string, string> formParameters = new Dictionary<string, string>
+            {
+                { AlpacaConstants.ID_PARAMETER_NAME, index.ToString(CultureInfo.InvariantCulture) }
+            };
+            return Send<T>(clientParameters, formParameters, HttpMethod.Get);
+        }
+
+        internal static T GetParameterNameIndexedValue<T>(Parameters clientParameters, string parameterName)
+        {
+            Dictionary<string, string> formParameters = new Dictionary<string, string>
+            {
+                { AlpacaConstants.SENSORNAME_PARAMETER_NAME, parameterName }
+            };
+            return Send<T>(clientParameters, formParameters, HttpMethod.Get);
+        }
+
         internal static void SetValue<T>(Parameters clientParameters, T value)
         {
             Dictionary<string, string> formParameters = new Dictionary<string, string>
@@ -532,54 +550,6 @@ namespace ASCOM.Alpaca.Clients
                 { clientParameters.Method, Convert.ToString(value, CultureInfo.InvariantCulture) }
             };
             Send<NoReturnValue>(clientParameters, formParameters, HttpMethod.Put);
-        }
-
-        internal static void SetDoubleWithShortParameter(Parameters clientParameters, short index, double doubleValue)
-        {
-            Dictionary<string, string> formParameters = new Dictionary<string, string>
-            {
-                { AlpacaConstants.ID_PARAMETER_NAME, index.ToString(CultureInfo.InvariantCulture) },
-                { AlpacaConstants.VALUE_PARAMETER_NAME, doubleValue.ToString(CultureInfo.InvariantCulture) }
-            };
-            Send<NoReturnValue>(clientParameters, formParameters, HttpMethod.Put);
-        }
-
-        internal static void SetBoolWithShortParameter(Parameters clientParameters, short index, bool boolValue)
-        {
-            Dictionary<string, string> formParameters = new Dictionary<string, string>
-            {
-                { AlpacaConstants.ID_PARAMETER_NAME, index.ToString(CultureInfo.InvariantCulture) },
-                { AlpacaConstants.STATE_PARAMETER_NAME, boolValue.ToString(CultureInfo.InvariantCulture) }
-            };
-            Send<NoReturnValue>(clientParameters, formParameters, HttpMethod.Put);
-        }
-
-        internal static void SetStringWithShortParameter(Parameters clientParameters, short index, string stringValue)
-        {
-            Dictionary<string, string> formParameters = new Dictionary<string, string>
-            {
-                { AlpacaConstants.ID_PARAMETER_NAME, index.ToString(CultureInfo.InvariantCulture) },
-                { AlpacaConstants.NAME_PARAMETER_NAME, stringValue.ToString(CultureInfo.InvariantCulture) }
-            };
-            Send<NoReturnValue>(clientParameters, formParameters, HttpMethod.Put);
-        }
-
-        internal static T GetStringIndexed<T>(Parameters clientParameters, string stringValue)
-        {
-            Dictionary<string, string> formParameters = new Dictionary<string, string>
-            {
-                { AlpacaConstants.SENSORNAME_PARAMETER_NAME, stringValue }
-            };
-            return Send<T>(clientParameters, formParameters, HttpMethod.Get);
-        }
-
-        internal static T GetShortIndexed<T>(Parameters clientParameters, short shortValue)
-        {
-            Dictionary<string, string> formParameters = new Dictionary<string, string>
-            {
-                { AlpacaConstants.ID_PARAMETER_NAME, shortValue.ToString(CultureInfo.InvariantCulture) }
-            };
-            return Send<T>(clientParameters, formParameters, HttpMethod.Get);
         }
 
         /// <summary>
@@ -1609,6 +1579,40 @@ namespace ASCOM.Alpaca.Clients
 
             // Execution will never reach this point
 
+        }
+
+        #endregion
+
+        #region Switch access methods for indexed values
+
+        internal static void SetIndexedDouble(Parameters clientParameters, short index, double doubleValue)
+        {
+            Dictionary<string, string> formParameters = new Dictionary<string, string>
+            {
+                { AlpacaConstants.ID_PARAMETER_NAME, index.ToString(CultureInfo.InvariantCulture) },
+                { AlpacaConstants.VALUE_PARAMETER_NAME, doubleValue.ToString(CultureInfo.InvariantCulture) }
+            };
+            Send<NoReturnValue>(clientParameters, formParameters, HttpMethod.Put);
+        }
+
+        internal static void SeIndexedBool(Parameters clientParameters, short index, bool boolValue)
+        {
+            Dictionary<string, string> formParameters = new Dictionary<string, string>
+            {
+                { AlpacaConstants.ID_PARAMETER_NAME, index.ToString(CultureInfo.InvariantCulture) },
+                { AlpacaConstants.STATE_PARAMETER_NAME, boolValue.ToString(CultureInfo.InvariantCulture) }
+            };
+            Send<NoReturnValue>(clientParameters, formParameters, HttpMethod.Put);
+        }
+
+        internal static void SetIndexedString(Parameters clientParameters, short index, string stringValue)
+        {
+            Dictionary<string, string> formParameters = new Dictionary<string, string>
+            {
+                { AlpacaConstants.ID_PARAMETER_NAME, index.ToString(CultureInfo.InvariantCulture) },
+                { AlpacaConstants.NAME_PARAMETER_NAME, stringValue.ToString(CultureInfo.InvariantCulture) }
+            };
+            Send<NoReturnValue>(clientParameters, formParameters, HttpMethod.Put);
         }
 
         #endregion

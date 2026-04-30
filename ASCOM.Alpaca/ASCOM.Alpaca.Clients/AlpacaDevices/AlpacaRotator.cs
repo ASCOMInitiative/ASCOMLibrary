@@ -266,7 +266,7 @@ namespace ASCOM.Alpaca.Clients
         /// <inheritdoc/>
         public void Halt()
         {
-            RemoteDevice.CallMethodWithNoParameters(CreateParameters(longDeviceResponseTimeout, "Halt", MemberTypes.Method));
+            RemoteDevice.CallNoParameters(CreateParameters(longDeviceResponseTimeout, "Halt", MemberTypes.Method));
             LogMessage(logger, clientNumber, "Halt", "Rotator halted OK");
         }
 

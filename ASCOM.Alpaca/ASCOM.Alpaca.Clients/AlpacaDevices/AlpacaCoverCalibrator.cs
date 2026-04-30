@@ -240,21 +240,21 @@ namespace ASCOM.Alpaca.Clients
         /// <inheritdoc/>
         public void OpenCover()
         {
-            RemoteDevice.CallMethodWithNoParameters(CreateParameters(standardDeviceResponseTimeout, "OpenCover", MemberTypes.Method));
+            RemoteDevice.CallNoParameters(CreateParameters(standardDeviceResponseTimeout, "OpenCover", MemberTypes.Method));
             LogMessage(logger, clientNumber, "AbortSlew", "Cover opened OK");
         }
 
         /// <inheritdoc/>
         public void CloseCover()
         {
-            RemoteDevice.CallMethodWithNoParameters(CreateParameters(standardDeviceResponseTimeout, "CloseCover", MemberTypes.Method));
+            RemoteDevice.CallNoParameters(CreateParameters(standardDeviceResponseTimeout, "CloseCover", MemberTypes.Method));
             LogMessage(logger, clientNumber, "AbortSlew", "Cover closed OK");
         }
 
         /// <inheritdoc/>
         public void HaltCover()
         {
-            RemoteDevice.CallMethodWithNoParameters(CreateParameters(standardDeviceResponseTimeout, "HaltCover", MemberTypes.Method));
+            RemoteDevice.CallNoParameters(CreateParameters(standardDeviceResponseTimeout, "HaltCover", MemberTypes.Method));
             LogMessage(logger, clientNumber, "AbortSlew", "Cover halted OK");
         }
 
@@ -271,7 +271,7 @@ namespace ASCOM.Alpaca.Clients
         /// <inheritdoc/>
         public void CalibratorOff()
         {
-            RemoteDevice.CallMethodWithNoParameters(CreateParameters(standardDeviceResponseTimeout, "CalibratorOff", MemberTypes.Method));
+            RemoteDevice.CallNoParameters(CreateParameters(standardDeviceResponseTimeout, "CalibratorOff", MemberTypes.Method));
             LogMessage(logger, clientNumber, "AbortSlew", $"Calibrator off OK");
         }
 

@@ -202,37 +202,37 @@ namespace ASCOM.Alpaca.Clients
         /// <inheritdoc/>
         public void AbortSlew()
         {
-            RemoteDevice.CallMethodWithNoParameters(CreateParameters(standardDeviceResponseTimeout, "AbortSlew", MemberTypes.Method));
+            RemoteDevice.CallNoParameters(CreateParameters(standardDeviceResponseTimeout, "AbortSlew", MemberTypes.Method));
         }
 
         /// <inheritdoc/>
         public void CloseShutter()
         {
-            RemoteDevice.CallMethodWithNoParameters(CreateParameters(standardDeviceResponseTimeout, "CloseShutter", MemberTypes.Method));
+            RemoteDevice.CallNoParameters(CreateParameters(standardDeviceResponseTimeout, "CloseShutter", MemberTypes.Method));
         }
 
         /// <inheritdoc/>
         public void FindHome()
         {
-            RemoteDevice.CallMethodWithNoParameters(CreateParameters(standardDeviceResponseTimeout, "FindHome", MemberTypes.Method));
+            RemoteDevice.CallNoParameters(CreateParameters(standardDeviceResponseTimeout, "FindHome", MemberTypes.Method));
         }
 
         /// <inheritdoc/>
         public void OpenShutter()
         {
-            RemoteDevice.CallMethodWithNoParameters(CreateParameters(standardDeviceResponseTimeout, "OpenShutter", MemberTypes.Method));
+            RemoteDevice.CallNoParameters(CreateParameters(standardDeviceResponseTimeout, "OpenShutter", MemberTypes.Method));
         }
 
         /// <inheritdoc/>
         public void Park()
         {
-            RemoteDevice.CallMethodWithNoParameters(CreateParameters(standardDeviceResponseTimeout, "Park", MemberTypes.Method));
+            RemoteDevice.CallNoParameters(CreateParameters(standardDeviceResponseTimeout, "Park", MemberTypes.Method));
         }
 
         /// <inheritdoc/>
         public void SetPark()
         {
-            RemoteDevice.CallMethodWithNoParameters(CreateParameters(standardDeviceResponseTimeout, "SetPark", MemberTypes.Method));
+            RemoteDevice.CallNoParameters(CreateParameters(standardDeviceResponseTimeout, "SetPark", MemberTypes.Method));
         }
 
         /// <inheritdoc/>

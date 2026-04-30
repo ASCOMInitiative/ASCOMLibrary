@@ -283,7 +283,7 @@ namespace ASCOM.Alpaca.Clients
         ///<inheritdoc/>
         public void AbortExposure()
         {
-            RemoteDevice.CallMethodWithNoParameters(CreateParameters(standardDeviceResponseTimeout, "AbortExposure", MemberTypes.Method));
+            RemoteDevice.CallNoParameters(CreateParameters(standardDeviceResponseTimeout, "AbortExposure", MemberTypes.Method));
         }
 
         ///<inheritdoc/>
@@ -311,7 +311,7 @@ namespace ASCOM.Alpaca.Clients
         ///<inheritdoc/>
         public void StopExposure()
         {
-            RemoteDevice.CallMethodWithNoParameters(CreateParameters(standardDeviceResponseTimeout, "StopExposure", MemberTypes.Method));
+            RemoteDevice.CallNoParameters(CreateParameters(standardDeviceResponseTimeout, "StopExposure", MemberTypes.Method));
         }
 
         ///<inheritdoc/>
