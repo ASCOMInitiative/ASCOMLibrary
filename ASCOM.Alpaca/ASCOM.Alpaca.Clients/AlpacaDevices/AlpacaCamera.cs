@@ -142,7 +142,7 @@ namespace ASCOM.Alpaca.Clients
             this.remoteDeviceNumber = remoteDeviceNumber;
             this.strictCasing = strictCasing;
             base.logger = logger;
-            clientNumber = DynamicClientDriver.GetUniqueClientNumber();
+            clientNumber = RemoteDevice.GetUniqueClientNumber();
             Initialise();
         }
         private void Initialise()
@@ -173,7 +173,7 @@ namespace ASCOM.Alpaca.Clients
                 LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"Trust user generated SSL certificates: {trustUserGeneratedSslCertificates}");
                 LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"Request 100CONTINUE: {request100Continue}");
 
-                DynamicClientDriver.CreateHttpClient(ref client, serviceType, ipAddressString, portNumber, clientNumber, clientDeviceType, userName, password, imageArrayCompression,
+                RemoteDevice.CreateHttpClient(ref client, serviceType, ipAddressString, portNumber, clientNumber, clientDeviceType, userName, password, imageArrayCompression,
                     logger, userAgentProductName, userAgentProductVersion, trustUserGeneratedSslCertificates, request100Continue);
                 LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), "Completed initialisation");
             }
@@ -283,7 +283,7 @@ namespace ASCOM.Alpaca.Clients
         ///<inheritdoc/>
         public void AbortExposure()
         {
-            DynamicClientDriver.CallMethodWithNoParameters(CreateParameters(standardDeviceResponseTimeout, "AbortExposure", MemberTypes.Method));
+            RemoteDevice.CallMethodWithNoParameters(CreateParameters(standardDeviceResponseTimeout, "AbortExposure", MemberTypes.Method));
         }
 
         ///<inheritdoc/>
@@ -294,7 +294,7 @@ namespace ASCOM.Alpaca.Clients
                 { AlpacaConstants.DIRECTION_PARAMETER_NAME, ((int)Direction).ToString(CultureInfo.InvariantCulture) },
                 { AlpacaConstants.DURATION_PARAMETER_NAME, Duration.ToString(CultureInfo.InvariantCulture) }
             };
-            DynamicClientDriver.SendToRemoteDevice<NoReturnValue>(CreateParameters(standardDeviceResponseTimeout, "PulseGuide", MemberTypes.Method), Parameters, HttpMethod.Put);
+            RemoteDevice.Send<NoReturnValue>(CreateParameters(standardDeviceResponseTimeout, "PulseGuide", MemberTypes.Method), Parameters, HttpMethod.Put);
         }
 
         ///<inheritdoc/>
@@ -305,13 +305,13 @@ namespace ASCOM.Alpaca.Clients
                 { AlpacaConstants.DURATION_PARAMETER_NAME, Duration.ToString(CultureInfo.InvariantCulture) },
                 { AlpacaConstants.LIGHT_PARAMETER_NAME, Light.ToString() }
             };
-            DynamicClientDriver.SendToRemoteDevice<NoReturnValue>(CreateParameters(standardDeviceResponseTimeout, "StartExposure", MemberTypes.Method), Parameters, HttpMethod.Put);
+            RemoteDevice.Send<NoReturnValue>(CreateParameters(standardDeviceResponseTimeout, "StartExposure", MemberTypes.Method), Parameters, HttpMethod.Put);
         }
 
         ///<inheritdoc/>
         public void StopExposure()
         {
-            DynamicClientDriver.CallMethodWithNoParameters(CreateParameters(standardDeviceResponseTimeout, "StopExposure", MemberTypes.Method));
+            RemoteDevice.CallMethodWithNoParameters(CreateParameters(standardDeviceResponseTimeout, "StopExposure", MemberTypes.Method));
         }
 
         ///<inheritdoc/>
@@ -319,12 +319,12 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<short>(CreateParameters(standardDeviceResponseTimeout, "BinX", MemberTypes.Property));
+                return RemoteDevice.GetValue<short>(CreateParameters(standardDeviceResponseTimeout, "BinX", MemberTypes.Property));
             }
 
             set
             {
-                DynamicClientDriver.SetValue(CreateParameters(standardDeviceResponseTimeout, "BinX", MemberTypes.Property), value);
+                RemoteDevice.SetValue(CreateParameters(standardDeviceResponseTimeout, "BinX", MemberTypes.Property), value);
             }
         }
 
@@ -333,12 +333,12 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<short>(CreateParameters(standardDeviceResponseTimeout, "BinY", MemberTypes.Property));
+                return RemoteDevice.GetValue<short>(CreateParameters(standardDeviceResponseTimeout, "BinY", MemberTypes.Property));
             }
 
             set
             {
-                DynamicClientDriver.SetValue(CreateParameters(standardDeviceResponseTimeout, "BinY", MemberTypes.Property), value);
+                RemoteDevice.SetValue(CreateParameters(standardDeviceResponseTimeout, "BinY", MemberTypes.Property), value);
             }
         }
 
@@ -347,7 +347,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<CameraState>(CreateParameters(standardDeviceResponseTimeout, "CameraState", MemberTypes.Property));
+                return RemoteDevice.GetValue<CameraState>(CreateParameters(standardDeviceResponseTimeout, "CameraState", MemberTypes.Property));
             }
         }
 
@@ -356,7 +356,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<int>(CreateParameters(standardDeviceResponseTimeout, "CameraXSize", MemberTypes.Property));
+                return RemoteDevice.GetValue<int>(CreateParameters(standardDeviceResponseTimeout, "CameraXSize", MemberTypes.Property));
             }
         }
 
@@ -365,7 +365,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<int>(CreateParameters(standardDeviceResponseTimeout, "CameraYSize", MemberTypes.Property));
+                return RemoteDevice.GetValue<int>(CreateParameters(standardDeviceResponseTimeout, "CameraYSize", MemberTypes.Property));
             }
         }
 
@@ -374,7 +374,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<bool>(CreateParameters(standardDeviceResponseTimeout, "CanAbortExposure", MemberTypes.Property));
+                return RemoteDevice.GetValue<bool>(CreateParameters(standardDeviceResponseTimeout, "CanAbortExposure", MemberTypes.Property));
             }
         }
 
@@ -383,7 +383,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<bool>(CreateParameters(standardDeviceResponseTimeout, "CanAsymmetricBin", MemberTypes.Property));
+                return RemoteDevice.GetValue<bool>(CreateParameters(standardDeviceResponseTimeout, "CanAsymmetricBin", MemberTypes.Property));
             }
         }
 
@@ -392,7 +392,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<bool>(CreateParameters(standardDeviceResponseTimeout, "CanGetCoolerPower", MemberTypes.Property));
+                return RemoteDevice.GetValue<bool>(CreateParameters(standardDeviceResponseTimeout, "CanGetCoolerPower", MemberTypes.Property));
             }
         }
 
@@ -401,7 +401,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<bool>(CreateParameters(standardDeviceResponseTimeout, "CanPulseGuide", MemberTypes.Property));
+                return RemoteDevice.GetValue<bool>(CreateParameters(standardDeviceResponseTimeout, "CanPulseGuide", MemberTypes.Property));
             }
         }
 
@@ -410,7 +410,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<bool>(CreateParameters(standardDeviceResponseTimeout, "CanSetCCDTemperature", MemberTypes.Property));
+                return RemoteDevice.GetValue<bool>(CreateParameters(standardDeviceResponseTimeout, "CanSetCCDTemperature", MemberTypes.Property));
             }
         }
 
@@ -419,7 +419,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<bool>(CreateParameters(standardDeviceResponseTimeout, "CanStopExposure", MemberTypes.Property));
+                return RemoteDevice.GetValue<bool>(CreateParameters(standardDeviceResponseTimeout, "CanStopExposure", MemberTypes.Property));
             }
         }
 
@@ -428,7 +428,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<double>(CreateParameters(standardDeviceResponseTimeout, "CCDTemperature", MemberTypes.Property));
+                return RemoteDevice.GetValue<double>(CreateParameters(standardDeviceResponseTimeout, "CCDTemperature", MemberTypes.Property));
             }
         }
 
@@ -437,12 +437,12 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<bool>(CreateParameters(standardDeviceResponseTimeout, "CoolerOn", MemberTypes.Property));
+                return RemoteDevice.GetValue<bool>(CreateParameters(standardDeviceResponseTimeout, "CoolerOn", MemberTypes.Property));
             }
 
             set
             {
-                DynamicClientDriver.SetValue(CreateParameters(standardDeviceResponseTimeout, "CoolerOn", MemberTypes.Property), value);
+                RemoteDevice.SetValue(CreateParameters(standardDeviceResponseTimeout, "CoolerOn", MemberTypes.Property), value);
             }
         }
 
@@ -451,7 +451,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<double>(CreateParameters(standardDeviceResponseTimeout, "CoolerPower", MemberTypes.Property));
+                return RemoteDevice.GetValue<double>(CreateParameters(standardDeviceResponseTimeout, "CoolerPower", MemberTypes.Property));
             }
         }
 
@@ -460,7 +460,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<double>(CreateParameters(standardDeviceResponseTimeout, "ElectronsPerADU", MemberTypes.Property));
+                return RemoteDevice.GetValue<double>(CreateParameters(standardDeviceResponseTimeout, "ElectronsPerADU", MemberTypes.Property));
             }
         }
 
@@ -469,7 +469,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<double>(CreateParameters(standardDeviceResponseTimeout, "FullWellCapacity", MemberTypes.Property));
+                return RemoteDevice.GetValue<double>(CreateParameters(standardDeviceResponseTimeout, "FullWellCapacity", MemberTypes.Property));
             }
         }
 
@@ -478,7 +478,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<bool>(CreateParameters(standardDeviceResponseTimeout, "HasShutter", MemberTypes.Property));
+                return RemoteDevice.GetValue<bool>(CreateParameters(standardDeviceResponseTimeout, "HasShutter", MemberTypes.Property));
             }
         }
 
@@ -487,7 +487,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<double>(CreateParameters(standardDeviceResponseTimeout, "HeatSinkTemperature", MemberTypes.Property));
+                return RemoteDevice.GetValue<double>(CreateParameters(standardDeviceResponseTimeout, "HeatSinkTemperature", MemberTypes.Property));
             }
         }
 
@@ -499,7 +499,7 @@ namespace ASCOM.Alpaca.Clients
                 var p = CreateParameters(longDeviceResponseTimeout, "ImageArray", MemberTypes.Property);
                 p.ImageArrayTransferType = imageArrayTransferType;
                 p.ImageArrayCompression = imageArrayCompression;
-                return DynamicClientDriver.GetValue<Array>(p);
+                return RemoteDevice.GetValue<Array>(p);
             }
         }
 
@@ -518,7 +518,7 @@ namespace ASCOM.Alpaca.Clients
                     ImageArrayTransferType = imageArrayTransferType,
                     ImageArrayCompression = imageArrayCompression
                 };
-                returnArray = DynamicClientDriver.GetValue<Array>(p);
+                returnArray = RemoteDevice.GetValue<Array>(p);
 
                 try
                 {
@@ -869,7 +869,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<bool>(CreateParameters(standardDeviceResponseTimeout, "ImageReady", MemberTypes.Property));
+                return RemoteDevice.GetValue<bool>(CreateParameters(standardDeviceResponseTimeout, "ImageReady", MemberTypes.Property));
             }
         }
 
@@ -878,7 +878,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<bool>(CreateParameters(standardDeviceResponseTimeout, "IsPulseGuiding", MemberTypes.Property));
+                return RemoteDevice.GetValue<bool>(CreateParameters(standardDeviceResponseTimeout, "IsPulseGuiding", MemberTypes.Property));
             }
         }
 
@@ -887,7 +887,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<double>(CreateParameters(standardDeviceResponseTimeout, "LastExposureDuration", MemberTypes.Property));
+                return RemoteDevice.GetValue<double>(CreateParameters(standardDeviceResponseTimeout, "LastExposureDuration", MemberTypes.Property));
             }
         }
 
@@ -896,7 +896,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<string>(CreateParameters(standardDeviceResponseTimeout, "LastExposureStartTime", MemberTypes.Property));
+                return RemoteDevice.GetValue<string>(CreateParameters(standardDeviceResponseTimeout, "LastExposureStartTime", MemberTypes.Property));
             }
         }
 
@@ -905,7 +905,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<int>(CreateParameters(standardDeviceResponseTimeout, "MaxADU", MemberTypes.Property));
+                return RemoteDevice.GetValue<int>(CreateParameters(standardDeviceResponseTimeout, "MaxADU", MemberTypes.Property));
             }
         }
 
@@ -914,7 +914,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<short>(CreateParameters(standardDeviceResponseTimeout, "MaxBinX", MemberTypes.Property));
+                return RemoteDevice.GetValue<short>(CreateParameters(standardDeviceResponseTimeout, "MaxBinX", MemberTypes.Property));
             }
         }
 
@@ -923,7 +923,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<short>(CreateParameters(standardDeviceResponseTimeout, "MaxBinY", MemberTypes.Property));
+                return RemoteDevice.GetValue<short>(CreateParameters(standardDeviceResponseTimeout, "MaxBinY", MemberTypes.Property));
             }
         }
 
@@ -932,12 +932,12 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<int>(CreateParameters(standardDeviceResponseTimeout, "NumX", MemberTypes.Property));
+                return RemoteDevice.GetValue<int>(CreateParameters(standardDeviceResponseTimeout, "NumX", MemberTypes.Property));
             }
 
             set
             {
-                DynamicClientDriver.SetValue(CreateParameters(standardDeviceResponseTimeout, "NumX", MemberTypes.Property), value);
+                RemoteDevice.SetValue(CreateParameters(standardDeviceResponseTimeout, "NumX", MemberTypes.Property), value);
             }
         }
 
@@ -946,12 +946,12 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<int>(CreateParameters(standardDeviceResponseTimeout, "NumY", MemberTypes.Property));
+                return RemoteDevice.GetValue<int>(CreateParameters(standardDeviceResponseTimeout, "NumY", MemberTypes.Property));
             }
 
             set
             {
-                DynamicClientDriver.SetValue(CreateParameters(standardDeviceResponseTimeout, "NumY", MemberTypes.Property), value);
+                RemoteDevice.SetValue(CreateParameters(standardDeviceResponseTimeout, "NumY", MemberTypes.Property), value);
             }
         }
 
@@ -960,7 +960,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<double>(CreateParameters(standardDeviceResponseTimeout, "PixelSizeX", MemberTypes.Property));
+                return RemoteDevice.GetValue<double>(CreateParameters(standardDeviceResponseTimeout, "PixelSizeX", MemberTypes.Property));
             }
         }
 
@@ -969,7 +969,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<double>(CreateParameters(standardDeviceResponseTimeout, "PixelSizeY", MemberTypes.Property));
+                return RemoteDevice.GetValue<double>(CreateParameters(standardDeviceResponseTimeout, "PixelSizeY", MemberTypes.Property));
             }
         }
 
@@ -978,12 +978,12 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<double>(CreateParameters(standardDeviceResponseTimeout, "SetCCDTemperature", MemberTypes.Property));
+                return RemoteDevice.GetValue<double>(CreateParameters(standardDeviceResponseTimeout, "SetCCDTemperature", MemberTypes.Property));
             }
 
             set
             {
-                DynamicClientDriver.SetValue(CreateParameters(standardDeviceResponseTimeout, "SetCCDTemperature", MemberTypes.Property), value);
+                RemoteDevice.SetValue(CreateParameters(standardDeviceResponseTimeout, "SetCCDTemperature", MemberTypes.Property), value);
             }
         }
 
@@ -992,12 +992,12 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<int>(CreateParameters(standardDeviceResponseTimeout, "StartX", MemberTypes.Property));
+                return RemoteDevice.GetValue<int>(CreateParameters(standardDeviceResponseTimeout, "StartX", MemberTypes.Property));
             }
 
             set
             {
-                DynamicClientDriver.SetValue(CreateParameters(standardDeviceResponseTimeout, "StartX", MemberTypes.Property), value);
+                RemoteDevice.SetValue(CreateParameters(standardDeviceResponseTimeout, "StartX", MemberTypes.Property), value);
             }
         }
 
@@ -1006,12 +1006,12 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<int>(CreateParameters(standardDeviceResponseTimeout, "StartY", MemberTypes.Property));
+                return RemoteDevice.GetValue<int>(CreateParameters(standardDeviceResponseTimeout, "StartY", MemberTypes.Property));
             }
 
             set
             {
-                DynamicClientDriver.SetValue(CreateParameters(standardDeviceResponseTimeout, "StartY", MemberTypes.Property), value);
+                RemoteDevice.SetValue(CreateParameters(standardDeviceResponseTimeout, "StartY", MemberTypes.Property), value);
             }
         }
 
@@ -1020,7 +1020,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<short>(CreateParameters(standardDeviceResponseTimeout, "BayerOffsetX", MemberTypes.Property));
+                return RemoteDevice.GetValue<short>(CreateParameters(standardDeviceResponseTimeout, "BayerOffsetX", MemberTypes.Property));
             }
         }
 
@@ -1029,7 +1029,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<short>(CreateParameters(standardDeviceResponseTimeout, "BayerOffsetY", MemberTypes.Property));
+                return RemoteDevice.GetValue<short>(CreateParameters(standardDeviceResponseTimeout, "BayerOffsetY", MemberTypes.Property));
             }
         }
 
@@ -1038,7 +1038,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<bool>(CreateParameters(standardDeviceResponseTimeout, "CanFastReadout", MemberTypes.Property));
+                return RemoteDevice.GetValue<bool>(CreateParameters(standardDeviceResponseTimeout, "CanFastReadout", MemberTypes.Property));
             }
         }
 
@@ -1047,7 +1047,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<double>(CreateParameters(standardDeviceResponseTimeout, "ExposureMax", MemberTypes.Property));
+                return RemoteDevice.GetValue<double>(CreateParameters(standardDeviceResponseTimeout, "ExposureMax", MemberTypes.Property));
             }
         }
 
@@ -1056,7 +1056,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<double>(CreateParameters(standardDeviceResponseTimeout, "ExposureMin", MemberTypes.Property));
+                return RemoteDevice.GetValue<double>(CreateParameters(standardDeviceResponseTimeout, "ExposureMin", MemberTypes.Property));
             }
         }
 
@@ -1065,7 +1065,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<double>(CreateParameters(standardDeviceResponseTimeout, "ExposureResolution", MemberTypes.Property));
+                return RemoteDevice.GetValue<double>(CreateParameters(standardDeviceResponseTimeout, "ExposureResolution", MemberTypes.Property));
             }
         }
 
@@ -1074,12 +1074,12 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<bool>(CreateParameters(standardDeviceResponseTimeout, "FastReadout", MemberTypes.Property));
+                return RemoteDevice.GetValue<bool>(CreateParameters(standardDeviceResponseTimeout, "FastReadout", MemberTypes.Property));
             }
 
             set
             {
-                DynamicClientDriver.SetValue(CreateParameters(standardDeviceResponseTimeout, "FastReadout", MemberTypes.Property), value);
+                RemoteDevice.SetValue(CreateParameters(standardDeviceResponseTimeout, "FastReadout", MemberTypes.Property), value);
             }
         }
 
@@ -1088,12 +1088,12 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<short>(CreateParameters(standardDeviceResponseTimeout, "Gain", MemberTypes.Property));
+                return RemoteDevice.GetValue<short>(CreateParameters(standardDeviceResponseTimeout, "Gain", MemberTypes.Property));
             }
 
             set
             {
-                DynamicClientDriver.SetValue(CreateParameters(standardDeviceResponseTimeout, "Gain", MemberTypes.Property), value);
+                RemoteDevice.SetValue(CreateParameters(standardDeviceResponseTimeout, "Gain", MemberTypes.Property), value);
             }
         }
 
@@ -1102,7 +1102,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<short>(CreateParameters(standardDeviceResponseTimeout, "GainMax", MemberTypes.Property));
+                return RemoteDevice.GetValue<short>(CreateParameters(standardDeviceResponseTimeout, "GainMax", MemberTypes.Property));
             }
         }
 
@@ -1111,7 +1111,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<short>(CreateParameters(standardDeviceResponseTimeout, "GainMin", MemberTypes.Property));
+                return RemoteDevice.GetValue<short>(CreateParameters(standardDeviceResponseTimeout, "GainMin", MemberTypes.Property));
             }
         }
 
@@ -1120,7 +1120,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                List<string> gains = DynamicClientDriver.GetValue<List<string>>(CreateParameters(standardDeviceResponseTimeout, "Gains", MemberTypes.Property));
+                List<string> gains = RemoteDevice.GetValue<List<string>>(CreateParameters(standardDeviceResponseTimeout, "Gains", MemberTypes.Property));
                 LogMessage(logger, clientNumber, "Gains", $"Returning {gains.Count} gains");
 
                 return gains;
@@ -1132,7 +1132,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<short>(CreateParameters(standardDeviceResponseTimeout, "PercentCompleted", MemberTypes.Property));
+                return RemoteDevice.GetValue<short>(CreateParameters(standardDeviceResponseTimeout, "PercentCompleted", MemberTypes.Property));
             }
         }
 
@@ -1141,12 +1141,12 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<short>(CreateParameters(standardDeviceResponseTimeout, "ReadoutMode", MemberTypes.Property));
+                return RemoteDevice.GetValue<short>(CreateParameters(standardDeviceResponseTimeout, "ReadoutMode", MemberTypes.Property));
             }
 
             set
             {
-                DynamicClientDriver.SetValue(CreateParameters(standardDeviceResponseTimeout, "ReadoutMode", MemberTypes.Property), value);
+                RemoteDevice.SetValue(CreateParameters(standardDeviceResponseTimeout, "ReadoutMode", MemberTypes.Property), value);
             }
         }
 
@@ -1155,7 +1155,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                List<string> modes = DynamicClientDriver.GetValue<List<string>>(CreateParameters(standardDeviceResponseTimeout, "ReadoutModes", MemberTypes.Property));
+                List<string> modes = RemoteDevice.GetValue<List<string>>(CreateParameters(standardDeviceResponseTimeout, "ReadoutModes", MemberTypes.Property));
                 LogMessage(logger, clientNumber, "ReadoutModes", $"Returning {modes.Count} modes");
 
                 return modes;
@@ -1167,7 +1167,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<string>(CreateParameters(standardDeviceResponseTimeout, "SensorName", MemberTypes.Property));
+                return RemoteDevice.GetValue<string>(CreateParameters(standardDeviceResponseTimeout, "SensorName", MemberTypes.Property));
             }
         }
 
@@ -1176,7 +1176,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<SensorType>(CreateParameters(standardDeviceResponseTimeout, "SensorType", MemberTypes.Property));
+                return RemoteDevice.GetValue<SensorType>(CreateParameters(standardDeviceResponseTimeout, "SensorType", MemberTypes.Property));
             }
         }
 
@@ -1189,12 +1189,12 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<int>(CreateParameters(standardDeviceResponseTimeout, "Offset", MemberTypes.Property));
+                return RemoteDevice.GetValue<int>(CreateParameters(standardDeviceResponseTimeout, "Offset", MemberTypes.Property));
             }
 
             set
             {
-                DynamicClientDriver.SetValue(CreateParameters(standardDeviceResponseTimeout, "Offset", MemberTypes.Property), value);
+                RemoteDevice.SetValue(CreateParameters(standardDeviceResponseTimeout, "Offset", MemberTypes.Property), value);
             }
         }
 
@@ -1203,7 +1203,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<int>(CreateParameters(standardDeviceResponseTimeout, "OffsetMax", MemberTypes.Property));
+                return RemoteDevice.GetValue<int>(CreateParameters(standardDeviceResponseTimeout, "OffsetMax", MemberTypes.Property));
             }
         }
 
@@ -1212,7 +1212,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<int>(CreateParameters(standardDeviceResponseTimeout, "OffsetMin", MemberTypes.Property));
+                return RemoteDevice.GetValue<int>(CreateParameters(standardDeviceResponseTimeout, "OffsetMin", MemberTypes.Property));
             }
         }
 
@@ -1221,7 +1221,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                List<string> offsets = DynamicClientDriver.GetValue<List<string>>(CreateParameters(standardDeviceResponseTimeout, "Offsets", MemberTypes.Property));
+                List<string> offsets = RemoteDevice.GetValue<List<string>>(CreateParameters(standardDeviceResponseTimeout, "Offsets", MemberTypes.Property));
                 LogMessage(logger, clientNumber, "Offsets", $"Returning {offsets.Count} Offsets");
 
                 return offsets;
@@ -1233,12 +1233,12 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<double>(CreateParameters(standardDeviceResponseTimeout, "SubExposureDuration", MemberTypes.Property));
+                return RemoteDevice.GetValue<double>(CreateParameters(standardDeviceResponseTimeout, "SubExposureDuration", MemberTypes.Property));
             }
 
             set
             {
-                DynamicClientDriver.SetValue(CreateParameters(standardDeviceResponseTimeout, "SubExposureDuration", MemberTypes.Property), value);
+                RemoteDevice.SetValue(CreateParameters(standardDeviceResponseTimeout, "SubExposureDuration", MemberTypes.Property), value);
             }
         }
 

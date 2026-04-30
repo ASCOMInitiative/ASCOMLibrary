@@ -132,7 +132,7 @@ namespace ASCOM.Alpaca.Clients
             this.remoteDeviceNumber = remoteDeviceNumber;
             this.strictCasing = strictCasing;
             base.logger = logger;
-            clientNumber = DynamicClientDriver.GetUniqueClientNumber();
+            clientNumber = RemoteDevice.GetUniqueClientNumber();
             Initialise();
         }
         private void Initialise()
@@ -162,7 +162,7 @@ namespace ASCOM.Alpaca.Clients
                 LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"Trust user generated SSL certificates: {trustUserGeneratedSslCertificates}");
                 LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"Request 100CONTINUE: {request100Continue}");
 
-                DynamicClientDriver.CreateHttpClient(ref client, serviceType, ipAddressString, portNumber, clientNumber, clientDeviceType, userName, password, ImageArrayCompression.None,
+                RemoteDevice.CreateHttpClient(ref client, serviceType, ipAddressString, portNumber, clientNumber, clientDeviceType, userName, password, ImageArrayCompression.None,
                     logger, userAgentProductName, userAgentProductVersion, trustUserGeneratedSslCertificates, request100Continue);
                 LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), "Completed initialisation");
             }
@@ -185,31 +185,31 @@ namespace ASCOM.Alpaca.Clients
         /// <inheritdoc/>
         public bool CanWrite(short id)
         {
-            return DynamicClientDriver.GetShortIndexed<bool>(CreateParameters(standardDeviceResponseTimeout, "CanWrite", MemberTypes.Method), id);
+            return RemoteDevice.GetShortIndexed<bool>(CreateParameters(standardDeviceResponseTimeout, "CanWrite", MemberTypes.Method), id);
         }
 
         /// <inheritdoc/>
         public bool GetSwitch(short id)
         {
-            return DynamicClientDriver.GetShortIndexed<bool>(CreateParameters(standardDeviceResponseTimeout, "GetSwitch", MemberTypes.Method), id);
+            return RemoteDevice.GetShortIndexed<bool>(CreateParameters(standardDeviceResponseTimeout, "GetSwitch", MemberTypes.Method), id);
         }
 
         /// <inheritdoc/>
         public string GetSwitchDescription(short id)
         {
-            return DynamicClientDriver.GetShortIndexed<string>(CreateParameters(standardDeviceResponseTimeout, "GetSwitchDescription", MemberTypes.Method), id);
+            return RemoteDevice.GetShortIndexed<string>(CreateParameters(standardDeviceResponseTimeout, "GetSwitchDescription", MemberTypes.Method), id);
         }
 
         /// <inheritdoc/>
         public string GetSwitchName(short id)
         {
-            return DynamicClientDriver.GetShortIndexed<string>(CreateParameters(standardDeviceResponseTimeout, "GetSwitchName", MemberTypes.Method), id);
+            return RemoteDevice.GetShortIndexed<string>(CreateParameters(standardDeviceResponseTimeout, "GetSwitchName", MemberTypes.Method), id);
         }
 
         /// <inheritdoc/>
         public double GetSwitchValue(short id)
         {
-            return DynamicClientDriver.GetShortIndexed<double>(CreateParameters(standardDeviceResponseTimeout, "GetSwitchValue", MemberTypes.Method), id);
+            return RemoteDevice.GetShortIndexed<double>(CreateParameters(standardDeviceResponseTimeout, "GetSwitchValue", MemberTypes.Method), id);
         }
 
         /// <inheritdoc/>
@@ -217,44 +217,44 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<short>(CreateParameters(standardDeviceResponseTimeout, "MaxSwitch", MemberTypes.Property));
+                return RemoteDevice.GetValue<short>(CreateParameters(standardDeviceResponseTimeout, "MaxSwitch", MemberTypes.Property));
             }
         }
 
         /// <inheritdoc/>
         public double MaxSwitchValue(short id)
         {
-            return DynamicClientDriver.GetShortIndexed<double>(CreateParameters(standardDeviceResponseTimeout, "MaxSwitchValue", MemberTypes.Method), id);
+            return RemoteDevice.GetShortIndexed<double>(CreateParameters(standardDeviceResponseTimeout, "MaxSwitchValue", MemberTypes.Method), id);
         }
 
         /// <inheritdoc/>
         public double MinSwitchValue(short id)
         {
-            return DynamicClientDriver.GetShortIndexed<double>(CreateParameters(standardDeviceResponseTimeout, "MinSwitchValue", MemberTypes.Method), id);
+            return RemoteDevice.GetShortIndexed<double>(CreateParameters(standardDeviceResponseTimeout, "MinSwitchValue", MemberTypes.Method), id);
         }
 
         /// <inheritdoc/>
         public double SwitchStep(short id)
         {
-            return DynamicClientDriver.GetShortIndexed<double>(CreateParameters(standardDeviceResponseTimeout, "SwitchStep", MemberTypes.Method), id);
+            return RemoteDevice.GetShortIndexed<double>(CreateParameters(standardDeviceResponseTimeout, "SwitchStep", MemberTypes.Method), id);
         }
 
         /// <inheritdoc/>
         public void SetSwitchName(short id, string name)
         {
-            DynamicClientDriver.SetStringWithShortParameter(CreateParameters(standardDeviceResponseTimeout, "SetSwitchName", MemberTypes.Method), id, name);
+            RemoteDevice.SetStringWithShortParameter(CreateParameters(standardDeviceResponseTimeout, "SetSwitchName", MemberTypes.Method), id, name);
         }
 
         /// <inheritdoc/>
         public void SetSwitch(short id, bool state)
         {
-            DynamicClientDriver.SetBoolWithShortParameter(CreateParameters(standardDeviceResponseTimeout, "SetSwitch", MemberTypes.Method), id, state);
+            RemoteDevice.SetBoolWithShortParameter(CreateParameters(standardDeviceResponseTimeout, "SetSwitch", MemberTypes.Method), id, state);
         }
 
         /// <inheritdoc/>
         public void SetSwitchValue(short id, double value)
         {
-            DynamicClientDriver.SetDoubleWithShortParameter(CreateParameters(standardDeviceResponseTimeout, "SetSwitchValue", MemberTypes.Method), id, value);
+            RemoteDevice.SetDoubleWithShortParameter(CreateParameters(standardDeviceResponseTimeout, "SetSwitchValue", MemberTypes.Method), id, value);
         }
 
         #endregion
@@ -268,7 +268,7 @@ namespace ASCOM.Alpaca.Clients
             if (DeviceCapabilities.HasConnectAndDeviceState(DeviceTypes.Switch, InterfaceVersion))
             {
                 // Platform 7 or later device so use the device's method
-                DynamicClientDriver.SetBoolWithShortParameter(CreateParameters(standardDeviceResponseTimeout, "SetAsync", MemberTypes.Method), id, state);
+                RemoteDevice.SetBoolWithShortParameter(CreateParameters(standardDeviceResponseTimeout, "SetAsync", MemberTypes.Method), id, state);
                 return;
             }
 
@@ -283,7 +283,7 @@ namespace ASCOM.Alpaca.Clients
             if (DeviceCapabilities.HasConnectAndDeviceState(DeviceTypes.Switch, InterfaceVersion))
             {
                 // Platform 7 or later device so use the device's method
-                DynamicClientDriver.SetDoubleWithShortParameter(CreateParameters(standardDeviceResponseTimeout, "SetAsyncValue", MemberTypes.Method), id, value);
+                RemoteDevice.SetDoubleWithShortParameter(CreateParameters(standardDeviceResponseTimeout, "SetAsyncValue", MemberTypes.Method), id, value);
                 return;
             }
 
@@ -298,7 +298,7 @@ namespace ASCOM.Alpaca.Clients
             if (DeviceCapabilities.HasConnectAndDeviceState(DeviceTypes.Switch, InterfaceVersion))
             {
                 // Platform 7 or later device so use the device's method
-                return DynamicClientDriver.GetShortIndexed<bool>(CreateParameters(standardDeviceResponseTimeout, "CanAsync", MemberTypes.Method), id);
+                return RemoteDevice.GetShortIndexed<bool>(CreateParameters(standardDeviceResponseTimeout, "CanAsync", MemberTypes.Method), id);
             }
 
             // Platform 6 or earlier device - async is not supported so return false to show no async support.
@@ -312,7 +312,7 @@ namespace ASCOM.Alpaca.Clients
             if (DeviceCapabilities.HasConnectAndDeviceState(DeviceTypes.Switch, InterfaceVersion))
             {
                 // Platform 7 or later device so use the device's method
-                return DynamicClientDriver.GetShortIndexed<bool>(CreateParameters(standardDeviceResponseTimeout, "StateChangeComplete", MemberTypes.Method), id);
+                return RemoteDevice.GetShortIndexed<bool>(CreateParameters(standardDeviceResponseTimeout, "StateChangeComplete", MemberTypes.Method), id);
             }
 
             // Platform 6 or earlier device
@@ -327,7 +327,7 @@ namespace ASCOM.Alpaca.Clients
             {
                 // Platform 7 or later device so use the device's method
                 Dictionary<string, string> Parameters = new Dictionary<string, string>() { { AlpacaConstants.ID_PARAMETER_NAME, id.ToString() } };
-                DynamicClientDriver.SendToRemoteDevice<NoReturnValue>(CreateParameters(standardDeviceResponseTimeout, "CancelAsync", MemberTypes.Method), Parameters, HttpMethod.Put);
+                RemoteDevice.Send<NoReturnValue>(CreateParameters(standardDeviceResponseTimeout, "CancelAsync", MemberTypes.Method), Parameters, HttpMethod.Put);
                 return;
             }
 

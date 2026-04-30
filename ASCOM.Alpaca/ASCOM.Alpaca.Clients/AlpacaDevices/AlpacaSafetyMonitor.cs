@@ -132,7 +132,7 @@ namespace ASCOM.Alpaca.Clients
             this.remoteDeviceNumber = remoteDeviceNumber;
             this.strictCasing = strictCasing;
             base.logger = logger;
-            clientNumber = DynamicClientDriver.GetUniqueClientNumber();
+            clientNumber = RemoteDevice.GetUniqueClientNumber();
             Initialise();
         }
         private void Initialise()
@@ -162,7 +162,7 @@ namespace ASCOM.Alpaca.Clients
                 LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"Trust user generated SSL certificates: {trustUserGeneratedSslCertificates}");
                 LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"Request 100CONTINUE: {request100Continue}");
 
-                DynamicClientDriver.CreateHttpClient(ref client, serviceType, ipAddressString, portNumber, clientNumber, clientDeviceType, userName, password, ImageArrayCompression.None, 
+                RemoteDevice.CreateHttpClient(ref client, serviceType, ipAddressString, portNumber, clientNumber, clientDeviceType, userName, password, ImageArrayCompression.None, 
                     logger, userAgentProductName, userAgentProductVersion, trustUserGeneratedSslCertificates, request100Continue);
                 LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), "Completed initialisation");
             }
@@ -203,7 +203,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<bool>(CreateParameters(standardDeviceResponseTimeout, "IsSafe", MemberTypes.Property));
+                return RemoteDevice.GetValue<bool>(CreateParameters(standardDeviceResponseTimeout, "IsSafe", MemberTypes.Property));
             }
         }
 

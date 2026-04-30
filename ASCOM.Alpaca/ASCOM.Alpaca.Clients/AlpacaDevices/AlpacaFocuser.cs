@@ -136,7 +136,7 @@ namespace ASCOM.Alpaca.Clients
             this.remoteDeviceNumber = remoteDeviceNumber;
             this.strictCasing = strictCasing;
             base.logger = logger;
-            clientNumber = DynamicClientDriver.GetUniqueClientNumber();
+            clientNumber = RemoteDevice.GetUniqueClientNumber();
             Initialise();
         }
 
@@ -167,7 +167,7 @@ namespace ASCOM.Alpaca.Clients
                 LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"Trust user generated SSL certificates: {trustUserGeneratedSslCertificates}");
                 LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"Request 100CONTINUE: {request100Continue}");
 
-                DynamicClientDriver.CreateHttpClient(ref client, serviceType, ipAddressString, portNumber, clientNumber, clientDeviceType, userName, password, ImageArrayCompression.None,
+                RemoteDevice.CreateHttpClient(ref client, serviceType, ipAddressString, portNumber, clientNumber, clientDeviceType, userName, password, ImageArrayCompression.None,
                     logger, userAgentProductName, userAgentProductVersion, trustUserGeneratedSslCertificates, request100Continue);
                 LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), "Completed initialisation");
             }
@@ -206,7 +206,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<bool>(CreateParameters(standardDeviceResponseTimeout, "Absolute", MemberTypes.Property));
+                return RemoteDevice.GetValue<bool>(CreateParameters(standardDeviceResponseTimeout, "Absolute", MemberTypes.Property));
             }
         }
 
@@ -215,7 +215,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<bool>(CreateParameters(standardDeviceResponseTimeout, "IsMoving", MemberTypes.Property));
+                return RemoteDevice.GetValue<bool>(CreateParameters(standardDeviceResponseTimeout, "IsMoving", MemberTypes.Property));
             }
         }
 
@@ -224,7 +224,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<int>(CreateParameters(standardDeviceResponseTimeout, "MaxIncrement", MemberTypes.Property));
+                return RemoteDevice.GetValue<int>(CreateParameters(standardDeviceResponseTimeout, "MaxIncrement", MemberTypes.Property));
             }
         }
 
@@ -233,7 +233,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<int>(CreateParameters(standardDeviceResponseTimeout, "MaxStep", MemberTypes.Property));
+                return RemoteDevice.GetValue<int>(CreateParameters(standardDeviceResponseTimeout, "MaxStep", MemberTypes.Property));
             }
         }
 
@@ -242,7 +242,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<int>(CreateParameters(standardDeviceResponseTimeout, "Position", MemberTypes.Property));
+                return RemoteDevice.GetValue<int>(CreateParameters(standardDeviceResponseTimeout, "Position", MemberTypes.Property));
             }
         }
 
@@ -251,7 +251,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<double>(CreateParameters(standardDeviceResponseTimeout, "StepSize", MemberTypes.Property));
+                return RemoteDevice.GetValue<double>(CreateParameters(standardDeviceResponseTimeout, "StepSize", MemberTypes.Property));
             }
         }
 
@@ -260,12 +260,12 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<bool>(CreateParameters(standardDeviceResponseTimeout, "TempComp", MemberTypes.Property));
+                return RemoteDevice.GetValue<bool>(CreateParameters(standardDeviceResponseTimeout, "TempComp", MemberTypes.Property));
             }
 
             set
             {
-                DynamicClientDriver.SetValue(CreateParameters(standardDeviceResponseTimeout, "TempComp", MemberTypes.Property), value);
+                RemoteDevice.SetValue(CreateParameters(standardDeviceResponseTimeout, "TempComp", MemberTypes.Property), value);
             }
         }
 
@@ -274,7 +274,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<bool>(CreateParameters(standardDeviceResponseTimeout, "TempCompAvailable", MemberTypes.Property));
+                return RemoteDevice.GetValue<bool>(CreateParameters(standardDeviceResponseTimeout, "TempCompAvailable", MemberTypes.Property));
             }
         }
 
@@ -283,14 +283,14 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<double>(CreateParameters(standardDeviceResponseTimeout, "Temperature", MemberTypes.Property));
+                return RemoteDevice.GetValue<double>(CreateParameters(standardDeviceResponseTimeout, "Temperature", MemberTypes.Property));
             }
         }
 
         /// <inheritdoc/>
         public void Halt()
         {
-            DynamicClientDriver.CallMethodWithNoParameters(CreateParameters(longDeviceResponseTimeout, "Halt", MemberTypes.Method));
+            RemoteDevice.CallMethodWithNoParameters(CreateParameters(longDeviceResponseTimeout, "Halt", MemberTypes.Method));
             LogMessage(logger, clientNumber, "Halt", "Halted OK");
         }
 
@@ -301,7 +301,7 @@ namespace ASCOM.Alpaca.Clients
             {
                 { AlpacaConstants.POSITION_PARAMETER_NAME, Position.ToString(CultureInfo.InvariantCulture) }
             };
-            DynamicClientDriver.SendToRemoteDevice<NoReturnValue>(CreateParameters(longDeviceResponseTimeout, "Move", MemberTypes.Method), Parameters, HttpMethod.Put);
+            RemoteDevice.Send<NoReturnValue>(CreateParameters(longDeviceResponseTimeout, "Move", MemberTypes.Method), Parameters, HttpMethod.Put);
         }
 
         #endregion

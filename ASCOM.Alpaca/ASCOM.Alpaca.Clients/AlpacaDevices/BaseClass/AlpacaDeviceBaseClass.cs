@@ -84,7 +84,7 @@ namespace ASCOM.Alpaca.Clients
         /// <remarks>This method must be called after changing the client configuration through the <see cref="ClientConfiguration"/> property.</remarks>
         public void RefreshClient()
         {
-            DynamicClientDriver.CreateHttpClient(ref client, ClientConfiguration.ServiceType, ClientConfiguration.IpAddress, ClientConfiguration.PortNumber, ClientConfiguration.ClientNumber,
+            RemoteDevice.CreateHttpClient(ref client, ClientConfiguration.ServiceType, ClientConfiguration.IpAddress, ClientConfiguration.PortNumber, ClientConfiguration.ClientNumber,
                 ClientConfiguration.DeviceType, ClientConfiguration.UserName, ClientConfiguration.Password, ClientConfiguration.ImageArrayCompression,
                 logger, ClientConfiguration.UserAgentProductName, ClientConfiguration.UserAgentProductVersion, trustUserGeneratedSslCertificates, ClientConfiguration.Request100Continue);
 
@@ -111,7 +111,7 @@ namespace ASCOM.Alpaca.Clients
                 { AlpacaConstants.ACTION_COMMAND_PARAMETER_NAME, actionName },
                 { AlpacaConstants.ACTION_PARAMETERS_PARAMETER_NAME, actionParameters }
             };
-            string remoteString = DynamicClientDriver.SendToRemoteDevice<string>(new Parameters(clientNumber, client, longDeviceResponseTimeout, uriBase, strictCasing, logger, "Action", MemberTypes.Method), formParameters, HttpMethod.Put);
+            string remoteString = RemoteDevice.Send<string>(new Parameters(clientNumber, client, longDeviceResponseTimeout, uriBase, strictCasing, logger, "Action", MemberTypes.Method), formParameters, HttpMethod.Put);
             LogMessage(logger, clientNumber, "Action", $"Response length: {remoteString.Length}");
             LogMessage(logger, clientNumber, "Action", $"Response: {((remoteString.Length <= 100) ? remoteString : remoteString.Substring(0, 100))}");
             return remoteString;
@@ -125,7 +125,7 @@ namespace ASCOM.Alpaca.Clients
                 { AlpacaConstants.COMMAND_PARAMETER_NAME, command },
                 { AlpacaConstants.RAW_PARAMETER_NAME, raw.ToString() }
             };
-            DynamicClientDriver.SendToRemoteDevice<NoReturnValue>(new Parameters(clientNumber, client, longDeviceResponseTimeout, uriBase, strictCasing, logger, "CommandBlind", MemberTypes.Method), formParameters, HttpMethod.Put);
+            RemoteDevice.Send<NoReturnValue>(new Parameters(clientNumber, client, longDeviceResponseTimeout, uriBase, strictCasing, logger, "CommandBlind", MemberTypes.Method), formParameters, HttpMethod.Put);
             LogMessage(logger, clientNumber, "CommandBlind", "Completed OK");
         }
 
@@ -137,7 +137,7 @@ namespace ASCOM.Alpaca.Clients
                 { AlpacaConstants.COMMAND_PARAMETER_NAME, command },
                 { AlpacaConstants.RAW_PARAMETER_NAME, raw.ToString() }
             };
-            bool remoteBool = DynamicClientDriver.SendToRemoteDevice<bool>(new Parameters(clientNumber, client, longDeviceResponseTimeout, uriBase, strictCasing, logger, "CommandBool", MemberTypes.Method), formParameters, HttpMethod.Put);
+            bool remoteBool = RemoteDevice.Send<bool>(new Parameters(clientNumber, client, longDeviceResponseTimeout, uriBase, strictCasing, logger, "CommandBool", MemberTypes.Method), formParameters, HttpMethod.Put);
             AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "CommandBool", remoteBool.ToString());
             return remoteBool;
         }
@@ -150,7 +150,7 @@ namespace ASCOM.Alpaca.Clients
                 { AlpacaConstants.COMMAND_PARAMETER_NAME, command },
                 { AlpacaConstants.RAW_PARAMETER_NAME, raw.ToString() }
             };
-            string remoteString = DynamicClientDriver.SendToRemoteDevice<string>(new Parameters(clientNumber, client, longDeviceResponseTimeout, uriBase, strictCasing, logger, "CommandString", MemberTypes.Method), formParameters, HttpMethod.Put);
+            string remoteString = RemoteDevice.Send<string>(new Parameters(clientNumber, client, longDeviceResponseTimeout, uriBase, strictCasing, logger, "CommandString", MemberTypes.Method), formParameters, HttpMethod.Put);
             LogMessage(logger, clientNumber, "CommandString", remoteString);
             return remoteString;
         }
@@ -160,7 +160,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                bool response = DynamicClientDriver.GetValue<bool>(CreateParameters(establishConnectionTimeout, "Connected", MemberTypes.Property));
+                bool response = RemoteDevice.GetValue<bool>(CreateParameters(establishConnectionTimeout, "Connected", MemberTypes.Property));
                 LogMessage(logger, clientNumber, "Connected", response.ToString());
                 return response;
             }
@@ -170,7 +170,7 @@ namespace ASCOM.Alpaca.Clients
                 try
                 {
                     LogMessage(logger, clientNumber, $"Connected", $"Setting {this.GetType().Name} Connected to {value}");
-                    DynamicClientDriver.SetValue(CreateParameters(establishConnectionTimeout, "Connected", MemberTypes.Property), value);
+                    RemoteDevice.SetValue(CreateParameters(establishConnectionTimeout, "Connected", MemberTypes.Property), value);
                     LogMessage(logger, clientNumber, $"Connected", $"{this.GetType().Name} Connected set to {value} OK");
                 }
                 catch (Exception ex)
@@ -186,7 +186,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                string response = DynamicClientDriver.GetValue<string>(new Parameters(clientNumber, client, standardDeviceResponseTimeout, uriBase, strictCasing, logger, "Description", MemberTypes.Property));
+                string response = RemoteDevice.GetValue<string>(new Parameters(clientNumber, client, standardDeviceResponseTimeout, uriBase, strictCasing, logger, "Description", MemberTypes.Property));
                 LogMessage(logger, clientNumber, "Description", response);
 
                 return response;
@@ -198,7 +198,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<string>(new Parameters(clientNumber, client, standardDeviceResponseTimeout, uriBase, strictCasing, logger, "DriverInfo", MemberTypes.Property));
+                return RemoteDevice.GetValue<string>(new Parameters(clientNumber, client, standardDeviceResponseTimeout, uriBase, strictCasing, logger, "DriverInfo", MemberTypes.Property));
             }
         }
 
@@ -207,7 +207,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                string remoteString = DynamicClientDriver.GetValue<string>(new Parameters(clientNumber, client, standardDeviceResponseTimeout, uriBase, strictCasing, logger, "DriverVersion", MemberTypes.Property));
+                string remoteString = RemoteDevice.GetValue<string>(new Parameters(clientNumber, client, standardDeviceResponseTimeout, uriBase, strictCasing, logger, "DriverVersion", MemberTypes.Property));
                 LogMessage(logger, clientNumber, "DriverVersion", remoteString);
                 return remoteString;
             }
@@ -224,7 +224,7 @@ namespace ASCOM.Alpaca.Clients
                     // Get the interface version
                     try
                     {
-                        interfaceVersion = DynamicClientDriver.GetValue<short>(new Parameters(clientNumber, client, establishConnectionTimeout, uriBase, strictCasing, logger, "InterfaceVersion", MemberTypes.Property));
+                        interfaceVersion = RemoteDevice.GetValue<short>(new Parameters(clientNumber, client, establishConnectionTimeout, uriBase, strictCasing, logger, "InterfaceVersion", MemberTypes.Property));
                         LogMessage(logger, clientNumber, "InterfaceVersion", interfaceVersion.ToString());
                     }
                     catch (Exception ex) // The method failed so assume that the driver has a version 1 interface where the InterfaceVersion method is not implemented
@@ -243,7 +243,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                string response = DynamicClientDriver.GetValue<string>(CreateParameters(standardDeviceResponseTimeout, "Name", MemberTypes.Property));
+                string response = RemoteDevice.GetValue<string>(CreateParameters(standardDeviceResponseTimeout, "Name", MemberTypes.Property));
                 AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "Name", response);
                 return response;
             }
@@ -254,7 +254,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                List<string> supportedActions = DynamicClientDriver.GetValue<List<string>>(new Parameters(clientNumber, client, standardDeviceResponseTimeout, uriBase, strictCasing, logger, "SupportedActions", MemberTypes.Property));
+                List<string> supportedActions = RemoteDevice.GetValue<List<string>>(new Parameters(clientNumber, client, standardDeviceResponseTimeout, uriBase, strictCasing, logger, "SupportedActions", MemberTypes.Property));
                 LogMessage(logger, clientNumber, "SupportedActions", $"Returning {supportedActions.Count} actions");
 
                 List<string> returnValues = new List<string>();
@@ -279,12 +279,12 @@ namespace ASCOM.Alpaca.Clients
             if (DeviceCapabilities.HasConnectAndDeviceState(clientDeviceType, InterfaceVersion))
             {
                 // Platform 7 or later device so use the device's Connect method
-                DynamicClientDriver.CallMethodWithNoParameters(CreateParameters(establishConnectionTimeout, "Connect", MemberTypes.Method));
+                RemoteDevice.CallMethodWithNoParameters(CreateParameters(establishConnectionTimeout, "Connect", MemberTypes.Method));
                 return;
             }
 
             // Platform 6 or earlier device so use the Connected property
-            DynamicClientDriver.SetValue(CreateParameters(establishConnectionTimeout, "Connected", MemberTypes.Property), true);
+            RemoteDevice.SetValue(CreateParameters(establishConnectionTimeout, "Connected", MemberTypes.Property), true);
         }
 
         ///<inheritdoc/>
@@ -294,12 +294,12 @@ namespace ASCOM.Alpaca.Clients
             if (DeviceCapabilities.HasConnectAndDeviceState(clientDeviceType, InterfaceVersion))
             {
                 // Platform 7 or later device so use the device's Disconnect method
-                DynamicClientDriver.CallMethodWithNoParameters(CreateParameters(establishConnectionTimeout, "Disconnect", MemberTypes.Method));
+                RemoteDevice.CallMethodWithNoParameters(CreateParameters(establishConnectionTimeout, "Disconnect", MemberTypes.Method));
                 return;
             }
 
             // Platform 6 or earlier device so use the Connected property
-            DynamicClientDriver.SetValue(CreateParameters(establishConnectionTimeout, "Connected", MemberTypes.Property), false);
+            RemoteDevice.SetValue(CreateParameters(establishConnectionTimeout, "Connected", MemberTypes.Property), false);
         }
 
         ///<inheritdoc/>
@@ -311,7 +311,7 @@ namespace ASCOM.Alpaca.Clients
                 if (DeviceCapabilities.HasConnectAndDeviceState(clientDeviceType, InterfaceVersion))
                 {
                     // Platform 7 or later device so return the device's Connecting property
-                    return DynamicClientDriver.GetValue<bool>(CreateParameters(establishConnectionTimeout, "Connecting", MemberTypes.Property));
+                    return RemoteDevice.GetValue<bool>(CreateParameters(establishConnectionTimeout, "Connecting", MemberTypes.Property));
                 }
 
                 // Always return false for Platform 6 and earlier devices
@@ -329,7 +329,7 @@ namespace ASCOM.Alpaca.Clients
                 {
                     // Platform 7 or later device so return the device's value
                     // Note use of a concrete class here because System.Text.Json cannot de-serialise to an interface, it requires a concrete class
-                    List<StateValue> response = DynamicClientDriver.GetValue<List<StateValue>>(CreateParameters(standardDeviceResponseTimeout, "DeviceState", MemberTypes.Property));
+                    List<StateValue> response = RemoteDevice.GetValue<List<StateValue>>(CreateParameters(standardDeviceResponseTimeout, "DeviceState", MemberTypes.Property));
 
                     // Here we convert the device response to a type that can be returned as a LIst<IStateValue> object.
                     // This is done by using LINQ to cast the returned List<StateValue> objects to the StateValue type and then returning them as a list. Convoluted, but it works!

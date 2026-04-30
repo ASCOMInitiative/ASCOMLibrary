@@ -49,7 +49,7 @@ namespace ASCOM.Alpaca.Clients
         public static void SetClientRetries(int numberOfRetries)
         {
             // Set the value in the dynamic client driver which is used by all clients created by this factory. This ensures that the retry behaviour is consistent across all clients regardless of how they are created.
-            DynamicClientDriver.SetNumberOfRetries(numberOfRetries);
+            RemoteDevice.SetNumberOfRetries(numberOfRetries);
         }
 
         /// <summary>

@@ -136,7 +136,7 @@ namespace ASCOM.Alpaca.Clients
             this.remoteDeviceNumber = remoteDeviceNumber;
             this.strictCasing = strictCasing;
             base.logger = logger;
-            clientNumber = DynamicClientDriver.GetUniqueClientNumber();
+            clientNumber = RemoteDevice.GetUniqueClientNumber();
 
             Initialise();
         }
@@ -167,7 +167,7 @@ namespace ASCOM.Alpaca.Clients
                 LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"Trust user generated SSL certificates: {trustUserGeneratedSslCertificates}");
                 LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"Request 100CONTINUE: {request100Continue}");
 
-                DynamicClientDriver.CreateHttpClient(ref client, serviceType, ipAddressString, portNumber, clientNumber, clientDeviceType, userName, password, ImageArrayCompression.None,
+                RemoteDevice.CreateHttpClient(ref client, serviceType, ipAddressString, portNumber, clientNumber, clientDeviceType, userName, password, ImageArrayCompression.None,
                     logger, userAgentProductName, userAgentProductVersion, trustUserGeneratedSslCertificates, request100Continue);
                 LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), "Completed initialisation");
             }
@@ -206,7 +206,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<CoverStatus>(CreateParameters(standardDeviceResponseTimeout, "CoverState", MemberTypes.Property));
+                return RemoteDevice.GetValue<CoverStatus>(CreateParameters(standardDeviceResponseTimeout, "CoverState", MemberTypes.Property));
             }
         }
 
@@ -215,7 +215,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<CalibratorStatus>(CreateParameters(standardDeviceResponseTimeout, "CalibratorState", MemberTypes.Property));
+                return RemoteDevice.GetValue<CalibratorStatus>(CreateParameters(standardDeviceResponseTimeout, "CalibratorState", MemberTypes.Property));
             }
         }
 
@@ -224,7 +224,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<int>(CreateParameters(standardDeviceResponseTimeout, "Brightness", MemberTypes.Property));
+                return RemoteDevice.GetValue<int>(CreateParameters(standardDeviceResponseTimeout, "Brightness", MemberTypes.Property));
             }
         }
 
@@ -233,28 +233,28 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<int>(CreateParameters(standardDeviceResponseTimeout, "MaxBrightness", MemberTypes.Property));
+                return RemoteDevice.GetValue<int>(CreateParameters(standardDeviceResponseTimeout, "MaxBrightness", MemberTypes.Property));
             }
         }
 
         /// <inheritdoc/>
         public void OpenCover()
         {
-            DynamicClientDriver.CallMethodWithNoParameters(CreateParameters(standardDeviceResponseTimeout, "OpenCover", MemberTypes.Method));
+            RemoteDevice.CallMethodWithNoParameters(CreateParameters(standardDeviceResponseTimeout, "OpenCover", MemberTypes.Method));
             LogMessage(logger, clientNumber, "AbortSlew", "Cover opened OK");
         }
 
         /// <inheritdoc/>
         public void CloseCover()
         {
-            DynamicClientDriver.CallMethodWithNoParameters(CreateParameters(standardDeviceResponseTimeout, "CloseCover", MemberTypes.Method));
+            RemoteDevice.CallMethodWithNoParameters(CreateParameters(standardDeviceResponseTimeout, "CloseCover", MemberTypes.Method));
             LogMessage(logger, clientNumber, "AbortSlew", "Cover closed OK");
         }
 
         /// <inheritdoc/>
         public void HaltCover()
         {
-            DynamicClientDriver.CallMethodWithNoParameters(CreateParameters(standardDeviceResponseTimeout, "HaltCover", MemberTypes.Method));
+            RemoteDevice.CallMethodWithNoParameters(CreateParameters(standardDeviceResponseTimeout, "HaltCover", MemberTypes.Method));
             LogMessage(logger, clientNumber, "AbortSlew", "Cover halted OK");
         }
 
@@ -265,13 +265,13 @@ namespace ASCOM.Alpaca.Clients
             {
                 { AlpacaConstants.BRIGHTNESS_PARAMETER_NAME, Brightness.ToString(CultureInfo.InvariantCulture) }
             };
-            DynamicClientDriver.SendToRemoteDevice<NoReturnValue>(CreateParameters(standardDeviceResponseTimeout, "CalibratorOn", MemberTypes.Method), Parameters, HttpMethod.Put);
+            RemoteDevice.Send<NoReturnValue>(CreateParameters(standardDeviceResponseTimeout, "CalibratorOn", MemberTypes.Method), Parameters, HttpMethod.Put);
         }
 
         /// <inheritdoc/>
         public void CalibratorOff()
         {
-            DynamicClientDriver.CallMethodWithNoParameters(CreateParameters(standardDeviceResponseTimeout, "CalibratorOff", MemberTypes.Method));
+            RemoteDevice.CallMethodWithNoParameters(CreateParameters(standardDeviceResponseTimeout, "CalibratorOff", MemberTypes.Method));
             LogMessage(logger, clientNumber, "AbortSlew", $"Calibrator off OK");
         }
 
@@ -288,7 +288,7 @@ namespace ASCOM.Alpaca.Clients
                 if (DeviceCapabilities.HasConnectAndDeviceState(clientDeviceType, InterfaceVersion))
                 {
                     // Platform 7 or later device so return the device's CalibratorChanging property
-                    return DynamicClientDriver.GetValue<bool>(CreateParameters(standardDeviceResponseTimeout, "CalibratorChanging", MemberTypes.Property));
+                    return RemoteDevice.GetValue<bool>(CreateParameters(standardDeviceResponseTimeout, "CalibratorChanging", MemberTypes.Property));
                 }
 
                 // Platform 6 or earlier device so use CalibratorState to determine the movement state.
@@ -305,7 +305,7 @@ namespace ASCOM.Alpaca.Clients
                 if (DeviceCapabilities.HasConnectAndDeviceState(clientDeviceType, InterfaceVersion))
                 {
                     // Platform 7 or later device so return the device's CoverMoving property
-                    return DynamicClientDriver.GetValue<bool>(CreateParameters(standardDeviceResponseTimeout, "CoverMoving", MemberTypes.Property));
+                    return RemoteDevice.GetValue<bool>(CreateParameters(standardDeviceResponseTimeout, "CoverMoving", MemberTypes.Property));
                 }
 
                 // Platform 6 or earlier device so use CoverState to determine the movement state.

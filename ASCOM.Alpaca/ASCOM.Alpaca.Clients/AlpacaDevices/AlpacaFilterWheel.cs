@@ -132,7 +132,7 @@ namespace ASCOM.Alpaca.Clients
             this.remoteDeviceNumber = remoteDeviceNumber;
             this.strictCasing = strictCasing;
             base.logger = logger;
-            clientNumber = DynamicClientDriver.GetUniqueClientNumber();
+            clientNumber = RemoteDevice.GetUniqueClientNumber();
             Initialise();
         }
         private void Initialise()
@@ -163,7 +163,7 @@ namespace ASCOM.Alpaca.Clients
                 LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"Trust user generated SSL certificates: {trustUserGeneratedSslCertificates}");
                 LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"Request 100CONTINUE: {request100Continue}");
 
-                DynamicClientDriver.CreateHttpClient(ref client, serviceType, ipAddressString, portNumber, clientNumber, clientDeviceType, userName, password, ImageArrayCompression.None, 
+                RemoteDevice.CreateHttpClient(ref client, serviceType, ipAddressString, portNumber, clientNumber, clientDeviceType, userName, password, ImageArrayCompression.None, 
                     logger, userAgentProductName, userAgentProductVersion, trustUserGeneratedSslCertificates, request100Continue);
 
                 LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), "Completed initialisation");
@@ -203,7 +203,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<int[]>(CreateParameters(standardDeviceResponseTimeout, "FocusOffsets", MemberTypes.Property));
+                return RemoteDevice.GetValue<int[]>(CreateParameters(standardDeviceResponseTimeout, "FocusOffsets", MemberTypes.Property));
             }
         }
 
@@ -212,7 +212,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<string[]>(CreateParameters(standardDeviceResponseTimeout, "Names", MemberTypes.Property));
+                return RemoteDevice.GetValue<string[]>(CreateParameters(standardDeviceResponseTimeout, "Names", MemberTypes.Property));
             }
         }
 
@@ -221,12 +221,12 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return DynamicClientDriver.GetValue<short>(CreateParameters(standardDeviceResponseTimeout, "Position", MemberTypes.Property));
+                return RemoteDevice.GetValue<short>(CreateParameters(standardDeviceResponseTimeout, "Position", MemberTypes.Property));
             }
 
             set
             {
-                DynamicClientDriver.SetValue(CreateParameters(standardDeviceResponseTimeout, "Position", MemberTypes.Property), value);
+                RemoteDevice.SetValue(CreateParameters(standardDeviceResponseTimeout, "Position", MemberTypes.Property), value);
             }
         }
 
