@@ -30,8 +30,12 @@ namespace ASCOM.Alpaca.Clients
         internal const bool TRUST_USER_GENERATED_SSL_CERTIFICATES_DEFAULT = false; // Default for whether or not to trust user generated SSL certificates
         internal const bool THROW_ON_BAD_JSON_DATE_TIME_DEFAULT = false; // Default for whether or not to throw an exception if a JSON date time value is not in the expected ISO 8601 UTZ format (has a trailing Z character).
         internal const bool CLIENT_REQUEST_100_CONTINUE_DEFAULT = false; // Default for whether or not to use the Expect: 100-continue header in requests
-        internal const int NUMBER_OF_RETRIES_DEFAULT = 1; // Default number of retries for failed requests
 
+        // Fixed client behaviour and values
+        internal const int NUMBER_OF_RETRIES_DEFAULT = 1; // Default number of retries for failed requests
+        internal const int DYNAMIC_DRIVER_ERROR_NUMBER = 4095; // Alpaca error number that will be returned when a required JSON "Value" element is either absent from the response or is set to "null"
+        internal const int SOCKET_ERROR_RETRY_DELAY_TIME = 100; // The delay time (milliseconds) between socket actively refused retries
+        internal const string CONTENT_TYPE_HEADER_NAME = "Content-Type"; // Name of HTTP header used to affirm the type of data returned by the device
         internal const string CLIENT_USER_AGENT_PRODUCT_NAME = "ASCOMAlpacaClient";
 
         #endregion

@@ -26,11 +26,6 @@ namespace ASCOM.Alpaca.Clients
     {
         #region Private variables and constants
 
-        // Private configuration constants
-        private const int DYNAMIC_DRIVER_ERROR_NUMBER = 4095; // Alpaca error number that will be returned when a required JSON "Value" element is either absent from the response or is set to "null"
-        private const int SOCKET_ERROR_RETRY_DELAY_TIME = 100; // The delay time (milliseconds) between socket actively refused retries
-        private const string CONTENT_TYPE_HEADER_NAME = "Content-Type"; // Name of HTTP header used to affirm the type of data returned by the device
-
         //Private variables
         private static uint uniqueTransactionNumber = 0; // Unique number that increments on each call to TransactionNumber
         private static int numberOfRetries = AlpacaClient.NUMBER_OF_RETRIES_DEFAULT; // Number of times to retry a request if the socket connection is actively refused by the device. This can happen if the device is busy and cannot respond to the request. A value of zero means no retries, a value of one means one retry and so on.
@@ -769,7 +764,7 @@ namespace ASCOM.Alpaca.Clients
                         }
 
                         // Extract the content type from the returned headers
-                        if (responseHeaders.TryGetValues(CONTENT_TYPE_HEADER_NAME, out IEnumerable<string> contentTypeValues))
+                        if (responseHeaders.TryGetValues(AlpacaClient.CONTENT_TYPE_HEADER_NAME, out IEnumerable<string> contentTypeValues))
                         {
                             responseContentType = contentTypeValues.First().ToLowerInvariant();
                         }
@@ -1041,7 +1036,7 @@ namespace ASCOM.Alpaca.Clients
                                 // Now force an error return
                                 trackingRatesResponse = new TrackingRatesResponse
                                 {
-                                    ErrorNumber = (AlpacaErrors)DYNAMIC_DRIVER_ERROR_NUMBER,
+                                    ErrorNumber = (AlpacaErrors)AlpacaClient.DYNAMIC_DRIVER_ERROR_NUMBER,
                                     ErrorMessage = "Dynamic driver generated error: the Alpaca device returned no value or a null value for TrackingRates"
                                 };
                             }
@@ -1117,7 +1112,7 @@ namespace ASCOM.Alpaca.Clients
                                 // Now force an error return
                                 axisRatesResponse = new AxisRatesResponse
                                 {
-                                    ErrorNumber = (AlpacaErrors)DYNAMIC_DRIVER_ERROR_NUMBER,
+                                    ErrorNumber = (AlpacaErrors)AlpacaClient.DYNAMIC_DRIVER_ERROR_NUMBER,
                                     ErrorMessage = "Dynamic driver generated error: the Alpaca device returned no value or a null value for AxisRates"
                                 };
                             }
@@ -1558,7 +1553,7 @@ namespace ASCOM.Alpaca.Clients
 
                                     // Log that we are retrying the command and wait a short time in the hope that the transient condition clears
                                     AlpacaDeviceBaseClass.LogMessage(clientParameters.Logger, clientParameters.ClientNumber, clientParameters.Method, $"Timeout exception - retry-count {retryCounter}/{numberOfRetries}");
-                                    Thread.Sleep(SOCKET_ERROR_RETRY_DELAY_TIME);
+                                    Thread.Sleep(AlpacaClient.SOCKET_ERROR_RETRY_DELAY_TIME);
                                 }
                                 else // The retry count exceeds the maximum allowed so throw the exception to the client
                                 {
@@ -1579,7 +1574,7 @@ namespace ASCOM.Alpaca.Clients
 
                                         // Log that we are retrying the command and wait a short time in the hope that the transient condition clears
                                         AlpacaDeviceBaseClass.LogMessage(clientParameters.Logger, clientParameters.ClientNumber, clientParameters.Method, $"Socket exception, retrying command - retry-count {retryCounter}/{numberOfRetries}");
-                                        Thread.Sleep(SOCKET_ERROR_RETRY_DELAY_TIME);
+                                        Thread.Sleep(AlpacaClient.SOCKET_ERROR_RETRY_DELAY_TIME);
                                     }
                                     else // The retry count exceeds the maximum allowed so throw the exception to the client
                                     {
