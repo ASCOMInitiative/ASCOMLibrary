@@ -69,7 +69,7 @@ namespace ASCOM.Alpaca.Discovery
         private double discoveryTime; // Length of the discovery phase before it times out
         private bool tryDnsNameResolution; // Flag indicating whether to attempt name resolution on the host IP address
         private DateTime discoveryStartTime; // Time at which the start discovery command was received
-        private bool discoveryCompleteValue; // Discovery completion status
+        private volatile bool discoveryCompleteValue; // Discovery completion status
         private readonly object deviceListLockObject = new object(); // Lock object to synchronise access to the Alpaca device list collection, which is not a thread safe collection
         private readonly bool strictCasing; // Flag indicating whether case sensitive or case insensitive de-serialisation will be used.
         private string productName; // Product name to go in the User-Agent header
