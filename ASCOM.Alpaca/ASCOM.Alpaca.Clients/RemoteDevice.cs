@@ -76,9 +76,8 @@ namespace ASCOM.Alpaca.Clients
         {
             lock (transactionCountlockObject)
             {
-                uniqueTransactionNumber += 1;
+                return ++uniqueTransactionNumber;
             }
-            return uniqueTransactionNumber;
         }
 
         /// <summary>
