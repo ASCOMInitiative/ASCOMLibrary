@@ -150,7 +150,7 @@ namespace ASCOM.Common.Helpers
                 case "InvalidOperationException":
                     return AlpacaErrors.InvalidOperationException;
                 case "ActionNotImplementedException":
-                    return AlpacaErrors.NotImplemented;
+                    return AlpacaErrors.ActionNotImplementedException;
                 case "SlavedException":
                     return AlpacaErrors.InvalidWhileSlaved;
             }
