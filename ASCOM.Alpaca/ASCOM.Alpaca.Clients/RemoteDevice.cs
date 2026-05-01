@@ -697,11 +697,14 @@ namespace ASCOM.Alpaca.Clients
 
                     // Create a cancellation token that will time out after the required retry interval
                     lastTime = sw.ElapsedMilliseconds;
-                    CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-                    cancellationTokenSource.CancelAfter(TimeSpan.FromSeconds(clientParameters.Timeout));
+                    HttpResponseMessage deviceResponse;
+                    using (CancellationTokenSource cancellationTokenSource = new CancellationTokenSource())
+                    {
+                        cancellationTokenSource.CancelAfter(TimeSpan.FromSeconds(clientParameters.Timeout));
 
-                    // Send the request to the remote device and wait synchronously for the response
-                    HttpResponseMessage deviceResponse = clientParameters.Client.SendAsync(request, HttpCompletionOption.ResponseContentRead, cancellationTokenSource.Token).Result;
+                        // Send the request to the remote device and wait synchronously for the response
+                        deviceResponse = clientParameters.Client.SendAsync(request, HttpCompletionOption.ResponseContentRead, cancellationTokenSource.Token).Result;
+                    }
 
                     // Assess success at the HTTP status level and handle accordingly 
                     if (deviceResponse.IsSuccessStatusCode) // Success - HTTP status is in the range 200::299
