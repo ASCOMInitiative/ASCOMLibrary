@@ -213,6 +213,9 @@ namespace ASCOM.Tools
                 }
                 else
                 {
+                    // Persist the default so subsequent reads return the same value without requiring a default.
+                    Settings.Add(new SettingsPair(key, defaultValue));
+                    Save();
                     return defaultValue;
                 }
             }
