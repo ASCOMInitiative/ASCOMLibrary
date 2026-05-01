@@ -24,6 +24,7 @@ namespace ASCOM.Alpaca.Discovery
         private readonly Dictionary<IPAddress, UdpClient> IPv6Clients = new Dictionary<IPAddress, UdpClient>(); // Collection of IP v6 clients for the various link local and localhost networks
         private bool disposedValue; // Disposed variable
         private readonly object broadcastResponsesLockObject = new object();
+        private readonly object cachedEndpointsLockObject = new object();
 
         private const int SIO_UDP_CONNRESET = -1744830452; //Control code to turn off UDP ICMP Connection Reset
 
@@ -169,7 +170,10 @@ namespace ASCOM.Alpaca.Discovery
         /// </summary>
         public void ClearCache()
         {
-            CachedEndpoints.Clear();
+            lock (cachedEndpointsLockObject)
+            {
+                CachedEndpoints.Clear();
+            }
         }
 
         #endregion
@@ -212,13 +216,16 @@ namespace ASCOM.Alpaca.Discovery
                     }
 
                     var alpacaEndpoint = new IPEndPoint(endpoint.Address, port);
-                    if (!CachedEndpoints.Contains(alpacaEndpoint))
+                    lock (cachedEndpointsLockObject)
                     {
-                        LogMessage("ReceiveCallback", $"Received new Alpaca API endpoint: {alpacaEndpoint} from broadcast endpoint: {endpoint}");
+                        if (!CachedEndpoints.Contains(alpacaEndpoint))
+                        {
+                            LogMessage("ReceiveCallback", $"Received new Alpaca API endpoint: {alpacaEndpoint} from broadcast endpoint: {endpoint}");
 
-                        CachedEndpoints.Add(alpacaEndpoint);
+                            CachedEndpoints.Add(alpacaEndpoint);
 
-                        ResponseReceivedEvent?.Invoke(this, alpacaEndpoint);
+                            ResponseReceivedEvent?.Invoke(this, alpacaEndpoint);
+                        }
                     }
                 }
             }
