@@ -131,6 +131,9 @@ namespace ASCOM.Tools
                             File.Delete(newName);
                         }
                         File.Move(FilePath, newName);
+
+                        // Create a fresh empty profile file so subsequent writes have a valid backing store.
+                        SerializeObject(Settings.ToList(), FilePath);
                     }
                     catch (Exception e)
                     {
