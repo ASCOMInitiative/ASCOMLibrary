@@ -21,6 +21,8 @@ namespace ASCOM.Tools
 
         private List<SettingsPair> Settings = new List<SettingsPair>();
 
+        private readonly object settingsLock = new object();
+
         private ILogger Logger
         {
             get;
@@ -148,11 +150,14 @@ namespace ASCOM.Tools
         /// </summary>
         public void Clear()
         {
-            if (File.Exists(FilePath))
+            lock (settingsLock)
             {
-                File.Delete(FilePath);
+                if (File.Exists(FilePath))
+                {
+                    File.Delete(FilePath);
+                }
+                Settings.Clear();
             }
-            Settings.Clear();
         }
 
         /// <summary>
@@ -162,7 +167,10 @@ namespace ASCOM.Tools
         /// <returns>True if the settings key already exists, otherwise false</returns>
         public bool ContainsKey(string key)
         {
-            return Settings.Any(s => s.Key == key);
+            lock (settingsLock)
+            {
+                return Settings.Any(s => s.Key == key);
+            }
         }
 
         /// <summary>
@@ -173,13 +181,16 @@ namespace ASCOM.Tools
         /// <exception cref="KeyNotFoundException">If the specified key does not exist</exception>
         public string GetValue(string key)
         {
-            if (ContainsKey(key))
+            lock (settingsLock)
             {
-                return Settings.First(s => s.Key == key).Value;
-            }
-            else
-            {
-                throw new KeyNotFoundException(string.Format("{0} was not found in the Settings file", key));
+                if (ContainsKey(key))
+                {
+                    return Settings.First(s => s.Key == key).Value;
+                }
+                else
+                {
+                    throw new KeyNotFoundException(string.Format("{0} was not found in the Settings file", key));
+                }
             }
         }
 
@@ -191,13 +202,16 @@ namespace ASCOM.Tools
         /// <returns>String key value.</returns>
         public string GetValue(string key, string defaultValue)
         {
-            if (ContainsKey(key))
+            lock (settingsLock)
             {
-                return Settings.First(s => s.Key == key).Value;
-            }
-            else
-            {
-                return defaultValue;
+                if (ContainsKey(key))
+                {
+                    return Settings.First(s => s.Key == key).Value;
+                }
+                else
+                {
+                    return defaultValue;
+                }
             }
         }
 
@@ -208,28 +222,31 @@ namespace ASCOM.Tools
         /// <exception cref="NullReferenceException">No settings have been loaded.</exception>
         public string GetProfile()
         {
-            if (Settings == null)
+            lock (settingsLock)
             {
-                throw new NullReferenceException("The Settings object must not be null.");
-            }
-
-            try
-            {
-                XmlDocument xmlDocument = new XmlDocument();
-                XmlSerializer serializer = new XmlSerializer(Settings.GetType());
-
-                using (MemoryStream stream = new MemoryStream())
+                if (Settings == null)
                 {
-                    serializer.Serialize(stream, Settings);
-                    stream.Position = 0;
-                    xmlDocument.Load(stream);
-                    stream.Close();
-                    return xmlDocument.OuterXml;
+                    throw new NullReferenceException("The Settings object must not be null.");
                 }
-            }
-            catch
-            {
-                throw;
+
+                try
+                {
+                    XmlDocument xmlDocument = new XmlDocument();
+                    XmlSerializer serializer = new XmlSerializer(Settings.GetType());
+
+                    using (MemoryStream stream = new MemoryStream())
+                    {
+                        serializer.Serialize(stream, Settings);
+                        stream.Position = 0;
+                        xmlDocument.Load(stream);
+                        stream.Close();
+                        return xmlDocument.OuterXml;
+                    }
+                }
+                catch
+                {
+                    throw;
+                }
             }
         }
 
@@ -239,14 +256,17 @@ namespace ASCOM.Tools
         /// <param name="key">Key name to delete</param>
         public void DeleteValue(string key)
         {
-            try
+            lock (settingsLock)
             {
-                Settings.RemoveAll(r => r.Key == key);
-                Save();
-            }
-            catch
-            {
-                throw;
+                try
+                {
+                    Settings.RemoveAll(r => r.Key == key);
+                    Save();
+                }
+                catch
+                {
+                    throw;
+                }
             }
         }
 
@@ -262,31 +282,34 @@ namespace ASCOM.Tools
                 throw new ArgumentNullException("The rawProfile must not be null or empty.");
             }
 
-            try
+            lock (settingsLock)
             {
-                var settings = new List<SettingsPair>();
-
-                //We are going to de-serialize this to make sure that it is valid XML
-                using (StringReader read = new StringReader(rawProfile))
+                try
                 {
-                    Type outType = Settings.GetType();
+                    var settings = new List<SettingsPair>();
 
-                    XmlSerializer serializer = new XmlSerializer(outType);
-                    using (XmlReader reader = new XmlTextReader(read))
+                    //We are going to de-serialize this to make sure that it is valid XML
+                    using (StringReader read = new StringReader(rawProfile))
                     {
-                        settings = (List<SettingsPair>)serializer.Deserialize(reader);
-                        reader.Close();
+                        Type outType = Settings.GetType();
+
+                        XmlSerializer serializer = new XmlSerializer(outType);
+                        using (XmlReader reader = XmlReader.Create(read, new XmlReaderSettings { DtdProcessing = DtdProcessing.Prohibit }))
+                        {
+                            settings = (List<SettingsPair>)serializer.Deserialize(reader);
+                            reader.Close();
+                        }
+
+                        read.Close();
                     }
 
-                    read.Close();
+                    Settings = settings;
+                    Save();
                 }
-
-                Settings = settings;
-                Save();
-            }
-            catch
-            {
-                throw;
+                catch
+                {
+                    throw;
+                }
             }
         }
 
@@ -296,13 +319,16 @@ namespace ASCOM.Tools
         /// <returns>String list of values</returns>
         public List<string> Values()
         {
-            var retList = new List<string>();
-
-            foreach (var value in Settings)
+            lock (settingsLock)
             {
-                retList.Add(value.Value);
+                var retList = new List<string>();
+
+                foreach (var value in Settings)
+                {
+                    retList.Add(value.Value);
+                }
+                return retList;
             }
-            return retList;
         }
 
         /// <summary>
@@ -311,13 +337,16 @@ namespace ASCOM.Tools
         /// <returns>String list of keys</returns>
         public List<string> Keys()
         {
-            var retList = new List<string>();
-
-            foreach (var value in Settings)
+            lock (settingsLock)
             {
-                retList.Add(value.Key);
+                var retList = new List<string>();
+
+                foreach (var value in Settings)
+                {
+                    retList.Add(value.Key);
+                }
+                return retList;
             }
-            return retList;
         }
 
         /// <summary>
@@ -327,13 +356,16 @@ namespace ASCOM.Tools
         /// <param name="value">Key value.</param>
         public void WriteValue(string key, string value)
         {
-            if (ContainsKey(key))
+            lock (settingsLock)
             {
-                Settings.RemoveAll(s => s.Key == key);
-            }
-            Settings.Add(new SettingsPair(key, value));
+                if (ContainsKey(key))
+                {
+                    Settings.RemoveAll(s => s.Key == key);
+                }
+                Settings.Add(new SettingsPair(key, value));
 
-            Save();
+                Save();
+            }
         }
 
         /// <summary>
@@ -358,7 +390,7 @@ namespace ASCOM.Tools
                     Type outType = typeof(T);
 
                     XmlSerializer serializer = new XmlSerializer(outType);
-                    using (XmlReader reader = new XmlTextReader(read))
+                    using (XmlReader reader = XmlReader.Create(read, new XmlReaderSettings { DtdProcessing = DtdProcessing.Prohibit }))
                     {
                         objectOut = (T)serializer.Deserialize(reader);
                         reader.Close();
