@@ -68,7 +68,7 @@ namespace ASCOM.Tools
         private StreamWriter logFileStream;
         private readonly bool autoGenerateFileName;
         private readonly bool autoGenerateFilePath;
-        private bool traceLoggerHasBeenDisposed;
+        private volatile bool traceLoggerHasBeenDisposed;
 
         #endregion
 
@@ -150,15 +150,21 @@ namespace ASCOM.Tools
 
             if (disposing)
             {
-                if (logFileStream != null)
+                lock (lockObject)
                 {
-                    try { logFileStream.Flush(); } catch { }
-                    try { logFileStream.Close(); } catch { }
-                    try { logFileStream.Dispose(); } catch { }
+                    if (traceLoggerHasBeenDisposed)
+                        return;
 
-                    logFileStream = null;
+                    if (logFileStream != null)
+                    {
+                        try { logFileStream.Flush(); } catch { }
+                        try { logFileStream.Close(); } catch { }
+                        try { logFileStream.Dispose(); } catch { }
+
+                        logFileStream = null;
+                    }
+                    traceLoggerHasBeenDisposed = true;
                 }
-                traceLoggerHasBeenDisposed = true;
             }
         }
 
@@ -187,7 +193,7 @@ namespace ASCOM.Tools
             // Return immediately if the logger is not enabled
             if (!Enabled) return;
 
-            // Ignore attempts to write to the logger after it is disposed
+            // Fast pre-lock check (volatile read) to avoid lock overhead after disposal
             if (traceLoggerHasBeenDisposed) return;
 
             try
@@ -197,6 +203,9 @@ namespace ASCOM.Tools
 
                 lock (lockObject)
                 {
+                    // Ignore attempts to write to the logger after it is disposed
+                    if (traceLoggerHasBeenDisposed) return;
+
                     // Create the log file if it doesn't yet exist
                     if (logFileStream == null)
                         CreateLogFile();
