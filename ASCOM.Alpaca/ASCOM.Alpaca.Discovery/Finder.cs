@@ -204,7 +204,7 @@ namespace ASCOM.Alpaca.Discovery
                 // Accept responses containing the discovery response string and don't respond to your own transmissions
                 if (ReceiveString.ToLowerInvariant().Contains(Constants.ResponseString.ToLowerInvariant())) // Accept responses in any casing so that bad casing can be reported
                 {
-                    int port = JsonSerializer.Deserialize<AlpacaDiscoveryResponse>(ReceiveString, new JsonSerializerOptions { PropertyNameCaseInsensitive = strictCasing }).AlpacaPort;
+                    int port = JsonSerializer.Deserialize<AlpacaDiscoveryResponse>(ReceiveString, new JsonSerializerOptions { PropertyNameCaseInsensitive = !strictCasing }).AlpacaPort;
 
                     if (port == 0) //Failed to parse
                     {
