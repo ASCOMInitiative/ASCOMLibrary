@@ -1538,21 +1538,21 @@ namespace ASCOM.Alpaca.Clients
                                     {
                                         AlpacaDeviceBaseClass.LogMessage(clientParameters.Logger, clientParameters.ClientNumber, clientParameters.Method, $"{clientParameters.Method} {ex1.Message}");
                                         AlpacaDeviceBaseClass.LogMessage(clientParameters.Logger, clientParameters.ClientNumber, clientParameters.Method, "SocketException: " + ex1.ToString());
-                                        throw ex1.InnerException;
+                                        throw ex1.InnerException ?? ex1;
                                     }
                                 }
                                 else  // There is an inner exception but it is not a SocketException so log it and throw it  to the client
                                 {
                                     AlpacaDeviceBaseClass.LogMessage(clientParameters.Logger, clientParameters.ClientNumber, clientParameters.Method, $"{clientParameters.Method} {ex1.Message}");
                                     AlpacaDeviceBaseClass.LogMessage(clientParameters.Logger, clientParameters.ClientNumber, clientParameters.Method, "WebException: " + ex1.ToString());
-                                    throw ex1.InnerException;
+                                    throw ex1.InnerException ?? ex1;
                                 }
                             }
                             else
                             {
                                 AlpacaDeviceBaseClass.LogMessage(clientParameters.Logger, clientParameters.ClientNumber, clientParameters.Method, $"{clientParameters.Method} {ex1.Message}");
                                 AlpacaDeviceBaseClass.LogMessage(clientParameters.Logger, clientParameters.ClientNumber, clientParameters.Method, "WebException: " + ex1.ToString());
-                                throw ex1.InnerException;
+                                throw ex1.InnerException ?? ex1;
                             }
                         }
                     }
