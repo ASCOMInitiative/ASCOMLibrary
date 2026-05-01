@@ -1,4 +1,4 @@
-﻿
+
 using ASCOM.Common;
 using ASCOM.Common.Interfaces;
 using Microsoft.Win32;
@@ -626,16 +626,16 @@ namespace ASCOM.Com
             CheckPlatformVersionIsOk();
 
             // Validate supplied parameters
-            if ((requiredMajorVersion < MINIMUM_VALID_PLATFORM_VERSION) | (requiredMajorVersion > MAXIMUM_VALID_PLATFORM_VERSION))
+            if ((requiredMajorVersion < MINIMUM_VALID_PLATFORM_VERSION) || (requiredMajorVersion > MAXIMUM_VALID_PLATFORM_VERSION))
                 throw new InvalidValueException("Platform major version parameter", requiredMajorVersion.ToString(), MINIMUM_VALID_PLATFORM_VERSION.ToString(), MAXIMUM_VALID_PLATFORM_VERSION.ToString());
 
-            if ((requiredMinorVersion < MINIMUM_VALID_MINOR_VERSION) | (requiredMinorVersion > MAXIMUM_VALID_MINOR_VERSION))
+            if ((requiredMinorVersion < MINIMUM_VALID_MINOR_VERSION) || (requiredMinorVersion > MAXIMUM_VALID_MINOR_VERSION))
                 throw new InvalidValueException("Platform minor version parameter", requiredMinorVersion.ToString(), MINIMUM_VALID_MINOR_VERSION.ToString(), MAXIMUM_VALID_MINOR_VERSION.ToString());
 
-            if ((requiredServicePack < MINIMUM_VALID_SERVICEPACK_VERSION) | (requiredServicePack > MAXIMUM_VALID_SERVICEPACK_VERSION))
+            if ((requiredServicePack < MINIMUM_VALID_SERVICEPACK_VERSION) || (requiredServicePack > MAXIMUM_VALID_SERVICEPACK_VERSION))
                 throw new InvalidValueException("Service pack parameter", requiredServicePack.ToString(), MINIMUM_VALID_SERVICEPACK_VERSION.ToString(), MAXIMUM_VALID_SERVICEPACK_VERSION.ToString());
 
-            if ((requiredBuild < MINIMUM_BUILD_NUMBER) | (requiredBuild > MAXIMUM_BUILD_NUMBER))
+            if ((requiredBuild < MINIMUM_BUILD_NUMBER) || (requiredBuild > MAXIMUM_BUILD_NUMBER))
                 throw new InvalidValueException("Build number parameter", requiredBuild.ToString(), MINIMUM_BUILD_NUMBER.ToString(), MAXIMUM_BUILD_NUMBER.ToString());
 
             // Create a version object from the supplied major and minor required version numbers
@@ -709,7 +709,7 @@ namespace ASCOM.Com
             if (description is null) throw new InvalidValueException("CreateDynamicDriver - Description must not be null.");
             if (description == "") throw new InvalidValueException("CreateDynamicDriver - Description must not be an empty string.");
             if (string.IsNullOrEmpty(hostName)) throw new InvalidValueException("CreateDynamicDriver - HostName must not be null or an empty string.");
-            if ((ipPort < 1) | (ipPort > 65535)) throw new InvalidValueException("CreateDynamicDriver - IPPort", ipPort.ToString(), "1", "65535");
+            if ((ipPort < 1) || (ipPort > 65535)) throw new InvalidValueException("CreateDynamicDriver - IPPort", ipPort.ToString(), "1", "65535");
             if (string.IsNullOrEmpty(deviceUniqueId)) throw new InvalidValueException("CreateDynamicDriver - DeviceUniqueId must not be null or an empty string.");
 
             try
@@ -847,7 +847,7 @@ namespace ASCOM.Com
                 if (buildNumber == 0) // Something probably went wrong
                     return "Unknown OS version (0)";
 
-                if ((buildNumber > 0) & (buildNumber < 10000))
+                if ((buildNumber > 0) && (buildNumber < 10000))
                     return "Earlier than Windows 10 (build < 10000)";
 
                 // Check for exact match

@@ -1,4 +1,4 @@
-﻿using Microsoft.Win32;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
@@ -436,7 +436,7 @@ namespace ASCOM.Tools
         {
             double intermediateValue, finalValue;
 
-            if ((FromUnits >= Unit.metresPerSecond) & (FromUnits <= Unit.knots) & (ToUnits >= Unit.metresPerSecond) & (ToUnits <= Unit.knots))
+            if ((FromUnits >= Unit.metresPerSecond) && (FromUnits <= Unit.knots) && (ToUnits >= Unit.metresPerSecond) && (ToUnits <= Unit.knots))
             {
                 // First convert the input to metres per second
                 switch (FromUnits)
@@ -494,7 +494,7 @@ namespace ASCOM.Tools
 
                 return finalValue;
             }
-            else if ((FromUnits >= Unit.degreesCelsius) & (FromUnits <= Unit.degreesKelvin) & (ToUnits >= Unit.degreesCelsius) & (ToUnits <= Unit.degreesKelvin))
+            else if ((FromUnits >= Unit.degreesCelsius) && (FromUnits <= Unit.degreesKelvin) && (ToUnits >= Unit.degreesCelsius) && (ToUnits <= Unit.degreesKelvin))
             {
 
                 // First convert the input to degrees K
@@ -553,7 +553,7 @@ namespace ASCOM.Tools
 
                 return finalValue;
             }
-            else if ((FromUnits >= Unit.hPa) & (FromUnits <= Unit.inHg) & (ToUnits >= Unit.hPa) & (ToUnits <= Unit.inHg))
+            else if ((FromUnits >= Unit.hPa) && (FromUnits <= Unit.inHg) && (ToUnits >= Unit.hPa) && (ToUnits <= Unit.inHg))
             {
                 // First convert the input to hPa
                 switch (FromUnits)
@@ -623,7 +623,7 @@ namespace ASCOM.Tools
 
                 return finalValue;
             }
-            else if ((FromUnits >= Unit.mmPerHour) & (FromUnits <= Unit.inPerHour) & (ToUnits >= Unit.mmPerHour) & (ToUnits <= Unit.inPerHour))
+            else if ((FromUnits >= Unit.mmPerHour) && (FromUnits <= Unit.inPerHour) && (ToUnits >= Unit.mmPerHour) && (ToUnits <= Unit.inPerHour))
             {
                 // First convert the input to mm
                 switch (FromUnits)
@@ -695,9 +695,9 @@ namespace ASCOM.Tools
             const double Tn = 240.7263;
 
             // Validate input values
-            if ((RelativeHumidity < 0.0) | (RelativeHumidity > 100.0))
+            if ((RelativeHumidity < 0.0) || (RelativeHumidity > 100.0))
                 throw new InvalidValueException("Humidity2DewPoint - Relative humidity is < 0.0% or > 100.0%: " + RelativeHumidity.ToString());
-            if ((AmbientTemperature < Constants.ABSOLUTE_ZERO_CELSIUS) | (AmbientTemperature > 100.0))
+            if ((AmbientTemperature < Constants.ABSOLUTE_ZERO_CELSIUS) || (AmbientTemperature > 100.0))
                 throw new InvalidValueException("Humidity2DewPoint - Ambient temperature is < " + Constants.ABSOLUTE_ZERO_CELSIUS + "C or > 100.0C: " + AmbientTemperature.ToString());
 
             Pws = A * Math.Pow(10.0, m * AmbientTemperature / (AmbientTemperature + Tn)); // Calculate water vapour saturation pressure, Pws, from Vaisala formula (6) - In hPa
@@ -728,9 +728,9 @@ namespace ASCOM.Tools
             const double Tn = 240.7263;
 
             // Validate input values
-            if ((DewPoint < Constants.ABSOLUTE_ZERO_CELSIUS) | (DewPoint > 100.0))
+            if ((DewPoint < Constants.ABSOLUTE_ZERO_CELSIUS) || (DewPoint > 100.0))
                 throw new InvalidValueException("DewPoint2Humidity - Dew point is < " + Constants.ABSOLUTE_ZERO_CELSIUS + "C or > 100.0C: " + DewPoint.ToString());
-            if ((AmbientTemperature < Constants.ABSOLUTE_ZERO_CELSIUS) | (AmbientTemperature > 100.0))
+            if ((AmbientTemperature < Constants.ABSOLUTE_ZERO_CELSIUS) || (AmbientTemperature > 100.0))
                 throw new InvalidValueException("DewPoint2Humidity - Ambient temperature is < " + Constants.ABSOLUTE_ZERO_CELSIUS + "C or > 100.0C: " + AmbientTemperature.ToString());
 
             RH = 100.0 * Math.Pow(10.0, m * ((DewPoint / (DewPoint + Tn)) - (AmbientTemperature / (AmbientTemperature + Tn))));
@@ -801,7 +801,7 @@ namespace ASCOM.Tools
                         if (Value > UpperBound)
                             Value -= ModuloValue;
                     }
-                    while (!(Value >= LowerBound) & (Value <= UpperBound));
+                    while (!(Value >= LowerBound) && (Value <= UpperBound));
                 }
                 else
                     do
@@ -811,7 +811,7 @@ namespace ASCOM.Tools
                         if (Value >= UpperBound)
                             Value -= ModuloValue;
                     }
-                    while (!(Value >= LowerBound) & (Value < UpperBound));
+                    while (!(Value >= LowerBound) && (Value < UpperBound));
             }
             else if (UpperEqual)
             {
@@ -822,7 +822,7 @@ namespace ASCOM.Tools
                     if (Value > UpperBound)
                         Value -= ModuloValue;
                 }
-                while (!(Value > LowerBound) & (Value <= UpperBound));
+                while (!(Value > LowerBound) && (Value <= UpperBound));
             }
             else
             {
@@ -837,7 +837,7 @@ namespace ASCOM.Tools
                     if (Value >= UpperBound)
                         Value -= ModuloValue;
                 }
-                while (!(Value > LowerBound) & (Value < UpperBound));
+                while (!(Value > LowerBound) && (Value < UpperBound));
             }
             return Value;
         }

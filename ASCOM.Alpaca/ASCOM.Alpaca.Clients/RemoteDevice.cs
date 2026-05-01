@@ -1,4 +1,4 @@
-﻿using ASCOM.Common;
+using ASCOM.Common;
 using ASCOM.Common.Alpaca;
 using ASCOM.Common.Com;
 using ASCOM.Common.DeviceInterfaces;
@@ -777,7 +777,7 @@ namespace ASCOM.Alpaca.Clients
                                 AlpacaDeviceBaseClass.LogMessage(clientParameters.Logger, clientParameters.ClientNumber, clientParameters.Method, $"Received an Alpaca error: {errorResponse.ErrorNumber}. Error message: {errorResponse.ErrorMessage}");
 
                                 // Handle ASCOM Alpaca reserved error numbers between 0x400 and 0xFFF by translating these to the COM HResult error number range: 0x80040400 to 0x80040FFF and throwing the translated value as an exception
-                                if ((errorResponse.ErrorNumber >= AlpacaErrors.AlpacaErrorCodeBase) & (errorResponse.ErrorNumber <= AlpacaErrors.AlpacaErrorCodeMax)) // This error is within the ASCOM Alpaca reserved error number range
+                                if ((errorResponse.ErrorNumber >= AlpacaErrors.AlpacaErrorCodeBase) && (errorResponse.ErrorNumber <= AlpacaErrors.AlpacaErrorCodeMax)) // This error is within the ASCOM Alpaca reserved error number range
                                 {
                                     // Calculate the equivalent COM HResult error number from the supplied Alpaca error number so that comparison can be made with the original ASCOM COM exception HResult numbers that Windows clients expect in their exceptions
                                     int ascomCOMErrorNumber = (int)(errorResponse.ErrorNumber + (int)ComErrorCodes.ComErrorNumberOffset);

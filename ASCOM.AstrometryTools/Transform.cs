@@ -1,4 +1,4 @@
-﻿using ASCOM.Common.Interfaces;
+using ASCOM.Common.Interfaces;
 using System;
 using System.Diagnostics;
 using System.Reflection;
@@ -243,7 +243,7 @@ namespace ASCOM.Tools
             }
             set
             {
-                if ((value < -90.0) | (value > 90.0))
+                if ((value < -90.0) || (value > 90.0))
                     throw new InvalidValueException("SiteLatitude", value.ToString(), "-90.0 degrees", "+90.0 degrees");
 
                 if (siteLatValue != value)
@@ -270,7 +270,7 @@ namespace ASCOM.Tools
             }
             set
             {
-                if ((value < -180.0) | (value > 180.0))
+                if ((value < -180.0) || (value > 180.0))
                     throw new InvalidValueException("SiteLongitude", value.ToString(), "-180.0 degrees", "+180.0 degrees");
 
                 if (siteLongValue != value)
@@ -297,7 +297,7 @@ namespace ASCOM.Tools
             }
             set
             {
-                if ((value < -300.0) | (value > 10000.0))
+                if ((value < -300.0) || (value > 10000.0))
                     throw new InvalidValueException("SiteElevation", value.ToString(), "-300.0 metres", "+10000.0 metres");
 
                 if (siteElevValue != value)
@@ -324,7 +324,7 @@ namespace ASCOM.Tools
             }
             set
             {
-                if ((value < -273.15) | (value > 100.0))
+                if ((value < -273.15) || (value > 100.0))
                     throw new InvalidValueException("SiteTemperature", value.ToString(), "-273.15 Celsius", "+100.0 Celsius");
 
                 if (siteTempValue != value)
@@ -347,7 +347,7 @@ namespace ASCOM.Tools
             }
             set
             {
-                if ((value < 0.0) | (value > 1.0))
+                if ((value < 0.0) || (value > 1.0))
                     throw new InvalidValueException("SiteRelativeHumidity", value.ToString(), "0.0", "1.0");
 
                 if (siteRHValue != value)
@@ -374,7 +374,7 @@ namespace ASCOM.Tools
             }
             set
             {
-                if ((value < 0.0) | (value > 1200.0))
+                if ((value < 0.0) || (value > 1200.0))
                     throw new InvalidValueException("SitePressure", value.ToString(), "0.0hPa (mbar)", "+1200.0hPa (mbar)");
 
                 if (sitePressureValue != value)
@@ -434,7 +434,7 @@ namespace ASCOM.Tools
                 double tai1 = 0.0, tai2 = 0.0, utc1 = 0.0, utc2 = 0.0;
 
                 // Validate the supplied value, it must be 0.0 or within the permitted range
-                if ((value != 0.0) & ((value < JULIAN_DATE_MINIMUM_VALUE) | (value > JULIAN_DATE_MAXIMUM_VALUE)))
+                if ((value != 0.0) && ((value < JULIAN_DATE_MINIMUM_VALUE) || (value > JULIAN_DATE_MAXIMUM_VALUE)))
                     throw new InvalidValueException("JulianDateTT", value.ToString(), JULIAN_DATE_MINIMUM_VALUE.ToString(), JULIAN_DATE_MAXIMUM_VALUE.ToString());
 
                 julianDateTTValue = value;
@@ -477,7 +477,7 @@ namespace ASCOM.Tools
                 double tai1 = 0.0, tai2 = 0.0, tt1 = 0.0, tt2 = 0.0;
 
                 // Validate the supplied value, it must be 0.0 or within the permitted range
-                if ((value != 0.0) & ((value < JULIAN_DATE_MINIMUM_VALUE) | (value > JULIAN_DATE_MAXIMUM_VALUE)))
+                if ((value != 0.0) && ((value < JULIAN_DATE_MINIMUM_VALUE) || (value > JULIAN_DATE_MAXIMUM_VALUE)))
                     throw new InvalidValueException("JulianDateUTC", value.ToString(), JULIAN_DATE_MINIMUM_VALUE.ToString(), JULIAN_DATE_MAXIMUM_VALUE.ToString());
 
                 julianDateUTCValue = value;
@@ -581,10 +581,10 @@ namespace ASCOM.Tools
         /// <remarks></remarks>
         public void SetAzimuthElevation(double azimuth, double elevation)
         {
-            if ((azimuth < 0.0) | (azimuth >= 360.0))
+            if ((azimuth < 0.0) || (azimuth >= 360.0))
                 throw new InvalidValueException("SetAzimuthElevation Azimuth", azimuth.ToString(), "0.0 degrees", "359.9999999... degrees");
 
-            if ((elevation < -90.0) | (elevation > 90.0))
+            if ((elevation < -90.0) || (elevation > 90.0))
                 throw new InvalidValueException("SetAzimuthElevation Elevation", elevation.ToString(), "-90.0 degrees", "+90.0 degrees");
 
             azimuthTopoValue = azimuth;
@@ -606,10 +606,10 @@ namespace ASCOM.Tools
             if (!observedModeValue)
                 throw new TransformInvalidOperationException("SetAzimuthElevationObserved(azimuth, elevation) can only be called in observed mode. Set Transform.ObservedMode to true to use this method.");
 
-            if ((azimuth < 0.0) | (azimuth >= 360.0))
+            if ((azimuth < 0.0) || (azimuth >= 360.0))
                 throw new InvalidValueException("SetAzimuthElevationObserved Azimuth", azimuth.ToString(), "0.0 degrees", "359.9999999... degrees");
 
-            if ((elevation < -90.0) | (elevation > 90.0))
+            if ((elevation < -90.0) || (elevation > 90.0))
                 throw new InvalidValueException("SetAzimuthElevationObserved Elevation", elevation.ToString(), "-90.0 degrees", "+90.0 degrees");
 
             azimuthObservedValue = azimuth;
@@ -1123,7 +1123,7 @@ namespace ASCOM.Tools
 
             bool SiteParametersSet()
             {
-                return (!double.IsNaN(siteLatValue)) & (!double.IsNaN(siteLongValue)) & (!double.IsNaN(siteElevValue)) & (!double.IsNaN(siteTempValue));
+                return (!double.IsNaN(siteLatValue)) && (!double.IsNaN(siteLongValue)) && (!double.IsNaN(siteElevValue)) && (!double.IsNaN(siteTempValue));
             }
         }
 
@@ -1511,14 +1511,14 @@ namespace ASCOM.Tools
 
         private double ValidateRA(string caller, double ra)
         {
-            if ((ra < 0.0) | (ra >= 24.0))
+            if ((ra < 0.0) || (ra >= 24.0))
                 throw new InvalidValueException(caller, ra.ToString(), "0 to 23.9999");
             return ra;
         }
 
         private double ValidateDec(string caller, double dec)
         {
-            if ((dec < -90.0) | (dec > 90.0))
+            if ((dec < -90.0) || (dec > 90.0))
                 throw new InvalidValueException(caller, dec.ToString(), "-90.0 to 90.0");
             return dec;
         }

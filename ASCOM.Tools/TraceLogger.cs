@@ -1,4 +1,4 @@
-﻿using ASCOM.Common;
+using ASCOM.Common;
 using ASCOM.Common.Interfaces;
 using Microsoft.Win32;
 using System;
@@ -417,7 +417,7 @@ namespace ASCOM.Tools
                         LogFileName = string.Format(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? AUTO_FILE_NAME_TEMPLATE_WINDOWS : AUTO_FILE_NAME_TEMPLATE_LINUX, logFileType, DateTimeNow(), logFileSuffixInteger);
                         checked { ++logFileSuffixInteger; } // Increment the counter to ensure that no log file can have the same name as any other
                     }
-                    while (File.Exists(Path.Combine(LogFilePath, LogFileName)) & (logFileSuffixInteger <= MAXIMUM_UNIQUE_SUFFIX_ATTEMPTS)); // Loop until the generated file name does not exist or we hit the maximum number of attempts
+                    while (File.Exists(Path.Combine(LogFilePath, LogFileName)) && (logFileSuffixInteger <= MAXIMUM_UNIQUE_SUFFIX_ATTEMPTS)); // Loop until the generated file name does not exist or we hit the maximum number of attempts
 
                     // Close any current file stream before creating a new one
                     if (!(logFileStream is null))

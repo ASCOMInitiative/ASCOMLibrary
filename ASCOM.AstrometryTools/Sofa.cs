@@ -301,7 +301,7 @@ namespace ASCOM.Tools
             {
                 throw new ArgumentNullException(parameterName, $"String {stringParameter} cannot be null and must be at least {expectedSize} characters long.");
             }
-            if ((stringParameter.Length < expectedSize) & (stringParameter.Length > 0))
+            if ((stringParameter.Length < expectedSize) && (stringParameter.Length > 0))
             {
                 throw new ArgumentException($"String {parameterName} must have {expectedSize} or more elements (supplied string length was {stringParameter.Length}).", parameterName);
             }

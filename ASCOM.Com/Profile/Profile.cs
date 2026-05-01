@@ -1,4 +1,4 @@
-﻿using Microsoft.Win32;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using ASCOM.Common;
@@ -209,13 +209,13 @@ namespace ASCOM.Com
             // Name can be null or empty or a text string but must not comprise only of white space
             if (!(valueName is null))
             {
-                if (string.IsNullOrWhiteSpace(valueName) & (valueName.Length > 0)) throw new InvalidValueException("Profile.GetValue - Supplied value name comprises only white space.");
+                if (string.IsNullOrWhiteSpace(valueName) && (valueName.Length > 0)) throw new InvalidValueException("Profile.GetValue - Supplied value name comprises only white space.");
             }
 
             // Sub-key can be null or empty or a text string but must not comprise only of white space
             if (!(subKey is null))
             {
-                if (string.IsNullOrWhiteSpace(subKey) & (subKey.Length > 0)) throw new InvalidValueException("Profile.GetValue - Supplied sub-key name -comprises only white space.");
+                if (string.IsNullOrWhiteSpace(subKey) && (subKey.Length > 0)) throw new InvalidValueException("Profile.GetValue - Supplied sub-key name -comprises only white space.");
             }
 
             string registryKeyName;
@@ -302,7 +302,7 @@ namespace ASCOM.Com
             // Sub-key can be null or empty or a text string but must not comprise only of white space
             if (!(subKey is null))
             {
-                if (string.IsNullOrWhiteSpace(subKey) & (subKey.Length > 0)) throw new InvalidValueException("Profile.GetValues - Supplied sub-key name -comprises only white space.");
+                if (string.IsNullOrWhiteSpace(subKey) && (subKey.Length > 0)) throw new InvalidValueException("Profile.GetValues - Supplied sub-key name -comprises only white space.");
             }
             string registryKeyName;
 
@@ -379,7 +379,7 @@ namespace ASCOM.Com
             // Sub-key can be null or empty or a text string but must not comprise only of white space
             if (!(subKey is null))
             {
-                if (string.IsNullOrWhiteSpace(subKey) & (subKey.Length > 0)) throw new InvalidValueException("Profile.GetSubKeys - Supplied sub-key name -comprises only white space.");
+                if (string.IsNullOrWhiteSpace(subKey) && (subKey.Length > 0)) throw new InvalidValueException("Profile.GetSubKeys - Supplied sub-key name -comprises only white space.");
             }
             string registryKeyName;
 
@@ -454,13 +454,13 @@ namespace ASCOM.Com
             // Name can be null or empty or a text string but must not comprise only of white space
             if (!(valueName is null))
             {
-                if (string.IsNullOrWhiteSpace(valueName) & (valueName.Length > 0)) throw new InvalidValueException("Profile.SetValue - Supplied value name comprises only white space.");
+                if (string.IsNullOrWhiteSpace(valueName) && (valueName.Length > 0)) throw new InvalidValueException("Profile.SetValue - Supplied value name comprises only white space.");
             }
 
             // The sub-key can be null or empty or a text string but must not comprise only of white space
             if (!(subkey is null))
             {
-                if (string.IsNullOrWhiteSpace(subkey) & (subkey.Length > 0)) throw new InvalidValueException("Profile.SetValue - Supplied sub-key name -comprises only white space.");
+                if (string.IsNullOrWhiteSpace(subkey) && (subkey.Length > 0)) throw new InvalidValueException("Profile.SetValue - Supplied sub-key name -comprises only white space.");
             }
 
             // The value must not be null
@@ -529,13 +529,13 @@ namespace ASCOM.Com
             // Name can be null or empty or a text string but must not comprise only of white space
             if (!(valueName is null))
             {
-                if (string.IsNullOrWhiteSpace(valueName) & (valueName.Length > 0)) throw new InvalidValueException("Profile.DeleteValue - Supplied value name comprises only white space.");
+                if (string.IsNullOrWhiteSpace(valueName) && (valueName.Length > 0)) throw new InvalidValueException("Profile.DeleteValue - Supplied value name comprises only white space.");
             }
 
             // Sub-key can be null or empty or a text string but must not comprise only of white space
             if (!(subKey is null))
             {
-                if (string.IsNullOrWhiteSpace(subKey) & (subKey.Length > 0)) throw new InvalidValueException("Profile.DeleteValue - Supplied sub-key name -comprises only white space.");
+                if (string.IsNullOrWhiteSpace(subKey) && (subKey.Length > 0)) throw new InvalidValueException("Profile.DeleteValue - Supplied sub-key name -comprises only white space.");
             }
 
             string registryKeyName;

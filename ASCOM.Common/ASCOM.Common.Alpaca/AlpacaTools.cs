@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -47,7 +47,7 @@ namespace ASCOM.Common.Alpaca
 
             if (alpacaErrorNumber == AlpacaErrors.AlpacaNoError) throw new InvalidValueException($"AlpacaTools.ErrorMessageAlpacaTools.ConvertArray - Supplied error number is {alpacaErrorNumber}, this indicates 'Success' rather than an 'Error'.");
 
-            if ((alpacaErrorNumber < AlpacaErrors.AlpacaNoError) | (alpacaErrorNumber > AlpacaErrors.DriverMax)) throw new InvalidValueException($"AlpacaTools.ErrorMessageAlpacaTools.ConvertArray - Invalid Alpaca error number: {alpacaErrorNumber}.");
+            if ((alpacaErrorNumber < AlpacaErrors.AlpacaNoError) || (alpacaErrorNumber > AlpacaErrors.DriverMax)) throw new InvalidValueException($"AlpacaTools.ErrorMessageAlpacaTools.ConvertArray - Invalid Alpaca error number: {alpacaErrorNumber}.");
 
             if (string.IsNullOrEmpty(errorMessage)) throw new InvalidValueException($"AlpacaTools.ErrorMessageAlpacaTools.ConvertArray - Error message is either null or an empty string.");
 
@@ -142,7 +142,7 @@ namespace ASCOM.Common.Alpaca
         public static byte[] ToByteArray(this Array imageArray, int metadataVersion, uint clientTransactionID, uint serverTransactionID, ImageArrayElementTypes requiredClientElementType, AlpacaErrors errorNumber, string errorMessage)
         {
             // Validate the required client element type
-            if ((requiredClientElementType < ImageArrayElementTypes.Int16) | (requiredClientElementType > ImageArrayElementTypes.Object))
+            if ((requiredClientElementType < ImageArrayElementTypes.Int16) || (requiredClientElementType > ImageArrayElementTypes.Object))
             {
                 throw new InvalidValueException($"AlpacaTools.AlpacaTools.ConvertArray - Invalid required client element type: {requiredClientElementType}");
             }
@@ -205,7 +205,7 @@ namespace ASCOM.Common.Alpaca
 
             // Convert the returned byte[] into the form that the client is expecting
 
-            if ((imageElementType == ImageArrayElementTypes.Int16) & (transmissionElementType == ImageArrayElementTypes.Byte)) // Handle the special case where Int16 has been converted to Byte for transmission
+            if ((imageElementType == ImageArrayElementTypes.Int16) && (transmissionElementType == ImageArrayElementTypes.Byte)) // Handle the special case where Int16 has been converted to Byte for transmission
             {
                 switch (rank)
                 {
@@ -244,7 +244,7 @@ namespace ASCOM.Common.Alpaca
                         throw new InvalidValueException($"ToImageArray - Returned array cannot be handled because it does not have a rank of 2 or 3. Returned array rank:{rank}.");
                 }
             } // Handle the special case where Int16 has been converted to Byte for transmission
-            else if ((imageElementType == ImageArrayElementTypes.UInt16) & (transmissionElementType == ImageArrayElementTypes.Byte)) // Handle the special case where UInt16 has been converted to Byte for transmission
+            else if ((imageElementType == ImageArrayElementTypes.UInt16) && (transmissionElementType == ImageArrayElementTypes.Byte)) // Handle the special case where UInt16 has been converted to Byte for transmission
             {
                 switch (rank)
                 {
@@ -283,7 +283,7 @@ namespace ASCOM.Common.Alpaca
                         throw new InvalidValueException($"ToImageArray - Returned array cannot be handled because it does not have a rank of 2 or 3. Returned array rank:{rank}.");
                 }
             } // Handle the special case where UInt16 has been converted to Byte for transmission
-            else if ((imageElementType == ImageArrayElementTypes.Int32) & (transmissionElementType == ImageArrayElementTypes.Byte)) // Handle the special case where Int32 has been converted to Byte for transmission
+            else if ((imageElementType == ImageArrayElementTypes.Int32) && (transmissionElementType == ImageArrayElementTypes.Byte)) // Handle the special case where Int32 has been converted to Byte for transmission
             {
                 switch (rank)
                 {
@@ -322,7 +322,7 @@ namespace ASCOM.Common.Alpaca
                         throw new InvalidValueException($"ToImageArray - Returned array cannot be handled because it does not have a rank of 2 or 3. Returned array rank:{rank}.");
                 }
             } // Handle the special case where Int32 has been converted to Byte for transmission
-            else if ((imageElementType == ImageArrayElementTypes.Int32) & (transmissionElementType == ImageArrayElementTypes.Int16)) // Handle the special case where Int32 has been converted to Int16 for transmission
+            else if ((imageElementType == ImageArrayElementTypes.Int32) && (transmissionElementType == ImageArrayElementTypes.Int16)) // Handle the special case where Int32 has been converted to Int16 for transmission
             {
                 switch (rank)
                 {
@@ -361,7 +361,7 @@ namespace ASCOM.Common.Alpaca
                         throw new InvalidValueException($"ToImageArray - Returned array cannot be handled because it does not have a rank of 2 or 3. Returned array rank:{rank}.");
                 }
             } // Handle the special case where Int32 has been converted to Int16 for transmission
-            else if ((imageElementType == ImageArrayElementTypes.Int32) & (transmissionElementType == ImageArrayElementTypes.UInt16)) // Handle the special case where Int32 values has been converted to UInt16 for transmission
+            else if ((imageElementType == ImageArrayElementTypes.Int32) && (transmissionElementType == ImageArrayElementTypes.UInt16)) // Handle the special case where Int32 values has been converted to UInt16 for transmission
             {
                 switch (rank)
                 {
@@ -1017,18 +1017,18 @@ namespace ASCOM.Common.Alpaca
             bool arrayIsByte; // Flag indicating whether the supplied array conforms to the Byte value range 0 to +255.
 
             // Handle error conditions
-            if ((errorNumber != 0) | (!string.IsNullOrWhiteSpace(errorMessage)))
+            if ((errorNumber != 0) || (!string.IsNullOrWhiteSpace(errorMessage)))
             {
                 // Validate error parameters
-                if ((errorNumber == 0) & (!string.IsNullOrWhiteSpace(errorMessage))) throw new InvalidValueException($"AlpacaTools.ConvertArray - Error number is {errorNumber} but an error message has been supplied: '{errorMessage}'");
-                if ((errorNumber != 0) & (string.IsNullOrWhiteSpace(errorMessage))) throw new InvalidValueException($"AlpacaTools.ConvertArray - Error number is {errorNumber} but no error message has been supplied: '{errorMessage}'");
+                if ((errorNumber == 0) && (!string.IsNullOrWhiteSpace(errorMessage))) throw new InvalidValueException($"AlpacaTools.ConvertArray - Error number is {errorNumber} but an error message has been supplied: '{errorMessage}'");
+                if ((errorNumber != 0) && (string.IsNullOrWhiteSpace(errorMessage))) throw new InvalidValueException($"AlpacaTools.ConvertArray - Error number is {errorNumber} but no error message has been supplied: '{errorMessage}'");
 
                 return ErrorMessageToByteArray(metadataVersion, clientTransactionID, serverTransactionID, errorNumber, errorMessage);
             }
 
             // At this point we have a successful transaction so validate the incoming array
             if (imageArray is null) throw new InvalidValueException("AlpacaTools.ConvertArray - Supplied array is null.");
-            if ((imageArray.Rank < 2) | (imageArray.Rank > 3)) throw new InvalidValueException($"AlpacaTools.ConvertArray - Only arrays of rank 2 and 3 are supported. The supplied array has a rank of {imageArray.Rank}.");
+            if ((imageArray.Rank < 2) || (imageArray.Rank > 3)) throw new InvalidValueException($"AlpacaTools.ConvertArray - Only arrays of rank 2 and 3 are supported. The supplied array has a rank of {imageArray.Rank}.");
 
             // Set defaults for the array type
             ImageArrayElementTypes clientElementType = ImageArrayElementTypes.Unknown;

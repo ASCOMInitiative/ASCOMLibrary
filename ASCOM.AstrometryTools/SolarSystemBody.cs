@@ -1,4 +1,4 @@
-﻿using ASCOM.Tools.Novas31;
+using ASCOM.Tools.Novas31;
 using System;
 using System.Globalization;
 
@@ -50,7 +50,7 @@ namespace ASCOM.Tools
             if (body == Body.Uninitialised)
                 throw new HelperException($"SolarSystem.Initiator - The supplied body value is invalid: {body}.");
 
-            if (((int)body < 1) | ((int)body > 11))
+            if (((int)body < 1) || ((int)body > 11))
                 throw new HelperException($"SolarSystem.Initiator - The supplied body value is invalid: {(int)body}.");
 
             this.body = body;

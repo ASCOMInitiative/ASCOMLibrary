@@ -1,4 +1,4 @@
-﻿using ASCOM.Common;
+using ASCOM.Common;
 using ASCOM.Common.Alpaca;
 using ASCOM.Common.Interfaces;
 using System;
@@ -697,7 +697,7 @@ namespace ASCOM.Alpaca.Discovery
                     }
                     else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) // Linux
                     {
-                        if ((RuntimeInformation.OSArchitecture == Architecture.X86) | (RuntimeInformation.OSArchitecture == Architecture.X64)) // Linux on Intel
+                        if ((RuntimeInformation.OSArchitecture == Architecture.X86) || (RuntimeInformation.OSArchitecture == Architecture.X64)) // Linux on Intel
                         {
                             // Must include the scope ID
                             hostIpAndPort = $"{serviceType.ToString().ToLowerInvariant()}://{deviceIpEndPoint}"; // Create the overall URI

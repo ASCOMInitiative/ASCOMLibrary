@@ -1,4 +1,4 @@
-﻿using ASCOM.Common.DeviceInterfaces;
+using ASCOM.Common.DeviceInterfaces;
 using ASCOM.Common.Interfaces;
 using System;
 using System.Diagnostics;
@@ -157,7 +157,7 @@ namespace ASCOM.Common
                 processTask = Task.Run(() =>
                 {
                     ProcessTask(() => { device.StartExposure(duration, light); }, () =>
-                        { return (device.CameraState == CameraState.Waiting) | (device.CameraState == CameraState.Exposing) | (device.CameraState == CameraState.Reading); },
+                        { return (device.CameraState == CameraState.Waiting) || (device.CameraState == CameraState.Exposing) || (device.CameraState == CameraState.Reading); },
                         pollInterval, cancellationToken, logger, callingMethodName);
                 });
 
@@ -189,7 +189,7 @@ namespace ASCOM.Common
                 processTask = Task.Run(() =>
                 {
                     ProcessTask(() => { device.StopExposure(); }, () =>
-                        { return (device.CameraState == CameraState.Reading) | (device.CameraState == CameraState.Exposing) | (device.CameraState == CameraState.Waiting); },
+                        { return (device.CameraState == CameraState.Reading) || (device.CameraState == CameraState.Exposing) || (device.CameraState == CameraState.Waiting); },
                         pollInterval, cancellationToken, logger, callingMethodName);
                 });
 
@@ -285,7 +285,7 @@ namespace ASCOM.Common
             {
                 processTask = Task.Run(() =>
                 {
-                    ProcessTask(() => { device.CloseCover(); }, () => { return (device.CoverState == CoverStatus.Moving) | (device.CoverState == CoverStatus.Open); }, pollInterval, cancellationToken, logger, callingMethodName);
+                    ProcessTask(() => { device.CloseCover(); }, () => { return (device.CoverState == CoverStatus.Moving) || (device.CoverState == CoverStatus.Open); }, pollInterval, cancellationToken, logger, callingMethodName);
                 });
 
                 WaitForProcessTask(processTask, logger, callingMethodName, cancellationToken);
@@ -345,7 +345,7 @@ namespace ASCOM.Common
             {
                 processTask = Task.Run(() =>
                 {
-                    ProcessTask(() => { device.OpenCover(); }, () => { return (device.CoverState == CoverStatus.Moving) | (device.CoverState == CoverStatus.Closed); }, pollInterval, cancellationToken, logger, callingMethodName);
+                    ProcessTask(() => { device.OpenCover(); }, () => { return (device.CoverState == CoverStatus.Moving) || (device.CoverState == CoverStatus.Closed); }, pollInterval, cancellationToken, logger, callingMethodName);
                 });
 
                 WaitForProcessTask(processTask, logger, callingMethodName, cancellationToken);
@@ -379,7 +379,7 @@ namespace ASCOM.Common
             {
                 processTask = Task.Run(() =>
                 {
-                    ProcessTask(() => { device.AbortSlew(); }, () => { return device.Slewing | (device.ShutterStatus == ShutterState.Opening) | (device.ShutterStatus == ShutterState.Closing); }, pollInterval, cancellationToken, logger, callingMethodName);
+                    ProcessTask(() => { device.AbortSlew(); }, () => { return device.Slewing | (device.ShutterStatus == ShutterState.Opening) || (device.ShutterStatus == ShutterState.Closing); }, pollInterval, cancellationToken, logger, callingMethodName);
                 });
 
                 WaitForProcessTask(processTask, logger, callingMethodName, cancellationToken);
@@ -1247,7 +1247,7 @@ namespace ASCOM.Common
             swLoop.Restart();
 
             // Wait for the operation to complete
-            while (processRunningFunction() & !cancellationToken.IsCancellationRequested)  // Test whether the operation has completed or whether it has been cancelled
+            while (processRunningFunction() && !cancellationToken.IsCancellationRequested)  // Test whether the operation has completed or whether it has been cancelled
             {
                 // Wait for the required delay time
                 Thread.Sleep(delayTime); // Delay will end early if the task is cancelled

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -132,19 +132,19 @@ namespace ASCOM.Tools
             }
 
             // Validate year
-            if ((year < 1900) | (year > 2052))
+            if ((year < 1900) || (year > 2052))
                 throw new InvalidValueException($"Utilities.Almanac - The year parameter is outside the valid range of the DE421 ephemeris (1900 to 2052) that underlies the ephemeris calculations. Requested year: {year}");
 
             // Validate latitude
-            if ((siteLatitude < -90.0) | (siteLatitude > +90.0))
+            if ((siteLatitude < -90.0) || (siteLatitude > +90.0))
                 throw new InvalidValueException($"Utilities.Almanac - The latitude parameter is outside the valid range (-90.0 to +90.0): {siteTimeZone}");
 
             // Validate longitude
-            if ((siteLongitude < -180.0) | (siteLongitude > +180.0))
+            if ((siteLongitude < -180.0) || (siteLongitude > +180.0))
                 throw new InvalidValueException($"Utilities.Almanac - The longitude parameter is outside the valid range (-180.0 to +180.0): {siteLongitude}");
 
             // Validate time zone
-            if ((siteTimeZone < -12.0) | (siteTimeZone > +14.0))
+            if ((siteTimeZone < -12.0) || (siteTimeZone > +14.0))
                 throw new InvalidValueException($"Utilities.Almanac - The time zone parameter is outside the valid range (-12.0 to +14.0): {siteTimeZone}");
 
             if (almanacLogger is null)
@@ -182,7 +182,7 @@ namespace ASCOM.Tools
                     {
                         events = EventTimes(typeOfEvent, dayOfMonth, monthOfYear, year, siteLatitude, siteLongitude, siteTimeZone); // Get the rise and set events list
 
-                        if ((events.RiseEvents.Count > 0) | (events.SetEvents.Count > 0))
+                        if ((events.RiseEvents.Count > 0) || (events.SetEvents.Count > 0))
                         {
                             switch (events.RiseEvents.Count)
                             {
@@ -399,19 +399,19 @@ namespace ASCOM.Tools
             }
 
             // Validate year
-            if ((year < 1900) | (year > 2052))
+            if ((year < 1900) || (year > 2052))
                 throw new InvalidValueException($"Utilities.Almanac - The year parameter is outside the valid range of the DE421 ephemeris (1900 to 2052) that underlies the ephemeris calculations. Requested year: {year}");
 
             // Validate latitude
-            if ((siteLatitude < -90.0) | (siteLatitude > +90.0))
+            if ((siteLatitude < -90.0) || (siteLatitude > +90.0))
                 throw new InvalidValueException($"Utilities.Almanac - The latitude parameter is outside the valid range (-90.0 to +90.0): {siteLatitude}");
 
             // Validate longitude
-            if ((siteLongitude < -180.0) | (siteLongitude > +180.0))
+            if ((siteLongitude < -180.0) || (siteLongitude > +180.0))
                 throw new InvalidValueException($"Utilities.Almanac - The longitude parameter is outside the valid range (-180.0 to +180.0): {siteLongitude}");
 
             // Validate time zone
-            if ((siteTimeZone < -12.0) | (siteTimeZone > +14.0))
+            if ((siteTimeZone < -12.0) || (siteTimeZone > +14.0))
                 throw new InvalidValueException($"Utilities.Almanac - The time zone parameter is outside the valid range (-12.0 to +14.0): {siteTimeZone}");
 
             #endregion
@@ -831,28 +831,28 @@ namespace ASCOM.Tools
                     + (0.494477925757861 * modifiedJulianDay * modifiedJulianDay)
                     - (19560.53496991 * modifiedJulianDay)
                     + 290164271.563078;
-            else if ((yearFraction >= 2018.3) & (yearFraction < double.MaxValue))
+            else if ((yearFraction >= 2018.3) && (yearFraction < double.MaxValue))
                 retval = (0.00000161128367083801 * modifiedJulianDay * modifiedJulianDay)
                     + (-0.187474214389602 * modifiedJulianDay)
                     + 5522.26034874982;
-            else if ((yearFraction >= 2018) & (yearFraction < double.MaxValue))
+            else if ((yearFraction >= 2018) && (yearFraction < double.MaxValue))
                 retval = (0.0024855297566049 * yearFraction * yearFraction * yearFraction)
                     + (-15.0681141702439 * yearFraction * yearFraction)
                     + (30449.647471213 * yearFraction)
                     - 20511035.5077593;
-            else if ((yearFraction >= 2017.0) & (yearFraction < double.MaxValue))
+            else if ((yearFraction >= 2017.0) && (yearFraction < double.MaxValue))
                 retval = (0.02465436 * yearFraction * yearFraction)
                     + (-98.92626556 * yearFraction)
                     + 99301.85784308;
-            else if ((yearFraction >= 2015.75) & (yearFraction < double.MaxValue))
+            else if ((yearFraction >= 2015.75) && (yearFraction < double.MaxValue))
                 retval = (0.02002376 * yearFraction * yearFraction)
                     + (-80.27921003 * yearFraction)
                     + 80529.32;
-            else if ((yearFraction >= 2011.75) & (yearFraction < 2015.75))
+            else if ((yearFraction >= 2011.75) && (yearFraction < 2015.75))
                 retval = (0.00231189 * yearFraction * yearFraction)
                     + (-8.85231952 * yearFraction)
                     + 8518.54;
-            else if ((yearFraction >= 2011.0) & (yearFraction < 2011.75))
+            else if ((yearFraction >= 2011.0) && (yearFraction < 2011.75))
             {
                 // Following now superseded by above for 2012-16, this is left in for consistency with previous behaviour
                 // Use polynomial given at http://sunearth.gsfc.nasa.gov/eclipse/SEcat5/deltatpoly.html as retrieved on 11-Jan-2009
@@ -914,14 +914,14 @@ namespace ASCOM.Tools
 
                     // /* First order interpolated value */
                     retval += p * (dt[k] - dt[iy]);
-                    if (((iy - 1 < 0) | (iy + 2 >= TAB_SIZE)))
+                    if (((iy - 1 < 0) || (iy + 2 >= TAB_SIZE)))
                         goto done; // /* can't do second differences */
 
                     // /* Make table of first differences */
                     k = iy - 2;
                     for (i = 0; i <= 4; i++)
                     {
-                        if (((k < 0) | (k + 1 >= TAB_SIZE)))
+                        if (((k < 0) || (k + 1 >= TAB_SIZE)))
                             d[i] = 0;
                         else
                             d[i] = dt[k + 1] - dt[k];
@@ -940,7 +940,7 @@ namespace ASCOM.Tools
                         d[i] = d[i + 1] - d[i];
                     b = 2.0 * b / 3.0;
                     retval += (p - 0.5) * b * d[1];
-                    if (((iy - 2 < 0) | (iy + 3 > TAB_SIZE)))
+                    if (((iy - 2 < 0) || (iy + 3 > TAB_SIZE)))
                         goto done;
 
                     // /* Compute fourth differences */
