@@ -13,8 +13,9 @@ namespace ASCOM.Tools
     /// </summary>
     public class AstroUtilities : IDisposable
     {
+        private static readonly object s_leapSecondsLock = new object();
         private static double currentLeapSeconds;
-        private static ILogger TL; // Logger instance for this component instance
+        private static volatile ILogger TL; // Logger instance for this component instance
 
         /// <summary>
         /// Information about the body
@@ -733,7 +734,7 @@ namespace ASCOM.Tools
             get
             {
                 // Return the current leap seconds value
-                return currentLeapSeconds;
+                lock (s_leapSecondsLock) { return currentLeapSeconds; }
             }
         }
 
@@ -748,7 +749,7 @@ namespace ASCOM.Tools
                 throw new InvalidValueException($"Utlities.SetLeapSeconds - Supplied value is zero or less: {leapSeconds}");
 
             // Save the provided value
-            currentLeapSeconds = leapSeconds;
+            lock (s_leapSecondsLock) { currentLeapSeconds = leapSeconds; }
         }
 
         /// <summary>
