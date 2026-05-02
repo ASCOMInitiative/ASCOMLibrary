@@ -12,7 +12,7 @@ namespace ASCOM.Common.DeviceStateClasses
     public class FocuserState
     {
         // Assign the name of this class
-        readonly string className = nameof(FilterWheelState);
+        readonly string className = nameof(FocuserState);
 
         /// <summary>
         /// Create a new FocuserState instance
