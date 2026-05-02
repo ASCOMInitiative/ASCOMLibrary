@@ -1,4 +1,4 @@
-﻿using ASCOM.Common.DeviceInterfaces;
+using ASCOM.Common.DeviceInterfaces;
 using ASCOM.Common.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -26,8 +26,6 @@ namespace ASCOM.Common.DeviceStateClasses
         /// <param name="TL">Debug TraceLogger instance.</param>
         public VideoState(List<StateValue> deviceState, ILogger TL)
         {
-            TL?.LogMessage(LogLevel.Debug, className, $"Received {deviceState.Count} items");
-
             // Handle null List
             if (deviceState is null) // No List was supplied so return
             {
