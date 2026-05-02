@@ -88,7 +88,7 @@ namespace ASCOM.Common.DeviceStateClasses
                             {
                                 TL?.LogMessage(LogLevel.Debug, className, $"Temperature - Ignoring exception: {ex.Message}");
                             }
-                            TL?.LogMessage(LogLevel.Debug, className, $"Temperature has value: {Position.HasValue}, Value: {Position}");
+                            TL?.LogMessage(LogLevel.Debug, className, $"Temperature has value: {Temperature.HasValue}, Value: {Temperature}");
                             break;
 
                         case "TimeStamp":
