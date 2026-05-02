@@ -792,6 +792,9 @@ namespace ASCOM.Tools
             if (LowerBound >= UpperBound)
                 throw new ASCOM.InvalidValueException("Range - LowerBound is >= UpperBound LowerBound must be less than UpperBound");
 
+            if (double.IsInfinity(Value) || double.IsNaN(Value))
+                throw new InvalidValueException($"Range - The supplied value ({Value}) is not a finite number and cannot be ranged.");
+
             ModuloValue = UpperBound - LowerBound;
 
             if (LowerEqual)
@@ -805,7 +808,7 @@ namespace ASCOM.Tools
                         if (Value > UpperBound)
                             Value -= ModuloValue;
                     }
-                    while (!(Value >= LowerBound) && (Value <= UpperBound));
+                    while (!(Value >= LowerBound) || !(Value <= UpperBound));
                 }
                 else
                     do
@@ -815,7 +818,7 @@ namespace ASCOM.Tools
                         if (Value >= UpperBound)
                             Value -= ModuloValue;
                     }
-                    while (!(Value >= LowerBound) && (Value < UpperBound));
+                    while (!(Value >= LowerBound) || !(Value < UpperBound));
             }
             else if (UpperEqual)
             {
@@ -826,7 +829,7 @@ namespace ASCOM.Tools
                     if (Value > UpperBound)
                         Value -= ModuloValue;
                 }
-                while (!(Value > LowerBound) && (Value <= UpperBound));
+                while (!(Value > LowerBound) || !(Value <= UpperBound));
             }
             else
             {
@@ -841,7 +844,7 @@ namespace ASCOM.Tools
                     if (Value >= UpperBound)
                         Value -= ModuloValue;
                 }
-                while (!(Value > LowerBound) && (Value < UpperBound));
+                while (!(Value > LowerBound) || !(Value < UpperBound));
             }
             return Value;
         }
