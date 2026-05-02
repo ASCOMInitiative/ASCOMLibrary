@@ -25,6 +25,8 @@ namespace ASCOM.Common.Helpers
         /// <returns>Null if there is no exception, otherwise the ASCOM Exception for the error code</returns>
         public static DriverException ExceptionFromResponse(IResponse response)
         {
+            if (response is null)
+                return null;
             return ExceptionFromErrorCode(response.ErrorNumber, response.ErrorMessage);
         }
 
@@ -82,6 +84,9 @@ namespace ASCOM.Common.Helpers
         /// <returns>The best matching ErrorCode for the exception, UnspecifiedError if a better one cannot be found</returns>
         public static AlpacaErrors ErrorCodeFromException(Exception ex)
         {
+            if (ex is null)
+                return AlpacaErrors.UnspecifiedError;
+
             //Try with the HResult first, then type names
             int HResult = ex.HResult;
             if (HResult == ErrorCodes.ActionNotImplementedException)
