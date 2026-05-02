@@ -445,7 +445,7 @@ namespace ASCOM.Tools
                         earthToBodyPv[1] = earthToBodyPv[1] - earthToObserverPv[1];
                         earthToBodyPv[2] = earthToBodyPv[2] - earthToObserverPv[2];
                     }
-                    catch { }
+                    catch (InvalidOperationException) { } // Thrown by ValidateSiteLocation when site parameters are not set; fall back to geocentric position
 
                     short vector2RaDecRc = Novas.Vector2RaDec(earthToBodyPv, ref result.RightAscension, ref result.Declination);
                     if (vector2RaDecRc > 0)
