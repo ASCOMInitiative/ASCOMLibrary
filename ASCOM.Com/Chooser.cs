@@ -57,6 +57,11 @@ namespace ASCOM.Com
             LogMessage(LogLevel.Debug, "Initialise", $"About to get Chooser type");
             Type chooserType = Type.GetTypeFromProgID(CHOOSER_PROGID);
 
+            if (chooserType is null)
+            {
+                LogMessage(LogLevel.Error, "Initialise", $"Unable to find Chooser COM type with ProgID '{CHOOSER_PROGID}' - the ASCOM Platform may not be fully installed.");
+                throw new InvalidOperationException($"Unable to find the ASCOM Chooser COM object with ProgID '{CHOOSER_PROGID}'. Please ensure the ASCOM Platform is installed correctly.");
+            }
 
             // Create a Chooser COM object and save the reference to the chooser variable
             LogMessage(LogLevel.Debug, "Initialise", $"Found type {chooserType.FullName}, Creating Chooser COM instance...");
