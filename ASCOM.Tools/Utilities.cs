@@ -39,6 +39,8 @@ namespace ASCOM.Tools
         /// </remarks>
         public static double DMSToDegrees(string DMSString)
         {
+            if (DMSString is null) throw new InvalidValueException("The supplied DMS string must not be null.");
+
             double returnValue = 0.0; // Return value
             double sign; // Sign of the supplied value
 
@@ -119,6 +121,8 @@ namespace ASCOM.Tools
         /// </remarks>
         public static double HMSToHours(string HMSString)
         {
+            if (HMSString is null) throw new InvalidValueException("The supplied HMS string must not be null.");
+
             double returnValue = 0.0; // Return value
             double sign; // Sign of the supplied value
 
