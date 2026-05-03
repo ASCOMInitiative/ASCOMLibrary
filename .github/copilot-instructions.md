@@ -18,6 +18,12 @@ dotnet test .\UnitTests\UnitTests.csproj -c Debug -f net8.0 --no-build --filter 
 
 There is no dedicated lint command in the repository. Use `.editorconfig` as the style source of truth and rely on `dotnet build` for compiler/analyzer feedback.
 
+## Unit tests and the `Tester` project
+- Unit tests are the primary form of automated verification in the repository.
+- The `Tester` project is a manual harness for ad hoc experimentation and should not be confused with the test suite.
+- The full unit test suite takes about 8 minutes to run, so prefer targeted test runs during development. 
+- The `FullyQualifiedName` filter is the most precise way to select tests, and the existing test documentation in `UnitTests\TraceLogger\` already uses FQNs.
+
 ## High-level architecture
 
 - `ASCOM.Common` is the foundation layer. It contains the shared device interfaces, enums, response types, helpers, and extension points that the rest of the solution builds on.
