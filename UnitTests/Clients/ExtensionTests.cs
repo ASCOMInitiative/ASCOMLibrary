@@ -822,7 +822,7 @@ namespace DriverAccess
 
             // Create a COM client
             TL.LogMessage("Main", $"About to create device");
-            Focuser client = new Focuser("ASCOM.Simulator.Focuser");
+            Focuser client = new Focuser("ASCOM.OmniSim.Focuser");
             //AlpacaFocuser client = new AlpacaFocuser();
             TL.LogMessage("Main", $"Device created");
             Assert.NotNull(client);
@@ -871,7 +871,7 @@ namespace DriverAccess
 
                 // Create a COM client
                 TL.LogMessage("Main", $"About to create device");
-                Focuser client = new Focuser("ASCOM.Simulator.Focuser");
+                Focuser client = new Focuser("ASCOM.OmniSim.Focuser");
 
                 //AlpacaFocuser client = new AlpacaFocuser();
                 TL.LogMessage("Main", $"Device created");

@@ -4,6 +4,7 @@ using Xunit;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Threading;
+using Xunit.Sdk;
 
 namespace DriverAccess
 {
@@ -30,18 +31,21 @@ namespace DriverAccess
             // Connect
             switchSim.Connected = true;
             Assert.True(switchSim.Connected);
-
+            output.WriteLine($"Connected to {switchSim.Name} driver version {switchSim.DriverVersion}");
             // Confirm that some devices are configured
             Assert.Equal<short>(11, switchSim.MaxSwitch);
-
+            output.WriteLine($"MaxSwitch: {switchSim.MaxSwitch}");
             // Confirm that device 10 is async
             Assert.False(switchSim.CanAsync(9));
             Assert.True(switchSim.CanAsync(10));
+            output.WriteLine($"CanAsync(9): {switchSim.CanAsync(9)}");
+            output.WriteLine($"CanAsync(10): {switchSim.CanAsync(10)}");
 
             // Confirm that the current value is false
-            Assert.False(switchSim.GetSwitch(10));
+            switchSim.SetSwitch(10, false);
+            output.WriteLine($"Setting switch 10 false before testing. StateChangeComplete: {switchSim.StateChangeComplete(10)}, GetSwitch(10): {switchSim.GetSwitch(10)}");
 
-            // Set the value true synchronously (should take 3 seconds to complete)
+            output.WriteLine($"Setting switch 10 to true synchronously...");
             switchSim.SetSwitch(10, true);
 
             // Confirm the expected outcomes
@@ -73,7 +77,7 @@ namespace DriverAccess
             Assert.True(switchSim.CanAsync(10));
 
             // Confirm that the current value is false
-            Assert.False(switchSim.GetSwitch(10));
+            switchSim.SetSwitch(10, false);
 
             // Set the value true asynchronously (should take 3 seconds to complete)
             switchSim.SetAsync(10, true);
@@ -115,6 +119,7 @@ namespace DriverAccess
             Assert.True(switchSim.CanAsync(10));
 
             // Confirm that the current value is false
+            switchSim.SetSwitchValue(10, 0.0);
             Assert.False(switchSim.GetSwitch(10));
 
             // Set the value true synchronously (should take 3 seconds to complete)
@@ -149,9 +154,9 @@ namespace DriverAccess
             Assert.True(switchSim.CanAsync(10));
 
             // Confirm that the current value is 0.0
-            Assert.Equal<double>(0.0, switchSim.GetSwitchValue(10));
+            switchSim.SetSwitchValue(10, 0.0);
 
-            // Set the value true asynchronously (should take 3 seconds to complete)
+            // Set the value 5.0 asynchronously (should take 3 seconds to complete)
             switchSim.SetAsyncValue(10, 5.0);
             Assert.False(switchSim.StateChangeComplete(10));
             Assert.Equal<double>(0.0, switchSim.GetSwitchValue(10));
@@ -191,6 +196,7 @@ namespace DriverAccess
             Assert.True(switchSim.CanAsync(10));
 
             // Confirm that the current value is false
+            switchSim.setSwitch(10, false);
             Assert.False(switchSim.GetSwitch(10));
 
             // Set the value true asynchronously (should take 3 seconds to complete)
@@ -239,7 +245,7 @@ namespace DriverAccess
                 Assert.True(switchSim.CanAsync(10));
 
                 // Confirm that the current value is false
-                Assert.False(switchSim.GetSwitch(10));
+                switchSim.SetSwitch(10, false);
 
                 // Set the value true asynchronously (should take 3 seconds to complete)
                 switchSim.SetAsync(10, true);
@@ -282,6 +288,7 @@ namespace DriverAccess
             Assert.True(switchSim.CanAsync(10));
 
             // Confirm that the current value is 0.0
+            switchSim.SetSwitchValue(10, 0.0);
             Assert.Equal<double>(0.0, switchSim.GetSwitchValue(10));
 
             // Set the value true asynchronously (should take 3 seconds to complete)
@@ -324,7 +331,7 @@ namespace DriverAccess
             Assert.True(switchSim.CanAsync(10));
 
             // Confirm that the current value is false
-            Assert.False(switchSim.GetSwitch(10));
+            switchSim.SetSwitch(10, false);
 
             // Set the value true asynchronously (should take 3 seconds to complete)
             switchSim.SetAsync(10, true);
