@@ -112,7 +112,7 @@ namespace TraceLoggerTests
                             exceptions.Add(ex);
                         }
                     }
-                });
+                }, TestContext.Current.CancellationToken);
                 tasks.Add(task);
             }
 
@@ -170,7 +170,7 @@ namespace TraceLoggerTests
             }
 
             // Wait for completion
-            Assert.True(countdown.Wait(TimeSpan.FromSeconds(TIMEOUT_SECONDS)), "High contention test did not complete in time");
+            Assert.True(countdown.Wait(TimeSpan.FromSeconds(TIMEOUT_SECONDS), TestContext.Current.CancellationToken), "High contention test did not complete in time");
 
             // Get log file
             string logFile = Path.Combine(logger.LogFilePath, logger.LogFileName);
@@ -267,7 +267,7 @@ namespace TraceLoggerTests
             }
 
             // Release all threads at once
-            startBarrier.SignalAndWait();
+            startBarrier.SignalAndWait(TestContext.Current.CancellationToken);
             Thread.Sleep(50); // Let some messages get written
 
             // Dispose while threads are still running
@@ -353,7 +353,7 @@ namespace TraceLoggerTests
                     {
                         logger.LogMessage($"Task{taskId}", $"[{j}]{largeMessage}");
                     }
-                });
+                }, TestContext.Current.CancellationToken);
                 tasks.Add(task);
             }
 

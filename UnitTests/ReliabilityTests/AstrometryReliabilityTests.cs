@@ -48,8 +48,8 @@ namespace ReliabilityTests
             const double VALUE_2 = 38.0;
 
             var barrier = new Barrier(2);
-            var t1 = System.Threading.Tasks.Task.Run(() => { barrier.SignalAndWait(); AstroUtilities.SetLeapSeconds(VALUE_1); });
-            var t2 = System.Threading.Tasks.Task.Run(() => { barrier.SignalAndWait(); AstroUtilities.SetLeapSeconds(VALUE_2); });
+            var t1 = System.Threading.Tasks.Task.Run(() => { barrier.SignalAndWait(); AstroUtilities.SetLeapSeconds(VALUE_1); }, TestContext.Current.CancellationToken);
+            var t2 = System.Threading.Tasks.Task.Run(() => { barrier.SignalAndWait(); AstroUtilities.SetLeapSeconds(VALUE_2); }, TestContext.Current.CancellationToken);
             await System.Threading.Tasks.Task.WhenAll(t1, t2);
 
             double final = AstroUtilities.LeapSeconds;
@@ -73,7 +73,7 @@ namespace ReliabilityTests
                 writeComplete.Set();
             });
             thread.Start();
-            writeComplete.Wait();
+            writeComplete.Wait(TestContext.Current.CancellationToken);
 
             observed = AstroUtilities.LeapSeconds;
             Assert.Equal(EXPECTED, observed);
@@ -122,7 +122,7 @@ namespace ReliabilityTests
                 writeComplete.Set();
             });
             thread.Start();
-            writeComplete.Wait();
+            writeComplete.Wait(TestContext.Current.CancellationToken);
 
             observed = tlField.GetValue(null);
             Assert.Same(expectedLogger, observed);

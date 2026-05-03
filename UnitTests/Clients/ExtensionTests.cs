@@ -1,4 +1,4 @@
-﻿using ASCOM.Common.DeviceInterfaces;
+using ASCOM.Common.DeviceInterfaces;
 using System;
 using Xunit;
 using ASCOM.Common;
@@ -44,7 +44,7 @@ namespace DriverAccess
 
             // Connect asynchronously
             TL.LogMessage("Main", $"Connecting to device...");
-            await client.ConnectAsync(DeviceTypes.Camera, client.InterfaceVersion, logger: TL);
+            await client.ConnectAsync(DeviceTypes.Camera, client.InterfaceVersion, cancellationToken: TestContext.Current.CancellationToken, logger: TL);
             TL.LogMessage("Main", $"Connection complete");
 
             // Confirm, that the device is connected
@@ -77,7 +77,7 @@ namespace DriverAccess
 
             // Connect asynchronously
             TL.LogMessage("Main", $"Connecting to device...");
-            await client.ConnectAsync(DeviceTypes.Camera, client.InterfaceVersion - 1, logger: TL);
+            await client.ConnectAsync(DeviceTypes.Camera, client.InterfaceVersion - 1, cancellationToken: TestContext.Current.CancellationToken, logger: TL);
             TL.LogMessage("Main", $"Connection complete");
 
             // Confirm, that the device is connected
@@ -115,7 +115,7 @@ namespace DriverAccess
 
             // Disconnect asynchronously
             TL.LogMessage("Main", $"Disconnecting from device...");
-            await client.DisconnectAsync(DeviceTypes.Camera, client.InterfaceVersion, logger: TL);
+            await client.DisconnectAsync(DeviceTypes.Camera, client.InterfaceVersion, cancellationToken: TestContext.Current.CancellationToken, logger: TL);
             TL.LogMessage("Main", $"Disconnection complete");
 
             // Confirm, that the device is disconnected
@@ -153,7 +153,7 @@ namespace DriverAccess
 
             // Disconnect asynchronously
             TL.LogMessage("Main", $"Disconnecting from device...");
-            await client.DisconnectAsync(DeviceTypes.Camera, client.InterfaceVersion - 1, logger: TL);
+            await client.DisconnectAsync(DeviceTypes.Camera, client.InterfaceVersion - 1, cancellationToken: TestContext.Current.CancellationToken, logger: TL);
             TL.LogMessage("Main", $"Disconnection complete");
 
             // Confirm, that the device is disconnected
@@ -228,7 +228,7 @@ namespace DriverAccess
             TL.LogMessage("Main", $"Before exposure: ImageReady:{client.ImageReady}");
             Assert.False(client.ImageReady);
 
-            await client.StartExposureAsync(2.0, true);
+            await client.StartExposureAsync(2.0, true, TestContext.Current.CancellationToken);
             Thread.Sleep(100);
 
             TL.LogMessage("Main", $"After exposure: ImageReady:{client.ImageReady}");
@@ -265,7 +265,7 @@ namespace DriverAccess
 
             // Test the client
             TL.LogMessage("Main", $"About to await method");
-            await client.StartExposureAsync(1.0, true, pollInterval: 100, logger: TL);
+            await client.StartExposureAsync(1.0, true, cancellationToken: TestContext.Current.CancellationToken, pollInterval: 100, logger: TL);
             TL.LogMessage("Main", $"Await complete");
             Assert.NotEqual(CameraState.Exposing, client.CameraState);
 
@@ -306,7 +306,7 @@ namespace DriverAccess
             // Test the client
             TL.LogMessage("Main", $"About to await method");
             sw.Start();
-            await client.StartExposureAsync(5.0, true, pollInterval: 100, logger: TL);
+            await client.StartExposureAsync(5.0, true, cancellationToken: TestContext.Current.CancellationToken, pollInterval: 100, logger: TL);
             sw.Stop();
             TL.LogMessage("Main", $"Await complete");
             Assert.NotEqual(CameraState.Exposing, client.CameraState);
@@ -343,7 +343,7 @@ namespace DriverAccess
 
             // Test the client
             TL.LogMessage("Main", $"About to await method");
-            await client.CalibratorOnAsync(100, pollInterval: 100, logger: TL);
+            await client.CalibratorOnAsync(100, cancellationToken: TestContext.Current.CancellationToken, pollInterval: 100, logger: TL);
             TL.LogMessage("Main", $"Await complete");
             Assert.Equal(CalibratorStatus.Ready, client.CalibratorState);
 
@@ -371,13 +371,13 @@ namespace DriverAccess
 
             // Test the client - turn the calibrator on first
             TL.LogMessage("Main", $"About to start calibrator on await");
-            await client.CalibratorOnAsync(100, pollInterval: 100, logger: TL);
+            await client.CalibratorOnAsync(100, cancellationToken: TestContext.Current.CancellationToken, pollInterval: 100, logger: TL);
             TL.LogMessage("Main", $"On await complete");
             Assert.Equal(CalibratorStatus.Ready, client.CalibratorState);
 
             // Test the client- turn off the calibrator
             TL.LogMessage("Main", $"About to start calibrator off await method");
-            await client.CalibratorOffAsync(pollInterval: 100, logger: TL);
+            await client.CalibratorOffAsync(cancellationToken: TestContext.Current.CancellationToken, pollInterval: 100, logger: TL);
             TL.LogMessage("Main", $"Off await complete");
             Assert.Equal(CalibratorStatus.Off, client.CalibratorState);
 
@@ -412,7 +412,7 @@ namespace DriverAccess
 
             // Test the client
             TL.LogMessage("Main", $"{Environment.CurrentManagedThreadId:00} About to await method");
-            await client.OpenCoverAsync(pollInterval: 100, logger: TL);
+            await client.OpenCoverAsync(cancellationToken: TestContext.Current.CancellationToken, pollInterval: 100, logger: TL);
             TL.LogMessage("Main", $"{Environment.CurrentManagedThreadId:00} Await complete");
             Assert.Equal(CoverStatus.Open, client.CoverState);
 
@@ -444,14 +444,14 @@ namespace DriverAccess
                 TL.LogMessage("StopOpenTask", $"Starting thread sleep");
                 await Task.Delay(1000);
                 TL.LogMessage("StopOpenTask", $"Sleep completed, stopping open.");
-                await client.HaltCoverAsync(pollInterval: 100, logger: TL);
+                await client.HaltCoverAsync(cancellationToken: TestContext.Current.CancellationToken, pollInterval: 100, logger: TL);
                 TL.LogMessage("StopOpenTask", $"Open halted.");
             });
             stopOpenTask.Start();
 
             // Test the client
             TL.LogMessage("Main", $"About to await method");
-            await client.OpenCoverAsync(pollInterval: 100, logger: TL);
+            await client.OpenCoverAsync(cancellationToken: TestContext.Current.CancellationToken, pollInterval: 100, logger: TL);
             TL.LogMessage("Main", $"Await complete. Cover state: {client.CoverState}");
             Assert.Equal(CoverStatus.Unknown, client.CoverState);
 
@@ -479,13 +479,13 @@ namespace DriverAccess
 
             // Test the client - open the cover first
             TL.LogMessage("Main", $"About to start open cover await");
-            await client.OpenCoverAsync(pollInterval: 100, logger: TL);
+            await client.OpenCoverAsync(cancellationToken: TestContext.Current.CancellationToken, pollInterval: 100, logger: TL);
             TL.LogMessage("Main", $"Await complete");
             Assert.Equal(CoverStatus.Open, client.CoverState);
 
             // Test the client- turn off the calibrator
             TL.LogMessage("Main", $"About to start close cover await");
-            await client.CloseCoverAsync(pollInterval: 100, logger: TL);
+            await client.CloseCoverAsync(cancellationToken: TestContext.Current.CancellationToken, pollInterval: 100, logger: TL);
             TL.LogMessage("Main", $"Close await complete");
             Assert.Equal(CoverStatus.Closed, client.CoverState);
 
@@ -523,7 +523,7 @@ namespace DriverAccess
 
             // Slew somewhere that is not likely to be the park position
             TL.LogMessage("Main", $"Slewing to somewhere that is not likely to be the home or park positions");
-            await client.SlewToAzimuthAsync(SLEW_AZIMUTH, pollInterval: 100, logger: TL);
+            await client.SlewToAzimuthAsync(SLEW_AZIMUTH, cancellationToken: TestContext.Current.CancellationToken, pollInterval: 100, logger: TL);
             TL.LogMessage("Main", $"Slew await complete, Is parked: {client.AtPark}, Is at home: {client.AtHome}, Azimuth: {client.Azimuth}");
             Assert.False(client.AtHome);
             Assert.False(client.AtPark);
@@ -556,13 +556,13 @@ namespace DriverAccess
 
             // Open the shutter first otherwise the slew will fail
             TL.LogMessage("Main", $"About to await OpenShutter method");
-            await client.OpenShutterAsync(pollInterval: 100, logger: TL);
+            await client.OpenShutterAsync(cancellationToken: TestContext.Current.CancellationToken, pollInterval: 100, logger: TL);
             TL.LogMessage("Main", $"Await complete, shutter state: {client.ShutterStatus}");
             Assert.Equal(ShutterState.Open, client.ShutterStatus);
 
             // Slew somewhere that is not likely to be the current altitude
             TL.LogMessage("Main", $"Slewing to altitude {SLEW_ALTITUDE} degrees");
-            await client.SlewToAltitudeAsync(SLEW_ALTITUDE, pollInterval: 100, logger: TL);
+            await client.SlewToAltitudeAsync(SLEW_ALTITUDE, cancellationToken: TestContext.Current.CancellationToken, pollInterval: 100, logger: TL);
             TL.LogMessage("Main", $"Slew await complete, Altitude: {client.Altitude}");
             Assert.Equal(SLEW_ALTITUDE, client.Altitude);
 
@@ -590,7 +590,7 @@ namespace DriverAccess
 
             // Test the client
             TL.LogMessage("Main", $"About to await method");
-            await client.OpenShutterAsync(pollInterval: 100, logger: TL);
+            await client.OpenShutterAsync(cancellationToken: TestContext.Current.CancellationToken, pollInterval: 100, logger: TL);
             TL.LogMessage("Main", $"Await complete, shutter state: {client.ShutterStatus}");
             Assert.Equal(ShutterState.Open, client.ShutterStatus);
 
@@ -618,13 +618,13 @@ namespace DriverAccess
 
             // Test the client
             TL.LogMessage("Main", $"About to await open shutter method");
-            await client.OpenShutterAsync(pollInterval: 100, logger: TL);
+            await client.OpenShutterAsync(cancellationToken: TestContext.Current.CancellationToken, pollInterval: 100, logger: TL);
             TL.LogMessage("Main", $"Await complete, shutter state: {client.ShutterStatus}");
             Assert.Equal(ShutterState.Open, client.ShutterStatus);
 
             // Test the client
             TL.LogMessage("Main", $"About to await close shutter method");
-            await client.CloseShutterAsync(pollInterval: 100, logger: TL);
+            await client.CloseShutterAsync(cancellationToken: TestContext.Current.CancellationToken, pollInterval: 100, logger: TL);
             TL.LogMessage("Main", $"Await complete, shutter state: {client.ShutterStatus}");
             Assert.Equal(ShutterState.Closed, client.ShutterStatus);
 
@@ -654,7 +654,7 @@ namespace DriverAccess
 
             // Ensure the shutter is closed before starting the test
             TL.LogMessage("Main", $"Closing shutter...");
-            await client.CloseShutterAsync(pollInterval: 100, logger: TL);
+            await client.CloseShutterAsync(cancellationToken: TestContext.Current.CancellationToken, pollInterval: 100, logger: TL);
             TL.LogMessage("Main", $"Shutter closed.");
 
             // Start a task that will abort the open after 1 second
@@ -663,14 +663,14 @@ namespace DriverAccess
                 TL.LogMessage("AbortOpenTask", $"Starting thread sleep");
                 await Task.Delay(1000);
                 TL.LogMessage("AbortOpenTask", $"Sleep completed, aborting open.");
-                await client.AbortSlewAsync(pollInterval: 100, logger: TL);
+                await client.AbortSlewAsync(cancellationToken: TestContext.Current.CancellationToken, pollInterval: 100, logger: TL);
                 TL.LogMessage("AbortOpenTask", $"Open aborted.");
             });
             abortOpenTask.Start();
 
             // Test the client
             TL.LogMessage("Main", $"Opening shutter...");
-            await client.OpenShutterAsync(pollInterval: 100, logger: TL);
+            await client.OpenShutterAsync(cancellationToken: TestContext.Current.CancellationToken, pollInterval: 100, logger: TL);
             TL.LogMessage("Main", $"Await complete, shutter state: {client.ShutterStatus}");
             Assert.Equal(ShutterState.Error, client.ShutterStatus);
 
@@ -701,14 +701,14 @@ namespace DriverAccess
 
             // Slew somewhere that is not likely to be the park position
             TL.LogMessage("Main", $"Slewing to somewhere that is not likely to be the park position");
-            await client.SlewToAzimuthAsync(SLEW_AZIMUTH, pollInterval: 100, logger: TL);
+            await client.SlewToAzimuthAsync(SLEW_AZIMUTH, cancellationToken: TestContext.Current.CancellationToken, pollInterval: 100, logger: TL);
             TL.LogMessage("Main", $"Slew await complete, Is parked: {client.AtPark}, Is at home: {client.AtHome}, Azimuth: {client.Azimuth}");
             Assert.False(client.AtPark);
             Assert.Equal(SLEW_AZIMUTH, client.Azimuth);
 
             // Test Park()
             TL.LogMessage("Main", $"About to await Park method");
-            await client.ParkAsync(pollInterval: 100, logger: TL);
+            await client.ParkAsync(cancellationToken: TestContext.Current.CancellationToken, pollInterval: 100, logger: TL);
             TL.LogMessage("Main", $"Await complete, Is parked: {client.AtPark}, Is at home: {client.AtHome}");
             Assert.True(client.AtPark);
 
@@ -739,14 +739,14 @@ namespace DriverAccess
 
             // Slew somewhere that is not likely to be the park position
             TL.LogMessage("Main", $"Slewing to somewhere that is not likely to be the home position");
-            await client.SlewToAzimuthAsync(SLEW_AZIMUTH, pollInterval: 100, logger: TL);
+            await client.SlewToAzimuthAsync(SLEW_AZIMUTH, cancellationToken: TestContext.Current.CancellationToken, pollInterval: 100, logger: TL);
             TL.LogMessage("Main", $"Slew await complete, Is parked: {client.AtPark}, Is at home: {client.AtHome}, Azimuth: {client.Azimuth}");
             Assert.False(client.AtHome);
             Assert.Equal(SLEW_AZIMUTH, client.Azimuth);
 
             // Test FindHome()
             TL.LogMessage("Main", $"About to await FindHome method");
-            await client.FindHomeAsync(pollInterval: 100, logger: TL);
+            await client.FindHomeAsync(cancellationToken: TestContext.Current.CancellationToken, pollInterval: 100, logger: TL);
             TL.LogMessage("Main", $"Await complete, Is parked: {client.AtPark}, Is at home: {client.AtHome}");
             Assert.True(client.AtHome);
 
@@ -783,7 +783,7 @@ namespace DriverAccess
 
             // Test Position Set 0
             TL.LogMessage("Main", $"About to await setting Position 0 ");
-            await client.PositionSetAsync(0, pollInterval: 100, logger: TL);
+            await client.PositionSetAsync(0, cancellationToken: TestContext.Current.CancellationToken, pollInterval: 100, logger: TL);
             TL.LogMessage("Main", $"Await complete, Position: {client.Position}");
             Assert.Equal(0, client.Position);
 
@@ -792,7 +792,7 @@ namespace DriverAccess
             int highestFilterNumber = client.FocusOffsets.Length - 1; // Filter numbers start at 0
                                                                       // Test Position highest filter wheel position
             TL.LogMessage("Main", $"About to await setting Position {highestFilterNumber} ");
-            await client.PositionSetAsync(highestFilterNumber, pollInterval: 100, logger: TL);
+            await client.PositionSetAsync(highestFilterNumber, cancellationToken: TestContext.Current.CancellationToken, pollInterval: 100, logger: TL);
             TL.LogMessage("Main", $"Await complete, Position: {client.Position}");
             Assert.Equal(highestFilterNumber, client.Position);
 
@@ -844,7 +844,7 @@ namespace DriverAccess
 
             // Test Position Set
             TL.LogMessage("Main", $"About to await setting Position property");
-            await client.MoveAsync(testPosition, pollInterval: 100, logger: TL);
+            await client.MoveAsync(testPosition, cancellationToken: TestContext.Current.CancellationToken, pollInterval: 100, logger: TL);
             TL.LogMessage("Main", $"Await complete, Position: {client.Position}, Target: {testPosition}");
             Assert.True((client.Position > testPosition - POSITION_TOLERANCE) & (client.Position < testPosition + POSITION_TOLERANCE)); // Allow a position tolerance
 
@@ -887,7 +887,7 @@ namespace DriverAccess
                     TL.LogMessage("HaltMoveTask", $"Starting thread sleep");
                     await Task.Delay(1000);
                     TL.LogMessage("HaltMoveTask", $"Sleep completed, halting move.");
-                    await client.HaltAsync(pollInterval: 100, logger: TL);
+                    await client.HaltAsync(cancellationToken: TestContext.Current.CancellationToken, pollInterval: 100, logger: TL);
                     TL.LogMessage("HaltMoveTask", $"Move halted.");
                 });
                 haltMoveTask.Start();
@@ -905,7 +905,7 @@ namespace DriverAccess
 
                 // Test Position Set
                 TL.LogMessage("Main", $"About to await setting Position property");
-                await client.MoveAsync(testPosition, pollInterval: 100, logger: TL);
+                await client.MoveAsync(testPosition, cancellationToken: TestContext.Current.CancellationToken, pollInterval: 100, logger: TL);
                 TL.LogMessage("Main", $"Await complete, Position: {client.Position}, Target: {testPosition}");
                 Assert.True((client.Position <= testPosition - POSITION_TOLERANCE) | (client.Position >= testPosition + POSITION_TOLERANCE)); // Allow a position tolerance
 
@@ -955,7 +955,7 @@ namespace DriverAccess
 
             // Slew somewhere that is not likely to be the park position
             TL.LogMessage("Main", $"Moving to {expectedPosition} degrees");
-            await client.MoveAsync(RELATIVE_MOVE, pollInterval: 100, logger: TL);
+            await client.MoveAsync(RELATIVE_MOVE, cancellationToken: TestContext.Current.CancellationToken, pollInterval: 100, logger: TL);
             TL.LogMessage("Main", $"Move await complete, Position: {client.Position}, Is moving: {client.IsMoving}");
             Assert.Equal(expectedPosition, client.Position);
 
@@ -991,7 +991,7 @@ namespace DriverAccess
 
             // Slew somewhere that is not likely to be the park position
             TL.LogMessage("Main", $"Moving to {expectedPosition} degrees");
-            await client.MoveAbsoluteAsync(expectedPosition, pollInterval: 100, logger: TL);
+            await client.MoveAbsoluteAsync(expectedPosition, cancellationToken: TestContext.Current.CancellationToken, pollInterval: 100, logger: TL);
             TL.LogMessage("Main", $"Move await complete, Position: {client.Position}, Target position: {expectedPosition}, Is moving: {client.IsMoving}");
             Assert.Equal(expectedPosition, client.Position);
 
@@ -1027,7 +1027,7 @@ namespace DriverAccess
 
             // Slew somewhere that is not likely to be the park position
             TL.LogMessage("Main", $"Moving to mechanical {expectedPosition} degrees");
-            await client.MoveMechanicalAsync(expectedPosition, pollInterval: 100, logger: TL);
+            await client.MoveMechanicalAsync(expectedPosition, cancellationToken: TestContext.Current.CancellationToken, pollInterval: 100, logger: TL);
             TL.LogMessage("Main", $"Move await complete, Mechanical position: {client.MechanicalPosition}, Target position: {expectedPosition}, Is moving: {client.IsMoving}, Position: {client.Position}");
             Assert.Equal(expectedPosition, client.MechanicalPosition);
 
@@ -1067,14 +1067,14 @@ namespace DriverAccess
                 TL.LogMessage("HaltMoveTask", $"Starting thread sleep");
                 await Task.Delay(250);
                 TL.LogMessage("HaltMoveTask", $"Sleep completed, halting move.");
-                await client.HaltAsync(pollInterval: 100, logger: TL);
+                await client.HaltAsync(cancellationToken: TestContext.Current.CancellationToken, pollInterval: 100, logger: TL);
                 TL.LogMessage("HaltMoveTask", $"Move halted.");
             });
             haltMoveTask.Start();
 
             // Move to new position
             TL.LogMessage("Main", $"Moving to mechanical {expectedPosition} degrees");
-            await client.MoveMechanicalAsync(expectedPosition, pollInterval: 100, logger: TL);
+            await client.MoveMechanicalAsync(expectedPosition, cancellationToken: TestContext.Current.CancellationToken, pollInterval: 100, logger: TL);
             TL.LogMessage("Main", $"Move await complete, Mechanical position: {client.MechanicalPosition}, Target position: {expectedPosition}, Is moving: {client.IsMoving}, Position: {client.Position}");
             Assert.NotEqual(expectedPosition, client.MechanicalPosition);
 
@@ -1109,7 +1109,7 @@ namespace DriverAccess
 
             // Unpark
             TL.LogMessage("Main", $"Unparking scope");
-            await client.UnparkAsync(pollInterval: 100, logger: TL);
+            await client.UnparkAsync(cancellationToken: TestContext.Current.CancellationToken, pollInterval: 100, logger: TL);
             TL.LogMessage("Main", $"Scope un-parked- Is parked: {client.AtPark}, Is at home: {client.AtHome}");
 
             client.Tracking = false;
@@ -1117,12 +1117,12 @@ namespace DriverAccess
 
             // Slew somewhere that is not likely to be the test position
             TL.LogMessage("Main", $"Slewing to 50, 60 that is not the test position");
-            await client.SlewToAltAzTaskAsync(50.0, 60.0, pollInterval: 100, logger: TL);
+            await client.SlewToAltAzTaskAsync(50.0, 60.0, cancellationToken: TestContext.Current.CancellationToken, pollInterval: 100, logger: TL);
             TL.LogMessage("Main", $"Slew await complete, Is parked: {client.AtPark}, Is at home: {client.AtHome}, Azimuth: {client.Azimuth}, Altitude: {client.Altitude}");
 
             // Slew to the target 
             TL.LogMessage("Main", $"Slewing to the target ALt/Az (40.0, 50.0)");
-            await client.SlewToAltAzTaskAsync(40.0, 50.0, pollInterval: 100, logger: TL);
+            await client.SlewToAltAzTaskAsync(40.0, 50.0, cancellationToken: TestContext.Current.CancellationToken, pollInterval: 100, logger: TL);
             TL.LogMessage("Main", $"Slew await complete, Is parked: {client.AtPark}, Is at home: {client.AtHome}, Azimuth: {client.Azimuth}, Altitude: {client.Altitude}");
             Assert.False(client.AtHome);
             Assert.False(client.AtPark);
@@ -1153,7 +1153,7 @@ namespace DriverAccess
 
             // Unpark
             TL.LogMessage("Main", $"Unparking scope");
-            await client.UnparkAsync(pollInterval: 100, logger: TL);
+            await client.UnparkAsync(cancellationToken: TestContext.Current.CancellationToken, pollInterval: 100, logger: TL);
             TL.LogMessage("Main", $"Scope un-parked- Is parked: {client.AtPark}, Is at home: {client.AtHome}");
 
             client.Tracking = true;
@@ -1163,12 +1163,12 @@ namespace DriverAccess
 
             // Slew somewhere that is not likely to be the test position
             TL.LogMessage("Main", $"Slewing to somewhere that is not likely to be the test position: RA: {targetRa}, Sidereal time: {client.SiderealTime}");
-            await client.SlewToCoordinatesTaskAsync(targetRa, 5.0, pollInterval: 100, logger: TL);
+            await client.SlewToCoordinatesTaskAsync(targetRa, 5.0, cancellationToken: TestContext.Current.CancellationToken, pollInterval: 100, logger: TL);
             TL.LogMessage("Main", $"Slew await complete, Is parked: {client.AtPark}, Is at home: {client.AtHome}, RA: {client.RightAscension}, Declination: {client.Declination}");
 
             // Slew to the target 
             TL.LogMessage("Main", $"Slewing to the target ALt/Az (0.0, 0.0)");
-            await client.SlewToCoordinatesTaskAsync(targetRa, 0.0, pollInterval: 100, logger: TL);
+            await client.SlewToCoordinatesTaskAsync(targetRa, 0.0, cancellationToken: TestContext.Current.CancellationToken, pollInterval: 100, logger: TL);
             TL.LogMessage("Main", $"Slew await complete, Is parked: {client.AtPark}, Is at home: {client.AtHome}, RA: {client.RightAscension}, Declination: {client.Declination}");
             Assert.False(client.AtHome);
             Assert.False(client.AtPark);
@@ -1199,7 +1199,7 @@ namespace DriverAccess
 
             // Unpark
             TL.LogMessage("Main", $"Unparking scope");
-            await client.UnparkAsync(pollInterval: 100, logger: TL);
+            await client.UnparkAsync(cancellationToken: TestContext.Current.CancellationToken, pollInterval: 100, logger: TL);
             TL.LogMessage("Main", $"Scope un-parked- Is parked: {client.AtPark}, Is at home: {client.AtHome}");
 
             client.Tracking = true;
@@ -1209,7 +1209,7 @@ namespace DriverAccess
 
             // Slew somewhere that is not likely to be the test position
             TL.LogMessage("Main", $"Slewing to somewhere that is not likely to be the test position");
-            await client.SlewToCoordinatesTaskAsync(targetRa, 3.0, pollInterval: 100, logger: TL);
+            await client.SlewToCoordinatesTaskAsync(targetRa, 3.0, cancellationToken: TestContext.Current.CancellationToken, pollInterval: 100, logger: TL);
             TL.LogMessage("Main", $"Slew await complete, Is parked: {client.AtPark}, Is at home: {client.AtHome}, RA: {client.RightAscension}, Declination: {client.Declination}");
 
             client.TargetRightAscension = targetRa;
@@ -1217,7 +1217,7 @@ namespace DriverAccess
 
             // Slew to the target 
             TL.LogMessage("Main", $"Slewing to the target RA/Dec ({client.TargetRightAscension}, {client.TargetDeclination})");
-            await client.SlewToCoordinatesTaskAsync(targetRa, 0.0, pollInterval: 100, logger: TL);
+            await client.SlewToCoordinatesTaskAsync(targetRa, 0.0, cancellationToken: TestContext.Current.CancellationToken, pollInterval: 100, logger: TL);
             TL.LogMessage("Main", $"Slew await complete, Is parked: {client.AtPark}, Is at home: {client.AtHome}, RA: {client.RightAscension}, Declination: {client.Declination}");
             Assert.False(client.AtHome);
             Assert.False(client.AtPark);
@@ -1248,7 +1248,7 @@ namespace DriverAccess
 
             // Unpark
             TL.LogMessage("Main", $"Unparking scope");
-            await client.UnparkAsync(pollInterval: 100, logger: TL);
+            await client.UnparkAsync(cancellationToken: TestContext.Current.CancellationToken, pollInterval: 100, logger: TL);
             TL.LogMessage("Main", $"Scope un-parked- Is parked: {client.AtPark}, Is at home: {client.AtHome}");
 
             client.Tracking = true;
@@ -1258,12 +1258,12 @@ namespace DriverAccess
 
             // Slew somewhere that is not likely to be the home position
             TL.LogMessage("Main", $"Slewing to somewhere that is not likely to be the test position");
-            await client.SlewToCoordinatesTaskAsync(targetRa, 3.0, pollInterval: 100, logger: TL);
+            await client.SlewToCoordinatesTaskAsync(targetRa, 3.0, cancellationToken: TestContext.Current.CancellationToken, pollInterval: 100, logger: TL);
             TL.LogMessage("Main", $"Slew await complete, Is parked: {client.AtPark}, Is at home: {client.AtHome}, RA: {client.RightAscension}, Declination: {client.Declination}");
 
             // Slew to the target 
             TL.LogMessage("Main", $"finding home");
-            await client.FindHomeAsync(pollInterval: 100, logger: TL);
+            await client.FindHomeAsync(cancellationToken: TestContext.Current.CancellationToken, pollInterval: 100, logger: TL);
             TL.LogMessage("Main", $"Slew await complete, Is parked: {client.AtPark}, Is at home: {client.AtHome}, RA: {client.RightAscension}, Declination: {client.Declination}");
             Assert.True(client.AtHome);
 
@@ -1291,7 +1291,7 @@ namespace DriverAccess
 
             // Unpark
             TL.LogMessage("Main", $"Unparking scope");
-            await client.UnparkAsync(pollInterval: 100, logger: TL);
+            await client.UnparkAsync(cancellationToken: TestContext.Current.CancellationToken, pollInterval: 100, logger: TL);
             TL.LogMessage("Main", $"Scope un-parked- Is parked: {client.AtPark}, Is at home: {client.AtHome}");
 
             client.Tracking = true;
@@ -1301,12 +1301,12 @@ namespace DriverAccess
 
             // Slew somewhere that is not likely to be the park position
             TL.LogMessage("Main", $"Slewing to somewhere that is not likely to be the test position");
-            await client.SlewToCoordinatesTaskAsync(targetRa, 3.0, pollInterval: 100, logger: TL);
+            await client.SlewToCoordinatesTaskAsync(targetRa, 3.0, cancellationToken: TestContext.Current.CancellationToken, pollInterval: 100, logger: TL);
             TL.LogMessage("Main", $"Slew await complete, Is parked: {client.AtPark}, Is at home: {client.AtHome}, RA: {client.RightAscension}, Declination: {client.Declination}");
 
             // Park the scope
             TL.LogMessage("Main", $"Parking scope");
-            await client.ParkAsync(pollInterval: 100, logger: TL);
+            await client.ParkAsync(cancellationToken: TestContext.Current.CancellationToken, pollInterval: 100, logger: TL);
             TL.LogMessage("Main", $"Park await complete, Is parked: {client.AtPark}, Is at home: {client.AtHome}, RA: {client.RightAscension}, Declination: {client.Declination}");
             Assert.True(client.AtPark);
 
@@ -1334,7 +1334,7 @@ namespace DriverAccess
 
             // Unpark
             TL.LogMessage("Main", $"Unparking scope");
-            await client.UnparkAsync(pollInterval: 100, logger: TL);
+            await client.UnparkAsync(cancellationToken: TestContext.Current.CancellationToken, pollInterval: 100, logger: TL);
             TL.LogMessage("Main", $"Scope un-parked- Is parked: {client.AtPark}, Is at home: {client.AtHome}");
 
             client.Tracking = true;
@@ -1344,18 +1344,18 @@ namespace DriverAccess
 
             // Slew somewhere that is not likely to be the park position
             TL.LogMessage("Main", $"Slewing to somewhere that is not likely to be the test position");
-            await client.SlewToCoordinatesTaskAsync(targetRa, 3.0, pollInterval: 100, logger: TL);
+            await client.SlewToCoordinatesTaskAsync(targetRa, 3.0, cancellationToken: TestContext.Current.CancellationToken, pollInterval: 100, logger: TL);
             TL.LogMessage("Main", $"Slew await complete, Is parked: {client.AtPark}, Is at home: {client.AtHome}, RA: {client.RightAscension}, Declination: {client.Declination}");
 
             // Park the scope
             TL.LogMessage("Main", $"Parking scope");
-            await client.ParkAsync(pollInterval: 100, logger: TL);
+            await client.ParkAsync(cancellationToken: TestContext.Current.CancellationToken, pollInterval: 100, logger: TL);
             TL.LogMessage("Main", $"Park await complete, Is parked: {client.AtPark}, Is at home: {client.AtHome}, RA: {client.RightAscension}, Declination: {client.Declination}");
             Assert.True(client.AtPark);
 
             // Unpark the scope
             TL.LogMessage("Main", $"Unparking scope");
-            await client.UnparkAsync(pollInterval: 100, logger: TL);
+            await client.UnparkAsync(cancellationToken: TestContext.Current.CancellationToken, pollInterval: 100, logger: TL);
             TL.LogMessage("Main", $"Unpark await complete, Is parked: {client.AtPark}, Is at home: {client.AtHome}, RA: {client.RightAscension}, Declination: {client.Declination}");
             Assert.False(client.AtPark);
 
@@ -1383,7 +1383,7 @@ namespace DriverAccess
 
             // Unpark
             TL.LogMessage("Main", $"Unparking scope");
-            await client.UnparkAsync(pollInterval: 100, logger: TL);
+            await client.UnparkAsync(cancellationToken: TestContext.Current.CancellationToken, pollInterval: 100, logger: TL);
             TL.LogMessage("Main", $"Scope un-parked- Is parked: {client.AtPark}, Is at home: {client.AtHome}");
 
             client.Tracking = true;
@@ -1398,14 +1398,14 @@ namespace DriverAccess
                 TL.LogMessage("AbortSlewTask", $"Starting thread sleep");
                 await Task.Delay(1000);
                 TL.LogMessage("AbortSlewTask", $"Sleep completed, aborting slew.");
-                await client.AbortSlewAsync(pollInterval: 100, logger: TL);
+                await client.AbortSlewAsync(cancellationToken: TestContext.Current.CancellationToken, pollInterval: 100, logger: TL);
                 TL.LogMessage("AbortSlewTask", $"Slew aborted.");
             });
             abortSlewTask.Start();
 
             // Start the slew that is to be aborted
             TL.LogMessage("Main", $"Slewing to somewhere that is 3 hours away form the current RA");
-            await client.SlewToCoordinatesTaskAsync(targetRa, 5.0, pollInterval: 100, logger: TL);
+            await client.SlewToCoordinatesTaskAsync(targetRa, 5.0, cancellationToken: TestContext.Current.CancellationToken, pollInterval: 100, logger: TL);
             TL.LogMessage("Main", $"Slew await complete, Is parked: {client.AtPark}, Is at home: {client.AtHome}, RA: {client.RightAscension}, Declination: {client.Declination}");
 
             Assert.False(client.AtHome);
@@ -1447,7 +1447,7 @@ namespace DriverAccess
             TL.LogMessage("Main", $"Connected set true");
 
             // Ensure that the cover is in the closed state
-            await client.CloseCoverAsync(pollInterval: 1000, logger: TL);
+            await client.CloseCoverAsync(cancellationToken: TestContext.Current.CancellationToken, pollInterval: 1000, logger: TL);
 
             // Start a task that will cancel the cover open after 1 second
             Task cancelOpenTask = new Task(async () =>
@@ -1494,7 +1494,7 @@ namespace DriverAccess
             TL.LogMessage("Main", $"Connected set true");
 
             // Ensure that the cover is in the closed state
-            await client.CloseCoverAsync(pollInterval: 1000, logger: TL);
+            await client.CloseCoverAsync(cancellationToken: TestContext.Current.CancellationToken, pollInterval: 1000, logger: TL);
 
             // Test the cancel
             await Assert.ThrowsAsync<OperationCanceledException>(async () =>
@@ -1539,7 +1539,7 @@ namespace DriverAccess
 
             // Ensure that the cover is in the closed state
             TL.LogMessage("Main", $"Closing cover...");
-            await client.CloseCoverAsync(pollInterval: 1000, logger: TL);
+            await client.CloseCoverAsync(cancellationToken: TestContext.Current.CancellationToken, pollInterval: 1000, logger: TL);
             TL.LogMessage("Main", $"Cover closed.");
 
             // Start a task that will cancel the cover open after 1.5 seconds
@@ -1561,7 +1561,7 @@ namespace DriverAccess
 
             for (int i = 0; i < 5; i++)
             {
-                await Task.Delay(100);
+                await Task.Delay(100, TestContext.Current.CancellationToken);
                 TL.LogMessage("Main", $"Doing some work: {i}");
             }
 

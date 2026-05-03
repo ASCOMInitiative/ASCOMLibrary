@@ -35,7 +35,7 @@ namespace AlpacaDevices
                 {
                     Thread.Sleep(50);
                 } while (!alpacaDisocvery.DiscoveryComplete);
-            });
+            }, TestContext.Current.CancellationToken);
 
             Assert.NotEmpty(alpacaDisocvery.GetAscomDevices(DeviceTypes.Camera));
 
@@ -55,7 +55,7 @@ namespace AlpacaDevices
                 {
                     Thread.Sleep(50);
                 } while (!alpacaDisocvery.DiscoveryComplete);
-            });
+            }, TestContext.Current.CancellationToken);
 
             Assert.NotEmpty(alpacaDisocvery.GetAscomDevices(DeviceTypes.Telescope));
 
@@ -75,7 +75,7 @@ namespace AlpacaDevices
                 {
                     Thread.Sleep(50);
                 } while (!alpacaDisocvery.DiscoveryComplete);
-            });
+            }, TestContext.Current.CancellationToken);
 
             Assert.Throws<InvalidValueException>(() => AlpacaClient.GetDevice<AlpacaCamera>(null, 100, 100, 100, 333, null, null, true, null));
         }
@@ -239,7 +239,7 @@ namespace AlpacaDevices
             TL.LogMessage("Test", $"About to call GetAscomDevicesAsync");
 
             // Get every ASCOM device from all Alpaca discovered devices into a List
-            List<AscomDevice> allAscomDevices = await AlpacaDiscovery.GetAscomDevicesAsync(null, discoveryDuration: DISCOVERY_TIME); // Or use a discovery instance and the GetAscomDevices method
+            List<AscomDevice> allAscomDevices = await AlpacaDiscovery.GetAscomDevicesAsync(null, discoveryDuration: DISCOVERY_TIME, cancellationToken: TestContext.Current.CancellationToken); // Or use a discovery instance and the GetAscomDevices method
 
             // Create a single device subset of Telescope devices (Could be achieved more simply by supplying a DeviceTypes parameter value in place of the null parameter in the command above)
             var ascomDevices = allAscomDevices.Where(info => info.AscomDeviceType == DeviceTypes.Telescope);
@@ -264,7 +264,7 @@ namespace AlpacaDevices
             TL.LogMessage("Test", $"About to call GetAscomDevicesAsync");
 
             // Get every ASCOM device from all Alpaca discovered devices into a List
-            List<AscomDevice> ascomDevices = await AlpacaDiscovery.GetAscomDevicesAsync(DeviceTypes.CoverCalibrator); // Or use a discovery instance and the GetAscomDevices method
+            List<AscomDevice> ascomDevices = await AlpacaDiscovery.GetAscomDevicesAsync(DeviceTypes.CoverCalibrator, cancellationToken: TestContext.Current.CancellationToken); // Or use a discovery instance and the GetAscomDevices method
             TL.LogMessage("Test", $"Returned from GetAscomDevicesAsync");
             foreach (AscomDevice device in ascomDevices)
             {
@@ -364,7 +364,7 @@ namespace AlpacaDevices
                 TL.LogMessage("CancelTask", $"Cancelling task");
                 cancellationTokenSource.Cancel();
                 TL.LogMessage("CancelTask", $"Task completed");
-            });
+            }, TestContext.Current.CancellationToken);
             TL.LogMessage("Test", $"Cancel task running");
 
             // Confirm that an OperationCancelledException is thrown when the discovery is cancelled
@@ -400,13 +400,13 @@ namespace AlpacaDevices
         {
             TraceLogger TL = new TraceLogger("ConcurrentDiscoveriesAsync", true);
             TL.LogMessage("Test", $"About to create async discovery methods");
-            Task<List<AscomDevice>> focuserDevices = AlpacaDiscovery.GetAscomDevicesAsync(DeviceTypes.Focuser, 2, 100, 32227, 2.0, false, true, false, ServiceType.Http, TL);
+            Task<List<AscomDevice>> focuserDevices = AlpacaDiscovery.GetAscomDevicesAsync(DeviceTypes.Focuser, 2, 100, 32227, 2.0, false, true, false, ServiceType.Http, TL, TestContext.Current.CancellationToken);
             TL.LogMessage("Test", $"Created focuser devices task");
 
-            Task<List<AscomDevice>> telescopeDevices = AlpacaDiscovery.GetAscomDevicesAsync(DeviceTypes.Telescope, 2, 100, 32227, 2.0, false, true, false, ServiceType.Http, TL);
+            Task<List<AscomDevice>> telescopeDevices = AlpacaDiscovery.GetAscomDevicesAsync(DeviceTypes.Telescope, 2, 100, 32227, 2.0, false, true, false, ServiceType.Http, TL, TestContext.Current.CancellationToken);
             TL.LogMessage("Test", $"Created telescope devices task");
 
-            Task<List<AscomDevice>> cameramDevices = AlpacaDiscovery.GetAscomDevicesAsync(DeviceTypes.Camera, 2, 100, 32227, 2.0, false, true, false, ServiceType.Http, TL);
+            Task<List<AscomDevice>> cameramDevices = AlpacaDiscovery.GetAscomDevicesAsync(DeviceTypes.Camera, 2, 100, 32227, 2.0, false, true, false, ServiceType.Http, TL, TestContext.Current.CancellationToken);
             TL.LogMessage("Test", $"Created camera devices task");
 
             TL.LogMessage("Test", $"Waiting for tasks to complete...");

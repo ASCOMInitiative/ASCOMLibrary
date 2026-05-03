@@ -1,4 +1,4 @@
-﻿using ASCOM.Com.DriverAccess;
+using ASCOM.Com.DriverAccess;
 using System;
 using Xunit;
 using System.Runtime.InteropServices;
@@ -81,12 +81,12 @@ namespace DriverAccess
             Assert.False(switchSim.GetSwitch(10));
 
             // Wait for most of 3 seconds and make sure the operation is still running
-            await Task.Delay(2800);
+            await Task.Delay(2800, TestContext.Current.CancellationToken);
             Assert.False(switchSim.StateChangeComplete(10));
             Assert.False(switchSim.GetSwitch(10));
 
             // Wait a short while longer to make sure that the new value is in effect
-            await Task.Delay(350);
+            await Task.Delay(350, TestContext.Current.CancellationToken);
             Assert.True(switchSim.StateChangeComplete(10));
             Assert.True(switchSim.GetSwitch(10));
 
@@ -157,12 +157,12 @@ namespace DriverAccess
             Assert.Equal<double>(0.0, switchSim.GetSwitchValue(10));
 
             // Wait for most of 3 seconds and make sure the operation is still running
-            await Task.Delay(2950);
+            await Task.Delay(2950, TestContext.Current.CancellationToken);
             Assert.False(switchSim.StateChangeComplete(10));
             Assert.Equal<double>(0.0, switchSim.GetSwitchValue(10));
 
             // Wait a short while longer to make sure that the new value is in effect
-            await Task.Delay(150);
+            await Task.Delay(150, TestContext.Current.CancellationToken);
             Assert.True(switchSim.StateChangeComplete(10));
             Assert.Equal<double>(5.0, switchSim.GetSwitchValue(10));
 
@@ -199,18 +199,18 @@ namespace DriverAccess
             Assert.False(switchSim.GetSwitch(10));
 
             // Wait for 2 seconds and then cancel the operation
-            await Task.Delay(2000);
+            await Task.Delay(2000, TestContext.Current.CancellationToken);
             Assert.False(switchSim.StateChangeComplete(10));
             Assert.False(switchSim.GetSwitch(10));
             switchSim.CancelAsync(10);
 
             // Wait a short while before checking that the operation is cancelled
-            await Task.Delay(100);
+            await Task.Delay(100, TestContext.Current.CancellationToken);
             Assert.Throws<COMException>(() => switchSim.StateChangeComplete(10));
             Assert.False(switchSim.GetSwitch(10));
 
             // Wait until after 3 seconds and make sure that the outcome is still the same
-            await Task.Delay(1000);
+            await Task.Delay(1000, TestContext.Current.CancellationToken);
             Assert.Throws<COMException>(() => switchSim.StateChangeComplete(10));
             Assert.False(switchSim.GetSwitch(10));
 
@@ -247,12 +247,12 @@ namespace DriverAccess
                 Assert.False(switchSim.GetSwitch(10));
 
                 // Wait for most of 3 seconds and make sure the operation is still running
-                await Task.Delay(2950);
+                await Task.Delay(2950, TestContext.Current.CancellationToken);
                 Assert.False(switchSim.StateChangeComplete(10));
                 Assert.False(switchSim.GetSwitch(10));
 
                 // Wait a short while longer to make sure that the new value is in effect
-                await Task.Delay(150);
+                await Task.Delay(150, TestContext.Current.CancellationToken);
                 Assert.True(switchSim.StateChangeComplete(10));
                 Assert.True(switchSim.GetSwitch(10));
 
@@ -290,12 +290,12 @@ namespace DriverAccess
             Assert.Equal<double>(0.0, switchSim.GetSwitchValue(10));
 
             // Wait for most of 3 seconds and make sure the operation is still running
-            await Task.Delay(2950);
+            await Task.Delay(2950, TestContext.Current.CancellationToken);
             Assert.False(switchSim.StateChangeComplete(10));
             Assert.Equal<double>(0.0, switchSim.GetSwitchValue(10));
 
             // Wait a short while longer to make sure that the new value is in effect
-            await Task.Delay(150);
+            await Task.Delay(150, TestContext.Current.CancellationToken);
             Assert.True(switchSim.StateChangeComplete(10));
             Assert.Equal<double>(5.0, switchSim.GetSwitchValue(10));
 
@@ -332,19 +332,19 @@ namespace DriverAccess
             Assert.False(switchSim.GetSwitch(10));
 
             // Wait for 2 seconds and then cancel the operation
-            await Task.Delay(2000);
+            await Task.Delay(2000, TestContext.Current.CancellationToken);
             Assert.False(switchSim.StateChangeComplete(10));
             Assert.False(switchSim.GetSwitch(10));
             switchSim.CancelAsync(10);
 
             // Wait a short while before checking that the operation is cancelled and an OperationCancelledException is thrown
-            await Task.Delay(100);
+            await Task.Delay(100, TestContext.Current.CancellationToken);
             Assert.Throws<OperationCanceledException>(() => switchSim.StateChangeComplete(10));
 
             Assert.False(switchSim.GetSwitch(10));
 
             // Wait until after 3 seconds and make sure that the outcome is still the same
-            await Task.Delay(1000);
+            await Task.Delay(1000, TestContext.Current.CancellationToken);
             Assert.Throws<OperationCanceledException>(() => switchSim.StateChangeComplete(10));
             Assert.False(switchSim.GetSwitch(10));
 
