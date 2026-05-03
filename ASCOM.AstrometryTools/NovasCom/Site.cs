@@ -1,6 +1,4 @@
-﻿using ASCOM.Tools.Interfaces;
-
-namespace ASCOM.Tools.NovasCom
+﻿namespace ASCOM.Tools.NovasCom
 {
     /// <summary>
     /// NOVAS-COM: Site Class

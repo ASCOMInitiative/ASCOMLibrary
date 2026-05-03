@@ -8,7 +8,6 @@ using ASCOM.Com.DriverAccess;
 using ASCOM.Common.Interfaces;
 using System.Threading;
 using System.Diagnostics;
-using Xunit.Abstractions;
 using ASCOM;
 
 namespace DriverAccess

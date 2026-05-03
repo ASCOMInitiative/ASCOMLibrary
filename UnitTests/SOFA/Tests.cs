@@ -4,7 +4,6 @@
 using ASCOM.Tools;
 using System;
 using Xunit;
-using Xunit.Abstractions;
 using static ASCOM.Tools.Sofa;
 
 namespace SOFA

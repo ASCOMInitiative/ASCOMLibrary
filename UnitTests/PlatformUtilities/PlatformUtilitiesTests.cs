@@ -3,7 +3,6 @@ using ASCOM.Common;
 using ASCOM.Tools;
 using System;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace PlatformUtilitiesTests
 {

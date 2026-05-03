@@ -3,7 +3,6 @@ using ASCOM.Common.Alpaca;
 using System;
 using System.Diagnostics;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace ImageArray
 {

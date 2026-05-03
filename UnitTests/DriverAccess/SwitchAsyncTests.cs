@@ -1,6 +1,5 @@
 ﻿using ASCOM.Com.DriverAccess;
 using System;
-using Xunit.Abstractions;
 using Xunit;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;

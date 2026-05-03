@@ -1,8 +1,5 @@
 ﻿using ASCOM.Common.Alpaca;
 using ASCOM.Common.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace ASCOM.Alpaca.Clients
 {

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Runtime.InteropServices;
-
-namespace ASCOM.Tools
+﻿namespace ASCOM.Tools
 {
 
     static class Constants

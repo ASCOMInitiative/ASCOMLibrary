@@ -1,8 +1,4 @@
-﻿using ASCOM.Alpaca.Clients;
-using ASCOM.Common.DeviceInterfaces;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using ASCOM.Common.DeviceInterfaces;
 
 namespace ASCOM.Alpaca.Clients
 {

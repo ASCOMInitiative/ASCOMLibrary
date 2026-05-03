@@ -1,9 +1,4 @@
-﻿using ASCOM.Common.DeviceStateClasses;
-using ASCOM.Common.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.Json;
+﻿using System;
 
 namespace ASCOM.Common.DeviceInterfaces
 {

@@ -2,7 +2,6 @@
 using ASCOM.Tools.Novas31;
 using ASCOM.Common.Interfaces;
 using ASCOM.Common;
-using ASCOM.Tools.Interfaces;
 
 namespace ASCOM.Tools.NovasCom
 {

@@ -1,6 +1,5 @@
 ﻿using System;
 using Xunit;
-using Xunit.Abstractions;
 
 // Prevent parallelism in unit tests
 //[assembly: CollectionBehavior(DisableTestParallelization = true)]

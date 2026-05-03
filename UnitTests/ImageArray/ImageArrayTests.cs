@@ -1,7 +1,6 @@
 ﻿using System;
 using Xunit;
 using ASCOM.Common.Alpaca;
-using Xunit.Abstractions;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using ASCOM.Alpaca.Tests;

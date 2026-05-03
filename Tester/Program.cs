@@ -1,8 +1,6 @@
 ﻿using ASCOM.Tools.Novas31;
 using ASCOM.Tools;
 using System.Globalization;
-using System.Xml.Linq;
-using static System.Net.Mime.MediaTypeNames;
 using ASCOM.Tools.NovasCom;
 
 namespace Tester

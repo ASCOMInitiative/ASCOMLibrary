@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace ASCOM.Tools.Kepler
+﻿namespace ASCOM.Tools.Kepler
 {
     internal class Orbit
     {

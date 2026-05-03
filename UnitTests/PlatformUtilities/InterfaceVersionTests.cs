@@ -1,10 +1,6 @@
-﻿using ASCOM;
-using ASCOM.Common;
+﻿using ASCOM.Common;
 using ASCOM.Common.DeviceInterfaces;
-using ASCOM.Tools;
-using System;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace PlatformUtilitiesTests
 {

@@ -4,10 +4,7 @@ using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Threading;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using ASCOM.Common.Alpaca;
-using System.Runtime.InteropServices;
 
 namespace ASCOM.Common
 {

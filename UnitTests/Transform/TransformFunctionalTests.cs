@@ -1,7 +1,5 @@
 ﻿using ASCOM.Tools;
 using System;
-using System.Diagnostics;
-using System.Xml.Linq;
 using Xunit;
 
 namespace TransformTests

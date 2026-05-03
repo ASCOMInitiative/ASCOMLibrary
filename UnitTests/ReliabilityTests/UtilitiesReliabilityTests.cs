@@ -1,6 +1,5 @@
 using ASCOM;
 using ASCOM.Tools;
-using System;
 using Xunit;
 
 // These tests document and expose reliability bugs in Utilities.

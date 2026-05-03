@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace ASCOM.Common
+﻿namespace ASCOM.Common
 {
     /// <summary>
     /// List of unique member names used in ASCOM interfaces

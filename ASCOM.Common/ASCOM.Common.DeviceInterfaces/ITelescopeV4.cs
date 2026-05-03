@@ -1,8 +1,4 @@
-﻿using System;
-using System.Drawing;
-using System.Net.NetworkInformation;
-
-namespace ASCOM.Common.DeviceInterfaces
+﻿namespace ASCOM.Common.DeviceInterfaces
 {
     /// <summary>
     /// Defines the ITelescopeV4 Interface

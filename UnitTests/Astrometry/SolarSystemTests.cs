@@ -1,14 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Xunit.Abstractions;
 using Xunit;
 using ASCOM.Tools;
 using ASCOM.Tools.Novas31;
 using System.Globalization;
-using ASCOM.Com.DriverAccess;
 using ASCOM;
 using ASCOM.Alpaca.Tests;
 
