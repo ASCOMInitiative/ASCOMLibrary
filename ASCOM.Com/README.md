@@ -5,6 +5,10 @@ Library of components for accessing ASCOM COM based drivers on Windows platforms
 ## Version History
 The version history only contains entries when a change is made.
 
+***Release 4.0.0***
+* ADDED - PlatformUtilities.GetComDrivermetadata() function to return a dictionary of metadata about a COM driver based on its ProgID. 
+See [PlatformUtilities.GetComMetadata()](https://ascom-standards.org/library/html/M_ASCOM_Com_PlatformUtilities_GetComMetadata.htm) for more information.
+
 ***Release 3.1.0***
 * REVISED - Driver access help text is now consistent with the online canonical documentation for the interface.
 * ADDED - Platform utilities now includes support to recognise Windows 26H1.

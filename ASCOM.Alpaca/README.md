@@ -5,6 +5,17 @@ Library of ASCOM Alpaca client and discovery components.
 ## Version History
 The version history only contains entries when a change is made.
 
+***Release 4.0.0***
+* DEVELOPER-BREAKING-CHANGE - The static SetRetryCount method introduced in release 3.1.0 has been removed and replaced with a new constructor parameter
+of the same name. This allows different retry counts to be set for different client instances if required. 
+The major version number has been increased to reflect this breaking change.
+* OPERATIONAL-POTENTIAL-BREAKING-BUG-FIX - In the Finder component, JSON strict casing behaviour was inverted for both the default
+value (true) and the value set through the constructor. 
+This meant that the client operated in a case insensitive manner when strict casing was enabled. 
+The component now defaults to strict behaviour as intended and also respects the constructor parameter value.  
+**Consequently, if Alpaca device responses are not correctly cased, clients will fail to find devices that were previously discovered**.
+* BUG-FIX - Numerous improvements to internal operation of the Alpaca clients and Finder components when handling low frequency edge case scenarios.
+
 ***Release 3.1.0***
 * REVISED - Alpaca client help text is now consistent with the online canonical documentation for the interface.
 * ADDED - The number of communication re-trys made by the Alpaca clients can now be configured from the default value of 1. The set 

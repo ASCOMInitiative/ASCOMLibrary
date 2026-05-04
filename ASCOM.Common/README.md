@@ -1,8 +1,16 @@
 ## ASCOM.Common
+
 Library of components providing common Interfaces, enums and other types for ASCOM projects.
 
 ## Version History
 The version history only contains entries when a change is made.
+
+***Release 4.0.0***
+* CHANGE - If a null value is passed to the ExceptionHelper.ErrorCodeFromException method a default error code of AlpacaErrors.Unknown 
+is now returned instead of throwing a NullReferenceException.
+* BUG-FIX - The ExceptionHelper.ErrorCodeFromException method now returns AlpacaErrors.ActionNotImplementedException instead of AlpacaErrors.NotImplemented
+when handling an ActionNotImplementedException.
+* BUG-FIX - The Focuser and Video device state classes incorrectly recorded messages as coming from the FilterWheel device.
 
 ***Release 3.1.0***
 * REVISED - Interface help text is now consistent with the online canonical documentation for the interface.

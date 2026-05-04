@@ -5,6 +5,22 @@ Library of components to support development of ASCOM clients, drivers and Alpac
 ## Version History
 The version history only contains entries when a change is made.
 
+***Release 4.0.0***
+* SECURITY-CHANGE - The XMLprofile component now explicitly ignores DTDs in XML files to prevent potential XML External Entity (XXE) attacks.
+This is a security best practice to mitigate the risk of XXE vulnerabilities when processing XML data. 
+* CHANGE - XMLProfile now handles the case where the profile file is empty or contains invalid XML more gracefully.
+Instead of throwing an unhandled exception, it will now log a warning and create a new profile file with default settings.
+This allows the application to recover gracefully from this situation.
+* CHANGE - Utilities.DMSToDegrees and Utilities.HMSToHours now throw InvalidValueException when passed null values instead of a Framework exception.
+* BUG-FIX - The XMLProfile overload that accepts a default value returned it when the key was
+absent but did not write it to the profile. The value is now written to the profile when the key is absent.
+* BUG-FIX - Numerous improvements to the internal operation of the TraceLogger and ConsoleLogger components to improve their
+resilience and reliability in edge case scenarios.
+* BUG-FIX - Utilities.Range now handles cases where the input value is more than one cycle outside the range. 
+Previously it would only handle values that were up to one cycle outside the range.
+* BUG-FIX - Utilities.Range now handles input non-real values (+Infinity, -Infinity, NaN) more gracefully. 
+It now throws an InvalidValueException with a descriptive message instead of an unhandled internal exception.
+
 ***Release 3.1.0***
 * REVISED - TraceLogger locking is now handled by a reliable lock mechanic eliminating the possibility of AbandonedMutexExceptions 
 disrupting client operation.
