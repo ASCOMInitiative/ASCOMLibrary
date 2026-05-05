@@ -11,7 +11,8 @@
       See README.md for full details of changes in this release.
     </PackageReleaseNotes>
     <PackageIcon>ASCOMBoarderless.png</PackageIcon>
-		<Configurations>Debug;Release</Configurations>
+    <PackageIconUrl>https://download.ascom-standards.org/assets/ASCOMBoarderless.png</PackageIconUrl>
+    <Configurations>Debug;Release</Configurations>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
@@ -25,10 +26,7 @@
 		<Compile Remove="NameSpaceDoc.cs" />
 	</ItemGroup>
 	<ItemGroup>
-		<None Include="..\ASCOMBoarderless.png">
-			<Pack>True</Pack>
-			<PackagePath>\</PackagePath>
-		</None>
+		<None Include="..\ASCOMBoarderless.png" Pack="true" PackagePath="\" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -36,10 +34,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Include="README.md">
-			<Pack>True</Pack>
-			<PackagePath>\</PackagePath>
-		</None>
+		<None Include="README.md" Pack="true" PackagePath="\" />
 	</ItemGroup>
 
 	<ItemGroup>
