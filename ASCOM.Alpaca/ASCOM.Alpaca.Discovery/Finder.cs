@@ -73,7 +73,7 @@ namespace ASCOM.Alpaca.Discovery
         /// Calling search and concatenating the results reduces the chance that a UDP packet is lost
         /// This may require firewall access
         /// </remarks>
-        [Obsolete("The strictCasing logic is inverted but for backward compatibility cannot be changed. Use the ILogger‑only constructor to keep current behaviour." +
+        [Obsolete("The strictCasing logic is inverted but for backward compatibility will not be changed. Use the ILogger‑only constructor to keep current behaviour." +
             "Use SetJsonNameCaseSensitivity to control case sensitivity explicitly if required.")]
         public Finder(bool strictCasing, ILogger logger) : this()
         {
@@ -213,8 +213,6 @@ namespace ASCOM.Alpaca.Discovery
         /// </remarks>
         public void SetJsonNameCaseSensitivity(JsonNameCaseSensitivity jsonNameCaseSensitivity)
         {
-            jsonSerializerOptions.PropertyNameCaseInsensitive = jsonNameCaseSensitivity == JsonNameCaseSensitivity.AnyCasing; // Set the JSON name case sensitivity
-
             switch (jsonNameCaseSensitivity)
             {
                 case JsonNameCaseSensitivity.AnyCasing:

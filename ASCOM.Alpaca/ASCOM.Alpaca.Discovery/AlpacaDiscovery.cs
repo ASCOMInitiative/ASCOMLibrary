@@ -57,6 +57,8 @@ namespace ASCOM.Alpaca.Discovery
         internal const double MINIMUM_TIME_REMAINING_TO_UNDERTAKE_DNS_RESOLUTION = 0.1d; // Minimum discovery time (seconds) that must remain if a DNS IP to host name resolution is to be attempted
         internal const int NUMBER_OF_THREAD_MESSAGE_INDENT_SPACES = 2;
 
+        private const JsonNameCaseSensitivity jsonNameCasing = JsonNameCaseSensitivity.CorrectCasingOnly; // Default to case insensitive parsing for backwards compatibility with the faulty logic in the original implementation
+
         // Utility objects
         private readonly ILogger logger;
         private Finder finder;
@@ -71,11 +73,12 @@ namespace ASCOM.Alpaca.Discovery
         private DateTime discoveryStartTime; // Time at which the start discovery command was received
         private volatile bool discoveryCompleteValue; // Discovery completion status
         private readonly object deviceListLockObject = new object(); // Lock object to synchronise access to the Alpaca device list collection, which is not a thread safe collection
-        private readonly bool strictCasing; // Flag indicating whether case sensitive or case insensitive de-serialisation will be used.
         private string productName; // Product name to go in the User-Agent header
         private string productVersion; // Product version to go in the User-Agent header
 
         private ServiceType serviceType; // Holds the service type for management API calls: HTTP or HTTPS
+
+        private JsonSerializerOptions jsonSerializerOptions = new JsonSerializerOptions(); // JSON serialiser options, which are set based on the strictCasing parameter supplied at construction and are used for parsing management API responses
 
         #endregion
 
@@ -92,14 +95,47 @@ namespace ASCOM.Alpaca.Discovery
         /// <summary>
         /// Initialiser that takes a trace logger (Can only be used from .NET clients)
         /// </summary>
+        /// <param name="jsonNameCaseSensitivity">JSON name case sensitivity for parsing responses.</param>
+        /// <param name="logger">Trace logger instance to use for activity logging</param>
+        /// <param name="productName">Product name in the User-Agent header of management API HTTP calls</param>
+        /// <param name="productVersion">Product version in the User-Agent header of management API HTTP calls</param>
+        public AlpacaDiscovery(JsonNameCaseSensitivity jsonNameCaseSensitivity, ILogger logger, string productName = "ASCOMLibrary", string productVersion = null)
+        {
+            this.logger = logger; // Save the supplied trace logger object
+            this.productName = productName;
+            this.productVersion = productVersion;
+
+            // Set case sensitivity
+            switch(jsonNameCaseSensitivity)
+            {
+                case JsonNameCaseSensitivity.CorrectCasingOnly:
+                    jsonSerializerOptions.PropertyNameCaseInsensitive = false; // Set the JSON name case sensitivity for parsing the discovery response
+                    break;
+                case JsonNameCaseSensitivity.AnyCasing:
+                    jsonSerializerOptions.PropertyNameCaseInsensitive = true; // Set the JSON name case sensitivity for parsing the discovery response
+                    break;
+                default:
+                    throw new InvalidValueException($"AlpacaDiscovery - JsonNameCaseSensitivity: {jsonNameCaseSensitivity} is not a valid value for this parameter.");
+            }
+
+            InitialiseClass(); // Initialise using the trace logger
+        }
+
+        /// <summary>
+        /// Initialiser that takes a trace logger (Can only be used from .NET clients)
+        /// </summary>
         /// <param name="strictCasing">Trace logger instance to use for activity logging</param>
         /// <param name="logger">Trace logger instance to use for activity logging</param>
         /// <param name="productName">Product name in the User-Agent header of management API HTTP calls</param>
         /// <param name="productVersion">Product version in the User-Agent header of management API HTTP calls</param>
+        [Obsolete("The strictCasing logic is inverted but for backward compatibility will not be changed. Use the \"JsonNameCaseSensitivity, ILogger\" constructor to explicitly set required behaviour.")]
         public AlpacaDiscovery(bool strictCasing, ILogger logger, string productName = "ASCOMLibrary", string productVersion = null)
         {
             this.logger = logger; // Save the supplied trace logger object
-            this.strictCasing = strictCasing;
+
+            // NOTE: The logic below is incorrect but is being left "as-is" to retain backward compatibility with the original implementation of this class.
+            jsonSerializerOptions.PropertyNameCaseInsensitive = strictCasing; // Set the requested strict JSON de-serialisation casing state
+
             this.productName = productName;
             this.productVersion = productVersion;
 
@@ -124,7 +160,8 @@ namespace ASCOM.Alpaca.Discovery
 
                 // Get a new broadcast response finder
                 //finder = new Finder(FoundDeviceEventHandler, strictCasing,TL);
-                finder = new Finder(strictCasing, logger);
+                finder = new Finder(logger);
+                finder.SetJsonNameCaseSensitivity(jsonNameCasing); // Set the JSON name case sensitivity for parsing the discovery response
                 finder.ResponseReceivedEvent += FoundDeviceEventHandler;
 
                 LogMessage("AlpacaDiscoveryInitialise", $"Complete - Running on thread {Thread.CurrentThread.ManagedThreadId}");
@@ -421,7 +458,7 @@ namespace ASCOM.Alpaca.Discovery
 
                 // Create and use a discovery instance to look for ALpaca devices
                 logger.LogMessage(LogLevel.Debug, "GetAlpacaDevicesAsync", $"Creating AlpacaDiscovery object...");
-                using (AlpacaDiscovery discovery = new AlpacaDiscovery(true, logger))
+                using (AlpacaDiscovery discovery = new AlpacaDiscovery(JsonNameCaseSensitivity.AnyCasing, logger))
                 {
                     logger.LogMessage(LogLevel.Debug, "GetAlpacaDevicesAsync", $"{Thread.CurrentThread.ManagedThreadId} Created discovery object");
                     await AsynchronousDiscovery("GetAlpacaDevicesAsync", numberOfPolls, pollInterval, discoveryPort, discoveryDuration, resolveDnsName, useIpV4, useIpV6, serviceType, logger, discovery, cancellationToken);
@@ -477,7 +514,7 @@ namespace ASCOM.Alpaca.Discovery
 
                 // Create and use a discovery instance to look for Alpaca devices
                 logger.LogMessage(LogLevel.Debug, "GetAscomDevicesAsync", $"Creating AlpacaDiscovery object...");
-                using (AlpacaDiscovery discovery = new AlpacaDiscovery(true, logger))
+                using (AlpacaDiscovery discovery = new AlpacaDiscovery(JsonNameCaseSensitivity.AnyCasing, logger))
                 {
                     logger.LogMessage(LogLevel.Debug, "GetAscomDevicesAsync", $"{Thread.CurrentThread.ManagedThreadId} Created discovery object");
                     await AsynchronousDiscovery("GetAscomDevicesAsync", numberOfPolls, pollInterval, discoveryPort, discoveryDuration, resolveDnsName, useIpV4, useIpV6, serviceType, logger, discovery, cancellationToken);
@@ -521,7 +558,7 @@ namespace ASCOM.Alpaca.Discovery
         /// <returns></returns>
         private static async Task AsynchronousDiscovery(string methodName, int numberOfPolls, int pollInterval, int discoveryPort, double discoveryDuration, bool resolveDnsName, bool useIpV4, bool useIpV6, ServiceType serviceType, ILogger logger, AlpacaDiscovery discovery, CancellationToken cancellationToken)
         {
-            CancellationTokenRegistration? cancellationTokenRegistration= null;
+            CancellationTokenRegistration? cancellationTokenRegistration = null;
 
             try
             {
@@ -737,7 +774,7 @@ namespace ASCOM.Alpaca.Discovery
                 LogMessage("GetAlpacaDeviceInformation", $"About to get version information from {hostIpAndPort}/management/apiversions at IP endpoint {deviceIpEndPoint.Address} {deviceIpEndPoint.AddressFamily}");
                 string apiVersionsJsonResponse = await httpClient.GetStringAsync($"{hostIpAndPort}/management/apiversions");
                 LogMessage("GetAlpacaDeviceInformation", $"Received JSON response from {hostIpAndPort}: {apiVersionsJsonResponse}");
-                IntArray1DResponse apiVersionsResponse = JsonSerializer.Deserialize<IntArray1DResponse>(apiVersionsJsonResponse, new JsonSerializerOptions { PropertyNameCaseInsensitive = strictCasing });
+                IntArray1DResponse apiVersionsResponse = JsonSerializer.Deserialize<IntArray1DResponse>(apiVersionsJsonResponse, jsonSerializerOptions);
                 if (apiVersionsResponse is null)
                     throw new InvalidOperationException($"GetAlpacaDeviceInformation - Failed to de-serialize API versions response from {hostIpAndPort}: {apiVersionsJsonResponse}");
                 lock (deviceListLockObject)// Make sure that only one thread can update the device list dictionary at a time
@@ -752,7 +789,7 @@ namespace ASCOM.Alpaca.Discovery
                 // Wait for device description result and process it
                 string deviceDescriptionJsonResponse = await httpClient.GetStringAsync($"{hostIpAndPort}/management/v1/description");
                 LogMessage("GetAlpacaDeviceInformation", $"Received JSON response from {hostIpAndPort}: {deviceDescriptionJsonResponse}");
-                var deviceDescriptionResponse = JsonSerializer.Deserialize<AlpacaDescriptionResponse>(deviceDescriptionJsonResponse, new JsonSerializerOptions { PropertyNameCaseInsensitive = strictCasing });
+                var deviceDescriptionResponse = JsonSerializer.Deserialize<AlpacaDescriptionResponse>(deviceDescriptionJsonResponse, jsonSerializerOptions);
                 if (deviceDescriptionResponse is null)
                     throw new InvalidOperationException($"GetAlpacaDeviceInformation - Failed to de-serialize device description response from {hostIpAndPort}: {deviceDescriptionJsonResponse}");
                 lock (deviceListLockObject)// Make sure that only one thread can update the device list dictionary at a time
@@ -769,7 +806,7 @@ namespace ASCOM.Alpaca.Discovery
                 // Wait for configured devices result and process it
                 string configuredDevicesJsonResponse = await httpClient.GetStringAsync($"{hostIpAndPort}/management/v1/configureddevices");
                 LogMessage("GetAlpacaDeviceInformation", $"Received JSON response from {hostIpAndPort}: {configuredDevicesJsonResponse}");
-                AlpacaConfiguredDevicesResponse configuredDevicesResponse = JsonSerializer.Deserialize<AlpacaConfiguredDevicesResponse>(configuredDevicesJsonResponse, new JsonSerializerOptions { PropertyNameCaseInsensitive = strictCasing });
+                AlpacaConfiguredDevicesResponse configuredDevicesResponse = JsonSerializer.Deserialize<AlpacaConfiguredDevicesResponse>(configuredDevicesJsonResponse, jsonSerializerOptions);
                 if (configuredDevicesResponse is null)
                     throw new InvalidOperationException($"GetAlpacaDeviceInformation - Failed to de-serialize configured devices response from {hostIpAndPort}: {configuredDevicesJsonResponse}");
                 lock (deviceListLockObject)// Make sure that only one thread can update the device list dictionary at a time
