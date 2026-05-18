@@ -739,7 +739,7 @@ namespace ASCOM.Alpaca.Discovery
                 LogMessage("GetAlpacaDeviceInformation", $"Received JSON response from {hostIpAndPort}: {apiVersionsJsonResponse}");
                 IntArray1DResponse apiVersionsResponse = JsonSerializer.Deserialize<IntArray1DResponse>(apiVersionsJsonResponse, new JsonSerializerOptions { PropertyNameCaseInsensitive = strictCasing });
                 if (apiVersionsResponse is null)
-                    throw new InvalidOperationException($"GetAlpacaDeviceInformation - Failed to deserialize API versions response from {hostIpAndPort}: {apiVersionsJsonResponse}");
+                    throw new InvalidOperationException($"GetAlpacaDeviceInformation - Failed to de-serialize API versions response from {hostIpAndPort}: {apiVersionsJsonResponse}");
                 lock (deviceListLockObject)// Make sure that only one thread can update the device list dictionary at a time
                 {
                     alpacaDeviceList[deviceIpEndPoint].SupportedInterfaceVersions = apiVersionsResponse.Value;
@@ -754,7 +754,7 @@ namespace ASCOM.Alpaca.Discovery
                 LogMessage("GetAlpacaDeviceInformation", $"Received JSON response from {hostIpAndPort}: {deviceDescriptionJsonResponse}");
                 var deviceDescriptionResponse = JsonSerializer.Deserialize<AlpacaDescriptionResponse>(deviceDescriptionJsonResponse, new JsonSerializerOptions { PropertyNameCaseInsensitive = strictCasing });
                 if (deviceDescriptionResponse is null)
-                    throw new InvalidOperationException($"GetAlpacaDeviceInformation - Failed to deserialize device description response from {hostIpAndPort}: {deviceDescriptionJsonResponse}");
+                    throw new InvalidOperationException($"GetAlpacaDeviceInformation - Failed to de-serialize device description response from {hostIpAndPort}: {deviceDescriptionJsonResponse}");
                 lock (deviceListLockObject)// Make sure that only one thread can update the device list dictionary at a time
                 {
                     alpacaDeviceList[deviceIpEndPoint].ServerName = deviceDescriptionResponse.Value.ServerName;
@@ -771,7 +771,7 @@ namespace ASCOM.Alpaca.Discovery
                 LogMessage("GetAlpacaDeviceInformation", $"Received JSON response from {hostIpAndPort}: {configuredDevicesJsonResponse}");
                 AlpacaConfiguredDevicesResponse configuredDevicesResponse = JsonSerializer.Deserialize<AlpacaConfiguredDevicesResponse>(configuredDevicesJsonResponse, new JsonSerializerOptions { PropertyNameCaseInsensitive = strictCasing });
                 if (configuredDevicesResponse is null)
-                    throw new InvalidOperationException($"GetAlpacaDeviceInformation - Failed to deserialize configured devices response from {hostIpAndPort}: {configuredDevicesJsonResponse}");
+                    throw new InvalidOperationException($"GetAlpacaDeviceInformation - Failed to de-serialize configured devices response from {hostIpAndPort}: {configuredDevicesJsonResponse}");
                 lock (deviceListLockObject)// Make sure that only one thread can update the device list dictionary at a time
                 {
                     // Add a list of available AscomDevices to the AlpacaDevice instance

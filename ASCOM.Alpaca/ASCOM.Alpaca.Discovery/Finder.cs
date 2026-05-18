@@ -10,6 +10,15 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 
+// CASE SENSITIVITY NOTE - May 2026 
+// The implementation of case sensitivity checking in 2022 was faulty and resulted in the logic being inverted. i.e. case insensitive parsing was used when
+// strictCasing was set to true. This meant that the default behaviour was case insensitive parsing, which was not the intention. Also the strictCasing parameter
+// in the "public Finder(bool strictCasing, ILogger logger)" constructor was misleading because it actually delivered case insensitive behaviour.
+// In order to preserve four years of development on the basis of the faulty logic, the logic has been left as it is. However, the variable name has been changed
+// from "strictCasing" to "propertyNameCaseInsensitive" to reflect the actual behaviour of the code. The constructor parameter name has not been changed in order
+// to preserve backwards compatibility, but the constructor has been deprecated and replaced with a new constructor that just accepts an ILogger and defaults to
+// case insensitive parsing. A new SetStrictCasing method has been added to allow the casing behaviour to be changed at runtime if required.
+
 namespace ASCOM.Alpaca.Discovery
 {
     /// <summary>
@@ -17,7 +26,6 @@ namespace ASCOM.Alpaca.Discovery
     /// </summary>
     public class Finder : IDisposable
     {
-        private readonly bool strictCasing = true; // Default to strict casing of the AlpacaPort JSON variable name
         private readonly ILogger logger; // Optional logger
         private int discoveryPort = Constants.DiscoveryPort; // Default to the standard discovery port
         private readonly Dictionary<IPAddress, UdpClient> IPv4Clients = new Dictionary<IPAddress, UdpClient>(); // Collection of IP v4 clients for the various link local and localhost networks
@@ -25,35 +33,54 @@ namespace ASCOM.Alpaca.Discovery
         private bool disposedValue; // Disposed variable
         private readonly object broadcastResponsesLockObject = new object();
         private readonly object cachedEndpointsLockObject = new object();
+        private JsonSerializerOptions jsonSerializerOptions = new JsonSerializerOptions();
 
         private const int SIO_UDP_CONNRESET = -1744830452; //Control code to turn off UDP ICMP Connection Reset
+        private const JsonNameCaseSensitivity JSON_NAME_CASING_DEFAULT = JsonNameCaseSensitivity.AnyCasing; // Default to case insensitive parsing for backwards compatibility with the faulty logic in the original implementation
 
         #region Initialisation and Dispose
 
         /// <summary>
-        /// Creates a Alpaca Finder object that sends out a search request for Alpaca devices
+        /// Creates an Alpaca Finder object that sends out a search request for Alpaca devices
+        /// </summary>
+        /// <remarks>
         /// The results will be sent to the callback and stored in the cache
         /// Calling search and concatenating the results reduces the chance that a UDP packet is lost
         /// This may require firewall access
-        /// </summary>
+        /// </remarks>
         public Finder()
         {
-
+            SetJsonNameCaseSensitivity(JSON_NAME_CASING_DEFAULT); // Set the default JSON name case sensitivity)
         }
 
         /// <summary>
-        /// Creates a Alpaca Finder object that sends out a search request for Alpaca devices
-        /// The results will be sent to the callback and stored in the cache
-        /// Calling search and concatenating the results reduces the chance that a UDP packet is lost
-        /// This may require firewall access
+        /// Creates an Alpaca Finder object with an associated ILogger instance that sends out a search request for Alpaca devices
+        /// </summary>
+        /// <param name="logger">The logger instance to use for diagnostic messages.</param>
+        public Finder(ILogger logger) : this()
+        {
+            this.logger = logger; // Save the trace logger object
+            LogMessage("Finder", "Initialised with logger.");
+        }
+
+        /// <summary>
+        /// Creates an Alpaca Finder object with an associated ILogger instance and given JSON name case sensitivity that sends out a search request for Alpaca devices
         /// </summary>
         /// <param name="strictCasing">Enforce correct casing of the port variable name in the Alpaca JSON discovery response.</param>
         /// <param name="logger">An ILogger instance (or null) into which the Finder will log.</param>
+        /// <remarks>
+        /// The results will be sent to the callback and stored in the cache
+        /// Calling search and concatenating the results reduces the chance that a UDP packet is lost
+        /// This may require firewall access
+        /// </remarks>
+        [Obsolete("The strictCasing logic is inverted but for backward compatibility cannot be changed. Use the ILogger‑only constructor to keep current behaviour." +
+            "Use SetJsonNameCaseSensitivity to control case sensitivity explicitly if required.")]
         public Finder(bool strictCasing, ILogger logger) : this()
         {
-            this.strictCasing = strictCasing; // Save the strict JSON de-serialisation casing state
+            // NOTE - The logic in the next line is incorrect but has been left as it is for backwards compatibility.
+            jsonSerializerOptions.PropertyNameCaseInsensitive = strictCasing; // Save the strict JSON de-serialisation casing state
             this.logger = logger; // Save the trace logger object
-            LogMessage("Finder", "Initialised");
+            LogMessage("Finder", "This Constructor is OBSOLETE - Initialised with logger and casing control.");
         }
 
         /// <summary>
@@ -176,6 +203,35 @@ namespace ASCOM.Alpaca.Discovery
             }
         }
 
+        /// <summary>
+        /// Set casing sensitivity of the JSON de-serialisation of the discovery response.
+        /// </summary>
+        /// <param name="jsonNameCaseSensitivity">The JSON name case sensitivity to use.</param>
+        /// <remarks>
+        /// Note that this only affects the parsing of the discovery response "AlpacaPort" element.
+        /// If StrictCasing is set then only "AlpacaPort" will be accepted. If AnyCasing is set then all other casings are accepted: e.g. "AlpacaPort", "alpacaport", "ALPACAPORT".
+        /// </remarks>
+        public void SetJsonNameCaseSensitivity(JsonNameCaseSensitivity jsonNameCaseSensitivity)
+        {
+            jsonSerializerOptions.PropertyNameCaseInsensitive = jsonNameCaseSensitivity == JsonNameCaseSensitivity.AnyCasing; // Set the JSON name case sensitivity
+
+            switch (jsonNameCaseSensitivity)
+            {
+                case JsonNameCaseSensitivity.AnyCasing:
+                    LogMessage("SetJsonNameCaseSensitivity", $"Set JSON name case sensitivity to AnyCasing. The discovery response parser will accept any casing of the port variable name in the Alpaca JSON discovery response.");
+                    jsonSerializerOptions.PropertyNameCaseInsensitive = true; // Set the JSON name case sensitivity to case insensitive
+                    break;
+
+                case JsonNameCaseSensitivity.StrictCasing:
+                    LogMessage("SetJsonNameCaseSensitivity", $"Set JSON name case sensitivity to StrictCasing. The discovery response parser will only accept the correct casing of the port variable name in the Alpaca JSON discovery response.");
+                    jsonSerializerOptions.PropertyNameCaseInsensitive = false; // Set the JSON name case sensitivity to case sensitive
+                    break;
+
+                default:
+                    throw new InvalidValueException($"Invalid JsonNameCaseSensitivity value: {jsonNameCaseSensitivity}");
+            }
+        }
+
         #endregion
 
         #region Discovery Management
@@ -208,7 +264,7 @@ namespace ASCOM.Alpaca.Discovery
                 // Accept responses containing the discovery response string and don't respond to your own transmissions
                 if (ReceiveString.ToLowerInvariant().Contains(Constants.ResponseString.ToLowerInvariant())) // Accept responses in any casing so that bad casing can be reported
                 {
-                    int port = JsonSerializer.Deserialize<AlpacaDiscoveryResponse>(ReceiveString, new JsonSerializerOptions { PropertyNameCaseInsensitive = !strictCasing }).AlpacaPort;
+                    int port = JsonSerializer.Deserialize<AlpacaDiscoveryResponse>(ReceiveString, jsonSerializerOptions).AlpacaPort;
 
                     if (port == 0) //Failed to parse
                     {

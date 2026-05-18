@@ -32,6 +32,7 @@
 
   <ItemGroup>
     <None Include="..\ASCOMBoarderless.png" Pack="true" PackagePath="" />
+    <None Include="ASCOM.Alpaca.Discovery\JsonNameCaseSensitivity.cs" />
     <None Include="README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
