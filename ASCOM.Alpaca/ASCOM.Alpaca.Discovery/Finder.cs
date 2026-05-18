@@ -222,7 +222,7 @@ namespace ASCOM.Alpaca.Discovery
                     jsonSerializerOptions.PropertyNameCaseInsensitive = true; // Set the JSON name case sensitivity to case insensitive
                     break;
 
-                case JsonNameCaseSensitivity.StrictCasing:
+                case JsonNameCaseSensitivity.CorrectCasingOnly:
                     LogMessage("SetJsonNameCaseSensitivity", $"Set JSON name case sensitivity to StrictCasing. The discovery response parser will only accept the correct casing of the port variable name in the Alpaca JSON discovery response.");
                     jsonSerializerOptions.PropertyNameCaseInsensitive = false; // Set the JSON name case sensitivity to case sensitive
                     break;

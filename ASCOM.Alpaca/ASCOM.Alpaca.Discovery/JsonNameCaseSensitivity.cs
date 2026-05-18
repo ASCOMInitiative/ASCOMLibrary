@@ -8,7 +8,7 @@
         /// <summary>
         /// Only accept correctly cased JSON element names.
         /// </summary>
-        StrictCasing,
+        CorrectCasingOnly,
 
         /// <summary>
         /// Accept JSON element names regardless of casing.

@@ -179,7 +179,7 @@ namespace ASCOM.Alpaca.Tests
             using (var responder = new UdpTestResponder(discoveryPort, "AlpacaPort", alpacaPort))
             using (var finder = new Finder())
             {
-                finder.SetJsonNameCaseSensitivity(JsonNameCaseSensitivity.StrictCasing);
+                finder.SetJsonNameCaseSensitivity(JsonNameCaseSensitivity.CorrectCasingOnly);
                 finder.Search(discoveryPort, true, false);
 
                 bool received = await WaitForPort(finder, alpacaPort);
@@ -207,7 +207,7 @@ namespace ASCOM.Alpaca.Tests
             using (var responder = new UdpTestResponder(discoveryPort, jsonPropertyName, alpacaPort))
             using (var finder = new Finder())
             {
-                finder.SetJsonNameCaseSensitivity(JsonNameCaseSensitivity.StrictCasing);
+                finder.SetJsonNameCaseSensitivity(JsonNameCaseSensitivity.CorrectCasingOnly);
                 finder.Search(discoveryPort, true, false);
 
                 // First confirm the responder actually replied; this rules out a UDP connectivity
