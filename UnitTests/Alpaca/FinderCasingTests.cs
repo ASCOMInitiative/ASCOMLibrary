@@ -12,18 +12,20 @@ using Xunit;
 namespace ASCOM.Alpaca.Tests
 {
     /// <summary>
-    /// Verifies the JSON property-name case-sensitivity behaviour of <see cref="Finder"/> across all
-    /// three public constructors and the <see cref="Finder.SetJsonNameCaseSensitivity"/> method.
+    /// Verifies the JSON property-name case-sensitivity behaviour of <see cref="Finder"/> across all public constructors.
     ///
     /// Each test variation binds its own <see cref="UdpTestResponder"/> to a dedicated UDP port so
     /// that tests can be run in parallel without port conflicts.  Port assignments are:
     ///
-    ///   32241–32243  Default constructor, AnyCasing variants
-    ///   32244–32246  ILogger constructor, AnyCasing variants
-    ///   32247–32249  Obsolete constructor (strictCasing=true), AnyCasing variants
-    ///   32250–32252  SetJsonNameCaseSensitivity(AnyCasing), variants
-    ///   32253        SetJsonNameCaseSensitivity(StrictCasing), correct casing
-    ///   32254–32256  SetJsonNameCaseSensitivity(StrictCasing), wrong casing variants
+    ///   32241–32243  1 Default constructor, AnyCasing variants
+    ///   32244–32246  2 ILogger constructor, AnyCasing variants
+    ///   32247–32249  3 Obsolete constructor (strictCasing=true), AnyCasing variants
+    ///   32250–32252  4 CaseSensitive constructor (AnyCasing) all variants
+    ///   32253        5 CaseSensitive constructor (StrictCasing), correct casing
+    ///   32254–32256  6 CaseSensitive constructor (StrictCasing), wrong casing variants
+    ///   32260–32262  7 CaseSensitive constructor with logger (AnyCasing) all variants
+    ///   32263        8 CaseSensitive constructor with logger (StrictCasing), correct casing
+    ///   32264–32266  9 CaseSensitive constructor with logger (StrictCasing), wrong casing variants
     ///
     /// Background on the Obsolete constructor
     /// ───────────────────────────────────────
@@ -77,13 +79,11 @@ namespace ASCOM.Alpaca.Tests
         // ─────────────────────────────────────────────────────────────────────────────
         // 1. Default constructor — AnyCasing (case-insensitive) by default
         // ─────────────────────────────────────────────────────────────────────────────
-
         [Theory]
-        [InlineData("alpacaport", 11100, 32241)]
+        [InlineData("AlpacaPort", 11100, 32241)]
         [InlineData("ALPACAPORT", 11200, 32242)]
         [InlineData("aLPACApORT", 11300, 32243)]
-        public async Task DefaultConstructor_AnyCasing_ParsesPortCorrectly(
-            string jsonPropertyName, int alpacaPort, int discoveryPort)
+        public async Task DefaultConstructor_AnyCasing(string jsonPropertyName, int alpacaPort, int discoveryPort)
         {
             using (var responder = new UdpTestResponder(discoveryPort, jsonPropertyName, alpacaPort))
             using (var finder = new Finder())
@@ -99,13 +99,11 @@ namespace ASCOM.Alpaca.Tests
         // ─────────────────────────────────────────────────────────────────────────────
         // 2. ILogger constructor — AnyCasing (case-insensitive) by default
         // ─────────────────────────────────────────────────────────────────────────────
-
         [Theory]
-        [InlineData("alpacaport", 12100, 32244)]
+        [InlineData("AlpacaPort", 12100, 32244)]
         [InlineData("ALPACAPORT", 12200, 32245)]
         [InlineData("aLPACApORT", 12300, 32246)]
-        public async Task LoggerConstructor_AnyCasing_ParsesPortCorrectly(
-            string jsonPropertyName, int alpacaPort, int discoveryPort)
+        public async Task LoggerConstructor_AnyCasing(string jsonPropertyName, int alpacaPort, int discoveryPort)
         {
             using (var responder = new UdpTestResponder(discoveryPort, jsonPropertyName, alpacaPort))
             using (var finder = new Finder(new ConsoleLogger()))
@@ -123,13 +121,11 @@ namespace ASCOM.Alpaca.Tests
         //    strictCasing=true → PropertyNameCaseInsensitive=true (inverted logic)
         //    Result: case-INSENSITIVE parsing despite the parameter name.
         // ─────────────────────────────────────────────────────────────────────────────
-
         [Theory]
-        [InlineData("alpacaport", 13100, 32247)]
+        [InlineData("AlpacaPort", 13100, 32247)]
         [InlineData("ALPACAPORT", 13200, 32248)]
         [InlineData("aLPACApORT", 13300, 32249)]
-        public async Task ObsoleteConstructor_StrictCasingTrue_IsCaseInsensitive(
-            string jsonPropertyName, int alpacaPort, int discoveryPort)
+        public async Task ObsoleteConstructor_StrictCasingTrue(string jsonPropertyName, int alpacaPort, int discoveryPort)
         {
             using (var responder = new UdpTestResponder(discoveryPort, jsonPropertyName, alpacaPort))
             using (var finder = new Finder(true, new ConsoleLogger()))
@@ -144,70 +140,60 @@ namespace ASCOM.Alpaca.Tests
         }
 
         // ─────────────────────────────────────────────────────────────────────────────
-        // 4. SetJsonNameCaseSensitivity(AnyCasing) — retains case-insensitive behaviour
+        // 4. CaseSensitive Constructor(AnyCasing) — retains case-insensitive behaviour
         // ─────────────────────────────────────────────────────────────────────────────
-
         [Theory]
-        [InlineData("alpacaport", 14100, 32250)]
+        [InlineData("AlpacaPort", 14100, 32250)]
         [InlineData("ALPACAPORT", 14200, 32251)]
         [InlineData("aLPACApORT", 14300, 32252)]
-        public async Task SetAnyCasing_RetainsCaseInsensitiveBehaviour(
-            string jsonPropertyName, int alpacaPort, int discoveryPort)
+        public async Task CaseSensitiveConstructor_CaseInsensitive(string jsonPropertyName, int alpacaPort, int discoveryPort)
         {
             using (var responder = new UdpTestResponder(discoveryPort, jsonPropertyName, alpacaPort))
-            using (var finder = new Finder())
+            using (var finder = new Finder(JsonNameCaseSensitivity.AnyCasing))
             {
-                finder.SetJsonNameCaseSensitivity(JsonNameCaseSensitivity.AnyCasing);
                 finder.Search(discoveryPort, true, false);
 
                 bool received = await WaitForPort(finder, alpacaPort);
-                Assert.True(received,
-                    $"After SetJsonNameCaseSensitivity(AnyCasing): expected port {alpacaPort} in CachedEndpoints for JSON property '{jsonPropertyName}'.");
+                Assert.True(received, $"After SetJsonNameCaseSensitivity(AnyCasing): expected port {alpacaPort} in CachedEndpoints for JSON property '{jsonPropertyName}'.");
             }
         }
 
         // ─────────────────────────────────────────────────────────────────────────────
-        // 5a. SetJsonNameCaseSensitivity(StrictCasing) — correctly-cased key accepted
+        // 5. CaseSensitive Constructor (StrictCasing) — correctly-cased key accepted
         // ─────────────────────────────────────────────────────────────────────────────
-
         [Fact]
-        public async Task SetStrictCasing_CorrectCasing_ParsesPort()
+        public async Task CaseSensitiveConstructor_CaseSensitive_CorrectCasing()
         {
             const int alpacaPort = 15100;
             const int discoveryPort = 32253;
 
             using (var responder = new UdpTestResponder(discoveryPort, "AlpacaPort", alpacaPort))
-            using (var finder = new Finder())
+            using (var finder = new Finder(JsonNameCaseSensitivity.CorrectCasingOnly))
             {
-                finder.SetJsonNameCaseSensitivity(JsonNameCaseSensitivity.CorrectCasingOnly);
                 finder.Search(discoveryPort, true, false);
 
                 bool received = await WaitForPort(finder, alpacaPort);
-                Assert.True(received,
-                    $"After SetJsonNameCaseSensitivity(StrictCasing): correct key 'AlpacaPort' should return port {alpacaPort}.");
+                Assert.True(received, $"After SetJsonNameCaseSensitivity(StrictCasing): correct key 'AlpacaPort' should return port {alpacaPort}.");
             }
         }
 
         // ─────────────────────────────────────────────────────────────────────────────
-        // 5b. SetJsonNameCaseSensitivity(StrictCasing) — incorrectly-cased keys rejected
+        // 6. CaseSensitive Constructor (StrictCasing) — incorrectly-cased keys rejected
         //
         //     The response IS received (visible in BroadcastResponses), but with strict
-        //     JSON parsing the wrong-cased key deserialises to AlpacaPort=0, which causes
+        //     JSON parsing the wrong-cased key de-serialises to AlpacaPort=0, which causes
         //     ReceiveCallback to throw internally.  The endpoint is therefore NOT added to
         //     CachedEndpoints — the effective returned port number is zero.
         // ─────────────────────────────────────────────────────────────────────────────
-
         [Theory]
         [InlineData("alpacaport", 16100, 32254)]
         [InlineData("ALPACAPORT", 16200, 32255)]
         [InlineData("aLPACApORT", 16300, 32256)]
-        public async Task SetStrictCasing_WrongCasing_PortIsNotParsed(
-            string jsonPropertyName, int alpacaPort, int discoveryPort)
+        public async Task CaseSensitiveConstructor_CaseSensitive_InCorrectCasing(string jsonPropertyName, int alpacaPort, int discoveryPort)
         {
             using (var responder = new UdpTestResponder(discoveryPort, jsonPropertyName, alpacaPort))
-            using (var finder = new Finder())
+            using (var finder = new Finder(JsonNameCaseSensitivity.CorrectCasingOnly))
             {
-                finder.SetJsonNameCaseSensitivity(JsonNameCaseSensitivity.CorrectCasingOnly);
                 finder.Search(discoveryPort, true, false);
 
                 // First confirm the responder actually replied; this rules out a UDP connectivity
@@ -219,7 +205,80 @@ namespace ASCOM.Alpaca.Tests
                 // Allow a short settling period for the async ReceiveCallback to finish processing.
                 await Task.Delay(200, TestContext.Current.CancellationToken);
 
-                // The wrong-cased JSON property deserialises to AlpacaPort=0 under strict parsing.
+                // The wrong-cased JSON property de-serialises to AlpacaPort=0 under strict parsing.
+                // ReceiveCallback throws and catches the "Failed to parse" exception internally,
+                // so nothing should be added to CachedEndpoints.
+                Assert.Empty(finder.CachedEndpoints);
+            }
+        }
+
+        // ─────────────────────────────────────────────────────────────────────────────
+        // 7. CaseSensitive Constructor(AnyCasing) — retains case-insensitive behaviour
+        // ─────────────────────────────────────────────────────────────────────────────
+        [Theory]
+        [InlineData("AlpacaPort", 17100, 32260)]
+        [InlineData("ALPACAPORT", 17200, 32261)]
+        [InlineData("aLPACApORT", 17300, 32262)]
+        public async Task CaseSensitiveConstructorWithLogger_CaseInsensitive(string jsonPropertyName, int alpacaPort, int discoveryPort)
+        {
+            using (var responder = new UdpTestResponder(discoveryPort, jsonPropertyName, alpacaPort))
+            using (var finder = new Finder(JsonNameCaseSensitivity.AnyCasing,new ConsoleLogger()))
+            {
+                finder.Search(discoveryPort, true, false);
+
+                bool received = await WaitForPort(finder, alpacaPort);
+                Assert.True(received, $"After SetJsonNameCaseSensitivity(AnyCasing): expected port {alpacaPort} in CachedEndpoints for JSON property '{jsonPropertyName}'.");
+            }
+        }
+
+        // ─────────────────────────────────────────────────────────────────────────────
+        // 8. CaseSensitive Constructor (StrictCasing) — correctly-cased key accepted
+        // ─────────────────────────────────────────────────────────────────────────────
+        [Fact]
+        public async Task CaseSensitiveConstructorWithLogger_CaseSensitive_CorrectCasing()
+        {
+            const int alpacaPort = 18100;
+            const int discoveryPort = 32263;
+
+            using (var responder = new UdpTestResponder(discoveryPort, "AlpacaPort", alpacaPort))
+            using (var finder = new Finder(JsonNameCaseSensitivity.CorrectCasingOnly,new ConsoleLogger()))
+            {
+                finder.Search(discoveryPort, true, false);
+
+                bool received = await WaitForPort(finder, alpacaPort);
+                Assert.True(received, $"After SetJsonNameCaseSensitivity(StrictCasing): correct key 'AlpacaPort' should return port {alpacaPort}.");
+            }
+        }
+
+        // ─────────────────────────────────────────────────────────────────────────────
+        // 9. CaseSensitive Constructor (StrictCasing) — incorrectly-cased keys rejected
+        //
+        //     The response IS received (visible in BroadcastResponses), but with strict
+        //     JSON parsing the wrong-cased key de-serialises to AlpacaPort=0, which causes
+        //     ReceiveCallback to throw internally.  The endpoint is therefore NOT added to
+        //     CachedEndpoints — the effective returned port number is zero.
+        // ─────────────────────────────────────────────────────────────────────────────
+        [Theory]
+        [InlineData("alpacaport", 19100, 32264)]
+        [InlineData("ALPACAPORT", 19200, 32265)]
+        [InlineData("aLPACApORT", 19300, 32266)]
+        public async Task CaseSensitiveConstructorWithLogger_CaseSensitive_InCorrectCasing(string jsonPropertyName, int alpacaPort, int discoveryPort)
+        {
+            using (var responder = new UdpTestResponder(discoveryPort, jsonPropertyName, alpacaPort))
+            using (var finder = new Finder(JsonNameCaseSensitivity.CorrectCasingOnly,new ConsoleLogger()))
+            {
+                finder.Search(discoveryPort, true, false);
+
+                // First confirm the responder actually replied; this rules out a UDP connectivity
+                // issue masking a genuine parsing failure.
+                bool responseReceived = await WaitForBroadcastResponse(finder);
+                Assert.True(responseReceived,
+                    $"No raw broadcast response was recorded — check UDP broadcast connectivity on port {discoveryPort}.");
+
+                // Allow a short settling period for the async ReceiveCallback to finish processing.
+                await Task.Delay(200, TestContext.Current.CancellationToken);
+
+                // The wrong-cased JSON property de-serialises to AlpacaPort=0 under strict parsing.
                 // ReceiveCallback throws and catches the "Failed to parse" exception internally,
                 // so nothing should be added to CachedEndpoints.
                 Assert.Empty(finder.CachedEndpoints);

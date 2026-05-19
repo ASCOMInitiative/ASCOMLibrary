@@ -56,11 +56,33 @@ namespace ASCOM.Alpaca.Discovery
         /// <summary>
         /// Creates an Alpaca Finder object with an associated ILogger instance that sends out a search request for Alpaca devices
         /// </summary>
+        /// <param name="jsonNameCaseSensitivity">The JSON name case sensitivity to use when parsing the discovery response.</param>
+        public Finder(JsonNameCaseSensitivity jsonNameCaseSensitivity) : this()
+        {
+            SetJsonNameCaseSensitivity(jsonNameCaseSensitivity); // Set the JSON name case sensitivity
+            LogMessage("Finder", "Initialised with case sensitivity.");
+        }
+
+        /// <summary>
+        /// Creates an Alpaca Finder object with an associated ILogger instance that sends out a search request for Alpaca devices
+        /// </summary>
         /// <param name="logger">The logger instance to use for diagnostic messages.</param>
         public Finder(ILogger logger) : this()
         {
             this.logger = logger; // Save the trace logger object
             LogMessage("Finder", "Initialised with logger.");
+        }
+
+        /// <summary>
+        /// Creates an Alpaca Finder object with an associated ILogger instance that sends out a search request for Alpaca devices
+        /// </summary>
+        /// <param name="jsonNameCaseSensitivity">The JSON name case sensitivity to use when parsing the discovery response.</param>
+        /// <param name="logger">The logger instance to use for diagnostic messages.</param>
+        public Finder(JsonNameCaseSensitivity jsonNameCaseSensitivity,ILogger logger) : this()
+        {
+            this.logger = logger; // Save the trace logger object
+            SetJsonNameCaseSensitivity(jsonNameCaseSensitivity); // Set the JSON name case sensitivity
+            LogMessage("Finder", "Initialised with logger and case sensitivity.");
         }
 
         /// <summary>
@@ -211,7 +233,7 @@ namespace ASCOM.Alpaca.Discovery
         /// Note that this only affects the parsing of the discovery response "AlpacaPort" element.
         /// If StrictCasing is set then only "AlpacaPort" will be accepted. If AnyCasing is set then all other casings are accepted: e.g. "AlpacaPort", "alpacaport", "ALPACAPORT".
         /// </remarks>
-        public void SetJsonNameCaseSensitivity(JsonNameCaseSensitivity jsonNameCaseSensitivity)
+        private void SetJsonNameCaseSensitivity(JsonNameCaseSensitivity jsonNameCaseSensitivity)
         {
             switch (jsonNameCaseSensitivity)
             {
