@@ -1,5 +1,7 @@
 using ASCOM.Alpaca.Clients;
 using ASCOM.Common.Alpaca;
+using ASCOM.Common.Interfaces;
+using ASCOM.Tools;
 using Xunit;
 
 namespace ASCOM.Alpaca.Tests
@@ -50,17 +52,21 @@ namespace ASCOM.Alpaca.Tests
         /// the value embedded in the JSON (45.123).
         /// </summary>
         [Fact]
-        public void DefaultStrictCasing_CorrectValueCasing_AltitudeReturned()
+        public void CorrectValueCasing_AltitudeReturned()
         {
+            TraceLogger logger = new TraceLogger("AlpacaTelescopeCorrectCasing", true);
+            logger.SetMinimumLoggingLevel(LogLevel.Debug);
+
             using (var server = new AlpacaTelescopeServer(CorrectCasingPort, "Value", AltitudeValue))
             using (var telescope = new AlpacaTelescope(
                 serviceType: ServiceType.Http,
                 ipAddressString: "127.0.0.1",
                 portNumber: CorrectCasingPort,
                 remoteDeviceNumber: 0,
-                strictCasing: true))
+                strictCasing: true, logger: logger))
             {
                 double altitude = telescope.Altitude;
+                logger.LogMessage("Test", $"Received altitude: {altitude}");
                 Assert.Equal(AltitudeValue, altitude, precision: 3);
             }
         }
@@ -77,17 +83,21 @@ namespace ASCOM.Alpaca.Tests
         /// The property retains its default value of 0.0, so <c>telescope.Altitude</c> returns 0.0.
         /// </summary>
         [Fact]
-        public void DefaultStrictCasing_WrongValueCasing_AltitudeIsZero()
+        public void WrongValueCasing()
         {
+            TraceLogger logger = new TraceLogger("AlpacaTelescopeWrongCasing", true);
+            logger.SetMinimumLoggingLevel(LogLevel.Debug);
+
             using (var server = new AlpacaTelescopeServer(WrongCasingPort, "value", AltitudeValue))
             using (var telescope = new AlpacaTelescope(
                 serviceType: ServiceType.Http,
                 ipAddressString: "127.0.0.1",
                 portNumber: WrongCasingPort,
                 remoteDeviceNumber: 0,
-                strictCasing: true))
+                strictCasing: true, logger: logger))
             {
                 double altitude = telescope.Altitude;
+                logger.LogMessage("Test", $"Received altitude: {altitude}");
                 Assert.Equal(DefaultAltitude, altitude, precision: 3);
             }
         }
