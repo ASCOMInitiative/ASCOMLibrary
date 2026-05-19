@@ -584,7 +584,7 @@ namespace ASCOM.Alpaca.Discovery
         /// <param name="message">Message text</param>
         private void LogMessage(string method, string message)
         {
-            logger.LogMessage(LogLevel.Information, $"Finder - {method}", $"{Thread.CurrentThread.ManagedThreadId,2} {message}");
+            logger?.LogMessage(LogLevel.Information, $"Finder - {method}", $"{Thread.CurrentThread.ManagedThreadId,2} {message}");
         }
 
         #endregion

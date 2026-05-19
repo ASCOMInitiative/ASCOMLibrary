@@ -1153,7 +1153,7 @@ namespace ASCOM.Com
                     SetStateAlpacaDiscovering();
 
                     // Initiate discovery and wait for it to complete
-                    using (var discovery = new AlpacaDiscovery(true, TL, nameof(ChooserSA), this.GetType().Assembly.GetName().Version.ToString()))
+                    using (var discovery = new AlpacaDiscovery(JsonNameCaseSensitivity.AnyCasing, TL, nameof(ChooserSA), this.GetType().Assembly.GetName().Version.ToString()))
                     {
                         TL?.LogMessage(LogLevel.Debug, "DiscoverAlpacaDevices", $"AlpacaDiscovery created");
                         discovery.StartDiscovery(AlpacaNumberOfBroadcasts, 200, AlpacaDiscoveryPort, AlpacaTimeout, AlpacaDnsResolution, AlpacaUseIpV4, AlpacaUseIpV6);

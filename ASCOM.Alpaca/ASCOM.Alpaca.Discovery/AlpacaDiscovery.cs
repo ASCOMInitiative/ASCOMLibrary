@@ -15,6 +15,9 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
+// NOTE: The AlpacaDiscovery class uses case INSENSITIVE parsing of the JSON names (properties / keys) in management JSON responses.
+// NOTE: This is to maintain backwards compatibility with the original implementation of this class, which had a bug that meant that the JSON name case sensitivity logic was inverted.
+
 namespace ASCOM.Alpaca.Discovery
 {
     /// <summary>
@@ -57,7 +60,7 @@ namespace ASCOM.Alpaca.Discovery
         internal const double MINIMUM_TIME_REMAINING_TO_UNDERTAKE_DNS_RESOLUTION = 0.1d; // Minimum discovery time (seconds) that must remain if a DNS IP to host name resolution is to be attempted
         internal const int NUMBER_OF_THREAD_MESSAGE_INDENT_SPACES = 2;
 
-        private const JsonNameCaseSensitivity jsonNameCasing = JsonNameCaseSensitivity.CorrectCasingOnly; // Default to case insensitive parsing for backwards compatibility with the faulty logic in the original implementation
+        private const bool JSON_NAME_CASING_DEFAULT = true; // NOTE: The value "true" results in case insensitive parsing. This is used to maintain backwards compatibility with faulty logic in the original implementation
 
         // Utility objects
         private readonly ILogger logger;
@@ -78,22 +81,40 @@ namespace ASCOM.Alpaca.Discovery
 
         private ServiceType serviceType; // Holds the service type for management API calls: HTTP or HTTPS
 
-        private JsonSerializerOptions jsonSerializerOptions = new JsonSerializerOptions(); // JSON serialiser options, which are set based on the strictCasing parameter supplied at construction and are used for parsing management API responses
+        private JsonSerializerOptions jsonSerializerOptions = new JsonSerializerOptions(); // JSON serialiser options, defaults to strict casing.
 
         #endregion
 
         #region New and IDisposable Support
 
         /// <summary>
-        /// Initialise the Alpaca discovery component
+        /// Initialise the Alpaca discovery component with case insensitive JSON name parsing and no logger.
         /// </summary>
         public AlpacaDiscovery()
         {
+            // Set default case sensitivity
+            jsonSerializerOptions.PropertyNameCaseInsensitive = JSON_NAME_CASING_DEFAULT; // Set the default JSON name case sensitivity for parsing the discovery response
+
             InitialiseClass(); // Initialise without a trace logger
         }
 
         /// <summary>
         /// Initialiser that takes a trace logger (Can only be used from .NET clients)
+        /// </summary>
+        /// <param name="logger">Trace logger instance to use for activity logging</param>
+        /// <param name="productName">Product name in the User-Agent header of management API HTTP calls</param>
+        /// <param name="productVersion">Product version in the User-Agent header of management API HTTP calls</param>
+        public AlpacaDiscovery(ILogger logger, string productName = "ASCOMLibrary", string productVersion = null)
+        {
+            this.logger = logger; // Save the supplied trace logger object
+            this.productName = productName;
+            this.productVersion = productVersion;
+
+            InitialiseClass(); // Initialise using the trace logger
+        }
+
+        /// <summary>
+        /// Initialiser that specifies discovery case sensitivity and takes a trace logger (Can only be used from .NET clients)
         /// </summary>
         /// <param name="jsonNameCaseSensitivity">JSON name case sensitivity for parsing responses.</param>
         /// <param name="logger">Trace logger instance to use for activity logging</param>
@@ -106,7 +127,7 @@ namespace ASCOM.Alpaca.Discovery
             this.productVersion = productVersion;
 
             // Set case sensitivity
-            switch(jsonNameCaseSensitivity)
+            switch (jsonNameCaseSensitivity)
             {
                 case JsonNameCaseSensitivity.CorrectCasingOnly:
                     jsonSerializerOptions.PropertyNameCaseInsensitive = false; // Set the JSON name case sensitivity for parsing the discovery response
@@ -133,7 +154,7 @@ namespace ASCOM.Alpaca.Discovery
         {
             this.logger = logger; // Save the supplied trace logger object
 
-            // NOTE: The logic below is incorrect but is being left "as-is" to retain backward compatibility with the original implementation of this class.
+            // NOTE: The logic below is incorrect but is left "as-is" to maintain backward compatibility with the original implementation of this class.
             jsonSerializerOptions.PropertyNameCaseInsensitive = strictCasing; // Set the requested strict JSON de-serialisation casing state
 
             this.productName = productName;
@@ -150,18 +171,20 @@ namespace ASCOM.Alpaca.Discovery
                 tryDnsNameResolution = false; // Initialise so that there is no host name resolution by default
                 discoveryCompleteValue = true; // Initialise so that discoveries can be run
 
-                // Initialise utility objects
+                // Set up the timer that will be used to determine when discovery is complete.
                 discoveryCompleteTimer = new Timer(OnDiscoveryCompleteTimer);
-                if (finder != null)
-                {
-                    finder.Dispose();
-                    finder = null;
-                }
 
-                // Get a new broadcast response finder
-                //finder = new Finder(FoundDeviceEventHandler, strictCasing,TL);
-                finder = new Finder(logger);
-                finder.SetJsonNameCaseSensitivity(jsonNameCasing); // Set the JSON name case sensitivity for parsing the discovery response
+                // Delete any existing Finder object, which will unhook any event handlers and close any open UDP clients
+                finder?.Dispose();
+                finder = null;
+
+                // Create a new Finder with JSON name case sensitivity matching this client's casing.
+                if (jsonSerializerOptions.PropertyNameCaseInsensitive) // Case insensitive behaviour
+                    finder = new Finder(JsonNameCaseSensitivity.AnyCasing, logger); // Set the JSON name case sensitivity for parsing the discovery response
+                else // Case sensitive behaviour
+                    finder = new Finder(JsonNameCaseSensitivity.CorrectCasingOnly, logger); // Set the JSON name case sensitivity for parsing the discovery response
+
+                // Hook the event handler for the Finder response received event.
                 finder.ResponseReceivedEvent += FoundDeviceEventHandler;
 
                 LogMessage("AlpacaDiscoveryInitialise", $"Complete - Running on thread {Thread.CurrentThread.ManagedThreadId}");
@@ -976,7 +999,7 @@ namespace ASCOM.Alpaca.Discovery
         /// <param name="message"></param>
         private void LogMessage(string methodName, string message)
         {
-            logger.LogMessage(LogLevel.Information, $"AlpacaDiscovery - {methodName}", $"{Thread.CurrentThread.ManagedThreadId,2} {message}");
+            logger?.LogMessage(LogLevel.Information, $"AlpacaDiscovery - {methodName}", $"{Thread.CurrentThread.ManagedThreadId,2} {message}");
         }
 
         #endregion
