@@ -38,7 +38,7 @@ namespace ASCOM.Alpaca.Tests
     public class FinderCasingTests
     {
         // Maximum time to wait for a UDP round-trip on the local loopback interface.
-        private const int ResponseTimeoutMs = 2000;
+        private const int ResponseTimeoutMs = 200;
 
         // ─────────────────────────────────────────────────────────────────────────────
         // Helpers
