@@ -9,11 +9,10 @@ The version history only contains entries when a change is made.
 * DEVELOPER-BREAKING-CHANGE - The static SetRetryCount method introduced in release 3.1.0 has been removed and replaced with a new constructor parameter
 of the same name. This allows different retry counts to be set for different client instances if required. 
 The major version number has been increased to reflect this breaking change.
-* OPERATIONAL-POTENTIAL-BREAKING-BUG-FIX - In the Finder component, JSON strict casing behaviour was inverted for both the default
-value (true) and the value set through the constructor. 
-This meant that the client operated in a case insensitive manner when strict casing was enabled. 
-The component now defaults to strict behaviour as intended and also respects the constructor parameter value.  
-**Consequently, if Alpaca device responses are not correctly cased, clients will fail to find devices that were previously discovered**.
+* DEPRECATION - The strictCasing parameter in Finder and AlpacaDiscovery component constructors operates inversely to what is expected.
+i.e. when strictCasing is set true, the client operates in a case insensitive manner. This behaviour won't be changed to maintain backward compatibility.
+Instead, affected constructors have been deprecated.
+* ADDED - Replacement Finder and AlpacaDiscovery constructors, with correct casing behaviour, to replace the deprecated constructors.
 * BUG-FIX - Numerous improvements to internal operation of the Alpaca clients and Finder components when handling low frequency edge case scenarios.
 
 ***Release 3.1.0***
