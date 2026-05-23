@@ -6,7 +6,7 @@
     public interface ITelescopeV4 : IAscomDeviceV2, ITelescopeV3
     {
         /// <summary>
-        /// Stops a slew in progress.
+        /// Stops any motion in progress: slewing, parking, find-home, and move-axis.
         /// </summary>
         /// <exception cref="NotImplementedException">If the method is not implemented</exception>
         /// <exception cref="NotConnectedException">When <see cref="IAscomDevice.Connected"/> is False.</exception>
