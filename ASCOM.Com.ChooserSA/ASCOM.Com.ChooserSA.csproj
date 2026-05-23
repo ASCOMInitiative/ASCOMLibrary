@@ -35,8 +35,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="ASCOM.Exception.Library" Version="7.0.1" />
-    <PackageReference Include="System.Resources.Extensions" Version="10.0.7" />
+    <PackageReference Include="ASCOM.Exception.Library" Version="7.1.2" />
+    <PackageReference Include="System.Resources.Extensions" Version="10.0.8" />
   </ItemGroup>
 
   <ItemGroup>
