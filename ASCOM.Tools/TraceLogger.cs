@@ -179,6 +179,69 @@ namespace ASCOM.Tools
 
         #endregion
 
+        #region Public static methods
+
+        /// <summary>
+        /// Returns the default folder for TraceLogger files, creating it if it does not exist.
+        /// </summary>
+        /// <param name="dateTime"> DateTime from which the date portion of the folder name will be derived. The value will typically be DateTime.Now or DateTime.UtcNow.</param>
+        /// <returns>The default log file path.</returns>
+        public static string GetDefaultLogFilePath(DateTime dateTime)
+        {
+            string defaultLogFilePath;
+
+            // Set the default log file path
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) // We are running on a Windows OS
+            {
+                if (!string.IsNullOrEmpty(Environment.GetFolderPath(Environment.SpecialFolder.Personal))) // This is a normaL "User" account
+                {
+                    // Create a fallback folder name within the Documents folder: Documents\ASCOM
+                    string fallbackFolderName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), AUTO_PATH_BASE_DIRECTORY_WINDOWS);
+
+                    // Get the user configured TraceLogger default folder name. Fall back to the Documents\ASCOM folder if no default folder has been set by the user
+                    string folderName;
+                    try
+                    {
+                        folderName = Registry.CurrentUser.CreateSubKey(REGISTRY_UTILITIES_CONFGIGURATION_KEY).GetValue(REGISTRY_DEFAULT_FOLDER_VALUE_NAME, fallbackFolderName).ToString();
+                    }
+                    catch
+                    {
+                        // Something went wrong so use the fallback folder name
+                        folderName = fallbackFolderName;
+                    }
+
+                    // Set the default folder name variable that is used with the TraceLogger application
+                    defaultLogFilePath = Path.Combine(folderName, string.Format(AUTO_PATH_DIRECTORY_TEMPLATE_WINDOWS, dateTime));
+                }
+                else // This is the "System" account, which does not have a personal documents directory so put log files in the 
+                {
+                    defaultLogFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), AUTO_PATH_WINDOWS_SYSTEM_USER_BASE_DIRECTORY, string.Format(AUTO_PATH_DIRECTORY_TEMPLATE_WINDOWS, dateTime  ));
+                }
+            }
+            else // We are running on a non-Windows OS
+            {
+                // Define the fallback log file directory name as the user's home directory
+                string fallbackDirectoryName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), AUTO_PATH_BASE_DIRECTORY_LINUX);
+
+                // Get the user specified log file directory name from the ASCOM_LOGPATH path environment variable
+                string directoryName = Environment.GetEnvironmentVariable(Environment.ExpandEnvironmentVariables(ASCOM_LOGPATH));
+
+                // Use the fallback directory if the environment variable is not set
+                if (directoryName is null)
+                    directoryName = fallbackDirectoryName;
+
+                // Make sure that the directory name is valid, if not use the fall-back value
+                if (directoryName.IndexOfAny(Path.GetInvalidPathChars()) > 0)
+                    directoryName = fallbackDirectoryName;
+
+                // Create the final log file directory path
+                defaultLogFilePath = Path.Combine(directoryName, string.Format(AUTO_PATH_DIRECTORY_TEMPLATE_LINUX, dateTime));
+            }
+            return defaultLogFilePath;
+        }
+
+        #endregion
+
         #region ITraceLogger implementation
 
         /// <summary>
@@ -338,53 +401,8 @@ namespace ASCOM.Tools
             {
                 if (autoGenerateFilePath) // We need to auto generate the file path
                 {
-                    // Set the default log file path
-                    if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) // We are running on a Windows OS
-                    {
-                        if (!string.IsNullOrEmpty(Environment.GetFolderPath(Environment.SpecialFolder.Personal))) // This is a normaL "User" account
-                        {
-                            // Create a fallback folder name within the Documents folder: Documents\ASCOM
-                            string fallbackFolderName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), AUTO_PATH_BASE_DIRECTORY_WINDOWS);
-
-                            // Get the user configured TraceLogger default folder name. Fall back to the Documents\ASCOM folder if no default folder has been set by the user
-                            string folderName;
-                            try
-                            {
-                                folderName = Registry.CurrentUser.CreateSubKey(REGISTRY_UTILITIES_CONFGIGURATION_KEY).GetValue(REGISTRY_DEFAULT_FOLDER_VALUE_NAME, fallbackFolderName).ToString();
-                            }
-                            catch
-                            {
-                                // Something went wrong so use the fallback folder name
-                                folderName = fallbackFolderName;
-                            }
-
-                            // Set the default folder name variable that is used with the TraceLogger application
-                            LogFilePath = Path.Combine(folderName, string.Format(AUTO_PATH_DIRECTORY_TEMPLATE_WINDOWS, DateTimeNow()));
-                        }
-                        else // This is the "System" account, which does not have a personal documents directory so put log files in the 
-                        {
-                            LogFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), AUTO_PATH_WINDOWS_SYSTEM_USER_BASE_DIRECTORY, string.Format(AUTO_PATH_DIRECTORY_TEMPLATE_WINDOWS, DateTimeNow()));
-                        }
-                    }
-                    else // We are running on a non-Windows OS
-                    {
-                        // Define the fallback log file directory name as the user's home directory
-                        string fallbackDirectoryName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), AUTO_PATH_BASE_DIRECTORY_LINUX);
-
-                        // Get the user specified log file directory name from the ASCOM_LOGPATH path environment variable
-                        string directoryName = Environment.GetEnvironmentVariable(Environment.ExpandEnvironmentVariables(ASCOM_LOGPATH));
-
-                        // Use the fallback directory if the environment variable is not set
-                        if (directoryName is null)
-                            directoryName = fallbackDirectoryName;
-
-                        // Make sure that the directory name is valid, if not use the fall-back value
-                        if (directoryName.IndexOfAny(Path.GetInvalidPathChars()) > 0)
-                            directoryName = fallbackDirectoryName;
-
-                        // Create the final log file directory path
-                        LogFilePath = Path.Combine(directoryName, string.Format(AUTO_PATH_DIRECTORY_TEMPLATE_LINUX, DateTimeNow()));
-                    }
+                    // Get the path from the static method based on the selected current local or UTC date/time
+                    LogFilePath = GetDefaultLogFilePath(DateTimeNow());
                 }
                 else // We need to use the supplied log file path, which is already in the LogFilePath property
                 {
