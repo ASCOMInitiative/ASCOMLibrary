@@ -7,6 +7,9 @@ Please note that this component only works on Windows operating systems and requ
 ## Version History
 The version history only contains entries when a change is made.
 
+***Release 4.0.0***
+* BUGFIX - Added support for creating Alpaca devices on Platform 7
+
 ***Release 3.0.0***
 *  ADDED - Support for 9.0 and 10.0 target frameworks. It will no longer be necessary for applications that use these frameworks to 
 rely on the .NET Standard 2.0 component.

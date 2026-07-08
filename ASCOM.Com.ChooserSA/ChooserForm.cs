@@ -65,7 +65,8 @@ namespace ASCOM.Com
         private const bool ALPACA_MULTI_THREADED_CHOOSER_DEFAULT = true;
 
         // Alpaca integration constants
-        private const string ALPACA_DYNAMIC_CLIENT_MANAGER_RELATIVE_PATH = @"ASCOM\Platform 6\Tools\AlpacaDynamicClientManager";
+        private const string ALPACA_DYNAMIC_CLIENT_MANAGER_RELATIVE_PATH_PLATFORM6 = @"ASCOM\Platform 6\Tools\AlpacaDynamicClientManager";
+        private const string ALPACA_DYNAMIC_CLIENT_MANAGER_RELATIVE_PATH_PLATFORM7 = @"ASCOM\Platform\Tools\AlpacaDynamicClientManager";
         private const string ALPACA_DYNAMIC_CLIENT_MANAGER_EXE_NAME = "ASCOM.AlpacaDynamicClientManager.exe";
         private const string DRIVER_PROGID_BASE = "ASCOM.AlpacaDynamic";
 
@@ -74,6 +75,7 @@ namespace ASCOM.Com
         private const string PROFILE_VALUE_NAME_IP_ADDRESS = "IP Address";
         private const string PROFILE_VALUE_NAME_PORT_NUMBER = "Port Number";
         private const string PROFILE_VALUE_NAME_REMOTE_DEVICER_NUMBER = "Remote Device Number";
+        private const string PROFILE_VALUE_NAME_COM_GUID = "COM Guid"; // This value must match the same named constant in the Dynamic Client Local Server project LocalServer.cs file
 
         #endregion
 
@@ -81,7 +83,7 @@ namespace ASCOM.Com
 
         // Chooser variables
         private DeviceTypes deviceTypeValue;
-        private string  selectedProgIdValue;
+        private string selectedProgIdValue;
         private List<ChooserItem> chooserList;
         private string driverIsCompatible = "";
         private string currentWarningTitle, currentWarningMesage;
@@ -882,6 +884,28 @@ namespace ASCOM.Com
 
             TL?.LogMessage(LogLevel.Debug, "CreateAlpacaClient", $"Creating new ProgID: {newProgId}");
 
+            switch (PlatformUtilities.MajorVersion)
+            {
+                case 6: // Platform 6
+                    // No action required
+                    break;
+
+                case 7: // Platform 7
+                    Profile.Register(deviceTypeValue, newProgId, selectedChooserItem.AscomName);
+                    Profile.SetValue(deviceTypeValue, newProgId, PROFILE_VALUE_NAME_IP_ADDRESS, selectedChooserItem.HostName);
+                    Profile.SetValue(deviceTypeValue, newProgId, PROFILE_VALUE_NAME_PORT_NUMBER, selectedChooserItem.Port.ToString());
+                    Profile.SetValue(deviceTypeValue, newProgId, PROFILE_VALUE_NAME_REMOTE_DEVICER_NUMBER, selectedChooserItem.DeviceNumber.ToString());
+                    Profile.SetValue(deviceTypeValue, newProgId, PROFILE_VALUE_NAME_UNIQUEID, selectedChooserItem.DeviceUniqueID.ToString());
+
+                    // Create a new COM GUID for this driver if one does not already exist.
+                    // At this point, we aren't interested in the returned value, only that a value exists. This is ensured by use of the default value: Guid.NewGuid().
+                    Profile.GetValue(deviceTypeValue, newProgId, PROFILE_VALUE_NAME_COM_GUID, "", Guid.NewGuid().ToString());
+                    break;
+
+                default:
+                    throw new NotSupportedException($"Unsupported ASCOM Platform version: {PlatformUtilities.MajorVersion}");
+            }
+
             // Create the new Alpaca Client appending the device description if required 
             if (string.IsNullOrEmpty(deviceDescription))
             {
@@ -891,6 +915,9 @@ namespace ASCOM.Com
             {
                 RunDynamicClientManager($@"\CreateAlpacaClient {deviceTypeValue} {deviceNumber} {newProgId} ""{deviceDescription}""");
             }
+
+            // Flag the driver as being already configured so that it can be used immediately
+            registryAccess.WriteProfile("Chooser", $"{newProgId} Init", "True");
 
             return newProgId; // Return the new ProgID
         }
@@ -989,7 +1016,19 @@ namespace ASCOM.Com
             ProcessStartInfo clientManagerProcessStartInfo;
 
             // Construct path to the executable that will dynamically create a new Alpaca COM client
-            clientManagerWorkingDirectory = $@"{Get32BitProgramFilesPath()}\{ALPACA_DYNAMIC_CLIENT_MANAGER_RELATIVE_PATH}";
+
+            switch (PlatformUtilities.MajorVersion)
+            {
+                case 6:
+                    clientManagerWorkingDirectory = $@"{Get32BitProgramFilesPath()}\{ALPACA_DYNAMIC_CLIENT_MANAGER_RELATIVE_PATH_PLATFORM6}";
+                    break;
+                case 7:
+                    clientManagerWorkingDirectory = $@"{Get32BitProgramFilesPath()}\{ALPACA_DYNAMIC_CLIENT_MANAGER_RELATIVE_PATH_PLATFORM7}";
+                    break;
+                default:
+                    throw new NotSupportedException($"Unsupported ASCOM Platform version: {PlatformUtilities.MajorVersion}");
+            }
+
             clientManagerExeFile = $@"{clientManagerWorkingDirectory}\{ALPACA_DYNAMIC_CLIENT_MANAGER_EXE_NAME}";
 
             TL?.LogMessage(LogLevel.Debug, "RunDynamicClientManager", $"Generator parameters: '{parameterString}'");
