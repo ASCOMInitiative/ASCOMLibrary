@@ -1119,12 +1119,13 @@ namespace ASCOM.Tools
             }
             else
                 LogMessage("  Recalculate", "No parameters have changed, refraction is " + refracValue + ", recalculation not required");
-            swRecalculate.Stop();
 
-            bool SiteParametersSet()
-            {
-                return (!double.IsNaN(siteLatValue)) && (!double.IsNaN(siteLongValue)) && (!double.IsNaN(siteElevValue)) && (!double.IsNaN(siteTempValue));
-            }
+            swRecalculate.Stop();
+        }
+
+        bool SiteParametersSet()
+        {
+            return (!double.IsNaN(siteLatValue)) && (!double.IsNaN(siteLongValue)) && (!double.IsNaN(siteElevValue)) && (!double.IsNaN(siteTempValue));
         }
 
         private void ObservedToJ2000()
@@ -1141,14 +1142,14 @@ namespace ASCOM.Tools
 
             sw.Reset(); sw.Start();
 
-            LogMessage("Observed To J2000", "  Eo06a CIO to J2000 correction:" + FormatRA(Sofa.Eo06a(JDTTSofa, 0.0)));
+            LogMessage("  Observed To J2000", "  Eo06a CIO to J2000 correction:" + FormatRA(Sofa.Eo06a(JDTTSofa, 0.0)));
 
             // Calculate J2000 values assuming topocentric values have refraction correction
-            RetCode = Sofa.Atoc13("R", Sofa.Anp(raTopoValue * HOURS2RADIANS + Sofa.Eo06a(JDTTSofa, 0.0)), decTopoValue * DEGREES2RADIANS, JDUTCSofa, 0.0, deltaUT1, siteLongValue * DEGREES2RADIANS, siteLatValue * DEGREES2RADIANS, siteElevValue, 0.0, 0.0, sitePressureValue, siteTempValue, siteRHValue, OBSERVING_WAVELENGTH, ref RACelestrial, ref DecCelestial);
+            RetCode = Sofa.Atoc13("R", Sofa.Anp(raObservedValue * HOURS2RADIANS + Sofa.Eo06a(JDTTSofa, 0.0)), decObservedValue * DEGREES2RADIANS, JDUTCSofa, 0.0, deltaUT1, siteLongValue * DEGREES2RADIANS, siteLatValue * DEGREES2RADIANS, siteElevValue, 0.0, 0.0, sitePressureValue, siteTempValue, siteRHValue, OBSERVING_WAVELENGTH, ref RACelestrial, ref DecCelestial);
 
             raJ2000Value = RACelestrial * RADIANS2HOURS;
             decJ2000Value = DecCelestial * RADIANS2DEGREES;
-            LogMessage("Observed To J2000", "J2000 RA/Dec: " + FormatRA(raJ2000Value) + " " + FormatDec(decJ2000Value) + ", " + sw.Elapsed.TotalMilliseconds.ToString("0.00") + "ms, RC:" + RetCode.ToString());
+            LogMessage("  Observed To J2000", "J2000 RA/Dec: " + FormatRA(raJ2000Value) + " " + FormatDec(decJ2000Value) + ", " + sw.Elapsed.TotalMilliseconds.ToString("0.00") + "ms, RC:" + RetCode.ToString());
 
             // Now calculate the corresponding AzEl values from the J2000 values
             sw.Reset(); sw.Start();
@@ -1158,7 +1159,7 @@ namespace ASCOM.Tools
 
             azimuthTopoValue = aob * RADIANS2DEGREES;
             elevationTopoValue = 90.0 - zob * RADIANS2DEGREES;
-            LogMessage("Observed To J2000", "  Topocentric Azimuth/Elevation: " + FormatDec(azimuthTopoValue) + " " + FormatDec(elevationTopoValue) + ", " + sw.Elapsed.TotalMilliseconds.ToString("0.00") + "ms");
+            LogMessage("  Observed To J2000", "  Topocentric Azimuth/Elevation: " + FormatDec(azimuthTopoValue) + " " + FormatDec(elevationTopoValue) + ", " + sw.Elapsed.TotalMilliseconds.ToString("0.00") + "ms");
 
             // Calculate observed (refracted) Az/El values and assign to observed properties
             sw.Reset(); sw.Start();
@@ -1166,9 +1167,9 @@ namespace ASCOM.Tools
 
             azimuthObservedValue = aob * RADIANS2DEGREES;
             elevationObservedValue = 90.0 - zob * RADIANS2DEGREES;
-            LogMessage("Observed To J2000", "  Observed Azimuth/Elevation: " + FormatDec(azimuthObservedValue) + " " + FormatDec(elevationObservedValue) + ", " + sw.Elapsed.TotalMilliseconds.ToString("0.00") + "ms");
-            LogMessage("Observed To J2000", $"  Observed minus Topocentric - Azimuth: {FormatDec(azimuthObservedValue - azimuthTopoValue)}, Elevation: {FormatDec(elevationObservedValue - elevationTopoValue)} ({(elevationObservedValue - elevationTopoValue) * 3600.0:0.0} arcseconds)");
-            LogMessage("Observed To J2000", "Completed");
+            LogMessage("  Observed To J2000", "  Observed Azimuth/Elevation: " + FormatDec(azimuthObservedValue) + " " + FormatDec(elevationObservedValue) + ", " + sw.Elapsed.TotalMilliseconds.ToString("0.00") + "ms");
+            LogMessage("  Observed To J2000", $"  Observed minus Topocentric - Azimuth: {FormatDec(azimuthObservedValue - azimuthTopoValue)}, Elevation: {FormatDec(elevationObservedValue - elevationTopoValue)} ({(elevationObservedValue - elevationTopoValue) * 3600.0:0.0} arcseconds)");
+            LogMessage("  Observed To J2000", "Completed");
         }
 
         /// <summary>

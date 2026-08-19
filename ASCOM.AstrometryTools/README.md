@@ -5,6 +5,9 @@ Library of Astrometry components mirroring those in the ASCOM Platform.
 ## Version History
 The version history only contains entries when a change is made.
 
+***Release 4.0.0***
+* BUG-FIX - Transform.SetObserved() now sets the topocentric and J2000 coordinates correctly.
+
 ***Release 3.0.0***
 * BUG-FIX - Fixed bug where the NOVAS component gave incorrect answers on 32bit Windows platforms. Other platforms were unaffected.
 * ADDED - Support for .NET 8.0, 9.0 and 10.0 target frameworks. It will no longer be necessary for applications that use these frameworks to 

@@ -12,6 +12,8 @@ This is a security best practice to mitigate the risk of XXE vulnerabilities whe
 Instead of throwing an unhandled exception, it will now log a warning and create a new profile file with default settings.
 This allows the application to recover gracefully from this situation.
 * CHANGE - Utilities.DMSToDegrees and Utilities.HMSToHours now throw InvalidValueException when passed null values instead of a Framework exception.
+* CHANGE - Added the static TraceLogger.GetDefaultTraceLoggerPath() method that will return the default path for the TraceLogger log file. 
+This is useful for applications that want to write their own files to the default log file directory.
 * BUG-FIX - The XMLProfile overload that accepts a default value returned it when the key was
 absent but did not write it to the profile. The value is now written to the profile when the key is absent.
 * BUG-FIX - Numerous improvements to the internal operation of the TraceLogger and ConsoleLogger components to improve their
@@ -49,9 +51,6 @@ by setting the ASCOM_LOGPATH variable.
 ***Release 1.0.107***
 * Added missing linux-arm32 native SOFA library.
 
-## Logging
-Given the change to non shared libraries should TraceLogger require a mutex?
-
 ## Utilities
 * ConsoleLogger is an ILogger implementation that logs out to the console, using color coding messages
 * Logger is a static class which contains an ILogger. ASCOM Standard logs out here, but a developer can 
@@ -68,4 +67,3 @@ approved and this needs to be tested on MacOS (coming soon).
 * Utilities contains a variety of astronomy oriented helper functions to complement the general purpose
 routines that are available in standard .NET namespaces.
 * Novas is a cross platform release of the ASCOM Platform's NOVAS3.1 component.
-

@@ -211,6 +211,95 @@ namespace TransformTests
         }
 
         [Fact]
+        public void ObservedModeSetJ2000()
+        {
+            Transform referenceTransformNoRefraction = CreateTransform(false, false); // Topocentric excludes refraction
+            referenceTransformNoRefraction.SetJ2000(1.0, 50.0);
+            Transform referenceTransformWithRefraction = CreateTransform(false, true); // Topocentric includes refraction
+            referenceTransformWithRefraction.SetJ2000(1.0, 50.0);
+            Transform observedTransform = CreateTransform(true, false); // Observed mode test transform
+            observedTransform.SetJ2000(1.0, 50.0);
+
+            Assert.Equal(referenceTransformNoRefraction.RATopocentric, observedTransform.RATopocentric, 6);
+            Assert.Equal(referenceTransformNoRefraction.DECTopocentric, observedTransform.DECTopocentric, 6);
+            Assert.Equal(referenceTransformWithRefraction.RATopocentric, observedTransform.RAObserved, 6);
+            Assert.Equal(referenceTransformWithRefraction.DECTopocentric, observedTransform.DECObserved, 6);
+        }
+
+        [Fact]
+        public void ObservedModeSetTopocentric()
+        {
+            Transform referenceTransformNoRefraction = CreateTransform(false, false); // Topocentric excludes refraction
+            referenceTransformNoRefraction.SetTopocentric(1.0, 50.0);
+            Transform observedTransform = CreateTransform(true, false); // Observed mode test transform
+            observedTransform.SetTopocentric(1.0, 50.0);
+
+            Assert.Equal(referenceTransformNoRefraction.RAJ2000, observedTransform.RAJ2000, 6);
+            Assert.Equal(referenceTransformNoRefraction.DecJ2000, observedTransform.DecJ2000, 6);
+        }
+
+        [Fact]
+        public void ObservedModeSetObserved()
+        {
+            Transform referenceTransformWithRefraction = CreateTransform(false, true); // Topocentric includes refraction
+            referenceTransformWithRefraction.SetTopocentric(1.0, 50.0);
+            TL.LogMessage("ObservedModeSetObserved",$"Reference Transform created");
+
+            Transform observedTransform = CreateTransform(true, false); // Observed mode test transform
+            observedTransform.SetObserved(1.0, 50.0);
+            TL.LogMessage("ObservedModeSetObserved", $"Test Transform created");
+
+            Assert.Equal(referenceTransformWithRefraction.RAJ2000, observedTransform.RAJ2000, 6);
+            Assert.Equal(referenceTransformWithRefraction.DecJ2000, observedTransform.DecJ2000, 6);
+        }
+
+        [Fact]
+        public void ObservedModeRoundTrip()
+        {
+            Transform observedTransform = CreateTransform(true, false); // Observed mode test transform
+            observedTransform.SetObserved(1.0, 50.0);
+            TL.LogMessage("ObservedModeRoundTrip", $"Test Transform created");
+
+            double rraTopocentric =observedTransform.RATopocentric;
+            double decTopocentric =observedTransform.DECTopocentric;
+            TL.LogMessage("ObservedModeRoundTrip", $"Topocentric coordinates captured");
+
+            observedTransform.SetTopocentric(rraTopocentric, decTopocentric);
+            TL.LogMessage("ObservedModeRoundTrip", $"Test Transform updated with Topocentric coordinates");
+
+            Assert.Equal(1.0, observedTransform.RAObserved, 6);
+            Assert.Equal(50.0, observedTransform.DECObserved, 6);
+        }
+
+        private Transform CreateTransform(bool observedMode, bool refraction)
+        {
+            transform = new Transform(TL);
+            Assert.NotNull(transform);
+            // Site parameters
+            double SiteLat = 51.0 + (4.0 / 60.0) + (43.0 / 3600.0);
+            double SiteLong = 0.0 - (17.0 / 60.0) - (40.0 / 3600.0);
+            // Set up Transform component
+            transform.SiteElevation = 80.0;
+            transform.SiteLatitude = SiteLat;
+            transform.SiteLongitude = SiteLong;
+            transform.SiteTemperature = 10.0;
+            transform.SitePressure = 1010.0;
+            transform.ObservedMode = observedMode;
+
+            // Set refraction if not in observed mode, since refraction is not allowed in observed mode
+            if (!observedMode)
+            {
+                transform.Refraction = refraction;
+            }
+
+            // Set the Julian date to a specific date for the calculation
+            transform.JulianDateUTC = AstroUtilities.JulianDateFromDateTime(new DateTime(TEST_YEAR, TEST_MONTH, TEST_DAY, TEST_HOUR, TEST_MINUTE, TEST_SECOND, DateTimeKind.Utc));
+
+            return transform;
+        }
+
+
+        [Fact]
         public void SetJ2000()
         {
             double TEST_RA = Utilities.HMSToHours("11:12:37.584");
