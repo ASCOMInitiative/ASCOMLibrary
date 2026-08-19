@@ -79,7 +79,6 @@ namespace ASCOM.Alpaca.Clients
                 configuration.Request100Continue);
         }
 
-
         /// <summary>
         /// Create an Alpaca client for a discovered ASCOM device specifying all parameters
         /// </summary>

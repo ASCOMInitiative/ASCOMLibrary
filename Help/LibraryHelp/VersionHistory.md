@@ -8,6 +8,52 @@ tocTitle: Version History
 # summary: Optional summary abstract
 ---
 
+## Version 4.0.0
+### Alpaca Client Changes and fixes
+* DEVELOPER-BREAKING-CHANGE - The static SetRetryCount method introduced in release 3.1.0 has been removed and replaced with a new constructor parameter
+of the same name. This allows different retry counts to be set for different client instances if required. 
+The major version number has been increased to reflect this breaking change.
+* DEPRECATION - The strictCasing parameter in Finder and AlpacaDiscovery component constructors operates inversely to what is expected.
+i.e. when strictCasing is set true, the client operates in a case insensitive manner. This behaviour won't be changed to maintain backward compatibility.
+Instead, affected constructors have been deprecated.
+* ADDED - Replacement Finder and AlpacaDiscovery constructors, with correct casing behaviour, to replace the deprecated constructors.
+* BUG-FIX - Numerous improvements to internal operation of the Alpaca clients and Finder components when handling low frequency edge case scenarios.
+
+### Astrometry Tools changes and fixes
+* BUG-FIX - Transform.SetObserved() now sets the topocentric and J2000 coordinates correctly.
+
+### ASCOM.COM changes and fixes
+* ADDED - PlatformUtilities.GetComDrivermetadata() function to return a dictionary of metadata about a COM driver based on its ProgID. 
+See [PlatformUtilities.GetComMetadata()](https://ascom-standards.org/library/html/M_ASCOM_Com_PlatformUtilities_GetComMetadata.htm) for more information.
+
+### ASCOM.ChooserSA changes and fixes
+* BUGFIX - Added support for creating Alpaca devices on Platform 7
+
+### ASCOM.Common changes and fixes
+* CHANGE - If a null value is passed to the ExceptionHelper.ErrorCodeFromException method a default error code of AlpacaErrors.Unknown 
+is now returned instead of throwing a NullReferenceException.
+* BUG-FIX - The ExceptionHelper.ErrorCodeFromException method now returns AlpacaErrors.ActionNotImplementedException instead of AlpacaErrors.NotImplemented
+when handling an ActionNotImplementedException.
+* BUG-FIX - The Focuser and Video device state classes incorrectly recorded messages as coming from the FilterWheel device.
+
+### ASCOM.Tools changes and fixes
+* SECURITY-CHANGE - The XMLprofile component now explicitly ignores DTDs in XML files to prevent potential XML External Entity (XXE) attacks.
+This is a security best practice to mitigate the risk of XXE vulnerabilities when processing XML data. 
+* CHANGE - XMLProfile now handles the case where the profile file is empty or contains invalid XML more gracefully.
+Instead of throwing an unhandled exception, it will now log a warning and create a new profile file with default settings.
+This allows the application to recover gracefully from this situation.
+* CHANGE - Utilities.DMSToDegrees and Utilities.HMSToHours now throw InvalidValueException when passed null values instead of a Framework exception.
+* CHANGE - Added the static TraceLogger.GetDefaultTraceLoggerPath() method that will return the default path for the TraceLogger log file. 
+This is useful for applications that want to write their own files to the default log file directory.
+* BUG-FIX - The XMLProfile overload that accepts a default value returned it when the key was
+absent but did not write it to the profile. The value is now written to the profile when the key is absent.
+* BUG-FIX - Numerous improvements to the internal operation of the TraceLogger and ConsoleLogger components to improve their
+resilience and reliability in edge case scenarios.
+* BUG-FIX - Utilities.Range now handles cases where the input value is more than one cycle outside the range. 
+Previously it would only handle values that were up to one cycle outside the range.
+* BUG-FIX - Utilities.Range now handles input non-real values (+Infinity, -Infinity, NaN) more gracefully. 
+It now throws an InvalidValueException with a descriptive message instead of an unhandled internal exception.
+
 ## Version 3.0.0
 ### Changes for all components in this release
 * ADDED - Support for .NET 8.0, 9.0 and 10.0 target frameworks. It will no longer be necessary for applications that use these frameworks to 
