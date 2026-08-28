@@ -732,7 +732,7 @@ namespace ASCOM.Com
             }
             catch (Win32Exception ex) when ((uint)ex.ErrorCode == 0x80004005)
             {
-                LogMessage("CreateDynamicDriver", $"Security approval not given, returning empoty string: \r\n{ex}");
+                LogMessage("CreateDynamicDriver", $"Security approval not given, returning empty string: \r\n{ex}");
                 // Security approval was not given by the user
                 return "";
             }
