@@ -76,7 +76,8 @@ namespace ASCOM.Alpaca.Clients
                 configuration.UserAgentProductVersion,
                 configuration.TrustUserGeneratedSslCertificates,
                 configuration.ThrowOnBadDateTimeJSON,
-                configuration.Request100Continue);
+                configuration.Request100Continue,
+                configuration.NumberOfRetries);
         }
 
         /// <summary>
