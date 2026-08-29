@@ -355,12 +355,12 @@ namespace ASCOM.Alpaca.Clients
 
         internal static void LogMessage(ILogger logger, uint instance, string prefix, string message)
         {
-            logger.LogMessage(LogLevel.Debug, $"{prefix} {instance}", message);
+            logger?.LogMessage(LogLevel.Debug, $"{prefix} {instance}", message);
         }
 
         internal static void LogBlankLine(ILogger logger)
         {
-            logger.BlankLine(LogLevel.Information);
+            logger?.BlankLine(LogLevel.Information);
         }
 
         #endregion

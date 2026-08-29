@@ -166,6 +166,30 @@ namespace AlpacaClients
         }
 
         [Fact]
+        public async Task SelfHealBadIpPortNoLogger()
+        {
+           string uniqueId = await GetUniqueId(DeviceTypes.Camera);
+
+            AlpacaConfiguration configuration = new AlpacaConfiguration();
+            configuration.IpAddressString = "192.168.0.241";
+            configuration.PortNumber = PORT_NUMBER + 100;
+            configuration.Logger = null;
+            configuration.EstablishConnectionTimeout = 1;
+            configuration.StandardDeviceResponseTimeout = 1;
+            configuration.LongDeviceResponseTimeout = 1;
+            configuration.NumberOfRetries = 0;
+            configuration.UniqueId = uniqueId;
+
+            AlpacaCamera device = AlpacaClient.GetDevice<AlpacaCamera>(configuration);
+
+            Assert.NotNull(device);
+
+            Assert.True(device.Connected);
+
+            device.Dispose();
+        }
+
+        [Fact]
         public async Task SelfHealBadIpAddress()
         {
             TraceLogger logger = new TraceLogger("SelfHealBadIpAddress", true);
