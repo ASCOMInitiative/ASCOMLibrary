@@ -124,29 +124,46 @@ namespace ASCOM.Alpaca.Clients
 
             AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, deviceTypString, $"Connecting to device: {ipAddressString}:{portNumber} through URL: {clientHostAddress}");
 
-
-
-
             // Test whether there is a device at the configured IP address and port by trying to open a TCP connection to it
             if (!string.IsNullOrEmpty(uniqueId) && !CanConnectTcp(ipAddressString, (int)portNumber, 1000, logger, clientNumber)) // Can not connect to the device at the IP address provided
             {
-                List<AvailableInterface> availableInterfaces = new List<AvailableInterface>();
+                List<AscomDevice> availableDevices = new List<AscomDevice>();
 
                 AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, deviceTypString, $"Can not connect TCP to device at {ipAddressString}:{portNumber}, looking for unique ID '{uniqueId}' on other interfaces.");
 
                 // Attempt to "re-discover" the device and use it's new address and / or port
                 AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, deviceTypString, $"The device at the configured IP address and port {ipAddressString} cannot be contacted, attempting to re-discover it");
 
+                // Get the original IP address as a big endian byte array
+                byte[] addressBytes = new byte[0]; // Create a zero length array in case its not possible to parse the IP address string (it may be a host name or may just be corrupted)
+
+                try
+                {
+                    addressBytes = IPAddress.Parse(ipAddressString).GetAddressBytes();
+                }
+                catch { }
+
+                // Create an array large enough to hold an IPv6 address (16 bytes) plus one extra byte at the high end that will always be 0.
+                // This ensures that an IPv6 address will not be interpreted as a negative number if its top bit is set
+                byte[] hostBytes = new byte[17];
+
+                // Re-order the network address byte array to little endian as used in Windows
+                Array.Copy(addressBytes.Reverse().ToArray<byte>(), hostBytes, addressBytes.Length);
+
+                // Create a big integer from the little endian byte array
+                BigInteger suppliedIpAddressAsBigInteger = new BigInteger(hostBytes);
+                AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, deviceTypString, $"Supplied IP address ({ipAddressString}) as BigInteger: {suppliedIpAddressAsBigInteger} ({suppliedIpAddressAsBigInteger:X32})");
+
                 // Create an AlapcaDiscovery component to conduct the search
                 using (AlpacaDiscovery alpacaDiscovery = new AlpacaDiscovery())
                 {
-                    // Start a discovery using two polls, 100ms apart, timing out after 2 seconds, don't attempt to resolve the IP address to a DNS name use the discovery port and IP settings of this device
-                    alpacaDiscovery.StartDiscovery(2, 100, 32227, 2.0, false, true, true);
+                    // Start a discovery using two polls, 100ms apart, timing out after 1 second, don't attempt to resolve the IP address to a DNS name use the discovery port and IP settings of this device
+                    alpacaDiscovery.StartDiscovery(2, 100, 32227, 1.0, false, true, true);
 
                     // Wait for the discovery cycle to complete, making sure that the UI remains responsive
                     do
                     {
-                        Thread.Sleep(10);
+                        Thread.Sleep(100);
                     } while (!alpacaDiscovery.DiscoveryComplete);
 
                     // Get a list of the discovered Alpaca devices
@@ -165,14 +182,14 @@ namespace ASCOM.Alpaca.Clients
                             // Test whether the found ASCOM device has the same unique ID as the device for which we are looking
                             if (ascomDevice.UniqueId.ToLowerInvariant() == uniqueId.ToLowerInvariant()) // We have a match so we can use this address and port instead of the configured values that no longer work
                             {
-                                AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, deviceTypString, $"  *** Found REQUIRED ASCOM device ***");
+                                AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, deviceTypString, $"  *** Found  ASCOM device with required UniqueId: {uniqueId} ***");
 
                                 // Get the IP address as a big endian byte array
-                                byte[] addressBytes = IPAddress.Parse(alpacaDevice.HostName).GetAddressBytes();
+                                addressBytes = IPAddress.Parse(alpacaDevice.IpAddress).GetAddressBytes();
 
                                 // Create an array large enough to hold an IPv6 address (16 bytes) plus one extra byte at the high end that will always be 0.
                                 // This ensures that the IPv6 address will not be interpreted as a negative number if its top bit is set
-                                byte[] hostBytes = new byte[17];
+                                hostBytes = new byte[17];
 
                                 // Re-order the network address byte array to little endian as used in Windows
                                 Array.Copy(addressBytes.Reverse().ToArray<byte>(), hostBytes, addressBytes.Length);
@@ -180,24 +197,17 @@ namespace ASCOM.Alpaca.Clients
                                 // Create a big integer from the little endian byte array
                                 BigInteger bigIntegerAddress = new BigInteger(hostBytes);
 
-                                // Create a new structure to hold the interface information and add it to the list of interfaces
-                                AvailableInterface availableInterface = new AvailableInterface
-                                {
-                                    HostName = alpacaDevice.HostName,
-                                    Port = alpacaDevice.Port,
-                                    IpAddress = alpacaDevice.HostName,
-                                    AddressDistance = bigIntegerAddress
-                                };
-                                availableInterfaces.Add(availableInterface);
+                                // Add the device to the list of available devices.
+                                availableDevices.Add(ascomDevice);
+                                AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, deviceTypString, $"Found available device: {ascomDevice.AscomDeviceName}:{ascomDevice.AscomDeviceType} ({ascomDevice.UniqueId}) at {alpacaDevice.HostName}:{alpacaDevice.Port}");
                             }
                         }
                     }
-
                 }
 
                 // Search the discovered interfaces for the one whose network address is closest to the original address
                 // This will ensure that we pick an address on the original sub-net if this is available.
-                switch (availableInterfaces.Count)
+                switch (availableDevices.Count)
                 {
                     case 0: // The device was not found on any available interface
                         AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, deviceTypString, $"No ASCOM device was discovered that had a UniqueD of {uniqueId}");
@@ -205,44 +215,13 @@ namespace ASCOM.Alpaca.Clients
 
                     case 1: // The device was found on exactly 1 interface so this is the one to use
                         // Update the client host address with the newly discovered address and port
-                        clientHostAddress = $"{serviceType}://{availableInterfaces[0].HostName}:{availableInterfaces[0].Port}";
+                        clientHostAddress = $"{availableDevices[0].ServiceType.ToString().ToLowerInvariant()}://{availableDevices[0].IpAddress}:{availableDevices[0].IpPort}";
                         AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, deviceTypString, $"One ASCOM device was discovered that had a UniqueD of {uniqueId}. Now using URL: {clientHostAddress}");
-
-                        // Write the new value to the driver's Profile so it is found immediately in future
                         break;
 
                     default: // The device was found on several interfaces so choose the address that is closest to the original address
-                        AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, deviceTypString, $"{availableInterfaces.Count} ASCOM devices were discovered that had a UniqueD of {uniqueId}.");
+                        AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, deviceTypString, $"{availableDevices.Count} ASCOM devices were discovered that had a UniqueD of {uniqueId}.");
 
-                        // Get the original IP address as a big endian byte array
-                        byte[] addressBytes = new byte[0]; // Create a zero length array in case its not possible to parse the IP address string (it may be a host name or may just be corrupted)
-
-                        try
-                        {
-                            addressBytes = IPAddress.Parse(ipAddressString).GetAddressBytes();
-                        }
-                        catch { }
-
-                        // Create an array large enough to hold an IPv6 address (16 bytes) plus one extra byte at the high end that will always be 0.
-                        // This ensures that the IPv6 address will not be interpreted as a negative number if its top bit is set
-                        byte[] hostBytes = new byte[17];
-
-                        // Re-order the network address byte array to little endian as used in Windows
-                        Array.Copy(addressBytes.Reverse().ToArray<byte>(), hostBytes, addressBytes.Length);
-
-                        // Create a big integer from the little endian byte array
-                        BigInteger currentIpAddress = new BigInteger(hostBytes);
-
-                        // Iterate over the discovered interfaces to find the one that is closest to the original IP address
-                        for (int i = 0; i < availableInterfaces.Count; i++)
-                        {
-                            AvailableInterface availableInterface = new AvailableInterface();
-                            availableInterface.IpAddress = availableInterfaces[i].IpAddress;
-                            availableInterface.Port = availableInterfaces[i].Port;
-                            availableInterface.HostName = availableInterfaces[i].HostName;
-                            availableInterface.AddressDistance = BigInteger.Abs(BigInteger.Subtract(currentIpAddress, BigInteger.Parse(availableInterfaces[i].IpAddress)));
-                            availableInterfaces[i] = availableInterface;
-                        }
 
                         // Initialise a big integer variable with an impossibly large address to ensure that the first iterated value will be used
                         // The following number requires a leading zero to ensure that it is not interpreted as a negative number because its most significant bit is set
@@ -251,26 +230,36 @@ namespace ASCOM.Alpaca.Clients
                         AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, deviceTypString, $"Initialised largest value: {largestDifference} = {largestDifference:X34}");
 
                         // Now iterate over the values and pick the entry with the smallest difference in IP address
-                        foreach (AvailableInterface availableInterface in availableInterfaces)
+                        foreach (AscomDevice availableDevice in availableDevices)
                         {
-                            if (availableInterface.AddressDistance < largestDifference)
+                            // Calculate the difference between the original IP address and the discovered IP address as a big integer
+                            addressBytes = IPAddress.Parse(availableDevice.IpAddress).GetAddressBytes();
+
+                            // Create an array large enough to hold a 16 byte IPv6 address plus one byte at the high end that will always be 0. (Ensures that IPv6 addresses will not be interpreted as negative numbers.
+                            hostBytes = new byte[17];
+
+                            // Re-order the network address byte array to little endian as used in Windows
+                            Array.Copy(addressBytes.Reverse().ToArray<byte>(), hostBytes, addressBytes.Length);
+
+                            BigInteger bigIntegerAddress = new BigInteger(hostBytes);
+                            BigInteger addressDifference = BigInteger.Abs(bigIntegerAddress - suppliedIpAddressAsBigInteger);
+
+                            if (addressDifference < largestDifference)
                             {
-                                largestDifference = availableInterface.AddressDistance;
-                                clientHostAddress = $"{serviceType}://{availableInterface.HostName}:{availableInterface.Port}";
-
-                                AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, deviceTypString, $"New lowest address difference found: {availableInterface.AddressDistance} ({availableInterface.AddressDistance:X32}) for UniqueD {uniqueId}. Now using URL: {clientHostAddress}");
-
-                                // Write the new value to the driver's Profile so it is found immediately in future
+                                largestDifference = addressDifference;
+                                clientHostAddress = $"{availableDevice.ServiceType.ToString().ToLowerInvariant()}://{availableDevice.IpAddress}:{availableDevice.IpPort}";
+                                ipAddressString = availableDevice.IpAddress;
+                                portNumber = availableDevice.IpPort;
+                                AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, deviceTypString, $"New lowest address difference found: {addressDifference}. Now using URL: {clientHostAddress}");
+                            }
+                            else
+                            {
+                                AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, deviceTypString, $"Ignoring address difference {addressDifference} for IP address {availableDevice.IpAddress}.");
                             }
                         }
                         break;
                 }
             }
-
-
-
-
-
 
             // Remove any old client, if present
             httpClient?.Dispose();

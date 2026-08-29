@@ -1,7 +1,11 @@
 ﻿using ASCOM.Alpaca.Clients;
+using ASCOM.Alpaca.Discovery;
+using ASCOM.Common;
 using ASCOM.Common.Interfaces;
 using ASCOM.Tools;
 using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace AlpacaClients
@@ -131,6 +135,72 @@ namespace AlpacaClients
             Assert.ThrowsAny<Exception>(() => { var connected = device.Connected; });
 
             device.Dispose();
+        }
+
+        [Fact]
+        public async Task SelfHealBadIpPort()
+        {
+            TraceLogger logger = new TraceLogger("SelfHealBadIpPort", true);
+            logger.SetMinimumLoggingLevel(LogLevel.Debug);
+
+            string uniqueId = await GetUniqueId(DeviceTypes.Camera);
+            logger.LogMessage("SelfHealBadIpPort", $"UniqueId={uniqueId}");
+
+            AlpacaConfiguration configuration = new AlpacaConfiguration();
+            configuration.IpAddressString = "192.168.0.241";
+            configuration.PortNumber = PORT_NUMBER + 100;
+            configuration.Logger = logger;
+            configuration.EstablishConnectionTimeout = 1;
+            configuration.StandardDeviceResponseTimeout = 1;
+            configuration.LongDeviceResponseTimeout = 1;
+            configuration.NumberOfRetries = 0;
+            configuration.UniqueId = uniqueId;
+
+            AlpacaCamera device = AlpacaClient.GetDevice<AlpacaCamera>(configuration);
+
+            Assert.NotNull(device);
+
+            Assert.True(device.Connected);
+
+            device.Dispose();
+        }
+
+        [Fact]
+        public async Task SelfHealBadIpAddress()
+        {
+            TraceLogger logger = new TraceLogger("SelfHealBadIpAddress", true);
+            logger.SetMinimumLoggingLevel(LogLevel.Debug);
+
+            string uniqueId = await GetUniqueId(DeviceTypes.Camera);
+            logger.LogMessage("SelfHealBadIpAddress", $"UniqueId={uniqueId}");
+
+            AlpacaConfiguration configuration = new AlpacaConfiguration();
+            configuration.IpAddressString = "192.168.0.119";
+            configuration.PortNumber = PORT_NUMBER;
+            configuration.Logger = logger;
+            configuration.EstablishConnectionTimeout = 1;
+            configuration.StandardDeviceResponseTimeout = 1;
+            configuration.LongDeviceResponseTimeout = 1;
+            configuration.NumberOfRetries = 0;
+            configuration.UniqueId = uniqueId;
+
+            AlpacaCamera device = AlpacaClient.GetDevice<AlpacaCamera>(configuration);
+
+            Assert.NotNull(device);
+
+            Assert.True(device.Connected);
+
+            device.Dispose();
+        }
+
+        private async Task<string> GetUniqueId(DeviceTypes deviceType)
+        {
+
+            List<AscomDevice> devices=await AlpacaDiscovery.GetAscomDevicesAsync(deviceType);
+            if(devices.Count==0)
+                throw new Exception("No devices found");
+
+            return devices[0].UniqueId;
         }
     }
 }
