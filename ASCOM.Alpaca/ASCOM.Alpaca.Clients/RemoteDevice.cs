@@ -1,3 +1,4 @@
+using ASCOM.Alpaca.Discovery;
 using ASCOM.Common;
 using ASCOM.Common.Alpaca;
 using ASCOM.Common.Com;
@@ -13,6 +14,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Sockets;
+using System.Numerics;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
@@ -99,12 +101,13 @@ namespace ASCOM.Alpaca.Clients
         /// <param name="userAgentProductVersion">Product version for the User-Agent header</param>
         /// <param name="trustUnsignedSslCertificates">When <see langword="true"/> self-signed SSL certificates are accepted</param>
         /// <param name="request100Continue">When <see langword="true"/> 100-Continue is requested on PUT</param>
+        /// <param name="uniqueId">Unique identifier for the Alpaca device</param>
         internal static void CreateHttpClient(ref HttpClient httpClient, ServiceType serviceType, string ipAddressString, decimal portNumber,
                                                  uint clientNumber, DeviceTypes deviceType, string userName, string password, ImageArrayCompression imageArrayCompression, ILogger logger,
-                                                 string userAgentProductName, string userAgentProductVersion, bool trustUnsignedSslCertificates, bool request100Continue)
+                                                 string userAgentProductName, string userAgentProductVersion, bool trustUnsignedSslCertificates, bool request100Continue, string uniqueId)
         {
             // Extract any IPv6 zone identifier (e.g. %2 in fe80::1%2 or [fe80::1%2]) before building the URI.
-            // .NET's Uri class strips zone identifiers at every parsing step, so the zone is removed here
+            // .NET's URI class strips zone identifiers at every parsing step, so the zone is removed here
             // and re-applied at the TCP socket level on .NET 5+ via SocketsHttpHandler.ConnectCallback.
             string normalizedIpAddress = ipAddressString.TrimStart('[').TrimEnd(']');
             int zoneDelimiterIndex = normalizedIpAddress.IndexOf('%');
@@ -116,171 +119,175 @@ namespace ASCOM.Alpaca.Clients
             string ipForUri = ipv6ZoneId != null ? $"[{ipv6AddressWithoutZone}]" : ipAddressString;
             string clientHostAddress = $"{serviceType.ToString().ToLowerInvariant()}://{ipForUri}:{portNumber}";
 
-            AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, Devices.DeviceTypeToString(deviceType), $"Connecting to device: {ipAddressString}:{portNumber} through URL: {clientHostAddress}");
-            AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, Devices.DeviceTypeToString(deviceType), $"Can connect TCP: {CanConnectTcp(ipAddressString, (int)portNumber, 1000,logger, clientNumber)}");
+            // Create a string version of the device type for logging purposes
+            string deviceTypString = Devices.DeviceTypeToString(deviceType);
 
-            #region Commented automatic Alpaca device rediscovery code
-            // Test whether automatic Alpaca device rediscovery is enabled for this device
-            //if (enableRediscovery) // Automatic rediscovery is enabled
+            AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, deviceTypString, $"Connecting to device: {ipAddressString}:{portNumber} through URL: {clientHostAddress}");
+
+
+
+
+            // Test whether there is a device at the configured IP address and port by trying to open a TCP connection to it
+            //if (!CanConnectTcp(ipAddressString, (int)portNumber, 1000, logger, clientNumber)) // Can not connect to the device at the IP address provided
             //{
-            //    AlpacaDeviceBaseClass.LogMessage(,clientNumber, deviceType, $"Testing whether client at address {clientHostAddress} can be contacted.");
+            //    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, deviceTypString, $"Can not connect TCP to device at {ipAddressString}:{portNumber}");
 
-            //    // Test whether there is a device at the configured IP address and port by trying to open a TCP connection to it
-            //    if (!ClientIsUp(ipAddressString, portNumber, connectionTimeout, , clientNumber)) // It was not possible to establish TCP communication with a device at the IP address provided
+            //    // Attempt to "re-discover" the device and use it's new address and / or port
+            //    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, deviceTypString, $"The device at the configured IP address and port {ipAddressString} cannot be contacted, attempting to re-discover it");
+
+            //    // Create an AlapcaDiscovery component to conduct the search
+            //    using (AlpacaDiscovery alpacaDiscovery = new AlpacaDiscovery())
             //    {
-            //        // Attempt to "re-discover" the device and use it's new address and / or port
-            //        AlpacaDeviceBaseClass.LogMessage(,clientNumber, deviceType, $"The device at the configured IP address and port {ipAddressString} cannot be contacted, attempting to re-discover it");
+            //        // Start a discovery using two polls, 100ms apart, timing out after 2 seconds, don't attempt to resolve the IP address to a DNS name use the discovery port and IP settings of this device
+            //        alpacaDiscovery.StartDiscovery(2, 100, 32227, 2.0, false, true, true);
 
-            //        // Create an AlapcaDiscovery component to conduct the search
-            //        using (AlpacaDiscovery alpacaDiscovery = new AlpacaDiscovery())
+            //        // Wait for the discovery cycle to complete, making sure that the UI remains responsive
+            //        do
             //        {
-            //            // Start a discovery using two polls, 100ms apart, timing out after 2 seconds, don't attempt to resolve the IP address to a DNS name use the discovery port and IP settings of this device
-            //            alpacaDiscovery.StartDiscovery(2, 100, discoveryPort, 2.0, false, ipV4Enabled, ipV6Enabled);
+            //            Thread.Sleep(10);
+            //        } while (!alpacaDiscovery.DiscoveryComplete);
 
-            //            // Wait for the discovery cycle to complete, making sure that the UI remains responsive
-            //            do
+            //        // Get a list of the discovered Alpaca devices
+            //        List<AlpacaDevice> discoveredDevices = alpacaDiscovery.GetAlpacaDevices();
+
+            //        // Iterate over these to find which ASCOM devices are served by them
+            //        foreach (AlpacaDevice alpacaDevice in discoveredDevices)
+            //        {
+            //            AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, deviceTypString, $"Found Alpaca device {alpacaDevice.HostName}:{alpacaDevice.Port} - {alpacaDevice.ServerName}");
+
+            //            // Iterate over the devices served by the Alpaca device
+            //            foreach (AscomDevice ascomDevice in alpacaDevice.AscomDevices(null))
             //            {
-            //                Thread.Sleep(10);
-            //            } while (!alpacaDiscovery.DiscoveryComplete);
+            //                AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, deviceTypString, $"Found ASCOM device {ascomDevice.AscomDeviceName}:{ascomDevice.AscomDeviceType} - {ascomDevice.UniqueId} at {alpacaDevice.HostName}:{alpacaDevice.Port}");
 
-            //            // Get a list of the discovered Alpaca devices
-            //            List<AlpacaDevice> discoveredDevices = alpacaDiscovery.GetAlpacaDevices();
-
-            //            // Iterate over these to find which ASCOM devices are served by them
-            //            foreach (AlpacaDevice alpacaDevice in discoveredDevices)
-            //            {
-            //                AlpacaDeviceBaseClass.LogMessage(,clientNumber, deviceType, $"Found Alpaca device {alpacaDevice.HostName}:{alpacaDevice.Port} - {alpacaDevice.ServerName}");
-
-            //                // Iterate over the devices served by the Alpaca device
-            //                foreach (ConfiguredDevice ascomDevice in alpacaDevice.ConfiguredDevices)
+            //                // Test whether the found ASCOM device has the same unique ID as the device for which we are looking
+            //                if (ascomDevice.UniqueId.ToLowerInvariant() == uniqueId.ToLowerInvariant()) // We have a match so we can use this address and port instead of the configured values that no longer work
             //                {
-            //                    AlpacaDeviceBaseClass.LogMessage(,clientNumber, deviceType, $"Found ASCOM device {ascomDevice.DeviceName}:{ascomDevice.DeviceType} - {ascomDevice.UniqueID} at {alpacaDevice.HostName}:{alpacaDevice.Port}");
+            //                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, deviceTypString, $"  *** Found REQUIRED ASCOM device ***");
 
-            //                    // Test whether the found ASCOM device has the same unique ID as the device for which we are looking
-            //                    if (ascomDevice.UniqueID.ToLowerInvariant() == uniqueId.ToLowerInvariant()) // We have a match so we can use this address and port instead of the configured values that no longer work
-            //                    {
-            //                        AlpacaDeviceBaseClass.LogMessage(,clientNumber, deviceType, $"  *** Found REQUIRED ASCOM device ***");
+            //                    // Get the IP address as a big endian byte array
+            //                    byte[] addressBytes = IPAddress.Parse(alpacaDevice.HostName).GetAddressBytes();
 
-            //                        // Get the IP address as a big endian byte array
-            //                        byte[] addressBytes = IPAddress.Parse(alpacaDevice.HostName).GetAddressBytes();
+            //                    // Create an array large enough to hold an IPv6 address (16 bytes) plus one extra byte at the high end that will always be 0.
+            //                    // This ensures that the IPv6 address will not be interpreted as a negative number if its top bit is set
+            //                    byte[] hostBytes = new byte[17];
 
-            //                        // Create an array large enough to hold an IPv6 address (16 bytes) plus one extra byte at the high end that will always be 0.
-            //                        // This ensures that the IPv6 address will not be interpreted as a negative number if its top bit is set
-            //                        byte[] hostBytes = new byte[17];
+            //                    // Re-order the network address byte array to little endian as used in Windows
+            //                    Array.Copy(addressBytes.Reverse().ToArray<byte>(), hostBytes, addressBytes.Length);
 
-            //                        // Re-order the network address byte array to little endian as used in Windows
-            //                        Array.Copy(addressBytes.Reverse().ToArray<byte>(), hostBytes, addressBytes.Length);
+            //                    // Create a big integer from the little endian byte array
+            //                    BigInteger bigIntegerAddress = new BigInteger(hostBytes);
 
-            //                        // Create a big integer from the little endian byte array
-            //                        BigInteger bigIntegerAddress = new BigInteger(hostBytes);
+            //                    // Create a new structure to hold the interface information and add it to the list of interfaces
+            //                    AvailableInterface availableInterface = new AvailableInterface();
+            //                    availableInterface.HostName = alpacaDevice.HostName;
+            //                    availableInterface.Port = alpacaDevice.Port;
+            //                    availableInterface.IpAddress = bigIntegerAddress;
+            //                    availableInterfaces.Add(availableInterface);
 
-            //                        // Create a new structure to hold the interface information and add it to the list of interfaces
-            //                        AvailableInterface availableInterface = new AvailableInterface();
-            //                        availableInterface.HostName = alpacaDevice.HostName;
-            //                        availableInterface.Port = alpacaDevice.Port;
-            //                        availableInterface.IpAddress = bigIntegerAddress;
-            //                        availableInterfaces.Add(availableInterface);
-
-            //                    }
             //                }
-            //                logger.BlankLine();
+            //            }
+            //            logger.BlankLine();
+            //        }
+
+            //    }
+
+            //    // Search the discovered interfaces for the one whose network address is closest to the original address
+            //    // This will ensure that we pick an address on the original sub-net if this is available.
+            //    switch (availableInterfaces.Count)
+            //    {
+            //        case 0:
+            //            AlpacaDeviceBaseClass.LogMessage(, clientNumber, deviceType, $"No ASCOM device was discovered that had a UniqueD of {uniqueId}");
+            //            logger.BlankLine();
+            //            break;
+
+            //        case 1:
+            //            // Update the client host address with the newly discovered address and port
+            //            clientHostAddress = $"{serviceType}://{availableInterfaces[0].HostName}:{availableInterfaces[0].Port}";
+            //            AlpacaDeviceBaseClass.LogMessage(, clientNumber, deviceTypString, $"One ASCOM device was discovered that had a UniqueD of {uniqueId}. Now using URL: {clientHostAddress}");
+
+            //            // Write the new value to the driver's Profile so it is found immediately in future
+            //            using (Profile profile = new Profile())
+            //            {
+            //                profile.DeviceType = deviceType;
+            //                profile.WriteValue(driverProgId, SharedConstants.IPADDRESS_PROFILENAME, availableInterfaces[0].HostName);
+            //                profile.WriteValue(driverProgId, SharedConstants.PORTNUMBER_PROFILENAME, availableInterfaces[0].Port.ToString());
+            //                AlpacaDeviceBaseClass.LogMessage(, clientNumber, deviceTypString, $"Written new values {availableInterfaces[0].HostName} and {availableInterfaces[0].Port} to profile {driverProgId}");
             //            }
 
-            //        }
+            //            logger.BlankLine();
+            //            break;
 
-            //        // Search the discovered interfaces for the one whose network address is closest to the original address
-            //        // This will ensure that we pick an address on the original subnet if this is available.
-            //        switch (availableInterfaces.Count)
-            //        {
-            //            case 0:
-            //                AlpacaDeviceBaseClass.LogMessage(,clientNumber, deviceType, $"No ASCOM device was discovered that had a UniqueD of {uniqueId}");
-            //                logger.BlankLine();
-            //                break;
+            //        default:
+            //            AlpacaDeviceBaseClass.LogMessage(, clientNumber, deviceTypString, $"{availableInterfaces.Count} ASCOM devices were discovered that had a UniqueD of {uniqueId}.");
 
-            //            case 1:
-            //                // Update the client host address with the newly discovered address and port
-            //                clientHostAddress = $"{serviceType}://{availableInterfaces[0].HostName}:{availableInterfaces[0].Port}";
-            //                AlpacaDeviceBaseClass.LogMessage(,clientNumber, deviceType, $"One ASCOM device was discovered that had a UniqueD of {uniqueId}. Now using URL: {clientHostAddress}");
+            //            // Get the original IP address as a big endian byte array
+            //            byte[] addressBytes = new byte[0]; // Create a zero length array in case its not possible to parse the IP address string (it may be a host name or may just be corrupted)
 
-            //                // Write the new value to the driver's Profile so it is found immediately in future
-            //                using (Profile profile = new Profile())
+            //            try
+            //            {
+            //                addressBytes = IPAddress.Parse(ipAddressString).GetAddressBytes();
+            //            }
+            //            catch { }
+
+            //            // Create an array large enough to hold an IPv6 address (16 bytes) plus one extra byte at the high end that will always be 0.
+            //            // This ensures that the IPv6 address will not be interpreted as a negative number if its top bit is set
+            //            byte[] hostBytes = new byte[17];
+
+            //            // Re-order the network address byte array to little endian as used in Windows
+            //            Array.Copy(addressBytes.Reverse().ToArray<byte>(), hostBytes, addressBytes.Length);
+
+            //            // Create a big integer from the little endian byte array
+            //            BigInteger currentIpAddress = new BigInteger(hostBytes);
+
+            //            // Iterate over the discovered interfaces to find the one that is closest to the original IP address
+            //            for (int i = 0; i < availableInterfaces.Count; i++)
+            //            {
+            //                AvailableInterface ai = new AvailableInterface();
+            //                ai.IpAddress = availableInterfaces[i].IpAddress;
+            //                ai.Port = availableInterfaces[i].Port;
+            //                ai.HostName = availableInterfaces[i].HostName;
+            //                ai.AddressDistance = BigInteger.Abs(BigInteger.Subtract(currentIpAddress, ai.IpAddress));
+            //                availableInterfaces[i] = ai;
+            //            }
+
+            //            // Initialise a big integer variable with an impossibly large address to ensure that the first iterated value will be used
+            //            // The following number requires a leading zero to ensure that it is not interpreted as a negative number because its most significant bit is set
+            //            // Hex number character count                    1234567890123456789012345678901234 = 34 hex characters = 17 bytes = a leading 0 byte plus 16 bytes of value 255
+            //            BigInteger largestDifference = BigInteger.Parse("00FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+            //            AlpacaDeviceBaseClass.LogMessage(, clientNumber, deviceType, $"Initialised largest value: {largestDifference} = {largestDifference:X34}");
+
+            //            // Now iterate over the values and pick the entry with the smallest difference in IP address
+            //            foreach (AvailableInterface availableInterface in availableInterfaces)
+            //            {
+            //                if (availableInterface.AddressDistance < largestDifference)
             //                {
-            //                    profile.DeviceType = deviceType;
-            //                    profile.WriteValue(driverProgId, SharedConstants.IPADDRESS_PROFILENAME, availableInterfaces[0].HostName);
-            //                    profile.WriteValue(driverProgId, SharedConstants.PORTNUMBER_PROFILENAME, availableInterfaces[0].Port.ToString());
-            //                    AlpacaDeviceBaseClass.LogMessage(,clientNumber, deviceType, $"Written new values {availableInterfaces[0].HostName} and {availableInterfaces[0].Port} to profile {driverProgId}");
-            //                }
+            //                    largestDifference = availableInterface.AddressDistance;
+            //                    clientHostAddress = $"{serviceType}://{availableInterface.HostName}:{availableInterface.Port}";
 
-            //                logger.BlankLine();
-            //                break;
+            //                    AlpacaDeviceBaseClass.LogMessage(, clientNumber, deviceTypString, $"New lowest address difference found: {availableInterface.AddressDistance} ({availableInterface.AddressDistance:X32}) for UniqueD {uniqueId}. Now using URL: {clientHostAddress}");
 
-            //            default:
-            //                AlpacaDeviceBaseClass.LogMessage(,clientNumber, deviceType, $"{availableInterfaces.Count} ASCOM devices were discovered that had a UniqueD of {uniqueId}.");
-
-            //                // Get the original IP address as a big endian byte array
-            //                byte[] addressBytes = new byte[0]; // Create a zero length array in case its not possible to parse the IP address string (it may be a host name or may just be corrupted)
-
-            //                try
-            //                {
-            //                    addressBytes = IPAddress.Parse(ipAddressString).GetAddressBytes();
-            //                }
-            //                catch { }
-
-            //                // Create an array large enough to hold an IPv6 address (16 bytes) plus one extra byte at the high end that will always be 0.
-            //                // This ensures that the IPv6 address will not be interpreted as a negative number if its top bit is set
-            //                byte[] hostBytes = new byte[17];
-
-            //                // Re-order the network address byte array to little endian as used in Windows
-            //                Array.Copy(addressBytes.Reverse().ToArray<byte>(), hostBytes, addressBytes.Length);
-
-            //                // Create a big integer from the little endian byte array
-            //                BigInteger currentIpAddress = new BigInteger(hostBytes);
-
-            //                // Iterate over the discovered interfaces to find the one that is closest to the original IP address
-            //                for (int i = 0; i < availableInterfaces.Count; i++)
-            //                {
-            //                    AvailableInterface ai = new AvailableInterface();
-            //                    ai.IpAddress = availableInterfaces[i].IpAddress;
-            //                    ai.Port = availableInterfaces[i].Port;
-            //                    ai.HostName = availableInterfaces[i].HostName;
-            //                    ai.AddressDistance = BigInteger.Abs(BigInteger.Subtract(currentIpAddress, ai.IpAddress));
-            //                    availableInterfaces[i] = ai;
-            //                }
-
-            //                // Initialise a big integer variable with an impossibly large address to ensure that the first iterated value will be used
-            //                // The following number requires a leading zero to ensure that it is not interpreted as a negative number because its most significant bit is set
-            //                // Hex number character count                    1234567890123456789012345678901234 = 34 hex characters = 17 bytes = a leading 0 byte plus 16 bytes of value 255
-            //                BigInteger largestDifference = BigInteger.Parse("00FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", NumberStyles.HexNumber, CultureInfo.InvariantCulture);
-            //                AlpacaDeviceBaseClass.LogMessage(,clientNumber, deviceType, $"Initialised largest value: {largestDifference} = {largestDifference:X34}");
-
-            //                // Now iterate over the values and pick the entry with the smallest difference in IP address
-            //                foreach (AvailableInterface availableInterface in availableInterfaces)
-            //                {
-            //                    if (availableInterface.AddressDistance < largestDifference)
+            //                    // Write the new value to the driver's Profile so it is found immediately in future
+            //                    using (Profile profile = new Profile())
             //                    {
-            //                        largestDifference = availableInterface.AddressDistance;
-            //                        clientHostAddress = $"{serviceType}://{availableInterface.HostName}:{availableInterface.Port}";
-
-            //                        AlpacaDeviceBaseClass.LogMessage(,clientNumber, deviceType, $"New lowest address difference found: {availableInterface.AddressDistance} ({availableInterface.AddressDistance:X32}) for UniqueD {uniqueId}. Now using URL: {clientHostAddress}");
-
-            //                        // Write the new value to the driver's Profile so it is found immediately in future
-            //                        using (Profile profile = new Profile())
-            //                        {
-            //                            profile.DeviceType = deviceType;
-            //                            profile.WriteValue(driverProgId, SharedConstants.IPADDRESS_PROFILENAME, availableInterface.HostName);
-            //                            profile.WriteValue(driverProgId, SharedConstants.PORTNUMBER_PROFILENAME, availableInterface.Port.ToString());
-            //                            AlpacaDeviceBaseClass.LogMessage(,clientNumber, deviceType, $"Written new values {availableInterface.HostName} and {availableInterface.Port} to profile {driverProgId}");
-            //                        }
+            //                        profile.DeviceType = deviceType;
+            //                        profile.WriteValue(driverProgId, SharedConstants.IPADDRESS_PROFILENAME, availableInterface.HostName);
+            //                        profile.WriteValue(driverProgId, SharedConstants.PORTNUMBER_PROFILENAME, availableInterface.Port.ToString());
+            //                        AlpacaDeviceBaseClass.LogMessage(, clientNumber, deviceType, $"Written new values {availableInterface.HostName} and {availableInterface.Port} to profile {driverProgId}");
             //                    }
             //                }
+            //            }
 
 
-            //                logger.BlankLine();
-            //                break;
-            //        }
+            //            logger.BlankLine();
+            //            break;
             //    }
             //}
-            #endregion
+
+
+
+
+
 
             // Remove any old client, if present
             httpClient?.Dispose();
@@ -329,7 +336,7 @@ namespace ASCOM.Alpaca.Clients
 
                 socketsHandler.ConnectCallback = async (context, cancellationToken) =>
                 {
-                    // Re-apply the zone identifier that Uri stripped from the host.
+                    // Re-apply the zone identifier that URI stripped from the host.
                     string addressWithZone = $"{capturedAddress}%{capturedZoneId}";
                     if (IPAddress.TryParse(addressWithZone, out IPAddress ipAddress))
                     {
@@ -354,7 +361,7 @@ namespace ASCOM.Alpaca.Clients
             httpClient = new HttpClient(socketsHandler);
 #else
             // On earlier frameworks, use HttpClientHandler. IPv6 zone identifiers are not supported on these platforms, so any zone identifier is stripped from the host and not re-applied. 
-            // Connections to link-local IPv6 addresses on multi-homed hosts may fail on these platforms; use an IPv4 address, a DNS hostname, or a non-link-local IPv6 address instead.
+            // Connections to link-local IPv6 addresses on multi-homed hosts may fail on these platforms; use an IPv4 address, a DNS host name, or a non-link-local IPv6 address instead.
 
             // Create a new HTTP handler to control authentication and automatic decompression
             HttpClientHandler httpClientHandler = new HttpClientHandler
@@ -479,7 +486,7 @@ namespace ASCOM.Alpaca.Clients
                     AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "CanConnectTcp", $"ObjectDisposedException occurred, returning false - {ex.Message}");
                     return false;
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     // Catch-all for any other unexpected exceptions.
                     AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "CanConnectTcp", $"Unexpected exception occurred, returning false - {ex.Message}");

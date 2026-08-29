@@ -237,5 +237,23 @@ namespace ASCOM.Alpaca.Clients
             get { return baseClass.request100Continue; }
             set { baseClass.request100Continue = value; }
         }
+
+        /// <summary>
+        /// Gets or sets the number of retries for failed requests.
+        /// </summary>
+        public int NumberOfRetries
+        {
+            get { return baseClass.numberOfRetries; }
+            set { baseClass.numberOfRetries = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the device's unique identifier.
+        /// </summary>
+        public string UniqueId
+        {
+            get { return baseClass.uniqueId; }
+            set { baseClass.uniqueId = value; }
+        }
     }
 }

@@ -55,6 +55,7 @@ namespace ASCOM.Alpaca.Clients
             this.throwOnBadDateTimeJSON=configuration.ThrowOnBadDateTimeJSON;
             this.request100Continue = configuration.Request100Continue;
             this.numberOfRetries = configuration.NumberOfRetries;
+            this.uniqueId = configuration.UniqueId;
 
             Initialise();
         }
@@ -80,6 +81,7 @@ namespace ASCOM.Alpaca.Clients
         /// <param name="throwOnBadDateTimeJSON">Throw an exception if a returned JSON DateTime value is not a UTC value (has a trailing Z character). Defaults to false.</param>
         /// <param name="request100Continue">Request 100-continue behaviour for HTTP requests. Defaults to false.</param>
         /// <param name="numberOfRetries">Number of communication retries this client will make. Defaults to 1.</param>
+        /// <param name="uniqueId">Unique identifier for the Alpaca device. Defaults to an empty string.</param>
         public AlpacaTelescope(ServiceType serviceType = AlpacaClient.CLIENT_SERVICETYPE_DEFAULT,
                                string ipAddressString = AlpacaClient.CLIENT_IPADDRESS_DEFAULT,
                                int portNumber = AlpacaClient.CLIENT_IPPORT_DEFAULT,
@@ -97,7 +99,8 @@ namespace ASCOM.Alpaca.Clients
                                bool trustUserGeneratedSslCertificates = AlpacaClient.TRUST_USER_GENERATED_SSL_CERTIFICATES_DEFAULT,
                                bool throwOnBadDateTimeJSON = AlpacaClient.THROW_ON_BAD_JSON_DATE_TIME_DEFAULT,
                                bool request100Continue = AlpacaClient.CLIENT_REQUEST_100_CONTINUE_DEFAULT,
-                               int numberOfRetries = AlpacaClient.NUMBER_OF_RETRIES_DEFAULT
+                               int numberOfRetries = AlpacaClient.NUMBER_OF_RETRIES_DEFAULT,
+                               string uniqueId = AlpacaClient.UNIQUEIDENTIFIER_DEFAULT
             )
         {
             this.serviceType = serviceType;
@@ -118,6 +121,7 @@ namespace ASCOM.Alpaca.Clients
             this.throwOnBadDateTimeJSON= throwOnBadDateTimeJSON;
             this.request100Continue = request100Continue;
             this.numberOfRetries = numberOfRetries;
+            this.uniqueId = uniqueId;
 
             Initialise();
         }
@@ -174,9 +178,10 @@ namespace ASCOM.Alpaca.Clients
                 LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"Throw on bad JSON DateTime: {throwOnBadDateTimeJSON}");
                 LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"Request 100CONTINUE: {request100Continue}");
                 LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"Number of retries: {numberOfRetries}");
+                LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), $"Unique ID: {uniqueId}");
 
                 RemoteDevice.CreateHttpClient(ref client, serviceType, ipAddressString, portNumber, clientNumber, clientDeviceType, userName, password, ImageArrayCompression.None,
-                    logger, userAgentProductName, userAgentProductVersion, trustUserGeneratedSslCertificates,request100Continue);
+                    logger, userAgentProductName, userAgentProductVersion, trustUserGeneratedSslCertificates,request100Continue, uniqueId);
                 LogMessage(logger, clientNumber, Devices.DeviceTypeToString(clientDeviceType), "Completed initialisation");
             }
             catch (Exception ex)

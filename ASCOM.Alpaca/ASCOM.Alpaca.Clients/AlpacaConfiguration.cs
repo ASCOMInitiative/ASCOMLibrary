@@ -110,5 +110,10 @@ namespace ASCOM.Alpaca.Clients
         /// Sets the number of communication retries this client will make. Defaults to 1.
         /// </summary>
         public int NumberOfRetries { get; set; } = AlpacaClient.NUMBER_OF_RETRIES_DEFAULT;
+
+        /// <summary>
+        /// Gets or sets the unique identifier for the Alpaca device. Defaults to an empty string.
+        /// </summary>
+        public string UniqueId { get; set; } = AlpacaClient.UNIQUEIDENTIFIER_DEFAULT;
     }
 }

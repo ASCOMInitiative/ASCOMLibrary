@@ -36,6 +36,7 @@ namespace ASCOM.Alpaca.Clients
         internal const int SOCKET_ERROR_RETRY_DELAY_TIME = 100; // The delay time (milliseconds) between socket actively refused retries
         internal const string CONTENT_TYPE_HEADER_NAME = "Content-Type"; // Name of HTTP header used to affirm the type of data returned by the device
         internal const string CLIENT_USER_AGENT_PRODUCT_NAME = "ASCOMAlpacaClient";
+        internal const string UNIQUEIDENTIFIER_DEFAULT = ""; // Default unique identifier for this device
 
         #endregion
 
@@ -51,8 +52,7 @@ namespace ASCOM.Alpaca.Clients
         /// <param name="configuration">The configuration settings used to initialize the Alpaca device. Cannot be null.</param>
         /// <returns>An instance of type T representing the configured Alpaca device.</returns>
         /// <exception cref="InvalidValueException">Thrown if the configuration parameter is null.</exception>
-        public static T GetDevice<T>(AlpacaConfiguration configuration)
-             where T : AlpacaDeviceBaseClass, new()
+        public static T GetDevice<T>(AlpacaConfiguration configuration) where T : AlpacaDeviceBaseClass, new()
         {
             // Validate that the ascomDevice parameter is not null
             if (configuration is null)
@@ -77,7 +77,8 @@ namespace ASCOM.Alpaca.Clients
                 configuration.TrustUserGeneratedSslCertificates,
                 configuration.ThrowOnBadDateTimeJSON,
                 configuration.Request100Continue,
-                configuration.NumberOfRetries);
+                configuration.NumberOfRetries,
+                configuration.UniqueId);
         }
 
         /// <summary>
@@ -101,6 +102,7 @@ namespace ASCOM.Alpaca.Clients
         /// <param name="throwOnBadDateTimeJSON">Return an error if the UTCDate JSON format is incorrect (Only relevant to Telescope devices). Default: Will accept the provided format and not return an error.</param>
         /// <param name="request100Continue">Request that PUT requests use the 100CONTINUE HTTP protocol. Default: The 100CONTINUE protocol is not requested.</param>
         /// <param name="numberOfRetries">Number of retries for failed requests. Default: 1</param>
+        /// <param name="uniqueId">Unique identifier for this device. Default: Empty string</param>
         /// <returns>An Alpaca client instance for the supplied device and configuration</returns>
         /// <remarks>ASCOM Camera client specific parameters can be set through the <see cref="ImageArrayTransferType"/> and <see cref="ImageArrayCompression"/> properties.</remarks>
         public static T GetDevice<T>(AscomDevice ascomDevice,
@@ -119,8 +121,8 @@ namespace ASCOM.Alpaca.Clients
             bool trustUserGeneratedSslCertificates = TRUST_USER_GENERATED_SSL_CERTIFICATES_DEFAULT,
             bool throwOnBadDateTimeJSON = THROW_ON_BAD_JSON_DATE_TIME_DEFAULT,
             bool request100Continue = CLIENT_REQUEST_100_CONTINUE_DEFAULT,
-            int numberOfRetries = NUMBER_OF_RETRIES_DEFAULT)
-                                  where T : AlpacaDeviceBaseClass, new()
+            int numberOfRetries = NUMBER_OF_RETRIES_DEFAULT,
+            string uniqueId = UNIQUEIDENTIFIER_DEFAULT) where T : AlpacaDeviceBaseClass, new()
         {
             // Validate that the ascomDevice parameter is not null
             if (ascomDevice is null)
@@ -145,7 +147,8 @@ namespace ASCOM.Alpaca.Clients
                 trustUserGeneratedSslCertificates,
                 throwOnBadDateTimeJSON,
                 request100Continue,
-                numberOfRetries);
+                numberOfRetries,
+                uniqueId);
         }
 
         /// <summary>
@@ -172,6 +175,7 @@ namespace ASCOM.Alpaca.Clients
         /// <param name="throwOnBadDateTimeJSON">Return an error if the UTCDate JSON format is incorrect (Only relevant to Telescope devices). Default: Will accept the provided format and not return an error.</param>
         /// <param name="request100Continue">Request that PUT requests use the 100CONTINUE HTTP protocol. Default: The 100CONTINUE protocol is not requested.</param>
         /// <param name="numberOfRetries">Number of retries for failed requests. Default: 1</param>
+        /// <param name="uniqueId">Unique identifier for this device. Default: Empty string</param>
         /// <returns>An Alpaca client of the specified type</returns>
         public static T GetDevice<T>(ServiceType serviceType = CLIENT_SERVICETYPE_DEFAULT,
             string ipAddressString = CLIENT_IPADDRESS_DEFAULT,
@@ -192,8 +196,8 @@ namespace ASCOM.Alpaca.Clients
             bool trustUserGeneratedSslCertificates = TRUST_USER_GENERATED_SSL_CERTIFICATES_DEFAULT,
             bool throwOnBadDateTimeJSON = THROW_ON_BAD_JSON_DATE_TIME_DEFAULT,
             bool request100Continue = CLIENT_REQUEST_100_CONTINUE_DEFAULT,
-            int numberOfRetries = NUMBER_OF_RETRIES_DEFAULT)
-                                  where T : AlpacaDeviceBaseClass, new()
+            int numberOfRetries = NUMBER_OF_RETRIES_DEFAULT,
+            string uniqueId = UNIQUEIDENTIFIER_DEFAULT) where T : AlpacaDeviceBaseClass, new()
         {
             if (typeof(T) == typeof(AlpacaCamera)) // Return a camera type with its additional parameters set
             {
@@ -217,7 +221,8 @@ namespace ASCOM.Alpaca.Clients
                     userAgentProductVersion,
                     trustUserGeneratedSslCertificates,
                     request100Continue,
-                    numberOfRetries
+                    numberOfRetries,
+                    uniqueId
                 });
             }
             else if (typeof(T) == typeof(AlpacaTelescope)) // Return a telescope type with its additional parameters set
@@ -241,7 +246,8 @@ namespace ASCOM.Alpaca.Clients
                     trustUserGeneratedSslCertificates,
                     throwOnBadDateTimeJSON, // Telescope specific parameter
                     request100Continue,
-                    numberOfRetries
+                    numberOfRetries,
+                    uniqueId
                 });
             }
             else // Return a standard device client
@@ -264,10 +270,10 @@ namespace ASCOM.Alpaca.Clients
                     userAgentProductVersion,
                     trustUserGeneratedSslCertificates,
                     request100Continue,
-                    numberOfRetries
+                    numberOfRetries,
+                    uniqueId
                 });
             }
-
         }
 
         #endregion

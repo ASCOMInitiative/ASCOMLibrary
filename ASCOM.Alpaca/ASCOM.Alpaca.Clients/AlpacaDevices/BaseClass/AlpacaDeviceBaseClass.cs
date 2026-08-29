@@ -43,6 +43,7 @@ namespace ASCOM.Alpaca.Clients
         internal bool throwOnBadDateTimeJSON = AlpacaClient.THROW_ON_BAD_JSON_DATE_TIME_DEFAULT;
         internal bool request100Continue = AlpacaClient.CLIENT_REQUEST_100_CONTINUE_DEFAULT;
         internal int numberOfRetries = AlpacaClient.NUMBER_OF_RETRIES_DEFAULT;
+        internal string uniqueId = AlpacaClient.UNIQUEIDENTIFIER_DEFAULT; // Default value for the device unique identifier
 
         private short? interfaceVersion;
 
@@ -85,7 +86,8 @@ namespace ASCOM.Alpaca.Clients
         {
             RemoteDevice.CreateHttpClient(ref client, ClientConfiguration.ServiceType, ClientConfiguration.IpAddress, ClientConfiguration.PortNumber, ClientConfiguration.ClientNumber,
                 ClientConfiguration.DeviceType, ClientConfiguration.UserName, ClientConfiguration.Password, ClientConfiguration.ImageArrayCompression,
-                logger, ClientConfiguration.UserAgentProductName, ClientConfiguration.UserAgentProductVersion, trustUserGeneratedSslCertificates, ClientConfiguration.Request100Continue);
+                logger, ClientConfiguration.UserAgentProductName, ClientConfiguration.UserAgentProductVersion, trustUserGeneratedSslCertificates, ClientConfiguration.Request100Continue,
+                ClientConfiguration.UniqueId);
 
             // Reset the URI base in case the remote device number has changed
             uriBase = $"{AlpacaConstants.API_URL_BASE}{AlpacaConstants.API_VERSION_V1}/{clientDeviceType}/{ClientConfiguration.RemoteDeviceNumber}/";
