@@ -117,6 +117,7 @@ namespace ASCOM.Alpaca.Clients
             string clientHostAddress = $"{serviceType.ToString().ToLowerInvariant()}://{ipForUri}:{portNumber}";
 
             AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, Devices.DeviceTypeToString(deviceType), $"Connecting to device: {ipAddressString}:{portNumber} through URL: {clientHostAddress}");
+            AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, Devices.DeviceTypeToString(deviceType), $"Can connect TCP: {CanConnectTcp(ipAddressString, (int)portNumber, 1000,logger, clientNumber)}");
 
             #region Commented automatic Alpaca device rediscovery code
             // Test whether automatic Alpaca device rediscovery is enabled for this device
@@ -422,77 +423,75 @@ namespace ASCOM.Alpaca.Clients
             httpClient.DefaultRequestHeaders.ExpectContinue = request100Continue; // Set whether to request 100-Continue responses from the server on PUT requests
         }
 
-        // /// <summary>
-        // /// test whether there is a device at the specified IP address and port by opening a TCP connection to it
-        // /// </summary>
-        // /// <param name="ipAddressString">IP address of the device</param>
-        // /// <param name="portNumber">IP port number on the device</param>
-        // /// <param name="connectionTimeout">Time to wait before timing out</param>
-        // /// <param name="TL">Trace logger in which to report progress</param>
-        // /// <param name="clientNumber">The client's number</param>
-        // /// <returns></returns>
-        //private static bool ClientIsUp(string ipAddressString, decimal portNumber, int connectionTimeout, ILogger logger, uint clientNumber)
-        //{
-        //    TcpClient tcpClient = null;
+        /// <summary>
+        /// Tests whether a TCP connection can be established to the given IP address and port.
+        /// </summary>
+        /// <param name="ipAddress">The target IP address as a string (e.g. "192.168.1.10").</param>
+        /// <param name="portNumber">The target TCP port number.</param>
+        /// <param name="timeoutMilliseconds">Maximum time to wait for the connection attempt, in milliseconds.</param>
+        /// <param name="logger">ILogger instance for logging messages.</param>
+        /// <param name="clientNumber">Arbitrary number identifying this particular client.</param>
+        /// <returns>True if the TCP connection succeeds; False if the address cannot be contacted or the port is not open.</returns>
+        internal static bool CanConnectTcp(string ipAddress, int portNumber, int timeoutMilliseconds, ILogger logger, uint clientNumber)
+        {
+            AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "CanConnectTcp", $"Attempting TCP connection to {ipAddress}:{portNumber} with timeout {timeoutMilliseconds}ms");
 
-        //    bool returnValue = false; // Assume a bad outcome in case there is an exception 
+            // TcpClient wraps a Socket and provides Connect/BeginConnect helpers.
+            using (TcpClient tcpClient = new TcpClient())
+            {
+                // IAsyncResult used to track the pending connection attempt.
+                IAsyncResult connectResult = null;
 
-        //    try
-        //    {
-        //        // Create a TcpClient 
-        //        if (IPAddress.TryParse(ipAddressString, out IPAddress ipAddress))
-        //        {
-        //            // Create an IPv4 or IPv6 TCP client as required
-        //            if (ipAddress.AddressFamily == AddressFamily.InterNetwork) tcpClient = new TcpClient(AddressFamily.InterNetwork); // Test IPv4 addresses
-        //            else tcpClient = new TcpClient(AddressFamily.InterNetworkV6);
-        //            AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "ClientIsUp", $"Created an {ipAddress.AddressFamily} TCP client");
-        //        }
-        //        else
-        //        {
-        //            tcpClient = new TcpClient(); // Create a generic TcpClient that can work with host names
-        //        }
+                try
+                {
+                    // Start an asynchronous connection attempt so we can apply our own timeout.
+                    // Using BeginConnect instead of Connect avoids the default OS-level timeout, which can be very long (e.g. 20+ seconds) for unreachable hosts.
+                    connectResult = tcpClient.BeginConnect(ipAddress, portNumber, null, null);
 
-        //        // Create a task that will return True if a connection to the device can be established or False if the connection is rejected or not possible
-        //        Task<bool> connectionTask = tcpClient.ConnectAsync(ipAddressString, (int)portNumber).ContinueWith(task => { return !task.IsFaulted; }, TaskContinuationOptions.ExecuteSynchronously);
-        //        AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "ClientIsUp", $"Created connection task");
+                    // Wait for either the connection to complete or the timeout to expire.
+                    bool connectedWithinTimeout = connectResult.AsyncWaitHandle.WaitOne(timeoutMilliseconds);
 
-        //        // Create a task that will time out after the specified time and return a value of False
-        //        Task<bool> timeoutTask = Task.Delay(connectionTimeout * 1000).ContinueWith<bool>(task => false, TaskContinuationOptions.ExecuteSynchronously);
-        //        AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "ClientIsUp", $"Created timeout task");
+                    if (!connectedWithinTimeout)
+                    {
+                        // Timed out: address is unreachable or not responding within the allotted time.
+                        AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "CanConnectTcp", $"Timed out, returning false");
+                        return false;
+                    }
 
-        //        // Create a task that will wait until either of the two preceding tasks completes
-        //        Task<bool> resultTask = Task.WhenAny(connectionTask, timeoutTask).Unwrap();
-        //        AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "ClientIsUp", $"Waiting for a task to complete");
+                    // Completes the connection attempt. Throws if the connection failed
+                    // (e.g. connection refused because the port is closed).
+                    tcpClient.EndConnect(connectResult);
 
-        //        // Wait for one of the tasks to complete
-        //        resultTask.Wait();
-        //        AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "ClientIsUp", $"A task has completed");
-
-        //        // Test whether or not we connected OK within the timeout period
-        //        if (resultTask.Result) // We did connect OK within the timeout period
-        //        {
-        //            AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "ClientIsUp", $"Contacted client OK!");
-        //            tcpClient.Close();
-        //            returnValue = true;
-        //        }
-        //        else // We did not connect successfully within the timeout period
-        //        {
-        //            AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "ClientIsUp", $"Unable to contact client....");
-        //            returnValue = false;
-        //        }
-        //    }
-
-        //    catch (Exception ex)
-        //    {
-        //        AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "ClientIsUp", $"Exception: {ex}");
-
-        //    }
-        //    finally
-        //    {
-        //        tcpClient.Dispose();
-        //    }
-        //    return returnValue;
-        //}
+                    // If EndConnect did not throw and the client reports connected, the port is open.
+                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "CanConnectTcp", $"Successfully connected to {ipAddress}:{portNumber}");
+                    return tcpClient.Connected;
+                }
+                catch (SocketException ex)
+                {
+                    // Covers "connection refused" (port closed), "host unreachable", DNS/name resolution
+                    // failures, and other socket-level errors.
+                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "CanConnectTcp", $"SocketException occurred, returning false - {ex.Message}");
+                    return false;
+                }
+                catch (ObjectDisposedException ex)
+                {
+                    // Can occur if the TcpClient was disposed while the async operation was still pending.
+                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "CanConnectTcp", $"ObjectDisposedException occurred, returning false - {ex.Message}");
+                    return false;
+                }
+                catch(Exception ex)
+                {
+                    // Catch-all for any other unexpected exceptions.
+                    AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, "CanConnectTcp", $"Unexpected exception occurred, returning false - {ex.Message}");
+                    return false;
+                }
+                finally
+                {
+                    // Ensure any pending async handle resources are released.
+                    connectResult?.AsyncWaitHandle?.Close();
+                }
+            }
+        }
 
         #endregion
 
