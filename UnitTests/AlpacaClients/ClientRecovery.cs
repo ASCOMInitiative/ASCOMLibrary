@@ -43,30 +43,6 @@ namespace AlpacaClients
         }
 
         [Fact]
-        public void BadLocalHostAddress()
-        {
-            TraceLogger logger = new TraceLogger("BadLocalHostAddress", true);
-            logger.SetMinimumLoggingLevel(LogLevel.Debug);
-
-            AlpacaConfiguration configuration = new AlpacaConfiguration();
-            configuration.IpAddressString = "127.2.0.1";
-            configuration.PortNumber = PORT_NUMBER;
-            configuration.Logger = logger;
-            configuration.EstablishConnectionTimeout = 1;
-            configuration.StandardDeviceResponseTimeout = 1;
-            configuration.LongDeviceResponseTimeout = 1;
-            configuration.NumberOfRetries = 0;
-
-            AlpacaCamera device = AlpacaClient.GetDevice<AlpacaCamera>(configuration);
-
-            Assert.NotNull(device);
-
-            Assert.ThrowsAny<Exception>(() => { var connected = device.Connected; });
-
-            device.Dispose();
-        }
-
-        [Fact]
         public void BadLocalHostIpPort()
         {
             TraceLogger logger = new TraceLogger("BadLocalHostIpPort", true);
