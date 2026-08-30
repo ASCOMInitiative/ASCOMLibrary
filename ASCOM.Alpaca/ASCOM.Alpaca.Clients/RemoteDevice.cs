@@ -149,10 +149,19 @@ namespace ASCOM.Alpaca.Clients
             // Create an HttpClient instance that works with link-local IPv6 addresses on multi-homed systems if possible.
 #if NET5_0_OR_GREATER
             // On .NET 5+, use SocketsHttpHandler. When an IPv6 zone identifier is present, the ConnectCallback re-injects the stripped zone identifier at the TCP socket level.
+
+            logger.LogMessage(LogLevel.Debug, "CreateHttpClient", $"Using .NET 5+ code");
+
             SocketsHttpHandler socketsHandler = new SocketsHttpHandler
             {
                 PreAuthenticate = true,
-                AutomaticDecompression = decompressionMethods
+                AutomaticDecompression = decompressionMethods,
+
+                // Close connections after 2 minutes (example)
+                PooledConnectionLifetime = TimeSpan.FromMinutes(2),
+
+                // Optional: also close idle connections
+                PooledConnectionIdleTimeout = TimeSpan.FromMinutes(1)
             };
 
             if (trustUnsignedSslCertificates)
@@ -197,6 +206,8 @@ namespace ASCOM.Alpaca.Clients
             // On earlier frameworks, use HttpClientHandler. IPv6 zone identifiers are not supported on these platforms, so any zone identifier is stripped from the host and not re-applied. 
             // Connections to link-local IPv6 addresses on multi-homed hosts may fail on these platforms; use an IPv4 address, a DNS host name, or a non-link-local IPv6 address instead.
 
+            logger.LogMessage(LogLevel.Debug, "CreateHttpClient", $"Using .NET Standard 2.0 code");
+
             // Create a new HTTP handler to control authentication and automatic decompression
             HttpClientHandler httpClientHandler = new HttpClientHandler
             {
@@ -214,6 +225,9 @@ namespace ASCOM.Alpaca.Clients
                         return true;
                     };
             }
+
+            // Close connections after 1 minute to ensure DNS changes are picked up and to avoid connection issues with some devices that do not handle persistent connections well
+            ServicePointManager.FindServicePoint(new Uri(clientHostAddress)).ConnectionLeaseTimeout = 1 * 60 * 1000; // Close connections after 1 minute
 
             // Create a new client pointing at the alpaca device
             httpClient = new HttpClient(httpClientHandler);
@@ -1288,7 +1302,7 @@ namespace ASCOM.Alpaca.Clients
                                 {
                                     AlpacaDeviceBaseClass.LogMessage(clientParameters.Logger, clientParameters.ClientNumber, clientParameters.Method, $"{clientParameters.Method} Retry count {clientParameters.NumberOfRetries} exceeded:  {ex1.Message}");
                                     AlpacaDeviceBaseClass.LogMessage(clientParameters.Logger, clientParameters.ClientNumber, clientParameters.Method, "Timeout exception: " + ex1.ToString());
-                                    throw new TimeoutException($"Alpaca client p.Timeout for p.Method {clientParameters.Method}: {clientParameters.Client.BaseAddress}");
+                                    throw new TimeoutException($"Alpaca client timeout after: {clientParameters.Timeout} seconds, Method: {clientParameters.Method}, Base address: {clientParameters.Client.BaseAddress}");
                                 }
                             }
                             else if (ex1 is HttpRequestException) // A communications error of some kind
