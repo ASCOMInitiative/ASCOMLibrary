@@ -505,10 +505,7 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                var p = CreateParameters(longDeviceResponseTimeout, "ImageArray", MemberTypes.Property);
-                p.ImageArrayTransferType = imageArrayTransferType;
-                p.ImageArrayCompression = imageArrayCompression;
-                return RemoteDevice.GetValue<Array>(p);
+                return RemoteDevice.GetValue<Array>(CreateParameters(longDeviceResponseTimeout, "ImageArray", MemberTypes.Property, imageArrayTransferType, imageArrayCompression));
             }
         }
 
@@ -522,12 +519,7 @@ namespace ASCOM.Alpaca.Clients
                 object[,,] objectArray3D;
                 Stopwatch sw = new Stopwatch();
 
-                var p = new Parameters(clientNumber, client, longDeviceResponseTimeout, uriBase, strictCasing, logger, "ImageArrayVariant", MemberTypes.Property, numberOfRetries)
-                {
-                    ImageArrayTransferType = imageArrayTransferType,
-                    ImageArrayCompression = imageArrayCompression
-                };
-                returnArray = RemoteDevice.GetValue<Array>(p);
+                returnArray = RemoteDevice.GetValue<Array>(CreateParameters(longDeviceResponseTimeout, "ImageArrayVariant", MemberTypes.Property, imageArrayTransferType, imageArrayCompression));
 
                 try
                 {

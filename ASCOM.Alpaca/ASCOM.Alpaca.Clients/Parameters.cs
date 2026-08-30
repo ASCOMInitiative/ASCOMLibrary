@@ -7,7 +7,7 @@ using System.Reflection;
 namespace ASCOM.Alpaca.Clients
 {
     /// <summary>
-    /// Holds the common connection and context parameters shared by all DynamicClientDriver remote access methods.
+    /// Holds the common connection and context parameters shared by all DynamicClientDriver remote access methods and optionally image array transfer and compression settings.
     /// </summary>
     internal class Parameters
     {
@@ -24,7 +24,10 @@ namespace ASCOM.Alpaca.Clients
         internal bool ThrowOnBadDateTimeJson { get; set; } = AlpacaClient.THROW_ON_BAD_JSON_DATE_TIME_DEFAULT;
         internal int NumberOfRetries { get; } = AlpacaClient.NUMBER_OF_RETRIES_DEFAULT;
 
-        internal Parameters(uint clientNumber, HttpClient client, int timeout, string uriBase, bool strictCasing, ILogger logger, string method, MemberTypes memberType, int numberOfRetries)
+        internal Parameters(uint clientNumber, HttpClient client, int timeout, string uriBase, bool strictCasing, ILogger logger, string method, MemberTypes memberType, int numberOfRetries,
+            ImageArrayTransferType imageArrayTransferType = AlpacaClient.CLIENT_IMAGEARRAYTRANSFERTYPE_DEFAULT, 
+            ImageArrayCompression imageArrayCompression = AlpacaClient.CLIENT_IMAGEARRAYCOMPRESSION_DEFAULT,
+            bool throwOnBadDateTimeJson = AlpacaClient.THROW_ON_BAD_JSON_DATE_TIME_DEFAULT)
         {
             ClientNumber = clientNumber;
             Client = client;
@@ -35,6 +38,9 @@ namespace ASCOM.Alpaca.Clients
             Method = method;
             MemberType = memberType;
             NumberOfRetries = numberOfRetries;
+            ImageArrayTransferType = imageArrayTransferType;
+            ImageArrayCompression = imageArrayCompression;
+            ThrowOnBadDateTimeJson = throwOnBadDateTimeJson;
         }
     }
 }

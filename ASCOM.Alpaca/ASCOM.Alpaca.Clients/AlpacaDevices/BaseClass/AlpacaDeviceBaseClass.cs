@@ -354,8 +354,12 @@ namespace ASCOM.Alpaca.Clients
         /// <param name="timeout">The timeout value for the request.</param>
         /// <param name="method">The HTTP method for the request.</param>
         /// <param name="memberType">The member type for the request.</param>
+        /// <param name="imageArrayTransferType">The image array transfer type for the request.</param>
+        /// <param name="imageArrayCompression">The image array compression type for the request.</param>
         /// <returns>A new <see cref="Parameters"/> instance initialized with the current client configuration values.</returns>
-        internal Parameters CreateParameters(int timeout, string method, MemberTypes memberType)
+        internal Parameters CreateParameters(int timeout, string method, MemberTypes memberType, 
+            ImageArrayTransferType imageArrayTransferType = AlpacaClient.CLIENT_IMAGEARRAYTRANSFERTYPE_DEFAULT, 
+            ImageArrayCompression imageArrayCompression = AlpacaClient.CLIENT_IMAGEARRAYCOMPRESSION_DEFAULT)
         {
             // Check whether this is the first time the client has been used. If so, check whether the configured IP address and port are valid and if not, attempt to discover the device on the network using its unique ID.
             if (firstUse) // This is the first use of the client
@@ -400,7 +404,7 @@ namespace ASCOM.Alpaca.Clients
             }
 
             // Create and return a new Parameters instance with the current client configuration values
-            return new Parameters(clientNumber, client, timeout, uriBase, strictCasing, logger, method, memberType, numberOfRetries);
+            return new Parameters(clientNumber, client, timeout, uriBase, strictCasing, logger, method, memberType, numberOfRetries, imageArrayTransferType, imageArrayCompression);
         }
 
         internal static void LogMessage(ILogger logger, uint instance, string prefix, string message)
