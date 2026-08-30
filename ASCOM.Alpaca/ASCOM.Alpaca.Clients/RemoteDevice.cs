@@ -122,30 +122,7 @@ namespace ASCOM.Alpaca.Clients
             // Create a string version of the device type for logging purposes
             string deviceTypString = Devices.DeviceTypeToString(deviceType);
 
-            AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, deviceTypString, $"Connecting to device: {ipAddressString}:{portNumber} through URL: {clientHostAddress}");
-
-            // Create a placeholder for any returned ASCOMDevice that is discovered on the network
-            AscomDevice newAscomDevice = null;
-
-            // Test whether there is a device at the configured IP address and port by trying to open a TCP connection to it
-            if (!AlpacaDiscovery.ValidateAlpacaAddress(ipAddressString, (int)portNumber, uniqueId, out newAscomDevice, logger))
-            {
-                logger.LogMessage(LogLevel.Debug, "RemoteDevice", $"Unable to validate Alpaca address: {ipAddressString}:{portNumber}");
-
-                // Check whether an ASCOMDevice instance was returned by the discovery process.
-                if (newAscomDevice != null) // An ASCOMDevice was discovered on the network with the same unique ID, so use its address and port instead of the configured values
-                {
-                    logger.LogMessage(LogLevel.Debug, "RemoteDevice", $"Discovered device with UniqueId {uniqueId} at {newAscomDevice.IpAddress}:{newAscomDevice.IpPort}");
-
-                    // Save the new address and port for use in the client
-                    clientHostAddress = $"{newAscomDevice.ServiceType.ToString().ToLowerInvariant()}://{newAscomDevice.IpAddress}:{newAscomDevice.IpPort}";
-                    ipAddressString = newAscomDevice.IpAddress;
-                    portNumber = newAscomDevice.IpPort;
-                }
-                else // No ASCOMDevice was discovered on the network with the same unique ID, so leave the original values in place.
-                    logger.LogMessage(LogLevel.Debug, "RemoteDevice", $"No device with UniqueId {uniqueId} was discovered on the network, leaving supplied values in place.");
-            }
-
+            logger.LogMessage(LogLevel.Debug, "CreateHttpClient", $"Connecting to device: {ipAddressString}:{portNumber} through URL: {clientHostAddress}");
             // Remove any old client, if present
             httpClient?.Dispose();
 
@@ -265,7 +242,6 @@ namespace ASCOM.Alpaca.Clients
             // Set the base URI for the device. The zone identifier (if any) was omitted from
             // clientHostAddress above; it is re-applied at the TCP socket level on .NET 5+.
             httpClient.BaseAddress = new Uri(clientHostAddress);
-            AlpacaDeviceBaseClass.LogMessage(logger, clientNumber, Devices.DeviceTypeToString(deviceType), $"Client IP address: {ipAddressString}:{portNumber}, HttpClient base address: {httpClient.BaseAddress}");
 
             string userproductName = userAgentProductName;
             string productVersion = userAgentProductVersion;
@@ -285,6 +261,8 @@ namespace ASCOM.Alpaca.Clients
             httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(AlpacaConstants.APPLICATION_JSON_MIME_TYPE));
             httpClient.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(userproductName, productVersion));
             httpClient.DefaultRequestHeaders.ExpectContinue = request100Continue; // Set whether to request 100-Continue responses from the server on PUT requests
+
+            logger.LogMessage(LogLevel.Debug, "CreateHttpClient", $"User-Agent: {userproductName}/{productVersion}, Accept: {AlpacaConstants.APPLICATION_JSON_MIME_TYPE}, ExpectContinue: {request100Continue}");
         }
 
         #endregion

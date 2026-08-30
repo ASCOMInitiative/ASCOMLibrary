@@ -184,6 +184,8 @@ namespace AlpacaClients
 
             Assert.NotNull(device);
 
+            Assert.NotNull(device.Description);
+
             Assert.True(device.Connected);
 
             device.Dispose();
@@ -211,6 +213,8 @@ namespace AlpacaClients
             AlpacaCamera device = AlpacaClient.GetDevice<AlpacaCamera>(configuration);
 
             Assert.NotNull(device);
+
+            Assert.NotNull(device.Description);
 
             Assert.True(device.Connected);
 

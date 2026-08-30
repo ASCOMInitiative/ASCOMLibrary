@@ -498,7 +498,7 @@ namespace ASCOM.Alpaca.Discovery
                 using (AlpacaDiscovery alpacaDiscovery = new AlpacaDiscovery(logger))
                 {
                     // Start a discovery using two polls, 100ms apart, timing out after 1 second, don't attempt to resolve the IP address to a DNS name use the discovery port and IP settings of this device
-                    alpacaDiscovery.StartDiscovery(2, 100, 32227, 2.0, false, true, true);
+                    alpacaDiscovery.StartDiscovery(2, 100, 32227, 1.0, false, true, true);
 
                     // Wait for the discovery cycle to complete, making sure that the UI remains responsive
                     do
