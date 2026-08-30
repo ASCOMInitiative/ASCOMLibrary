@@ -126,7 +126,7 @@ namespace ASCOM.Alpaca.Clients
                     // Check whether an ASCOMDevice instance was returned by the discovery process.
                     if (newAscomDevice != null) // An ASCOMDevice was discovered on the network with the same unique ID, so use its address and port instead of the configured values
                     {
-                        logger.LogMessage(LogLevel.Debug, "CreateParameters", $"Found device with UniqueId {uniqueId} at {newAscomDevice.IpAddress}:{newAscomDevice.IpPort}");
+                        logger.LogMessage(LogLevel.Debug, "CreateParameters", $"Found device with UniqueId {uniqueId} at {newAscomDevice.IpAddress}:{newAscomDevice.IpPort}, creating new client");
 
                         // Save the new address and port for use in the client
                         // clientHostAddress = $"{newAscomDevice.ServiceType.ToString().ToLowerInvariant()}://{newAscomDevice.IpAddress}:{newAscomDevice.IpPort}";
@@ -137,6 +137,7 @@ namespace ASCOM.Alpaca.Clients
 
                         // Create a new HTTP client with the new address and port
                         RefreshClient();
+                        logger.LogMessage(LogLevel.Debug, "CreateParameters", $"Client created successfully.");
                     }
                     else // No ASCOMDevice was discovered on the network with the same unique ID, so leave the original values in place.
                         logger.LogMessage(LogLevel.Debug, "CreateParameters", $"No device with UniqueId {uniqueId} was discovered on the network, leaving supplied values in place.");

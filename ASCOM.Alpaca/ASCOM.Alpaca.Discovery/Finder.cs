@@ -307,31 +307,21 @@ namespace ASCOM.Alpaca.Discovery
             }
             catch (ObjectDisposedException)
             {
-                // Ignore these because they occur naturally when the current BeginReceiveAsync is terminated because the UdpClient is closed or disposed.
+                // The UdpClient/Socket was disposed while a receive was pending. This is expected during normal shutdown (e.g. when the discovery timer closes clients) and is not an error.
+                // LogMessage("ReceiveCallback", "Ignored ObjectDisposedException: the socket was closed while a receive was pending (expected during shutdown).");
+                return;
             }
-
+            catch (SocketException ex) when (ex.SocketErrorCode == SocketError.OperationAborted
+                                           || ex.SocketErrorCode == SocketError.Interrupted)
+            {
+                // WSA_OPERATION_ABORTED (995) / WSAEINTR: the pending receive was cancelled because the socket was closed/disposed while EndReceive was still outstanding. This is an expected
+                // consequence of the discovery timeout or Dispose() shutting down the UdpClient, not a genuine parsing or network failure, so it is safe to ignore.
+                // LogMessage("ReceiveCallback", $"Ignored aborted receive on {udpClient}: {ex.SocketErrorCode} (expected during shutdown).");
+                return;
+            }
             catch (Exception ex)
             {
-                logger?.LogError($"Failed to parse response from {endpoint} with exception: {ex.Message}");
                 LogMessage("ReceiveCallback", $"Failed to parse response from {endpoint}: {ex}");
-
-            }
-            finally
-            {
-                try
-                {
-                    // Configure the UdpClient class to accept more messages, if they arrive
-                    udpClient?.BeginReceive(new AsyncCallback(ReceiveCallback), udpClient);
-                }
-                catch (ObjectDisposedException)
-                {
-                    // Also ignore these here because they occur naturally when the current BeginReceiveAsync is terminated because the UdpClient is closed or disposed.
-                }
-                catch (Exception ex)
-                {
-                    logger?.LogError($"Error restarting search: {ex.Message}");
-                    LogMessage("ReceiveCallback", $"Error restarting search: {ex}");
-                }
             }
         }
 

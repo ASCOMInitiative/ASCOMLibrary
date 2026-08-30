@@ -168,7 +168,7 @@ namespace AlpacaClients
         [Fact]
         public async Task SelfHealBadIpPortNoLogger()
         {
-           string uniqueId = await GetUniqueId(DeviceTypes.Camera);
+            string uniqueId = await GetUniqueId(DeviceTypes.Camera);
 
             AlpacaConfiguration configuration = new AlpacaConfiguration();
             configuration.IpAddressString = "192.168.0.241";
@@ -224,8 +224,8 @@ namespace AlpacaClients
         private async Task<string> GetUniqueId(DeviceTypes deviceType)
         {
 
-            List<AscomDevice> devices=await AlpacaDiscovery.GetAscomDevicesAsync(deviceType);
-            if(devices.Count==0)
+            List<AscomDevice> devices = await AlpacaDiscovery.GetAscomDevicesAsync(deviceType, discoveryDuration: 0.2);
+            if (devices.Count == 0)
                 throw new Exception("No devices found");
 
             return devices[0].UniqueId;

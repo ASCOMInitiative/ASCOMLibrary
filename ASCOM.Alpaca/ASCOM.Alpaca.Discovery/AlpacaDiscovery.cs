@@ -602,6 +602,11 @@ namespace ASCOM.Alpaca.Discovery
                 }
             }
 
+            if (foundDevice != null)
+                logger.LogMessage(LogLevel.Debug, "ValidateAddress", $"Returning found device: {foundDevice.ServiceType.ToString().ToLowerInvariant()}://{foundDevice.IpAddress}:{foundDevice.IpPort}");
+            else
+                logger.LogMessage(LogLevel.Debug, "ValidateAddress", $"Returning found device: NULL");
+
             // Indicate that the device was not found at the configured IP address and port and that the caller should use the new address and port if available
             return false;
         }
