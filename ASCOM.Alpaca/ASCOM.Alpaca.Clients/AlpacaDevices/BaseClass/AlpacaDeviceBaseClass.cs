@@ -98,59 +98,6 @@ namespace ASCOM.Alpaca.Clients
 
         #endregion
 
-        /// <summary>Creates a Parameters instance from this client's connection fields.</summary>
-        /// <param name="timeout">The timeout value for the request.</param>
-        /// <param name="method">The HTTP method for the request.</param>
-        /// <param name="memberType">The member type for the request.</param>
-        /// <returns>A new <see cref="Parameters"/> instance initialized with the current client configuration values.</returns>
-        internal Parameters CreateParameters(int timeout, string method, MemberTypes memberType)
-        {
-            // Check whether this is the first time the client has been used. If so, check whether the configured IP address and port are valid and if not, attempt to discover the device on the network using its unique ID.
-            if (firstUse) // This is the first use of the client
-            {
-                // Set the firstUse flag to false so that this code is not executed again
-                firstUse = false;
-
-                logger.LogMessage(LogLevel.Debug, "CreateParameters", $"First use - Validating IP address: {ipAddressString}:{portNumber} and Unique ID: {uniqueId}");
-                logger.LogMessage(LogLevel.Debug, "CreateParameters", $"");
-
-                // Create a placeholder for any returned ASCOMDevice that is discovered on the network
-                AscomDevice newAscomDevice = null;
-
-                // Test whether there is a device at the configured IP address and port by trying to open a TCP connection to it
-                if (!AlpacaDiscovery.ValidateAlpacaAddress(ipAddressString, (int)portNumber, uniqueId, out newAscomDevice, logger))
-                {
-                    logger.LogMessage(LogLevel.Debug, "CreateParameters", $"");
-                    logger.LogMessage(LogLevel.Debug, "CreateParameters", $"Unable to contact Alpaca address: {ipAddressString}:{portNumber}");
-
-                    // Check whether an ASCOMDevice instance was returned by the discovery process.
-                    if (newAscomDevice != null) // An ASCOMDevice was discovered on the network with the same unique ID, so use its address and port instead of the configured values
-                    {
-                        logger.LogMessage(LogLevel.Debug, "CreateParameters", $"Found device with UniqueId {uniqueId} at {newAscomDevice.IpAddress}:{newAscomDevice.IpPort}, creating new client");
-
-                        // Save the new address and port for use in the client
-                        // clientHostAddress = $"{newAscomDevice.ServiceType.ToString().ToLowerInvariant()}://{newAscomDevice.IpAddress}:{newAscomDevice.IpPort}";
-                        ipAddressString = newAscomDevice.IpAddress;
-                        portNumber = newAscomDevice.IpPort;
-                        clientConfiguration.IpAddress = ipAddressString;
-                        clientConfiguration.PortNumber = (int)portNumber;
-
-                        // Create a new HTTP client with the new address and port
-                        RefreshClient();
-                        logger.LogMessage(LogLevel.Debug, "CreateParameters", $"Client created successfully.");
-                    }
-                    else // No ASCOMDevice was discovered on the network with the same unique ID, so leave the original values in place.
-                        logger.LogMessage(LogLevel.Debug, "CreateParameters", $"No device with UniqueId {uniqueId} was discovered on the network, leaving supplied values in place.");
-                }
-
-                logger.LogMessage(LogLevel.Debug, "CreateParameters", $"Completed first use validation.");
-                logger.LogMessage(LogLevel.Debug, "CreateParameters", $"");
-            }
-
-            // Create and return a new Parameters instance with the current client configuration values
-            return new Parameters(clientNumber, client, timeout, uriBase, strictCasing, logger, method, memberType, numberOfRetries);
-        }
-
         #region IAscomDevice common properties and methods.
 
         ///<inheritdoc/>
@@ -402,6 +349,59 @@ namespace ASCOM.Alpaca.Clients
         #endregion
 
         #region Support code
+
+        /// <summary>Creates a Parameters instance from this client's connection fields.</summary>
+        /// <param name="timeout">The timeout value for the request.</param>
+        /// <param name="method">The HTTP method for the request.</param>
+        /// <param name="memberType">The member type for the request.</param>
+        /// <returns>A new <see cref="Parameters"/> instance initialized with the current client configuration values.</returns>
+        internal Parameters CreateParameters(int timeout, string method, MemberTypes memberType)
+        {
+            // Check whether this is the first time the client has been used. If so, check whether the configured IP address and port are valid and if not, attempt to discover the device on the network using its unique ID.
+            if (firstUse) // This is the first use of the client
+            {
+                // Set the firstUse flag to false so that this code is not executed again
+                firstUse = false;
+
+                logger.LogMessage(LogLevel.Debug, "CreateParameters", $"First use - Validating IP address: {ipAddressString}:{portNumber} and Unique ID: {uniqueId}");
+                logger.LogMessage(LogLevel.Debug, "CreateParameters", $"");
+
+                // Create a placeholder for any returned ASCOMDevice that is discovered on the network
+                AscomDevice newAscomDevice = null;
+
+                // Test whether there is a device at the configured IP address and port by trying to open a TCP connection to it
+                if (!AlpacaDiscovery.ValidateAlpacaAddress(ipAddressString, (int)portNumber, uniqueId, out newAscomDevice, logger))
+                {
+                    logger.LogMessage(LogLevel.Debug, "CreateParameters", $"");
+                    logger.LogMessage(LogLevel.Debug, "CreateParameters", $"Unable to contact Alpaca address: {ipAddressString}:{portNumber}");
+
+                    // Check whether an ASCOMDevice instance was returned by the discovery process.
+                    if (newAscomDevice != null) // An ASCOMDevice was discovered on the network with the same unique ID, so use its address and port instead of the configured values
+                    {
+                        logger.LogMessage(LogLevel.Debug, "CreateParameters", $"Found device with UniqueId {uniqueId} at {newAscomDevice.IpAddress}:{newAscomDevice.IpPort}, creating new client");
+
+                        // Save the new address and port for use in the client
+                        // clientHostAddress = $"{newAscomDevice.ServiceType.ToString().ToLowerInvariant()}://{newAscomDevice.IpAddress}:{newAscomDevice.IpPort}";
+                        ipAddressString = newAscomDevice.IpAddress;
+                        portNumber = newAscomDevice.IpPort;
+                        clientConfiguration.IpAddress = ipAddressString;
+                        clientConfiguration.PortNumber = (int)portNumber;
+
+                        // Create a new HTTP client with the new address and port
+                        RefreshClient();
+                        logger.LogMessage(LogLevel.Debug, "CreateParameters", $"Client created successfully.");
+                    }
+                    else // No ASCOMDevice was discovered on the network with the same unique ID, so leave the original values in place.
+                        logger.LogMessage(LogLevel.Debug, "CreateParameters", $"No device with UniqueId {uniqueId} was discovered on the network, leaving supplied values in place.");
+                }
+
+                logger.LogMessage(LogLevel.Debug, "CreateParameters", $"Completed first use validation.");
+                logger.LogMessage(LogLevel.Debug, "CreateParameters", $"");
+            }
+
+            // Create and return a new Parameters instance with the current client configuration values
+            return new Parameters(clientNumber, client, timeout, uriBase, strictCasing, logger, method, memberType, numberOfRetries);
+        }
 
         internal static void LogMessage(ILogger logger, uint instance, string prefix, string message)
         {
