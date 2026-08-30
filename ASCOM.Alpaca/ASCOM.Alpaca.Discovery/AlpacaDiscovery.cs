@@ -1,4 +1,3 @@
-using ASCOM.Alpaca.Clients;
 using ASCOM.Common;
 using ASCOM.Common.Alpaca;
 using ASCOM.Common.Interfaces;
@@ -469,7 +468,7 @@ namespace ASCOM.Alpaca.Discovery
                 // Initialise a list to hold the discovered devices that match the unique ID
                 List<AscomDevice> availableDevices = new List<AscomDevice>();
 
-                logger.LogMessage(LogLevel.Debug,"ValidateAddress", $"Can not connect TCP to device at {ipAddressString}:{portNumber}, looking for unique ID '{uniqueId}' on other interfaces.");
+                logger.LogMessage(LogLevel.Debug, "ValidateAddress", $"Can not connect TCP to device at {ipAddressString}:{portNumber}, looking for unique ID '{uniqueId}' on other interfaces.");
 
                 // Attempt to "re-discover" the device and use it's new address and / or port
                 logger.LogMessage(LogLevel.Debug, "ValidateAddress", $"The device at the configured IP address and port {ipAddressString} cannot be contacted, attempting to re-discover it");
@@ -556,7 +555,7 @@ namespace ASCOM.Alpaca.Discovery
                         break;
 
                     case 1: // The device was found on exactly 1 interface so this is the one to use
-                        // Update the client host address with the newly discovered address and port
+                            // Update the client host address with the newly discovered address and port
 
                         foundDevice = availableDevices[0];
                         logger.LogMessage(LogLevel.Debug, "ValidateAddress", $"One ASCOM device was discovered that had a UniqueD of {uniqueId}. Now using URL: {foundDevice.ServiceType.ToString().ToLowerInvariant()}://{foundDevice.IpAddress}:{foundDevice.IpPort}");

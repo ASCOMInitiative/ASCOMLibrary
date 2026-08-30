@@ -117,7 +117,38 @@ namespace ASCOM.Alpaca.Clients
             // Build the URI address without the zone identifier. For IPv6 addresses that had a zone,
             // add the required URI brackets back around the bare address.
             string ipForUri = ipv6ZoneId != null ? $"[{ipv6AddressWithoutZone}]" : ipAddressString;
+
+
+            // If the host is a DNS/NetBIOS name rather than a literal IP address, resolve it once now rather than
+            // relying on repeated, implicit name resolution during every subsequent Alpaca transaction. This matters
+            // because each transaction is bounded by a short communications timeout (clientParameters.Timeout) and
+            // short (non-FQDN) host names can trigger a slow NetBIOS/LLMNR fallback lookup on Windows that easily
+            // exceeds that per-call timeout, even though the device itself is reachable and responsive.
+            if (ipv6ZoneId == null && !IPAddress.TryParse(ipAddressString, out _))
+            {
+                try
+                {
+                    IPAddress[] resolvedAddresses = Dns.GetHostAddresses(ipAddressString);
+                    IPAddress resolvedAddress = resolvedAddresses.FirstOrDefault(address => address.AddressFamily == AddressFamily.InterNetwork) ?? resolvedAddresses.FirstOrDefault();
+
+                    if (resolvedAddress != null)
+                    {
+                        logger?.LogMessage(LogLevel.Debug, "CreateHttpClient", $"Resolved host name '{ipAddressString}' to IP address '{resolvedAddress}'.");
+                        ipForUri = resolvedAddress.AddressFamily == AddressFamily.InterNetworkV6 ? $"[{resolvedAddress}]" : resolvedAddress.ToString();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Fall back to the original host name if resolution fails here; the connection attempt below will surface any real connectivity problem.
+                    logger?.LogMessage(LogLevel.Warning, "CreateHttpClient", $"Unable to resolve host name '{ipAddressString}': {ex.Message}. The original host name will be used, but connections may be slower or may time out.");
+                }
+            }
+
             string clientHostAddress = $"{serviceType.ToString().ToLowerInvariant()}://{ipForUri}:{portNumber}";
+
+
+
+            //string clientHostAddress = $"{serviceType.ToString().ToLowerInvariant()}://{ipForUri}:{portNumber}";
 
             // Create a string version of the device type for logging purposes
             string deviceTypString = Devices.DeviceTypeToString(deviceType);
