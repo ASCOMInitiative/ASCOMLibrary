@@ -451,13 +451,15 @@ namespace ASCOM.Alpaca.Discovery
         /// <param name="ipAddressString">The IP address of the Alpaca device as a string.</param>
         /// <param name="portNumber">The IP port number of the Alpaca device.</param>
         /// <param name="uniqueId">The unique ID of the Alpaca device.</param>
-        /// <param name="foundDevice">An AlpacaDevice instance containing the new IP address and port of the Alpaca device, if found. Otherwise null.</param>
+        /// <param name="foundDevice">An AlpacaDevice instance containing the new IP address and port of the Alpaca device when returning false and the device is found on another address. Otherwise null.</param>
         /// <param name="logger">Optional logger for debug messages. Defaults to null, which suppresses logging.</param>
         /// <returns>True if the device exists on the supplied IP address and port, otherwise false. If a device with the same unique ID is found on a different address, foundDevice will be set to that device.</returns>
         /// <remarks>When the device is found on multiple paths, this method returns the address of the device that is closest to the original address e.g. is on the same sub-net.</remarks>
         public static bool ValidateAlpacaAddress(string ipAddressString, int portNumber, string uniqueId, out AscomDevice foundDevice, ILogger logger = null)
         {
+            // Initialise foundDevice
             foundDevice = null;
+
             // Check whether the device can be contacted at the configured IP address and port
             if (CanConnectTcp(ipAddressString, portNumber, 1000, logger)) // Device is up and running so return true
                 return true;
