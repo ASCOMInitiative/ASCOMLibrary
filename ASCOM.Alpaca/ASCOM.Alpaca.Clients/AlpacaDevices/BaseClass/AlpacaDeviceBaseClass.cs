@@ -367,8 +367,8 @@ namespace ASCOM.Alpaca.Clients
                 // Set the firstUse flag to false so that this code is not executed again
                 firstUse = false;
 
-                logger.LogMessage(LogLevel.Debug, "CreateParameters", $"{method} - First use - Validating IP address: {ipAddressString}:{portNumber} and Unique ID: {uniqueId}");
-                logger.LogMessage(LogLevel.Debug, "CreateParameters", $"");
+                logger?.LogMessage(LogLevel.Debug, "CreateParameters", $"{method} - First use - Validating IP address: {ipAddressString}:{portNumber} and Unique ID: {uniqueId}");
+                logger?.LogMessage(LogLevel.Debug, "CreateParameters", $"");
 
                 // Create a placeholder for any returned ASCOMDevice that is discovered on the network
                 AscomDevice newAscomDevice = null;
@@ -376,13 +376,12 @@ namespace ASCOM.Alpaca.Clients
                 // Test whether there is a device at the configured IP address and port by trying to open a TCP connection to it
                 if (!AlpacaDiscovery.ValidateAlpacaAddress(ipAddressString, (int)portNumber, uniqueId, out newAscomDevice, logger))
                 {
-                    logger.LogMessage(LogLevel.Debug, "CreateParameters", $"");
-                    logger.LogMessage(LogLevel.Debug, "CreateParameters", $"Unable to contact Alpaca address: {ipAddressString}:{portNumber}");
+                    logger?.LogMessage(LogLevel.Debug, "CreateParameters", $"");
 
                     // Check whether an ASCOMDevice instance was returned by the discovery process.
                     if (newAscomDevice != null) // An ASCOMDevice was discovered on the network with the same unique ID, so use its address and port instead of the configured values
                     {
-                        logger.LogMessage(LogLevel.Debug, "CreateParameters", $"Found device with UniqueId {uniqueId} at {newAscomDevice.IpAddress}:{newAscomDevice.IpPort}, creating new client");
+                        logger?.LogMessage(LogLevel.Debug, "CreateParameters", $"Replacing original address {ipAddressString}:{portNumber} with new address: {newAscomDevice.IpAddress}:{newAscomDevice.IpPort} and creating new client");
 
                         // Save the new address and port for use in the client
                         // clientHostAddress = $"{newAscomDevice.ServiceType.ToString().ToLowerInvariant()}://{newAscomDevice.IpAddress}:{newAscomDevice.IpPort}";
@@ -393,14 +392,14 @@ namespace ASCOM.Alpaca.Clients
 
                         // Create a new HTTP client with the new address and port
                         RefreshClient();
-                        logger.LogMessage(LogLevel.Debug, "CreateParameters", $"Client created successfully.");
+                        logger?.LogMessage(LogLevel.Debug, "CreateParameters", $"Client created successfully.");
                     }
                     else // No ASCOMDevice was discovered on the network with the same unique ID, so leave the original values in place.
-                        logger.LogMessage(LogLevel.Debug, "CreateParameters", $"No device with UniqueId {uniqueId} was discovered on the network, leaving supplied values in place.");
+                        logger?.LogMessage(LogLevel.Debug, "CreateParameters", $"No device with UniqueId {uniqueId} was discovered on the network, retaining original address {ipAddressString}:{portNumber}.");
                 }
 
-                logger.LogMessage(LogLevel.Debug, "CreateParameters", $"Completed first use validation.");
-                logger.LogMessage(LogLevel.Debug, "CreateParameters", $"");
+                logger?.LogMessage(LogLevel.Debug, "CreateParameters", $"Completed first use validation.");
+                logger?.LogMessage(LogLevel.Debug, "CreateParameters", $"");
             }
 
             // Create and return a new Parameters instance with the current client configuration values

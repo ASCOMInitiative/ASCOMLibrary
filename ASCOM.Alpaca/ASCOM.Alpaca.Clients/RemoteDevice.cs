@@ -125,17 +125,21 @@ namespace ASCOM.Alpaca.Clients
             // exceeds that per-call timeout, even though the device itself is reachable and responsive.
             if (ipv6ZoneId == null && !IPAddress.TryParse(ipAddressString, out _))
             {
-                Stopwatch sw=Stopwatch.StartNew();
+                Stopwatch sw = Stopwatch.StartNew();
                 try
                 {
                     IPAddress[] resolvedAddresses = Dns.GetHostAddresses(ipAddressString);
                     IPAddress resolvedAddress = resolvedAddresses.FirstOrDefault(address => address.AddressFamily == AddressFamily.InterNetwork) ?? resolvedAddresses.FirstOrDefault();
 
+                    sw.Stop();
                     if (resolvedAddress != null)
                     {
-                        sw.Stop();
                         logger?.LogMessage(LogLevel.Debug, "CreateHttpClient", $"Resolved host name '{ipAddressString}' to IP address '{resolvedAddress}' in {sw.ElapsedMilliseconds} ms.");
                         ipForUri = resolvedAddress.AddressFamily == AddressFamily.InterNetworkV6 ? $"[{resolvedAddress}]" : resolvedAddress.ToString();
+                    }
+                    else
+                    {
+                        logger?.LogMessage(LogLevel.Warning, "CreateHttpClient", $"Unable to resolve host name '{ipAddressString}' to any IP address in {sw.ElapsedMilliseconds} ms. The original host name will be used, but connections may be slower or may time out.");
                     }
                 }
                 catch (Exception ex)
