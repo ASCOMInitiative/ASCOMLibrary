@@ -187,12 +187,6 @@ namespace ASCOM.Alpaca.Clients
             {
                 PreAuthenticate = true,
                 AutomaticDecompression = decompressionMethods,
-
-                // Close connections after 2 minutes (example)
-                PooledConnectionLifetime = TimeSpan.FromMinutes(2),
-
-                // Optional: also close idle connections
-                PooledConnectionIdleTimeout = TimeSpan.FromMinutes(1)
             };
 
             if (trustUnsignedSslCertificates)
@@ -256,9 +250,6 @@ namespace ASCOM.Alpaca.Clients
                         return true;
                     };
             }
-
-            // Close connections after 1 minute to ensure DNS changes are picked up and to avoid connection issues with some devices that do not handle persistent connections well
-            ServicePointManager.FindServicePoint(new Uri(clientHostAddress)).ConnectionLeaseTimeout = 1 * 60 * 1000; // Close connections after 1 minute
 
             // Create a new client pointing at the alpaca device
             httpClient = new HttpClient(httpClientHandler);
