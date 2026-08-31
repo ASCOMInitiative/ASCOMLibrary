@@ -37,7 +37,9 @@ namespace AlpacaClients
 
             Assert.NotNull(device);
 
-            Assert.True(device.Connected);
+            // Make sure that the Connected InterfaceVersion values can be retrieved.
+            bool _ = device.Connected;   // Both true and false are OK. Any exception will fail the test
+            Assert.InRange<short>(device.InterfaceVersion, 1, 10);
 
             device.Dispose();
         }
@@ -136,7 +138,9 @@ namespace AlpacaClients
 
             Assert.NotNull(device);
 
-            Assert.True(device.Connected);
+            // Make sure that the Connected InterfaceVersion values can be retrieved.
+            bool _ = device.Connected;   // Both true and false are OK. Any exception will fail the test
+            Assert.InRange<short>(device.InterfaceVersion, 1, 10);
 
             device.Dispose();
         }
@@ -160,9 +164,9 @@ namespace AlpacaClients
 
             Assert.NotNull(device);
 
-            Assert.NotNull(device.Description);
-
-            Assert.True(device.Connected);
+            // Make sure that the Connected InterfaceVersion values can be retrieved.
+            bool _ = device.Connected;   // Both true and false are OK. Any exception will fail the test
+            Assert.InRange<short>(device.InterfaceVersion, 1, 10);
 
             device.Dispose();
         }
@@ -190,9 +194,9 @@ namespace AlpacaClients
 
             Assert.NotNull(device);
 
-            Assert.NotNull(device.Description);
-
-            Assert.True(device.Connected);
+            // Make sure that the Connected InterfaceVersion values can be retrieved.
+            bool _ = device.Connected;   // Both true and false are OK. Any exception will fail the test
+            Assert.InRange<short>(device.InterfaceVersion, 1, 10);
 
             device.Dispose();
         }

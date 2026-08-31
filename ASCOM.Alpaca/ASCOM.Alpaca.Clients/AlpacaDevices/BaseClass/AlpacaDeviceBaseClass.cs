@@ -367,7 +367,7 @@ namespace ASCOM.Alpaca.Clients
                 // Set the firstUse flag to false so that this code is not executed again
                 firstUse = false;
 
-                logger.LogMessage(LogLevel.Debug, "CreateParameters", $"First use - Validating IP address: {ipAddressString}:{portNumber} and Unique ID: {uniqueId}");
+                logger.LogMessage(LogLevel.Debug, "CreateParameters", $"{method} - First use - Validating IP address: {ipAddressString}:{portNumber} and Unique ID: {uniqueId}");
                 logger.LogMessage(LogLevel.Debug, "CreateParameters", $"");
 
                 // Create a placeholder for any returned ASCOMDevice that is discovered on the network

@@ -460,54 +460,55 @@ namespace ASCOM.Alpaca.Discovery
             // Initialise foundDevice
             foundDevice = null;
 
-            // Check whether the device can be contacted at the configured IP address and port
-            if (CanConnectTcp(ipAddressString, portNumber, 1000, logger)) // Device is up and running so return true
-                return true;
-
-            // Device is not contactable on its configured IP address and port. If a unique ID is provided, attempt to re-discover the device at other network addresses.
+            // If a unique ID is provided, run discovery and test the configured address in parallel.
             if (!string.IsNullOrEmpty(uniqueId)) // A unique ID has been provided so search for the device at other IP addresses and ports
             {
+                // Run the TCP test concurrently with discovery so that both timeouts overlap.
+                Task<bool> canConnectTcpTask = Task.Run(() => CanConnectTcp(ipAddressString, portNumber, 1000, logger));
+
                 // Initialise a list to hold the discovered devices that match the unique ID
                 List<AscomDevice> availableDevices = new List<AscomDevice>();
-
-                logger.LogMessage(LogLevel.Debug, "ValidateAddress", $"Can not connect TCP to device at {ipAddressString}:{portNumber}, looking for unique ID '{uniqueId}' on other interfaces.");
-
-                // Attempt to "re-discover" the device and use it's new address and / or port
-                logger.LogMessage(LogLevel.Debug, "ValidateAddress", $"The device at the configured IP address and port {ipAddressString} cannot be contacted, attempting to re-discover it");
-
-                // Get the original IP address as a big endian byte array
-                byte[] addressBytes = new byte[0]; // Create a zero length array in case its not possible to parse the IP address string (it may be a host name or may just be corrupted)
-
-                try
-                {
-                    addressBytes = IPAddress.Parse(ipAddressString).GetAddressBytes();
-                }
-                catch { }
-
-                // Create an array large enough to hold an IPv6 address (16 bytes) plus one extra byte at the high end that will always be 0.
-                // This ensures that an IPv6 address will not be interpreted as a negative number if its top bit is set
-                byte[] hostBytes = new byte[17];
-
-                // Re-order the network address byte array to little endian as used in Windows
-                Array.Copy(addressBytes.Reverse().ToArray<byte>(), hostBytes, addressBytes.Length);
-
-                // Create a big integer from the little endian byte array
-                BigInteger suppliedIpAddressAsBigInteger = new BigInteger(hostBytes);
-                logger.LogMessage(LogLevel.Debug, "ValidateAddress", $"Supplied IP address ({ipAddressString}) as BigInteger: {suppliedIpAddressAsBigInteger} ({suppliedIpAddressAsBigInteger:X32})");
 
                 // Create an AlapcaDiscovery component to conduct the search
                 using (AlpacaDiscovery alpacaDiscovery = new AlpacaDiscovery(logger))
                 {
-                    // Start a discovery using two polls, 100ms apart, timing out after 1 second, don't attempt to resolve the IP address to a DNS name use the discovery port and IP settings of this device
+                    // Start a discovery using two polls, 100ms apart, timing out after 1 second, don't attempt to resolve the IP address to a DNS name, search both IPv4 and IPv6 address spaces
                     alpacaDiscovery.StartDiscovery(2, 100, 32227, 1.0, false, true, true);
 
-                    // Wait for the discovery cycle to complete, making sure that the UI remains responsive
+                    // Return as soon as the TCP connection succeeds; do not wait for discovery to complete.
+                    // Code below uses GetAwaiter().GetResult() to synchronously wait for the task to complete.
+                    if (canConnectTcpTask.GetAwaiter().GetResult()) // A device was found at the configured address and port so there is no need to search for it on other interfaces
+                        return true;
+
+                    // Connect timed out, attempt to "re-discover" the device and use it's new address and / or port
+                    logger.LogMessage(LogLevel.Debug, "ValidateAddress", $"Attempt to connect to {ipAddressString}:{portNumber} has timed out. Now using Alpaca discovery results to look for unique ID '{uniqueId}' on other interfaces.");
+
+                    // Get the original IP address as a big endian byte array
+                    byte[] addressBytes = new byte[0]; // Create a zero length array in case its not possible to parse the IP address string (it may be a host name or may just be corrupted)
+                    try
+                    {
+                        addressBytes = IPAddress.Parse(ipAddressString).GetAddressBytes();
+                    }
+                    catch { }
+
+                    // Create an array large enough to hold an IPv6 address (16 bytes) plus one extra byte at the high end that will always be 0.
+                    // This ensures that an IPv6 address will not be interpreted as a negative number if its top bit is set
+                    byte[] hostBytes = new byte[17];
+
+                    // Re-order the network address byte array to little endian as used in Windows
+                    Array.Copy(addressBytes.Reverse().ToArray<byte>(), hostBytes, addressBytes.Length);
+
+                    // Create a big integer of the original IP address from the little endian byte array
+                    BigInteger suppliedIpAddressAsBigInteger = new BigInteger(hostBytes);
+                    logger.LogMessage(LogLevel.Debug, "ValidateAddress", $"Supplied IP address ({ipAddressString}) as BigInteger: {suppliedIpAddressAsBigInteger} ({suppliedIpAddressAsBigInteger:X32})");
+
+                    // Wait here for the discovery cycle to complete
                     do
                     {
-                        Thread.Sleep(100);
+                        Thread.Sleep(10);
                     } while (!alpacaDiscovery.DiscoveryComplete);
 
-                    // Get a list of the discovered Alpaca devices
+                    // Discovery complete - Get a list of the discovered Alpaca devices
                     List<AlpacaDevice> discoveredDevices = alpacaDiscovery.GetAlpacaDevices();
                     logger.BlankLine(LogLevel.Debug);
 
@@ -524,7 +525,7 @@ namespace ASCOM.Alpaca.Discovery
                             // Test whether the found ASCOM device has the same unique ID as the device for which we are looking
                             if (ascomDevice.UniqueId.ToLowerInvariant() == uniqueId.ToLowerInvariant()) // We have a match so we can use this address and port instead of the configured values that no longer work
                             {
-                                logger.LogMessage(LogLevel.Debug, "ValidateAddress", $"  *** Found  ASCOM device with required UniqueId: {uniqueId} ***");
+                                logger.LogMessage(LogLevel.Debug, "ValidateAddress", $"  *** Found  ASCOM device with required UniqueId: {uniqueId} on {alpacaDevice.HostName}:{alpacaDevice.Port} ***");
 
                                 // Get the IP address as a big endian byte array
                                 addressBytes = IPAddress.Parse(alpacaDevice.IpAddress).GetAddressBytes();
@@ -546,66 +547,80 @@ namespace ASCOM.Alpaca.Discovery
                         }
                         logger.BlankLine(LogLevel.Debug);
                     }
-                }
 
-                // Search the discovered interfaces for the one whose network address is closest to the original address
-                // This will ensure that we pick an address on the original sub-net if this is available.
-                switch (availableDevices.Count)
-                {
-                    case 0: // The device was not found on any available interface
-                        logger.LogMessage(LogLevel.Debug, "ValidateAddress", $"No ASCOM device was discovered that had a UniqueD of {uniqueId}");
-                        break;
+                    // Search the discovered interfaces for the one whose network address is closest to the original address
+                    // This will ensure that we pick an address on the original sub-net if this is available.
+                    switch (availableDevices.Count)
+                    {
+                        case 0: // The device was not found on any available interface
+                            logger.LogMessage(LogLevel.Debug, "ValidateAddress", $"No ASCOM device was discovered that had a UniqueD of {uniqueId}");
+                            break;
 
-                    case 1: // The device was found on exactly 1 interface so this is the one to use
+                        case 1: // The device was found on exactly 1 interface so this is the one to use
                             // Update the client host address with the newly discovered address and port
 
-                        foundDevice = availableDevices[0];
-                        logger.LogMessage(LogLevel.Debug, "ValidateAddress", $"One ASCOM device was discovered that had a UniqueD of {uniqueId}. Now using URL: {foundDevice.ServiceType.ToString().ToLowerInvariant()}://{foundDevice.IpAddress}:{foundDevice.IpPort}");
-                        break;
+                            foundDevice = availableDevices[0];
+                            logger.LogMessage(LogLevel.Debug, "ValidateAddress", $"One ASCOM device was discovered that had a UniqueD of {uniqueId}. Now using URL: {foundDevice.ServiceType.ToString().ToLowerInvariant()}://{foundDevice.IpAddress}:{foundDevice.IpPort}");
+                            break;
 
-                    default: // The device was found on several interfaces so choose the address that is closest to the original address
-                        logger.LogMessage(LogLevel.Debug, "ValidateAddress", $"{availableDevices.Count} ASCOM devices were discovered that had a UniqueD of {uniqueId}.");
+                        default: // The device was found on several interfaces so choose the address that is closest to the original address
+                            logger.LogMessage(LogLevel.Debug, "ValidateAddress", $"{availableDevices.Count} ASCOM devices were discovered that had a UniqueD of {uniqueId}.");
 
 
-                        // Initialise a big integer variable with an impossibly large address to ensure that the first iterated value will be used
-                        // The following number requires a leading zero to ensure that it is not interpreted as a negative number because its most significant bit is set
-                        // Hex number character count                    1234567890123456789012345678901234 = 34 hex characters = 17 bytes = a leading 0 byte plus 16 bytes of value 255
-                        BigInteger largestDifference = BigInteger.Parse("00FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", NumberStyles.HexNumber, CultureInfo.InvariantCulture);
-                        logger.LogMessage(LogLevel.Debug, "ValidateAddress", $"Initialised largest value: {largestDifference} = {largestDifference:X34}");
+                            // Initialise a big integer variable with an impossibly large address to ensure that the first iterated value will be used
+                            // The following number requires a leading zero to ensure that it is not interpreted as a negative number because its most significant bit is set
+                            // Hex number character count                    1234567890123456789012345678901234 = 34 hex characters = 17 bytes = a leading 0 byte plus 16 bytes of value 255
+                            BigInteger largestDifference = BigInteger.Parse("00FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+                            logger.LogMessage(LogLevel.Debug, "ValidateAddress", $"Initialised largest value: {largestDifference} = {largestDifference:X34}");
 
-                        // Now iterate over the values and pick the entry with the smallest difference in IP address
-                        foreach (AscomDevice availableDevice in availableDevices)
-                        {
-                            // Calculate the difference between the original IP address and the discovered IP address as a big integer
-                            addressBytes = IPAddress.Parse(availableDevice.IpAddress).GetAddressBytes();
-
-                            // Create an array large enough to hold a 16 byte IPv6 address plus one byte at the high end that will always be 0. (Ensures that IPv6 addresses will not be interpreted as negative numbers.
-                            hostBytes = new byte[17];
-
-                            // Re-order the network address byte array to little endian as used in Windows
-                            Array.Copy(addressBytes.Reverse().ToArray<byte>(), hostBytes, addressBytes.Length);
-
-                            BigInteger bigIntegerAddress = new BigInteger(hostBytes);
-                            BigInteger addressDifference = BigInteger.Abs(bigIntegerAddress - suppliedIpAddressAsBigInteger);
-
-                            if (addressDifference < largestDifference)
+                            // Now iterate over the values and pick the entry with the smallest difference in IP address
+                            foreach (AscomDevice availableDevice in availableDevices)
                             {
-                                largestDifference = addressDifference;
-                                foundDevice = availableDevice;
-                                logger.LogMessage(LogLevel.Debug, "ValidateAddress", $"New lowest address difference found: {addressDifference}. Now using URL: {foundDevice.ServiceType.ToString().ToLowerInvariant()}://{foundDevice.IpAddress}:{foundDevice.IpPort}");
+                                // Check whether this device is localhost. If so prefer it over all other addresses.
+                                if (availableDevice.IpAddress == "127.0.0.1" || availableDevice.IpAddress == "::1" || availableDevice.IpAddress == "localhost") // Localhost found so use this address and port instead of the configured values that no longer work
+                                {
+                                    foundDevice = availableDevice;
+                                    logger.LogMessage(LogLevel.Debug, "ValidateAddress", $"Localhost address found. Selecting URL: {foundDevice.ServiceType.ToString().ToLowerInvariant()}://{foundDevice.IpAddress}:{foundDevice.IpPort}");
+                                    break; // Exit the loop because we have found the best possible address
+                                }
+
+                                // Calculate the difference between the original IP address and the discovered IP address as a big integer
+                                addressBytes = IPAddress.Parse(availableDevice.IpAddress).GetAddressBytes();
+
+                                // Create an array large enough to hold a 16 byte IPv6 address plus one byte at the high end that will always be 0. (Ensures that IPv6 addresses will not be interpreted as negative numbers.
+                                hostBytes = new byte[17];
+
+                                // Re-order the network address byte array to little endian as used in Windows
+                                Array.Copy(addressBytes.Reverse().ToArray<byte>(), hostBytes, addressBytes.Length);
+
+                                BigInteger bigIntegerAddress = new BigInteger(hostBytes);
+                                BigInteger addressDifference = BigInteger.Abs(bigIntegerAddress - suppliedIpAddressAsBigInteger);
+
+                                if (addressDifference < largestDifference)
+                                {
+                                    largestDifference = addressDifference;
+                                    foundDevice = availableDevice;
+                                    logger.LogMessage(LogLevel.Debug, "ValidateAddress", $"New lowest address difference found: {addressDifference}. Now using URL: {foundDevice.ServiceType.ToString().ToLowerInvariant()}://{foundDevice.IpAddress}:{foundDevice.IpPort}");
+                                }
+                                else
+                                {
+                                    logger.LogMessage(LogLevel.Debug, "ValidateAddress", $"Ignoring address difference {addressDifference} for IP address {availableDevice.IpAddress}.");
+                                }
                             }
-                            else
-                            {
-                                logger.LogMessage(LogLevel.Debug, "ValidateAddress", $"Ignoring address difference {addressDifference} for IP address {availableDevice.IpAddress}.");
-                            }
-                        }
-                        break;
+                            break;
+                    }
                 }
             }
+            else // No unique ID was provided so just test the configured address and port
+            {
+                if (CanConnectTcp(ipAddressString, portNumber, 1000, logger)) // Device is up and running so return true
+                    return true;
+            }
 
-            if (foundDevice != null)
+            // The device was not found on the supplied address and port, but may have been found on another address and port. Return false to indicate that the caller should use the new address and port if available.
+            if (foundDevice != null) // The device was found on another address and port so log this
                 logger.LogMessage(LogLevel.Debug, "ValidateAddress", $"Returning found device: {foundDevice.ServiceType.ToString().ToLowerInvariant()}://{foundDevice.IpAddress}:{foundDevice.IpPort}");
-            else
+            else // The device was not found on any address and port so log this
                 logger.LogMessage(LogLevel.Debug, "ValidateAddress", $"Returning found device: NULL");
 
             // Indicate that the device was not found at the configured IP address and port and that the caller should use the new address and port if available
