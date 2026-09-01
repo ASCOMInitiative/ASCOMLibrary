@@ -197,7 +197,7 @@ namespace ASCOM.Alpaca.Clients
             {
                 // Create a state object to return.
                 FilterWheelState filterWheelState = new FilterWheelState(DeviceState, logger);
-                logger.LogMessage(LogLevel.Debug, nameof(FilterWheelState), $"Returning: '{filterWheelState.Position}' '{filterWheelState.TimeStamp}'");
+                logger?.LogMessage(LogLevel.Debug, nameof(FilterWheelState), $"Returning: '{filterWheelState.Position}' '{filterWheelState.TimeStamp}'");
 
                 // Return the device specific state class
                 return filterWheelState;

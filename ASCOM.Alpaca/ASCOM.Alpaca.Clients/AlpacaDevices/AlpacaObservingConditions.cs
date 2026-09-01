@@ -195,7 +195,7 @@ namespace ASCOM.Alpaca.Clients
             {
                 // Create a state object to return.
                 ObservingConditionsState observingConditionsState = new ObservingConditionsState(DeviceState, logger);
-                logger.LogMessage(LogLevel.Debug, nameof(ObservingConditionsState), $"Returning: " +
+                logger?.LogMessage(LogLevel.Debug, nameof(ObservingConditionsState), $"Returning: " +
                     $"Cloud cover: '{observingConditionsState.CloudCover}', " +
                     $"Dew point: '{observingConditionsState.DewPoint}', " +
                     $"Humidity: '{observingConditionsState.Humidity}', " +

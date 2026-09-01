@@ -200,7 +200,7 @@ namespace ASCOM.Alpaca.Clients
             {
                 // Create a state object to return.
                 CoverCalibratorState deviceState = new CoverCalibratorState(DeviceState, logger);
-                logger.LogMessage(LogLevel.Debug, "CoverCalibratorState", $"Returning: '{deviceState.Brightness}' '{deviceState.CalibratorChanging}' '{deviceState.CalibratorState}' '{deviceState.CoverMoving}' '{deviceState.CoverState}' '{deviceState.TimeStamp}'");
+                logger?.LogMessage(LogLevel.Debug, "CoverCalibratorState", $"Returning: '{deviceState.Brightness}' '{deviceState.CalibratorChanging}' '{deviceState.CalibratorState}' '{deviceState.CoverMoving}' '{deviceState.CoverState}' '{deviceState.TimeStamp}'");
 
                 // Return the device specific state class
                 return deviceState;

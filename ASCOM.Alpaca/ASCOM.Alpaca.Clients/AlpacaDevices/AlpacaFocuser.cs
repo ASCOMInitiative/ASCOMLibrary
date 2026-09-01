@@ -200,7 +200,7 @@ namespace ASCOM.Alpaca.Clients
             {
                 // Create a state object to return.
                 FocuserState focuserState = new FocuserState(DeviceState, logger);
-                logger.LogMessage(LogLevel.Debug, nameof(FocuserState), $"Returning: '{focuserState.IsMoving}' '{focuserState.Position}' '{focuserState.Temperature}' '{focuserState.TimeStamp}'");
+                logger?.LogMessage(LogLevel.Debug, nameof(FocuserState), $"Returning: '{focuserState.IsMoving}' '{focuserState.Position}' '{focuserState.Temperature}' '{focuserState.TimeStamp}'");
 
                 // Return the device specific state class
                 return focuserState;

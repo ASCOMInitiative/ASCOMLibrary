@@ -198,7 +198,7 @@ namespace ASCOM.Alpaca.Clients
             {
                 // Create a state object to return.
                 DomeState domeState = new DomeState(DeviceState, logger);
-                logger.LogMessage(LogLevel.Debug, nameof(DomeState), $"Returning: '{domeState.Altitude}' '{domeState.AtHome}' '{domeState.AtPark}' '{domeState.Azimuth}' '{domeState.ShutterStatus}' '{domeState.Slewing}' '{domeState.TimeStamp}'");
+                logger?.LogMessage(LogLevel.Debug, nameof(DomeState), $"Returning: '{domeState.Altitude}' '{domeState.AtHome}' '{domeState.AtPark}' '{domeState.Azimuth}' '{domeState.ShutterStatus}' '{domeState.Slewing}' '{domeState.TimeStamp}'");
 
                 // Return the device specific state class
                 return domeState;

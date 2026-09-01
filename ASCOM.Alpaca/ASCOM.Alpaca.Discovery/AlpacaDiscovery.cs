@@ -469,7 +469,9 @@ namespace ASCOM.Alpaca.Discovery
                 // Initialise a list to hold the discovered devices that match the unique ID
                 List<AscomDevice> availableDevices = new List<AscomDevice>();
 
-                // Create an AlapcaDiscovery component to conduct the search
+                logger?.LogMessage(LogLevel.Debug, "ValidateAddress", $"Starting Alpaca device discovery...");
+
+                // Create an AlpacaDiscovery component to conduct the search
                 using (AlpacaDiscovery alpacaDiscovery = new AlpacaDiscovery(logger))
                 {
                     // Start a discovery using two polls, 100ms apart, timing out after 1 second, don't attempt to resolve the IP address to a DNS name, search both IPv4 and IPv6 address spaces
@@ -481,7 +483,7 @@ namespace ASCOM.Alpaca.Discovery
                         return true;
 
                     // Connect timed out, attempt to "re-discover" the device and use it's new address and / or port
-                    logger.LogMessage(LogLevel.Debug, "ValidateAddress", $"Attempt to connect to {ipAddressString}:{portNumber} has timed out. Now using Alpaca discovery results to look for unique ID '{uniqueId}' on other interfaces.");
+                    logger?.LogMessage(LogLevel.Debug, "ValidateAddress", $"Attempt to connect to {ipAddressString}:{portNumber} has timed out. Now using Alpaca discovery results to look for unique ID '{uniqueId}' on other interfaces.");
 
                     // Get the original IP address as a big endian byte array
                     byte[] addressBytes = new byte[0]; // Create a zero length array in case its not possible to parse the IP address string (it may be a host name or may just be corrupted)
@@ -500,7 +502,7 @@ namespace ASCOM.Alpaca.Discovery
 
                     // Create a big integer of the original IP address from the little endian byte array
                     BigInteger suppliedIpAddressAsBigInteger = new BigInteger(hostBytes);
-                    logger.LogMessage(LogLevel.Debug, "ValidateAddress", $"Supplied IP address ({ipAddressString}) as BigInteger: {suppliedIpAddressAsBigInteger} ({suppliedIpAddressAsBigInteger:X32})");
+                    logger?.LogMessage(LogLevel.Debug, "ValidateAddress", $"Supplied IP address ({ipAddressString}) as BigInteger: {suppliedIpAddressAsBigInteger} ({suppliedIpAddressAsBigInteger:X32})");
 
                     // Wait here for the discovery cycle to complete
                     do
@@ -515,17 +517,17 @@ namespace ASCOM.Alpaca.Discovery
                     // Iterate over these to find which ASCOM devices are served by them
                     foreach (AlpacaDevice alpacaDevice in discoveredDevices)
                     {
-                        logger.LogMessage(LogLevel.Debug, "ValidateAddress", $"Found Alpaca device {alpacaDevice.HostName}:{alpacaDevice.Port} - {alpacaDevice.ServerName}");
+                        logger?.LogMessage(LogLevel.Debug, "ValidateAddress", $"Found Alpaca device {alpacaDevice.HostName}:{alpacaDevice.Port} - {alpacaDevice.ServerName}");
 
                         // Iterate over the devices served by the Alpaca device
                         foreach (AscomDevice ascomDevice in alpacaDevice.AscomDevices(null))
                         {
-                            logger.LogMessage(LogLevel.Debug, "ValidateAddress", $"Found ASCOM device {ascomDevice.AscomDeviceName}:{ascomDevice.AscomDeviceType} - {ascomDevice.UniqueId} at {alpacaDevice.HostName}:{alpacaDevice.Port}");
+                            logger?.LogMessage(LogLevel.Debug, "ValidateAddress", $"Found ASCOM device {ascomDevice.AscomDeviceName}:{ascomDevice.AscomDeviceType} - {ascomDevice.UniqueId} at {alpacaDevice.HostName}:{alpacaDevice.Port}");
 
                             // Test whether the found ASCOM device has the same unique ID as the device for which we are looking
                             if (ascomDevice.UniqueId.ToLowerInvariant() == uniqueId.ToLowerInvariant()) // We have a match so we can use this address and port instead of the configured values that no longer work
                             {
-                                logger.LogMessage(LogLevel.Debug, "ValidateAddress", $"  *** Found  ASCOM device with required UniqueId: {uniqueId} on {alpacaDevice.HostName}:{alpacaDevice.Port} ***");
+                                logger?.LogMessage(LogLevel.Debug, "ValidateAddress", $"  *** Found  ASCOM device with required UniqueId: {uniqueId} on {alpacaDevice.HostName}:{alpacaDevice.Port} ***");
 
                                 // Get the IP address as a big endian byte array
                                 addressBytes = IPAddress.Parse(alpacaDevice.IpAddress).GetAddressBytes();
@@ -542,7 +544,7 @@ namespace ASCOM.Alpaca.Discovery
 
                                 // Add the device to the list of available devices.
                                 availableDevices.Add(ascomDevice);
-                                logger.LogMessage(LogLevel.Debug, "ValidateAddress", $"Found available device: {ascomDevice.AscomDeviceName}:{ascomDevice.AscomDeviceType} ({ascomDevice.UniqueId}) at {alpacaDevice.HostName}:{alpacaDevice.Port}");
+                                logger?.LogMessage(LogLevel.Debug, "ValidateAddress", $"Found available device: {ascomDevice.AscomDeviceName}:{ascomDevice.AscomDeviceType} ({ascomDevice.UniqueId}) at {alpacaDevice.HostName}:{alpacaDevice.Port}");
                             }
                         }
                         logger.BlankLine(LogLevel.Debug);
@@ -553,25 +555,25 @@ namespace ASCOM.Alpaca.Discovery
                     switch (availableDevices.Count)
                     {
                         case 0: // The device was not found on any available interface
-                            logger.LogMessage(LogLevel.Debug, "ValidateAddress", $"No ASCOM device was discovered that had a UniqueD of {uniqueId}");
+                            logger?.LogMessage(LogLevel.Debug, "ValidateAddress", $"No ASCOM device was discovered that had a UniqueD of {uniqueId}");
                             break;
 
                         case 1: // The device was found on exactly 1 interface so this is the one to use
                             // Update the client host address with the newly discovered address and port
 
                             foundDevice = availableDevices[0];
-                            logger.LogMessage(LogLevel.Debug, "ValidateAddress", $"One ASCOM device was discovered that had a UniqueD of {uniqueId}. Now using URL: {foundDevice.ServiceType.ToString().ToLowerInvariant()}://{foundDevice.IpAddress}:{foundDevice.IpPort}");
+                            logger?.LogMessage(LogLevel.Debug, "ValidateAddress", $"One ASCOM device was discovered that had a UniqueD of {uniqueId}. Now using URL: {foundDevice.ServiceType.ToString().ToLowerInvariant()}://{foundDevice.IpAddress}:{foundDevice.IpPort}");
                             break;
 
                         default: // The device was found on several interfaces so choose the address that is closest to the original address
-                            logger.LogMessage(LogLevel.Debug, "ValidateAddress", $"{availableDevices.Count} ASCOM devices were discovered that had a UniqueD of {uniqueId}.");
+                            logger?.LogMessage(LogLevel.Debug, "ValidateAddress", $"{availableDevices.Count} ASCOM devices were discovered that had a UniqueD of {uniqueId}.");
 
 
                             // Initialise a big integer variable with an impossibly large address to ensure that the first iterated value will be used
                             // The following number requires a leading zero to ensure that it is not interpreted as a negative number because its most significant bit is set
                             // Hex number character count                    1234567890123456789012345678901234 = 34 hex characters = 17 bytes = a leading 0 byte plus 16 bytes of value 255
                             BigInteger largestDifference = BigInteger.Parse("00FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", NumberStyles.HexNumber, CultureInfo.InvariantCulture);
-                            logger.LogMessage(LogLevel.Debug, "ValidateAddress", $"Initialised largest value: {largestDifference} = {largestDifference:X34}");
+                            logger?.LogMessage(LogLevel.Debug, "ValidateAddress", $"Initialised largest value: {largestDifference} = {largestDifference:X34}");
 
                             // Now iterate over the values and pick the entry with the smallest difference in IP address
                             foreach (AscomDevice availableDevice in availableDevices)
@@ -580,7 +582,7 @@ namespace ASCOM.Alpaca.Discovery
                                 if (availableDevice.IpAddress == "127.0.0.1" || availableDevice.IpAddress == "::1" || availableDevice.IpAddress == "localhost") // Localhost found so use this address and port instead of the configured values that no longer work
                                 {
                                     foundDevice = availableDevice;
-                                    logger.LogMessage(LogLevel.Debug, "ValidateAddress", $"Localhost address found. Selecting URL: {foundDevice.ServiceType.ToString().ToLowerInvariant()}://{foundDevice.IpAddress}:{foundDevice.IpPort}");
+                                    logger?.LogMessage(LogLevel.Debug, "ValidateAddress", $"Localhost address found. Selecting URL: {foundDevice.ServiceType.ToString().ToLowerInvariant()}://{foundDevice.IpAddress}:{foundDevice.IpPort}");
                                     break; // Exit the loop because we have found the best possible address
                                 }
 
@@ -600,11 +602,11 @@ namespace ASCOM.Alpaca.Discovery
                                 {
                                     largestDifference = addressDifference;
                                     foundDevice = availableDevice;
-                                    logger.LogMessage(LogLevel.Debug, "ValidateAddress", $"New lowest address difference found: {addressDifference}. Now using URL: {foundDevice.ServiceType.ToString().ToLowerInvariant()}://{foundDevice.IpAddress}:{foundDevice.IpPort}");
+                                    logger?.LogMessage(LogLevel.Debug, "ValidateAddress", $"New lowest address difference found: {addressDifference}. Now using URL: {foundDevice.ServiceType.ToString().ToLowerInvariant()}://{foundDevice.IpAddress}:{foundDevice.IpPort}");
                                 }
                                 else
                                 {
-                                    logger.LogMessage(LogLevel.Debug, "ValidateAddress", $"Ignoring address difference {addressDifference} for IP address {availableDevice.IpAddress}.");
+                                    logger?.LogMessage(LogLevel.Debug, "ValidateAddress", $"Ignoring address difference {addressDifference} for IP address {availableDevice.IpAddress}.");
                                 }
                             }
                             break;
@@ -619,9 +621,9 @@ namespace ASCOM.Alpaca.Discovery
 
             // The device was not found on the supplied address and port, but may have been found on another address and port. Return false to indicate that the caller should use the new address and port if available.
             if (foundDevice != null) // The device was found on another address and port so log this
-                logger.LogMessage(LogLevel.Debug, "ValidateAddress", $"Returning found device: {foundDevice.ServiceType.ToString().ToLowerInvariant()}://{foundDevice.IpAddress}:{foundDevice.IpPort}");
+                logger?.LogMessage(LogLevel.Debug, "ValidateAddress", $"Returning found device: {foundDevice.ServiceType.ToString().ToLowerInvariant()}://{foundDevice.IpAddress}:{foundDevice.IpPort}");
             else // The device was not found on any address and port so log this
-                logger.LogMessage(LogLevel.Debug, "ValidateAddress", $"Returning found device: NULL");
+                logger?.LogMessage(LogLevel.Debug, "ValidateAddress", $"Returning found device: NULL");
 
             // Indicate that the device was not found at the configured IP address and port and that the caller should use the new address and port if available
             return false;
@@ -658,23 +660,23 @@ namespace ASCOM.Alpaca.Discovery
         {
             try
             {
-                logger.LogMessage(LogLevel.Information, "GetAlpacaDevicesAsync", $"Parameters - Number of polls: {numberOfPolls}, Poll interval: {pollInterval}, Discovery port: {discoveryPort}");
-                logger.LogMessage(LogLevel.Information, "GetAlpacaDevicesAsync", $"Parameters - Discovery duration: {discoveryDuration}, Resolve DNS names: {resolveDnsName}, Use IPv4: {useIpV4}, Use IP v6: {useIpV6}, Service type: {serviceType}");
+                logger?.LogMessage(LogLevel.Information, "GetAlpacaDevicesAsync", $"Parameters - Number of polls: {numberOfPolls}, Poll interval: {pollInterval}, Discovery port: {discoveryPort}");
+                logger?.LogMessage(LogLevel.Information, "GetAlpacaDevicesAsync", $"Parameters - Discovery duration: {discoveryDuration}, Resolve DNS names: {resolveDnsName}, Use IPv4: {useIpV4}, Use IP v6: {useIpV6}, Service type: {serviceType}");
 
                 TaskCompletionSource<object> tcs = new TaskCompletionSource<object>();
 
                 // Create and use a discovery instance to look for ALpaca devices
-                logger.LogMessage(LogLevel.Debug, "GetAlpacaDevicesAsync", $"Creating AlpacaDiscovery object...");
+                logger?.LogMessage(LogLevel.Debug, "GetAlpacaDevicesAsync", $"Creating AlpacaDiscovery object...");
                 using (AlpacaDiscovery discovery = new AlpacaDiscovery(JsonNameCaseSensitivity.AnyCasing, logger))
                 {
-                    logger.LogMessage(LogLevel.Debug, "GetAlpacaDevicesAsync", $"{Thread.CurrentThread.ManagedThreadId} Created discovery object");
+                    logger?.LogMessage(LogLevel.Debug, "GetAlpacaDevicesAsync", $"{Thread.CurrentThread.ManagedThreadId} Created discovery object");
                     await AsynchronousDiscovery("GetAlpacaDevicesAsync", numberOfPolls, pollInterval, discoveryPort, discoveryDuration, resolveDnsName, useIpV4, useIpV6, serviceType, logger, discovery, cancellationToken);
 
                     // Throw an operation cancelled exception if appropriate
                     cancellationToken.ThrowIfCancellationRequested();
 
                     // Log the outcome
-                    logger.LogMessage(LogLevel.Information, "GetAlpacaDevicesAsync", $"Returning {discovery.GetAlpacaDevices().Count} Alpaca devices.");
+                    logger?.LogMessage(LogLevel.Information, "GetAlpacaDevicesAsync", $"Returning {discovery.GetAlpacaDevices().Count} Alpaca devices.");
 
                     // Return the discovered device list to the caller
                     return discovery.GetAlpacaDevices();
@@ -682,7 +684,7 @@ namespace ASCOM.Alpaca.Discovery
             }
             catch (Exception ex)
             {
-                logger.LogMessage(LogLevel.Error, "GetAscomDevicesAsync", $"Exception: {ex}");
+                logger?.LogMessage(LogLevel.Error, "GetAscomDevicesAsync", $"Exception: {ex}");
                 throw;
             }
         }
@@ -716,21 +718,21 @@ namespace ASCOM.Alpaca.Discovery
         {
             try
             {
-                logger.LogMessage(LogLevel.Information, "GetAscomDevicesAsync", $"Parameters - DeviceType: {deviceTypes}, Number of polls: {numberOfPolls}, Poll interval: {pollInterval}, Discovery port: {discoveryPort}");
-                logger.LogMessage(LogLevel.Information, "GetAscomDevicesAsync", $"Parameters - Discovery duration: {discoveryDuration}, Resolve DNS names: {resolveDnsName}, Use IPv4: {useIpV4}, Use IP v6: {useIpV6}, Service type: {serviceType}");
+                logger?.LogMessage(LogLevel.Information, "GetAscomDevicesAsync", $"Parameters - DeviceType: {deviceTypes}, Number of polls: {numberOfPolls}, Poll interval: {pollInterval}, Discovery port: {discoveryPort}");
+                logger?.LogMessage(LogLevel.Information, "GetAscomDevicesAsync", $"Parameters - Discovery duration: {discoveryDuration}, Resolve DNS names: {resolveDnsName}, Use IPv4: {useIpV4}, Use IP v6: {useIpV6}, Service type: {serviceType}");
 
                 // Create and use a discovery instance to look for Alpaca devices
-                logger.LogMessage(LogLevel.Debug, "GetAscomDevicesAsync", $"Creating AlpacaDiscovery object...");
+                logger?.LogMessage(LogLevel.Debug, "GetAscomDevicesAsync", $"Creating AlpacaDiscovery object...");
                 using (AlpacaDiscovery discovery = new AlpacaDiscovery(JsonNameCaseSensitivity.AnyCasing, logger))
                 {
-                    logger.LogMessage(LogLevel.Debug, "GetAscomDevicesAsync", $"{Thread.CurrentThread.ManagedThreadId} Created discovery object");
+                    logger?.LogMessage(LogLevel.Debug, "GetAscomDevicesAsync", $"{Thread.CurrentThread.ManagedThreadId} Created discovery object");
                     await AsynchronousDiscovery("GetAscomDevicesAsync", numberOfPolls, pollInterval, discoveryPort, discoveryDuration, resolveDnsName, useIpV4, useIpV6, serviceType, logger, discovery, cancellationToken);
 
                     // Throw an operation cancelled exception if appropriate
                     cancellationToken.ThrowIfCancellationRequested();
 
                     // Log the outcome
-                    logger.LogMessage(LogLevel.Information, "GetAscomDevicesAsync", $"{Thread.CurrentThread.ManagedThreadId} Returning {discovery.GetAscomDevices(deviceTypes).Count} devices.");
+                    logger?.LogMessage(LogLevel.Information, "GetAscomDevicesAsync", $"{Thread.CurrentThread.ManagedThreadId} Returning {discovery.GetAscomDevices(deviceTypes).Count} devices.");
 
                     // Return the discovered device list to the caller
                     return discovery.GetAscomDevices(deviceTypes);
@@ -738,7 +740,7 @@ namespace ASCOM.Alpaca.Discovery
             }
             catch (Exception ex)
             {
-                logger.LogMessage(LogLevel.Error, "GetAscomDevicesAsync", $"Exception: {ex}");
+                logger?.LogMessage(LogLevel.Error, "GetAscomDevicesAsync", $"Exception: {ex}");
                 throw;
             }
         }
@@ -757,7 +759,7 @@ namespace ASCOM.Alpaca.Discovery
         /// <returns>True if the TCP connection succeeds; False if the address cannot be contacted or the port is not open.</returns>
         private static bool CanConnectTcp(string ipAddress, int portNumber, int timeoutMilliseconds, ILogger logger)
         {
-            logger.LogMessage(LogLevel.Debug, "CanConnectTcp", $"Attempting TCP connection to {ipAddress}:{portNumber} with timeout {timeoutMilliseconds}ms");
+            logger?.LogMessage(LogLevel.Debug, "CanConnectTcp", $"Attempting TCP connection to {ipAddress}:{portNumber} with timeout {timeoutMilliseconds}ms");
 
             // TcpClient wraps a Socket and provides Connect/BeginConnect helpers.
             using (TcpClient tcpClient = new TcpClient())
@@ -777,7 +779,7 @@ namespace ASCOM.Alpaca.Discovery
                     if (!connectedWithinTimeout)
                     {
                         // Timed out: address is unreachable or not responding within the allotted time.
-                        logger.LogMessage(LogLevel.Debug, "CanConnectTcp", $"Timed out, returning false");
+                        logger?.LogMessage(LogLevel.Debug, "CanConnectTcp", $"Timed out, returning false");
                         return false;
                     }
 
@@ -786,26 +788,26 @@ namespace ASCOM.Alpaca.Discovery
                     tcpClient.EndConnect(connectResult);
 
                     // If EndConnect did not throw and the client reports connected, the port is open.
-                    logger.LogMessage(LogLevel.Debug, "CanConnectTcp", $"Successfully connected to {ipAddress}:{portNumber}");
+                    logger?.LogMessage(LogLevel.Debug, "CanConnectTcp", $"Successfully connected to {ipAddress}:{portNumber}");
                     return tcpClient.Connected;
                 }
                 catch (SocketException ex)
                 {
                     // Covers "connection refused" (port closed), "host unreachable", DNS/name resolution
                     // failures, and other socket-level errors.
-                    logger.LogMessage(LogLevel.Debug, "CanConnectTcp", $"SocketException occurred, returning false - {ex.Message}");
+                    logger?.LogMessage(LogLevel.Debug, "CanConnectTcp", $"SocketException occurred, returning false - {ex.Message}");
                     return false;
                 }
                 catch (ObjectDisposedException ex)
                 {
                     // Can occur if the TcpClient was disposed while the async operation was still pending.
-                    logger.LogMessage(LogLevel.Debug, "CanConnectTcp", $"ObjectDisposedException occurred, returning false - {ex.Message}");
+                    logger?.LogMessage(LogLevel.Debug, "CanConnectTcp", $"ObjectDisposedException occurred, returning false - {ex.Message}");
                     return false;
                 }
                 catch (Exception ex)
                 {
                     // Catch-all for any other unexpected exceptions.
-                    logger.LogMessage(LogLevel.Debug, "CanConnectTcp", $"Unexpected exception occurred, returning false - {ex.Message}");
+                    logger?.LogMessage(LogLevel.Debug, "CanConnectTcp", $"Unexpected exception occurred, returning false - {ex.Message}");
                     return false;
                 }
                 finally
@@ -844,9 +846,9 @@ namespace ASCOM.Alpaca.Discovery
                 // Add an event handler to the cancellation token that will fire when the task is cancelled. When the event fires the handler will set the task result and so end the task
                 cancellationTokenRegistration = cancellationToken.Register(() =>
                 {
-                    logger.LogMessage(LogLevel.Debug, $"{methodName}Cancelled", $"{Thread.CurrentThread.ManagedThreadId} Setting task result...");
+                    logger?.LogMessage(LogLevel.Debug, $"{methodName}Cancelled", $"{Thread.CurrentThread.ManagedThreadId} Setting task result...");
                     taskCompletionSource.SetResult(null);
-                    logger.LogMessage(LogLevel.Debug, $"{methodName}Cancelled", $"{Thread.CurrentThread.ManagedThreadId} Result set");
+                    logger?.LogMessage(LogLevel.Debug, $"{methodName}Cancelled", $"{Thread.CurrentThread.ManagedThreadId} Result set");
                 });
 
                 // Create and run an async task to effect the discovery
@@ -857,23 +859,23 @@ namespace ASCOM.Alpaca.Discovery
                         // Add an event handler to the discovery object's DiscoveryCompleted event. When the event fires the handler will set the task result and so end the task
                         await Task.Run(() =>
                         {
-                            logger.LogMessage(LogLevel.Debug, methodName, $"Adding DiscoveryCompleted event handler.");
+                            logger?.LogMessage(LogLevel.Debug, methodName, $"Adding DiscoveryCompleted event handler.");
                             discovery.DiscoveryCompleted += (sender, eventArgs) =>
                             {
-                                logger.LogMessage(LogLevel.Debug, $"{methodName}Completed", "Setting TaskCompletionSource task result.");
+                                logger?.LogMessage(LogLevel.Debug, $"{methodName}Completed", "Setting TaskCompletionSource task result.");
                                 taskCompletionSource.SetResult(null);
-                                logger.LogMessage(LogLevel.Debug, $"{methodName}Completed", "Task status set to completed.");
+                                logger?.LogMessage(LogLevel.Debug, $"{methodName}Completed", "Task status set to completed.");
                             };
 
                             // Start discovery using the AlpacaDiscovery instance
-                            logger.LogMessage(LogLevel.Debug, methodName, $"{Thread.CurrentThread.ManagedThreadId} Starting discovery...");
+                            logger?.LogMessage(LogLevel.Debug, methodName, $"{Thread.CurrentThread.ManagedThreadId} Starting discovery...");
                             discovery.StartDiscovery(numberOfPolls, pollInterval, discoveryPort, discoveryDuration, resolveDnsName, useIpV4, useIpV6, serviceType);
-                            logger.LogMessage(LogLevel.Debug, methodName, $"{Thread.CurrentThread.ManagedThreadId} Discovery started, waiting for discovery to complete");
+                            logger?.LogMessage(LogLevel.Debug, methodName, $"{Thread.CurrentThread.ManagedThreadId} Discovery started, waiting for discovery to complete");
 
                             return taskCompletionSource.Task;
 
                         }, cancellationToken);
-                        logger.LogMessage(LogLevel.Debug, methodName, $"{Thread.CurrentThread.ManagedThreadId} Discovery has completed");
+                        logger?.LogMessage(LogLevel.Debug, methodName, $"{Thread.CurrentThread.ManagedThreadId} Discovery has completed");
                     }
                     finally
                     {
@@ -881,7 +883,7 @@ namespace ASCOM.Alpaca.Discovery
                         foreach (Delegate discoveryCompletedDelegate in discovery.DiscoveryCompleted.GetInvocationList())
                         {
                             discovery.DiscoveryCompleted -= (EventHandler)discoveryCompletedDelegate;
-                            logger.LogMessage(LogLevel.Debug, methodName, $"{Thread.CurrentThread.ManagedThreadId} Removing event handler: {discoveryCompletedDelegate.Method.Name}");
+                            logger?.LogMessage(LogLevel.Debug, methodName, $"{Thread.CurrentThread.ManagedThreadId} Removing event handler: {discoveryCompletedDelegate.Method.Name}");
                         }
                     }
                 }, cancellationToken);
@@ -890,7 +892,7 @@ namespace ASCOM.Alpaca.Discovery
             finally
             {
                 // Ensure that the cancellation token event handler is removed
-                logger.LogMessage(LogLevel.Information, methodName, $"{Thread.CurrentThread.ManagedThreadId} Removing cancellation token event handler");
+                logger?.LogMessage(LogLevel.Information, methodName, $"{Thread.CurrentThread.ManagedThreadId} Removing cancellation token event handler");
                 cancellationTokenRegistration?.Dispose();
             }
         }

@@ -125,6 +125,7 @@ namespace ASCOM.Alpaca.Clients
             // exceeds that per-call timeout, even though the device itself is reachable and responsive.
             if (ipv6ZoneId == null && !IPAddress.TryParse(ipAddressString, out _))
             {
+                logger?.LogMessage(LogLevel.Debug, "CreateHttpClient", $"Resolving host name '{ipAddressString}' to IP address...");
                 Stopwatch sw = Stopwatch.StartNew();
                 try
                 {
@@ -159,7 +160,7 @@ namespace ASCOM.Alpaca.Clients
             // Create a string version of the device type for logging purposes
             string deviceTypString = Devices.DeviceTypeToString(deviceType);
 
-            logger.LogMessage(LogLevel.Debug, "CreateHttpClient", $"Connecting to device: {ipAddressString}:{portNumber} through URL: {clientHostAddress}");
+            logger?.LogMessage(LogLevel.Debug, "CreateHttpClient", $"Connecting to device: {ipAddressString}:{portNumber} through URL: {clientHostAddress}");
             // Remove any old client, if present
             httpClient?.Dispose();
 
@@ -187,7 +188,7 @@ namespace ASCOM.Alpaca.Clients
 #if NET5_0_OR_GREATER
             // On .NET 5+, use SocketsHttpHandler. When an IPv6 zone identifier is present, the ConnectCallback re-injects the stripped zone identifier at the TCP socket level.
 
-            logger.LogMessage(LogLevel.Debug, "CreateHttpClient", $"Using .NET 5+ code");
+            logger?.LogMessage(LogLevel.Debug, "CreateHttpClient", $"Using .NET 5+ code");
 
             SocketsHttpHandler socketsHandler = new SocketsHttpHandler
             {
@@ -237,7 +238,7 @@ namespace ASCOM.Alpaca.Clients
             // On earlier frameworks, use HttpClientHandler. IPv6 zone identifiers are not supported on these platforms, so any zone identifier is stripped from the host and not re-applied. 
             // Connections to link-local IPv6 addresses on multi-homed hosts may fail on these platforms; use an IPv4 address, a DNS host name, or a non-link-local IPv6 address instead.
 
-            logger.LogMessage(LogLevel.Debug, "CreateHttpClient", $"Using .NET Standard 2.0 code");
+            logger?.LogMessage(LogLevel.Debug, "CreateHttpClient", $"Using .NET Standard 2.0 code");
 
             // Create a new HTTP handler to control authentication and automatic decompression
             HttpClientHandler httpClientHandler = new HttpClientHandler
@@ -304,7 +305,7 @@ namespace ASCOM.Alpaca.Clients
             httpClient.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(userproductName, productVersion));
             httpClient.DefaultRequestHeaders.ExpectContinue = request100Continue; // Set whether to request 100-Continue responses from the server on PUT requests
 
-            logger.LogMessage(LogLevel.Debug, "CreateHttpClient", $"User-Agent: {userproductName}/{productVersion}, Accept: {AlpacaConstants.APPLICATION_JSON_MIME_TYPE}, ExpectContinue: {request100Continue}");
+            logger?.LogMessage(LogLevel.Debug, "CreateHttpClient", $"User-Agent: {userproductName}/{productVersion}, Accept: {AlpacaConstants.APPLICATION_JSON_MIME_TYPE}, ExpectContinue: {request100Continue}");
         }
 
         #endregion

@@ -203,7 +203,7 @@ namespace ASCOM.Alpaca.Clients
             {
                 // Create a state object to return.
                 TelescopeState state = new TelescopeState(DeviceState, logger);
-                logger.LogMessage(LogLevel.Debug, nameof(TelescopeState), $"Returning: '{state.Altitude}' '{state.AtHome}' '{state.AtPark}' '{state.Azimuth}' '{state.Declination}' '{state.IsPulseGuiding}' " +
+                logger?.LogMessage(LogLevel.Debug, nameof(TelescopeState), $"Returning: '{state.Altitude}' '{state.AtHome}' '{state.AtPark}' '{state.Azimuth}' '{state.Declination}' '{state.IsPulseGuiding}' " +
                     $"'{state.RightAscension}' '{state.SideOfPier}' '{state.SiderealTime}' '{state.Slewing}' '{state.Tracking}' '{state.UTCDate}' '{state.TimeStamp}'");
 
                 // Return the device specific state class

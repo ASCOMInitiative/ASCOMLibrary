@@ -199,7 +199,7 @@ namespace ASCOM.Alpaca.Clients
             {
                 // Create a state object to return.
                 RotatorState rotatorState = new RotatorState(DeviceState, logger);
-                logger.LogMessage(LogLevel.Debug, nameof(RotatorState), $"Returning: " +
+                logger?.LogMessage(LogLevel.Debug, nameof(RotatorState), $"Returning: " +
                     $"Cloud cover: '{rotatorState.IsMoving}', " +
                     $"Dew point: '{rotatorState.MechanicalPosition}', " +
                     $"Humidity: '{rotatorState.Position}', " +

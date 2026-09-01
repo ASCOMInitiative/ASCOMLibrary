@@ -336,7 +336,7 @@ namespace ASCOM.Alpaca.Clients
 
                     foreach (IStateValue value in returnValue)
                     {
-                        logger.LogMessage(LogLevel.Debug, "DeviceState", $"{value.Name} = {value.Value} - Type: {value.Value.GetType().Name}");
+                        logger?.LogMessage(LogLevel.Debug, "DeviceState", $"{value.Name} = {value.Value} - Type: {value.Value.GetType().Name}");
                     }
                     return returnValue;
                 }
