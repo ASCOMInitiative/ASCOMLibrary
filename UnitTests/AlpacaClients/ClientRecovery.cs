@@ -19,6 +19,32 @@ namespace AlpacaClients
         static int PORT_NUMBER = 11111;
 
         [Fact]
+        public void GoodLocalHostAddressAndPortIpV6()
+        {
+            TraceLogger logger = new TraceLogger("GoodAddressAndPortIpV6", true);
+            logger.SetMinimumLoggingLevel(LogLevel.Debug);
+
+            AlpacaConfiguration configuration = new AlpacaConfiguration();
+            configuration.IpAddressString = "[::1]";
+            configuration.PortNumber = 32323;
+            configuration.Logger = logger;
+            configuration.EstablishConnectionTimeout = 1;
+            configuration.StandardDeviceResponseTimeout = 1;
+            configuration.LongDeviceResponseTimeout = 1;
+            configuration.NumberOfRetries = 0;
+
+            AlpacaCamera device = AlpacaClient.GetDevice<AlpacaCamera>(configuration);
+
+            Assert.NotNull(device);
+
+            // Make sure that the Connected InterfaceVersion values can be retrieved.
+            bool _ = device.Connected;   // Both true and false are OK. Any exception will fail the test
+            Assert.InRange<short>(device.InterfaceVersion, 1, 10);
+
+            device.Dispose();
+        }
+
+        [Fact]
         public void GoodLocalHostAddressAndPort()
         {
             TraceLogger logger = new TraceLogger("GoodAddressAndPort", true);

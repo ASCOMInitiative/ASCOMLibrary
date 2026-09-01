@@ -761,9 +761,19 @@ namespace ASCOM.Alpaca.Discovery
         {
             logger?.LogMessage(LogLevel.Debug, "CanConnectTcp", $"Attempting TCP connection to {ipAddress}:{portNumber} with timeout {timeoutMilliseconds}ms");
 
-            // TcpClient wraps a Socket and provides Connect/BeginConnect helpers.
-            using (TcpClient tcpClient = new TcpClient())
-            {
+            // Create a TcpClient able to handle both IPv4 and IPv6 addresses that is compatible with .NET or .NetStandard2.0 depending on the build target.
+#if NET8_0_OR_GREATER // .NET version
+
+            // Create a .NET compatible client. AddressFamily.Unknown allows it to work with both IPv4 and IPv6 addresses.
+            using (TcpClient tcpClient = new TcpClient(AddressFamily.Unknown))
+
+#else // .NET Standard 2.0 version
+
+            // Create a .NET Standard2.0 compatible client. AddressFamily.InterNetworkV6 allows it to work with IPv6 addresses. Setting dual mode allows the IPv6 socket to accept and route IPv4 traffic as well.
+            using (TcpClient tcpClient = new TcpClient(AddressFamily.InterNetworkV6) { Client = { DualMode = true } })
+            
+#endif
+                { 
                 // IAsyncResult used to track the pending connection attempt.
                 IAsyncResult connectResult = null;
 
@@ -771,7 +781,7 @@ namespace ASCOM.Alpaca.Discovery
                 {
                     // Start an asynchronous connection attempt so we can apply our own timeout.
                     // Using BeginConnect instead of Connect avoids the default OS-level timeout, which can be very long (e.g. 20+ seconds) for unreachable hosts.
-                    connectResult = tcpClient.BeginConnect(ipAddress, portNumber, null, null);
+                    connectResult = tcpClient.BeginConnect(ipAddress.Trim('[', ']'), portNumber, null, null);
 
                     // Wait for either the connection to complete or the timeout to expire.
                     bool connectedWithinTimeout = connectResult.AsyncWaitHandle.WaitOne(timeoutMilliseconds);
@@ -795,7 +805,7 @@ namespace ASCOM.Alpaca.Discovery
                 {
                     // Covers "connection refused" (port closed), "host unreachable", DNS/name resolution
                     // failures, and other socket-level errors.
-                    logger?.LogMessage(LogLevel.Debug, "CanConnectTcp", $"SocketException occurred, returning false - {ex.Message}");
+                    logger?.LogMessage(LogLevel.Debug, "CanConnectTcp", $"SocketException occurred, returning false - {ex.Message} - Error code: {ex.ErrorCode}");
                     return false;
                 }
                 catch (ObjectDisposedException ex)
