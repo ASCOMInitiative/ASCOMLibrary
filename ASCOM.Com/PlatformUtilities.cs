@@ -835,7 +835,9 @@ namespace ASCOM.Com
                 { 26100, "Windows 11 (24H2)" },
                 { 26200, "Windows 11 (25H2)" },
                 { 26300, "Windows 11 (26H2)" },
-                { 28000, "Windows 11 (26H1)" }
+                { 28000, "Windows 11 (26H1)" },
+                { 29000, "Windows 11 (27H2)" }, // Generates a "Windows 11 (27H2)" version name for builds 29000-29999. This must be updated when Microsoft releases a final build number for this version.
+                { 30000, "Windows 11 (27H2)" } // Generates a "Windows 11 (27H2) or later" version name for build 30000 onward. This must be updated when Microsoft releases build numbers for future versions.
             };
 
             try

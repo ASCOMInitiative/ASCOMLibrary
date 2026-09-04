@@ -5,6 +5,9 @@ Library of components for accessing ASCOM COM based drivers on Windows platforms
 ## Version History
 The version history only contains entries when a change is made.
 
+***Release 4.1.0***
+* Added support for Windows 27H2 to the OSBuildName function.
+
 ***Release 4.0.0***
 * ADDED - PlatformUtilities.GetComDrivermetadata() function to return a dictionary of metadata about a COM driver based on its ProgID. 
 See [PlatformUtilities.GetComMetadata()](https://ascom-standards.org/library/html/M_ASCOM_Com_PlatformUtilities_GetComMetadata.htm) for more information.
@@ -22,7 +25,7 @@ rely on the .NET Standard 2.0 component.
 * Added a static member to ChooserSA enabling a device to be chosen without having to create and dispose of a ChooserSA instance
 
 ***Release 2.2.0***
-* Added support for WIndows 25H2 to the OSBuildName functions.
+* Added support for Windows 25H2 to the OSBuildName functions.
 * Added reason description for ASCOM.Com.Chooser being marked as obsolete.
 
 ***Release 2.0.4***
