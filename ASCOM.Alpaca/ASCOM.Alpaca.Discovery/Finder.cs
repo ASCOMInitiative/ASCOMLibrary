@@ -78,7 +78,7 @@ namespace ASCOM.Alpaca.Discovery
         /// </summary>
         /// <param name="jsonNameCaseSensitivity">The JSON name case sensitivity to use when parsing the discovery response.</param>
         /// <param name="logger">The logger instance to use for diagnostic messages.</param>
-        public Finder(JsonNameCaseSensitivity jsonNameCaseSensitivity,ILogger logger) : this()
+        public Finder(JsonNameCaseSensitivity jsonNameCaseSensitivity, ILogger logger) : this()
         {
             this.logger = logger; // Save the trace logger object
             SetJsonNameCaseSensitivity(jsonNameCaseSensitivity); // Set the JSON name case sensitivity
@@ -436,17 +436,17 @@ namespace ASCOM.Alpaca.Discovery
                     LogMessage("SearchIPv6", $"Found network adapter {adapter.Description}, Interface type: {adapter.NetworkInterfaceType} - supports multicast: {adapter.SupportsMulticast}, Operational status: {adapter.OperationalStatus}");
                     if (adapter.OperationalStatus != OperationalStatus.Up)
                         continue;
-                    LogMessage("SearchIPv6", $"Adapter {adapter.Description} is up");
+                    LogMessage("SearchIPv6", $"  Adapter {adapter.Description} is up");
 
                     if (adapter.Supports(NetworkInterfaceComponent.IPv6) && adapter.SupportsMulticast)
                     {
-                        LogMessage("SearchIPv6", $"Adapter {adapter.Description} supports IPv6");
+                        LogMessage("SearchIPv6", $"  Adapter {adapter.Description} supports IPv6");
 
                         IPInterfaceProperties adapterProperties = adapter.GetIPProperties();
                         if (adapterProperties != null)
                         {
                             UnicastIPAddressInformationCollection uniCast = adapterProperties.UnicastAddresses;
-                            LogMessage("SearchIPv6", $"Adapter {adapter.Description} does have properties. Number of unicast addresses: {uniCast.Count}");
+                            LogMessage("SearchIPv6", $"  Adapter {adapter.Description} does have properties. Number of unicast addresses: {uniCast.Count}");
 
                             if (uniCast.Count > 0)
                             {
@@ -456,15 +456,17 @@ namespace ASCOM.Alpaca.Discovery
                                     {
                                         if (uni.Address.AddressFamily == AddressFamily.InterNetworkV6)
                                         {
-                                            LogMessage("SearchIPv6", $"Interface {uni.Address} supports IPv6 - IsLinkLocal: {uni.Address.IsIPv6LinkLocal}, Is loop back: {IPAddress.IsLoopback(uni.Address)}");
+                                            LogMessage("SearchIPv6", $"  Interface {uni.Address} supports IPv6 - Is linklocal: {uni.Address.IsIPv6LinkLocal}, Is loopback: {IPAddress.IsLoopback(uni.Address)}");
 
-                                            if (uni.Address.IsIPv6LinkLocal)
+                                            // Test whether this is loopback interface
+                                            if (!IPAddress.IsLoopback(uni.Address)) // Not a loopback interface, so send the discovery packet
                                             {
-                                                if (!IPAddress.IsLoopback(uni.Address))
+                                                // Check whether this is a link local network interface.
+                                                if (uni.Address.IsIPv6LinkLocal) // Address is linklocal, so send the discovery packet to the multicast group on this interface
                                                 {
                                                     try
                                                     {
-                                                        LogMessage("SearchIPv6", $"Sending multicast IPv6 discovery packet to {uni.Address}.");
+                                                        LogMessage("SearchIPv6", $"  Sending multicast IPv6 discovery packet to {uni.Address}.");
 
                                                         if (!IPv6Clients.ContainsKey(uni.Address))
                                                         {
@@ -472,44 +474,60 @@ namespace ASCOM.Alpaca.Discovery
                                                         }
 
                                                         IPv6Clients[uni.Address].Send(Constants.DiscoveryMessageArray, Constants.DiscoveryMessageArray.Length, new IPEndPoint(IPAddress.Parse(Constants.MulticastGroup), discoveryPort));
-                                                        LogMessage("SearchIPv6", $"Sent multicast IPv6 discovery packet to {uni.Address}.");
+                                                        LogMessage("SearchIPv6", $"  Sent multicast IPv6 discovery packet to {uni.Address}:{discoveryPort}.");
                                                     }
                                                     catch (SocketException ex)
                                                     {
                                                         logger?.LogError(ex.Message);
-                                                        LogMessage("SearchIPv6", $"Socket exception (error code: {ex.ErrorCode}) sending IPv6 discovery packet to {uni.Address}: {ex}");
+                                                        LogMessage("SearchIPv6", $"  Socket exception (error code: {ex.ErrorCode}) sending IPv6 discovery packet to {uni.Address}:{discoveryPort}: {ex}");
                                                     }
                                                 }
-                                                else
+                                                else // Not a link local address so ignore it
                                                 {
-                                                    LogMessage("SearchIPv6", $"Ignoring {uni.Address} because it is a loop back address.");
+                                                    LogMessage("SearchIPv6", $"  Ignoring {uni.Address} because it is not linklocal.");
                                                 }
                                             }
-                                            else
+                                            else // This is a loopback interface, so handle it by sending direct to the loopback address rather than to the multi-cast group
                                             {
-                                                LogMessage("SearchIPv6", $"Ignoring {uni.Address} because it is not link local.");
+                                                try
+                                                {
+                                                    LogMessage("SearchIPv6", $"  Sending IPv6 discovery packet direct to loopback address {uni.Address}:{discoveryPort}.");
+
+                                                    if (!IPv6Clients.ContainsKey(uni.Address))
+                                                    {
+                                                        IPv6Clients.Add(uni.Address, NewIPv6Client(uni.Address, 0));
+                                                    }
+
+                                                    IPv6Clients[uni.Address].Send(Constants.DiscoveryMessageArray, Constants.DiscoveryMessageArray.Length, new IPEndPoint(IPAddress.IPv6Loopback, discoveryPort));
+                                                    LogMessage("SearchIPv6", $"  Sent IPv6 discovery packet direct to loopback address {uni.Address}:{discoveryPort}.");
+                                                }
+                                                catch (SocketException ex)
+                                                {
+                                                    logger?.LogError(ex.Message);
+                                                    LogMessage("SearchIPv6", $"  Socket exception (error code: {ex.ErrorCode}) sending IPv6 discovery packet direct to loopback address {uni.Address}:{discoveryPort}: {ex}");
+ 508                                               }
                                             }
                                         }
                                         else
                                         {
-                                            LogMessage("SearchIPv6", $"Ignoring {uni.Address} because it doe not support IPv6. Its address family is {uni.Address.AddressFamily}");
+                                            LogMessage("SearchIPv6", $"  Ignoring {uni.Address} because it doe not support IPv6. Its address family is {uni.Address.AddressFamily}");
                                         }
                                     }
                                     catch (Exception ex)
                                     {
                                         logger?.LogError(ex.Message);
-                                        LogMessage("SearchIPv6", $"Exception sending IPv6 discovery packet to {uni.Address}: {ex}");
+                                        LogMessage("SearchIPv6", $"  Exception sending IPv6 discovery packet to {uni.Address}: {ex}");
                                     }
                                 }
                             }
                             else
                             {
-                                LogMessage("SearchIPv6", $"Ignoring adapter {adapter.Description} because it does have properties but its unicast address count is 0.");
+                                LogMessage("SearchIPv6", $"  Ignoring adapter {adapter.Description} because it does have properties but its unicast address count is 0.");
                             }
                         }
                         else
                         {
-                            LogMessage("SearchIPv6", $"Ignoring adapter {adapter.Description} because it does not have properties and consequently does not have any unicast addresses.");
+                            LogMessage("SearchIPv6", $"  Ignoring adapter {adapter.Description} because it does not have properties and consequently does not have any unicast addresses.");
                         }
                     }
                 }
