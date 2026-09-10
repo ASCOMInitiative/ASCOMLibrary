@@ -323,6 +323,31 @@ namespace ASCOM.Alpaca.Discovery
             {
                 LogMessage("ReceiveCallback", $"Failed to parse response from {endpoint}: {ex}");
             }
+            finally
+            {
+                if (udpClient != null && !disposedValue)
+                {
+                    try
+                    {
+                        // Keep the cached client ready to receive responses to subsequent searches.
+                        udpClient.BeginReceive(new AsyncCallback(ReceiveCallback), udpClient);
+                    }
+                    catch (ObjectDisposedException)
+                    {
+                        // The client was disposed while the receive was being restarted.
+                    }
+                    catch (SocketException ex) when (ex.SocketErrorCode == SocketError.OperationAborted
+                                                   || ex.SocketErrorCode == SocketError.Interrupted)
+                    {
+                        // The pending receive was cancelled during shutdown.
+                    }
+                    catch (Exception ex)
+                    {
+                        logger?.LogError(ex.Message);
+                        LogMessage("ReceiveCallback", $"Failed to restart receive from {endpoint}: {ex}");
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -505,7 +530,7 @@ namespace ASCOM.Alpaca.Discovery
                                                 {
                                                     logger?.LogError(ex.Message);
                                                     LogMessage("SearchIPv6", $"  Socket exception (error code: {ex.ErrorCode}) sending IPv6 discovery packet direct to loopback address {uni.Address}:{discoveryPort}: {ex}");
- 508                                               }
+                                               }
                                             }
                                         }
                                         else
