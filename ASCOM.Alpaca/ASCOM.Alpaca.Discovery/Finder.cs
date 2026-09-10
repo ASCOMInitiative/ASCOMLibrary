@@ -2,6 +2,7 @@
 using ASCOM.Common.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
@@ -453,107 +454,134 @@ namespace ASCOM.Alpaca.Discovery
             LogMessage("SearchIPv6", $"Sending IPv6 discovery broadcasts");
 
             // Bind a socket to each adapter explicitly
-
             foreach (var adapter in NetworkInterface.GetAllNetworkInterfaces())
             {
                 try
                 {
                     LogMessage("SearchIPv6", $"Found network adapter {adapter.Description}, Interface type: {adapter.NetworkInterfaceType} - supports multicast: {adapter.SupportsMulticast}, Operational status: {adapter.OperationalStatus}");
-                    if (adapter.OperationalStatus != OperationalStatus.Up)
-                        continue;
-                    LogMessage("SearchIPv6", $"  Adapter {adapter.Description} is up");
 
-                    if (adapter.Supports(NetworkInterfaceComponent.IPv6) && adapter.SupportsMulticast)
+                    // Check whether the adapter is up and running
+                    if (adapter.OperationalStatus == OperationalStatus.Up) // The adapter is up and running
                     {
-                        LogMessage("SearchIPv6", $"  Adapter {adapter.Description} supports IPv6");
+                        LogMessage("SearchIPv6", $"  Adapter {adapter.Description} is up");
 
-                        IPInterfaceProperties adapterProperties = adapter.GetIPProperties();
-                        if (adapterProperties != null)
+                        // Check whether the adapter supports IPv6
+                        if (adapter.Supports(NetworkInterfaceComponent.IPv6)) // The adapter supports IPv6
                         {
-                            UnicastIPAddressInformationCollection uniCast = adapterProperties.UnicastAddresses;
-                            LogMessage("SearchIPv6", $"  Adapter {adapter.Description} does have properties. Number of unicast addresses: {uniCast.Count}");
+                            LogMessage("SearchIPv6", $"  Adapter {adapter.Description} supports IPv6");
 
-                            if (uniCast.Count > 0)
+                            // Check whether the adapter has any properties
+                            IPInterfaceProperties adapterProperties = adapter.GetIPProperties();
+                            if (adapterProperties != null) // The adapter has properties
                             {
-                                foreach (UnicastIPAddressInformation uni in uniCast)
-                                {
-                                    try
-                                    {
-                                        if (uni.Address.AddressFamily == AddressFamily.InterNetworkV6)
-                                        {
-                                            LogMessage("SearchIPv6", $"  Interface {uni.Address} supports IPv6 - Is linklocal: {uni.Address.IsIPv6LinkLocal}, Is loopback: {IPAddress.IsLoopback(uni.Address)}");
+                                UnicastIPAddressInformationCollection uniCast = adapterProperties.UnicastAddresses;
+                                LogMessage("SearchIPv6", $"  Adapter {adapter.Description} does have properties. Number of unicast addresses: {uniCast.Count}");
 
-                                            // Test whether this is loopback interface
-                                            if (!IPAddress.IsLoopback(uni.Address)) // Not a loopback interface, so send the discovery packet
+                                // Check whether there are any unicast addresses on the adapter
+                                if (uniCast.Count > 0) // The adapter has one or more unicast addresses
+                                {
+                                    // Process each address in turn
+                                    foreach (UnicastIPAddressInformation uni in uniCast)
+                                    {
+                                        try
+                                        {
+                                            // Check whether the address supports IPv6
+                                            if (uni.Address.AddressFamily == AddressFamily.InterNetworkV6) // The address supports IPv6
                                             {
-                                                // Check whether this is a link local network interface.
-                                                if (uni.Address.IsIPv6LinkLocal) // Address is linklocal, so send the discovery packet to the multicast group on this interface
+                                                LogMessage("SearchIPv6", $"  Address {uni.Address} supports IPv6 - Is linklocal: {uni.Address.IsIPv6LinkLocal}, Is loopback: {IPAddress.IsLoopback(uni.Address)}");
+
+                                                // Check whether this is loopback interface
+                                                if (IPAddress.IsLoopback(uni.Address)) // This is a loopback interface, so handle it by sending direct to the loopback address rather than to the multi-cast group
                                                 {
                                                     try
                                                     {
-                                                        LogMessage("SearchIPv6", $"  Sending multicast IPv6 discovery packet to {uni.Address}.");
+                                                        LogMessage("SearchIPv6", $"  Sending IPv6 discovery packet direct to loopback address {uni.Address}:{discoveryPort}.");
 
-                                                        if (!IPv6Clients.ContainsKey(uni.Address))
+                                                        // Create a new UdpClient for this loopback address if one does not already exist
+                                                        if (!IPv6Clients.ContainsKey(uni.Address)) // Client does not exist for this loopback address, so create one
                                                         {
                                                             IPv6Clients.Add(uni.Address, NewIPv6Client(uni.Address, 0));
                                                         }
 
-                                                        IPv6Clients[uni.Address].Send(Constants.DiscoveryMessageArray, Constants.DiscoveryMessageArray.Length, new IPEndPoint(IPAddress.Parse(Constants.MulticastGroup), discoveryPort));
-                                                        LogMessage("SearchIPv6", $"  Sent multicast IPv6 discovery packet to {uni.Address}:{discoveryPort}.");
+                                                        // Send the discovery packet direct to the IPv6 loopback address ::1
+                                                        IPv6Clients[uni.Address].Send(Constants.DiscoveryMessageArray, Constants.DiscoveryMessageArray.Length, new IPEndPoint(IPAddress.IPv6Loopback, discoveryPort));
+                                                        LogMessage("SearchIPv6", $"  Sent IPv6 discovery packet direct to loopback address {uni.Address}:{discoveryPort}.");
                                                     }
                                                     catch (SocketException ex)
                                                     {
                                                         logger?.LogError(ex.Message);
-                                                        LogMessage("SearchIPv6", $"  Socket exception (error code: {ex.ErrorCode}) sending IPv6 discovery packet to {uni.Address}:{discoveryPort}: {ex}");
+                                                        LogMessage("SearchIPv6", $"  Socket exception (error code: {ex.ErrorCode}) sending IPv6 discovery packet direct to loopback address {uni.Address}:{discoveryPort}: {ex}");
                                                     }
                                                 }
-                                                else // Not a link local address so ignore it
+                                                else // Not a loopback interface, so send the discovery packet
                                                 {
-                                                    LogMessage("SearchIPv6", $"  Ignoring {uni.Address} because it is not linklocal.");
-                                                }
-                                            }
-                                            else // This is a loopback interface, so handle it by sending direct to the loopback address rather than to the multi-cast group
-                                            {
-                                                try
-                                                {
-                                                    LogMessage("SearchIPv6", $"  Sending IPv6 discovery packet direct to loopback address {uni.Address}:{discoveryPort}.");
-
-                                                    if (!IPv6Clients.ContainsKey(uni.Address))
+                                                    // Check whether this is a link local network interface.
+                                                    if (uni.Address.IsIPv6LinkLocal) // Address is linklocal, so send the discovery packet to the multicast group on this interface
                                                     {
-                                                        IPv6Clients.Add(uni.Address, NewIPv6Client(uni.Address, 0));
-                                                    }
+                                                        // Test whether the adapter supports multicast. 
+                                                        if (adapter.SupportsMulticast) // Adapter supports multicast, so send the discovery packet to the multicast group on this interface
+                                                        {
+                                                            try
+                                                            {
+                                                                LogMessage("SearchIPv6", $"  Sending multicast IPv6 discovery packet to {uni.Address}.");
 
-                                                    IPv6Clients[uni.Address].Send(Constants.DiscoveryMessageArray, Constants.DiscoveryMessageArray.Length, new IPEndPoint(IPAddress.IPv6Loopback, discoveryPort));
-                                                    LogMessage("SearchIPv6", $"  Sent IPv6 discovery packet direct to loopback address {uni.Address}:{discoveryPort}.");
+                                                                // Create a new UdpClient for this link local address if one does not already exist
+                                                                if (!IPv6Clients.ContainsKey(uni.Address)) // Client does not exist for this link local address, so create one
+                                                                {
+                                                                    IPv6Clients.Add(uni.Address, NewIPv6Client(uni.Address, 0));
+                                                                }
+
+                                                                // Send the discovery packet to the multicast group on this link local interface
+                                                                IPv6Clients[uni.Address].Send(Constants.DiscoveryMessageArray, Constants.DiscoveryMessageArray.Length, new IPEndPoint(IPAddress.Parse(Constants.MulticastGroup), discoveryPort));
+                                                                LogMessage("SearchIPv6", $"  Sent multicast IPv6 discovery packet to {uni.Address}:{discoveryPort}.");
+                                                            }
+                                                            catch (SocketException ex)
+                                                            {
+                                                                logger?.LogError(ex.Message);
+                                                                LogMessage("SearchIPv6", $"  Socket exception (error code: {ex.ErrorCode}) sending IPv6 discovery packet to {uni.Address}:{discoveryPort}: {ex}");
+                                                            }
+                                                        }
+                                                        else // Adapter does not support multicast, so ignore this address
+                                                        {
+                                                            LogMessage("SearchIPv6", $"  Ignoring {uni.Address} because the adapter does not support multicast.");
+                                                        }
+                                                    }
+                                                    else // Not a link local address so ignore it
+                                                    {
+                                                        LogMessage("SearchIPv6", $"  Ignoring {uni.Address} because it is not linklocal.");
+                                                    }
                                                 }
-                                                catch (SocketException ex)
-                                                {
-                                                    logger?.LogError(ex.Message);
-                                                    LogMessage("SearchIPv6", $"  Socket exception (error code: {ex.ErrorCode}) sending IPv6 discovery packet direct to loopback address {uni.Address}:{discoveryPort}: {ex}");
-                                               }
+                                            }
+                                            else // The address does not support IPv6, so ignore it
+                                            {
+                                                LogMessage("SearchIPv6", $"  Ignoring {uni.Address} because it doe not support IPv6. Its address family is {uni.Address.AddressFamily}");
                                             }
                                         }
-                                        else
+                                        catch (Exception ex)
                                         {
-                                            LogMessage("SearchIPv6", $"  Ignoring {uni.Address} because it doe not support IPv6. Its address family is {uni.Address.AddressFamily}");
+                                            logger?.LogError(ex.Message);
+                                            LogMessage("SearchIPv6", $"  Exception sending IPv6 discovery packet to {uni.Address}: {ex}");
                                         }
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        logger?.LogError(ex.Message);
-                                        LogMessage("SearchIPv6", $"  Exception sending IPv6 discovery packet to {uni.Address}: {ex}");
                                     }
                                 }
+                                else // The adapter has properties but no unicast addresses, so ignore it
+                                {
+                                    LogMessage("SearchIPv6", $"  Ignoring adapter {adapter.Description} because it has no unicast addresses.");
+                                }
                             }
-                            else
+                            else // The adapter does not have properties, so ignore it
                             {
-                                LogMessage("SearchIPv6", $"  Ignoring adapter {adapter.Description} because it does have properties but its unicast address count is 0.");
+                                LogMessage("SearchIPv6", $"  Ignoring adapter {adapter.Description} because it does not have properties and consequently does not have any unicast addresses.");
                             }
                         }
-                        else
+                        else // The adapter does not support IPv6, so ignore it
                         {
-                            LogMessage("SearchIPv6", $"  Ignoring adapter {adapter.Description} because it does not have properties and consequently does not have any unicast addresses.");
+                            LogMessage("SearchIPv6", $"  Ignoring adapter {adapter.Description} because it does not support IPv6.");
                         }
+                    }
+                    else // The adapter is not up and running, so ignore it
+                    {
+                        LogMessage("SearchIPv6", $"  Ignoring adapter {adapter.Description} because it is not up and running. Its operational status is {adapter.OperationalStatus}");
                     }
                 }
                 catch (Exception ex)
