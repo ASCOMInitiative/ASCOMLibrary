@@ -131,7 +131,7 @@ namespace ASCOM.Alpaca.Discovery
             UDPClient.BeginReceive(ReceiveCallback, UDPClient);
 
             Clients.Add(UDPClient);
-            Logger?.LogInformation($"Responder.InitIPv4 - Added discovery responder client on port: {DiscoveryPort}");
+            Logger?.LogInformation($"Added IPv4 discovery responder on port: {DiscoveryPort}");
         }
 
         /// <summary>
@@ -192,7 +192,7 @@ namespace ASCOM.Alpaca.Discovery
                                         if (IPAddress.IsLoopback(uni.Address) || uni.Address.IsIPv6LinkLocal) // The address is a LinkLocal or LocalHost address so process it
                                         {
                                             Clients.Add(NewClient(uni.Address, adapterProperties.GetIPv6Properties().Index));
-                                            Logger?.LogInformation($"Responder.InitIPv6 -   Added discovery responder client for IPv6 address: {uni.Address}, Index: {adapterProperties.GetIPv6Properties().Index} on port {DiscoveryPort}");
+                                            Logger?.LogInformation($"Added IPv6 discovery responder for address: {uni.Address}, Index: {adapterProperties.GetIPv6Properties().Index} on port {DiscoveryPort}");
                                         }
                                     }
                                     catch (Exception ex)
