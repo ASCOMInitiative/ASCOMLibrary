@@ -33,14 +33,23 @@ namespace ClientToolkitTests
                     Assert.True(values.Count > 0);
 
                     CameraDeviceState deviceState = device.CameraDeviceState;
+                    logger.LogMessage("AlpacaCamera", $"Created CameraDeviceState");
 
+                    logger.LogMessage("AlpacaCamera", $"CameraState: {deviceState.CameraState.HasValue}");
                     Assert.True(deviceState.CameraState.HasValue);
+                    logger.LogMessage("AlpacaCamera", $"CCDTemperature: {deviceState.CCDTemperature.HasValue}");
                     Assert.True(deviceState.CCDTemperature.HasValue);
+                    logger.LogMessage("AlpacaCamera", $"CoolerPower: {deviceState.CoolerPower.HasValue}");
                     Assert.True(deviceState.CoolerPower.HasValue);
+                    logger.LogMessage("AlpacaCamera", $"HeatSinkTemperature: {deviceState.HeatSinkTemperature.HasValue}");
                     Assert.True(deviceState.HeatSinkTemperature.HasValue);
+                    logger.LogMessage("AlpacaCamera", $"ImageReady: {deviceState.ImageReady.HasValue}");
                     Assert.True(deviceState.ImageReady.HasValue);
+                    logger.LogMessage("AlpacaCamera", $"IsPulseGuiding: {deviceState.IsPulseGuiding.HasValue}");
                     Assert.True(deviceState.IsPulseGuiding.HasValue);
+                    logger.LogMessage("AlpacaCamera", $"PercentCompleted: {deviceState.PercentCompleted.HasValue}");
                     Assert.True(deviceState.PercentCompleted.HasValue);
+                    logger.LogMessage("AlpacaCamera", $"TimeStamp: {deviceState.TimeStamp.HasValue}");
                     Assert.True(deviceState.TimeStamp.HasValue);
 
                     device.Disconnect();
