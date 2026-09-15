@@ -366,50 +366,42 @@ namespace ASCOM.Alpaca.Discovery
                 try
                 {
                     //Do not try and use non-operational adapters
-                    if (adapter.OperationalStatus != OperationalStatus.Up)
-                        continue;
-
-                    if (adapter.Supports(NetworkInterfaceComponent.IPv4))
+                    if (adapter.OperationalStatus == OperationalStatus.Up && adapter.Supports(NetworkInterfaceComponent.IPv4))
                     {
                         IPInterfaceProperties adapterProperties = adapter.GetIPProperties();
-                        if (adapterProperties == null)
-                            continue;
-                        UnicastIPAddressInformationCollection uniCast = adapterProperties.UnicastAddresses;
-                        if (uniCast.Count > 0)
+                        if (adapterProperties != null)
                         {
-                            foreach (UnicastIPAddressInformation uni in uniCast)
+                            UnicastIPAddressInformationCollection uniCast = adapterProperties.UnicastAddresses;
+                            if (uniCast.Count > 0)
                             {
-                                try
+                                foreach (UnicastIPAddressInformation uni in uniCast)
                                 {
-                                    if (uni.Address.AddressFamily != AddressFamily.InterNetwork)
-                                        continue;
-
-                                    if (uni.IPv4Mask == IPAddress.Parse("255.255.255.255"))
+                                    try
                                     {
-                                        //No broadcast on single device endpoint
-                                        continue;
-                                    }
+                                        if (uni.Address.AddressFamily == AddressFamily.InterNetwork && uni.IPv4Mask != IPAddress.Parse("255.255.255.255"))
+                                        {
+                                            if (!IPv4Clients.ContainsKey(uni.Address))
+                                            {
+                                                IPv4Clients.Add(uni.Address, NewIPv4Client());
+                                            }
 
-                                    if (!IPv4Clients.ContainsKey(uni.Address))
+                                            if (IPv4Clients[uni.Address].Client.IsBound)
+                                            {
+                                                // Local host addresses (127.*.*.*) may have a null mask in Net Framework. We do want to search these. The correct mask is 255.0.0.0.
+                                                IPv4Clients[uni.Address].Send(Constants.DiscoveryMessageArray, Constants.DiscoveryMessageArray.Length, new IPEndPoint(GetBroadcastAddress(uni.Address, uni.IPv4Mask ?? IPAddress.Parse("255.0.0.0")), discoveryPort));
+                                                LogMessage("SearchIPv4", $"Sent broadcast to: {uni.Address}");
+                                            }
+                                            else
+                                            {
+                                                IPv4Clients.Remove(uni.Address);
+                                            }
+                                        }
+                                    }
+                                    catch (Exception ex)
                                     {
-                                        IPv4Clients.Add(uni.Address, NewIPv4Client());
+                                        logger?.LogError(ex.Message);
+                                        LogMessage("SearchIPv4", $"Exception: {ex}");
                                     }
-
-                                    if (!IPv4Clients[uni.Address].Client.IsBound)
-                                    {
-                                        IPv4Clients.Remove(uni.Address);
-                                        continue;
-                                    }
-
-                                    // Local host addresses (127.*.*.*) may have a null mask in Net Framework. We do want to search these. The correct mask is 255.0.0.0.
-                                    IPv4Clients[uni.Address].Send(Constants.DiscoveryMessageArray, Constants.DiscoveryMessageArray.Length, new IPEndPoint(GetBroadcastAddress(uni.Address, uni.IPv4Mask ?? IPAddress.Parse("255.0.0.0")), discoveryPort));
-                                    LogMessage("SearchIPv4", $"Sent broadcast to: {uni.Address}");
-
-                                }
-                                catch (Exception ex)
-                                {
-                                    logger?.LogError(ex.Message);
-                                    LogMessage("SearchIPv4", $"Exception: {ex}");
                                 }
                             }
                         }
@@ -461,7 +453,7 @@ namespace ASCOM.Alpaca.Discovery
                     LogMessage("SearchIPv6", $"Found network adapter {adapter.Description}, Interface type: {adapter.NetworkInterfaceType} - supports multicast: {adapter.SupportsMulticast}, Operational status: {adapter.OperationalStatus}");
 
                     // Check whether the adapter is up and running
-                    if (adapter.OperationalStatus == OperationalStatus.Up) // The adapter is up and running
+                    if (adapter.OperationalStatus == OperationalStatus.Up || adapter.NetworkInterfaceType == NetworkInterfaceType.Loopback) // The adapter is up and running, or is the loopback interface
                     {
                         LogMessage("SearchIPv6", $"  Adapter {adapter.Description} is up");
 
@@ -494,24 +486,52 @@ namespace ASCOM.Alpaca.Discovery
                                                 // A multicast packet is delivered to every responder listening on the discovery port.
                                                 if (IPAddress.IsLoopback(uni.Address)) // Address is loopback
                                                 {
-                                                    try
+                                                    if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                                                     {
-                                                        LogMessage("SearchIPv6", $"  Sending multicast IPv6 discovery packet to {uni.Address}.");
-
-                                                        // Create a new UdpClient for this loopback address if one does not already exist
-                                                        if (!IPv6Clients.ContainsKey(uni.Address)) // Client does not exist for this loopback address, so create one
+                                                        try
                                                         {
-                                                            IPv6Clients.Add(uni.Address, NewIPv6Client(uni.Address, 0));
+                                                            LogMessage("SearchIPv6", $"  Sending unicast IPv6 discovery packet to {uni.Address}.");
+
+                                                            if (!IPv6Clients.ContainsKey(uni.Address))
+                                                            {
+                                                                IPv6Clients.Add(uni.Address, NewIPv6Client(uni.Address, 0, 0));
+                                                            }
+
+                                                            IPv6Clients[uni.Address].Send(Constants.DiscoveryMessageArray, Constants.DiscoveryMessageArray.Length, new IPEndPoint(IPAddress.IPv6Loopback, discoveryPort));
+                                                            LogMessage("SearchIPv6", $"  Sent unicast IPv6 discovery packet to {uni.Address}:{discoveryPort}.");
+                                                        }
+                                                        catch (SocketException ex)
+                                                        {
+                                                            logger?.LogError(ex.Message);
+                                                            LogMessage("SearchIPv6", $"  Socket exception (error code: {ex.ErrorCode}) sending unicast IPv6 discovery packet to {uni.Address}:{discoveryPort}: {ex}");
                                                         }
 
-                                                        // Send the discovery packet to the multicast group on the loopback interface
-                                                        IPv6Clients[uni.Address].Send(Constants.DiscoveryMessageArray, Constants.DiscoveryMessageArray.Length, new IPEndPoint(IPAddress.Parse(Constants.MulticastGroup), discoveryPort));
-                                                        LogMessage("SearchIPv6", $"  Sent multicast IPv6 discovery packet to {uni.Address}:{discoveryPort}.");
                                                     }
-                                                    catch (SocketException ex)
+                                                    else if (!adapter.SupportsMulticast)
                                                     {
-                                                        logger?.LogError(ex.Message);
-                                                        LogMessage("SearchIPv6", $"  Socket exception (error code: {ex.ErrorCode}) sending multicast IPv6 discovery packet to {uni.Address}:{discoveryPort}: {ex}");
+                                                        LogMessage("SearchIPv6", $"  Ignoring {uni.Address} because the adapter does not support multicast.");
+                                                    }
+                                                    else
+                                                    {
+                                                        try
+                                                        {
+                                                            LogMessage("SearchIPv6", $"  Sending multicast IPv6 discovery packet to {uni.Address}.");
+
+                                                            // Create a new UdpClient for this loopback address if one does not already exist
+                                                            if (!IPv6Clients.ContainsKey(uni.Address)) // Client does not exist for this loopback address, so create one
+                                                            {
+                                                                IPv6Clients.Add(uni.Address, NewIPv6Client(uni.Address, 0, adapterProperties.GetIPv6Properties().Index));
+                                                            }
+
+                                                            // Send the discovery packet to the multicast group on the loopback interface
+                                                            IPv6Clients[uni.Address].Send(Constants.DiscoveryMessageArray, Constants.DiscoveryMessageArray.Length, GetMulticastEndPoint(discoveryPort, adapterProperties.GetIPv6Properties().Index));
+                                                            LogMessage("SearchIPv6", $"  Sent multicast IPv6 discovery packet to {uni.Address}:{discoveryPort}.");
+                                                        }
+                                                        catch (SocketException ex)
+                                                        {
+                                                            logger?.LogError(ex.Message);
+                                                            LogMessage("SearchIPv6", $"  Socket exception (error code: {ex.ErrorCode}) sending multicast IPv6 discovery packet to {uni.Address}:{discoveryPort}: {ex}");
+                                                        }
                                                     }
                                                 }
                                                 else
@@ -529,11 +549,12 @@ namespace ASCOM.Alpaca.Discovery
                                                                 // Create a new UdpClient for this link local address if one does not already exist
                                                                 if (!IPv6Clients.ContainsKey(uni.Address)) // Client does not exist for this link local address, so create one
                                                                 {
-                                                                    IPv6Clients.Add(uni.Address, NewIPv6Client(uni.Address, 0));
+                                                                    IPAddress bindAddress = RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? IPAddress.IPv6Any : uni.Address;
+                                                                    IPv6Clients.Add(uni.Address, NewIPv6Client(bindAddress, 0, adapterProperties.GetIPv6Properties().Index));
                                                                 }
 
                                                                 // Send the discovery packet to the multicast group on this link local interface
-                                                                IPv6Clients[uni.Address].Send(Constants.DiscoveryMessageArray, Constants.DiscoveryMessageArray.Length, new IPEndPoint(IPAddress.Parse(Constants.MulticastGroup), discoveryPort));
+                                                                IPv6Clients[uni.Address].Send(Constants.DiscoveryMessageArray, Constants.DiscoveryMessageArray.Length, GetMulticastEndPoint(discoveryPort, adapterProperties.GetIPv6Properties().Index));
                                                                 LogMessage("SearchIPv6", $"  Sent multicast IPv6 discovery packet to {uni.Address}:{discoveryPort}.");
                                                             }
                                                             catch (SocketException ex)
@@ -595,11 +616,15 @@ namespace ASCOM.Alpaca.Discovery
             }
         }
 
-        private UdpClient NewIPv6Client(IPAddress host, int port)
+        private UdpClient NewIPv6Client(IPAddress host, int port, int interfaceIndex)
         {
             var client = new UdpClient(AddressFamily.InterNetworkV6);
 
             client.MulticastLoopback = true;
+            if (interfaceIndex != 0)
+            {
+                client.Client.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.MulticastInterface, interfaceIndex);
+            }
 
             //0 tells OS to give us a free ephemeral port
             client.Client.Bind(new IPEndPoint(host, port));
@@ -607,6 +632,14 @@ namespace ASCOM.Alpaca.Discovery
             client.BeginReceive(new AsyncCallback(ReceiveCallback), client);
 
             return client;
+        }
+
+        private static IPEndPoint GetMulticastEndPoint(int port, int interfaceIndex)
+        {
+            IPAddress multicastAddress = IPAddress.Parse(Constants.MulticastGroup);
+            multicastAddress.ScopeId = interfaceIndex;
+
+            return new IPEndPoint(multicastAddress, port);
         }
 
         /// <summary>

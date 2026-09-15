@@ -41,6 +41,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ASCOM.Alpaca\ASCOM.Alpaca.csproj" />
+    <ProjectReference Include="..\ASCOM.Alpaca.Device\ASCOM.Alpaca.Device.csproj" />
     <ProjectReference Include="..\ASCOM.AstrometryTools\ASCOM.AstrometryTools.csproj" />
     <ProjectReference Include="..\ASCOM.Common\ASCOM.Common.csproj" />
     <ProjectReference Include="..\ASCOM.Com\ASCOM.Com.csproj" />
