@@ -490,35 +490,28 @@ namespace ASCOM.Alpaca.Discovery
                                             {
                                                 LogMessage("SearchIPv6", $"  Address {uni.Address} supports IPv6 - Is linklocal: {uni.Address.IsIPv6LinkLocal}, Is loopback: {IPAddress.IsLoopback(uni.Address)}");
 
-                                                // Check whether this is a loopback address and process it as a unicast address, avoiding checks for being a LionkLocal address and having multi-cast capability.
-                                                // This is 
+                                                // Check whether this is a loopback address and process it as a multicast address.
+                                                // A multicast packet is delivered to every responder listening on the discovery port.
                                                 if (IPAddress.IsLoopback(uni.Address)) // Address is loopback
                                                 {
                                                     try
                                                     {
-                                                        LogMessage("SearchIPv6", $"  Sending unicast IPv6 discovery packet to {uni.Address}.");
+                                                        LogMessage("SearchIPv6", $"  Sending multicast IPv6 discovery packet to {uni.Address}.");
 
-                                                        // Create a new UdpClient for this link local address if one does not already exist
-                                                        if (!IPv6Clients.ContainsKey(uni.Address)) // Client does not exist for this link local address, so create one
+                                                        // Create a new UdpClient for this loopback address if one does not already exist
+                                                        if (!IPv6Clients.ContainsKey(uni.Address)) // Client does not exist for this loopback address, so create one
                                                         {
-                                                            UdpClient client = new UdpClient(AddressFamily.InterNetworkV6);
-
-                                                            //0 tells OS to give us a free ephemeral port
-                                                            client.Client.Bind(new IPEndPoint(uni.Address, 0));
-
-                                                            client.BeginReceive(new AsyncCallback(ReceiveCallback), client);
-
-                                                            IPv6Clients.Add(uni.Address, client);
+                                                            IPv6Clients.Add(uni.Address, NewIPv6Client(uni.Address, 0));
                                                         }
 
-                                                        // Send the discovery packet to the multicast group on this link local interface
-                                                        IPv6Clients[uni.Address].Send(Constants.DiscoveryMessageArray, Constants.DiscoveryMessageArray.Length, new IPEndPoint(uni.Address, discoveryPort));
-                                                        LogMessage("SearchIPv6", $"  Sent unicast IPv6 discovery packet to {uni.Address}:{discoveryPort}.");
+                                                        // Send the discovery packet to the multicast group on the loopback interface
+                                                        IPv6Clients[uni.Address].Send(Constants.DiscoveryMessageArray, Constants.DiscoveryMessageArray.Length, new IPEndPoint(IPAddress.Parse(Constants.MulticastGroup), discoveryPort));
+                                                        LogMessage("SearchIPv6", $"  Sent multicast IPv6 discovery packet to {uni.Address}:{discoveryPort}.");
                                                     }
                                                     catch (SocketException ex)
                                                     {
                                                         logger?.LogError(ex.Message);
-                                                        LogMessage("SearchIPv6", $"  Socket exception (error code: {ex.ErrorCode}) sending unicast IPv6 discovery packet to {uni.Address}:{discoveryPort}: {ex}");
+                                                        LogMessage("SearchIPv6", $"  Socket exception (error code: {ex.ErrorCode}) sending multicast IPv6 discovery packet to {uni.Address}:{discoveryPort}: {ex}");
                                                     }
                                                 }
                                                 else
@@ -605,6 +598,8 @@ namespace ASCOM.Alpaca.Discovery
         private UdpClient NewIPv6Client(IPAddress host, int port)
         {
             var client = new UdpClient(AddressFamily.InterNetworkV6);
+
+            client.MulticastLoopback = true;
 
             //0 tells OS to give us a free ephemeral port
             client.Client.Bind(new IPEndPoint(host, port));
