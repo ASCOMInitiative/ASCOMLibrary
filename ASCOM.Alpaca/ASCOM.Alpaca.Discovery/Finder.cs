@@ -490,41 +490,77 @@ namespace ASCOM.Alpaca.Discovery
                                             {
                                                 LogMessage("SearchIPv6", $"  Address {uni.Address} supports IPv6 - Is linklocal: {uni.Address.IsIPv6LinkLocal}, Is loopback: {IPAddress.IsLoopback(uni.Address)}");
 
-                                                // Check whether this is a loopback or link local network interface.
-                                                if ((IPAddress.IsLoopback(uni.Address)) || (uni.Address.IsIPv6LinkLocal)) // Address is loopback or linklocal, so send the discovery packet to the multicast group on this interface
+                                                // Check whether this is a loopback address and process it as a unicast address, avoiding checks for being a LionkLocal address and having multi-cast capability.
+                                                // This is 
+                                                if (IPAddress.IsLoopback(uni.Address)) // Address is loopback
                                                 {
-                                                    // Test whether the adapter supports multicast. 
-                                                    if (adapter.SupportsMulticast) // Adapter supports multicast, so send the discovery packet to the multicast group on this interface
+                                                    try
                                                     {
-                                                        try
-                                                        {
-                                                            LogMessage("SearchIPv6", $"  Sending multicast IPv6 discovery packet to {uni.Address}.");
+                                                        LogMessage("SearchIPv6", $"  Sending unicast IPv6 discovery packet to {uni.Address}.");
 
-                                                            // Create a new UdpClient for this link local address if one does not already exist
-                                                            if (!IPv6Clients.ContainsKey(uni.Address)) // Client does not exist for this link local address, so create one
+                                                        // Create a new UdpClient for this link local address if one does not already exist
+                                                        if (!IPv6Clients.ContainsKey(uni.Address)) // Client does not exist for this link local address, so create one
+                                                        {
+                                                            UdpClient client = new UdpClient(AddressFamily.InterNetworkV6);
+
+                                                            //0 tells OS to give us a free ephemeral port
+                                                            client.Client.Bind(new IPEndPoint(uni.Address, 0));
+
+                                                            client.BeginReceive(new AsyncCallback(ReceiveCallback), client);
+
+                                                            IPv6Clients.Add(uni.Address, client);
+                                                        }
+
+                                                        // Send the discovery packet to the multicast group on this link local interface
+                                                        IPv6Clients[uni.Address].Send(Constants.DiscoveryMessageArray, Constants.DiscoveryMessageArray.Length, new IPEndPoint(uni.Address, discoveryPort));
+                                                        LogMessage("SearchIPv6", $"  Sent unicast IPv6 discovery packet to {uni.Address}:{discoveryPort}.");
+                                                    }
+                                                    catch (SocketException ex)
+                                                    {
+                                                        logger?.LogError(ex.Message);
+                                                        LogMessage("SearchIPv6", $"  Socket exception (error code: {ex.ErrorCode}) sending unicast IPv6 discovery packet to {uni.Address}:{discoveryPort}: {ex}");
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    // Check whether this is a link local network interface.
+                                                    if (uni.Address.IsIPv6LinkLocal) // Address is linklocal, so send the discovery packet to the multicast group on this interface
+                                                    {
+                                                        // Test whether the adapter supports multicast. 
+                                                        if (adapter.SupportsMulticast) // Adapter supports multicast, so send the discovery packet to the multicast group on this interface
+                                                        {
+                                                            try
                                                             {
-                                                                IPv6Clients.Add(uni.Address, NewIPv6Client(uni.Address, 0));
-                                                            }
+                                                                LogMessage("SearchIPv6", $"  Sending multicast IPv6 discovery packet to {uni.Address}.");
 
-                                                            // Send the discovery packet to the multicast group on this link local interface
-                                                            IPv6Clients[uni.Address].Send(Constants.DiscoveryMessageArray, Constants.DiscoveryMessageArray.Length, new IPEndPoint(IPAddress.Parse(Constants.MulticastGroup), discoveryPort));
-                                                            LogMessage("SearchIPv6", $"  Sent multicast IPv6 discovery packet to {uni.Address}:{discoveryPort}.");
+                                                                // Create a new UdpClient for this link local address if one does not already exist
+                                                                if (!IPv6Clients.ContainsKey(uni.Address)) // Client does not exist for this link local address, so create one
+                                                                {
+                                                                    IPv6Clients.Add(uni.Address, NewIPv6Client(uni.Address, 0));
+                                                                }
+
+                                                                // Send the discovery packet to the multicast group on this link local interface
+                                                                IPv6Clients[uni.Address].Send(Constants.DiscoveryMessageArray, Constants.DiscoveryMessageArray.Length, new IPEndPoint(IPAddress.Parse(Constants.MulticastGroup), discoveryPort));
+                                                                LogMessage("SearchIPv6", $"  Sent multicast IPv6 discovery packet to {uni.Address}:{discoveryPort}.");
+                                                            }
+                                                            catch (SocketException ex)
+                                                            {
+                                                                logger?.LogError(ex.Message);
+                                                                LogMessage("SearchIPv6", $"  Socket exception (error code: {ex.ErrorCode}) sending IPv6 discovery packet to {uni.Address}:{discoveryPort}: {ex}");
+                                                            }
                                                         }
-                                                        catch (SocketException ex)
+                                                        else // Adapter does not support multicast, so ignore this address
                                                         {
-                                                            logger?.LogError(ex.Message);
-                                                            LogMessage("SearchIPv6", $"  Socket exception (error code: {ex.ErrorCode}) sending IPv6 discovery packet to {uni.Address}:{discoveryPort}: {ex}");
+                                                            LogMessage("SearchIPv6", $"  Ignoring {uni.Address} because the adapter does not support multicast.");
                                                         }
                                                     }
-                                                    else // Adapter does not support multicast, so ignore this address
+                                                    else // Not a link local address so ignore it
                                                     {
-                                                        LogMessage("SearchIPv6", $"  Ignoring {uni.Address} because the adapter does not support multicast.");
+                                                        LogMessage("SearchIPv6", $"  Ignoring {uni.Address} because it is not linklocal.");
                                                     }
                                                 }
-                                                else // Not a link local address so ignore it
-                                                {
-                                                    LogMessage("SearchIPv6", $"  Ignoring {uni.Address} because it is not linklocal.");
-                                                }
+
+
                                             }
                                             else // The address does not support IPv6, so ignore it
                                             {

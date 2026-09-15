@@ -5,6 +5,14 @@ Library of ASCOM Alpaca client and discovery components.
 ## Version History
 The version history only contains entries when a change is made.
 
+***Release 4.1.0***
+* ADDED - Client self-healing capability when communicating with devices whose assigned IP address has changed. When an Alpaca device cannot be found at the specified address and a device UniqueID is provided, 
+Alpaca Clients now automatically search for devices that have the same UniqueID.
+* ADDED - Added UniqueId as an optional parameter on all Alpaca client creation members.
+* IMPROVEMENT - The response time when clients are configured to connect to devices with single part host names (with no period separators) that cannot be found on the network has been reduced.
+* BUG-FIX - Fix GetDevice(AlpacaConfiguration) so that it respects the number of retries specified. Previously it always defaulted to 1 retry.
+* BUG-FIX - Discovery of Alpaca devices advertising on IPv6 localhost failed when more than one device was operating using the IPv6 loopback address ::1.
+
 ***Release 4.0.0***
 * DEVELOPER-BREAKING-CHANGE - The static SetRetryCount method introduced in release 3.1.0 has been removed and replaced with a new constructor parameter
 of the same name. This allows different retry counts to be set for different client instances if required. 
