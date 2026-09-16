@@ -482,11 +482,12 @@ namespace ASCOM.Alpaca.Discovery
                                             {
                                                 LogMessage("SearchIPv6", $"  Address {uni.Address} supports IPv6 - Is linklocal: {uni.Address.IsIPv6LinkLocal}, Is loopback: {IPAddress.IsLoopback(uni.Address)}");
 
-                                                // Check whether this is a loopback address and process it as a multicast address.
-                                                // A multicast packet is delivered to every responder listening on the discovery port.
+                                                // Process loopback addresses using the existing platform-specific mechanism and the local-host multicast group.
                                                 if (IPAddress.IsLoopback(uni.Address)) // Address is loopback
                                                 {
-                                                    if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                                                    int loopbackInterfaceIndex = ipInterfaceProperties.GetIPv6Properties().Index;
+
+                                                    if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) // Address is loopback and OS is Linux / MacOS
                                                     {
                                                         try
                                                         {
@@ -494,11 +495,14 @@ namespace ASCOM.Alpaca.Discovery
 
                                                             if (!IPv6Clients.ContainsKey(uni.Address))
                                                             {
-                                                                IPv6Clients.Add(uni.Address, NewIPv6Client(uni.Address, 0, 0));
+                                                                IPv6Clients.Add(uni.Address, NewIPv6Client(uni.Address, 0, loopbackInterfaceIndex));
                                                             }
 
                                                             IPv6Clients[uni.Address].Send(Constants.DiscoveryMessageArray, Constants.DiscoveryMessageArray.Length, new IPEndPoint(IPAddress.IPv6Loopback, discoveryPort));
                                                             LogMessage("SearchIPv6", $"  Sent unicast IPv6 discovery packet to {uni.Address}:{discoveryPort}.");
+
+                                                            IPv6Clients[uni.Address].Send(Constants.DiscoveryMessageArray, Constants.DiscoveryMessageArray.Length, GetLocalHostMulticastEndPoint(discoveryPort, loopbackInterfaceIndex));
+                                                            LogMessage("SearchIPv6", $"  Sent local host multicast IPv6 discovery packet to {uni.Address}:{discoveryPort}.");
                                                         }
                                                         catch (SocketException ex)
                                                         {
@@ -507,34 +511,43 @@ namespace ASCOM.Alpaca.Discovery
                                                         }
 
                                                     }
-                                                    else if (!networkInterface.SupportsMulticast)
+                                                    else // Address is loopback and OS is Windows
                                                     {
-                                                        LogMessage("SearchIPv6", $"  Ignoring {uni.Address} because the network interface does not support multicast.");
-                                                    }
-                                                    else
-                                                    {
-                                                        try
+                                                        // Check whether the network interface supports multicast. 
+                                                        if (networkInterface.SupportsMulticast) // Address is loopback and OS is Windows and interface supports multicast
                                                         {
-                                                            LogMessage("SearchIPv6", $"  Sending multicast IPv6 discovery packet to {uni.Address}.");
-
-                                                            // Create a new UdpClient for this loopback address if one does not already exist
-                                                            if (!IPv6Clients.ContainsKey(uni.Address)) // Client does not exist for this loopback address, so create one
+                                                            try
                                                             {
-                                                                IPv6Clients.Add(uni.Address, NewIPv6Client(uni.Address, 0, ipInterfaceProperties.GetIPv6Properties().Index));
-                                                            }
+                                                                LogMessage("SearchIPv6", $"  Sending multicast IPv6 discovery packet to {uni.Address}.");
 
-                                                            // Send the discovery packet to the multicast group on the loopback interface
-                                                            IPv6Clients[uni.Address].Send(Constants.DiscoveryMessageArray, Constants.DiscoveryMessageArray.Length, GetMulticastEndPoint(discoveryPort, ipInterfaceProperties.GetIPv6Properties().Index));
-                                                            LogMessage("SearchIPv6", $"  Sent multicast IPv6 discovery packet to {uni.Address}:{discoveryPort}.");
+                                                                // Create a new UdpClient for this loopback address if one does not already exist
+                                                                if (!IPv6Clients.ContainsKey(uni.Address)) // Client does not exist for this loopback address, so create one
+                                                                {
+                                                                    IPv6Clients.Add(uni.Address, NewIPv6Client(uni.Address, 0, loopbackInterfaceIndex));
+                                                                }
+
+                                                                // Send the discovery packet to the multicast group on the loopback interface
+                                                                IPv6Clients[uni.Address].Send(Constants.DiscoveryMessageArray, Constants.DiscoveryMessageArray.Length, GetMulticastEndPoint(discoveryPort, loopbackInterfaceIndex));
+                                                                LogMessage("SearchIPv6", $"  Sent multicast IPv6 discovery packet to {uni.Address}:{discoveryPort}.");
+                                                            }
+                                                            catch (SocketException ex)
+                                                            {
+                                                                logger?.LogError(ex.Message);
+                                                                LogMessage("SearchIPv6", $"  Socket exception (error code: {ex.ErrorCode}) sending multicast IPv6 discovery packet to {uni.Address}:{discoveryPort}: {ex}");
+                                                            }
                                                         }
-                                                        catch (SocketException ex)
+                                                        else // Address is loopback and OS is Windows and interface does not support multicast, so ignore this address
                                                         {
-                                                            logger?.LogError(ex.Message);
-                                                            LogMessage("SearchIPv6", $"  Socket exception (error code: {ex.ErrorCode}) sending multicast IPv6 discovery packet to {uni.Address}:{discoveryPort}: {ex}");
+                                                            LogMessage("SearchIPv6", $"  Ignoring {uni.Address} because the network interface does not support multicast.");
                                                         }
+
+
+
+
                                                     }
+
                                                 }
-                                                else
+                                                else // Address is not loopback
                                                 {
                                                     // Check whether this is a link local network interface.
                                                     if (uni.Address.IsIPv6LinkLocal) // Address is linklocal, so send the discovery packet to the multicast group on this interface
@@ -573,8 +586,6 @@ namespace ASCOM.Alpaca.Discovery
                                                         LogMessage("SearchIPv6", $"  Ignoring {uni.Address} because it is not linklocal.");
                                                     }
                                                 }
-
-
                                             }
                                             else // The address does not support IPv6, so ignore it
                                             {
@@ -636,7 +647,17 @@ namespace ASCOM.Alpaca.Discovery
 
         private static IPEndPoint GetMulticastEndPoint(int port, int interfaceIndex)
         {
-            IPAddress multicastAddress = IPAddress.Parse(Constants.MulticastGroup);
+            return GetMulticastEndPoint(Constants.MulticastGroup, port, interfaceIndex);
+        }
+
+        private static IPEndPoint GetLocalHostMulticastEndPoint(int port, int interfaceIndex)
+        {
+            return GetMulticastEndPoint(Constants.LocalHostMulticastGroup, port, interfaceIndex);
+        }
+
+        private static IPEndPoint GetMulticastEndPoint(string multicastGroup, int port, int interfaceIndex)
+        {
+            IPAddress multicastAddress = IPAddress.Parse(multicastGroup);
             multicastAddress.ScopeId = interfaceIndex;
 
             return new IPEndPoint(multicastAddress, port);
