@@ -354,24 +354,24 @@ namespace ASCOM.Alpaca.Discovery
         /// <summary>
         /// Send out discovery message on each IPv4 broadcast address
         /// This dual targets NetStandard 2.0 and NetFX 3.5 so no Async Await
-        /// Broadcasts on each adapters address as per Windows / Linux documentation
+        /// Broadcasts on each network interface address as per Windows / Linux documentation
         /// </summary>
         private void SearchIPv4()
         {
-            NetworkInterface[] adapters = NetworkInterface.GetAllNetworkInterfaces();
+            NetworkInterface[] networkInterfaces = NetworkInterface.GetAllNetworkInterfaces();
             LogMessage("SearchIPv4", $"Sending IPv4 discovery broadcasts");
 
-            foreach (NetworkInterface adapter in adapters)
+            foreach (NetworkInterface networkInterface in networkInterfaces)
             {
                 try
                 {
-                    //Do not try and use non-operational adapters
-                    if (adapter.OperationalStatus == OperationalStatus.Up && adapter.Supports(NetworkInterfaceComponent.IPv4))
+                    //Do not try and use non-operational network interfaces
+                    if (networkInterface.OperationalStatus == OperationalStatus.Up && networkInterface.Supports(NetworkInterfaceComponent.IPv4))
                     {
-                        IPInterfaceProperties adapterProperties = adapter.GetIPProperties();
-                        if (adapterProperties != null)
+                        IPInterfaceProperties ipInterfaceProperties = networkInterface.GetIPProperties();
+                        if (ipInterfaceProperties != null)
                         {
-                            UnicastIPAddressInformationCollection uniCast = adapterProperties.UnicastAddresses;
+                            UnicastIPAddressInformationCollection uniCast = ipInterfaceProperties.UnicastAddresses;
                             if (uniCast.Count > 0)
                             {
                                 foreach (UnicastIPAddressInformation uni in uniCast)
@@ -445,32 +445,32 @@ namespace ASCOM.Alpaca.Discovery
         {
             LogMessage("SearchIPv6", $"Sending IPv6 discovery broadcasts");
 
-            // Bind a socket to each adapter explicitly
-            foreach (var adapter in NetworkInterface.GetAllNetworkInterfaces())
+            // Bind a socket to each network interface explicitly
+            foreach (NetworkInterface networkInterface in NetworkInterface.GetAllNetworkInterfaces())
             {
                 try
                 {
-                    LogMessage("SearchIPv6", $"Found network adapter {adapter.Description}, Interface type: {adapter.NetworkInterfaceType} - supports multicast: {adapter.SupportsMulticast}, Operational status: {adapter.OperationalStatus}");
+                    LogMessage("SearchIPv6", $"Found network interface {networkInterface.Description}, Interface type: {networkInterface.NetworkInterfaceType} - supports multicast: {networkInterface.SupportsMulticast}, Operational status: {networkInterface.OperationalStatus}");
 
-                    // Check whether the adapter is up and running
-                    if (adapter.OperationalStatus == OperationalStatus.Up || adapter.NetworkInterfaceType == NetworkInterfaceType.Loopback) // The adapter is up and running, or is the loopback interface
+                    // Check whether the network interface is up and running
+                    if (networkInterface.OperationalStatus == OperationalStatus.Up || networkInterface.NetworkInterfaceType == NetworkInterfaceType.Loopback) // The network interface is up and running, or is the loopback interface
                     {
-                        LogMessage("SearchIPv6", $"  Adapter {adapter.Description} is up");
+                        LogMessage("SearchIPv6", $"  Network interface {networkInterface.Description} is up");
 
-                        // Check whether the adapter supports IPv6
-                        if (adapter.Supports(NetworkInterfaceComponent.IPv6)) // The adapter supports IPv6
+                        // Check whether the network interface supports IPv6
+                        if (networkInterface.Supports(NetworkInterfaceComponent.IPv6)) // The network interface supports IPv6
                         {
-                            LogMessage("SearchIPv6", $"  Adapter {adapter.Description} supports IPv6");
+                            LogMessage("SearchIPv6", $"  Network interface {networkInterface.Description} supports IPv6");
 
-                            // Check whether the adapter has any properties
-                            IPInterfaceProperties adapterProperties = adapter.GetIPProperties();
-                            if (adapterProperties != null) // The adapter has properties
+                            // Check whether the network interface has any properties
+                            IPInterfaceProperties ipInterfaceProperties = networkInterface.GetIPProperties();
+                            if (ipInterfaceProperties != null) // The network interface has properties
                             {
-                                UnicastIPAddressInformationCollection uniCast = adapterProperties.UnicastAddresses;
-                                LogMessage("SearchIPv6", $"  Adapter {adapter.Description} does have properties. Number of unicast addresses: {uniCast.Count}");
+                                UnicastIPAddressInformationCollection uniCast = ipInterfaceProperties.UnicastAddresses;
+                                LogMessage("SearchIPv6", $"  Network interface {networkInterface.Description} does have properties. Number of unicast addresses: {uniCast.Count}");
 
-                                // Check whether there are any unicast addresses on the adapter
-                                if (uniCast.Count > 0) // The adapter has one or more unicast addresses
+                                // Check whether there are any unicast addresses on the network interface
+                                if (uniCast.Count > 0) // The network interface has one or more unicast addresses
                                 {
                                     // Process each address in turn
                                     foreach (UnicastIPAddressInformation uni in uniCast)
@@ -507,9 +507,9 @@ namespace ASCOM.Alpaca.Discovery
                                                         }
 
                                                     }
-                                                    else if (!adapter.SupportsMulticast)
+                                                    else if (!networkInterface.SupportsMulticast)
                                                     {
-                                                        LogMessage("SearchIPv6", $"  Ignoring {uni.Address} because the adapter does not support multicast.");
+                                                        LogMessage("SearchIPv6", $"  Ignoring {uni.Address} because the network interface does not support multicast.");
                                                     }
                                                     else
                                                     {
@@ -520,11 +520,11 @@ namespace ASCOM.Alpaca.Discovery
                                                             // Create a new UdpClient for this loopback address if one does not already exist
                                                             if (!IPv6Clients.ContainsKey(uni.Address)) // Client does not exist for this loopback address, so create one
                                                             {
-                                                                IPv6Clients.Add(uni.Address, NewIPv6Client(uni.Address, 0, adapterProperties.GetIPv6Properties().Index));
+                                                                IPv6Clients.Add(uni.Address, NewIPv6Client(uni.Address, 0, ipInterfaceProperties.GetIPv6Properties().Index));
                                                             }
 
                                                             // Send the discovery packet to the multicast group on the loopback interface
-                                                            IPv6Clients[uni.Address].Send(Constants.DiscoveryMessageArray, Constants.DiscoveryMessageArray.Length, GetMulticastEndPoint(discoveryPort, adapterProperties.GetIPv6Properties().Index));
+                                                            IPv6Clients[uni.Address].Send(Constants.DiscoveryMessageArray, Constants.DiscoveryMessageArray.Length, GetMulticastEndPoint(discoveryPort, ipInterfaceProperties.GetIPv6Properties().Index));
                                                             LogMessage("SearchIPv6", $"  Sent multicast IPv6 discovery packet to {uni.Address}:{discoveryPort}.");
                                                         }
                                                         catch (SocketException ex)
@@ -539,8 +539,8 @@ namespace ASCOM.Alpaca.Discovery
                                                     // Check whether this is a link local network interface.
                                                     if (uni.Address.IsIPv6LinkLocal) // Address is linklocal, so send the discovery packet to the multicast group on this interface
                                                     {
-                                                        // Test whether the adapter supports multicast. 
-                                                        if (adapter.SupportsMulticast) // Adapter supports multicast, so send the discovery packet to the multicast group on this interface
+                                                        // Test whether the network interface supports multicast. 
+                                                        if (networkInterface.SupportsMulticast) // Network interface supports multicast, so send the discovery packet to the multicast group on this interface
                                                         {
                                                             try
                                                             {
@@ -550,11 +550,11 @@ namespace ASCOM.Alpaca.Discovery
                                                                 if (!IPv6Clients.ContainsKey(uni.Address)) // Client does not exist for this link local address, so create one
                                                                 {
                                                                     IPAddress bindAddress = RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? IPAddress.IPv6Any : uni.Address;
-                                                                    IPv6Clients.Add(uni.Address, NewIPv6Client(bindAddress, 0, adapterProperties.GetIPv6Properties().Index));
+                                                                    IPv6Clients.Add(uni.Address, NewIPv6Client(bindAddress, 0, networkInterface.GetIPProperties().GetIPv6Properties().Index));
                                                                 }
 
                                                                 // Send the discovery packet to the multicast group on this link local interface
-                                                                IPv6Clients[uni.Address].Send(Constants.DiscoveryMessageArray, Constants.DiscoveryMessageArray.Length, GetMulticastEndPoint(discoveryPort, adapterProperties.GetIPv6Properties().Index));
+                                                                IPv6Clients[uni.Address].Send(Constants.DiscoveryMessageArray, Constants.DiscoveryMessageArray.Length, GetMulticastEndPoint(discoveryPort, networkInterface.GetIPProperties().GetIPv6Properties().Index));
                                                                 LogMessage("SearchIPv6", $"  Sent multicast IPv6 discovery packet to {uni.Address}:{discoveryPort}.");
                                                             }
                                                             catch (SocketException ex)
@@ -563,9 +563,9 @@ namespace ASCOM.Alpaca.Discovery
                                                                 LogMessage("SearchIPv6", $"  Socket exception (error code: {ex.ErrorCode}) sending IPv6 discovery packet to {uni.Address}:{discoveryPort}: {ex}");
                                                             }
                                                         }
-                                                        else // Adapter does not support multicast, so ignore this address
+                                                        else // Network interface does not support multicast, so ignore this address
                                                         {
-                                                            LogMessage("SearchIPv6", $"  Ignoring {uni.Address} because the adapter does not support multicast.");
+                                                            LogMessage("SearchIPv6", $"  Ignoring {uni.Address} because the network interface does not support multicast.");
                                                         }
                                                     }
                                                     else // Not a link local address so ignore it
@@ -588,24 +588,24 @@ namespace ASCOM.Alpaca.Discovery
                                         }
                                     }
                                 }
-                                else // The adapter has properties but no unicast addresses, so ignore it
+                                else // The network interface has properties but no unicast addresses, so ignore it
                                 {
-                                    LogMessage("SearchIPv6", $"  Ignoring adapter {adapter.Description} because it has no unicast addresses.");
+                                    LogMessage("SearchIPv6", $"  Ignoring network interface {networkInterface.Description} because it has no unicast addresses.");
                                 }
                             }
-                            else // The adapter does not have properties, so ignore it
+                            else // The network interface does not have properties, so ignore it
                             {
-                                LogMessage("SearchIPv6", $"  Ignoring adapter {adapter.Description} because it does not have properties and consequently does not have any unicast addresses.");
+                                LogMessage("SearchIPv6", $"  Ignoring network interface {networkInterface.Description} because it does not have properties and consequently does not have any unicast addresses.");
                             }
                         }
-                        else // The adapter does not support IPv6, so ignore it
+                        else // The network interface does not support IPv6, so ignore it
                         {
-                            LogMessage("SearchIPv6", $"  Ignoring adapter {adapter.Description} because it does not support IPv6.");
+                            LogMessage("SearchIPv6", $"  Ignoring network interface {networkInterface.Description} because it does not support IPv6.");
                         }
                     }
-                    else // The adapter is not up and running, so ignore it
+                    else // The network interface is not up and running, so ignore it
                     {
-                        LogMessage("SearchIPv6", $"  Ignoring adapter {adapter.Description} because it is not up and running. Its operational status is {adapter.OperationalStatus}");
+                        LogMessage("SearchIPv6", $"  Ignoring network interface {networkInterface.Description} because it is not up and running. Its operational status is {networkInterface.OperationalStatus}");
                     }
                 }
                 catch (Exception ex)
