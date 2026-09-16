@@ -28,12 +28,7 @@ namespace ASCOM.Alpaca.Discovery
         public const string MulticastGroup = "ff12::00a1:9aca";
 
         /// <summary>
-        /// IPv6 multicast group address for discovery over the local host
-        /// </summary>
-        public const string LocalHostMulticastGroup = "ff11::00a1:9aca";
-
-        /// <summary>
-        /// Returns the Alpaca discovery message as a byte array
+        /// Returns the ALpaca discovery message as a byte array
         /// </summary>
         public static byte[] DiscoveryMessageArray
         {

@@ -1,6 +1,4 @@
 using ASCOM.Alpaca.Discovery;
-using ASCOM.Common.Interfaces;
-using ASCOM.Tools;
 using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
@@ -84,20 +82,12 @@ namespace ReliabilityTests
         {
             int discoveryPort = GetAvailableIPv6LoopbackPort();
             var discoveredEndpoints = new ConcurrentBag<IPEndPoint>();
-            bool useMulticastLoopbackDiscovery = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-                || RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
+            bool useMulticastLoopbackDiscovery = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
             int expectedResponderCount = useMulticastLoopbackDiscovery ? 2 : 1;
 
-            TraceLogger firstResponderLogger = new TraceLogger("FirstResponder", true);
-            firstResponderLogger.SetMinimumLoggingLevel(LogLevel.Debug);
-            TraceLogger secondResponderLogger = new TraceLogger("SecondResponder", true);
-            secondResponderLogger.SetMinimumLoggingLevel(LogLevel.Debug);
-            TraceLogger finderLogger = new TraceLogger("Finder", true);
-            finderLogger.SetMinimumLoggingLevel(LogLevel.Debug);
-
-            using (var firstResponder = new Responder(FirstAlpacaPort, discoveryPort, false, true,firstResponderLogger))
-            using (var secondResponder = useMulticastLoopbackDiscovery ? new Responder(SecondAlpacaPort, discoveryPort, false, true,secondResponderLogger) : null)
-            using (var finder = new Finder(finderLogger))
+            using (var firstResponder = new Responder(FirstAlpacaPort, discoveryPort, false, true))
+            using (var secondResponder = useMulticastLoopbackDiscovery ? new Responder(SecondAlpacaPort, discoveryPort, false, true) : null)
+            using (var finder = new Finder())
             using (var responsesReceived = new ManualResetEventSlim())
             {
                 finder.ResponseReceivedEvent += (_, endpoint) =>
