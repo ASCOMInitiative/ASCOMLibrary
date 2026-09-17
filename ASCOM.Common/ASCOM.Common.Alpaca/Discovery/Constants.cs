@@ -25,7 +25,17 @@ namespace ASCOM.Alpaca.Discovery
         /// <summary>
         /// IPv6 multicast group address for discovery over an IPv6 network
         /// </summary>
-        public const string MulticastGroup = "ff12::00a1:9aca";
+        public const string MulticastGroup = "ff12::a1:9aca"; // Link-local scope
+
+        /// <summary>
+        /// IPv6 multicast group address for discovery over an IPv6 network
+        /// </summary>
+        public const string MulticastGroupIpV6Loopback = "ff11::a1:9aca"; // Host only scope
+
+        /// <summary>
+        /// The name of the loopback interface on Linux and MacOS
+        /// </summary>
+        public const string UnixLoopbackInterfaceName = "lo";
 
         /// <summary>
         /// Returns the ALpaca discovery message as a byte array
