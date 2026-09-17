@@ -519,7 +519,7 @@ namespace ASCOM.Alpaca.Discovery
                 throw new InvalidOperationException($"Interface '{name}' does not support IPv6.");
             }
 
-            if (!target.SupportsMulticast)
+            if (!target.SupportsMulticast && target.NetworkInterfaceType != NetworkInterfaceType.Loopback)
             {
                 throw new InvalidOperationException($"Interface '{name}' does not support multicast.");
             }

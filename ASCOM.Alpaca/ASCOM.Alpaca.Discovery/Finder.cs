@@ -527,6 +527,7 @@ namespace ASCOM.Alpaca.Discovery
 
                                                             // Create a scoped multicast address for the loopback interface using the HOST LOCAL multicast address and the interface index.
                                                             IPAddress multicastAddress = CreateScopedMulticastAddress(Constants.MulticastGroupIpV6Loopback, interfaceIndex);
+                                                            IPEndPoint targetEndPoint = new IPEndPoint(multicastAddress, discoveryPort);
 
                                                             // Create a new UdpClient for the loopback interface and set the necessary socket options for multicast.
                                                             UdpClient callerClient = new UdpClient(AddressFamily.InterNetworkV6);
@@ -540,15 +541,22 @@ namespace ASCOM.Alpaca.Discovery
                                                             callerClient.Client.Bind(new IPEndPoint(IPAddress.IPv6Loopback, 0));
                                                             LogMessage("SearchIPv6", $"  Bound UdpClient to {callerClient.Client.LocalEndPoint} OK.");
 
-                                                            // Send the HOST LOCAL multicast client if it doesn't already exist 
+                                                            // Listen for discovery responses on the same client that sent the multicast datagram.
+                                                            callerClient.BeginReceive(new AsyncCallback(ReceiveCallback), callerClient);
+
+                                                            // Send the discovery packet to the HOST LOCAL multicast address on the loopback interface
+                                                            int bytesSent = callerClient.Send(Constants.DiscoveryMessageArray, Constants.DiscoveryMessageArray.Length, targetEndPoint);
+                                                            LogMessage("SearchIPv6", $"  Sent {bytesSent} bytes of HOST LOCAL multicast IPv6 discovery data to {targetEndPoint}.");
+
+                                                            // Retain the configured client for disposal with the other IPv6 clients.
                                                             if (!IPv6Clients.ContainsKey(uni.Address))
                                                             {
                                                                 IPv6Clients.Add(uni.Address, callerClient);
                                                             }
-
-                                                            // Send the discovery packet to the HOST LOCAL multicast address on the loopback interface
-                                                            IPv6Clients[uni.Address].Send(Constants.DiscoveryMessageArray, Constants.DiscoveryMessageArray.Length, new IPEndPoint(IPAddress.IPv6Loopback, discoveryPort));
-                                                            LogMessage("SearchIPv6", $"  Sent HOST LOCAL multicast IPv6 discovery packet to {uni.Address}:{discoveryPort}.");
+                                                            else
+                                                            {
+                                                                callerClient.Dispose();
+                                                            }
                                                         }
                                                         catch (Exception ex)
                                                         {
@@ -681,7 +689,7 @@ namespace ASCOM.Alpaca.Discovery
                     throw new InvalidOperationException($"Interface '{name}' does not support IPv6.");
                 }
 
-                if (!target.SupportsMulticast)
+                if (!target.SupportsMulticast && target.NetworkInterfaceType != NetworkInterfaceType.Loopback)
                 {
                     throw new InvalidOperationException($"Interface '{name}' does not support multicast.");
                 }
