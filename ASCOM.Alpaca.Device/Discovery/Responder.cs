@@ -224,14 +224,15 @@ namespace ASCOM.Alpaca.Discovery
                 {
                     try
                     {
-                        // Check whether this is a loopback interface and ignore it because we have already added a unicast client for the loopback address
-                        if (networkInterface.NetworkInterfaceType == NetworkInterfaceType.Loopback) // This is a loopback interface
+                        // Check whether this is a loopback interface
+                        if (networkInterface.NetworkInterfaceType == NetworkInterfaceType.Loopback) // This is a Linux/MacOS loopback interface
                         {
                             Logger?.LogDebug($"Responder.InitIPv6 - Found loopback interface: {networkInterface.Name}, Type: {networkInterface.NetworkInterfaceType}, Status: {networkInterface.OperationalStatus}, Supports IPv6: {networkInterface.Supports(NetworkInterfaceComponent.IPv6)}, Supports Multicast: {networkInterface.SupportsMulticast}");
                             // Check if the networkInterface is up
                             if ((networkInterface.OperationalStatus == OperationalStatus.Up) && (networkInterface.Supports(NetworkInterfaceComponent.IPv6))) // The loopback interface is up and supports IPv6
                             {
                                 Logger?.LogDebug($"Responder.InitIPv6 -   Loopback interface {networkInterface.Name} is up and supports IPv6");
+
                                 // Get the IP properties of the networkInterface and check if it has any unicast addresses
                                 IPInterfaceProperties networkInterfaceProperties = networkInterface.GetIPProperties();
                                 if (networkInterfaceProperties is null) // The networkInterface has no IP properties
@@ -254,49 +255,52 @@ namespace ASCOM.Alpaca.Discovery
                                     Logger?.LogDebug($"Responder.InitIPv6 -   Loopback interface {networkInterface.Name} has unicast address: {uni.Address} with address family: {uni.Address.AddressFamily}.");
 
                                     // Check for the IPv6 loopback address
-                                    if (IPAddress.IsLoopback(uni.Address)) // Found the IPv6 loopback address
+                                    if (IPAddress.IsLoopback(uni.Address) && uni.Address.AddressFamily == AddressFamily.InterNetworkV6) // Found the IPv6 loopback address
                                     {
-                                        try
+                                        // Check whether the loopback interface supports multicast. If it does, add a multicast client for the IPv6 loopback address.
+                                        if (networkInterface.SupportsMulticast) // The loopback interface supports multicast
                                         {
-                                            // Add a host-local multicast option for the loopback interface because link-local multicast is not available on the loopback interface.
-                                            Logger?.LogDebug($"Responder.InitIPv6 -   Address is loopback - Adding HOST LOCAL multicast IPv6 discovery responder for loopback address: {IPAddress.IPv6Loopback} on port {DiscoveryPort}");
+                                            Logger?.LogDebug($"Responder.InitIPv6 -   Loopback interface {networkInterface.Name} supports multicast");
 
-                                            int interfaceIndex = GetIndex(Constants.UnixLoopbackInterfaceName);
-                                            IPAddress multicastAddress = CreateScopedMulticastAddress(Constants.MulticastGroupIpV6Loopback, interfaceIndex);
+                                            try
+                                            {
+                                                // Add a host-local multicast option for the loopback interface because link-local multicast is not available on the loopback interface.
+                                                Logger?.LogDebug($"Responder.InitIPv6 -   Address is loopback - Adding HOST LOCAL multicast IPv6 discovery responder for loopback address: {IPAddress.IPv6Loopback} on port {DiscoveryPort}");
 
-                                            UdpClient udpClientV6 = new UdpClient(AddressFamily.InterNetworkV6);
+                                                // Create a UDP client for IPv6 multicast on the loopback interface. 
+                                                UdpClient udpClientV6 = new UdpClient(AddressFamily.InterNetworkV6);
 
+                                                // Set the socket option to allow multiple sockets to bind to the same address and port
+                                                udpClientV6.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
+                                                Logger?.LogDebug($"Responder.InitIPv6 -   Set socket option ReuseAddress for HOST LOCAL multicast IPv6 discovery responder");
 
-                                            // Set the socket option to allow multiple sockets to bind to the same address and port
-                                            udpClientV6.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
-                                            Logger?.LogDebug($"Responder.InitIPv6 -   Set socket option ReuseAddress for HOST LOCAL multicast IPv6 discovery responder");
+                                                // Create a wildcard bind to ensure that all addresses, including multicast, are received. If we use ::1 it only matches unicast sent to ::1.
+                                                udpClientV6.Client.Bind(new IPEndPoint(IPAddress.IPv6Any, Constants.DiscoveryPort));
+                                                Logger?.LogDebug($"Responder.InitIPv6 -   Successfully bound socket for HOST LOCAL multicast IPv6 discovery responder");
 
-                                            // Create a wildcard bind to ensure that all addresses, including multicast, are received. If we use ::1 it only matches unicast sent to ::1.
-                                            udpClientV6.Client.Bind(new IPEndPoint(IPAddress.IPv6Any, Constants.DiscoveryPort));
-                                            Logger?.LogDebug($"Responder.InitIPv6 -   Successfully bound socket for HOST LOCAL multicast IPv6 discovery responder");
+                                                // Join the multicast group on the loopback interface (lo) to receive its messages after the bind has succeeded.
+                                                udpClientV6.JoinMulticastGroup(GetIndex(Constants.UnixLoopbackInterfaceName), IPAddress.Parse(Constants.MulticastGroupIpV6Loopback));
+                                                Logger?.LogDebug($"Responder.InitIPv6 -   Successfully joined multicast group for HOST LOCAL multicast IPv6 discovery responder");
 
-                                            // Join the multicast group on the loopback interface (lo) to receive its messages after the bind has succeeded.
-                                            var multicastOption = new IPv6MulticastOption(multicastAddress, interfaceIndex);
-                                            udpClientV6.Client.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.AddMembership, multicastOption);
-                                            Logger?.LogDebug($"Responder.InitIPv6 -   Successfully joined multicast group for HOST LOCAL multicast IPv6 discovery responder");
+                                                udpClientV6.BeginReceive(ReceiveCallback, udpClientV6);
+                                                Clients.Add(udpClientV6);
 
-                                            // Create a new IPEndPoint to hold the remote endpoint information. This will be filled in by the ReceiveFrom method.
-                                            EndPoint remoteEndPoint = new IPEndPoint(IPAddress.IPv6Any, 0);
-
-                                            udpClientV6.BeginReceive(ReceiveCallback, udpClientV6);
-                                            Clients.Add(udpClientV6);
-
-                                            Logger?.LogInformation($"Responder.InitIPv6 -   Added HOST LOCAL multicast IPv6 discovery responder for loopback address: {IPAddress.IPv6Loopback} on port {DiscoveryPort}");
+                                                Logger?.LogInformation($"Responder.InitIPv6 - Added HOST LOCAL multicast IPv6 discovery responder for loopback address: {IPAddress.IPv6Loopback} on port {DiscoveryPort}");
+                                            }
+                                            catch (Exception ex)
+                                            {
+                                                Logger?.LogDebug($"Responder.InitIPv6 -   Error adding HOST LOCAL multicast IPv6 discovery responder for loopback address: {IPAddress.IPv6Loopback} on port {DiscoveryPort}: {ex.Message}\r\n{ex}");
+                                                throw;
+                                            }
                                         }
-                                        catch (Exception ex)
+                                        else
                                         {
-                                            Logger?.LogDebug($"Responder.InitIPv6 -   Error adding HOST LOCAL multicast IPv6 discovery responder for loopback address: {IPAddress.IPv6Loopback} on port {DiscoveryPort}: {ex.Message}\r\n{ex}");
-                                            throw;
+                                            Logger?.LogDebug($"Responder.InitIPv6 -   Loopback interface {networkInterface.Name} does not support multicast, cannot add multicast {Constants.MulticastGroupIpV6Loopback} support");
                                         }
 
                                         // Add a unicast fallback option for non-Windows OS because multicast on the loopback interface is often not configured on out-of the box Linux installs.
                                         Clients.Add(NewClient(IPAddress.IPv6Loopback, 0)); // An index of 0 to suppress the multicast address assignment
-                                        Logger?.LogInformation($"Responder.InitIPv6 -   Added fallback unicast IPv6 discovery responder for loopback address: {IPAddress.IPv6Loopback} on port {DiscoveryPort}");
+                                        Logger?.LogInformation($"Responder.InitIPv6 - Added fallback unicast IPv6 discovery responder for loopback address: {IPAddress.IPv6Loopback} on port {DiscoveryPort}");
                                     }
                                     else
                                     {
@@ -319,22 +323,38 @@ namespace ASCOM.Alpaca.Discovery
                                     Logger?.LogDebug($"Responder.InitIPv6 - Found non-loopback interface: {networkInterface.Name}, Type: {networkInterface.NetworkInterfaceType}, Status: {networkInterface.OperationalStatus}, Supports IPv6: {networkInterface.Supports(NetworkInterfaceComponent.IPv6)}, Supports Multicast: {networkInterface.SupportsMulticast}");
                                     IPInterfaceProperties networkInterfaceProperties = networkInterface.GetIPProperties();
                                     if (networkInterfaceProperties is null) // The networkInterface does not have IP properties so move to next interface
+                                    {
+                                        Logger?.LogDebug($"Responder.InitIPv6 -   Non-loopback interface {networkInterface.Name} has no IP properties");
                                         continue;
+                                    }
 
                                     IPv6InterfaceProperties ipv6Properties = networkInterfaceProperties.GetIPv6Properties();
                                     if (ipv6Properties is null) // The networkInterface does not have IPv6 properties so move to next interface
+                                    {
+                                        Logger?.LogDebug($"Responder.InitIPv6 -   Non-loopback interface {networkInterface.Name} has no IPv6 properties");
                                         continue;
+                                    }
 
                                     // Iterate over the addresses
                                     foreach (UnicastIPAddressInformation uni in networkInterfaceProperties.UnicastAddresses)
                                     {
+                                        Logger?.LogDebug($"Responder.InitIPv6 -   Found non-loopback interface {networkInterface.Name} with unicast address: {uni.Address}. Address family: {uni.Address.AddressFamily}, Is IPv6 Link Local: {uni.Address.IsIPv6LinkLocal}, Supports Multicast: {networkInterface.SupportsMulticast}.");
                                         if (uni.Address.AddressFamily == AddressFamily.InterNetworkV6 && uni.Address.IsIPv6LinkLocal && networkInterface.SupportsMulticast)
                                         {
+                                            Logger?.LogDebug($"Responder.InitIPv6 -   Including non-loopback interface {networkInterface.Name} with unicast address: {uni.Address} and address family: {uni.Address.AddressFamily}.");
                                             // A hash-set is used to ensure that we only add each interface index once, even if it has multiple link-local addresses.
                                             clientInterfaceIndexes.Add(ipv6Properties.Index);
                                         }
                                     }
                                 }
+                                else
+                                {
+                                    Logger?.LogDebug($"Responder.InitIPv6 -   Non-loopback interface {networkInterface.Name} does not support IPv6");
+                                }
+                            }
+                            else
+                            {
+                                Logger?.LogDebug($"Responder.InitIPv6 -   Non-loopback interface {networkInterface.Name} is not up");
                             }
                         }
                     }
