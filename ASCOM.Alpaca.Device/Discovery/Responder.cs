@@ -251,7 +251,7 @@ namespace ASCOM.Alpaca.Discovery
                                 // Iterate over the unicast addresses of the networkInterface and check if any of them are the IPv6 loopback address.
                                 foreach (UnicastIPAddressInformation uni in networkInterfaceProperties.UnicastAddresses)
                                 {
-                                    Logger.LogDebug($"Responder.InitIPv6 -   Loopback interface {networkInterface.Name} has unicast address: {uni.Address} with address family: {uni.Address.AddressFamily}.");
+                                    Logger?.LogDebug($"Responder.InitIPv6 -   Loopback interface {networkInterface.Name} has unicast address: {uni.Address} with address family: {uni.Address.AddressFamily}.");
 
                                     // Check for the IPv6 loopback address
                                     if (IPAddress.IsLoopback(uni.Address)) // Found the IPv6 loopback address
