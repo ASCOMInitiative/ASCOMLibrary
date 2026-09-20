@@ -167,7 +167,7 @@ namespace ASCOM.Alpaca.Discovery
                                 // Get the IP properties of the interface and ignore the interface if it does not have any descriptive properties
                                 IPInterfaceProperties networkInterfaceProperties = networkInterface.GetIPProperties();
                                 if (networkInterfaceProperties is null) // The interface has no IP properties so move to the next interface
-                                { 
+                                {
                                     Logger?.LogDebug($"Responder.InitIPv6 -   Ignoring interface: {networkInterface.Name} because it has no IP properties.");
                                     continue;
                                 }
@@ -198,12 +198,12 @@ namespace ASCOM.Alpaca.Discovery
                                             if (IPAddress.IsLoopback(unicastAddress.Address) || unicastAddress.Address.IsIPv6LinkLocal)
                                             {
                                                 // Add a new UDP client for this IPv6 address and interface index
-                                                Clients.Add(NewIpV6Client(unicastAddress.Address, networkInterfaceProperties.GetIPv6Properties().Index));
+                                                Clients.Add(NewIpV6Client(unicastAddress.Address, networkInterfaceProperties.GetIPv6Properties().Index, Constants.LinkLocalMulticastGroup));
                                                 Logger?.LogInformation($"Added IPv6 discovery responder for address: {unicastAddress.Address}, on interface index: {networkInterfaceProperties.GetIPv6Properties().Index} and port {DiscoveryPort}");
                                             }
                                             else
                                             {
-                                                Logger?.LogDebug($"Responder.InitIPv6 -   Ignoring address: {unicastAddress.Address} because it is not a link-local or loopback address.");
+                                                Logger?.LogDebug($"Responder.InitIPv6 -   Ignoring address: {unicastAddress.Address} because it is not a loopback or link-local address.");
                                             }
                                         }
                                         else
@@ -287,29 +287,8 @@ namespace ASCOM.Alpaca.Discovery
 
                                             try
                                             {
-                                                // Add a host-local multicast option for the loopback interface because link-local multicast is not available on the loopback interface.
-                                                Logger?.LogDebug($"Responder.InitIPv6 -   Address is loopback - Adding HOST LOCAL (not link local) multicast IPv6 discovery responder for loopback address: {IPAddress.IPv6Loopback} on port {DiscoveryPort}");
-
-                                                // Create a UDP client for IPv6 multicast on the loopback interface. 
-                                                UdpClient udpClientV6 = new UdpClient(AddressFamily.InterNetworkV6);
-
-                                                // Set the socket option to allow multiple sockets to bind to the same address and port
-                                                udpClientV6.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
-                                                udpClientV6.ExclusiveAddressUse = false;
-
-                                                Logger?.LogDebug($"Responder.InitIPv6 -   Set socket option ReuseAddress for HOST LOCAL multicast IPv6 discovery responder");
-
-                                                // Create a wildcard bind to ensure that all addresses, including multicast, are received. If we use ::1 it only matches unicast sent to ::1.
-                                                udpClientV6.Client.Bind(new IPEndPoint(IPAddress.IPv6Any, Constants.DiscoveryPort));
-                                                Logger?.LogDebug($"Responder.InitIPv6 -   Successfully bound socket for HOST LOCAL multicast IPv6 discovery responder");
-
-                                                // Join the multicast group on the loopback interface (lo) to receive its messages after the bind has succeeded.
-                                                udpClientV6.JoinMulticastGroup(GetIndex(Constants.UnixLoopbackInterfaceName), IPAddress.Parse(Constants.MulticastGroupIpV6Loopback));
-                                                Logger?.LogDebug($"Responder.InitIPv6 -   Successfully joined multicast group for HOST LOCAL multicast IPv6 discovery responder");
-
-                                                udpClientV6.BeginReceive(ReceiveCallback, udpClientV6);
-                                                Clients.Add(udpClientV6);
-
+                                                // Add a HOST LOCAL multicast client for the loopback interface because link-local multicast is not available on the loopback interface.
+                                                Clients.Add(NewIpV6Client(IPAddress.IPv6Any, GetIndex(Constants.UnixLoopbackInterfaceName), Constants.HostLocalMulticastGroup));
                                                 Logger?.LogInformation($"Responder.InitIPv6 - Added HOST LOCAL multicast IPv6 discovery responder for loopback address: {IPAddress.IPv6Loopback} on port {DiscoveryPort}");
                                             }
                                             catch (Exception ex)
@@ -324,7 +303,7 @@ namespace ASCOM.Alpaca.Discovery
                                         }
 
                                         // Add a unicast fallback option for non-Windows OS because multicast on the loopback interface is often not configured on out-of the box Linux installs.
-                                        Clients.Add(NewIpV6Client(IPAddress.IPv6Loopback, 0)); // An index of 0 to suppress the multicast address assignment
+                                        Clients.Add(NewIpV6Client(IPAddress.IPv6Loopback, 0, null)); // An index of 0 to suppress the multicast address assignment
                                         Logger?.LogInformation($"Responder.InitIPv6 - Added fallback unicast IPv6 discovery responder for loopback address: {IPAddress.IPv6Loopback} on port {DiscoveryPort}");
                                     }
                                     else
@@ -393,14 +372,14 @@ namespace ASCOM.Alpaca.Discovery
                 foreach (int interfaceIndex in clientInterfaceIndexes)
                 {
                     // IPv6Any is used to ensure all linklocal addresses on the interface are included. The interface index is what actually limits the scope of the multicast group membership to addresses on the specific interface.
-                    Clients.Add(NewIpV6Client(IPAddress.IPv6Any, interfaceIndex));
+                    Clients.Add(NewIpV6Client(IPAddress.IPv6Any, interfaceIndex, Constants.LinkLocalMulticastGroup));
                     Logger?.LogInformation($"Added multicast IPv6 discovery responder for address: {IPAddress.IPv6Any} on interface index : {interfaceIndex} and port {DiscoveryPort}");
                 }
             }
             Logger?.LogDebug($"Responder.InitIPv6 - Completed binding to IPv6 Discovery Port: {DiscoveryPort}");
         }
 
-        private UdpClient NewIpV6Client(IPAddress host, int index)
+        private UdpClient NewIpV6Client(IPAddress host, int index, string multicastGroup)
         {
             UdpClient udpClientV6 = new UdpClient(AddressFamily.InterNetworkV6);
 
@@ -409,8 +388,8 @@ namespace ASCOM.Alpaca.Discovery
             udpClientV6.Client.Bind(new IPEndPoint(host, DiscoveryPort));
 
             // Join the multicast group for the specified interface index if it is greater than 0. An index of 0 indicates that multicast is not being used, such as for the IPv6 loopback address.
-            if (index > 0)
-                udpClientV6.JoinMulticastGroup(index, IPAddress.Parse(Constants.MulticastGroup));
+            if (index > 0 && !string.IsNullOrEmpty(multicastGroup)) // Index is greater than 0 and a multicast group is specified, so join the multicast group for the specified interface index
+                udpClientV6.JoinMulticastGroup(index, IPAddress.Parse(multicastGroup));
 
             // Start listening for discovery messages. This uses begin receive rather than async so it works on net 3.5
             udpClientV6.BeginReceive(ReceiveCallback, udpClientV6);

@@ -526,7 +526,7 @@ namespace ASCOM.Alpaca.Discovery
                                                             int interfaceIndex = NetworkInterfaceIndexFinder.GetIndex(Constants.UnixLoopbackInterfaceName);
 
                                                             // Create a scoped multicast address for the loopback interface using the HOST LOCAL multicast address and the interface index.
-                                                            IPAddress multicastAddress = CreateScopedMulticastAddress(Constants.MulticastGroupIpV6Loopback, interfaceIndex);
+                                                            IPAddress multicastAddress = CreateScopedMulticastAddress(Constants.HostLocalMulticastGroup, interfaceIndex);
                                                             IPEndPoint targetEndPoint = new IPEndPoint(multicastAddress, discoveryPort);
 
                                                             // Create a new UdpClient for the loopback interface and set the necessary socket options for multicast.
@@ -720,7 +720,7 @@ namespace ASCOM.Alpaca.Discovery
 
         private static IPEndPoint GetMulticastEndPoint(int port, int interfaceIndex)
         {
-            IPAddress multicastAddress = IPAddress.Parse(Constants.MulticastGroup);
+            IPAddress multicastAddress = IPAddress.Parse(Constants.LinkLocalMulticastGroup);
             multicastAddress.ScopeId = interfaceIndex;
 
             return new IPEndPoint(multicastAddress, port);
