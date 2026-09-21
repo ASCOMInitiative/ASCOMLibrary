@@ -1,4 +1,6 @@
 using ASCOM.Alpaca.Discovery;
+using ASCOM.Common.Interfaces;
+using ASCOM.Tools;
 using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
@@ -48,12 +50,12 @@ namespace ReliabilityTests
             string linuxTestName = $"ReliabilityTests.FinderResponderReliabilityTests.{nameof(FinderIPv6LoopbackTestLinuxChild)}";
             string wslBuildRoot = $"/tmp/ascomlibrary-wsl-{Guid.NewGuid():N}";
             string command =
-                $"set +e; " +
-                $"cd {QuoteBashArgument(wslRepositoryRoot)}; " +
-                $"dotnet test {QuoteBashArgument(wslProjectPath)} -c Debug -f net10.0 " +
+                $"cd {QuoteBashArgument(wslRepositoryRoot)} && " +
+                $"if dotnet test {QuoteBashArgument(wslProjectPath)} -c Debug -f net10.0 " +
                 $"--filter {QuoteBashArgument($"FullyQualifiedName~{linuxTestName}")} " +
                 $"--artifacts-path {QuoteBashArgument(wslBuildRoot)} -v minimal; " +
-                $"exitCode=$?; rm -rf {QuoteBashArgument(wslBuildRoot)}; exit $exitCode";
+                $"then rm -rf {QuoteBashArgument(wslBuildRoot)}; exit 0; " +
+                $"else rm -rf {QuoteBashArgument(wslBuildRoot)}; exit 1; fi";
 
             ProcessResult linuxResult = RunProcess(
                 "wsl.exe",
@@ -80,30 +82,41 @@ namespace ReliabilityTests
 
         private static void RunLoopbackDiscoveryTest()
         {
+            TraceLogger loggerResponder1 = new TraceLogger("LoopbackResponder1", true);
+            loggerResponder1.SetMinimumLoggingLevel(LogLevel.Debug);
+            TraceLogger loggerResponder2 = new TraceLogger("LoopbackResponder2", true);
+            loggerResponder2.SetMinimumLoggingLevel(LogLevel.Debug);
+            TraceLogger loggerFinder = new TraceLogger("LoopbackFinder", true);
+            loggerFinder.SetMinimumLoggingLevel(LogLevel.Debug);
+
             int discoveryPort = GetAvailableIPv6LoopbackPort();
             var discoveredEndpoints = new ConcurrentBag<IPEndPoint>();
-            bool useMulticastLoopbackDiscovery = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-            int expectedResponderCount = useMulticastLoopbackDiscovery ? 2 : 1;
+            int expectedResponderCount = 2;
 
-            using (var firstResponder = new Responder(FirstAlpacaPort, discoveryPort, false, true))
-            using (var secondResponder = useMulticastLoopbackDiscovery ? new Responder(SecondAlpacaPort, discoveryPort, false, true) : null)
-            using (var finder = new Finder())
+            loggerFinder?.LogMessage("RunLoopbackDiscoveryTest", $"Using discovery port {discoveryPort} for IPv6 loopback test. Expecting {expectedResponderCount} responder(s).");
+
+            using (var firstResponder = new Responder(FirstAlpacaPort, discoveryPort, false, true, loggerResponder1))
+            using (var secondResponder = new Responder(SecondAlpacaPort, discoveryPort, false, true, loggerResponder2))
+            using (var finder = new Finder(loggerFinder))
             using (var responsesReceived = new ManualResetEventSlim())
             {
                 finder.ResponseReceivedEvent += (_, endpoint) =>
                 {
                     discoveredEndpoints.Add(endpoint);
-                    if (discoveredEndpoints.Count >= expectedResponderCount)
-                    {
-                        responsesReceived.Set();
-                    }
                 };
 
                 finder.Search(discoveryPort, IPv4: false, IPv6: true);
 
-                Assert.True(
-                    responsesReceived.Wait(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken),
-                    $"Expected {expectedResponderCount} response(s), but received {discoveredEndpoints.Count}.");
+                responsesReceived.Wait(TimeSpan.FromSeconds(2));
+
+                loggerFinder?.LogMessage("RunLoopbackDiscoveryTest", $"Discovered {discoveredEndpoints.Count} endpoint(s), expected {expectedResponderCount}.");
+
+                foreach (IPEndPoint endpoint in finder.CachedEndpoints)
+                {
+                    loggerFinder?.LogMessage("RunLoopbackDiscoveryTest", $"Discovered endpoint: {endpoint.Address}:{endpoint.Port}");
+                }
+
+                Assert.Equal(expectedResponderCount, discoveredEndpoints.Count);
             }
 
             int[] discoveredPorts = discoveredEndpoints
@@ -111,9 +124,7 @@ namespace ReliabilityTests
                 .OrderBy(port => port)
                 .ToArray();
 
-            int[] expectedPorts = useMulticastLoopbackDiscovery
-                ? new[] { FirstAlpacaPort, SecondAlpacaPort }
-                : new[] { FirstAlpacaPort };
+            int[] expectedPorts = new[] { FirstAlpacaPort, SecondAlpacaPort };
 
             Assert.Equal(expectedPorts, discoveredPorts);
             Assert.All(discoveredEndpoints, endpoint => Assert.True(IPAddress.IsLoopback(endpoint.Address), $"Expected a loopback response address, received {endpoint.Address}."));

@@ -298,7 +298,7 @@ namespace ASCOM.Alpaca.Discovery
                     {
                         if (!CachedEndpoints.Contains(alpacaEndpoint))
                         {
-                            LogMessage("ReceiveCallback", $"Received new Alpaca API endpoint: {alpacaEndpoint} from broadcast endpoint: {endpoint}");
+                            LogMessage("ReceiveCallback", $"Added new Alpaca API endpoint: {alpacaEndpoint} from broadcast endpoint: {endpoint.Address}:{endpoint.Port}");
 
                             CachedEndpoints.Add(alpacaEndpoint);
 
@@ -310,7 +310,6 @@ namespace ASCOM.Alpaca.Discovery
             catch (ObjectDisposedException)
             {
                 // The UdpClient/Socket was disposed while a receive was pending. This is expected during normal shutdown (e.g. when the discovery timer closes clients) and is not an error.
-                // LogMessage("ReceiveCallback", "Ignored ObjectDisposedException: the socket was closed while a receive was pending (expected during shutdown).");
                 return;
             }
             catch (SocketException ex) when (ex.SocketErrorCode == SocketError.OperationAborted
