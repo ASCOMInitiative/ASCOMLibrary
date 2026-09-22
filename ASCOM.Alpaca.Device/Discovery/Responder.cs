@@ -9,6 +9,7 @@ using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -271,7 +272,7 @@ namespace ASCOM.Alpaca.Discovery
                                 if (networkInterface.SupportsMulticast) // Interface supports multicast
                                 {
                                     // Add a host local multicast client using the loopback interface's index rather than its platform-specific name.
-                                    Clients.Add(NewIpV6Client(IPAddress.IPv6Loopback, ipv6Properties.Index, Constants.HostLocalMulticastGroup));
+                                    Clients.Add(NewIpV6Client(IPAddress.IPv6Any, ipv6Properties.Index, Constants.HostLocalMulticastGroup));
                                     LogInformation($"Responder.InitIPv6 - Added HOST LOCAL multicast IPv6 discovery responder for loopback interface {networkInterface.Name} on port {DiscoveryPort}");
                                 }
                                 else // Interface does not support multicast
@@ -395,6 +396,8 @@ namespace ASCOM.Alpaca.Discovery
         /// <param name="asyncResult">The result of the asynchronous operation.</param>
         private void ReceiveCallback(IAsyncResult asyncResult)
         {
+                const int MaximumDiscoveryDatagramLength = 256;
+
             UdpClient udpClient = null;
             IPEndPoint endpoint = null;
             bool callbackReenabled = false;
@@ -408,14 +411,28 @@ namespace ASCOM.Alpaca.Discovery
                 endpoint = new IPEndPoint(IPAddress.Any, DiscoveryPort);
 
                 // Consume the completed receive before starting another one because UdpClient reuses its receive buffer.
-                byte[] receivedBytes = udpClient.EndReceive(asyncResult, ref endpoint);
+                //byte[] receivedBytes = udpClient.EndReceive(asyncResult, ref endpoint);
 
+
+                byte[] receiveBuffer = new byte[MaximumDiscoveryDatagramLength];
+                EndPoint senderEndPoint = new IPEndPoint(IPAddress.IPv6Any, 0);
+                SocketFlags socketFlags = SocketFlags.None;
+
+                int receivedLength = udpClient.Client.ReceiveMessageFrom(receiveBuffer, 0, receiveBuffer.Length, ref socketFlags, ref senderEndPoint, out IPPacketInformation packetInformation);
+
+                IPEndPoint sender = (IPEndPoint)senderEndPoint;
+
+                IPAddress senderAddress = sender.Address;
+                int senderPort = sender.Port;
+
+                IPAddress destinationAddress = packetInformation.Address;
+                int receivingInterfaceIndex = packetInformation.Interface;
                 // Configure the UdpClient class to accept more messages while this message is being processed.
                 udpClient.BeginReceive(ReceiveCallback, udpClient);
                 callbackReenabled = true;
 
                 // Convert the UDP message body to a string
-                string receivedDiscoveryMessage = Encoding.ASCII.GetString(receivedBytes);
+                string receivedDiscoveryMessage = Encoding.ASCII.GetString(receiveBuffer, 0, receivedLength);
 
                 // Default discovery to disallowed, then check the address and configuration to see if it is allowed
                 bool discoveryAllowed = false;
@@ -449,7 +466,8 @@ namespace ASCOM.Alpaca.Discovery
                     {
                         IPEndPoint localEndPoint = udpClient.Client.LocalEndPoint as IPEndPoint;
                         bool isMulticast = MulticastGroups.TryGetValue(udpClient, out IPAddress multicastAddress);
-                        LogInformation($"Responding to a discovery packet from {endpoint.Address} {endpoint.Port} to Ip address: {localEndPoint?.Address.ToString() ?? "none"}, port: {localEndPoint?.Port.ToString() ?? "none"}, multicast address: {multicastAddress?.ToString() ?? "none - unicast only"}.  at {DateTime.Now}");
+                        LogInformation($"Responding to a discovery packet from {endpoint.Address} {endpoint.Port} to IP address: {localEndPoint?.Address.ToString() ?? "none"}, port: {localEndPoint?.Port.ToString() ?? "none"}, multicast address: {multicastAddress?.ToString() ?? "none - unicast only"}.  at {DateTime.Now}");
+                        LogInformation($"Received discovery message: '{receivedDiscoveryMessage}' (length: {receivedDiscoveryMessage.Length}) from {endpoint.Address}:{endpoint.Port} at {DateTime.Now}");
 
                         // Validate that the received message matches the discovery message exactly and report if it does not.
                         if (receivedDiscoveryMessage != Constants.DiscoveryMessage)
