@@ -281,7 +281,7 @@ namespace ASCOM.Alpaca.Discovery
 
                 // Convert the message bytes to a string, with remote IP address attached as well
                 string ReceiveString = Encoding.ASCII.GetString(returnedBytes);
-                LogMessage($"ReceiveCallback", $"Received {ReceiveString} from Alpaca device at {endpoint.Address}");
+                LogMessage($"ReceiveCallback", $"Received {ReceiveString} from Alpaca device at {endpoint.Address}:{endpoint.Port}");
 
                 // Accept responses containing the discovery response string and don't respond to your own transmissions
                 if (ReceiveString.ToLowerInvariant().Contains(Constants.ResponseString.ToLowerInvariant())) // Accept responses in any casing so that bad casing can be reported
@@ -298,7 +298,7 @@ namespace ASCOM.Alpaca.Discovery
                     {
                         if (!CachedEndpoints.Contains(alpacaEndpoint))
                         {
-                            LogMessage("ReceiveCallback", $"Added new Alpaca API endpoint: {alpacaEndpoint} from broadcast endpoint: {endpoint.Address}:{endpoint.Port}");
+                            LogMessage("ReceiveCallback", $"Added new Alpaca API endpoint: {alpacaEndpoint.Address}:{alpacaEndpoint.Port} from endpoint: {endpoint.Address}:{endpoint.Port}");
 
                             CachedEndpoints.Add(alpacaEndpoint);
 
