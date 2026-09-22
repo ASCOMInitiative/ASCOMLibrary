@@ -1,5 +1,8 @@
 # ASCOMLibrary Copilot Instructions
 
+## General Guidelines
+- When addressing multiple requested issues, fix them sequentially and create a separate commit after each issue before beginning the next.
+
 ## Build and test commands
 
 ```powershell
