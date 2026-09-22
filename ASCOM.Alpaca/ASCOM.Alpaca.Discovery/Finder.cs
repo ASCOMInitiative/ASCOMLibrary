@@ -33,8 +33,11 @@ namespace ASCOM.Alpaca.Discovery
         private readonly Dictionary<IPAddress, UdpClient> IPv4Clients = new Dictionary<IPAddress, UdpClient>(); // Collection of IP v4 clients for the various link local and localhost networks
         private readonly Dictionary<IPAddress, UdpClient> IPv6Clients = new Dictionary<IPAddress, UdpClient>(); // Collection of IP v6 clients for the various link local and localhost networks
         private bool disposedValue; // Disposed variable
+        private readonly object lifecycleLockObject = new object();
         private readonly object broadcastResponsesLockObject = new object();
         private readonly object cachedEndpointsLockObject = new object();
+        private readonly List<IPEndPoint> cachedEndpoints = new List<IPEndPoint>();
+        private readonly List<BroadcastResponse> broadcastResponses = new List<BroadcastResponse>();
         private JsonSerializerOptions jsonSerializerOptions = new JsonSerializerOptions();
 
         private const int SIO_UDP_CONNRESET = -1744830452; //Control code to turn off UDP ICMP Connection Reset
@@ -113,40 +116,22 @@ namespace ASCOM.Alpaca.Discovery
         /// <param name="disposing"></param>
         protected virtual void Dispose(bool disposing)
         {
-            if (!disposedValue)
+            lock (lifecycleLockObject)
             {
-                if (disposing)
+                if (disposedValue)
                 {
-                    //Dispose IPv4
-                    foreach (var dev in IPv4Clients)
-                    {
-                        try
-                        {
-                            dev.Value.Dispose();
-                        }
-                        catch
-                        {
-                        }
-                    }
-
-                    IPv4Clients.Clear();
-
-                    //Dispose IPv6 clients
-                    foreach (var dev in IPv6Clients)
-                    {
-                        try
-                        {
-                            dev.Value.Dispose();
-                        }
-                        catch
-                        {
-                        }
-                    }
-
-                    IPv6Clients.Clear();
+                    return;
                 }
 
                 disposedValue = true;
+
+                if (!disposing)
+                {
+                    return;
+                }
+
+                DisposeClients(IPv4Clients);
+                DisposeClients(IPv6Clients);
             }
         }
 
@@ -197,7 +182,16 @@ namespace ASCOM.Alpaca.Discovery
             {
                 throw new ArgumentException("You must search on one or more protocol types.");
             }
-            SendDiscoveryMessage(discoveryPort, IPv4, IPv6);
+
+            lock (lifecycleLockObject)
+            {
+                if (disposedValue)
+                {
+                    throw new ObjectDisposedException(nameof(Finder));
+                }
+
+                SendDiscoveryMessage(discoveryPort, IPv4, IPv6);
+            }
         }
 
         /// <summary>
@@ -205,16 +199,28 @@ namespace ASCOM.Alpaca.Discovery
         /// </summary>
         public List<IPEndPoint> CachedEndpoints
         {
-            get;
-        } = new List<IPEndPoint>();
+            get
+            {
+                lock (cachedEndpointsLockObject)
+                {
+                    return new List<IPEndPoint>(cachedEndpoints);
+                }
+            }
+        }
 
         /// <summary>
         /// List of all responses to the broadcasts
         /// </summary>
         public List<BroadcastResponse> BroadcastResponses
         {
-            get;
-        } = new List<BroadcastResponse>();
+            get
+            {
+                lock (broadcastResponsesLockObject)
+                {
+                    return new List<BroadcastResponse>(broadcastResponses);
+                }
+            }
+        }
 
         /// <summary>
         /// Clears the cached IP Endpoints in CachedEndpoints
@@ -223,7 +229,7 @@ namespace ASCOM.Alpaca.Discovery
         {
             lock (cachedEndpointsLockObject)
             {
-                CachedEndpoints.Clear();
+                cachedEndpoints.Clear();
             }
         }
 
@@ -279,7 +285,7 @@ namespace ASCOM.Alpaca.Discovery
                 // Save the broadcast response in a thread safe manner
                 lock (broadcastResponsesLockObject)
                 {
-                    BroadcastResponses.Add(new BroadcastResponse(endpoint, returnedBytes));
+                    broadcastResponses.Add(new BroadcastResponse(endpoint, returnedBytes));
                 }
 
                 // Convert the message bytes to a string, with remote IP address attached as well
@@ -300,11 +306,11 @@ namespace ASCOM.Alpaca.Discovery
                     bool endpointAdded = false;
                     lock (cachedEndpointsLockObject)
                     {
-                        if (!CachedEndpoints.Contains(alpacaEndpoint))
+                        if (!cachedEndpoints.Contains(alpacaEndpoint))
                         {
                             LogInformation("ReceiveCallback", $"Added new Alpaca API endpoint: {alpacaEndpoint.Address}:{alpacaEndpoint.Port} from endpoint: {endpoint.Address}:{endpoint.Port}");
 
-                            CachedEndpoints.Add(alpacaEndpoint);
+                            cachedEndpoints.Add(alpacaEndpoint);
                             endpointAdded = true;
                         }
                     }
@@ -334,7 +340,7 @@ namespace ASCOM.Alpaca.Discovery
             }
             finally
             {
-                if (!receiveRearmed && udpClient != null && !disposedValue)
+                if (!receiveRearmed && udpClient != null)
                 {
                     RestartReceive(udpClient, endpoint);
                 }
@@ -343,24 +349,48 @@ namespace ASCOM.Alpaca.Discovery
 
         private void RestartReceive(UdpClient udpClient, IPEndPoint endpoint)
         {
-            try
+            lock (lifecycleLockObject)
             {
-                // Keep the cached client ready to receive responses to subsequent searches.
-                udpClient.BeginReceive(new AsyncCallback(ReceiveCallback), udpClient);
+                if (disposedValue)
+                {
+                    return;
+                }
+
+                try
+                {
+                    // Keep the cached client ready to receive responses to subsequent searches.
+                    udpClient.BeginReceive(new AsyncCallback(ReceiveCallback), udpClient);
+                }
+                catch (ObjectDisposedException)
+                {
+                    // The client was disposed while the receive was being restarted.
+                }
+                catch (SocketException ex) when (ex.SocketErrorCode == SocketError.OperationAborted
+                                               || ex.SocketErrorCode == SocketError.Interrupted)
+                {
+                    // The pending receive was cancelled during shutdown.
+                }
+                catch (Exception ex)
+                {
+                    LogError("ReceiveCallback", $"Failed to restart receive from {endpoint}: {ex.Message}\r\n{ex}");
+                }
             }
-            catch (ObjectDisposedException)
+        }
+
+        private static void DisposeClients(Dictionary<IPAddress, UdpClient> clients)
+        {
+            foreach (UdpClient client in clients.Values)
             {
-                // The client was disposed while the receive was being restarted.
+                try
+                {
+                    client.Dispose();
+                }
+                catch
+                {
+                }
             }
-            catch (SocketException ex) when (ex.SocketErrorCode == SocketError.OperationAborted
-                                           || ex.SocketErrorCode == SocketError.Interrupted)
-            {
-                // The pending receive was cancelled during shutdown.
-            }
-            catch (Exception ex)
-            {
-                LogError("ReceiveCallback", $"Failed to restart receive from {endpoint}: {ex.Message}\r\n{ex}");
-            }
+
+            clients.Clear();
         }
 
         /// <summary>

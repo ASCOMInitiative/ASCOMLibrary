@@ -1,4 +1,6 @@
 using ASCOM.Alpaca.Discovery;
+using System;
+using System.Net;
 using Xunit;
 
 // Corrected analysis: the Finder null-logger NRE was a false positive.
@@ -38,6 +40,26 @@ namespace ReliabilityTests
             {
                 var ex = Record.Exception(() => finder.Search(IPv4: false, IPv6: true));
                 Assert.Null(ex);
+            }
+        }
+
+        [Fact]
+        public void Finder_SearchAfterDispose_ThrowsObjectDisposedException()
+        {
+            var finder = new Finder();
+            finder.Dispose();
+
+            Assert.Throws<ObjectDisposedException>(() => finder.Search(IPv4: true, IPv6: false));
+        }
+
+        [Fact]
+        public void Finder_CachedEndpoints_ReturnsSnapshot()
+        {
+            using (var finder = new Finder())
+            {
+                finder.CachedEndpoints.Add(new IPEndPoint(IPAddress.Loopback, 12345));
+
+                Assert.Empty(finder.CachedEndpoints);
             }
         }
     }
