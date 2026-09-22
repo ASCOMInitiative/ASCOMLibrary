@@ -230,9 +230,6 @@ namespace ASCOM.Alpaca.Discovery
             } // Running on Windows
             else // Not running on Windows, so assume Linux or MacOS and use unicast for loopback and multicast for link-local addresses
             {
-                // Record interface numbers that need clients. A hash-set is used to ensure that each interface index is added only once, even if it has multiple link-local addresses.
-                HashSet<int> clientInterfaceIndexes = new HashSet<int>();
-
                 NetworkInterface[] networkInterfaces = NetworkInterface.GetAllNetworkInterfaces();
                 LogDebug($"Responder.InitIPv6 - Running on Linux or MacOS, found {networkInterfaces.Length} network interfaces");
 
@@ -268,17 +265,20 @@ namespace ASCOM.Alpaca.Discovery
 
                             LogDebug($"Responder.InitIPv6 - Found loopback interface: {networkInterface.Name}, Type: {networkInterface.NetworkInterfaceType}, Status: {networkInterface.OperationalStatus}, Supports IPv6: {networkInterface.Supports(NetworkInterfaceComponent.IPv6)}, Supports Multicast: {networkInterface.SupportsMulticast}");
 
-                            if (!networkInterface.SupportsMulticast)
-                            {
-                                LogDebug($"Responder.InitIPv6 - Ignoring loopback interface {networkInterface.Name} because it does not support multicast.");
-                                continue;
-                            }
-
                             try
                             {
-                                // Use the loopback interface's index rather than its platform-specific name.
-                                Clients.Add(NewIpV6Client(IPAddress.IPv6Any, ipv6Properties.Index, Constants.HostLocalMulticastGroup));
-                                LogInformation($"Responder.InitIPv6 - Added HOST LOCAL multicast IPv6 discovery responder for loopback interface {networkInterface.Name} on port {DiscoveryPort}");
+                                // Check whether this loopback interface supports multicast.
+                                if (networkInterface.SupportsMulticast) // Interface supports multicast
+                                {
+                                    // Add a host local multicast client using the loopback interface's index rather than its platform-specific name.
+                                    Clients.Add(NewIpV6Client(IPAddress.IPv6Loopback, ipv6Properties.Index, Constants.HostLocalMulticastGroup));
+                                    LogInformation($"Responder.InitIPv6 - Added HOST LOCAL multicast IPv6 discovery responder for loopback interface {networkInterface.Name} on port {DiscoveryPort}");
+                                }
+                                else // Interface does not support multicast
+                                {
+                                    // Interface does not support multicast so add a unicast client using the loopback address and an index of 0 to indicate that multicast is not being used.
+                                    Clients.Add(NewIpV6Client(IPAddress.IPv6Loopback, 0, null));
+                                }
                             }
                             catch (Exception ex)
                             {
@@ -320,42 +320,34 @@ namespace ASCOM.Alpaca.Discovery
                             }
 
                             // Iterate over the addresses
-                            foreach (UnicastIPAddressInformation uni in networkInterfaceProperties.UnicastAddresses)
+                            foreach (UnicastIPAddressInformation unicastAddress in networkInterfaceProperties.UnicastAddresses)
                             {
-                                LogDebug($"Responder.InitIPv6 -  Interface {networkInterface.Name} has unicast address: {uni.Address}. Address family: {uni.Address.AddressFamily}, Is IPv6 Link Local: {uni.Address.IsIPv6LinkLocal}, Supports Multicast: {networkInterface.SupportsMulticast}.");
+                                LogDebug($"Responder.InitIPv6 -  Interface {networkInterface.Name} has unicast address: {unicastAddress.Address}. Address family: {unicastAddress.Address.AddressFamily}, Is IPv6 Link Local: {unicastAddress.Address.IsIPv6LinkLocal}, Supports Multicast: {networkInterface.SupportsMulticast}.");
 
                                 // Check if the address is an IPv6 link-local address and the interface supports multicast and ignore it if it does not. 
-                                if (!(uni.Address.AddressFamily == AddressFamily.InterNetworkV6 && uni.Address.IsIPv6LinkLocal && networkInterface.SupportsMulticast))
+                                if (!(unicastAddress.Address.AddressFamily == AddressFamily.InterNetworkV6 && unicastAddress.Address.IsIPv6LinkLocal && networkInterface.SupportsMulticast))
                                 {
-                                    LogDebug($"Responder.InitIPv6 -   Ignoring non-loopback interface {networkInterface.Name} with unicast address: {uni.Address} because it is not an IPv6 link-local address or the interface does not support multicast.");
+                                    LogDebug($"Responder.InitIPv6 -   Ignoring non-loopback interface {networkInterface.Name} with unicast address: {unicastAddress.Address} because it is not an IPv6 link-local address or the interface does not support multicast.");
                                     continue;
                                 }
 
-                                LogDebug($"Responder.InitIPv6 -   Including non-loopback interface {networkInterface.Name} with unicast address: {uni.Address} and address family: {uni.Address.AddressFamily}.");
-
-                                // Save the interface index so a client can be added later. A hash-set is used to ensure that each interface index is only added once, even if the interface has multiple link-local addresses.
-                                clientInterfaceIndexes.Add(ipv6Properties.Index);
+                                try
+                                {
+                                    // Add a new UDP client for this IPv6 link-local address and interface index
+                                    Clients.Add(NewIpV6Client(unicastAddress.Address, ipv6Properties.Index, Constants.LinkLocalMulticastGroup));
+                                    LogInformation($"Added link local multicast IPv6 discovery responder for address: {unicastAddress.Address}:{DiscoveryPort} on interface {networkInterface.Name} (index: {ipv6Properties.Index}). " +
+                                        $"Is IPv6 Link Local: {unicastAddress.Address.IsIPv6LinkLocal}, Supports Multicast: {networkInterface.SupportsMulticast}.");
+                                }
+                                catch (Exception ex)
+                                {
+                                    LogError($"Responder.InitIPv6 - Error adding link local multicast IPv6 discovery responder on interface {networkInterface.Name} index : {ipv6Properties.Index} and port {DiscoveryPort}: {ex.Message}\r\n{ex}");
+                                }
                             }
                         } // Non-Windows normal interface i.e. a non-loopback interface
                     }
                     catch (Exception ex)
                     {
                         LogDebug($"Responder.InitIPv6 - Exception occurred while enumerating Linux interfaces: {ex.Message}\r\n{ex}");
-                    }
-                }
-
-                // Create a multicast client for each unique interface index that has been collected
-                foreach (int interfaceIndex in clientInterfaceIndexes)
-                {
-                    try
-                    {
-                        // IPv6Any is used to ensure all linklocal addresses on the interface are included. The interface index is what actually limits the scope of the multicast group membership to addresses on the specific interface.
-                        Clients.Add(NewIpV6Client(IPAddress.IPv6Any, interfaceIndex, Constants.LinkLocalMulticastGroup));
-                        LogInformation($"Added link local multicast IPv6 discovery responder for address: {IPAddress.IPv6Any} on interface index : {interfaceIndex} and port {DiscoveryPort}");
-                    }
-                    catch (Exception ex)
-                    {
-                        LogError($"Responder.InitIPv6 - Error adding link local multicast IPv6 discovery responder on interface {interfaceIndex} and port {DiscoveryPort}: {ex.Message}\r\n{ex}");
                     }
                 }
             } // Running on a non-Windows OS
