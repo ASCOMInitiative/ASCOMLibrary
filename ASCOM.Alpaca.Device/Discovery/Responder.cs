@@ -278,11 +278,12 @@ namespace ASCOM.Alpaca.Discovery
                                 {
                                     // Interface does not support multicast so add a unicast client using the loopback address and an index of 0 to indicate that multicast is not being used.
                                     Clients.Add(NewIpV6Client(IPAddress.IPv6Loopback, 0, null));
+                                    LogInformation($"Responder.InitIPv6 - Added unicast IPv6 discovery responder for loopback interface {networkInterface.Name} on port {DiscoveryPort}");
                                 }
                             }
                             catch (Exception ex)
                             {
-                                LogDebug($"Responder.InitIPv6 -   Error adding HOST LOCAL multicast IPv6 discovery responder for loopback interface {networkInterface.Name} on port {DiscoveryPort}: {ex.Message}\r\n{ex}");
+                                LogDebug($"Responder.InitIPv6 -   Error adding IPv6 discovery responder for loopback interface {networkInterface.Name} on port {DiscoveryPort}: {ex.Message}\r\n{ex}");
                             }
                         } // Interface is non-WIndows loopback
                         else // Not a loopback interface
