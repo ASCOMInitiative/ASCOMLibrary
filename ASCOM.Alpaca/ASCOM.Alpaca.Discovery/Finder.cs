@@ -264,6 +264,7 @@ namespace ASCOM.Alpaca.Discovery
         {
             IPEndPoint endpoint = null;
             UdpClient udpClient = null;
+            bool receiveRearmed = false;
             try
             {
                 udpClient = (UdpClient)ar.AsyncState;
@@ -272,6 +273,8 @@ namespace ASCOM.Alpaca.Discovery
 
                 // Obtain the UDP message body as a byte[]
                 byte[] returnedBytes = udpClient.EndReceive(ar, ref endpoint);
+                RestartReceive(udpClient, endpoint);
+                receiveRearmed = true;
 
                 // Save the broadcast response in a thread safe manner
                 lock (broadcastResponsesLockObject)
@@ -294,6 +297,7 @@ namespace ASCOM.Alpaca.Discovery
                     }
 
                     var alpacaEndpoint = new IPEndPoint(endpoint.Address, port);
+                    bool endpointAdded = false;
                     lock (cachedEndpointsLockObject)
                     {
                         if (!CachedEndpoints.Contains(alpacaEndpoint))
@@ -301,9 +305,13 @@ namespace ASCOM.Alpaca.Discovery
                             LogInformation("ReceiveCallback", $"Added new Alpaca API endpoint: {alpacaEndpoint.Address}:{alpacaEndpoint.Port} from endpoint: {endpoint.Address}:{endpoint.Port}");
 
                             CachedEndpoints.Add(alpacaEndpoint);
-
-                            ResponseReceivedEvent?.Invoke(this, alpacaEndpoint);
+                            endpointAdded = true;
                         }
+                    }
+
+                    if (endpointAdded)
+                    {
+                        ResponseReceivedEvent?.Invoke(this, alpacaEndpoint);
                     }
                 }
             }
@@ -326,27 +334,32 @@ namespace ASCOM.Alpaca.Discovery
             }
             finally
             {
-                if (udpClient != null && !disposedValue)
+                if (!receiveRearmed && udpClient != null && !disposedValue)
                 {
-                    try
-                    {
-                        // Keep the cached client ready to receive responses to subsequent searches.
-                        udpClient.BeginReceive(new AsyncCallback(ReceiveCallback), udpClient);
-                    }
-                    catch (ObjectDisposedException)
-                    {
-                        // The client was disposed while the receive was being restarted.
-                    }
-                    catch (SocketException ex) when (ex.SocketErrorCode == SocketError.OperationAborted
-                                                   || ex.SocketErrorCode == SocketError.Interrupted)
-                    {
-                        // The pending receive was cancelled during shutdown.
-                    }
-                    catch (Exception ex)
-                    {
-                        LogError("ReceiveCallback", $"Failed to restart receive from {endpoint}: {ex.Message}\r\n{ex}");
-                    }
+                    RestartReceive(udpClient, endpoint);
                 }
+            }
+        }
+
+        private void RestartReceive(UdpClient udpClient, IPEndPoint endpoint)
+        {
+            try
+            {
+                // Keep the cached client ready to receive responses to subsequent searches.
+                udpClient.BeginReceive(new AsyncCallback(ReceiveCallback), udpClient);
+            }
+            catch (ObjectDisposedException)
+            {
+                // The client was disposed while the receive was being restarted.
+            }
+            catch (SocketException ex) when (ex.SocketErrorCode == SocketError.OperationAborted
+                                           || ex.SocketErrorCode == SocketError.Interrupted)
+            {
+                // The pending receive was cancelled during shutdown.
+            }
+            catch (Exception ex)
+            {
+                LogError("ReceiveCallback", $"Failed to restart receive from {endpoint}: {ex.Message}\r\n{ex}");
             }
         }
 
