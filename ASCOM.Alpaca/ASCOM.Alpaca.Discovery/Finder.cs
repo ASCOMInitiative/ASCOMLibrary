@@ -289,17 +289,17 @@ namespace ASCOM.Alpaca.Discovery
                 }
 
                 // Convert the message bytes to a string, with remote IP address attached as well
-                string ReceiveString = Encoding.ASCII.GetString(returnedBytes);
-                LogInformation($"ReceiveCallback", $"Received {ReceiveString} from Alpaca device at {endpoint.Address}:{endpoint.Port}");
+                string receivedDiscoveryMessage = Encoding.ASCII.GetString(returnedBytes);
+                LogInformation($"ReceiveCallback", $"Received {receivedDiscoveryMessage} from Alpaca device at {endpoint.Address}:{endpoint.Port}");
 
                 // Accept responses containing the discovery response string and don't respond to your own transmissions
-                if (ReceiveString.ToLowerInvariant().Contains(Constants.ResponseString.ToLowerInvariant())) // Accept responses in any casing so that bad casing can be reported
+                if (receivedDiscoveryMessage.ToLowerInvariant().Contains(Constants.ResponseString.ToLowerInvariant())) // Accept responses in any casing so that bad casing can be reported
                 {
-                    int port = JsonSerializer.Deserialize<AlpacaDiscoveryResponse>(ReceiveString, jsonSerializerOptions).AlpacaPort;
+                    int port = JsonSerializer.Deserialize<AlpacaDiscoveryResponse>(receivedDiscoveryMessage, jsonSerializerOptions).AlpacaPort;
 
                     if (port == 0) //Failed to parse
                     {
-                        throw new Exception($"Failed to parse {ReceiveString} into an Alpaca Port");
+                        throw new Exception($"Failed to parse {receivedDiscoveryMessage} into an Alpaca Port");
                     }
 
                     var alpacaEndpoint = new IPEndPoint(endpoint.Address, port);
@@ -326,12 +326,10 @@ namespace ASCOM.Alpaca.Discovery
                 // The UdpClient/Socket was disposed while a receive was pending. This is expected during normal shutdown (e.g. when the discovery timer closes clients) and is not an error.
                 return;
             }
-            catch (SocketException ex) when (ex.SocketErrorCode == SocketError.OperationAborted
-                                           || ex.SocketErrorCode == SocketError.Interrupted)
+            catch (SocketException ex) when (ex.SocketErrorCode == SocketError.OperationAborted || ex.SocketErrorCode == SocketError.Interrupted)
             {
                 // WSA_OPERATION_ABORTED (995) / WSAEINTR: the pending receive was cancelled because the socket was closed/disposed while EndReceive was still outstanding. This is an expected
                 // consequence of the discovery timeout or Dispose() shutting down the UdpClient, not a genuine parsing or network failure, so it is safe to ignore.
-                // LogMessage("ReceiveCallback", $"Ignored aborted receive on {udpClient}: {ex.SocketErrorCode} (expected during shutdown).");
                 return;
             }
             catch (Exception ex)

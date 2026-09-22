@@ -422,7 +422,7 @@ namespace ASCOM.Alpaca.Discovery
                 callbackReenabled = true;
 
                 // Convert the UDP message body to a string
-                string ReceiveString = Encoding.ASCII.GetString(receivedBytes);
+                string receivedDiscoveryMessage = Encoding.ASCII.GetString(receivedBytes);
 
                 // Default discovery to disallowed, then check the address and configuration to see if it is allowed
                 bool discoveryAllowed = false;
@@ -452,11 +452,18 @@ namespace ASCOM.Alpaca.Discovery
                 if (discoveryAllowed) // Discovery is allowed
                 {
                     // Check whether the message is a discovery message
-                    if (ReceiveString.Contains(Constants.DiscoveryMessage)) // This is a discovery message - NOTE: Uses Contains rather then Equals because of invisible padding garbage
+                    if (receivedDiscoveryMessage.Contains(Constants.DiscoveryMessage)) // This is a discovery message - NOTE: Uses Contains rather then Equals because of invisible padding garbage
                     {
                         IPEndPoint localEndPoint = udpClient.Client.LocalEndPoint as IPEndPoint;
                         bool isMulticast = MulticastGroups.TryGetValue(udpClient, out IPAddress multicastAddress);
                         LogInformation($"Responding to a discovery packet from {endpoint.Address} {endpoint.Port} to Ip address: {localEndPoint?.Address.ToString() ?? "none"}, port: {localEndPoint?.Port.ToString() ?? "none"}, multicast address: {multicastAddress?.ToString() ?? "none - unicast only"}.  at {DateTime.Now}");
+
+                        // Validate that the received message matches the discovery message exactly and report if it does not.
+                        if (receivedDiscoveryMessage != Constants.DiscoveryMessage)
+                        {
+                            LogDebug($"NOTE: The discovery message: '{receivedDiscoveryMessage}' (length: {receivedDiscoveryMessage.Length}) has been accepted but is not an exact match to the expected discovery message: '{Constants.DiscoveryMessage}' (length: {Constants.DiscoveryMessage.Length}).\r\n" +
+                                $"Please notify the device author and ask them to correct the issue.");
+                        }
 
                         // Create a response message containing the Alpaca port number
                         byte[] response = Encoding.ASCII.GetBytes($"{{\"AlpacaPort\": {port}}}");
@@ -573,6 +580,15 @@ namespace ASCOM.Alpaca.Discovery
         }
 
         /// <summary>
+        /// Logs an informational message using the provided ILogger instance, if available.
+        /// </summary>
+        /// <param name="message">The message to log.</param>
+        private void LogWarning(string message)
+        {
+            Logger?.LogWarning(message);
+        }
+
+        /// <summary>
         /// Logs an error message using the provided ILogger instance, if available.
         /// </summary>
         /// <param name="message">The message to log.</param>
@@ -580,7 +596,7 @@ namespace ASCOM.Alpaca.Discovery
         {
             Logger?.LogError(message);
         }
-        
+
         /// <summary>
         /// Logs a debug message using the provided ILogger instance, if available.
         /// </summary>
