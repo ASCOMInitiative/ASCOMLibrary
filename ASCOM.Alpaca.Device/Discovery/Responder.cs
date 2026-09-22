@@ -268,26 +268,21 @@ namespace ASCOM.Alpaca.Discovery
 
                             LogDebug($"Responder.InitIPv6 - Found loopback interface: {networkInterface.Name}, Type: {networkInterface.NetworkInterfaceType}, Status: {networkInterface.OperationalStatus}, Supports IPv6: {networkInterface.Supports(NetworkInterfaceComponent.IPv6)}, Supports Multicast: {networkInterface.SupportsMulticast}");
 
-                            // Iterate over the unicast addresses of the networkInterface and check if any of them are the IPv6 loopback address.
-                            foreach (UnicastIPAddressInformation uni in networkInterfaceProperties.UnicastAddresses)
+                            if (!networkInterface.SupportsMulticast)
                             {
-                                // Check for the IPv6 loopback address and ignore any other addresses. 
-                                if ((uni.Address.AddressFamily != AddressFamily.InterNetworkV6)) // Not the IPv6 loopback address
-                                {
-                                    LogDebug($"Responder.InitIPv6 -   Loopback interface {networkInterface.Name} has unicast address: {uni.Address} which is not the IPv6 loopback address");
-                                    continue;
-                                }
+                                LogDebug($"Responder.InitIPv6 - Ignoring loopback interface {networkInterface.Name} because it does not support multicast.");
+                                continue;
+                            }
 
-                                try
-                                {
-                                    // Add a HOST LOCAL multicast client for the loopback interface because link-local multicast is not available on the loopback interface. This will also respond to unicast UDP datagrams.
-                                    Clients.Add(NewIpV6Client(IPAddress.IPv6Any, GetIndex(Constants.UnixLoopbackInterfaceName), Constants.HostLocalMulticastGroup)); // NOTE use of HostLocalMulticastGroup NOT LinkLocalMulticastGroup
-                                    LogInformation($"Responder.InitIPv6 - Added HOST LOCAL multicast IPv6 discovery responder for loopback address: {IPAddress.IPv6Loopback} on port {DiscoveryPort}");
-                                }
-                                catch (Exception ex)
-                                {
-                                    LogDebug($"Responder.InitIPv6 -   Error adding HOST LOCAL multicast IPv6 discovery responder for loopback address: {IPAddress.IPv6Loopback} on port {DiscoveryPort}: {ex.Message}\r\n{ex}");
-                                }
+                            try
+                            {
+                                // Use the loopback interface's index rather than its platform-specific name.
+                                Clients.Add(NewIpV6Client(IPAddress.IPv6Any, ipv6Properties.Index, Constants.HostLocalMulticastGroup));
+                                LogInformation($"Responder.InitIPv6 - Added HOST LOCAL multicast IPv6 discovery responder for loopback interface {networkInterface.Name} on port {DiscoveryPort}");
+                            }
+                            catch (Exception ex)
+                            {
+                                LogDebug($"Responder.InitIPv6 -   Error adding HOST LOCAL multicast IPv6 discovery responder for loopback interface {networkInterface.Name} on port {DiscoveryPort}: {ex.Message}\r\n{ex}");
                             }
                         } // Interface is non-WIndows loopback
                         else // Not a loopback interface

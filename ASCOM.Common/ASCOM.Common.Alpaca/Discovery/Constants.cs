@@ -33,11 +33,6 @@ namespace ASCOM.Alpaca.Discovery
         public const string HostLocalMulticastGroup = "ff11::a1:9aca"; // Host only scope
 
         /// <summary>
-        /// The name of the loopback interface on Linux and MacOS
-        /// </summary>
-        public const string UnixLoopbackInterfaceName = "lo";
-
-        /// <summary>
         /// Returns the ALpaca discovery message as a byte array
         /// </summary>
         public static byte[] DiscoveryMessageArray

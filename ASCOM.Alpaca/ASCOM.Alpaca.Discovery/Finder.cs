@@ -579,8 +579,7 @@ namespace ASCOM.Alpaca.Discovery
                                     try
                                     {
                                         LogDebug("SearchIPv6", $"  OS is not Windows, adding HOST LOCAL multicast address to the loopback interface.");
-                                        // Get the index of the loopback interface on Unix-like systems (Linux, macOS, etc.) using the interface name "lo".
-                                        int interfaceIndex = NetworkInterfaceIndexFinder.GetIndex(Constants.UnixLoopbackInterfaceName);
+                                        int interfaceIndex = ipInterfaceProperties.GetIPv6Properties().Index;
 
                                         // Create a scoped multicast address for the loopback interface using the HOST LOCAL multicast address and the interface index.
                                         IPAddress multicastAddress = CreateScopedMulticastAddress(Constants.HostLocalMulticastGroup, interfaceIndex);
@@ -659,7 +658,7 @@ namespace ASCOM.Alpaca.Discovery
                                     // Create a new UdpClient for this link local address if one does not already exist
                                     if (!IPv6Clients.ContainsKey(uni.Address)) // Client does not exist for this link local address, so create one
                                     {
-                                        IPAddress bindAddress = RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? IPAddress.IPv6Any : uni.Address;
+                                        IPAddress bindAddress = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? uni.Address : IPAddress.IPv6Any;
                                         IPv6Clients.Add(uni.Address, NewIPv6Client(bindAddress, 0, networkInterface.GetIPProperties().GetIPv6Properties().Index));
                                     }
 
@@ -697,29 +696,6 @@ namespace ASCOM.Alpaca.Discovery
 
             return new IPAddress(multicastAddress.GetAddressBytes(), interfaceIndex);
         }
-
-        static class NetworkInterfaceIndexFinder
-        {
-            public static int GetIndex(string name)
-            {
-                NetworkInterface target = NetworkInterface.GetAllNetworkInterfaces().FirstOrDefault(i => i.Name == name)
-                    ?? throw new InvalidOperationException($"Interface '{name}' not found.");
-
-                if (!target.Supports(NetworkInterfaceComponent.IPv6))
-                {
-                    throw new InvalidOperationException($"Interface '{name}' does not support IPv6.");
-                }
-
-                if (!target.SupportsMulticast && target.NetworkInterfaceType != NetworkInterfaceType.Loopback)
-                {
-                    throw new InvalidOperationException($"Interface '{name}' does not support multicast.");
-                }
-
-                return target.GetIPProperties().GetIPv6Properties().Index;
-            }
-        }
-
-
 
         private UdpClient NewIPv6Client(IPAddress host, int port, int interfaceIndex)
         {
