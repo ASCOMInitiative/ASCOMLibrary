@@ -31,3 +31,10 @@ The library is distributed via NuGet and consists of five packages:
 * ASCOM.Com.Components - A .Net Standard (.Net Core / .Net 5+) access library for ASCOM COM drivers
 * ASCOM.Tools - A set of CrossPlatform tools for logging, settings and conversions
 * ASCOM.Common.Components - The types, interfaces and enums for the ASCOM CrossPlatform library
+
+# Package Hosting
+Our production packages are hosted on NuGet and can be found at [NuGet.org](https://www.nuget.org/profiles/ASCOM-Initiative).
+
+
+[![Static Badge](https://img.shields.io/badge/OSS%20hosting%20by-cloudsmith-blue?logo=cloudsmith&style=flat-square&link=https%3A%2F%2Fcloudsmith.com)](https://cloudsmith.com) - Our pre-production package 
+repository hosting is graciously provided at no cost by [Cloudsmith](https://cloudsmith.com). The Cloudsmith service has proved reliable in operation, flexible and we are grateful to Cloudsmith for their continued support of the OSS community.
