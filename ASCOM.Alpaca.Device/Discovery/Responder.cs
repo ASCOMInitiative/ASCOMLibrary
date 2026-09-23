@@ -272,6 +272,10 @@ namespace ASCOM.Alpaca.Discovery
                                 // Check whether this loopback interface supports multicast.
                                 if (networkInterface.SupportsMulticast) // Interface supports multicast
                                 {
+                                    // Add a host local unicast client using the loopback interface's index rather than its platform-specific name.
+                                    Clients.Add(new UdpClientInformation(NewIpV6Client(IPAddress.IPv6Loopback, ipv6Properties.Index, null), null));
+                                    LogInformation($"Responder.InitIPv6 - Added unicast IPv6 discovery responder for loopback interface {networkInterface.Name} on port {DiscoveryPort}");
+
                                     // Add a host local multicast client using the loopback interface's index rather than its platform-specific name.
                                     Clients.Add(new UdpClientInformation(NewIpV6Client(IPAddress.IPv6Any, ipv6Properties.Index, Constants.HostLocalMulticastGroup), IPAddress.Parse(Constants.HostLocalMulticastGroup)));
                                     LogInformation($"Responder.InitIPv6 - Added HOST LOCAL multicast IPv6 discovery responder for loopback interface {networkInterface.Name} on port {DiscoveryPort}");
@@ -382,7 +386,7 @@ namespace ASCOM.Alpaca.Discovery
                 udpClientV6.JoinMulticastGroup(index, multicastAddress);
             }
 
-            UdpClientInformation udpClientInfo = new UdpClientInformation(udpClientV6, index > 0 ? IPAddress.Parse(multicastGroup) : null);
+            UdpClientInformation udpClientInfo = new UdpClientInformation(udpClientV6, !(multicastGroup is null) ? IPAddress.Parse(multicastGroup) : null);
 
             // Start listening for discovery messages. This uses begin receive rather than async so it works on net 3.5
             udpClientV6.BeginReceive(ReceiveCallback, udpClientInfo);
@@ -450,7 +454,11 @@ namespace ASCOM.Alpaca.Discovery
                     // Check whether the message is a discovery message
                     if (receivedDiscoveryMessage.Contains(Constants.DiscoveryMessage)) // This is a discovery message - NOTE: Uses Contains rather then Equals because of invisible padding garbage
                     {
-                        LogInformation($"Responding to a discovery packet from {sender.Address}:{sender.Port} received by listening address: {localEndPoint?.Address} using multicast address: {udpClientInformation.MulticastAddress?.ToString() ?? "none - unicast only"}.  at {DateTime.Now}");
+                        // Check if the incoming datagram was to a unicast or multicast address
+                        if(udpClientInformation.MulticastAddress is null) // Unicast address
+                            LogInformation($"Responding to a discovery packet from {sender.Address}:{sender.Port} received by unicast IP address: {localEndPoint?.Address}:{DiscoveryPort}.");
+                        else // Multicast address
+                            LogInformation($"Responding to a discovery packet from {sender.Address}:{sender.Port} received by IP address: {localEndPoint?.Address} on multicast address: {udpClientInformation.MulticastAddress}.");
 
                         // Validate that the received message matches the discovery message exactly and report if it does not.
                         if (receivedDiscoveryMessage != Constants.DiscoveryMessage)
