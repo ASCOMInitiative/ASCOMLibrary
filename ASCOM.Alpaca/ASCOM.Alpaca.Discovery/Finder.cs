@@ -564,11 +564,11 @@ namespace ASCOM.Alpaca.Discovery
 
                                         // Send the discovery packet to the multicast group on the loopback interface
                                         IPv6Clients[uni].Send(Constants.DiscoveryMessageArray, Constants.DiscoveryMessageArray.Length, GetMulticastEndPoint(discoveryPort, ipInterfaceProperties.GetIPv6Properties().Index));
-                                        LogInformation("SearchIPv6", $"  Sent multicast IPv6 discovery packet to {uni.Address}:{discoveryPort}.");
+                                        LogInformation("SearchIPv6", $"Sent multicast IPv6 discovery packet to {uni.Address}:{discoveryPort}.");
                                     }
                                     catch (SocketException ex)
                                     {
-                                        LogError("SearchIPv6", $"  Socket exception {ex.Message} (error code: {ex.ErrorCode}) sending multicast IPv6 discovery packet to {uni.Address}:{discoveryPort}: {ex}");
+                                        LogError("SearchIPv6", $"Socket exception {ex.Message} (error code: {ex.ErrorCode}) sending multicast IPv6 discovery packet to {uni.Address}:{discoveryPort}: {ex}");
                                     }
                                 } // Platform is Windows
                                 else // Address is IPv6 loopback and OSPlatform is not Windows
@@ -604,7 +604,7 @@ namespace ASCOM.Alpaca.Discovery
 
                                             // Send the discovery packet to the HOST LOCAL multicast address on the loopback interface
                                             int bytesSent = callerClient.Send(Constants.DiscoveryMessageArray, Constants.DiscoveryMessageArray.Length, targetEndPoint);
-                                            LogInformation("SearchIPv6", $"  Sent {bytesSent} bytes of discovery data to HOST LOCAL multicast endpoint {targetEndPoint}.");
+                                            LogInformation("SearchIPv6", $"Sent {bytesSent} bytes of discovery data to HOST LOCAL multicast endpoint {targetEndPoint}.");
                                         }
                                         else // Multicast is not enabled on the loopback interface so fall back to unicast discovery on the loopback address
                                         {
@@ -625,7 +625,7 @@ namespace ASCOM.Alpaca.Discovery
 
                                             // Send the discovery packet to the loopback unicast address on the loopback interface
                                             int bytesSent = callerClient.Send(Constants.DiscoveryMessageArray, Constants.DiscoveryMessageArray.Length, targetEndPoint);
-                                            LogInformation("SearchIPv6", $"  Sent {bytesSent} bytes of discovery data to loopback unicast endpoint {targetEndPoint}.");
+                                            LogInformation("SearchIPv6", $"Sent {bytesSent} bytes of discovery data to loopback unicast endpoint {targetEndPoint}.");
                                         }
 
                                         // Retain the configured client or dispose of it if it is not required
@@ -654,7 +654,7 @@ namespace ASCOM.Alpaca.Discovery
                                         }
 
                                         IPv6Clients[uni].Send(Constants.DiscoveryMessageArray, Constants.DiscoveryMessageArray.Length, new IPEndPoint(IPAddress.IPv6Loopback, discoveryPort));
-                                        LogInformation("SearchIPv6", $"  Sent unicast IPv6 discovery packet to {uni.Address}:{discoveryPort}.");
+                                        LogInformation("SearchIPv6", $"Sent unicast IPv6 discovery packet to {uni.Address}:{discoveryPort}.");
                                     }
                                     catch (SocketException ex)
                                     {
@@ -691,17 +691,17 @@ namespace ASCOM.Alpaca.Discovery
 
                                     // Send the discovery packet to the multicast group on this link local interface
                                     IPv6Clients[uni].Send(Constants.DiscoveryMessageArray, Constants.DiscoveryMessageArray.Length, GetMulticastEndPoint(discoveryPort, networkInterface.GetIPProperties().GetIPv6Properties().Index));
-                                    LogInformation("SearchIPv6", $"  Sent multicast IPv6 discovery packet to {uni.Address}:{discoveryPort}.");
+                                    LogInformation("SearchIPv6", $"Sent multicast IPv6 discovery packet to {uni.Address}:{discoveryPort}.");
                                 }
                                 catch (SocketException ex)
                                 {
-                                    LogError("SearchIPv6", $"  Socket exception {ex.Message} (error code: {ex.ErrorCode}) sending IPv6 discovery packet to {uni.Address}:{discoveryPort}: {ex}");
+                                    LogError("SearchIPv6", $"Socket exception {ex.Message} (error code: {ex.ErrorCode}) sending IPv6 discovery packet to {uni.Address}:{discoveryPort}: {ex}");
                                 }
                             } // Address is not loopback
                         }
                         catch (Exception ex)
                         {
-                            LogError("SearchIPv6", $"  Exception sending IPv6 discovery packet to {uni.Address}: {ex.Message}\r\n{ex}");
+                            LogError("SearchIPv6", $"Exception sending IPv6 discovery packet to {uni.Address}: {ex.Message}\r\n{ex}");
                         }
                     }
                 }

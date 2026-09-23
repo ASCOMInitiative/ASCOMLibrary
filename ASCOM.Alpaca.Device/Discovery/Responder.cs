@@ -397,9 +397,6 @@ namespace ASCOM.Alpaca.Discovery
         /// <param name="asyncResult">The result of the asynchronous operation.</param>
         private void ReceiveCallback(IAsyncResult asyncResult)
         {
-            // Define the maximum length of a discovery datagram to prevent buffer overflow
-            const int MaximumDiscoveryDatagramLength = 256;
-
             // Initialize variables for the UdpClient, sender endpoint, and a flag to track whether the callback has been re-enabled
             UdpClient udpClient = null;
             IPEndPoint sender = null;
@@ -410,13 +407,9 @@ namespace ASCOM.Alpaca.Discovery
                 // Retrieve the UdpClient instance from the asyncResult's AsyncState property
                 udpClient = (UdpClient)asyncResult.AsyncState;
 
-                // Create a buffer to hold the received data and an endpoint to hold the sender's address and port
-                byte[] receiveBuffer = new byte[MaximumDiscoveryDatagramLength];
-                EndPoint senderEndPoint = new IPEndPoint(IPAddress.IPv6Any, 0);
-                SocketFlags socketFlags = SocketFlags.None;
-
-                // Receive the UDP message and get the length of the received data
-                int receivedLength = udpClient.Client.ReceiveMessageFrom(receiveBuffer, 0, receiveBuffer.Length, ref socketFlags, ref senderEndPoint, out IPPacketInformation packetInformation);
+                // Complete the asynchronous receive that triggered this callback.
+                sender = new IPEndPoint(IPAddress.IPv6Any, 0);
+                byte[] receivedBytes = udpClient.EndReceive(asyncResult, ref sender);
 
                 // Data received, configure the UdpClient to accept more messages while this message is being processed.
                 udpClient.BeginReceive(ReceiveCallback, udpClient);
@@ -450,21 +443,16 @@ namespace ASCOM.Alpaca.Discovery
                 // Check if discovery is allowed
                 if (discoveryAllowed) // Discovery is allowed
                 {
-                    // Cast the senderEndPoint to an IPEndPoint to extract the sender's address and port
-                    sender = (IPEndPoint)senderEndPoint;
-
-                    // Create convenience variables for the destination address, receiving interface index and whether this is a multicast message. 
-                    IPAddress destinationAddress = packetInformation.Address;
-                    int receivingInterfaceIndex = packetInformation.Interface;
+                    IPEndPoint localEndPoint = udpClient.Client.LocalEndPoint as IPEndPoint;
                     bool isMulticast = MulticastGroups.TryGetValue(udpClient, out IPAddress multicastAddress);
 
                     // Convert the UDP message body to a string
-                    string receivedDiscoveryMessage = Encoding.ASCII.GetString(receiveBuffer, 0, receivedLength);
+                    string receivedDiscoveryMessage = Encoding.ASCII.GetString(receivedBytes);
 
                     // Check whether the message is a discovery message
                     if (receivedDiscoveryMessage.Contains(Constants.DiscoveryMessage)) // This is a discovery message - NOTE: Uses Contains rather then Equals because of invisible padding garbage
                     {
-                        LogInformation($"Responding to a discovery packet from {sender.Address}:{sender.Port} sent to IP address: {destinationAddress} using multicast address: {multicastAddress?.ToString() ?? "none - unicast only"}.  at {DateTime.Now}");
+                        LogInformation($"Responding to a discovery packet from {sender.Address}:{sender.Port} received by listening address: {localEndPoint?.Address} using multicast address: {multicastAddress?.ToString() ?? "none - unicast only"}.  at {DateTime.Now}");
 
                         // Validate that the received message matches the discovery message exactly and report if it does not.
                         if (receivedDiscoveryMessage != Constants.DiscoveryMessage)
@@ -481,7 +469,7 @@ namespace ASCOM.Alpaca.Discovery
                     }
                     else
                     {
-                        LogDebug($"Ignoring non-discovery message from {sender.Address}:{sender.Port} sent to IP address: {destinationAddress} using multicast address: {multicastAddress?.ToString() ?? "none - unicast only"}.  at {DateTime.Now}");
+                        LogDebug($"Ignoring non-discovery message from {sender.Address}:{sender.Port} received by listening address: {localEndPoint?.Address} using multicast address: {multicastAddress?.ToString() ?? "none - unicast only"}.  at {DateTime.Now}");
                     }
                 }
                 else // Discovery is not allowed so log to debug so we know what is happening
@@ -496,7 +484,7 @@ namespace ASCOM.Alpaca.Discovery
             }
             catch (Exception ex)
             {
-                LogError($"Responder.ReceiveCallback - Error processing discovery request from {sender.Address}:{sender.Port} {ex.Message}\r\n{ex}");
+                LogError($"Responder.ReceiveCallback - Error processing discovery request from {sender?.Address}:{sender?.Port} {ex.Message}\r\n{ex}");
             }
             finally
             {
@@ -506,6 +494,10 @@ namespace ASCOM.Alpaca.Discovery
                     {
                         // If processing failed before the normal restart, resume listening where possible.
                         udpClient?.BeginReceive(ReceiveCallback, udpClient);
+                    }
+                    catch (ObjectDisposedException)
+                    {
+                        // This exception is expected when the UdpClient is disposed while waiting for a message. It can be ignored.
                     }
                     catch (Exception ex)
                     {
