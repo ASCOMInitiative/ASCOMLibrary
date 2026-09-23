@@ -25,9 +25,7 @@ namespace ASCOM.Alpaca.Discovery
 
         private readonly int DiscoveryPort = Constants.DiscoveryPort;
 
-        private readonly List<UdpClient> Clients = new List<UdpClient>();
-
-        private readonly Dictionary<UdpClient, IPAddress> MulticastGroups = new Dictionary<UdpClient, IPAddress>();
+        private readonly List<UdpClientInformation> Clients = new List<UdpClientInformation>();
 
         private ILogger Logger
         {
@@ -132,10 +130,12 @@ namespace ASCOM.Alpaca.Discovery
 
             udpClient.Client.Bind(new IPEndPoint(IPAddress.Any, DiscoveryPort));
 
-            // This uses begin receive rather then async so it works on net 3.5
-            udpClient.BeginReceive(ReceiveCallback, udpClient);
+            UdpClientInformation udpClientInfo = new UdpClientInformation(udpClient, null);
 
-            Clients.Add(udpClient);
+            // This uses begin receive rather then async so it works on net 3.5
+            udpClient.BeginReceive(ReceiveCallback, udpClientInfo);
+
+            Clients.Add(udpClientInfo);
             LogInformation($"Added IPv4 discovery responder on port: {DiscoveryPort}");
         }
 
@@ -213,7 +213,7 @@ namespace ASCOM.Alpaca.Discovery
                                 }
 
                                 // Add a new UDP client for this IPv6 address and interface index
-                                Clients.Add(NewIpV6Client(unicastAddress.Address, networkInterfaceProperties.GetIPv6Properties().Index, Constants.LinkLocalMulticastGroup));
+                                Clients.Add(new UdpClientInformation(NewIpV6Client(unicastAddress.Address, networkInterfaceProperties.GetIPv6Properties().Index, Constants.LinkLocalMulticastGroup), IPAddress.Parse(Constants.LinkLocalMulticastGroup)));
                                 LogInformation($"Added IPv6 discovery responder for address: {unicastAddress.Address}, on interface index: {networkInterfaceProperties.GetIPv6Properties().Index} and port {DiscoveryPort}");
                             }
                             catch (Exception ex)
@@ -273,13 +273,13 @@ namespace ASCOM.Alpaca.Discovery
                                 if (networkInterface.SupportsMulticast) // Interface supports multicast
                                 {
                                     // Add a host local multicast client using the loopback interface's index rather than its platform-specific name.
-                                    Clients.Add(NewIpV6Client(IPAddress.IPv6Any, ipv6Properties.Index, Constants.HostLocalMulticastGroup));
+                                    Clients.Add(new UdpClientInformation(NewIpV6Client(IPAddress.IPv6Any, ipv6Properties.Index, Constants.HostLocalMulticastGroup), IPAddress.Parse(Constants.HostLocalMulticastGroup)));
                                     LogInformation($"Responder.InitIPv6 - Added HOST LOCAL multicast IPv6 discovery responder for loopback interface {networkInterface.Name} on port {DiscoveryPort}");
                                 }
                                 else // Interface does not support multicast
                                 {
                                     // Interface does not support multicast so add a unicast client using the loopback address and an index of 0 to indicate that multicast is not being used.
-                                    Clients.Add(NewIpV6Client(IPAddress.IPv6Loopback, 0, null));
+                                    Clients.Add(new UdpClientInformation(NewIpV6Client(IPAddress.IPv6Loopback, 0, null), IPAddress.None));
                                     LogInformation($"Responder.InitIPv6 - Added unicast IPv6 discovery responder for loopback interface {networkInterface.Name} on port {DiscoveryPort}");
                                 }
                             }
@@ -337,7 +337,7 @@ namespace ASCOM.Alpaca.Discovery
                                 try
                                 {
                                     // Add a new UDP client for this IPv6 link-local address and interface index
-                                    Clients.Add(NewIpV6Client(unicastAddress.Address, ipv6Properties.Index, Constants.LinkLocalMulticastGroup));
+                                    Clients.Add(new UdpClientInformation(NewIpV6Client(unicastAddress.Address, ipv6Properties.Index, Constants.LinkLocalMulticastGroup), IPAddress.Parse(Constants.LinkLocalMulticastGroup)));
                                     LogInformation($"Added link local multicast IPv6 discovery responder for address: {unicastAddress.Address}:{DiscoveryPort} on interface {networkInterface.Name} (index: {ipv6Properties.Index}). " +
                                         $"Is IPv6 Link Local: {unicastAddress.Address.IsIPv6LinkLocal}, Supports Multicast: {networkInterface.SupportsMulticast}.");
                                 }
@@ -358,11 +358,10 @@ namespace ASCOM.Alpaca.Discovery
             // Log the details of each UDP client that has been created, including its local endpoint and whether it is part of a multicast group.
             LogDebug("");
             LogDebug($"Responder.InitIPv6 - Summary of UDP clients created for IPv6 discovery:");
-            foreach (UdpClient udp in Clients)
+            foreach (UdpClientInformation udp in Clients)
             {
-                IPEndPoint localEndPoint = udp.Client.LocalEndPoint as IPEndPoint;
-                bool isMulticast = MulticastGroups.TryGetValue(udp, out IPAddress multicastAddress);
-                LogDebug($"Responder.InitIPv6 - Created UDP client on IP address: {localEndPoint?.Address.ToString() ?? "none"}, port: {localEndPoint?.Port.ToString() ?? "none"}, multicast address: {multicastAddress?.ToString() ?? "none - unicast only"}.");
+                IPEndPoint localEndPoint = udp.UdpClient.Client.LocalEndPoint as IPEndPoint;
+                LogDebug($"Responder.InitIPv6 - Created UDP client on IP address: {localEndPoint?.Address.ToString() ?? "none"}, port: {localEndPoint?.Port.ToString() ?? "none"}, multicast address: {udp.MulticastAddress?.ToString() ?? "none - unicast only"}.");
             }
             LogDebug("");
             LogDebug($"Responder.InitIPv6 - Completed binding to IPv6 Discovery Port: {DiscoveryPort}");
@@ -381,12 +380,12 @@ namespace ASCOM.Alpaca.Discovery
             {
                 IPAddress multicastAddress = IPAddress.Parse(multicastGroup);
                 udpClientV6.JoinMulticastGroup(index, multicastAddress);
-                // Keep track of the multicast group for this UDP client so it can be reported in the logs
-                MulticastGroups.Add(udpClientV6, multicastAddress);
             }
 
+            UdpClientInformation udpClientInfo = new UdpClientInformation(udpClientV6, index > 0 ? IPAddress.Parse(multicastGroup) : null);
+
             // Start listening for discovery messages. This uses begin receive rather than async so it works on net 3.5
-            udpClientV6.BeginReceive(ReceiveCallback, udpClientV6);
+            udpClientV6.BeginReceive(ReceiveCallback, udpClientInfo);
 
             return udpClientV6;
         }
@@ -398,21 +397,21 @@ namespace ASCOM.Alpaca.Discovery
         private void ReceiveCallback(IAsyncResult asyncResult)
         {
             // Initialize variables for the UdpClient, sender endpoint, and a flag to track whether the callback has been re-enabled
-            UdpClient udpClient = null;
+            UdpClientInformation udpClientInformation = null;
             IPEndPoint sender = null;
             bool callbackReenabled = false;
 
             try
             {
                 // Retrieve the UdpClient instance from the asyncResult's AsyncState property
-                udpClient = (UdpClient)asyncResult.AsyncState;
+                udpClientInformation = (UdpClientInformation)asyncResult.AsyncState;
 
                 // Complete the asynchronous receive that triggered this callback.
                 sender = new IPEndPoint(IPAddress.IPv6Any, 0);
-                byte[] receivedBytes = udpClient.EndReceive(asyncResult, ref sender);
+                byte[] receivedBytes = udpClientInformation.UdpClient.EndReceive(asyncResult, ref sender);
 
                 // Data received, configure the UdpClient to accept more messages while this message is being processed.
-                udpClient.BeginReceive(ReceiveCallback, udpClient);
+                udpClientInformation.UdpClient.BeginReceive(ReceiveCallback, udpClientInformation);
                 callbackReenabled = true;
 
                 // Default discovery to disallowed, then check the address and configuration to see if it is allowed
@@ -443,8 +442,7 @@ namespace ASCOM.Alpaca.Discovery
                 // Check if discovery is allowed
                 if (discoveryAllowed) // Discovery is allowed
                 {
-                    IPEndPoint localEndPoint = udpClient.Client.LocalEndPoint as IPEndPoint;
-                    bool isMulticast = MulticastGroups.TryGetValue(udpClient, out IPAddress multicastAddress);
+                    IPEndPoint localEndPoint = udpClientInformation.UdpClient.Client.LocalEndPoint as IPEndPoint;
 
                     // Convert the UDP message body to a string
                     string receivedDiscoveryMessage = Encoding.ASCII.GetString(receivedBytes);
@@ -452,7 +450,7 @@ namespace ASCOM.Alpaca.Discovery
                     // Check whether the message is a discovery message
                     if (receivedDiscoveryMessage.Contains(Constants.DiscoveryMessage)) // This is a discovery message - NOTE: Uses Contains rather then Equals because of invisible padding garbage
                     {
-                        LogInformation($"Responding to a discovery packet from {sender.Address}:{sender.Port} received by listening address: {localEndPoint?.Address} using multicast address: {multicastAddress?.ToString() ?? "none - unicast only"}.  at {DateTime.Now}");
+                        LogInformation($"Responding to a discovery packet from {sender.Address}:{sender.Port} received by listening address: {localEndPoint?.Address} using multicast address: {udpClientInformation.MulticastAddress?.ToString() ?? "none - unicast only"}.  at {DateTime.Now}");
 
                         // Validate that the received message matches the discovery message exactly and report if it does not.
                         if (receivedDiscoveryMessage != Constants.DiscoveryMessage)
@@ -465,17 +463,22 @@ namespace ASCOM.Alpaca.Discovery
                         byte[] response = Encoding.ASCII.GetBytes($"{{\"AlpacaPort\": {port}}}");
 
                         // Send the response message back to the originator of the discovery message
-                        udpClient.Send(response, response.Length, sender);
+                        udpClientInformation.UdpClient.Send(response, response.Length, sender);
                     }
                     else
                     {
-                        LogDebug($"Ignoring non-discovery message from {sender.Address}:{sender.Port} received by listening address: {localEndPoint?.Address} using multicast address: {multicastAddress?.ToString() ?? "none - unicast only"}.  at {DateTime.Now}");
+                        LogDebug($"Ignoring non-discovery message from {sender.Address}:{sender.Port} received by listening address: {localEndPoint?.Address} using multicast address: {udpClientInformation.MulticastAddress?.ToString() ?? "none - unicast only"}.  at {DateTime.Now}");
                     }
                 }
                 else // Discovery is not allowed so log to debug so we know what is happening
                 {
                     LogDebug($"Ignoring discovery request from {sender.Address}:{sender.Port} because it is not a loopback address and configuration is: Only respond on localhost for local addresses: {LocalRespondOnlyToLocalHost}, AllowRemoteAccess: {AllowRemoteAccess}.");
                 }
+            }
+            catch (SocketException ex)
+            {
+                if (ex.ErrorCode != 995) // Report all errors except 995, which occurs on socket tear-down
+                    LogError($"Responder.ReceiveCallback - SocketException while processing discovery request from {sender?.Address}:{sender?.Port} {ex.Message}\r\n{ex}");
             }
             catch (ObjectDisposedException)
             {
@@ -493,7 +496,7 @@ namespace ASCOM.Alpaca.Discovery
                     try
                     {
                         // If processing failed before the normal restart, resume listening where possible.
-                        udpClient?.BeginReceive(ReceiveCallback, udpClient);
+                        udpClientInformation?.UdpClient.BeginReceive(ReceiveCallback, udpClientInformation);
                     }
                     catch (ObjectDisposedException)
                     {
@@ -620,20 +623,12 @@ namespace ASCOM.Alpaca.Discovery
             {
                 if (disposing)
                 {
-                    foreach (UdpClient udp in Clients)
+                    foreach (UdpClientInformation udp in Clients)
                     {
-                        try
-                        {
-                            udp.Close();
-                            udp.Dispose();
-                        }
-                        catch
-                        {
-                        }
+                        try { udp.Dispose(); } catch { }
                     }
 
                     Clients.Clear();
-                    MulticastGroups.Clear();
                 }
                 Disposed = true;
             }
