@@ -583,8 +583,8 @@ namespace ASCOM.Alpaca.Discovery
                                             LogDebug("SearchIPv6", $"  OS is not Windows, adding HOST LOCAL multicast client to the loopback interface because multicast is enabled.");
                                             int interfaceIndex = ipInterfaceProperties.GetIPv6Properties().Index;
 
-                                            // Create a scoped multicast address for the loopback interface using the HOST LOCAL multicast address and the interface index.
-                                            IPAddress multicastAddress = IPAddress.Parse(Constants.HostLocalMulticastGroup);
+                                            // Create a scoped multicast address for the loopback interface using the LINK LOCAL multicast address and the interface index.
+                                            IPAddress multicastAddress = IPAddress.Parse(Constants.LinkLocalMulticastGroup);
                                             multicastAddress = new IPAddress(multicastAddress.GetAddressBytes(), interfaceIndex);
 
                                             // Create an IPEndPoint for the multicast address and the discovery port.
@@ -593,18 +593,18 @@ namespace ASCOM.Alpaca.Discovery
                                             // Create a new UdpClient for the loopback interface
                                             callerClient = new UdpClient(AddressFamily.InterNetworkV6);
 
-                                            // Join the multicast group
-                                            callerClient.JoinMulticastGroup(interfaceIndex, multicastAddress);
-
                                             // Bind the UdpClient to the loopback address and an ephemeral port (0) to allow the OS to assign a free port.
                                             callerClient.Client.Bind(new IPEndPoint(IPAddress.IPv6Loopback, 0));
+
+                                            // Join the multicast group
+                                            callerClient.JoinMulticastGroup(interfaceIndex, multicastAddress);
 
                                             // Listen for discovery responses on the same client that sent the multicast datagram.
                                             callerClient.BeginReceive(new AsyncCallback(ReceiveCallback), callerClient);
 
-                                            // Send the discovery packet to the HOST LOCAL multicast address on the loopback interface
+                                            // Send the discovery packet to the LINK LOCAL multicast address on the loopback interface
                                             int bytesSent = callerClient.Send(Constants.DiscoveryMessageArray, Constants.DiscoveryMessageArray.Length, targetEndPoint);
-                                            LogInformation("SearchIPv6", $"Sent {bytesSent} bytes of discovery data to HOST LOCAL multicast endpoint {targetEndPoint}.");
+                                            LogInformation("SearchIPv6", $"Sent {bytesSent} bytes of discovery data to LINK LOCAL multicast endpoint {targetEndPoint}.");
                                         }
                                         else // Multicast is not enabled on the loopback interface so fall back to unicast discovery on the loopback address
                                         {

@@ -30,7 +30,7 @@ namespace ASCOM.Alpaca.Discovery
         /// <summary>
         /// IPv6 multicast group address for discovery over an IPv6 network
         /// </summary>
-        public const string HostLocalMulticastGroup = "ff11::a1:9aca"; // Host only scope
+        public const string HostLocalMulticastGroup = "ff12::a1:9aca"; // Host only scope
 
         /// <summary>
         /// Returns the ALpaca discovery message as a byte array
