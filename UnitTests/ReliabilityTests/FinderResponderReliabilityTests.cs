@@ -117,6 +117,7 @@ namespace ReliabilityTests
                 }
 
                 Assert.Equal(expectedResponderCount, discoveredEndpoints.Count);
+                Assert.Equal(expectedResponderCount, finder.BroadcastResponses.Count);
             }
 
             int[] discoveredPorts = discoveredEndpoints
