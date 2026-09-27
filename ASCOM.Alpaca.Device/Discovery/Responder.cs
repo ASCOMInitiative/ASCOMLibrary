@@ -28,7 +28,6 @@ namespace ASCOM.Alpaca.Discovery
         private readonly List<UdpClientInformation> Clients = new List<UdpClientInformation>();
 
         private UdpClient ipV6MulticastClient = null;
-        private UdpClient ipV6UnicastClient = null;
 
         private ILogger Logger
         {
@@ -216,7 +215,7 @@ namespace ASCOM.Alpaca.Discovery
                                 }
 
                                 // Add a new UDP client for this IPv6 address and interface index
-                                NewIpV6Client(networkInterfaceProperties.GetIPv6Properties().Index);
+                                CreateIpV6MulticastClient(networkInterfaceProperties.GetIPv6Properties().Index);
                                 LogInformation($"Added IPv6 discovery responder for address: {unicastAddress.Address}, on interface index: {networkInterfaceProperties.GetIPv6Properties().Index} and port {DiscoveryPort}");
                             }
                             catch (Exception ex)
@@ -280,13 +279,13 @@ namespace ASCOM.Alpaca.Discovery
                                     //LogInformation($"Responder.InitIPv6 - Added unicast IPv6 discovery responder for loopback interface {networkInterface.Name} on port {DiscoveryPort}");
 
                                     // Add a host local multicast client using the loopback interface's index rather than its platform-specific name.
-                                    NewIpV6Client(ipv6Properties.Index);
+                                    CreateIpV6MulticastClient(ipv6Properties.Index);
                                     LogInformation($"Responder.InitIPv6 - Added HOST LOCAL multicast IPv6 discovery responder for loopback interface {networkInterface.Name} on port {DiscoveryPort}");
                                 }
                                 else // Interface does not support multicast
                                 {
                                     // Interface does not support multicast so add a unicast client using the loopback address and an index of 0 to indicate that multicast is not being used.
-                                    NewIpV6Client(0);
+                                    CreateIpV6UnicastClient(IPAddress.IPv6Loopback);
                                     LogInformation($"Responder.InitIPv6 - Added unicast IPv6 discovery responder for loopback interface {networkInterface.Name} on port {DiscoveryPort}");
                                 }
                             }
@@ -344,7 +343,7 @@ namespace ASCOM.Alpaca.Discovery
                                 try
                                 {
                                     // Add a new UDP client for this IPv6 link-local address and interface index
-                                    NewIpV6Client(ipv6Properties.Index);
+                                    CreateIpV6MulticastClient(ipv6Properties.Index);
                                     LogInformation($"Added link local multicast IPv6 discovery responder for address: {unicastAddress.Address}:{DiscoveryPort} on interface {networkInterface.Name} (index: {ipv6Properties.Index}). " +
                                         $"Is IPv6 Link Local: {unicastAddress.Address.IsIPv6LinkLocal}, Supports Multicast: {networkInterface.SupportsMulticast}.");
                                 }
@@ -374,63 +373,59 @@ namespace ASCOM.Alpaca.Discovery
             LogDebug($"Responder.InitIPv6 - Completed binding to IPv6 Discovery Port: {DiscoveryPort}");
         }
 
-        private void NewIpV6Client(int index)
+        private void CreateIpV6UnicastClient(IPAddress ipAddress)
         {
-            // Check if this is a unicast or multicast interface request
-            if (index == 0) // Unicast requested
+            LogDebug($"Responder.NewIpV6Client -   Creating new unicast UdpClient for IPv6 discovery on port {DiscoveryPort}");
+            UdpClient ipV6UnicastClient = new UdpClient(AddressFamily.InterNetworkV6);
+
+            ipV6UnicastClient.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
+            ipV6UnicastClient.ExclusiveAddressUse = false;
+            ipV6UnicastClient.Client.Bind(new IPEndPoint(ipAddress, DiscoveryPort));
+            UdpClientInformation udpClientInfo = new UdpClientInformation(ipV6UnicastClient, null);
+
+            // Start listening for discovery messages. This uses begin receive rather than async so it works on net 3.5
+            ipV6UnicastClient.BeginReceive(ReceiveCallback, udpClientInfo);
+
+            // Add the new UdpClientInformation to the list of clients
+            Clients.Add(udpClientInfo);
+            LogDebug($"Responder.NewIpV6Client -   Created new unicast UdpClient for IPv6 discovery on port {DiscoveryPort}");
+        }
+
+        /// <summary>
+        /// Creates a new UdpClient for IPv6 discovery on the specified interface index. If the index is 0, a unicast client is created; otherwise, a multicast client is created for the specified interface index.
+        /// </summary>
+        /// <param name="index">The interface index for which to create the UdpClient.</param>
+        /// <remarks>
+        /// Exactly one client is created to handle all each is created fo
+        /// </remarks>
+        private void CreateIpV6MulticastClient(int index)
+        {
+            // Check whether this is the first multicast request
+            if (ipV6MulticastClient == null) // First request so create a new UdpClient and bind it to the specified host address and discovery port
             {
-                // Check whether this is the first unicast request
-                if (ipV6UnicastClient == null) // First request so create a new UdpClient and bind it to the specified host address and discovery port
-                {
-                    LogDebug($"Responder.NewIpV6Client -   Creating new unicast UdpClient for IPv6 discovery on port {DiscoveryPort}");
-                    ipV6UnicastClient = new UdpClient(AddressFamily.InterNetworkV6);
+                LogDebug($"Responder.NewIpV6Client -   Creating new multicast UdpClient for IPv6 discovery on port {DiscoveryPort} with interface index {index}");
+                ipV6MulticastClient = new UdpClient(AddressFamily.InterNetworkV6);
 
-                    ipV6UnicastClient.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
-                    ipV6UnicastClient.ExclusiveAddressUse = false;
-                    ipV6UnicastClient.Client.Bind(new IPEndPoint(IPAddress.IPv6Any, DiscoveryPort));
-                    UdpClientInformation udpClientInfo = new UdpClientInformation(ipV6UnicastClient, null);
+                ipV6MulticastClient.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
+                ipV6MulticastClient.ExclusiveAddressUse = false;
+                ipV6MulticastClient.Client.Bind(new IPEndPoint(IPAddress.IPv6Any, DiscoveryPort));
+                UdpClientInformation udpClientInfo = new UdpClientInformation(ipV6MulticastClient, IPAddress.Parse(Constants.LinkLocalMulticastGroup));
 
-                    // Start listening for discovery messages. This uses begin receive rather than async so it works on net 3.5
-                    ipV6UnicastClient.BeginReceive(ReceiveCallback, udpClientInfo);
+                // Start listening for discovery messages. This uses begin receive rather than async so it works on net 3.5
+                ipV6MulticastClient.BeginReceive(ReceiveCallback, udpClientInfo);
 
-                    // Add the new UdpClientInformation to the list of clients
-                    Clients.Add(udpClientInfo);
-                    LogDebug($"Responder.NewIpV6Client -   Created new unicast UdpClient for IPv6 discovery on port {DiscoveryPort}");
-                }
-                else // Second or later call so just log that the unicast client already exists
-                {
-                    LogDebug($"Responder.NewIpV6Client -   Unicast UdpClient for IPv6 discovery on port {DiscoveryPort} already exists, not creating a new one.");
-                }
+                // Add the new UdpClientInformation to the list of clients
+                Clients.Add(udpClientInfo);
+
+                // Join the multicast group for the specified interface index
+                ipV6MulticastClient.JoinMulticastGroup(index, IPAddress.Parse(Constants.LinkLocalMulticastGroup));
+                LogDebug($"Responder.NewIpV6Client -   Joined multicast group {Constants.LinkLocalMulticastGroup} for interface index {index}");
             }
-            else // Multicast requested
+            else // Second or later call so just join the multicast group for the specified interface index
             {
-                // Check whether this is the first multicast request
-                if (ipV6MulticastClient == null) // First request so create a new UdpClient and bind it to the specified host address and discovery port
-                {
-                    LogDebug($"Responder.NewIpV6Client -   Creating new multicast UdpClient for IPv6 discovery on port {DiscoveryPort} with interface index {index}");
-                    ipV6MulticastClient = new UdpClient(AddressFamily.InterNetworkV6);
-
-                    ipV6MulticastClient.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
-                    ipV6MulticastClient.ExclusiveAddressUse = false;
-                    ipV6MulticastClient.Client.Bind(new IPEndPoint(IPAddress.IPv6Any, DiscoveryPort));
-                    UdpClientInformation udpClientInfo = new UdpClientInformation(ipV6MulticastClient, IPAddress.Parse(Constants.LinkLocalMulticastGroup));
-
-                    // Start listening for discovery messages. This uses begin receive rather than async so it works on net 3.5
-                    ipV6MulticastClient.BeginReceive(ReceiveCallback, udpClientInfo);
-
-                    // Add the new UdpClientInformation to the list of clients
-                    Clients.Add(udpClientInfo);
-
-                    // Join the multicast group for the specified interface index
-                    ipV6MulticastClient.JoinMulticastGroup(index, IPAddress.Parse(Constants.LinkLocalMulticastGroup));
-                    LogDebug($"Responder.NewIpV6Client -   Joined multicast group {Constants.LinkLocalMulticastGroup} for interface index {index}");
-                }
-                else // Second or later call so just join the multicast group for the specified interface index
-                {
-                    // Join the multicast group for the specified interface index
-                    ipV6MulticastClient.JoinMulticastGroup(index, IPAddress.Parse(Constants.LinkLocalMulticastGroup));
-                    LogDebug($"Responder.NewIpV6Client -   Multicast client already exists, just joining multicast group {Constants.LinkLocalMulticastGroup} for interface index {index}");
-                }
+                // Join the multicast group for the specified interface index
+                ipV6MulticastClient.JoinMulticastGroup(index, IPAddress.Parse(Constants.LinkLocalMulticastGroup));
+                LogDebug($"Responder.NewIpV6Client -   Multicast client already exists, just joining multicast group {Constants.LinkLocalMulticastGroup} for interface index {index}");
             }
         }
 

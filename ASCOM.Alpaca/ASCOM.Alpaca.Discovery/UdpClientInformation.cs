@@ -15,18 +15,18 @@ namespace ASCOM.Alpaca.Discovery
         public UdpClientInformation()
         {
             UdpClient = null;
-            MulticastAddress = null;
+            InterfaceNumber = 0;
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="UdpClientInformation"/> class with the specified UDP client and multicast address.
+        /// Initializes a new instance of the <see cref="UdpClientInformation"/> class with the specified UDP client and interface number.
         /// </summary>
         /// <param name="udpClient">The UDP client.</param>
-        /// <param name="multicastAddress">The multicast address.</param>
-        public UdpClientInformation(UdpClient udpClient, IPAddress multicastAddress)
+        /// <param name="interfaceNumber">The interface number.</param>
+        public UdpClientInformation(UdpClient udpClient, int interfaceNumber)
         {
             UdpClient = udpClient;
-            MulticastAddress = multicastAddress;
+            InterfaceNumber = interfaceNumber;
         }
 
         /// <summary>
@@ -35,17 +35,17 @@ namespace ASCOM.Alpaca.Discovery
         public UdpClient UdpClient { get; set; } = null;
 
         /// <summary>
-        /// The multicast address associated with the UDP client.
+        /// The interface number associated with the UDP client.
         /// </summary>
-        public IPAddress MulticastAddress { get; set; } = null;
+        public int InterfaceNumber { get; set; } = 0;
 
         /// <summary>
         /// Disposes the UDP client.
         /// </summary>
         public void Dispose()
         {
-            try { UdpClient?.Close(); } catch { }
-            try { UdpClient?.Dispose(); } catch { }
+            UdpClient?.Close();
+            UdpClient?.Dispose();
         }
     }
 }
