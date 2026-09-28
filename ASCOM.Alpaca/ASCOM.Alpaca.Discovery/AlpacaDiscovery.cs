@@ -771,9 +771,9 @@ namespace ASCOM.Alpaca.Discovery
 
             // Create a .NET Standard2.0 compatible client. AddressFamily.InterNetworkV6 allows it to work with IPv6 addresses. Setting dual mode allows the IPv6 socket to accept and route IPv4 traffic as well.
             using (TcpClient tcpClient = new TcpClient(AddressFamily.InterNetworkV6) { Client = { DualMode = true } })
-            
+
 #endif
-                { 
+            {
                 // IAsyncResult used to track the pending connection attempt.
                 IAsyncResult connectResult = null;
 
@@ -952,7 +952,7 @@ namespace ASCOM.Alpaca.Discovery
         {
             try
             {
-                LogMessage("FoundDeviceEventHandler", $"FOUND Alpaca device at {responderIPEndPoint.Address}:{responderIPEndPoint.Port}"); // Log reception of the broadcast response
+                LogMessage("FoundDeviceEventHandler", $"FOUND Alpaca device at {responderIPEndPoint}"); // Log reception of the broadcast response
 
                 // Add the new device or ignore this duplicate if it already exists
                 lock (deviceListLockObject) // Make sure that the device list dictionary can't change while being read and that only one thread can update it at a time
@@ -967,7 +967,7 @@ namespace ASCOM.Alpaca.Discovery
                 // Create a task to query this device's DNS name, if configured to do so
                 if (tryDnsNameResolution)
                 {
-                    LogMessage("FoundDeviceEventHandler", $"Creating task to retrieve DNS information for device {responderIPEndPoint}:{responderIPEndPoint.Port}");
+                    LogMessage("FoundDeviceEventHandler", $"Creating task to retrieve DNS information for device {responderIPEndPoint}");
                     var dnsResolutionThread = new Thread(ResolveIpAddressToHostName)
                     {
                         IsBackground = true
@@ -976,7 +976,7 @@ namespace ASCOM.Alpaca.Discovery
                 }
 
                 // Create a task to query this device's Alpaca management API
-                LogMessage("FoundDeviceEventHandler", $"Creating thread to retrieve Alpaca management description for device {responderIPEndPoint}:{responderIPEndPoint.Port}");
+                LogMessage("FoundDeviceEventHandler", $"Creating thread to retrieve Alpaca management description for device {responderIPEndPoint}");
                 var descriptionThread = new Thread(GetAlpacaDeviceInformation)
                 {
                     IsBackground = true
@@ -996,76 +996,46 @@ namespace ASCOM.Alpaca.Discovery
         private async void GetAlpacaDeviceInformation(object deviceIpEndPointObject)
         {
             IPEndPoint deviceIpEndPoint = deviceIpEndPointObject as IPEndPoint;
-            string hostIpAndPort;
-
-            // Create a text version of the host IP address and port
-            switch (deviceIpEndPoint.AddressFamily)
-            {
-                case AddressFamily.InterNetwork:
-                    hostIpAndPort = $"{serviceType.ToString().ToLowerInvariant()}://{deviceIpEndPoint}";
-                    break;
-
-                case AddressFamily.InterNetworkV6:
-                    string scopeId = $"%{deviceIpEndPoint.Address.ScopeId}"; // Obtain the IPv6 scope ID in text form (if present)
-                    LogMessage("GetAlpacaDeviceInformation", $"Device IP Endpoint: {deviceIpEndPoint}, Whole Address: {deviceIpEndPoint.Address}, Family: {deviceIpEndPoint.AddressFamily}, " +
-                        $"Scope  ID: {deviceIpEndPoint.Address.ScopeId}, Port: {deviceIpEndPoint.Port}, Is link local: {deviceIpEndPoint.Address.IsIPv6LinkLocal}," +
-                        $",OS Architecture: {RuntimeInformation.OSArchitecture}.");
-
-                    // Handle different requirements for address format
-                    if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                    {
-                        // Must exclude the scope ID
-                        hostIpAndPort = $"{serviceType.ToString().ToLowerInvariant()}://{deviceIpEndPoint.ToString().Replace(scopeId, string.Empty)}"; // Create the overall URI
-                        LogMessage("GetAlpacaDeviceInformation", $"WINDOWS - Device IP Endpoint: {deviceIpEndPoint}, Whole Address: {deviceIpEndPoint.Address}, Family: {deviceIpEndPoint.AddressFamily}, " +
-                            $"Scope  ID: {deviceIpEndPoint.Address.ScopeId}, Port: {deviceIpEndPoint.Port}, Is link local: {deviceIpEndPoint.Address.IsIPv6LinkLocal}," +
-                            $",OS Architecture: {RuntimeInformation.OSArchitecture}, URL base: {hostIpAndPort}.");
-                    }
-                    else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) // Linux
-                    {
-                        if ((RuntimeInformation.OSArchitecture == Architecture.X86) || (RuntimeInformation.OSArchitecture == Architecture.X64)) // Linux on Intel
-                        {
-                            // Must include the scope ID
-                            hostIpAndPort = $"{serviceType.ToString().ToLowerInvariant()}://{deviceIpEndPoint}"; // Create the overall URI
-                            LogMessage("GetAlpacaDeviceInformation", $"LINUX-INTEL - Device IP Endpoint: {deviceIpEndPoint}, Whole Address: {deviceIpEndPoint.Address}, Family: {deviceIpEndPoint.AddressFamily}, " +
-                                $"Scope  ID: {deviceIpEndPoint.Address.ScopeId}, Port: {deviceIpEndPoint.Port}, Is link local: {deviceIpEndPoint.Address.IsIPv6LinkLocal}," +
-                                $",OS Architecture: {RuntimeInformation.OSArchitecture}, URL base: {hostIpAndPort}.");
-                        }
-                        else // Linux on ARM
-                        {
-                            // Must include the scope ID
-                            hostIpAndPort = $"{serviceType.ToString().ToLowerInvariant()}://{deviceIpEndPoint}"; // Create the overall URI
-                            LogMessage("GetAlpacaDeviceInformation", $"LINUX-ARM - Device IP Endpoint: {deviceIpEndPoint}, Whole Address: {deviceIpEndPoint.Address}, Family: {deviceIpEndPoint.AddressFamily}, " +
-                                $"Scope  ID: {deviceIpEndPoint.Address.ScopeId}, Port: {deviceIpEndPoint.Port}, Is link local: {deviceIpEndPoint.Address.IsIPv6LinkLocal}," +
-                                $",OS Architecture: {RuntimeInformation.OSArchitecture}, URL base: {hostIpAndPort}.");
-                        }
-                    }
-                    else // OSX
-                    {
-                        // Must include the scope ID
-                        hostIpAndPort = $"{serviceType.ToString().ToLowerInvariant()}://{deviceIpEndPoint}"; // Create the overall URI
-                        LogMessage("GetAlpacaDeviceInformation", $"OSX - Device IP Endpoint: {deviceIpEndPoint}, Whole Address: {deviceIpEndPoint.Address}, Family: {deviceIpEndPoint.AddressFamily}, " +
-                            $"Scope  ID: {deviceIpEndPoint.Address.ScopeId}, Port: {deviceIpEndPoint.Port}, Is link local: {deviceIpEndPoint.Address.IsIPv6LinkLocal}," +
-                            $",OS Architecture: {RuntimeInformation.OSArchitecture}, URL base: {hostIpAndPort}.");
-                    }
-                    break;
-
-                default:
-                    hostIpAndPort = $"{serviceType.ToString().ToLowerInvariant()}://{deviceIpEndPoint}";
-                    break;
-            }
+            string hostIpAndPort = "None assigned";
 
             try
             {
-                LogMessage("GetAlpacaDeviceInformation", $"Host URL: {hostIpAndPort} DISCOVERY TIMEOUT: {discoveryTime} ({discoveryTime * 1000d})");
+                // Create a text version of the host IP address and port
+                hostIpAndPort = $"{serviceType.ToString().ToLowerInvariant()}://{deviceIpEndPoint}";
+                switch (deviceIpEndPoint.AddressFamily)
+                {
+                    case AddressFamily.InterNetwork:
+                        LogMessage("GetAlpacaDeviceInformation", $"Device IPv4 Endpoint: {deviceIpEndPoint}, Whole Address: {deviceIpEndPoint.Address}, Family: {deviceIpEndPoint.AddressFamily}, " +
+                            $"Port: {deviceIpEndPoint.Port}, OS: {OsHelper.GetGenericOsName()}, OS Architecture: {RuntimeInformation.OSArchitecture}, URL base: {hostIpAndPort}, Discovery timeout: {discoveryTime}.");
+                        break;
+
+                    case AddressFamily.InterNetworkV6:
+                        // // Create the overall URI including the scope ID
+                        LogMessage("GetAlpacaDeviceInformation", $"Device IPv6 Endpoint: {deviceIpEndPoint}, Whole Address: {deviceIpEndPoint.Address}, Family: {deviceIpEndPoint.AddressFamily}, " +
+                            $"Scope  ID: {deviceIpEndPoint.Address.ScopeId}, Port: {deviceIpEndPoint.Port}, Is link local: {deviceIpEndPoint.Address.IsIPv6LinkLocal}," +
+                            $"OS: {OsHelper.GetGenericOsName()}, OS Architecture: {RuntimeInformation.OSArchitecture}, URL base: {hostIpAndPort}, Discovery timeout: {discoveryTime}.");
+                        break;
+
+                    default:
+                        LogMessage("GetAlpacaDeviceInformation", $"Device IPv? Endpoint: {deviceIpEndPoint}, Whole Address: {deviceIpEndPoint.Address}, Family: {deviceIpEndPoint.AddressFamily}, " +
+                            $"Port: {deviceIpEndPoint.Port}, OS: {OsHelper.GetGenericOsName()}, OS Architecture: {RuntimeInformation.OSArchitecture}, URL base: {hostIpAndPort}, Discovery timeout: {discoveryTime}.");
+                        break;
+                }
 
                 // Wait for API version result and process it
-                LogMessage("GetAlpacaDeviceInformation", $"About to get version information from {hostIpAndPort}/management/apiversions at IP endpoint {deviceIpEndPoint.Address} {deviceIpEndPoint.AddressFamily}");
+                LogMessage("GetAlpacaDeviceInformation", $"About to get version information from {hostIpAndPort}/management/apiversions");
                 string apiVersionsJsonResponse = await httpClient.GetStringAsync($"{hostIpAndPort}/management/apiversions");
+
+                // Process the response
                 LogMessage("GetAlpacaDeviceInformation", $"Received JSON response from {hostIpAndPort}: {apiVersionsJsonResponse}");
                 IntArray1DResponse apiVersionsResponse = JsonSerializer.Deserialize<IntArray1DResponse>(apiVersionsJsonResponse, jsonSerializerOptions);
+
+                // Check that the response was de-serialized successfully
                 if (apiVersionsResponse is null)
                     throw new InvalidOperationException($"GetAlpacaDeviceInformation - Failed to de-serialize API versions response from {hostIpAndPort}: {apiVersionsJsonResponse}");
-                lock (deviceListLockObject)// Make sure that only one thread can update the device list dictionary at a time
+
+                // Make sure that only one thread can update the device list dictionary at a time
+                lock (deviceListLockObject)
                 {
                     alpacaDeviceList[deviceIpEndPoint].SupportedInterfaceVersions = apiVersionsResponse.Value;
                     alpacaDeviceList[deviceIpEndPoint].StatusMessage = ""; // Clear the status field to indicate that this first call was successful
@@ -1076,11 +1046,17 @@ namespace ASCOM.Alpaca.Discovery
 
                 // Wait for device description result and process it
                 string deviceDescriptionJsonResponse = await httpClient.GetStringAsync($"{hostIpAndPort}/management/v1/description");
+
+                // Process the response
                 LogMessage("GetAlpacaDeviceInformation", $"Received JSON response from {hostIpAndPort}: {deviceDescriptionJsonResponse}");
                 var deviceDescriptionResponse = JsonSerializer.Deserialize<AlpacaDescriptionResponse>(deviceDescriptionJsonResponse, jsonSerializerOptions);
+
+                // Check that the response was de-serialized successfully
                 if (deviceDescriptionResponse is null)
                     throw new InvalidOperationException($"GetAlpacaDeviceInformation - Failed to de-serialize device description response from {hostIpAndPort}: {deviceDescriptionJsonResponse}");
-                lock (deviceListLockObject)// Make sure that only one thread can update the device list dictionary at a time
+
+                // Make sure that only one thread can update the device list dictionary at a time
+                lock (deviceListLockObject)
                 {
                     alpacaDeviceList[deviceIpEndPoint].ServerName = deviceDescriptionResponse.Value.ServerName;
                     alpacaDeviceList[deviceIpEndPoint].Manufacturer = deviceDescriptionResponse.Value.Manufacturer;
@@ -1091,13 +1067,18 @@ namespace ASCOM.Alpaca.Discovery
                 // Device list was changed so set the changed flag
                 RaiseAnAlpacaDevicesChangedEvent();
 
-                // Wait for configured devices result and process it
+                // Wait for configured devices result
                 string configuredDevicesJsonResponse = await httpClient.GetStringAsync($"{hostIpAndPort}/management/v1/configureddevices");
+
+                // Process the response
                 LogMessage("GetAlpacaDeviceInformation", $"Received JSON response from {hostIpAndPort}: {configuredDevicesJsonResponse}");
                 AlpacaConfiguredDevicesResponse configuredDevicesResponse = JsonSerializer.Deserialize<AlpacaConfiguredDevicesResponse>(configuredDevicesJsonResponse, jsonSerializerOptions);
+
                 if (configuredDevicesResponse is null)
                     throw new InvalidOperationException($"GetAlpacaDeviceInformation - Failed to de-serialize configured devices response from {hostIpAndPort}: {configuredDevicesJsonResponse}");
-                lock (deviceListLockObject)// Make sure that only one thread can update the device list dictionary at a time
+
+                // Make sure that only one thread can update the device list dictionary at a time
+                lock (deviceListLockObject)
                 {
                     // Add a list of available AscomDevices to the AlpacaDevice instance
                     List<AscomDevice> ascomDevices = new List<AscomDevice>();
@@ -1127,6 +1108,7 @@ namespace ASCOM.Alpaca.Discovery
                     {
                         LogMessage("GetAlpacaDeviceInformation", $"Found configured device: {configuredDevce.DeviceName} {configuredDevce.DeviceType} {configuredDevce.UniqueID}");
                     }
+
                     LogMessage("GetAlpacaDeviceInformation", $"Completed list of configured devices");
                 }
 

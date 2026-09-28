@@ -83,11 +83,11 @@
     <PlugInConfigurations>
       <PlugInConfig id="Version Builder" enabled="True">
         <configuration>
-  <currentProject label="" version=".NET Standard 2.0, .NET 8 .NET 9. .NET 10" ripOldApis="true" />
-  <versions>
-    <version label=".NET" version=".NET 8.0 and later" helpFileProject="..\ChooserSAHelp\ChooserSAHelp.shfbproj" />
-  </versions>
-</configuration>
+          <currentProject label="" version=".NET Standard 2.0, .NET 8 .NET 9. .NET 10" ripOldApis="true" />
+          <versions>
+            <version label=".NET" version=".NET 8.0 and later" helpFileProject="..\ChooserSAHelp\ChooserSAHelp.shfbproj" />
+          </versions>
+        </configuration>
       </PlugInConfig>
     </PlugInConfigurations>
     <VisibleItems>Attributes, ExplicitInterfaceImplementations, InheritedMembers, ProtectedInternalAsProtected</VisibleItems>
@@ -162,6 +162,7 @@
     <None Include="AsyncClientExtensions.aml" />
     <None Include="HowToDisplayAChooser.aml" />
     <Content Include="icons\favicon.ico" />
+    <None Include="HowToEnableMulticastOnLinuxLoopback.md" />
     <None Include="Introduction.aml" />
     <None Include="DeviceDriverPointers.aml" />
     <None Include="ApplicationDeveloperPointers.aml" />
