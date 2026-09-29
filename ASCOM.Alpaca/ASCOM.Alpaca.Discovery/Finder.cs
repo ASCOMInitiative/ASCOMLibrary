@@ -542,11 +542,12 @@ namespace ASCOM.Alpaca.Discovery
                                 continue;
                             }
 
-                            LogDebug("SearchIPv6", $"  Address {uni.Address} supports IPv6 - Is linklocal: {uni.Address.IsIPv6LinkLocal}, Is loopback: {IPAddress.IsLoopback(uni.Address)}");
+                            LogDebug("SearchIPv6", $"  Address {uni.Address} supports IPv6 - Is linklocal: {uni.Address.IsIPv6LinkLocal}, Is loopback: {IPAddress.IsLoopback(uni.Address)}, Running on: {OsHelper.GetGenericOsName()}");
 
                             // Check whether this is a loopback address and process it as a multicast address.
                             if (IPAddress.IsLoopback(uni.Address)) // Address is IPv6 loopback
                             {
+                                LogDebug("SearchIPv6", $"  Address {uni.Address} is a loopback address on {OsHelper.GetGenericOsName()} OS.");
                                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) // Address is IPv6 loopback and OSPlatform is Windows
                                 {
                                     // Check whether the network interface supports multicast and ignore if it does not.
@@ -558,7 +559,7 @@ namespace ASCOM.Alpaca.Discovery
 
                                     try
                                     {
-                                        LogDebug("SearchIPv6", $"  Sending multicast IPv6 discovery packet to {uni.Address}.");
+                                        LogDebug("SearchIPv6", $"  Sending multicast IPv6 discovery packet to loopback address {uni.Address} with host scope ID {uni.Address.ScopeId}.");
 
                                         // Create a new UdpClient for this loopback address if one does not already exist
                                         if (!IPv6Clients.ContainsKey(uni)) // Client does not exist for this loopback address, so create one
@@ -616,6 +617,8 @@ namespace ASCOM.Alpaca.Discovery
                             } // Address is loopback
                             else // Address is not loopback
                             {
+                                LogDebug("SearchIPv6", $"  Address {uni.Address} is NOT a loopback address on {OsHelper.GetGenericOsName()} OS.");
+
                                 // Check whether the network interface supports multicast and ignore if it does not.
                                 if (!networkInterface.SupportsMulticast) // Address is IPv6 loopback and the network interface does not support multicast
                                 {
