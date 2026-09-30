@@ -336,8 +336,7 @@ namespace ASCOM.Alpaca.Discovery
                                 {
                                     // Add a new UDP client for this IPv6 link-local address and interface index
                                     CreateIpV6MulticastClient(ipv6Properties.Index);
-                                    LogInformation($"Added link local multicast IPv6 discovery responder for address: {unicastAddress.Address}:{DiscoveryPort} on interface {networkInterface.Name} (index: {ipv6Properties.Index}). " +
-                                        $"Is IPv6 Link Local: {unicastAddress.Address.IsIPv6LinkLocal}, Supports Multicast: {networkInterface.SupportsMulticast}.");
+                                    LogInformation($"Added link local multicast IPv6 discovery responder for address: {unicastAddress.Address}:{DiscoveryPort} on interface {networkInterface.Name} (index: {ipv6Properties.Index}).");
                                 }
                                 catch (Exception ex)
                                 {
