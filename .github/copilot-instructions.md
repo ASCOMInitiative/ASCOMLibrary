@@ -2,6 +2,7 @@
 
 ## General Guidelines
 - When addressing multiple requested issues, fix them sequentially and create a separate commit after each issue before beginning the next.
+- For legacy CryptoAPI code-signing certificates, do not infer that `AT_KEYEXCHANGE` (`KeyNumber = Exchange`) is invalid for SignTool; treat the provider/key-container association and the CSP's signing capability as the decisive factors.
 
 ## Build and test commands
 
