@@ -7,6 +7,8 @@ namespace CertumSigningTest;
 
 internal static class Program
 {
+    private static NativeMethods.AuthenticodeDigestSignEx? authenticodeDigestSign;
+
     private static void Main(string[] args)
     {
         try
@@ -68,8 +70,6 @@ internal static class Program
             Console.WriteLine("Opening the existing CSP key container directly.");
             using RSACryptoServiceProvider rsa = new(cspParameters);
             Console.WriteLine($"Acquired RSA private key: {rsa.GetType().FullName}.");
-            CspKeyContainerInfo cspKeyContainerInfo = rsa.CspKeyContainerInfo;
-            Console.WriteLine($"Resolved CSP provider '{cspKeyContainerInfo.ProviderName}', provider type {cspKeyContainerInfo.ProviderType}, key spec {cspKeyContainerInfo.KeyNumber}, key container '{cspKeyContainerInfo.KeyContainerName}'.");
 
             byte[] data = Encoding.UTF8.GetBytes(message);
             Console.WriteLine($"Created {data.Length} bytes of UTF-8 test data.");
@@ -91,7 +91,16 @@ internal static class Program
             }
 
             using X509Certificate2 signerCertificateContext = X509CertificateLoader.LoadCertificate(certificate.RawData);
-            Console.WriteLine($"Created a detached signing-certificate context; private-key association present: {signerCertificateContext.HasPrivateKey}.");
+            Console.WriteLine("Prepared the public signing certificate. The private key remains in the crypto3 CSP.");
+
+            using X509Chain certificateChain = new();
+            certificateChain.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck;
+            certificateChain.Build(certificate);
+            byte[][] chainCertificates = new byte[certificateChain.ChainElements.Count][];
+            for (int index = 0; index < certificateChain.ChainElements.Count; index++)
+            {
+                chainCertificates[index] = certificateChain.ChainElements[index].Certificate.RawData;
+            }
 
             Console.WriteLine("Binding the selected certificate to the Authenticode signing request.");
             NativeMethods.SignerCertificateStoreInfo signerCertificateStoreInfo = new()
@@ -114,14 +123,12 @@ internal static class Program
             };
             Console.WriteLine("Configured the certificate-store signing source.");
 
-            Console.WriteLine("Using provider and key-container information resolved from the active CSP key.");
-
             IntPtr signerFileInfoPointer = IntPtr.Zero;
             IntPtr signerSubjectIndexPointer = IntPtr.Zero;
-            IntPtr signerProviderNamePointer = IntPtr.Zero;
-            IntPtr signerKeyContainerPointer = IntPtr.Zero;
-            IntPtr signerProviderInfoPointer = IntPtr.Zero;
             IntPtr signerContext = IntPtr.Zero;
+            NativeMethods.AuthenticodeDigestSignEx digestSign = (metadata, digestAlgorithm, digest, digestLength, signedDigest, signerCertificatePointer, certificateChainStore) =>
+                SignAuthenticodeDigest(rsa, signerCertificateContext.Handle, chainCertificates, digestAlgorithm, digest, digestLength, signedDigest, signerCertificatePointer, certificateChainStore);
+            authenticodeDigestSign = digestSign;
 
             try
             {
@@ -157,31 +164,34 @@ internal static class Program
                 };
                 Console.WriteLine("Configured SHA-256 Authenticode signing.");
 
-                signerProviderNamePointer = Marshal.StringToHGlobalUni(cspKeyContainerInfo.ProviderName);
-                signerKeyContainerPointer = Marshal.StringToHGlobalUni(cspKeyContainerInfo.KeyContainerName);
-                NativeMethods.SignerProviderInfo signerProviderInfo = new()
+                NativeMethods.SignerDigestSignInfo digestSignInfo = new()
                 {
-                    Size = (uint)Marshal.SizeOf<NativeMethods.SignerProviderInfo>(),
-                    ProviderName = signerProviderNamePointer,
-                    ProviderType = (uint)cspKeyContainerInfo.ProviderType,
-                    KeySpec = (uint)cspKeyContainerInfo.KeyNumber,
-                    PrivateKeyChoice = NativeMethods.SignerProviderKeyContainer,
-                    KeyContainer = signerKeyContainerPointer
+                    Size = (uint)Marshal.SizeOf<NativeMethods.SignerDigestSignInfo>(),
+                    Choice = NativeMethods.DigestSignEx,
+                    Callback = Marshal.GetFunctionPointerForDelegate(digestSign),
+                    Metadata = IntPtr.Zero,
+                    Reserved = 0,
+                    Reserved2 = 0,
+                    Reserved3 = 0
                 };
-                signerProviderInfoPointer = Marshal.AllocHGlobal(Marshal.SizeOf<NativeMethods.SignerProviderInfo>());
-                Marshal.StructureToPtr(signerProviderInfo, signerProviderInfoPointer, false);
+                Console.WriteLine("Configured the crypto3 CSP to sign the Authenticode digest directly.");
 
                 Console.WriteLine("Calling the Windows Authenticode signer. The Certum PIN dialog may appear now.");
-                int signingResult = NativeMethods.SignerSignEx(
-                    0,
+                int signingResult = NativeMethods.SignerSignEx3(
+                    NativeMethods.SpcDigestSignExFlag,
                     ref signerSubjectInfo,
                     ref signerCertificate,
                     ref signerSignatureInfo,
-                    signerProviderInfoPointer,
-                    null,
+                    IntPtr.Zero,
+                    0,
                     IntPtr.Zero,
                     IntPtr.Zero,
-                    out signerContext);
+                    IntPtr.Zero,
+                    IntPtr.Zero,
+                    out signerContext,
+                    IntPtr.Zero,
+                    ref digestSignInfo,
+                    IntPtr.Zero);
 
                 if (signingResult != 0)
                 {
@@ -204,21 +214,7 @@ internal static class Program
                     Console.WriteLine("Released the Authenticode subject-index resources.");
                 }
 
-                if (signerProviderInfoPointer != IntPtr.Zero)
-                {
-                    Marshal.FreeHGlobal(signerProviderInfoPointer);
-                    Console.WriteLine("Released the Authenticode provider-information resources.");
-                }
-
-                if (signerProviderNamePointer != IntPtr.Zero)
-                {
-                    Marshal.FreeHGlobal(signerProviderNamePointer);
-                }
-
-                if (signerKeyContainerPointer != IntPtr.Zero)
-                {
-                    Marshal.FreeHGlobal(signerKeyContainerPointer);
-                }
+                authenticodeDigestSign = null;
 
                 if (signerFileInfoPointer != IntPtr.Zero)
                 {
@@ -295,30 +291,129 @@ internal static class Program
         Console.ReadKey();
     }
 
+    private static int SignAuthenticodeDigest(
+        RSACryptoServiceProvider signingKey,
+        IntPtr publicCertificate,
+        byte[][] chainCertificates,
+        uint digestAlgorithm,
+        IntPtr digest,
+        uint digestLength,
+        IntPtr signedDigest,
+        IntPtr signerCertificatePointer,
+        IntPtr certificateChainStore)
+    {
+        try
+        {
+            if (digestAlgorithm != NativeMethods.CalgSha256)
+            {
+                Console.Error.WriteLine($"The Authenticode digest algorithm 0x{digestAlgorithm:X8} is not SHA-256.");
+                return unchecked((int)0x80090027);
+            }
+
+            Console.WriteLine($"Signing the {digestLength}-byte Authenticode digest with the crypto3 CSP Exchange key.");
+            byte[] hash = new byte[digestLength];
+            Marshal.Copy(digest, hash, 0, hash.Length);
+            byte[] signature = signingKey.SignHash(hash, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
+            IntPtr signatureBuffer = NativeMethods.HeapAlloc(NativeMethods.GetProcessHeap(), 0, (UIntPtr)signature.Length);
+            if (signatureBuffer == IntPtr.Zero)
+            {
+                return unchecked((int)0x8007000E);
+            }
+
+            Marshal.Copy(signature, 0, signatureBuffer, signature.Length);
+            Marshal.WriteInt32(signedDigest, signature.Length);
+            Marshal.WriteIntPtr(signedDigest, IntPtr.Size, signatureBuffer);
+            Marshal.WriteIntPtr(signerCertificatePointer, NativeMethods.CertDuplicateCertificateContext(publicCertificate));
+
+            if (certificateChainStore != IntPtr.Zero)
+            {
+                foreach (byte[] encodedCertificate in chainCertificates)
+                {
+                    IntPtr certificateContext = NativeMethods.CertCreateCertificateContext(NativeMethods.CertEncoding, encodedCertificate, (uint)encodedCertificate.Length);
+                    if (certificateContext == IntPtr.Zero)
+                    {
+                        continue;
+                    }
+
+                    NativeMethods.CertAddCertificateContextToStore(certificateChainStore, certificateContext, NativeMethods.CertStoreAddAlways, out IntPtr storedContext);
+                    if (storedContext != IntPtr.Zero)
+                    {
+                        NativeMethods.CertFreeCertificateContext(storedContext);
+                    }
+
+                    NativeMethods.CertFreeCertificateContext(certificateContext);
+                }
+            }
+
+            Console.WriteLine($"Created a {signature.Length}-byte Authenticode signature with the CSP key.");
+            return 0;
+        }
+        catch (Exception exception)
+        {
+            Console.Error.WriteLine($"Authenticode digest signing failed: {exception.Message}");
+            return exception.HResult;
+        }
+    }
 
     internal static class NativeMethods
     {
         internal const uint SignerSubjectFile = 1;
         internal const uint SignerCertStore = 2;
         internal const uint SignerNoAttributes = 0;
-        internal const uint SignerProviderKeyContainer = 2;
         internal const uint SignerCertPolicyChain = 2;
         internal const uint CalgSha256 = 0x0000800C;
+        internal const uint SpcDigestSignExFlag = 0x4000;
+        internal const uint DigestSignEx = 3;
+        internal const uint CertEncoding = 0x00010001;
+        internal const uint CertStoreAddAlways = 4;
+
+        [UnmanagedFunctionPointer(CallingConvention.StdCall)]
+        internal delegate int AuthenticodeDigestSignEx(
+            IntPtr metadata,
+            uint digestAlgorithm,
+            IntPtr digest,
+            uint digestLength,
+            IntPtr signedDigest,
+            IntPtr signerCertificate,
+            IntPtr certificateChainStore);
 
         [DllImport("mssign32.dll", CharSet = CharSet.Unicode)]
-        internal static extern int SignerSignEx(
+        internal static extern int SignerSignEx3(
             uint flags,
             ref SignerSubjectInfo subjectInfo,
             ref SignerCertificate signerCertificate,
             ref SignerSignatureInfo signatureInfo,
             IntPtr providerInfo,
-            string? timestampUrl,
+            uint timestampFlags,
+            IntPtr timestampAlgorithmOid,
+            IntPtr timestampUrl,
             IntPtr request,
             IntPtr sipData,
-            out IntPtr signerContext);
+            out IntPtr signerContext,
+            IntPtr cryptoPolicy,
+            ref SignerDigestSignInfo digestSignInfo,
+            IntPtr reserved);
 
         [DllImport("mssign32.dll")]
         internal static extern int SignerFreeSignerContext(IntPtr signerContext);
+
+        [DllImport("kernel32.dll")]
+        internal static extern IntPtr GetProcessHeap();
+
+        [DllImport("kernel32.dll")]
+        internal static extern IntPtr HeapAlloc(IntPtr heap, uint flags, UIntPtr size);
+
+        [DllImport("crypt32.dll", SetLastError = true)]
+        internal static extern IntPtr CertDuplicateCertificateContext(IntPtr certificateContext);
+
+        [DllImport("crypt32.dll", SetLastError = true)]
+        internal static extern IntPtr CertCreateCertificateContext(uint encoding, byte[] encodedCertificate, uint length);
+
+        [DllImport("crypt32.dll", SetLastError = true)]
+        internal static extern bool CertAddCertificateContextToStore(IntPtr store, IntPtr certificateContext, uint disposition, out IntPtr storedContext);
+
+        [DllImport("crypt32.dll", SetLastError = true)]
+        internal static extern bool CertFreeCertificateContext(IntPtr certificateContext);
 
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
         internal struct SignerFileInfo
@@ -368,14 +463,15 @@ internal static class Program
         }
 
         [StructLayout(LayoutKind.Sequential)]
-        internal struct SignerProviderInfo
+        internal struct SignerDigestSignInfo
         {
             internal uint Size;
-            internal IntPtr ProviderName;
-            internal uint ProviderType;
-            internal uint KeySpec;
-            internal uint PrivateKeyChoice;
-            internal IntPtr KeyContainer;
+            internal uint Choice;
+            internal IntPtr Callback;
+            internal IntPtr Metadata;
+            internal uint Reserved;
+            internal uint Reserved2;
+            internal uint Reserved3;
         }
 
         internal const uint WinTrustUiNone = 2;
