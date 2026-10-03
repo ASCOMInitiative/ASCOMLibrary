@@ -116,6 +116,7 @@ internal static class Program
             Console.WriteLine("Bound crypto3 CSP and the Exchange key container to the signing request.");
 
             IntPtr signerFileInfoPointer = IntPtr.Zero;
+            IntPtr signerSubjectIndexPointer = IntPtr.Zero;
             IntPtr signerContext = IntPtr.Zero;
 
             try
@@ -131,10 +132,12 @@ internal static class Program
                 Marshal.StructureToPtr(signerFileInfo, signerFileInfoPointer, false);
                 Console.WriteLine("Created the Authenticode file subject.");
 
+                signerSubjectIndexPointer = Marshal.AllocHGlobal(Marshal.SizeOf<uint>());
+                Marshal.WriteInt32(signerSubjectIndexPointer, 0);
                 NativeMethods.SignerSubjectInfo signerSubjectInfo = new()
                 {
                     Size = (uint)Marshal.SizeOf<NativeMethods.SignerSubjectInfo>(),
-                    Index = IntPtr.Zero,
+                    Index = signerSubjectIndexPointer,
                     SubjectChoice = NativeMethods.SignerSubjectFile,
                     Subject = signerFileInfoPointer
                 };
@@ -144,8 +147,9 @@ internal static class Program
                     Size = (uint)Marshal.SizeOf<NativeMethods.SignerSignatureInfo>(),
                     HashAlgorithm = NativeMethods.CalgSha256,
                     AttributeChoice = NativeMethods.SignerNoAttributes,
-                    Attributes = IntPtr.Zero,
-                    SipInfo = IntPtr.Zero
+                    AttributeAuthCode = IntPtr.Zero,
+                    AuthenticatedAttributes = IntPtr.Zero,
+                    UnauthenticatedAttributes = IntPtr.Zero
                 };
                 Console.WriteLine("Configured SHA-256 Authenticode signing.");
 
@@ -174,6 +178,12 @@ internal static class Program
                 {
                     NativeMethods.SignerFreeSignerContext(signerContext);
                     Console.WriteLine("Released the Authenticode signer context.");
+                }
+
+                if (signerSubjectIndexPointer != IntPtr.Zero)
+                {
+                    Marshal.FreeHGlobal(signerSubjectIndexPointer);
+                    Console.WriteLine("Released the Authenticode subject-index resources.");
                 }
 
                 if (signerFileInfoPointer != IntPtr.Zero)
@@ -318,8 +328,9 @@ internal static class Program
             internal uint Size;
             internal uint HashAlgorithm;
             internal uint AttributeChoice;
-            internal IntPtr Attributes;
-            internal IntPtr SipInfo;
+            internal IntPtr AttributeAuthCode;
+            internal IntPtr AuthenticatedAttributes;
+            internal IntPtr UnauthenticatedAttributes;
         }
 
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
@@ -377,5 +388,3 @@ internal static class Program
     }
 
 }
-
-
