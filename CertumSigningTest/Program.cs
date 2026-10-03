@@ -52,6 +52,11 @@ internal static class Program
             Console.WriteLine($"Certificate issuer: {certificate.Issuer}.");
             Console.WriteLine($"Certificate has private key: {certificate.HasPrivateKey}.");
 
+            if (!certificate.HasPrivateKey)
+            {
+                throw new CryptographicException("The selected certificate is not associated with a private key.");
+            }
+
             Console.WriteLine("Preparing direct legacy CSP access. The Certum PIN dialog may appear when the key is opened or used.");
 
             Console.WriteLine("Configuring direct access to the crypto3 CSP Exchange key container.");
@@ -63,6 +68,8 @@ internal static class Program
             Console.WriteLine("Opening the existing CSP key container directly.");
             using RSACryptoServiceProvider rsa = new(cspParameters);
             Console.WriteLine($"Acquired RSA private key: {rsa.GetType().FullName}.");
+            CspKeyContainerInfo cspKeyContainerInfo = rsa.CspKeyContainerInfo;
+            Console.WriteLine($"Resolved CSP provider '{cspKeyContainerInfo.ProviderName}', provider type {cspKeyContainerInfo.ProviderType}, key spec {cspKeyContainerInfo.KeyNumber}, key container '{cspKeyContainerInfo.KeyContainerName}'.");
 
             byte[] data = Encoding.UTF8.GetBytes(message);
             Console.WriteLine($"Created {data.Length} bytes of UTF-8 test data.");
@@ -83,11 +90,14 @@ internal static class Program
                 throw new CryptographicException("The generated signature did not verify with the certificate public key.");
             }
 
+            using X509Certificate2 signerCertificateContext = X509CertificateLoader.LoadCertificate(certificate.RawData);
+            Console.WriteLine($"Created a detached signing-certificate context; private-key association present: {signerCertificateContext.HasPrivateKey}.");
+
             Console.WriteLine("Binding the selected certificate to the Authenticode signing request.");
             NativeMethods.SignerCertificateStoreInfo signerCertificateStoreInfo = new()
             {
                 Size = (uint)Marshal.SizeOf<NativeMethods.SignerCertificateStoreInfo>(),
-                SigningCertificate = certificate.Handle,
+                SigningCertificate = signerCertificateContext.Handle,
                 CertificatePolicy = NativeMethods.SignerCertPolicyChain,
                 CertificateStore = IntPtr.Zero
             };
@@ -104,19 +114,13 @@ internal static class Program
             };
             Console.WriteLine("Configured the certificate-store signing source.");
 
-            NativeMethods.SignerProviderInfo signerProviderInfo = new()
-            {
-                Size = (uint)Marshal.SizeOf<NativeMethods.SignerProviderInfo>(),
-                ProviderName = "crypto3 CSP",
-                ProviderType = 1,
-                KeySpec = (uint)KeyNumber.Exchange,
-                PrivateKeyChoice = NativeMethods.SignerProviderKeyContainer,
-                KeyContainer = "C6994C9E2FDDBCCD89A53F8FDAE306715CA2606D"
-            };
-            Console.WriteLine("Bound crypto3 CSP and the Exchange key container to the signing request.");
+            Console.WriteLine("Using provider and key-container information resolved from the active CSP key.");
 
             IntPtr signerFileInfoPointer = IntPtr.Zero;
             IntPtr signerSubjectIndexPointer = IntPtr.Zero;
+            IntPtr signerProviderNamePointer = IntPtr.Zero;
+            IntPtr signerKeyContainerPointer = IntPtr.Zero;
+            IntPtr signerProviderInfoPointer = IntPtr.Zero;
             IntPtr signerContext = IntPtr.Zero;
 
             try
@@ -153,13 +157,27 @@ internal static class Program
                 };
                 Console.WriteLine("Configured SHA-256 Authenticode signing.");
 
+                signerProviderNamePointer = Marshal.StringToHGlobalUni(cspKeyContainerInfo.ProviderName);
+                signerKeyContainerPointer = Marshal.StringToHGlobalUni(cspKeyContainerInfo.KeyContainerName);
+                NativeMethods.SignerProviderInfo signerProviderInfo = new()
+                {
+                    Size = (uint)Marshal.SizeOf<NativeMethods.SignerProviderInfo>(),
+                    ProviderName = signerProviderNamePointer,
+                    ProviderType = (uint)cspKeyContainerInfo.ProviderType,
+                    KeySpec = (uint)cspKeyContainerInfo.KeyNumber,
+                    PrivateKeyChoice = NativeMethods.SignerProviderKeyContainer,
+                    KeyContainer = signerKeyContainerPointer
+                };
+                signerProviderInfoPointer = Marshal.AllocHGlobal(Marshal.SizeOf<NativeMethods.SignerProviderInfo>());
+                Marshal.StructureToPtr(signerProviderInfo, signerProviderInfoPointer, false);
+
                 Console.WriteLine("Calling the Windows Authenticode signer. The Certum PIN dialog may appear now.");
                 int signingResult = NativeMethods.SignerSignEx(
                     0,
                     ref signerSubjectInfo,
                     ref signerCertificate,
                     ref signerSignatureInfo,
-                    ref signerProviderInfo,
+                    signerProviderInfoPointer,
                     null,
                     IntPtr.Zero,
                     IntPtr.Zero,
@@ -184,6 +202,22 @@ internal static class Program
                 {
                     Marshal.FreeHGlobal(signerSubjectIndexPointer);
                     Console.WriteLine("Released the Authenticode subject-index resources.");
+                }
+
+                if (signerProviderInfoPointer != IntPtr.Zero)
+                {
+                    Marshal.FreeHGlobal(signerProviderInfoPointer);
+                    Console.WriteLine("Released the Authenticode provider-information resources.");
+                }
+
+                if (signerProviderNamePointer != IntPtr.Zero)
+                {
+                    Marshal.FreeHGlobal(signerProviderNamePointer);
+                }
+
+                if (signerKeyContainerPointer != IntPtr.Zero)
+                {
+                    Marshal.FreeHGlobal(signerKeyContainerPointer);
                 }
 
                 if (signerFileInfoPointer != IntPtr.Zero)
@@ -277,7 +311,7 @@ internal static class Program
             ref SignerSubjectInfo subjectInfo,
             ref SignerCertificate signerCertificate,
             ref SignerSignatureInfo signatureInfo,
-            ref SignerProviderInfo providerInfo,
+            IntPtr providerInfo,
             string? timestampUrl,
             IntPtr request,
             IntPtr sipData,
@@ -333,17 +367,15 @@ internal static class Program
             internal IntPtr UnauthenticatedAttributes;
         }
 
-        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+        [StructLayout(LayoutKind.Sequential)]
         internal struct SignerProviderInfo
         {
             internal uint Size;
-            [MarshalAs(UnmanagedType.LPWStr)]
-            internal string ProviderName;
+            internal IntPtr ProviderName;
             internal uint ProviderType;
             internal uint KeySpec;
             internal uint PrivateKeyChoice;
-            [MarshalAs(UnmanagedType.LPWStr)]
-            internal string KeyContainer;
+            internal IntPtr KeyContainer;
         }
 
         internal const uint WinTrustUiNone = 2;
