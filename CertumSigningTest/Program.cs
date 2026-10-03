@@ -2,6 +2,8 @@ using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Runtime.InteropServices;
+using System.Security;
+using System.Diagnostics;
 
 namespace CertumSigningTest;
 
@@ -9,15 +11,28 @@ internal static class Program
 {
     private static NativeMethods.AuthenticodeDigestSignEx? authenticodeDigestSign;
 
+    private static readonly bool debug = false;
+
     private static void Main(string[] args)
     {
         try
         {
+            Stopwatch stopwatch = Stopwatch.StartNew();
+
             const string thumbprint = "D75896DA61275CCA773682EA4622B9039BA3317F";
             const string message = "Certum private-key signing test";
             const string defaultTimestampUrl = "http://time.certum.pl";
             const string usage = "Usage: CertumSigningTest <relative-or-absolute-file-path> [RFC3161-timestamp-server-url]";
-            Console.WriteLine("Validating the command-line arguments.");
+
+            char[] password = new char[] { '4', '6', '3', '5' };
+            SecureString securePassword = new SecureString();
+            foreach (char c in password)
+            {
+                securePassword.AppendChar(c);
+            }
+            securePassword.MakeReadOnly();
+
+            if (debug) Console.WriteLine("Validating the command-line arguments.");
 
             if (args.Length is < 1 or > 2)
             {
@@ -25,14 +40,14 @@ internal static class Program
             }
 
             string filePath = Path.GetFullPath(args[0]);
-            Console.WriteLine($"Resolved the input file path to {filePath}.");
+            Console.WriteLine($"Signing {filePath}.");
 
             if (!File.Exists(filePath))
             {
                 throw new FileNotFoundException("The specified input file does not exist.", filePath);
             }
 
-            Console.WriteLine("Confirmed that the input file exists.");
+            if (debug) Console.WriteLine("Confirmed that the input file exists.");
 
             string timestampUrl = args.Length == 2 ? args[1] : defaultTimestampUrl;
             if (!Uri.TryCreate(timestampUrl, UriKind.Absolute, out Uri? timestampUri) ||
@@ -44,16 +59,16 @@ internal static class Program
             timestampUrl = timestampUri.AbsoluteUri;
             Console.WriteLine($"Using RFC 3161 timestamp server {timestampUrl}.");
 
-            Console.WriteLine($"Looking up certificate {thumbprint} in CurrentUser\\My.");
+            if (debug) Console.WriteLine($"Looking up certificate {thumbprint} in CurrentUser\\My.");
 
             using X509Store store = new(StoreName.My, StoreLocation.CurrentUser);
-            Console.WriteLine("Created the CurrentUser\\My certificate-store object.");
+            if (debug) Console.WriteLine("Created the CurrentUser\\My certificate-store object.");
 
             store.Open(OpenFlags.ReadOnly | OpenFlags.OpenExistingOnly);
-            Console.WriteLine("Opened CurrentUser\\My read-only.");
+            if (debug) Console.WriteLine("Opened CurrentUser\\My read-only.");
 
             X509Certificate2Collection matchingCertificates = store.Certificates.Find(X509FindType.FindByThumbprint, thumbprint, validOnly: false);
-            Console.WriteLine($"Found {matchingCertificates.Count} certificate(s) with the requested thumbprint.");
+            if (debug) Console.WriteLine($"Found {matchingCertificates.Count} certificate(s) with the requested thumbprint.");
 
             if (matchingCertificates.Count == 0)
             {
@@ -61,40 +76,41 @@ internal static class Program
             }
 
             using X509Certificate2 certificate = matchingCertificates[0];
-            Console.WriteLine($"Selected certificate: {certificate.Subject}.");
-            Console.WriteLine($"Certificate issuer: {certificate.Issuer}.");
-            Console.WriteLine($"Certificate has private key: {certificate.HasPrivateKey}.");
+            if (debug) Console.WriteLine($"Selected certificate: {certificate.Subject}.");
+            if (debug) Console.WriteLine($"Certificate issuer: {certificate.Issuer}.");
+            if (debug) Console.WriteLine($"Certificate has private key: {certificate.HasPrivateKey}.");
 
             if (!certificate.HasPrivateKey)
             {
                 throw new CryptographicException("The selected certificate is not associated with a private key.");
             }
 
-            Console.WriteLine("Preparing direct legacy CSP access. The Certum PIN dialog may appear when the key is opened or used.");
+            if (debug) Console.WriteLine("Preparing direct legacy CSP access. The Certum PIN dialog may appear when the key is opened or used.");
 
-            Console.WriteLine("Configuring direct access to the crypto3 CSP Exchange key container.");
+            if (debug) Console.WriteLine("Configuring direct access to the crypto3 CSP Exchange key container.");
             CspParameters cspParameters = new(1, "crypto3 CSP", "C6994C9E2FDDBCCD89A53F8FDAE306715CA2606D")
             {
                 Flags = CspProviderFlags.UseExistingKey,
-                KeyNumber = (int)KeyNumber.Exchange
+                KeyNumber = (int)KeyNumber.Exchange,
+                KeyPassword = securePassword
             };
-            Console.WriteLine("Opening the existing CSP key container directly.");
+            if (debug) Console.WriteLine("Opening the existing CSP key container directly.");
             using RSACryptoServiceProvider rsa = new(cspParameters);
-            Console.WriteLine($"Acquired RSA private key: {rsa.GetType().FullName}.");
+            if (debug) Console.WriteLine($"Acquired RSA private key: {rsa.GetType().FullName}.");
 
             byte[] data = Encoding.UTF8.GetBytes(message);
-            Console.WriteLine($"Created {data.Length} bytes of UTF-8 test data.");
+            if (debug) Console.WriteLine($"Created {data.Length} bytes of UTF-8 test data.");
 
-            Console.WriteLine("Signing the test data using SHA-256 and PKCS#1 v1.5 padding.");
+            if (debug) Console.WriteLine("Signing the test data using SHA-256 and PKCS#1 v1.5 padding.");
 
             byte[] signature = rsa.SignData(data, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
-            Console.WriteLine($"Signature created: {signature.Length} bytes.");
+            if (debug) Console.WriteLine($"Signature created: {signature.Length} bytes.");
 
             using RSA publicKey = certificate.GetRSAPublicKey() ?? throw new CryptographicException("The selected certificate did not provide an RSA public key.");
-            Console.WriteLine("Acquired the certificate RSA public key for signature verification.");
+            if (debug) Console.WriteLine("Acquired the certificate RSA public key for signature verification.");
 
             bool signatureIsValid = publicKey.VerifyData(data, signature, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
-            Console.WriteLine($"Signature verification using the certificate public key: {signatureIsValid}.");
+            if (debug) Console.WriteLine($"Signature verification using the certificate public key: {signatureIsValid}.");
 
             if (!signatureIsValid)
             {
@@ -102,7 +118,7 @@ internal static class Program
             }
 
             using X509Certificate2 signerCertificateContext = X509CertificateLoader.LoadCertificate(certificate.RawData);
-            Console.WriteLine("Prepared the public signing certificate. The private key remains in the crypto3 CSP.");
+            if (debug) Console.WriteLine("Prepared the public signing certificate. The private key remains in the crypto3 CSP.");
 
             using X509Chain certificateChain = new();
             certificateChain.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck;
@@ -113,7 +129,7 @@ internal static class Program
                 chainCertificates[index] = certificateChain.ChainElements[index].Certificate.RawData;
             }
 
-            Console.WriteLine("Binding the selected certificate to the Authenticode signing request.");
+            if (debug) Console.WriteLine("Binding the selected certificate to the Authenticode signing request.");
             NativeMethods.SignerCertificateStoreInfo signerCertificateStoreInfo = new()
             {
                 Size = (uint)Marshal.SizeOf<NativeMethods.SignerCertificateStoreInfo>(),
@@ -123,7 +139,7 @@ internal static class Program
             };
             IntPtr signerCertificateStoreInfoPointer = Marshal.AllocHGlobal(Marshal.SizeOf<NativeMethods.SignerCertificateStoreInfo>());
             Marshal.StructureToPtr(signerCertificateStoreInfo, signerCertificateStoreInfoPointer, false);
-            Console.WriteLine("Bound the certificate context for Authenticode signing.");
+            if (debug) Console.WriteLine("Bound the certificate context for Authenticode signing.");
 
             NativeMethods.SignerCertificate signerCertificate = new()
             {
@@ -132,7 +148,7 @@ internal static class Program
                 CertificateStoreInfo = signerCertificateStoreInfoPointer,
                 WindowHandle = IntPtr.Zero
             };
-            Console.WriteLine("Configured the certificate-store signing source.");
+            if (debug) Console.WriteLine("Configured the certificate-store signing source.");
 
             IntPtr signerFileInfoPointer = IntPtr.Zero;
             IntPtr signerSubjectIndexPointer = IntPtr.Zero;
@@ -145,7 +161,7 @@ internal static class Program
 
             try
             {
-                Console.WriteLine("Preparing the existing file for Authenticode signing.");
+                if (debug) Console.WriteLine("Preparing the existing file for Authenticode signing.");
                 NativeMethods.SignerFileInfo signerFileInfo = new()
                 {
                     Size = (uint)Marshal.SizeOf<NativeMethods.SignerFileInfo>(),
@@ -154,7 +170,7 @@ internal static class Program
                 };
                 signerFileInfoPointer = Marshal.AllocHGlobal(Marshal.SizeOf<NativeMethods.SignerFileInfo>());
                 Marshal.StructureToPtr(signerFileInfo, signerFileInfoPointer, false);
-                Console.WriteLine("Created the Authenticode file subject.");
+                if (debug) Console.WriteLine("Created the Authenticode file subject.");
 
                 signerSubjectIndexPointer = Marshal.AllocHGlobal(Marshal.SizeOf<uint>());
                 Marshal.WriteInt32(signerSubjectIndexPointer, 0);
@@ -175,7 +191,7 @@ internal static class Program
                     AuthenticatedAttributes = IntPtr.Zero,
                     UnauthenticatedAttributes = IntPtr.Zero
                 };
-                Console.WriteLine("Configured SHA-256 Authenticode signing.");
+                if (debug) Console.WriteLine("Configured SHA-256 Authenticode signing.");
 
                 NativeMethods.SignerDigestSignInfo digestSignInfo = new()
                 {
@@ -187,13 +203,13 @@ internal static class Program
                     Reserved2 = 0,
                     Reserved3 = 0
                 };
-                Console.WriteLine("Configured the crypto3 CSP to sign the Authenticode digest directly.");
+                if (debug) Console.WriteLine("Configured the crypto3 CSP to sign the Authenticode digest directly.");
 
                 timestampAlgorithmOidPointer = Marshal.StringToHGlobalAnsi(NativeMethods.Sha256Oid);
                 timestampUrlPointer = Marshal.StringToHGlobalUni(timestampUrl);
-                Console.WriteLine("Configured RFC 3161 SHA-256 timestamping.");
+                if (debug) Console.WriteLine("Configured RFC 3161 SHA-256 timestamping.");
 
-                Console.WriteLine("Calling the Windows Authenticode signer and timestamp server. The Certum PIN dialog may appear now.");
+                if (debug) Console.WriteLine("Calling the Windows Authenticode signer and timestamp server. The Certum PIN dialog may appear now.");
                 int signingResult = NativeMethods.SignerSignEx3(
                     NativeMethods.SpcDigestSignExFlag,
                     ref signerSubjectInfo,
@@ -215,20 +231,20 @@ internal static class Program
                     throw new ExternalException($"The Windows Authenticode signer failed with HRESULT 0x{signingResult:X8}.", signingResult);
                 }
 
-                Console.WriteLine("The Windows Authenticode signer and RFC 3161 timestamping completed successfully.");
+                if (debug) Console.WriteLine("The Windows Authenticode signer and RFC 3161 timestamping completed successfully.");
             }
             finally
             {
                 if (signerContext != IntPtr.Zero)
                 {
                     NativeMethods.SignerFreeSignerContext(signerContext);
-                    Console.WriteLine("Released the Authenticode signer context.");
+                    if (debug) Console.WriteLine("Released the Authenticode signer context.");
                 }
 
                 if (signerSubjectIndexPointer != IntPtr.Zero)
                 {
                     Marshal.FreeHGlobal(signerSubjectIndexPointer);
-                    Console.WriteLine("Released the Authenticode subject-index resources.");
+                    if (debug) Console.WriteLine("Released the Authenticode subject-index resources.");
                 }
 
                 authenticodeDigestSign = null;
@@ -236,77 +252,78 @@ internal static class Program
                 if (timestampUrlPointer != IntPtr.Zero)
                 {
                     Marshal.FreeHGlobal(timestampUrlPointer);
-                    Console.WriteLine("Released the timestamp-server URL resources.");
+                    if (debug) Console.WriteLine("Released the timestamp-server URL resources.");
                 }
 
                 if (timestampAlgorithmOidPointer != IntPtr.Zero)
                 {
                     Marshal.FreeHGlobal(timestampAlgorithmOidPointer);
-                    Console.WriteLine("Released the timestamp-algorithm resources.");
+                    if (debug) Console.WriteLine("Released the timestamp-algorithm resources.");
                 }
 
                 if (signerFileInfoPointer != IntPtr.Zero)
                 {
                     Marshal.DestroyStructure<NativeMethods.SignerFileInfo>(signerFileInfoPointer);
                     Marshal.FreeHGlobal(signerFileInfoPointer);
-                    Console.WriteLine("Released the Authenticode file-subject resources.");
+                    if (debug) Console.WriteLine("Released the Authenticode file-subject resources.");
                 }
 
                 Marshal.DestroyStructure<NativeMethods.SignerCertificateStoreInfo>(signerCertificateStoreInfoPointer);
                 Marshal.FreeHGlobal(signerCertificateStoreInfoPointer);
-                Console.WriteLine("Released the Authenticode certificate resources.");
+                if (debug) Console.WriteLine("Released the Authenticode certificate resources.");
             }
 
-            Console.WriteLine("Verifying the Authenticode signature with Windows trust validation.");
-            NativeMethods.WinTrustFileInfo verificationFileInfo = new()
-            {
-                Size = (uint)Marshal.SizeOf<NativeMethods.WinTrustFileInfo>(),
-                FilePath = filePath,
-                FileHandle = IntPtr.Zero,
-                KnownSubject = IntPtr.Zero
-            };
-            IntPtr verificationFileInfoPointer = Marshal.AllocHGlobal(Marshal.SizeOf<NativeMethods.WinTrustFileInfo>());
-            Marshal.StructureToPtr(verificationFileInfo, verificationFileInfoPointer, false);
+            //Console.WriteLine("Verifying the Authenticode signature with Windows trust validation.");
+            //NativeMethods.WinTrustFileInfo verificationFileInfo = new()
+            //{
+            //    Size = (uint)Marshal.SizeOf<NativeMethods.WinTrustFileInfo>(),
+            //    FilePath = filePath,
+            //    FileHandle = IntPtr.Zero,
+            //    KnownSubject = IntPtr.Zero
+            //};
+            //IntPtr verificationFileInfoPointer = Marshal.AllocHGlobal(Marshal.SizeOf<NativeMethods.WinTrustFileInfo>());
+            //Marshal.StructureToPtr(verificationFileInfo, verificationFileInfoPointer, false);
 
-            try
-            {
-                NativeMethods.WinTrustData verificationData = new()
-                {
-                    Size = (uint)Marshal.SizeOf<NativeMethods.WinTrustData>(),
-                    PolicyCallbackData = IntPtr.Zero,
-                    SipClientData = IntPtr.Zero,
-                    UiChoice = NativeMethods.WinTrustUiNone,
-                    RevocationChecks = NativeMethods.WinTrustRevokeNone,
-                    UnionChoice = NativeMethods.WinTrustChoiceFile,
-                    FileInfo = verificationFileInfoPointer,
-                    StateAction = NativeMethods.WinTrustStateActionIgnore,
-                    StateData = IntPtr.Zero,
-                    UrlReference = IntPtr.Zero,
-                    ProviderFlags = 0,
-                    UiContext = 0,
-                    SignatureSettings = IntPtr.Zero
-                };
+            //try
+            //{
+            //    NativeMethods.WinTrustData verificationData = new()
+            //    {
+            //        Size = (uint)Marshal.SizeOf<NativeMethods.WinTrustData>(),
+            //        PolicyCallbackData = IntPtr.Zero,
+            //        SipClientData = IntPtr.Zero,
+            //        UiChoice = NativeMethods.WinTrustUiNone,
+            //        RevocationChecks = NativeMethods.WinTrustRevokeNone,
+            //        UnionChoice = NativeMethods.WinTrustChoiceFile,
+            //        FileInfo = verificationFileInfoPointer,
+            //        StateAction = NativeMethods.WinTrustStateActionIgnore,
+            //        StateData = IntPtr.Zero,
+            //        UrlReference = IntPtr.Zero,
+            //        ProviderFlags = 0,
+            //        UiContext = 0,
+            //        SignatureSettings = IntPtr.Zero
+            //    };
 
-                int verificationResult = NativeMethods.WinVerifyTrust(IntPtr.Zero, ref NativeMethods.WinTrustActionGenericVerifyV2, ref verificationData);
-                if (verificationResult != 0)
-                {
-                    throw new ExternalException($"Windows trust validation failed with HRESULT 0x{verificationResult:X8}.", verificationResult);
-                }
+            //    int verificationResult = NativeMethods.WinVerifyTrust(IntPtr.Zero, ref NativeMethods.WinTrustActionGenericVerifyV2, ref verificationData);
+            //    if (verificationResult != 0)
+            //    {
+            //        throw new ExternalException($"Windows trust validation failed with HRESULT 0x{verificationResult:X8}.", verificationResult);
+            //    }
 
-                Console.WriteLine("Windows trust validation succeeded.");
-            }
-            finally
-            {
-                Marshal.DestroyStructure<NativeMethods.WinTrustFileInfo>(verificationFileInfoPointer);
-                Marshal.FreeHGlobal(verificationFileInfoPointer);
-                Console.WriteLine("Released the Windows trust-validation resources.");
-            }
+            //    Console.WriteLine("Windows trust validation succeeded.");
+            //}
+            //finally
+            //{
+            //    Marshal.DestroyStructure<NativeMethods.WinTrustFileInfo>(verificationFileInfoPointer);
+            //    Marshal.FreeHGlobal(verificationFileInfoPointer);
+            //    Console.WriteLine("Released the Windows trust-validation resources.");
+            //}
 
-            using X509Certificate2 embeddedSignerCertificate = new(X509Certificate.CreateFromSignedFile(filePath));
-            Console.WriteLine($"Authenticode signer subject: {embeddedSignerCertificate.Subject}.");
-            Console.WriteLine($"Authenticode signer thumbprint: {embeddedSignerCertificate.Thumbprint}.");
+            //using X509Certificate2 embeddedSignerCertificate = new(X509Certificate.CreateFromSignedFile(filePath));
+            //Console.WriteLine($"Authenticode signer subject: {embeddedSignerCertificate.Subject}.");
+            //Console.WriteLine($"Authenticode signer thumbprint: {embeddedSignerCertificate.Thumbprint}.");
 
-            Console.WriteLine("Authenticode file signing completed successfully.");
+            stopwatch.Stop();
+            Console.WriteLine($"Authenticode file signing completed successfully in {stopwatch.Elapsed.TotalSeconds:0.0}s.");
         }
         catch (Exception exception)
         {
@@ -317,9 +334,12 @@ internal static class Program
             Environment.ExitCode = 1;
         }
 
-        if (!Console.IsInputRedirected && !Console.IsOutputRedirected)
+        if (debug)
         {
-            Console.ReadKey();
+            if (!Console.IsInputRedirected && !Console.IsOutputRedirected)
+            {
+                Console.ReadKey();
+            }
         }
     }
 
@@ -342,7 +362,7 @@ internal static class Program
                 return unchecked((int)0x80090027);
             }
 
-            Console.WriteLine($"Signing the {digestLength}-byte Authenticode digest with the crypto3 CSP Exchange key.");
+            if (debug) Console.WriteLine($"Signing the {digestLength}-byte Authenticode digest with the crypto3 CSP Exchange key.");
             byte[] hash = new byte[digestLength];
             Marshal.Copy(digest, hash, 0, hash.Length);
             byte[] signature = signingKey.SignHash(hash, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
@@ -377,7 +397,7 @@ internal static class Program
                 }
             }
 
-            Console.WriteLine($"Created a {signature.Length}-byte Authenticode signature with the CSP key.");
+            if (debug) Console.WriteLine($"Created a {signature.Length}-byte Authenticode signature with the CSP key.");
             return 0;
         }
         catch (Exception exception)
