@@ -15,10 +15,11 @@ internal static class Program
         {
             const string thumbprint = "D75896DA61275CCA773682EA4622B9039BA3317F";
             const string message = "Certum private-key signing test";
-            const string usage = "Usage: CertumSigningTest <relative-or-absolute-file-path>";
-            Console.WriteLine("Validating the command-line file argument.");
+            const string defaultTimestampUrl = "http://time.certum.pl";
+            const string usage = "Usage: CertumSigningTest <relative-or-absolute-file-path> [RFC3161-timestamp-server-url]";
+            Console.WriteLine("Validating the command-line arguments.");
 
-            if (args.Length != 1)
+            if (args.Length is < 1 or > 2)
             {
                 throw new ArgumentException(usage);
             }
@@ -32,6 +33,16 @@ internal static class Program
             }
 
             Console.WriteLine("Confirmed that the input file exists.");
+
+            string timestampUrl = args.Length == 2 ? args[1] : defaultTimestampUrl;
+            if (!Uri.TryCreate(timestampUrl, UriKind.Absolute, out Uri? timestampUri) ||
+                (timestampUri.Scheme != Uri.UriSchemeHttp && timestampUri.Scheme != Uri.UriSchemeHttps))
+            {
+                throw new ArgumentException("The timestamp server URL must be an absolute HTTP or HTTPS URL.", nameof(args));
+            }
+
+            timestampUrl = timestampUri.AbsoluteUri;
+            Console.WriteLine($"Using RFC 3161 timestamp server {timestampUrl}.");
 
             Console.WriteLine($"Looking up certificate {thumbprint} in CurrentUser\\My.");
 
@@ -126,6 +137,8 @@ internal static class Program
             IntPtr signerFileInfoPointer = IntPtr.Zero;
             IntPtr signerSubjectIndexPointer = IntPtr.Zero;
             IntPtr signerContext = IntPtr.Zero;
+            IntPtr timestampAlgorithmOidPointer = IntPtr.Zero;
+            IntPtr timestampUrlPointer = IntPtr.Zero;
             NativeMethods.AuthenticodeDigestSignEx digestSign = (metadata, digestAlgorithm, digest, digestLength, signedDigest, signerCertificatePointer, certificateChainStore) =>
                 SignAuthenticodeDigest(rsa, signerCertificateContext.Handle, chainCertificates, digestAlgorithm, digest, digestLength, signedDigest, signerCertificatePointer, certificateChainStore);
             authenticodeDigestSign = digestSign;
@@ -176,16 +189,20 @@ internal static class Program
                 };
                 Console.WriteLine("Configured the crypto3 CSP to sign the Authenticode digest directly.");
 
-                Console.WriteLine("Calling the Windows Authenticode signer. The Certum PIN dialog may appear now.");
+                timestampAlgorithmOidPointer = Marshal.StringToHGlobalAnsi(NativeMethods.Sha256Oid);
+                timestampUrlPointer = Marshal.StringToHGlobalUni(timestampUrl);
+                Console.WriteLine("Configured RFC 3161 SHA-256 timestamping.");
+
+                Console.WriteLine("Calling the Windows Authenticode signer and timestamp server. The Certum PIN dialog may appear now.");
                 int signingResult = NativeMethods.SignerSignEx3(
                     NativeMethods.SpcDigestSignExFlag,
                     ref signerSubjectInfo,
                     ref signerCertificate,
                     ref signerSignatureInfo,
                     IntPtr.Zero,
-                    0,
-                    IntPtr.Zero,
-                    IntPtr.Zero,
+                    NativeMethods.SignerTimestampRfc3161,
+                    timestampAlgorithmOidPointer,
+                    timestampUrlPointer,
                     IntPtr.Zero,
                     IntPtr.Zero,
                     out signerContext,
@@ -198,7 +215,7 @@ internal static class Program
                     throw new ExternalException($"The Windows Authenticode signer failed with HRESULT 0x{signingResult:X8}.", signingResult);
                 }
 
-                Console.WriteLine("The Windows Authenticode signer completed successfully.");
+                Console.WriteLine("The Windows Authenticode signer and RFC 3161 timestamping completed successfully.");
             }
             finally
             {
@@ -215,6 +232,18 @@ internal static class Program
                 }
 
                 authenticodeDigestSign = null;
+
+                if (timestampUrlPointer != IntPtr.Zero)
+                {
+                    Marshal.FreeHGlobal(timestampUrlPointer);
+                    Console.WriteLine("Released the timestamp-server URL resources.");
+                }
+
+                if (timestampAlgorithmOidPointer != IntPtr.Zero)
+                {
+                    Marshal.FreeHGlobal(timestampAlgorithmOidPointer);
+                    Console.WriteLine("Released the timestamp-algorithm resources.");
+                }
 
                 if (signerFileInfoPointer != IntPtr.Zero)
                 {
@@ -288,7 +317,10 @@ internal static class Program
             Environment.ExitCode = 1;
         }
 
-        Console.ReadKey();
+        if (!Console.IsInputRedirected && !Console.IsOutputRedirected)
+        {
+            Console.ReadKey();
+        }
     }
 
     private static int SignAuthenticodeDigest(
@@ -363,9 +395,11 @@ internal static class Program
         internal const uint SignerCertPolicyChain = 2;
         internal const uint CalgSha256 = 0x0000800C;
         internal const uint SpcDigestSignExFlag = 0x4000;
+        internal const uint SignerTimestampRfc3161 = 0x00000002;
         internal const uint DigestSignEx = 3;
         internal const uint CertEncoding = 0x00010001;
         internal const uint CertStoreAddAlways = 4;
+        internal const string Sha256Oid = "2.16.840.1.101.3.4.2.1";
 
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
         internal delegate int AuthenticodeDigestSignEx(
