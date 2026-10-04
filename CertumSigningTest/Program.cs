@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.CommandLine;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
@@ -9,30 +10,71 @@ namespace CertumSigningTest;
 
 internal static class Program
 {
-    private static readonly bool debug = false;
-    private static readonly bool validateSign = false;
+    private static bool debug;
     private static double lastElapsed = 0;
-    private static Stopwatch stopwatch = new Stopwatch();
-    private static void Main(string[] args)
+    private static readonly Stopwatch stopwatch = new();
+
+    private static int Main(string[] args)
+    {
+        RootCommand rootCommand = new("Sign and validate Authenticode files.");
+        Option<bool> debugOption = new("--debug", "-d")
+        {
+            Description = "Enable detailed logging output.",
+            Recursive = true
+        };
+        rootCommand.Options.Add(debugOption);
+
+        Argument<string> signingFileArgument = new("file")
+        {
+            Description = "The file to sign.",
+            Arity = ArgumentArity.ExactlyOne
+        };
+        Argument<string?> timestampUrlArgument = new("timestamp-url")
+        {
+            Description = "RFC 3161 timestamp server URL.",
+            Arity = ArgumentArity.ZeroOrOne
+        };
+
+        Command signCommand = new("sign", "Sign a file using Authenticode.");
+        signCommand.Arguments.Add(signingFileArgument);
+        signCommand.Arguments.Add(timestampUrlArgument);
+        signCommand.SetAction(parseResult => RunAction(parseResult, debugOption, () => Sign(parseResult.GetValue(signingFileArgument)!, parseResult.GetValue(timestampUrlArgument))));
+
+        Argument<string> validationFileArgument = new("file")
+        {
+            Description = "The file to validate.",
+            Arity = ArgumentArity.ExactlyOne
+        };
+
+        Command validateCommand = new("validate", "Validate an Authenticode signature.");
+        validateCommand.Arguments.Add(validationFileArgument);
+        validateCommand.SetAction(parseResult => RunAction(parseResult, debugOption, () => Validate(parseResult.GetValue(validationFileArgument)!)));
+
+        rootCommand.Subcommands.Add(signCommand);
+        rootCommand.Subcommands.Add(validateCommand);
+
+        return rootCommand.Parse(args).Invoke();
+    }
+
+    private static int RunAction(ParseResult parseResult, Option<bool> debugOption, Func<int> action)
+    {
+        debug = parseResult.GetValue(debugOption);
+        stopwatch.Restart();
+        lastElapsed = 0;
+        return action();
+    }
+
+    private static int Sign(string fileName, string? requestedTimestampUrl)
     {
         try
         {
-            stopwatch.Restart();
             const string thumbprint = "D75896DA61275CCA773682EA4622B9039BA3317F";
             const string defaultTimestampUrl = "http://time.certum.pl";
-            const string usage = "Usage: CertumSigningTest <relative-or-absolute-file-path> [RFC3161-timestamp-server-url]";
-
-
             char[] pin = ['4', '6', '3', '5'];
 
             LogDebug("Validating the command-line arguments.");
 
-            if (args.Length is < 1 or > 2)
-            {
-                throw new ArgumentException(usage);
-            }
-
-            string filePath = Path.GetFullPath(args[0]);
+            string filePath = Path.GetFullPath(fileName);
             LogMessage($"Signing {filePath}.");
 
             if (!File.Exists(filePath))
@@ -42,11 +84,11 @@ internal static class Program
 
             LogDebug("Confirmed that the input file exists.");
 
-            string timestampUrl = args.Length == 2 ? args[1] : defaultTimestampUrl;
+            string timestampUrl = requestedTimestampUrl ?? defaultTimestampUrl;
             if (!Uri.TryCreate(timestampUrl, UriKind.Absolute, out Uri? timestampUri) ||
                 (timestampUri.Scheme != Uri.UriSchemeHttp && timestampUri.Scheme != Uri.UriSchemeHttps))
             {
-                throw new ArgumentException("The timestamp server URL must be an absolute HTTP or HTTPS URL.", nameof(args));
+                throw new ArgumentException("The timestamp server URL must be an absolute HTTP or HTTPS URL.", nameof(requestedTimestampUrl));
             }
 
             timestampUrl = timestampUri.AbsoluteUri;
@@ -242,66 +284,90 @@ internal static class Program
                 LogDebug("Released the Authenticode certificate resources.");
             }
 
-            if (validateSign)
-            {
-                LogMessage("Verifying the Authenticode signature with Windows trust validation.");
-                NativeMethods.WinTrustFileInfo verificationFileInfo = new()
-                {
-                    Size = (uint)Marshal.SizeOf<NativeMethods.WinTrustFileInfo>(),
-                    FilePath = filePath,
-                    FileHandle = IntPtr.Zero,
-                    KnownSubject = IntPtr.Zero
-                };
-                IntPtr verificationFileInfoPointer = Marshal.AllocHGlobal(Marshal.SizeOf<NativeMethods.WinTrustFileInfo>());
-                Marshal.StructureToPtr(verificationFileInfo, verificationFileInfoPointer, false);
-
-                try
-                {
-                    NativeMethods.WinTrustData verificationData = new()
-                    {
-                        Size = (uint)Marshal.SizeOf<NativeMethods.WinTrustData>(),
-                        PolicyCallbackData = IntPtr.Zero,
-                        SipClientData = IntPtr.Zero,
-                        UiChoice = NativeMethods.WinTrustUiNone,
-                        RevocationChecks = NativeMethods.WinTrustRevokeNone,
-                        UnionChoice = NativeMethods.WinTrustChoiceFile,
-                        FileInfo = verificationFileInfoPointer,
-                        StateAction = NativeMethods.WinTrustStateActionIgnore,
-                        StateData = IntPtr.Zero,
-                        UrlReference = IntPtr.Zero,
-                        ProviderFlags = 0,
-                        UiContext = 0,
-                        SignatureSettings = IntPtr.Zero
-                    };
-
-                    int verificationResult = NativeMethods.WinVerifyTrust(IntPtr.Zero, ref NativeMethods.WinTrustActionGenericVerifyV2, ref verificationData);
-                    if (verificationResult != 0)
-                    {
-                        throw new ExternalException($"Windows trust validation failed with HRESULT 0x{verificationResult:X8}.", verificationResult);
-                    }
-
-                    LogMessage("Windows trust validation succeeded.");
-                }
-                finally
-                {
-                    Marshal.DestroyStructure<NativeMethods.WinTrustFileInfo>(verificationFileInfoPointer);
-                    Marshal.FreeHGlobal(verificationFileInfoPointer);
-                    LogMessage("Released the Windows trust-validation resources.");
-                }
-
-                using X509Certificate2 embeddedSignerCertificate = new(X509Certificate.CreateFromSignedFile(filePath));
-                LogMessage($"Authenticode signer subject: {embeddedSignerCertificate.Subject}.");
-                LogMessage($"Authenticode signer thumbprint: {embeddedSignerCertificate.Thumbprint}.");
-            }
-            LogMessage($"Authenticode file signing completed successfully.");
+            LogMessage("Authenticode file signing completed successfully.");
+            return 0;
         }
         catch (Exception exception)
         {
-            Console.Error.WriteLine("Private-key signing test failed.");
+            Console.Error.WriteLine("Authenticode file signing failed.");
             Console.Error.WriteLine($"Exception type: {exception.GetType().FullName}");
             Console.Error.WriteLine($"Message: {exception.Message}");
             Console.Error.WriteLine(exception);
-            Environment.ExitCode = 1;
+            return 1;
+        }
+    }
+
+    private static int Validate(string fileName)
+    {
+        try
+        {
+            string filePath = Path.GetFullPath(fileName);
+            LogMessage($"Validating {filePath}.");
+
+            if (!File.Exists(filePath))
+            {
+                throw new FileNotFoundException("The specified input file does not exist.", filePath);
+            }
+
+            LogDebug("Confirmed that the input file exists.");
+            LogMessage("Verifying the Authenticode signature with Windows trust validation.");
+            NativeMethods.WinTrustFileInfo verificationFileInfo = new()
+            {
+                Size = (uint)Marshal.SizeOf<NativeMethods.WinTrustFileInfo>(),
+                FilePath = filePath,
+                FileHandle = IntPtr.Zero,
+                KnownSubject = IntPtr.Zero
+            };
+            IntPtr verificationFileInfoPointer = Marshal.AllocHGlobal(Marshal.SizeOf<NativeMethods.WinTrustFileInfo>());
+            Marshal.StructureToPtr(verificationFileInfo, verificationFileInfoPointer, false);
+
+            try
+            {
+                NativeMethods.WinTrustData verificationData = new()
+                {
+                    Size = (uint)Marshal.SizeOf<NativeMethods.WinTrustData>(),
+                    PolicyCallbackData = IntPtr.Zero,
+                    SipClientData = IntPtr.Zero,
+                    UiChoice = NativeMethods.WinTrustUiNone,
+                    RevocationChecks = NativeMethods.WinTrustRevokeNone,
+                    UnionChoice = NativeMethods.WinTrustChoiceFile,
+                    FileInfo = verificationFileInfoPointer,
+                    StateAction = NativeMethods.WinTrustStateActionIgnore,
+                    StateData = IntPtr.Zero,
+                    UrlReference = IntPtr.Zero,
+                    ProviderFlags = 0,
+                    UiContext = 0,
+                    SignatureSettings = IntPtr.Zero
+                };
+
+                int verificationResult = NativeMethods.WinVerifyTrust(IntPtr.Zero, ref NativeMethods.WinTrustActionGenericVerifyV2, ref verificationData);
+                if (verificationResult != 0)
+                {
+                    throw new ExternalException($"Windows trust validation failed with HRESULT 0x{verificationResult:X8}.", verificationResult);
+                }
+
+                LogMessage("Windows trust validation succeeded.");
+            }
+            finally
+            {
+                Marshal.DestroyStructure<NativeMethods.WinTrustFileInfo>(verificationFileInfoPointer);
+                Marshal.FreeHGlobal(verificationFileInfoPointer);
+                LogMessage("Released the Windows trust-validation resources.");
+            }
+
+            using X509Certificate2 embeddedSignerCertificate = new(X509Certificate.CreateFromSignedFile(filePath));
+            LogMessage($"Authenticode signer subject: {embeddedSignerCertificate.Subject}.");
+            LogMessage($"Authenticode signer thumbprint: {embeddedSignerCertificate.Thumbprint}.");
+            LogMessage("Authenticode file validation completed successfully.");
+            return 0;
+        }
+        catch (Exception exception)
+        {
+            Console.Error.WriteLine("Authenticode file validation failed.");
+            Console.Error.WriteLine($"Exception type: {exception.GetType().FullName}");
+            Console.Error.WriteLine($"Message: {exception.Message}");
+            Console.Error.WriteLine(exception);
+            return 1;
         }
     }
 
