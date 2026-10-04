@@ -1,6 +1,5 @@
 using System.Diagnostics;
 using System.Runtime.InteropServices;
-using System.Security;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
@@ -10,8 +9,8 @@ namespace CertumSigningTest;
 
 internal static class Program
 {
-    private static readonly bool debug = true;
-    private static readonly bool validateSign = true;
+    private static readonly bool debug = false;
+    private static readonly bool validateSign = false;
     private static double lastElapsed = 0;
     private static Stopwatch stopwatch = new Stopwatch();
     private static void Main(string[] args)
@@ -20,18 +19,11 @@ internal static class Program
         {
             stopwatch.Restart();
             const string thumbprint = "D75896DA61275CCA773682EA4622B9039BA3317F";
-            const string message = "Certum private-key signing test";
             const string defaultTimestampUrl = "http://time.certum.pl";
             const string usage = "Usage: CertumSigningTest <relative-or-absolute-file-path> [RFC3161-timestamp-server-url]";
 
 
-            char[] password = new char[] { '4', '6', '3', '5' };
-            SecureString securePassword = new SecureString();
-            foreach (char c in password)
-            {
-                securePassword.AppendChar(c);
-            }
-            securePassword.MakeReadOnly();
+            char[] pin = ['4', '6', '3', '5'];
 
             LogDebug("Validating the command-line arguments.");
 
@@ -86,21 +78,26 @@ internal static class Program
                 throw new CryptographicException("The selected certificate is not associated with a private key.");
             }
 
-            LogDebug("Preparing direct legacy CSP access. The Certum PIN dialog may appear when the key is opened or used.");
-
-            LogDebug("Configuring direct access to the crypto3 CSP Exchange key container.");
-            CspParameters cspParameters = new(1, "crypto3 CSP", "C6994C9E2FDDBCCD89A53F8FDAE306715CA2606D")
+            using RSA rsa = certificate.GetRSAPrivateKey()
+                ?? throw new CryptographicException("The selected certificate does not provide an RSA private key.");
+            if (rsa is not RSACng cngRsa)
             {
-                Flags = CspProviderFlags.UseExistingKey,
-                KeyNumber = (int)KeyNumber.Exchange,
-                KeyPassword = securePassword
-            };
-            LogDebug("Opening the existing CSP key container directly.");
-            using RSACryptoServiceProvider rsa = new(cspParameters);
+                throw new CryptographicException($"The certificate's RSA key uses unsupported implementation {rsa.GetType().FullName}; Microsoft Smart Card KSP is required.");
+            }
+
+            //const string keyStorageProviderName = "Microsoft Smart Card Key Storage Provider";
+            //if (!string.Equals(cngRsa.Key.Provider.Provider, keyStorageProviderName, StringComparison.OrdinalIgnoreCase))
+            //{
+            //    throw new CryptographicException($"The certificate's RSA key is provided by {cngRsa.Key.Provider.Provider}, not {keyStorageProviderName}.");
+            //}
+
+            LogDebug($"Using the certificate-associated key through {cngRsa.Key.Provider.Provider}.");
+            cngRsa.Key.SetProperty(new CngProperty("SmartCardPin", Encoding.Unicode.GetBytes(new string(pin) + '\0'), CngPropertyOptions.None));
+            LogDebug("Configured the KSP signing-key PIN.");
             LogDebug($"Acquired RSA private key: {rsa.GetType().FullName}.");
 
             using X509Certificate2 signerCertificateContext = X509CertificateLoader.LoadCertificate(certificate.RawData);
-            LogDebug("Prepared the public signing certificate. The private key remains in the crypto3 CSP.");
+            LogDebug("Prepared the public signing certificate. The private key remains in the Microsoft Smart Card KSP.");
 
             using X509Chain certificateChain = new();
             certificateChain.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck;
@@ -185,7 +182,7 @@ internal static class Program
                     Reserved2 = 0,
                     Reserved3 = 0
                 };
-                LogDebug("Configured the crypto3 CSP to sign the Authenticode digest directly.");
+                LogDebug("Configured the Microsoft Smart Card KSP to sign the Authenticode digest directly.");
 
                 timestampAlgorithmOidPointer = Marshal.StringToHGlobalAnsi(NativeMethods.Sha256Oid);
                 timestampUrlPointer = Marshal.StringToHGlobalUni(timestampUrl);
@@ -333,7 +330,7 @@ internal static class Program
         lastElapsed = elapsed;
     }
 
-    private static int SignAuthenticodeDigest(RSACryptoServiceProvider signingKey, IntPtr publicCertificate, byte[][] chainCertificates, uint digestAlgorithm, IntPtr digest, uint digestLength, IntPtr signedDigest, IntPtr signerCertificatePointer, IntPtr certificateChainStore)
+    private static int SignAuthenticodeDigest(RSA signingKey, IntPtr publicCertificate, byte[][] chainCertificates, uint digestAlgorithm, IntPtr digest, uint digestLength, IntPtr signedDigest, IntPtr signerCertificatePointer, IntPtr certificateChainStore)
     {
         try
         {
@@ -343,7 +340,7 @@ internal static class Program
                 return unchecked((int)0x80090027);
             }
 
-            LogDebug($"Signing the {digestLength}-byte Authenticode digest with the crypto3 CSP Exchange key.");
+            LogDebug($"Signing the {digestLength}-byte Authenticode digest with the Microsoft Smart Card KSP key.");
             byte[] hash = new byte[digestLength];
             Marshal.Copy(digest, hash, 0, hash.Length);
             byte[] signature = signingKey.SignHash(hash, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
@@ -378,7 +375,7 @@ internal static class Program
                 }
             }
 
-            LogDebug($"Created a {signature.Length}-byte Authenticode signature with the CSP key.");
+            LogDebug($"Created a {signature.Length}-byte Authenticode signature with the KSP key.");
             return 0;
         }
         catch (Exception exception)
@@ -388,7 +385,7 @@ internal static class Program
         }
     }
 
-    private sealed class AuthenticodeDigestSigner(RSACryptoServiceProvider signingKey, IntPtr publicCertificate, byte[][] chainCertificates)
+    private sealed class AuthenticodeDigestSigner(RSA signingKey, IntPtr publicCertificate, byte[][] chainCertificates)
     {
         internal int Sign(IntPtr metadata, uint digestAlgorithm, IntPtr digest, uint digestLength, IntPtr signedDigest, IntPtr signerCertificatePointer, IntPtr certificateChainStore)
         {
