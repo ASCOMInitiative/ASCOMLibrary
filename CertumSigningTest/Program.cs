@@ -78,21 +78,11 @@ internal static class Program
                 throw new CryptographicException("The selected certificate is not associated with a private key.");
             }
 
-            using RSA rsa = certificate.GetRSAPrivateKey()
+            using RSACng rsa = certificate.GetRSAPrivateKey() as RSACng
                 ?? throw new CryptographicException("The selected certificate does not provide an RSA private key.");
-            if (rsa is not RSACng cngRsa)
-            {
-                throw new CryptographicException($"The certificate's RSA key uses unsupported implementation {rsa.GetType().FullName}; Microsoft Smart Card KSP is required.");
-            }
 
-            //const string keyStorageProviderName = "Microsoft Smart Card Key Storage Provider";
-            //if (!string.Equals(cngRsa.Key.Provider.Provider, keyStorageProviderName, StringComparison.OrdinalIgnoreCase))
-            //{
-            //    throw new CryptographicException($"The certificate's RSA key is provided by {cngRsa.Key.Provider.Provider}, not {keyStorageProviderName}.");
-            //}
-
-            LogDebug($"Using the certificate-associated key through {cngRsa.Key.Provider.Provider}.");
-            cngRsa.Key.SetProperty(new CngProperty("SmartCardPin", Encoding.Unicode.GetBytes(new string(pin) + '\0'), CngPropertyOptions.None));
+            LogDebug($"Using the certificate-associated key through {rsa.Key.Provider?.Provider}.");
+            rsa.Key.SetProperty(new CngProperty("SmartCardPin", Encoding.Unicode.GetBytes(new string(pin) + '\0'), CngPropertyOptions.None));
             LogDebug("Configured the KSP signing-key PIN.");
             LogDebug($"Acquired RSA private key: {rsa.GetType().FullName}.");
 
@@ -326,7 +316,8 @@ internal static class Program
     private static void LogMessage(string message)
     {
         double elapsed = stopwatch.Elapsed.TotalSeconds;
-        Console.WriteLine($"{DateTime.Now:HH:mm:ss.fff} {message} ({elapsed:0.000}s, +{elapsed - lastElapsed:0.000}s)");
+        //Console.WriteLine($"{DateTime.Now:HH:mm:ss.fff} {message} ({elapsed:0.000}s, +{elapsed - lastElapsed:0.000}s)");
+        Console.WriteLine($"{elapsed:0.000}s, +{elapsed - lastElapsed:0.000}s - {message}");
         lastElapsed = elapsed;
     }
 
