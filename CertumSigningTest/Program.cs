@@ -10,8 +10,8 @@ namespace CertumSigningTest;
 
 internal static class Program
 {
-    private static readonly bool debug = false;
-    private static readonly bool validateSign = false;
+    private static readonly bool debug = true;
+    private static readonly bool validateSign = true;
     private static double lastElapsed = 0;
     private static Stopwatch stopwatch = new Stopwatch();
     private static void Main(string[] args)
