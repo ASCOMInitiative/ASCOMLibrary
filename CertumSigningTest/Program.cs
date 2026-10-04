@@ -11,19 +11,19 @@ namespace CertumSigningTest;
 internal static class Program
 {
     private static readonly bool debug = false;
-
-    private static readonly Stopwatch stopwatch = Stopwatch.StartNew();
+    private static readonly bool validateSign = false;
+    private static double lastElapsed = 0;
+    private static Stopwatch stopwatch = new Stopwatch();
     private static void Main(string[] args)
     {
         try
         {
-
+            stopwatch.Restart();
             const string thumbprint = "D75896DA61275CCA773682EA4622B9039BA3317F";
             const string message = "Certum private-key signing test";
             const string defaultTimestampUrl = "http://time.certum.pl";
             const string usage = "Usage: CertumSigningTest <relative-or-absolute-file-path> [RFC3161-timestamp-server-url]";
 
-            bool validateSign = false;
 
             char[] password = new char[] { '4', '6', '3', '5' };
             SecureString securePassword = new SecureString();
@@ -98,25 +98,6 @@ internal static class Program
             LogDebug("Opening the existing CSP key container directly.");
             using RSACryptoServiceProvider rsa = new(cspParameters);
             LogDebug($"Acquired RSA private key: {rsa.GetType().FullName}.");
-
-            //byte[] data = Encoding.UTF8.GetBytes(message);
-            //if (debug) LogMessage($"Created {data.Length} bytes of UTF-8 test data.");
-
-            //if (debug) LogMessage("Signing the test data using SHA-256 and PKCS#1 v1.5 padding.");
-
-            //byte[] signature = rsa.SignData(data, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
-            //if (debug) LogMessage($"Signature created: {signature.Length} bytes.");
-
-            //using RSA publicKey = certificate.GetRSAPublicKey() ?? throw new CryptographicException("The selected certificate did not provide an RSA public key.");
-            //if (debug) LogMessage("Acquired the certificate RSA public key for signature verification.");
-
-            //bool signatureIsValid = publicKey.VerifyData(data, signature, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
-            //if (debug) LogMessage($"Signature verification using the certificate public key: {signatureIsValid}.");
-
-            //if (!signatureIsValid)
-            //{
-            //    throw new CryptographicException("The generated signature did not verify with the certificate public key.");
-            //}
 
             using X509Certificate2 signerCertificateContext = X509CertificateLoader.LoadCertificate(certificate.RawData);
             LogDebug("Prepared the public signing certificate. The private key remains in the crypto3 CSP.");
@@ -325,7 +306,6 @@ internal static class Program
                 LogMessage($"Authenticode signer subject: {embeddedSignerCertificate.Subject}.");
                 LogMessage($"Authenticode signer thumbprint: {embeddedSignerCertificate.Thumbprint}.");
             }
-            stopwatch.Stop();
             LogMessage($"Authenticode file signing completed successfully.");
         }
         catch (Exception exception)
@@ -348,7 +328,9 @@ internal static class Program
 
     private static void LogMessage(string message)
     {
-        Console.WriteLine($"{DateTime.Now:HH:mm:ss.fff} {message} ({stopwatch.Elapsed.TotalSeconds:0.0}s)");
+        double elapsed = stopwatch.Elapsed.TotalSeconds;
+        Console.WriteLine($"{DateTime.Now:HH:mm:ss.fff} {message} ({elapsed:0.000}s, +{elapsed - lastElapsed:0.000}s)");
+        lastElapsed = elapsed;
     }
 
     private static int SignAuthenticodeDigest(RSACryptoServiceProvider signingKey, IntPtr publicCertificate, byte[][] chainCertificates, uint digestAlgorithm, IntPtr digest, uint digestLength, IntPtr signedDigest, IntPtr signerCertificatePointer, IntPtr certificateChainStore)
