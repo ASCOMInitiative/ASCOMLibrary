@@ -8,12 +8,31 @@ using static CertumSigningTest.Program.NativeMethods;
 
 namespace CertumSigningTest;
 
+/// <summary>
+/// Defines the command-line entry point and Authenticode operations.
+/// </summary>
 internal static class Program
 {
+    /// <summary>
+    /// Enables diagnostic logging when the global <c>--debug</c> option is set.
+    /// </summary>
     private static bool debug;
+
+    /// <summary>
+    /// Elapsed time of the most recently written log message.
+    /// </summary>
     private static double lastElapsed = 0;
+
+    /// <summary>
+    /// Measures elapsed time for the current command action.
+    /// </summary>
     private static readonly Stopwatch stopwatch = new();
 
+    /// <summary>
+    /// Builds and invokes the signing and validation command-line interface.
+    /// </summary>
+    /// <param name="args">Command-line arguments supplied by the host process.</param>
+    /// <returns>The exit code returned by the selected command.</returns>
     private static int Main(string[] args)
     {
         RootCommand rootCommand = new("Sign and validate Authenticode files.");
@@ -38,7 +57,26 @@ internal static class Program
         Command signCommand = new("sign", "Sign a file using Authenticode.");
         signCommand.Arguments.Add(signingFileArgument);
         signCommand.Arguments.Add(timestampUrlArgument);
-        signCommand.SetAction(parseResult => RunAction(parseResult, debugOption, () => Sign(parseResult.GetValue(signingFileArgument)!, parseResult.GetValue(timestampUrlArgument))));
+
+        // Keep post-sign validation local to the sign command.
+        Option<bool> validateAfterSignOption = new("--validate", "-v")
+        {
+            Description = "Validate the file after signing."
+        };
+        signCommand.Options.Add(validateAfterSignOption);
+        signCommand.SetAction(parseResult => RunAction(parseResult, debugOption, () =>
+        {
+            string fileName = parseResult.GetValue(signingFileArgument)!;
+            int signingResult = Sign(fileName, parseResult.GetValue(timestampUrlArgument));
+
+            // A failed signing operation must not proceed to validation.
+            if (signingResult != 0 || !parseResult.GetValue(validateAfterSignOption))
+            {
+                return signingResult;
+            }
+
+            return Validate(fileName);
+        }));
 
         Argument<string> validationFileArgument = new("file")
         {
@@ -56,6 +94,13 @@ internal static class Program
         return rootCommand.Parse(args).Invoke();
     }
 
+    /// <summary>
+    /// Initializes shared action state and invokes the selected operation.
+    /// </summary>
+    /// <param name="parseResult">Parsed command-line values.</param>
+    /// <param name="debugOption">The global option controlling detailed logs.</param>
+    /// <param name="action">The operation to invoke.</param>
+    /// <returns>The operation's exit code.</returns>
     private static int RunAction(ParseResult parseResult, Option<bool> debugOption, Func<int> action)
     {
         debug = parseResult.GetValue(debugOption);
@@ -64,6 +109,12 @@ internal static class Program
         return action();
     }
 
+    /// <summary>
+    /// Signs a file with the configured certificate and an RFC 3161 timestamp.
+    /// </summary>
+    /// <param name="fileName">Path of the file to sign.</param>
+    /// <param name="requestedTimestampUrl">Optional timestamp server URL; the configured default is used when omitted.</param>
+    /// <returns>Zero on success; otherwise, a nonzero exit code.</returns>
     private static int Sign(string fileName, string? requestedTimestampUrl)
     {
         try
@@ -75,7 +126,6 @@ internal static class Program
             LogDebug("Validating the command-line arguments.");
 
             string filePath = Path.GetFullPath(fileName);
-            LogMessage($"Signing {filePath}.");
 
             if (!File.Exists(filePath))
             {
@@ -92,7 +142,7 @@ internal static class Program
             }
 
             timestampUrl = timestampUri.AbsoluteUri;
-            LogMessage($"Using RFC 3161 timestamp server {timestampUrl}.");
+            LogMessage($"Signing {filePath} using RFC 3161 timestamp server {timestampUrl}.");
 
             LogDebug($"Looking up certificate {thumbprint} in CurrentUser\\My.");
 
@@ -168,6 +218,8 @@ internal static class Program
             IntPtr timestampUrlPointer = IntPtr.Zero;
             NativeMethods.AuthenticodeDigestSignEx digestSign = (metadata, digestAlgorithm, digest, digestLength, signedDigest, signerCertificatePointer, certificateChainStore) =>
                 SignAuthenticodeDigest(rsa, signerCertificateContext.Handle, chainCertificates, digestAlgorithm, digest, digestLength, signedDigest, signerCertificatePointer, certificateChainStore);
+
+            // Keep the managed callback rooted while the native signer uses its function pointer.
             NativeMethods.AuthenticodeDigestSignEx? authenticodeDigestSign = digestSign;
 
             try
@@ -289,14 +341,19 @@ internal static class Program
         }
         catch (Exception exception)
         {
-            Console.Error.WriteLine("Authenticode file signing failed.");
-            Console.Error.WriteLine($"Exception type: {exception.GetType().FullName}");
-            Console.Error.WriteLine($"Message: {exception.Message}");
-            Console.Error.WriteLine(exception);
+            LogError("Authenticode file signing failed.");
+            LogError($"Exception type: {exception.GetType().FullName}");
+            LogError($"Message: {exception.Message}");
+            LogError(exception.ToString());
             return 1;
         }
     }
 
+    /// <summary>
+    /// Verifies a file's Authenticode signature using Windows trust policy.
+    /// </summary>
+    /// <param name="fileName">Path of the file to validate.</param>
+    /// <returns>Zero when the signature is trusted; otherwise, a nonzero exit code.</returns>
     private static int Validate(string fileName)
     {
         try
@@ -309,8 +366,7 @@ internal static class Program
                 throw new FileNotFoundException("The specified input file does not exist.", filePath);
             }
 
-            LogDebug("Confirmed that the input file exists.");
-            LogMessage("Verifying the Authenticode signature with Windows trust validation.");
+            LogDebug("Verifying the Authenticode signature with Windows trust validation.");
             NativeMethods.WinTrustFileInfo verificationFileInfo = new()
             {
                 Size = (uint)Marshal.SizeOf<NativeMethods.WinTrustFileInfo>(),
@@ -346,31 +402,45 @@ internal static class Program
                     throw new ExternalException($"Windows trust validation failed with HRESULT 0x{verificationResult:X8}.", verificationResult);
                 }
 
-                LogMessage("Windows trust validation succeeded.");
+                LogDebug("Windows trust validation succeeded.");
             }
             finally
             {
                 Marshal.DestroyStructure<NativeMethods.WinTrustFileInfo>(verificationFileInfoPointer);
                 Marshal.FreeHGlobal(verificationFileInfoPointer);
-                LogMessage("Released the Windows trust-validation resources.");
+                LogDebug("Released the Windows trust-validation resources.");
             }
 
             using X509Certificate2 embeddedSignerCertificate = new(X509Certificate.CreateFromSignedFile(filePath));
-            LogMessage($"Authenticode signer subject: {embeddedSignerCertificate.Subject}.");
-            LogMessage($"Authenticode signer thumbprint: {embeddedSignerCertificate.Thumbprint}.");
-            LogMessage("Authenticode file validation completed successfully.");
+            LogMessage($"Validated successfully: {embeddedSignerCertificate.Subject}, Thumbprint: {embeddedSignerCertificate.Thumbprint}.");
             return 0;
         }
         catch (Exception exception)
         {
-            Console.Error.WriteLine("Authenticode file validation failed.");
-            Console.Error.WriteLine($"Exception type: {exception.GetType().FullName}");
-            Console.Error.WriteLine($"Message: {exception.Message}");
-            Console.Error.WriteLine(exception);
+            LogError("Authenticode file validation failed.");
+            LogError($"Exception type: {exception.GetType().FullName}");
+            LogError($"Message: {exception.Message}");
+            LogError(exception.ToString());
             return 1;
         }
     }
 
+    /// <summary>
+    /// Writes an error message with elapsed-time information to standard error.
+    /// </summary>
+    /// <param name="message">Error text to write.</param>
+    private static void LogError(string message)
+    {
+        double elapsed = stopwatch.Elapsed.TotalSeconds;
+        Console.Error.WriteLine($"{elapsed:0.000}s, +{elapsed - lastElapsed:0.000}s - {message}");
+        lastElapsed = elapsed;
+
+    }
+
+    /// <summary>
+    /// Writes a diagnostic message when debug logging is enabled.
+    /// </summary>
+    /// <param name="message">Diagnostic text to write.</param>
     private static void LogDebug(string message)
     {
         if (debug)
@@ -379,21 +449,37 @@ internal static class Program
         }
     }
 
+    /// <summary>
+    /// Writes a progress message with elapsed-time information to standard output.
+    /// </summary>
+    /// <param name="message">Progress text to write.</param>
     private static void LogMessage(string message)
     {
         double elapsed = stopwatch.Elapsed.TotalSeconds;
-        //Console.WriteLine($"{DateTime.Now:HH:mm:ss.fff} {message} ({elapsed:0.000}s, +{elapsed - lastElapsed:0.000}s)");
         Console.WriteLine($"{elapsed:0.000}s, +{elapsed - lastElapsed:0.000}s - {message}");
         lastElapsed = elapsed;
     }
 
+    /// <summary>
+    /// Signs an Authenticode digest with the certificate's RSA key and supplies its certificate chain.
+    /// </summary>
+    /// <param name="signingKey">RSA key used to sign the digest.</param>
+    /// <param name="publicCertificate">Native certificate context returned to the signer.</param>
+    /// <param name="chainCertificates">Encoded certificates to add to the signer's chain store.</param>
+    /// <param name="digestAlgorithm">Windows identifier for the requested digest algorithm.</param>
+    /// <param name="digest">Pointer to the digest bytes.</param>
+    /// <param name="digestLength">Length of the digest in bytes.</param>
+    /// <param name="signedDigest">Native output structure that receives the signature.</param>
+    /// <param name="signerCertificatePointer">Native output location for the signer certificate.</param>
+    /// <param name="certificateChainStore">Optional native certificate store to populate.</param>
+    /// <returns>An HRESULT indicating success or failure.</returns>
     private static int SignAuthenticodeDigest(RSA signingKey, IntPtr publicCertificate, byte[][] chainCertificates, uint digestAlgorithm, IntPtr digest, uint digestLength, IntPtr signedDigest, IntPtr signerCertificatePointer, IntPtr certificateChainStore)
     {
         try
         {
             if (digestAlgorithm != NativeMethods.CalgSha256)
             {
-                Console.Error.WriteLine($"The Authenticode digest algorithm 0x{digestAlgorithm:X8} is not SHA-256.");
+                LogError($"The Authenticode digest algorithm 0x{digestAlgorithm:X8} is not SHA-256.");
                 return unchecked((int)0x80090027);
             }
 
@@ -437,33 +523,85 @@ internal static class Program
         }
         catch (Exception exception)
         {
-            Console.Error.WriteLine($"Authenticode digest signing failed: {exception.Message}");
+            LogError($"Authenticode digest signing failed: {exception.Message}");
             return exception.HResult;
         }
     }
 
+    /// <summary>
+    /// Holds the callback data required to sign a digest through the Windows Authenticode API.
+    /// </summary>
+    /// <param name="signingKey">RSA key used for digest signing.</param>
+    /// <param name="publicCertificate">Native context for the public signing certificate.</param>
+    /// <param name="chainCertificates">Encoded certificates supplied to the native signer.</param>
     private sealed class AuthenticodeDigestSigner(RSA signingKey, IntPtr publicCertificate, byte[][] chainCertificates)
     {
+        /// <summary>
+        /// Signs a digest supplied by the Windows Authenticode API.
+        /// </summary>
+        /// <param name="metadata">Reserved signer metadata.</param>
+        /// <param name="digestAlgorithm">Windows identifier for the digest algorithm.</param>
+        /// <param name="digest">Pointer to the digest bytes.</param>
+        /// <param name="digestLength">Length of the digest in bytes.</param>
+        /// <param name="signedDigest">Native output structure that receives the signature.</param>
+        /// <param name="signerCertificatePointer">Native output location for the signer certificate.</param>
+        /// <param name="certificateChainStore">Optional native certificate store to populate.</param>
+        /// <returns>An HRESULT indicating success or failure.</returns>
         internal int Sign(IntPtr metadata, uint digestAlgorithm, IntPtr digest, uint digestLength, IntPtr signedDigest, IntPtr signerCertificatePointer, IntPtr certificateChainStore)
         {
             return SignAuthenticodeDigest(signingKey, publicCertificate, chainCertificates, digestAlgorithm, digest, digestLength, signedDigest, signerCertificatePointer, certificateChainStore);
         }
     }
 
+    /// <summary>
+    /// Defines the Windows APIs, constants, and data layouts used for code signing and trust verification.
+    /// </summary>
     internal static class NativeMethods
     {
+        /// <summary>Signer subject choice identifying a file.</summary>
         internal const uint SignerSubjectFile = 1;
+
+        /// <summary>Signer certificate choice identifying a certificate store.</summary>
         internal const uint SignerCertStore = 2;
+
+        /// <summary>Signer attribute choice specifying no additional attributes.</summary>
         internal const uint SignerNoAttributes = 0;
+
+        /// <summary>Certificate policy requesting chain-based validation.</summary>
         internal const uint SignerCertPolicyChain = 2;
+
+        /// <summary>Windows algorithm identifier for SHA-256.</summary>
         internal const uint CalgSha256 = 0x0000800C;
+
+        /// <summary>Signer flag enabling callback-based digest signing.</summary>
         internal const uint SpcDigestSignExFlag = 0x4000;
+
+        /// <summary>Timestamp type selecting RFC 3161 timestamping.</summary>
         internal const uint SignerTimestampRfc3161 = 0x00000002;
+
+        /// <summary>Digest-signing choice selecting an <see cref="AuthenticodeDigestSignEx"/> callback.</summary>
         internal const uint DigestSignEx = 3;
+
+        /// <summary>Combined X.509 and PKCS #7 certificate encoding identifier.</summary>
         internal const uint CertEncoding = 0x00010001;
+
+        /// <summary>Certificate-store disposition that always adds a certificate.</summary>
         internal const uint CertStoreAddAlways = 4;
+
+        /// <summary>Object identifier for SHA-256.</summary>
         internal const string Sha256Oid = "2.16.840.1.101.3.4.2.1";
 
+        /// <summary>
+        /// Receives an Authenticode digest and writes its signature into the native signer structures.
+        /// </summary>
+        /// <param name="metadata">Optional metadata supplied by the native signer.</param>
+        /// <param name="digestAlgorithm">Windows identifier for the digest algorithm.</param>
+        /// <param name="digest">Pointer to the digest bytes.</param>
+        /// <param name="digestLength">Length of the digest in bytes.</param>
+        /// <param name="signedDigest">Native output structure that receives the signature.</param>
+        /// <param name="signerCertificate">Native output location for the signer certificate.</param>
+        /// <param name="certificateChainStore">Optional native certificate store to populate.</param>
+        /// <returns>An HRESULT indicating success or failure.</returns>
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
         internal delegate int AuthenticodeDigestSignEx(
             IntPtr metadata,
@@ -474,6 +612,22 @@ internal static class Program
             IntPtr signerCertificate,
             IntPtr certificateChainStore);
 
+        /// <summary>Creates and timestamps a Windows Authenticode signature.</summary>
+        /// <param name="flags">Signer behavior flags.</param>
+        /// <param name="subjectInfo">Description of the file being signed.</param>
+        /// <param name="signerCertificate">Certificate source for the signature.</param>
+        /// <param name="signatureInfo">Digest algorithm and signature attributes.</param>
+        /// <param name="providerInfo">Optional cryptographic provider information.</param>
+        /// <param name="timestampFlags">Timestamp server protocol flags.</param>
+        /// <param name="timestampAlgorithmOid">OID of the timestamp digest algorithm.</param>
+        /// <param name="timestampUrl">Timestamp server URL.</param>
+        /// <param name="request">Optional timestamp request data.</param>
+        /// <param name="sipData">Optional subject interface package data.</param>
+        /// <param name="signerContext">Receives the signer context to release after signing.</param>
+        /// <param name="cryptoPolicy">Optional cryptographic policy.</param>
+        /// <param name="digestSignInfo">Callback configuration for digest signing.</param>
+        /// <param name="reserved">Reserved for future use.</param>
+        /// <returns>Zero on success; otherwise, the Windows error code.</returns>
         [DllImport("mssign32.dll", CharSet = CharSet.Unicode)]
         internal static extern int SignerSignEx3(
             uint flags,
@@ -491,123 +645,255 @@ internal static class Program
             ref SignerDigestSignInfo digestSignInfo,
             IntPtr reserved);
 
+        /// <summary>Releases a signer context returned by <see cref="SignerSignEx3"/>.</summary>
+        /// <param name="signerContext">Signer context to release.</param>
+        /// <returns>Zero on success; otherwise, the Windows error code.</returns>
         [DllImport("mssign32.dll")]
         internal static extern int SignerFreeSignerContext(IntPtr signerContext);
 
+        /// <summary>Gets the current process heap.</summary>
+        /// <returns>A handle to the process heap.</returns>
         [DllImport("kernel32.dll")]
         internal static extern IntPtr GetProcessHeap();
 
+        /// <summary>Allocates memory from a heap.</summary>
+        /// <param name="heap">Heap from which to allocate memory.</param>
+        /// <param name="flags">Allocation options.</param>
+        /// <param name="size">Number of bytes to allocate.</param>
+        /// <returns>A pointer to the allocated memory, or zero on failure.</returns>
         [DllImport("kernel32.dll")]
         internal static extern IntPtr HeapAlloc(IntPtr heap, uint flags, UIntPtr size);
 
+        /// <summary>Duplicates a certificate context.</summary>
+        /// <param name="certificateContext">Certificate context to duplicate.</param>
+        /// <returns>A duplicated certificate context, or zero on failure.</returns>
         [DllImport("crypt32.dll", SetLastError = true)]
         internal static extern IntPtr CertDuplicateCertificateContext(IntPtr certificateContext);
 
+        /// <summary>Creates a certificate context from encoded certificate data.</summary>
+        /// <param name="encoding">Encoding type of the certificate.</param>
+        /// <param name="encodedCertificate">Encoded certificate bytes.</param>
+        /// <param name="length">Length of the encoded certificate in bytes.</param>
+        /// <returns>A certificate context, or zero on failure.</returns>
         [DllImport("crypt32.dll", SetLastError = true)]
         internal static extern IntPtr CertCreateCertificateContext(uint encoding, byte[] encodedCertificate, uint length);
 
+        /// <summary>Adds a certificate context to a certificate store.</summary>
+        /// <param name="store">Certificate store to update.</param>
+        /// <param name="certificateContext">Certificate context to add.</param>
+        /// <param name="disposition">Action to take when the certificate already exists.</param>
+        /// <param name="storedContext">Receives the context added to the store.</param>
+        /// <returns><see langword="true"/> if the certificate was added; otherwise, <see langword="false"/>.</returns>
         [DllImport("crypt32.dll", SetLastError = true)]
         internal static extern bool CertAddCertificateContextToStore(IntPtr store, IntPtr certificateContext, uint disposition, out IntPtr storedContext);
 
+        /// <summary>Releases a certificate context.</summary>
+        /// <param name="certificateContext">Certificate context to release.</param>
+        /// <returns><see langword="true"/> if the context was released; otherwise, <see langword="false"/>.</returns>
         [DllImport("crypt32.dll", SetLastError = true)]
         internal static extern bool CertFreeCertificateContext(IntPtr certificateContext);
 
+        // Keep native field order and types aligned with the Windows SDK structures.
+        /// <summary>Describes the file subject passed to the Authenticode signer.</summary>
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
         internal struct SignerFileInfo
         {
+            /// <summary>Size of this structure in bytes.</summary>
             internal uint Size;
+
+            /// <summary>Null-terminated path of the file to sign.</summary>
             [MarshalAs(UnmanagedType.LPWStr)]
             internal string FileName;
+
+            /// <summary>Optional open file handle; zero when signing by path.</summary>
             internal IntPtr FileHandle;
         }
 
+        /// <summary>Identifies the subject of an Authenticode signing request.</summary>
         [StructLayout(LayoutKind.Sequential)]
         internal struct SignerSubjectInfo
         {
+            /// <summary>Size of this structure in bytes.</summary>
             internal uint Size;
+
+            /// <summary>Pointer to the subject index.</summary>
             internal IntPtr Index;
+
+            /// <summary>Choice identifying the type of subject.</summary>
             internal uint SubjectChoice;
+
+            /// <summary>Pointer to the subject information selected by <see cref="SubjectChoice"/>.</summary>
             internal IntPtr Subject;
         }
 
+        /// <summary>Provides the certificate source and policy for an Authenticode signer.</summary>
         [StructLayout(LayoutKind.Sequential)]
         internal struct SignerCertificateStoreInfo
         {
+            /// <summary>Size of this structure in bytes.</summary>
             internal uint Size;
+
+            /// <summary>Certificate context used to sign the file.</summary>
             internal IntPtr SigningCertificate;
+
+            /// <summary>Certificate validation policy.</summary>
             internal uint CertificatePolicy;
+
+            /// <summary>Optional certificate store associated with the signer.</summary>
             internal IntPtr CertificateStore;
         }
 
+        /// <summary>Identifies the certificate used by the Authenticode signer.</summary>
         [StructLayout(LayoutKind.Sequential)]
         internal struct SignerCertificate
         {
+            /// <summary>Size of this structure in bytes.</summary>
             internal uint Size;
+
+            /// <summary>Choice identifying the certificate source.</summary>
             internal uint CertificateChoice;
+
+            /// <summary>Pointer to certificate information selected by <see cref="CertificateChoice"/>.</summary>
             internal IntPtr CertificateStoreInfo;
+
+            /// <summary>Optional window handle for signer UI.</summary>
             internal IntPtr WindowHandle;
         }
 
+        /// <summary>Specifies the digest algorithm and attributes for an Authenticode signature.</summary>
         [StructLayout(LayoutKind.Sequential)]
         internal struct SignerSignatureInfo
         {
+            /// <summary>Size of this structure in bytes.</summary>
             internal uint Size;
+
+            /// <summary>Windows identifier for the signature digest algorithm.</summary>
             internal uint HashAlgorithm;
+
+            /// <summary>Choice identifying the signature attribute format.</summary>
             internal uint AttributeChoice;
+
+            /// <summary>Pointer to optional authenticated-code attributes.</summary>
             internal IntPtr AttributeAuthCode;
+
+            /// <summary>Pointer to optional authenticated attributes.</summary>
             internal IntPtr AuthenticatedAttributes;
+
+            /// <summary>Pointer to optional unauthenticated attributes.</summary>
             internal IntPtr UnauthenticatedAttributes;
         }
 
+        /// <summary>Configures the callback used to sign an Authenticode digest.</summary>
         [StructLayout(LayoutKind.Sequential)]
         internal struct SignerDigestSignInfo
         {
+            /// <summary>Size of this structure in bytes.</summary>
             internal uint Size;
+
+            /// <summary>Choice identifying the digest-signing mechanism.</summary>
             internal uint Choice;
+
+            /// <summary>Function pointer for the digest-signing callback.</summary>
             internal IntPtr Callback;
+
+            /// <summary>Optional metadata passed to the callback.</summary>
             internal IntPtr Metadata;
+
+            /// <summary>Reserved for future use.</summary>
             internal uint Reserved;
+
+            /// <summary>Reserved for future use.</summary>
             internal uint Reserved2;
+
+            /// <summary>Reserved for future use.</summary>
             internal uint Reserved3;
         }
 
+        /// <summary>WinVerifyTrust UI setting that suppresses user-interface prompts.</summary>
         internal const uint WinTrustUiNone = 2;
+
+        /// <summary>WinVerifyTrust setting that disables revocation checks.</summary>
         internal const uint WinTrustRevokeNone = 0;
+
+        /// <summary>WinVerifyTrust union choice identifying file information.</summary>
         internal const uint WinTrustChoiceFile = 1;
+
+        /// <summary>WinVerifyTrust state action that does not retain state data.</summary>
         internal const uint WinTrustStateActionIgnore = 0;
+
+        /// <summary>Action identifier for generic Authenticode trust verification.</summary>
         internal static Guid WinTrustActionGenericVerifyV2 = new("00AAC56B-CD44-11D0-8CC2-00C04FC295EE");
 
+        /// <summary>Verifies a file's signature using the Windows trust provider.</summary>
+        /// <param name="windowHandle">Optional window handle for trust-provider UI.</param>
+        /// <param name="actionId">Identifier selecting the trust policy to apply.</param>
+        /// <param name="trustData">File and policy information for verification.</param>
+        /// <returns>Zero if the file is trusted; otherwise, a Windows trust error code.</returns>
         [DllImport("wintrust.dll", ExactSpelling = true)]
         internal static extern int WinVerifyTrust(
             IntPtr windowHandle,
             ref Guid actionId,
             ref WinTrustData trustData);
 
+        /// <summary>Describes the file whose signature is being verified.</summary>
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
         internal struct WinTrustFileInfo
         {
+            /// <summary>Size of this structure in bytes.</summary>
             internal uint Size;
+
+            /// <summary>Null-terminated path of the file to verify.</summary>
             [MarshalAs(UnmanagedType.LPWStr)]
             internal string FilePath;
+
+            /// <summary>Optional open file handle; zero when verifying by path.</summary>
             internal IntPtr FileHandle;
+
+            /// <summary>Optional known subject identifier.</summary>
             internal IntPtr KnownSubject;
         }
 
+        /// <summary>Configures the policy and file data passed to WinVerifyTrust.</summary>
         [StructLayout(LayoutKind.Sequential)]
         internal struct WinTrustData
         {
+            /// <summary>Size of this structure in bytes.</summary>
             internal uint Size;
+
+            /// <summary>Optional policy callback data.</summary>
             internal IntPtr PolicyCallbackData;
+
+            /// <summary>Optional subject interface package client data.</summary>
             internal IntPtr SipClientData;
+
+            /// <summary>UI behavior for trust verification.</summary>
             internal uint UiChoice;
+
+            /// <summary>Revocation-check policy.</summary>
             internal uint RevocationChecks;
+
+            /// <summary>Choice identifying the verification subject data.</summary>
             internal uint UnionChoice;
+
+            /// <summary>Pointer to the subject data selected by <see cref="UnionChoice"/>.</summary>
             internal IntPtr FileInfo;
+
+            /// <summary>Action controlling trust-provider state data.</summary>
             internal uint StateAction;
+
+            /// <summary>Optional trust-provider state data.</summary>
             internal IntPtr StateData;
+
+            /// <summary>Optional URL reference for verification.</summary>
             internal IntPtr UrlReference;
+
+            /// <summary>Flags controlling trust-provider behavior.</summary>
             internal uint ProviderFlags;
+
+            /// <summary>Context identifying the type of verification UI.</summary>
             internal uint UiContext;
+
+            /// <summary>Optional signature settings.</summary>
             internal IntPtr SignatureSettings;
         }
     }
