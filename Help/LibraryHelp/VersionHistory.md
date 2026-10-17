@@ -7,6 +7,22 @@ tocTitle: Version History
 # alt-uid: optional-alternate-id
 # summary: Optional summary abstract
 ---
+## Version 4.1.0
+### Alpaca Client Changes and fixes
+* ADDED - Client self-healing capability when communicating with devices whose assigned IP address has changed. When an Alpaca device cannot be found at the specified address and a device UniqueID is provided, 
+Alpaca Clients now automatically search for devices that have the same UniqueID.
+* ADDED - Added UniqueId as an optional parameter on all Alpaca client creation members.
+* IMPROVEMENT - The response time when clients are configured to connect to devices with single part host names (with no period separators) that cannot be found on the network has been reduced.
+* BUG-FIX - Fix GetDevice(AlpacaConfiguration) so that it respects the number of retries specified. Previously it always defaulted to 1 retry.
+* BUG-FIX - Discovery of Alpaca devices advertising on IPv6 localhost failed when more than one device was operating using the IPv6 loopback address ::1.
+
+### Alapca Device Changes and fixes
+* BUGFIX - The responder now listens for discovery packets on the IPv6 localhost address ::1 when configured to do so. Previously it only listened on the IPv6 link local addresses.
+* BUGFIX - Now ensures that exactly one UDP awaiter is running at a time when waiting for the next discovery packet. Previously the number of awaiters incremented by one every time a discovery packet was received, which could eventually result in 
+resource starvation.
+
+### Platform and COM Changes and fixes
+* Added support for Windows 27H2 to the OSBuildName function.
 
 ## Version 4.0.0
 ### Alpaca Client Changes and fixes
