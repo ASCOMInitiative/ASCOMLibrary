@@ -439,6 +439,8 @@ namespace ASCOM.Alpaca.Discovery
                                                 IPv4Clients.Remove(uni);
                                             }
                                         }
+                                        else
+                                            LogDebug("SearchIPv4", $"Ignoring address {uni.Address} on network interface {networkInterface.Description} because it is not an IPv4 address or has a broadcast mask of {uni.IPv4Mask}.");
                                     }
                                     catch (Exception ex)
                                     {
@@ -446,8 +448,14 @@ namespace ASCOM.Alpaca.Discovery
                                     }
                                 }
                             }
+                            else
+                                LogDebug("SearchIPv4", $"Ignoring network interface {networkInterface.Description} because it does not have any unicast addresses.");
                         }
+                        else
+                            LogDebug("SearchIPv4", $"Ignoring network interface {networkInterface.Description} because it does not have any properties.");
                     }
+                    else
+                        LogDebug("SearchIPv4", $"Ignoring network interface {networkInterface.Description} because it is not up and running or does not support IPv4. Operational status: {networkInterface.OperationalStatus}, Supports IPv4: {networkInterface.Supports(NetworkInterfaceComponent.IPv4)}");
                 }
                 catch (Exception ex)
                 {

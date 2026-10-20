@@ -121,7 +121,7 @@ namespace ASCOM.Alpaca.Discovery
         /// </summary>
         private void InitIPv4()
         {
-            LogDebug($"Responder.InitIPv4 - Binding to IPv4 Discovery Port: {DiscoveryPort}");
+            LogDebug($"Responder.InitIPv4 - Binding to IPv4 Discovery Port: {DiscoveryPort} on address {IPAddress.Any}");
             UdpClient udpClient = new UdpClient();
 
             udpClient.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
@@ -138,7 +138,7 @@ namespace ASCOM.Alpaca.Discovery
             udpClient.BeginReceive(ReceiveCallback, udpClientInfo);
 
             Clients.Add(udpClientInfo);
-            LogInformation($"Added IPv4 discovery responder on port: {DiscoveryPort}");
+            LogInformation($"Added IPv4 discovery responder for {IPAddress.Any} on port: {DiscoveryPort}");
         }
 
         /// <summary>
@@ -450,6 +450,9 @@ namespace ASCOM.Alpaca.Discovery
                 {
                     discoveryAllowed = true;
                 }
+
+                LogDebug($"ReceiveCallback - Received {receivedBytes.Length} bytes from {sender.Address}:{sender.Port}. Discovery allowed: {discoveryAllowed}. " +
+                    $"Is loopback: {IPAddress.IsLoopback(sender.Address)}, Is local Address: {IsLocalIpAddress(sender.Address.ToString())}, Allow remote access: {AllowRemoteAccess}, Respond only to localhost: {LocalRespondOnlyToLocalHost}");
 
                 // Check if discovery is allowed
                 if (discoveryAllowed) // Discovery is allowed
