@@ -9,6 +9,39 @@ namespace InterfaceHasMembers
     public class InterfaceHasMember
     {
         [Fact]
+        public void Aligner()
+        {
+            MemberIsPresentTest(MemberNames.Action, DeviceTypes.Aligner, 1);
+            MemberIsPresentTest(MemberNames.CommandBlind, DeviceTypes.Aligner, 1);
+            MemberIsPresentTest(MemberNames.CommandBool, DeviceTypes.Aligner, 1);
+            MemberIsPresentTest(MemberNames.CommandString, DeviceTypes.Aligner, 1);
+            MemberIsPresentTest(MemberNames.Configuration, DeviceTypes.Aligner, 1);
+            MemberIsPresentTest(MemberNames.Connect, DeviceTypes.Aligner, 1);
+            MemberIsPresentTest(MemberNames.Connected, DeviceTypes.Aligner, 1);
+            MemberIsPresentTest(MemberNames.Connecting, DeviceTypes.Aligner, 1);
+            MemberIsPresentTest(MemberNames.Description, DeviceTypes.Aligner, 1);
+            MemberIsPresentTest(MemberNames.DeviceState, DeviceTypes.Aligner, 1);
+            MemberIsPresentTest(MemberNames.Disconnect, DeviceTypes.Aligner, 1);
+            MemberIsPresentTest(MemberNames.Dispose, DeviceTypes.Aligner, 1);
+            MemberIsPresentTest(MemberNames.DriverInfo, DeviceTypes.Aligner, 1);
+            MemberIsPresentTest(MemberNames.DriverVersion, DeviceTypes.Aligner, 1);
+            MemberIsPresentTest(MemberNames.FindHome, DeviceTypes.Aligner, 1);
+            MemberIsPresentTest(MemberNames.Halt, DeviceTypes.Aligner, 1);
+            MemberIsPresentTest(MemberNames.Move, DeviceTypes.Aligner, 1);
+            MemberIsPresentTest(MemberNames.MoveAbsolute, DeviceTypes.Aligner, 1);
+            MemberIsPresentTest(MemberNames.InterfaceVersion, DeviceTypes.Aligner, 1);
+            MemberIsPresentTest(MemberNames.IsMoving, DeviceTypes.Aligner, 1);
+            MemberIsPresentTest(MemberNames.Name, DeviceTypes.Aligner, 1);
+            MemberIsPresentTest(MemberNames.SetupDialog, DeviceTypes.Aligner, 1);
+            MemberIsPresentTest(MemberNames.Sync, DeviceTypes.Aligner, 1);
+            MemberIsPresentTest(MemberNames.SupportedActions, DeviceTypes.Aligner, 1);
+            MemberIsPresentTest(MemberNames.XPosition, DeviceTypes.Aligner, 1);
+            MemberIsPresentTest(MemberNames.YPosition, DeviceTypes.Aligner, 1);
+            MemberIsPresentTest(MemberNames.ZPosition, DeviceTypes.Aligner, 1);
+        }
+
+
+        [Fact]
         public void Camera()
         {
             MemberIsPresentTest(MemberNames.AbortExposure, DeviceTypes.Camera, 1);
@@ -457,7 +490,7 @@ namespace InterfaceHasMembers
             MemberIsPresentTest(MemberNames.CommandBlind, DeviceTypes.Video, 2);
             MemberIsPresentTest(MemberNames.CommandBool, DeviceTypes.Video, 2);
             MemberIsPresentTest(MemberNames.CommandString, DeviceTypes.Video, 2);
-            MemberIsPresentTest(MemberNames.ConfiguureDeviceProperties, DeviceTypes.Video, 1);
+            MemberIsPresentTest(MemberNames.ConfigureDeviceProperties, DeviceTypes.Video, 1);
             MemberIsPresentTest(MemberNames.Connect, DeviceTypes.Video, 2);
             MemberIsPresentTest(MemberNames.Connected, DeviceTypes.Video, 1);
             MemberIsPresentTest(MemberNames.Connecting, DeviceTypes.Video, 2);

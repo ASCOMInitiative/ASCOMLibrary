@@ -10,6 +10,7 @@
     /// </summary>
     public enum DeviceTypes
     {
+        Aligner,
         Camera,
         CoverCalibrator,
         Dome,

@@ -57,6 +57,7 @@ namespace ASCOM.Common.DeviceInterfaces
         /// </remarks>
         public static Dictionary<DeviceTypes, short> LatestInterface = new Dictionary<DeviceTypes, short>()
         {
+            { DeviceTypes.Aligner, 1 },
             { DeviceTypes.Camera, 4 },
             { DeviceTypes.CoverCalibrator, 2 },
             { DeviceTypes.Dome, 3 },
@@ -104,6 +105,36 @@ namespace ASCOM.Common.DeviceInterfaces
         /// </summary>
         private static readonly Dictionary<Interfacemember, short> VersionHistory = new Dictionary<Interfacemember, short>()
         { 
+            // Aligner
+            { new Interfacemember(DeviceTypes.Aligner, MemberNames.Absolute), 1 },
+            { new Interfacemember(DeviceTypes.Aligner, MemberNames.Action), 1 },
+            { new Interfacemember(DeviceTypes.Aligner, MemberNames.CommandBlind), 1 },
+            { new Interfacemember(DeviceTypes.Aligner, MemberNames.CommandBool), 1 },
+            { new Interfacemember(DeviceTypes.Aligner, MemberNames.CommandString), 1 },
+            { new Interfacemember(DeviceTypes.Aligner, MemberNames.Configuration), 1 },
+            { new Interfacemember(DeviceTypes.Aligner, MemberNames.Connect), 1 },
+            { new Interfacemember(DeviceTypes.Aligner, MemberNames.Connected), 1 },
+            { new Interfacemember(DeviceTypes.Aligner, MemberNames.Connecting), 1 },
+            { new Interfacemember(DeviceTypes.Aligner, MemberNames.Description), 1 },
+            { new Interfacemember(DeviceTypes.Aligner, MemberNames.DeviceState), 1 },
+            { new Interfacemember(DeviceTypes.Aligner, MemberNames.DriverInfo), 1 },
+            { new Interfacemember(DeviceTypes.Aligner, MemberNames.DriverVersion), 1 },
+            { new Interfacemember(DeviceTypes.Aligner, MemberNames.Dispose), 1 },
+            { new Interfacemember(DeviceTypes.Aligner, MemberNames.Disconnect), 1 },
+            { new Interfacemember(DeviceTypes.Aligner, MemberNames.FindHome), 1 },
+            { new Interfacemember(DeviceTypes.Aligner, MemberNames.Halt), 1 },
+            { new Interfacemember(DeviceTypes.Aligner, MemberNames.InterfaceVersion), 1 },
+            { new Interfacemember(DeviceTypes.Aligner, MemberNames.IsMoving), 1 },
+            { new Interfacemember(DeviceTypes.Aligner, MemberNames.Move), 1 },
+            { new Interfacemember(DeviceTypes.Aligner, MemberNames.MoveAbsolute), 1 },
+            { new Interfacemember(DeviceTypes.Aligner, MemberNames.Name), 1 },
+            { new Interfacemember(DeviceTypes.Aligner, MemberNames.SetupDialog), 1 },
+            { new Interfacemember(DeviceTypes.Aligner, MemberNames.SupportedActions), 1 },
+            { new Interfacemember(DeviceTypes.Aligner, MemberNames.Sync), 1 },
+            { new Interfacemember(DeviceTypes.Aligner, MemberNames.XPosition), 1 },
+            { new Interfacemember(DeviceTypes.Aligner, MemberNames.YPosition), 1 },
+            { new Interfacemember(DeviceTypes.Aligner, MemberNames.ZPosition), 1 },
+
             // Camera
             { new Interfacemember(DeviceTypes.Camera, MemberNames.AbortExposure), 1 },
             { new Interfacemember(DeviceTypes.Camera, MemberNames.Action), 2 },
@@ -521,7 +552,7 @@ namespace ASCOM.Common.DeviceInterfaces
             { new Interfacemember(DeviceTypes.Video, MemberNames.CommandBlind), 2 },
             { new Interfacemember(DeviceTypes.Video, MemberNames.CommandBool), 2 },
             { new Interfacemember(DeviceTypes.Video, MemberNames.CommandString), 2 },
-            { new Interfacemember(DeviceTypes.Video, MemberNames.ConfiguureDeviceProperties), 1 },
+            { new Interfacemember(DeviceTypes.Video, MemberNames.ConfigureDeviceProperties), 1 },
             { new Interfacemember(DeviceTypes.Video, MemberNames.Connect), 2 },
             { new Interfacemember(DeviceTypes.Video, MemberNames.Connected), 1 },
             { new Interfacemember(DeviceTypes.Video, MemberNames.Connecting), 2 },

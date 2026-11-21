@@ -128,6 +128,76 @@ namespace ASCOM.Common
 
         #endregion
 
+        #region IALignerV1 extensions
+
+        /// <summary>
+        /// Returns an awaitable, running, <see cref="Task"/> that takes a camera image
+        /// </summary>
+        /// <param name="device">The Aligner device</param>
+        /// <param name="x">X amount to move by</param>
+        /// <param name="y">Y amount to move by</param>
+        /// <param name="z">Z amount to move by</param>
+        /// <param name="cancellationToken">Cancellation token - Default: <see cref="CancellationToken.None"/></param>
+        /// <param name="pollInterval">Interval between polls of the completion variable (milliseconds) - Default: 1000 milliseconds.</param>
+        /// <param name="logger">ILogger instance that will receive operation messages from the method - Default: No logger</param>
+        /// <returns>Awaitable task that ends when the move is complete</returns>
+        /// <remarks>
+        /// <para>Initiator: <see cref="IAlignerV1.Move(double, double, double)"/></para>
+        /// <para>Complete when: <see cref="IAlignerV1.IsMoving"/> is <see langword="false"/></para>
+        /// </remarks>
+        public static async Task AlignerMoveAsync(this IAlignerV1 device, double x, double y, double z, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
+        {
+            Task processTask = null;
+            string callingMethodName = GetCurrentMethod();
+
+            await Task.Run(() =>
+            {
+                processTask = Task.Run(() =>
+                {
+                    ProcessTask(() => { device.Move(x, y, z); }, () => { return device.IsMoving; }, pollInterval, cancellationToken, logger, callingMethodName);
+                });
+
+                WaitForProcessTask(processTask, logger, callingMethodName, cancellationToken);
+            });
+
+            CheckOutcome(processTask, logger, callingMethodName, cancellationToken);
+        }
+
+        /// <summary>
+        /// Returns an awaitable, running, <see cref="Task"/> that takes a camera image
+        /// </summary>
+        /// <param name="device">The Aligner device</param>
+        /// <param name="x">The X position to move to</param>
+        /// <param name="y">The Y position to move to</param>
+        /// <param name="z">The Z position to move to</param>
+        /// <param name="cancellationToken">Cancellation token - Default: <see cref="CancellationToken.None"/></param>
+        /// <param name="pollInterval">Interval between polls of the completion variable (milliseconds) - Default: 1000 milliseconds.</param>
+        /// <param name="logger">ILogger instance that will receive operation messages from the method - Default: No logger</param>
+        /// <returns>Awaitable task that ends when the move is complete</returns>
+        /// <remarks>
+        /// <para>Initiator: <see cref="IAlignerV1.MoveAbsolute(double, double, double)"/></para>
+        /// <para>Complete when: <see cref="IAlignerV1.IsMoving"/> is <see langword="false"/></para>
+        /// </remarks>
+        public static async Task AlignerMoveAbsoluteAsync(this IAlignerV1 device, double x, double y, double z, CancellationToken cancellationToken = default, int pollInterval = 1000, ILogger logger = null)
+        {
+            Task processTask = null;
+            string callingMethodName = GetCurrentMethod();
+
+            await Task.Run(() =>
+            {
+                processTask = Task.Run(() =>
+                {
+                    ProcessTask(() => { device.MoveAbsolute(x, y, z); }, () => { return device.IsMoving; }, pollInterval, cancellationToken, logger, callingMethodName);
+                });
+
+                WaitForProcessTask(processTask, logger, callingMethodName, cancellationToken);
+            });
+
+            CheckOutcome(processTask, logger, callingMethodName, cancellationToken);
+        }
+
+        #endregion
+
         #region ICameraV3 extensions
 
         /// <summary>
@@ -1263,7 +1333,8 @@ namespace ASCOM.Common
 
                 // Log the loop outcome
                 logger?.LogMessage(LogLevel.Debug, callingMethodName, $"{Thread.CurrentThread.ManagedThreadId:00} Waiting {pollInterval}ms for action to complete... Delay time{delayTime}, Average loop overhead: {averageLoopTime:0.0}ms, Loop time: {loopTime}{(updateFunction is null ? "" : $", {updateFunction()}")}");
-            };
+            }
+            ;
 
             // Log the final outcome
             logger?.LogMessage(LogLevel.Information, callingMethodName, $"{Thread.CurrentThread.ManagedThreadId:00} Process finished in {swOverall.Elapsed.TotalSeconds:0.000} seconds. Process was cancelled: {cancellationToken.IsCancellationRequested}.");
