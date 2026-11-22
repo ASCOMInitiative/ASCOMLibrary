@@ -6,14 +6,14 @@ using System.Text;
 namespace ASCOM.Alpaca.Clients
 {
     /// <summary>
-    /// DTO Class to receive the Alpaca JSON object
+    /// Data transfer object class to hold the de-serialised Aligner.Configuration JSON object.
     /// </summary>
     /// <remarks>
-    /// This class mirrors the properties of the <see cref="IAlignerConfigurationV1"/> interface except that all optional proerties are implemented as nullable types.
-    /// This enables us to detect when values are not supplied, because the property values will be null. Later these values are copied to a class that 
-    /// implements <see cref="IAlignerConfigurationV1"/>. Properties with missing values throw <see cref="PropertyNotImplementedException"/>s.
+    /// This class mirrors the properties of the <see cref="IAlignerConfigurationV1"/> interface except that all optional properties are implemented as nullable types.
+    /// This enables us to detect when values are not supplied, because the property values will be null after de-serialisation. Later these values are copied to a class that 
+    /// implements <see cref="IAlignerConfigurationV1"/> and properties with missing values will throw <see cref="PropertyNotImplementedException"/>s.
     /// </remarks>
-    internal class AlignerConfigurationV1Dto
+    public class AlignerConfigurationV1Dto
     {
         /// <summary>
         /// The intended use of this device
