@@ -4,6 +4,7 @@ using ASCOM.Common.DeviceInterfaces;
 using ASCOM.Common.DeviceStateClasses;
 using ASCOM.Common.Interfaces;
 using System;
+using System.Linq;
 using System.Reflection;
 
 namespace ASCOM.Alpaca.Clients
@@ -215,18 +216,21 @@ namespace ASCOM.Alpaca.Clients
         /// <summary>
         /// SafetyMonitor device state
         /// </summary>
-        public SafetyMonitorState SafetyMonitorState
+        public AlignerState AlignerState
         {
             get
             {
                 // Create a state object to return.
-                SafetyMonitorState safetyMonitorState = new SafetyMonitorState(DeviceState, logger);
-                logger?.LogMessage(LogLevel.Debug, nameof(SafetyMonitorState), $"Returning: " +
-                    $"IsSafe: '{safetyMonitorState.IsSafe}', " +
-                    $"Time stamp: '{safetyMonitorState.TimeStamp}'");
+                AlignerState alignerState = new AlignerState(DeviceState, logger);
+                logger?.LogMessage(LogLevel.Debug, nameof(AlignerState), $"Returning: " +
+                    $"IsMoving: '{alignerState.IsMoving}', " +
+                    $"XPosition: '{alignerState.XPosition}', " +
+                    $"YPosition: '{alignerState.YPosition}', " +
+                    $"ZPosition: '{alignerState.ZPosition}', " +
+                    $"Time stamp: '{alignerState.TimeStamp}'");
 
                 // Return the device specific state class
-                return safetyMonitorState;
+                return alignerState;
             }
         }
 
@@ -239,7 +243,34 @@ namespace ASCOM.Alpaca.Clients
         {
             get
             {
-                return RemoteDevice.GetValue<IAlignerConfigurationV1>(CreateParameters(standardDeviceResponseTimeout, "Configuration", MemberTypes.Property));
+                IAlignerConfigurationV1 configuration = null;
+
+                switch (InterfaceVersion)
+                {
+                    case 1:
+                        configuration = RemoteDevice.GetValue<IAlignerConfigurationV1>(CreateParameters(standardDeviceResponseTimeout, "Configuration", MemberTypes.Property));
+                        break;
+
+                    default:
+                        throw new InvalidValueException($"AlpacaAligner.Configuration - Unsupported Aligner interface version: {InterfaceVersion}. Supported values: v1 only.");
+                }
+
+                logger?.LogMessage(LogLevel.Debug, nameof(Configuration), string.Join(", ",
+                        typeof(IAlignerConfigurationV1)
+                            .GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                            .Select(property =>
+                            {
+                                try
+                                {
+                                    return $"{property.Name} : {property.GetValue(configuration) ?? "Not implemented"}";
+                                }
+                                catch (TargetInvocationException ex)
+                                {
+                                    return $"{property.Name} : {ex.InnerException.Message ?? ex.Message}";
+                                }
+                            })));
+
+                return configuration;
             }
         }
 
