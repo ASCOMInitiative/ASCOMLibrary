@@ -29,13 +29,14 @@ namespace ASCOM.Common.DeviceInterfaces
         };
 
         /// <summary>
-        /// Dictionary of the interface versions at launch of Platform 7
+        /// Dictionary of the interface versions at launch of Platform 7 plus any interfaces introduced later.
         /// </summary>
         /// <remarks>
         /// These values must not change when new interfaces are added, update the LatestInterface dictionary instead
         /// </remarks>
         public static Dictionary<DeviceTypes, short> InitialPlatform7Interface = new Dictionary<DeviceTypes, short>()
         {
+            { DeviceTypes.Aligner, 1 },
             { DeviceTypes.Camera, 4 },
             { DeviceTypes.CoverCalibrator, 2 },
             { DeviceTypes.Dome, 3 },

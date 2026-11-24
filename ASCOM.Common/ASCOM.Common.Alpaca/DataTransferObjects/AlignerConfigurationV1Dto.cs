@@ -25,7 +25,7 @@ namespace ASCOM.Alpaca.Clients
         /// <revisionHistory visible="true">
         /// <revision visible="true" date="IAlignerV1" version="Platform 7.4">Member added.</revision>
         /// </revisionHistory>
-        AlignerType AlignerType { get; set; } = AlignerType.Unset;
+        public AlignerType AlignerType { get; set; } = AlignerType.Unset;
 
         /// <summary>
         /// True if the device compensates for gear backlash, otherwise false.
@@ -36,7 +36,7 @@ namespace ASCOM.Alpaca.Clients
         /// <revisionHistory visible="true">
         /// <revision visible="true" date="IAlignerV1" version="Platform 7.4">Member added.</revision>
         /// </revisionHistory>
-        bool BacklashCompensation { get; set; } = false;
+        public bool BacklashCompensation { get; set; } = false;
 
         /// <summary>
         /// True if the device can find home
@@ -47,7 +47,7 @@ namespace ASCOM.Alpaca.Clients
         /// <revisionHistory visible="true">
         /// <revision visible="true" date="IAlignerV1" version="Platform 7.4">Member added.</revision>
         /// </revisionHistory>
-        bool CanFindHome { get; set; } = false;
+        public bool CanFindHome { get; set; } = false;
 
         /// <summary>
         /// True of the device can move the X axis
@@ -58,7 +58,7 @@ namespace ASCOM.Alpaca.Clients
         /// <revisionHistory visible="true">
         /// <revision visible="true" date="IAlignerV1" version="Platform 7.4">Member added.</revision>
         /// </revisionHistory>
-        bool CanMoveX { get; set; } = false;
+        public bool CanMoveX { get; set; } = false;
 
         /// <summary>
         /// True if the device can move its Y axis
@@ -69,7 +69,7 @@ namespace ASCOM.Alpaca.Clients
         /// <revisionHistory visible="true">
         /// <revision visible="true" date="IAlignerV1" version="Platform 7.4">Member added.</revision>
         /// </revisionHistory>
-        bool CanMoveY { get; set; } = false;
+        public bool CanMoveY { get; set; } = false;
 
         /// <summary>
         /// True if the device can move its Z axis
@@ -80,7 +80,7 @@ namespace ASCOM.Alpaca.Clients
         /// <revisionHistory visible="true">
         /// <revision visible="true" date="IAlignerV1" version="Platform 7.4">Member added.</revision>
         /// </revisionHistory>
-        bool CanMoveZ { get; set; } = false;
+        public bool CanMoveZ { get; set; } = false;
 
         /// <summary>
         /// True if the device can move to an absolute position
@@ -91,7 +91,7 @@ namespace ASCOM.Alpaca.Clients
         /// <revisionHistory visible="true">
         /// <revision visible="true" date="IAlignerV1" version="Platform 7.4">Member added.</revision>
         /// </revisionHistory>
-        bool CanMoveAbsolute { get; set; } = false;
+        public bool CanMoveAbsolute { get; set; } = false;
 
         /// <summary>
         /// True if the device can synchronize its state
@@ -102,7 +102,7 @@ namespace ASCOM.Alpaca.Clients
         /// <revisionHistory visible="true">
         /// <revision visible="true" date="IAlignerV1" version="Platform 7.4">Member added.</revision>
         /// </revisionHistory>
-        bool CanSync { get; set; } = false;
+        public bool CanSync { get; set; } = false;
 
         /// <summary>
         /// The device's unit of measurement 1 = Degrees , 2 = Millimeters, 3 = Counts.   
@@ -114,7 +114,7 @@ namespace ASCOM.Alpaca.Clients
         /// <revisionHistory visible="true">
         /// <revision visible="true" date="IAlignerV1" version="Platform 7.4">Member added.</revision>
         /// </revisionHistory>
-        AlignerUnits Units { get; set; } = AlignerUnits.Unset;
+        public AlignerUnits Units { get; set; } = AlignerUnits.Unset;
 
         /// <summary>
         /// Largest relative movement of which the X axis is capable in <see cref="AlignerUnits"/>. 
@@ -126,7 +126,7 @@ namespace ASCOM.Alpaca.Clients
         /// <revisionHistory visible="true">
         /// <revision visible="true" date="IAlignerV1" version="Platform 7.4">Member added.</revision>
         /// </revisionHistory>
-        double? XMaxMove { get; set; } = null;
+        public double? XMaxMove { get; set; } = null;
 
         /// <summary>
         /// The maximum reachable position of the X axis in <see cref="AlignerUnits"/>. 
@@ -139,7 +139,7 @@ namespace ASCOM.Alpaca.Clients
         /// <revisionHistory visible="true">
         /// <revision visible="true" date="IAlignerV1" version="Platform 7.4">Member added.</revision>
         /// </revisionHistory>
-        double? XMaxPosition { get; set; } = null;
+        public double? XMaxPosition { get; set; } = null;
 
         /// <summary>
         /// The minimum reachable position of the X axis in <see cref="AlignerUnits"/>. 
@@ -152,7 +152,7 @@ namespace ASCOM.Alpaca.Clients
         /// <revisionHistory visible="true">
         /// <revision visible="true" date="IAlignerV1" version="Platform 7.4">Member added.</revision>
         /// </revisionHistory>
-        double? XMinPosition { get; set; } = null;
+        public double? XMinPosition { get; set; } = null;
 
         /// <summary>
         ///  The smallest move the X axis can make in <see cref="AlignerUnits"/>.
@@ -164,7 +164,7 @@ namespace ASCOM.Alpaca.Clients
         /// <revisionHistory visible="true">
         /// <revision visible="true" date="IAlignerV1" version="Platform 7.4">Member added.</revision>
         /// </revisionHistory>
-        double? XResolution { get; set; } = null;
+        public double? XResolution { get; set; } = null;
 
         /// <summary>
         /// Largest relative movement of which the Y axis is capable in <see cref="AlignerUnits"/>. 
@@ -176,7 +176,7 @@ namespace ASCOM.Alpaca.Clients
         /// <revisionHistory visible="true">
         /// <revision visible="true" date="IAlignerV1" version="Platform 7.4">Member added.</revision>
         /// </revisionHistory>
-        double? YMaxMove { get; set; } = null;
+        public double? YMaxMove { get; set; } = null;
 
         /// <summary>
         /// The maximum reachable position of the Y axis in <see cref="AlignerUnits"/>. 
@@ -189,7 +189,7 @@ namespace ASCOM.Alpaca.Clients
         /// <revisionHistory visible="true">
         /// <revision visible="true" date="IAlignerV1" version="Platform 7.4">Member added.</revision>
         /// </revisionHistory>
-        double? YMaxPosition { get; set; } = null;
+        public double? YMaxPosition { get; set; } = null;
 
         /// <summary>
         /// The minimum reachable position of the Y axis in <see cref="AlignerUnits"/>. 
@@ -202,7 +202,7 @@ namespace ASCOM.Alpaca.Clients
         /// <revisionHistory visible="true">
         /// <revision visible="true" date="IAlignerV1" version="Platform 7.4">Member added.</revision>
         /// </revisionHistory>
-        double? YMinPosition { get; set; } = null;
+        public double? YMinPosition { get; set; } = null;
 
         /// <summary>
         ///  The smallest move the Y axis can make in <see cref="AlignerUnits"/>.
@@ -214,7 +214,7 @@ namespace ASCOM.Alpaca.Clients
         /// <revisionHistory visible="true">
         /// <revision visible="true" date="IAlignerV1" version="Platform 7.4">Member added.</revision>
         /// </revisionHistory>
-        double? YResolution { get; set; } = null;
+        public double? YResolution { get; set; } = null;
 
         /// <summary>
         /// Largest relative movement of which the Z axis is capable in <see cref="AlignerUnits"/>. 
@@ -226,7 +226,7 @@ namespace ASCOM.Alpaca.Clients
         /// <revisionHistory visible="true">
         /// <revision visible="true" date="IAlignerV1" version="Platform 7.4">Member added.</revision>
         /// </revisionHistory>
-        double? ZMaxMove { get; set; } = null;
+        public double? ZMaxMove { get; set; } = null;
 
         /// <summary>
         /// The maximum reachable position of the Z axis in <see cref="AlignerUnits"/>. 
@@ -239,7 +239,7 @@ namespace ASCOM.Alpaca.Clients
         /// <revisionHistory visible="true">
         /// <revision visible="true" date="IAlignerV1" version="Platform 7.4">Member added.</revision>
         /// </revisionHistory>
-        double? ZMaxPosition { get; set; } = null;
+        public double? ZMaxPosition { get; set; } = null;
 
         /// <summary>
         /// The minimum reachable position of the Z axis in <see cref="AlignerUnits"/>. 
@@ -252,7 +252,7 @@ namespace ASCOM.Alpaca.Clients
         /// <revisionHistory visible="true">
         /// <revision visible="true" date="IAlignerV1" version="Platform 7.4">Member added.</revision>
         /// </revisionHistory>
-        double? ZMinPosition { get; set; } = null;
+        public double? ZMinPosition { get; set; } = null;
 
         /// <summary>
         ///  The smallest move the Z axis can make in <see cref="AlignerUnits"/>.
@@ -264,6 +264,6 @@ namespace ASCOM.Alpaca.Clients
         /// <revisionHistory visible="true">
         /// <revision visible="true" date="IAlignerV1" version="Platform 7.4">Member added.</revision>
         /// </revisionHistory>
-        double? ZResolution { get; set; } = null;
+        public double? ZResolution { get; set; } = null;
     }
 }

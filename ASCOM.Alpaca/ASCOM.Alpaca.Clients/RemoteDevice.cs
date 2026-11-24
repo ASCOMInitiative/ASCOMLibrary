@@ -885,7 +885,7 @@ namespace ASCOM.Alpaca.Clients
                                 axisRatesResponse = new AxisRatesResponse
                                 {
                                     ErrorNumber = (AlpacaErrors)AlpacaClient.DYNAMIC_DRIVER_ERROR_NUMBER,
-                                    ErrorMessage = "Dynamic driver generated error: the Alpaca device returned no value or a null value for AxisRates"
+                                    ErrorMessage = "Dynamic driver generated error: The Alpaca device returned no value or a null value for AxisRates"
                                 };
                             }
 
@@ -1292,36 +1292,31 @@ namespace ASCOM.Alpaca.Clients
                         }
                         if (typeof(T) == typeof(IAlignerConfigurationV1))
                         {
-                            AxisRatesResponse axisRatesResponse = JsonSerializer.Deserialize<AxisRatesResponse>(responseJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = !clientParameters.StrictCasing });
-                            if (axisRatesResponse.Value != null) // A AxisRates object was returned so process the response normally
+                            AlignerConfigurationResponseV1 alignerConfigurationResponseV1 = JsonSerializer.Deserialize<AlignerConfigurationResponseV1>(responseJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = !clientParameters.StrictCasing });
+                            if (alignerConfigurationResponseV1.Value != null) // An AlignerConfigurationV1 object was returned so process the response normally
                             {
-                                AxisRates axisRates = new AxisRates((TelescopeAxis)(Convert.ToInt32(formParameters[AlpacaConstants.AXIS_PARAMETER_NAME])), clientParameters.Logger);
-                                AlpacaDeviceBaseClass.LogMessage(clientParameters.Logger, clientParameters.ClientNumber, clientParameters.Method, string.Format(LOG_FORMAT_STRING, axisRatesResponse.ClientTransactionID, axisRatesResponse.ServerTransactionID, axisRatesResponse.Value.Count));
-                                foreach (AxisRate rr in axisRatesResponse.Value)
-                                {
-                                    axisRates.Add(rr.Minimum, rr.Maximum, clientParameters.Logger);
-                                    AlpacaDeviceBaseClass.LogMessage(clientParameters.Logger, clientParameters.ClientNumber, clientParameters.Method, $"Found rate: {rr.Minimum} - {rr.Maximum}");
-                                }
+                                AlignerConfigurationV1 alignerConfigurationV1 = new AlignerConfigurationV1(alignerConfigurationResponseV1.Value);
+                                AlpacaDeviceBaseClass.LogMessage(clientParameters.Logger, clientParameters.ClientNumber, clientParameters.Method, string.Format(LOG_FORMAT_STRING, alignerConfigurationResponseV1.ClientTransactionID, alignerConfigurationResponseV1.ServerTransactionID, alignerConfigurationV1));
 
-                                return (T)(object)axisRates;
+                                return (T)(object)alignerConfigurationV1;
                             }
-                            else // No AxisRates object was returned so handle this as an error
+                            else // No AlignerConfigurationV1 object was returned so handle this as an error
                             {
-                                AlpacaDeviceBaseClass.LogMessage(clientParameters.Logger, clientParameters.ClientNumber, clientParameters.Method, string.Format(LOG_FORMAT_STRING, axisRatesResponse.ClientTransactionID, axisRatesResponse.ServerTransactionID, "NO VALUE OR NULL VALUE RETURNED"));
+                                AlpacaDeviceBaseClass.LogMessage(clientParameters.Logger, clientParameters.ClientNumber, clientParameters.Method, string.Format(LOG_FORMAT_STRING, alignerConfigurationResponseV1.ClientTransactionID, alignerConfigurationResponseV1.ServerTransactionID, "NO VALUE OR NULL VALUE RETURNED"));
 
                                 // Now force an error return
-                                axisRatesResponse = new AxisRatesResponse
+                                alignerConfigurationResponseV1 = new AlignerConfigurationResponseV1
                                 {
                                     ErrorNumber = (AlpacaErrors)AlpacaClient.DYNAMIC_DRIVER_ERROR_NUMBER,
-                                    ErrorMessage = "Dynamic driver generated error: the Alpaca device returned no value or a null value for AxisRates"
+                                    ErrorMessage = "Dynamic driver generated error: The Alpaca device returned no value or a null value for AlignerConfigurationV1"
                                 };
                             }
 
-                            restResponseBase = (Response)axisRatesResponse;
+                            restResponseBase = (Response)alignerConfigurationResponseV1;
                         }
 
                         // Internal error if an unsupported type is requested - should only occur during development and not in production operation!
-                        throw new InvalidOperationException("Type " + typeof(T).ToString() + " is not supported. You should never see this message, if you do, please report it on the ASCOM Talk Forum!");
+                        throw new InvalidOperationException("RemoteDevice - Type " + typeof(T).ToString() + " is not supported. You should never see this message, if you do, please report it on the ASCOM Talk Forum!");
                     }
                     else // ERROR - HTTP Status code is not in the range 200::299...
                     {
